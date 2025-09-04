@@ -45,13 +45,14 @@
     if (params && params['access_token']) { 
         console.log('1111');
         // User authorized the request. Now, check which scopes were granted.
-        if (params['scope'].includes('https://www.googleapis.com/auth/drive.metadata.readonly')) {
+        if (params['scope'].includes('https://www.googleapis.com/auth/youtube.readonly')) {
                   console.log('3333');
             // User authorized read-only Drive activity permission.
             // Calling the APIs, etc.
             var xhr = new XMLHttpRequest();
             xhr.open('GET',
-          'https://www.googleapis.com/drive/v3/about?fields=user&' +
+            'https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&mine=true&' +
+          // 'https://www.googleapis.com/drive/v3/about?fields=user&' +
           'access_token=' + params['access_token']);
           xhr.onreadystatechange = function (e) {
                                   console.log('9999');
@@ -115,7 +116,7 @@
     // Parameters to pass to OAuth 2.0 endpoint.
     var params = {'client_id': YOUR_CLIENT_ID,
                   'redirect_uri': YOUR_REDIRECT_URI,
-                  'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/calendar.readonly',
+                  'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/youtube.readonly',
                   'state': state,
                   'include_granted_scopes': 'true',
                   'response_type': 'token'};
@@ -135,5 +136,5 @@
   }
 </script>
 
-<button onclick="trySampleRequest();">Try sample request 004</button>
+<button onclick="trySampleRequest();">Try sample request 005</button>
 </body></html>
