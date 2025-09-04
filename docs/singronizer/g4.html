@@ -43,35 +43,39 @@
   function trySampleRequest() {
     var params = JSON.parse(localStorage.getItem('oauth2-test-params'));
     if (params && params['access_token']) { 
-      // User authorized the request. Now, check which scopes were granted.
-      if (params['scope'].includes('https://www.googleapis.com/auth/drive.metadata.readonly')) {
-        // User authorized read-only Drive activity permission.
-        // Calling the APIs, etc.
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET',
+        console.log('1111');
+        // User authorized the request. Now, check which scopes were granted.
+        if (params['scope'].includes('https://www.googleapis.com/auth/drive.metadata.readonly')) {
+                  console.log('3333');
+            // User authorized read-only Drive activity permission.
+            // Calling the APIs, etc.
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET',
           'https://www.googleapis.com/drive/v3/about?fields=user&' +
           'access_token=' + params['access_token']);
-        xhr.onreadystatechange = function (e) {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log(xhr.response);
+          xhr.onreadystatechange = function (e) {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                  console.log(xhr.response);
           } else if (xhr.readyState === 4 && xhr.status === 401) {
-            // Token invalid, so prompt for user permission.
+              // Token invalid, so prompt for user permission.
             oauth2SignIn();
-          }
+        }
         };
         xhr.send(null);
       }
       else {
+        console.log('2222');
         // User didn't authorize read-only Drive activity permission.
         // Update UX and application accordingly
         console.log('User did not authorize read-only Drive activity permission.');
       }
+                  console.log('5555');
 
       // Check if user authorized Calendar read permission.
       if (params['scope'].includes('https://www.googleapis.com/auth/calendar.readonly')) {
         // User authorized Calendar read permission.
         // Calling the APIs, etc.
-        console.log('User authorized Calendar read permission.');
+        console.log('User authorized Calendar read permission.123123');
       }
       else {
         // User didn't authorize Calendar read permission.
