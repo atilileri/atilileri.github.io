@@ -54,6 +54,8 @@
           'https://www.googleapis.com/drive/v3/about?fields=user&' +
           'access_token=' + params['access_token']);
           xhr.onreadystatechange = function (e) {
+                                  console.log('9999');
+            console.log(xhr.response);
               if (xhr.readyState === 4 && xhr.status === 200) {
                                   console.log('6666');
                   console.log(xhr.response);
@@ -64,6 +66,9 @@
                                                 console.log('8888');
 
         }
+         else {
+          console.log('Error: ' + xhr.status);
+         }
         };
         xhr.send(null);
       }
@@ -130,5 +135,5 @@
   }
 </script>
 
-<button onclick="trySampleRequest();">Try sample request 003</button>
+<button onclick="trySampleRequest();">Try sample request 004</button>
 </body></html>
