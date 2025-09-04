@@ -10,6 +10,7 @@
   while (m = regex.exec(fragmentString)) {
     params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
   }
+  console.log('params1', params);
   if (Object.keys(params).length > 0 && params['state']) {
     if (params['state'] == localStorage.getItem('state')) {
       localStorage.setItem('oauth2-test-params', JSON.stringify(params) );
@@ -42,6 +43,7 @@
   // Otherwise, start OAuth 2.0 flow.
   function trySampleRequest() {
     var params = JSON.parse(localStorage.getItem('oauth2-test-params'));
+    console.log('params', params); 
     if (params && params['access_token']) { 
         console.log('1111');
         // User authorized the request. Now, check which scopes were granted.
@@ -136,5 +138,5 @@
   }
 </script>
 
-<button onclick="trySampleRequest();">Try sample request 005</button>
+<button onclick="trySampleRequest();">Try sample request 006</button>
 </body></html>
