@@ -11,12 +11,23 @@
         <!-- Header -->
         <header class="app-header">
             <h1 class="app-title">Playlist Transfer</h1>
-            <button class="btn btn--primary transfer-btn" id="transferBtn" disabled>
-                <svg class="transfer-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="9 18 15 12 9 6"/>
-                </svg>
-                <span class="transfer-text">Select playlist to transfer</span>
-            </button>
+
+            <!-- Transfer Button -->
+            <div class="transfer-section">
+                <button class="btn btn--primary transfer-btn" id="transferBtn" disabled>
+                    <svg class="transfer-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                    <span class="transfer-text">Select playlist to transfer</span>
+                </button>
+                <div class="transfer-progress hidden" id="transferProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p class="transfer-progress-text">Transferring playlist...</p>
+                </div>
+            </div>
+
             <button class="theme-toggle btn btn--outline" id="themeToggle" aria-label="Toggle theme">
                 <svg class="theme-icon theme-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="5"/>
@@ -27,14 +38,6 @@
                 </svg>
             </button>
         </header>
-
-        <!-- Transfer Progress in Header -->
-        <div class="transfer-progress hidden" id="transferProgress">
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-            <p class="transfer-progress-text">Transferring playlist...</p>
-        </div>
 
         <!-- Main Content -->
         <main class="main-content">
