@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Transfer</title>
+    <link rel="stylesheet" href="style3.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">Playlist Transfer</h1>
+            <button class="theme-toggle btn btn--outline" id="themeToggle" aria-label="Toggle theme">
+                <svg class="theme-icon theme-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <svg class="theme-icon theme-icon--moon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Column - Source Platform -->
+            <section class="platform-column platform-column--source">
+                <div class="platform-header">
+                    <h2>Source Platform</h2>
+                    <select class="form-control platform-select" id="sourcePlatform">
+                        <option value="">Select source platform</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="apple_music">Apple Music</option>
+                        <option value="youtube_music">YouTube Music</option>
+                        <option value="deezer">Deezer</option>
+                        <option value="soundcloud">SoundCloud</option>
+                        <option value="tidal">TIDAL</option>
+                    </select>
+                </div>
+                
+                <div class="playlists-container" id="sourcePlaylists">
+                    <div class="empty-state">
+                        <p>Select a source platform to view playlists</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transfer Button -->
+            <div class="transfer-section">
+                <button class="btn btn--primary transfer-btn" id="transferBtn" disabled>
+                    <svg class="transfer-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                    <span class="transfer-text">Transfer</span>
+                </button>
+                <div class="transfer-progress hidden" id="transferProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p>Transferring playlists...</p>
+                </div>
+            </div>
+
+            <!-- Right Column - Target Platform -->
+            <section class="platform-column platform-column--target">
+                <div class="platform-header">
+                    <h2>Target Platform</h2>
+                    <select class="form-control platform-select" id="targetPlatform">
+                        <option value="">Select target platform</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="apple_music">Apple Music</option>
+                        <option value="youtube_music">YouTube Music</option>
+                        <option value="deezer">Deezer</option>
+                        <option value="soundcloud">SoundCloud</option>
+                        <option value="tidal">TIDAL</option>
+                    </select>
+                </div>
+                
+                <div class="playlists-container" id="targetPlaylists">
+                    <div class="empty-state">
+                        <p>Select a target platform to start transferring</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Success Message -->
+        <div class="success-message hidden" id="successMessage">
+            <div class="success-content">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Playlists transferred successfully!</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="app3.js"></script>
+</body>
+</html>
