@@ -1,338 +1,73 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+const items = await getCollection("uses");
+
+const categories = ["hardware", "software", "desk", "sports"];
+const categorizedItems = await Promise.all(
+  categories.map(async (cat) => {
+    const catItems = items
+      .filter((item) => item.data.category === cat)
+      .sort((a, b) => a.data.order - b.data.order);
+
+    const renderedItems = await Promise.all(
+      catItems.map(async (item) => {
+        const { Content } = await render(item);
+        return { ...item, Content };
+      })
+    );
+
+    return {
+      name: cat,
+      items: renderedItems,
+    };
+  })
+);
 ---
 
-<BaseLayout
-  title="Uses & Gear"
-  description="A living document of the high-performance tools I use to build systems and the precision equipment I trust on the water and snow."
-  currentPath="/uses/"
->
-  <div class="max-w-[1400px] mx-auto px-12 py-12">
-    <!-- Hero Header -->
+<BaseLayout title="Uses" currentPath="/uses">
+  <div class="max-w-6xl mx-auto px-6 py-12">
     <header class="mb-16">
-      <h1
-        class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] mb-2"
-      >
-        GEAR <span class="text-[var(--color-primary-container)] italic">&</span>
-        STACK
-      </h1>
-      <p
-        class="text-[var(--color-on-surface-variant)] max-w-xl font-light leading-relaxed"
-      >
-        A living document of the high-performance tools I use to build systems
-        and the precision equipment I trust when I'm away from the keyboard.
+      <h1 class="text-4xl font-bold font-space mb-4">Uses</h1>
+      <p class="text-slate-400 text-lg">
+        The gear and software that powers my engineering and adventures.
       </p>
     </header>
 
-    <!-- Bento Grid Layout -->
-    <div class="grid grid-cols-12 gap-6 auto-rows-[280px]">
-      <!-- Tech Stack Primary: VS Code -->
-      <section
-        class="col-span-12 md:col-span-8 row-span-2 glass-card rounded-xl p-8 flex flex-col justify-between overflow-hidden relative group"
-      >
-        <div class="relative z-10">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="w-12 h-[2px] bg-[var(--color-primary-container)]"
-            ></span>
-            <span
-              class="font-[Space_Grotesk] uppercase tracking-widest text-xs text-[var(--color-primary-container)]"
-              >The Core IDE</span
-            >
-          </div>
-          <h3
-            class="font-[Space_Grotesk] text-5xl font-bold leading-none mb-8"
-          >
-            VS CODE<br /><span
-              class="text-[var(--color-secondary-fixed-dim)] opacity-50"
-              >OBSIDIAN CONFIG</span
-            >
-          </h3>
-          <div class="grid grid-cols-2 gap-8">
-            <div>
-              <h4
-                class="text-xs font-bold text-slate-500 uppercase mb-3"
-              >
-                Extensions
-              </h4>
-              <ul class="space-y-2 text-sm text-[var(--color-on-surface-variant)]">
-                {
-                  [
-                    "GitHub Copilot Nightly",
-                    "Error Lens",
-                    "Prettier + ESLint",
-                    "GitLens Supercharge",
-                  ].map((ext) => (
-                    <li class="flex items-center gap-2">
-                      <span class="w-1 h-1 bg-[#00d4ff] rounded-full" />
-                      {ext}
-                    </li>
-                  ))
-                }
-              </ul>
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-slate-500 uppercase mb-3">
-                Theme / Font
-              </h4>
-              <p class="text-sm text-[var(--color-on-surface)] font-mono">
-                Tokyo Night Storm
-              </p>
-              <p class="text-sm text-[var(--color-on-surface)] font-mono">
-                Geist Mono 12px
-              </p>
-            </div>
-          </div>
-        </div>
-        <div
-          class="absolute -right-10 -bottom-10 opacity-10 font-mono text-[10rem] font-extrabold select-none pointer-events-none group-hover:text-[var(--color-primary-container)] transition-colors"
-        >
-          &lt;/&gt;
-        </div>
-      </section>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      {
+        categorizedItems.map((cat) => (
+          <section>
+            <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-blue-500 mb-8 flex items-center gap-4">
+              {cat.name}
+              <span class="flex-grow h-px bg-slate-800" />
+            </h2>
 
-      <!-- Sports Highlight: Burton -->
-      <section
-        class="col-span-12 md:col-span-4 row-span-1 bg-[var(--color-surface-container-low)] rounded-xl p-6 relative overflow-hidden group"
-      >
-        <div
-          class="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-700"
-        >
-          <img
-            alt="Burton Snowboard"
-            class="w-full h-full object-cover"
-            src="/images/burton.jpg"
-          />
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-[var(--color-surface-dim)] via-[var(--color-surface-dim)]/40 to-transparent"
-          >
-          </div>
-        </div>
-        <div class="relative z-10 flex flex-col h-full justify-end">
-          <span
-            class="font-[Space_Grotesk] text-3xl font-extrabold tracking-tighter"
-            >BURTON CUSTOM X</span
-          >
-          <p class="text-xs uppercase tracking-widest text-[var(--color-primary)]">
-            Freeride Precision
-          </p>
-        </div>
-      </section>
-
-      <!-- Terminal Stats -->
-      <section
-        class="col-span-12 md:col-span-4 row-span-1 bg-[var(--color-surface-container-lowest)] border border-white/5 rounded-xl p-6 flex flex-col"
-      >
-        <div class="flex justify-between items-start mb-6">
-          <div
-            class="p-2 rounded bg-[var(--color-surface-container-high)]"
-          >
-            <span
-              class="material-symbols-outlined text-[var(--color-primary-container)]"
-              >terminal</span
-            >
-          </div>
-          <span
-            class="text-[10px] bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] px-2 py-1 rounded"
-            >ACTIVE</span
-          >
-        </div>
-        <h3 class="font-[Space_Grotesk] text-xl font-bold mb-2">
-          iTerm2 + Oh My Zsh
-        </h3>
-        <p
-          class="text-sm text-[var(--color-on-surface-variant)] flex-1 leading-relaxed"
-        >
-          Custom aliases for Docker, Kubernetes, and Git workflows. Pure
-          performance.
-        </p>
-        <div class="mt-4 flex gap-2">
-          <span
-            class="px-2 py-1 bg-[var(--color-surface-container-high)] rounded text-[10px] font-mono"
-            >zsh-autosuggestions</span
-          >
-          <span
-            class="px-2 py-1 bg-[var(--color-surface-container-high)] rounded text-[10px] font-mono"
-            >starship</span
-          >
-        </div>
-      </section>
-
-      <!-- Kitesurfing Kit -->
-      <section
-        class="col-span-12 md:col-span-4 row-span-2 glass-card rounded-xl overflow-hidden flex flex-col"
-      >
-        <div class="h-1/2 relative">
-          <img
-            alt="Kitesurfing gear"
-            class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-            src="/images/kite-gear.jpg"
-          />
-          <div class="absolute bottom-4 left-4">
-            <span
-              class="bg-[var(--color-secondary-container)] text-[var(--color-on-secondary-container)] px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full"
-              >Pro Kit</span
-            >
-          </div>
-        </div>
-        <div class="p-6 flex-1 flex flex-col justify-between">
-          <div>
-            <h3 class="font-[Space_Grotesk] text-2xl font-bold mb-2">
-              CORE XR8 KITE
-            </h3>
-            <p
-              class="text-sm text-[var(--color-on-surface-variant)] leading-relaxed"
-            >
-              High-performance big air kite. Precision handling for megaloops and
-              hang time.
-            </p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-white/5">
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-slate-500">Max Jump Height</span>
-              <span
-                class="font-[Space_Grotesk] text-xl font-bold text-[var(--color-primary)]"
-                >18.4M</span
-              >
-            </div>
-            <div
-              class="w-full h-1 bg-[var(--color-surface-container-high)] mt-2 rounded-full overflow-hidden"
-            >
-              <div class="h-full kinetic-gradient w-[85%] glow-bar"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Desk Hardware -->
-      <section
-        class="col-span-12 md:col-span-8 row-span-1 bg-[var(--color-surface-container-low)] rounded-xl p-8 flex items-center gap-10"
-      >
-        <div class="flex-1">
-          <h3
-            class="font-[Space_Grotesk] text-3xl font-bold mb-4 uppercase tracking-tighter"
-          >
-            The Workstation
-          </h3>
-          <div class="grid grid-cols-2 gap-x-8 gap-y-3">
-            {
-              [
-                { label: "Machine", value: "MBP M3 Max 64GB" },
-                { label: "Monitor", value: "Studio Display 5K" },
-                { label: "Keyboard", value: "Keychron Q1 Pro" },
-                { label: "Mouse", value: "MX Master 3S" },
-              ].map((item) => (
-                <div class="flex justify-between border-b border-white/5 pb-1">
-                  <span class="text-xs text-slate-500 uppercase">{item.label}</span>
-                  <span class="text-xs font-bold">{item.value}</span>
+            <div class="grid grid-cols-1 gap-6">
+              {cat.items.map((item) => (
+                <div class="p-6 bg-slate-900/50 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition-all group">
+                  <div class="flex items-start gap-4">
+                    {item.data.icon && (
+                      <span class="material-symbols-outlined text-blue-400 p-2 bg-blue-500/10 rounded-lg">
+                        {item.data.icon}
+                      </span>
+                    )}
+                    <div>
+                      <h3 class="font-bold mb-2 group-hover:text-blue-400 transition-colors">
+                        {item.data.title}
+                      </h3>
+                      <div class="text-sm text-slate-400 prose prose-invert prose-sm">
+                        <item.Content />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ))
-            }
-          </div>
-        </div>
-        <div
-          class="w-32 h-32 flex-shrink-0 bg-[var(--color-surface-container-highest)] rounded-xl flex items-center justify-center border border-[var(--color-primary)]/20"
-        >
-          <span
-            class="material-symbols-outlined text-[var(--color-primary)] text-5xl"
-            style="font-variation-settings: 'FILL' 1;">developer_board</span
-          >
-        </div>
-      </section>
-
-      <!-- Productivity Apps -->
-      <section
-        class="col-span-12 md:col-span-4 row-span-1 glass-card rounded-xl p-6 flex flex-col justify-center"
-      >
-        <h4
-          class="text-[10px] text-[var(--color-primary-container)] font-bold tracking-[0.2em] uppercase mb-4"
-        >
-          Productivity
-        </h4>
-        <div class="space-y-4">
-          {
-            [
-              { name: "Obsidian", desc: "Second Brain / PKM", icon: "edit_note" },
-              { name: "Cron", desc: "Rapid Scheduling", icon: "calendar_month" },
-              { name: "Linear", desc: "Issue Tracking", icon: "view_kanban" },
-            ].map((app) => (
-              <div class="flex items-center gap-4 group">
-                <div class="w-10 h-10 rounded bg-slate-900 flex items-center justify-center group-hover:bg-[var(--color-primary-container)]/20 transition-colors">
-                  <span class="material-symbols-outlined text-[var(--color-primary-container)]">
-                    {app.icon}
-                  </span>
-                </div>
-                <div>
-                  <p class="text-sm font-bold">{app.name}</p>
-                  <p class="text-[10px] text-slate-500">{app.desc}</p>
-                </div>
-              </div>
-            ))
-          }
-        </div>
-      </section>
-
-      <!-- Performance Metric -->
-      <section
-        class="col-span-12 md:col-span-8 row-span-1 bg-gradient-to-br from-[var(--color-surface-container-low)] to-[var(--color-surface-dim)] rounded-xl p-8 flex flex-col justify-between border-l-2 border-[var(--color-primary-container)]"
-      >
-        <div class="flex justify-between items-start">
-          <h3
-            class="font-[Space_Grotesk] text-sm font-bold uppercase tracking-widest text-slate-500"
-          >
-            Monthly Performance Output
-          </h3>
-          <span
-            class="material-symbols-outlined text-[var(--color-primary-container)]/40"
-            >query_stats</span
-          >
-        </div>
-        <div class="flex items-end gap-12">
-          <div>
-            <p
-              class="text-5xl font-[Space_Grotesk] font-bold text-[var(--color-primary-container)]"
-            >
-              248<span class="text-xl font-normal ml-1">HRS</span>
-            </p>
-            <p
-              class="text-[10px] text-slate-500 uppercase tracking-widest mt-1"
-            >
-              Deep Work Logged
-            </p>
-          </div>
-          <div>
-            <p
-              class="text-5xl font-[Space_Grotesk] font-bold text-[var(--color-secondary)]"
-            >
-              98<span class="text-xl font-normal ml-1">%</span>
-            </p>
-            <p
-              class="text-[10px] text-slate-500 uppercase tracking-widest mt-1"
-            >
-              Uptime Efficiency
-            </p>
-          </div>
-          <div class="flex-1 h-12 flex items-end gap-1">
-            <div
-              class="flex-1 bg-[var(--color-surface-container-high)] h-[40%] rounded-t-sm"
-            ></div>
-            <div
-              class="flex-1 bg-[var(--color-primary-container)]/40 h-[60%] rounded-t-sm"
-            ></div>
-            <div
-              class="flex-1 bg-[var(--color-primary-container)]/60 h-[80%] rounded-t-sm"
-            ></div>
-            <div
-              class="flex-1 bg-[var(--color-primary-container)] h-[100%] rounded-t-sm glow-primary-strong"
-            ></div>
-            <div
-              class="flex-1 bg-[var(--color-primary-container)]/70 h-[70%] rounded-t-sm"
-            ></div>
-            <div
-              class="flex-1 bg-[var(--color-primary-container)]/40 h-[50%] rounded-t-sm"
-            ></div>
-          </div>
-        </div>
-      </section>
+              ))}
+            </div>
+          </section>
+        ))
+      }
     </div>
   </div>
 </BaseLayout>

@@ -10,6 +10,9 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true" # Opt into Node.js 24 for actions runners
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,9 +23,8 @@ jobs:
       - name: Install, build, and upload your site
         uses: withastro/action@v3
         with:
-          # path: . # The root location of your Astro project inside the repository. (Optional)
-          node-version: 22 # The specific version of Node that should be used to build your site. Default is 20.
-          # package-manager: npm # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (Optional)
+          node-version: 24 # Use Node.js 24 as per the latest GitHub Actions recommendations
+          # package-manager: npm # Automatically detected
 
   deploy:
     needs: build

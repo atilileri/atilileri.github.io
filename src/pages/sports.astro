@@ -1,10 +1,18 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 
 const sports = await getCollection("sports");
 const sortedSports = sports.sort(
   (a, b) => b.data.startDate.getTime() - a.data.startDate.getTime()
+);
+
+// Pre-render all items since they are just a few timeline entries
+const renderedSports = await Promise.all(
+  sortedSports.map(async (item) => {
+    const { Content } = await render(item);
+    return { ...item, Content };
+  })
 );
 ---
 
@@ -20,7 +28,7 @@ const sortedSports = sports.sort(
 
     <div class="space-y-12">
       {
-        sortedSports.map((item) => (
+        renderedSports.map((item) => (
           <div class="relative pl-8 border-l border-slate-800 pb-12 last:pb-0">
             <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
 
@@ -43,7 +51,7 @@ const sortedSports = sports.sort(
                   <p class="text-blue-200 font-medium mb-4">{item.data.role}</p>
                 )}
                 <div class="prose prose-invert max-w-none">
-                  <item.render />
+                  <item.Content />
                 </div>
               </div>
 
