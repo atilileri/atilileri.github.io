@@ -1,40 +1,27 @@
 ---
 // TopBar with theme toggle
+const { currentPath = "/" } = Astro.props;
 ---
 
-<header
-  class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 flex justify-end items-center px-8 z-40 bg-transparent font-[Space_Grotesk] uppercase tracking-widest"
->
-  <div class="flex items-center space-x-6">
-    <!-- Theme Toggle -->
-    <button
-      id="theme-toggle"
-      class="opacity-80 hover:opacity-100 hover:text-[#00d4ff] transition-all cursor-pointer"
-      aria-label="Toggle theme"
-    >
-      <span id="theme-icon-dark" class="material-symbols-outlined text-slate-500"
-        >dark_mode</span
-      >
-      <span
-        id="theme-icon-light"
-        class="material-symbols-outlined text-slate-500 hidden"
-        >light_mode</span
-      >
-    </button>
-    <div class="relative group">
-      <span
-        class="material-symbols-outlined text-slate-500 opacity-80 hover:opacity-100 hover:text-[#00d4ff] transition-all cursor-pointer"
-        >settings</span
-      >
+<nav class="fixed top-0 w-full z-50 bg-[#f9f9f9] dark:bg-[#1b1b1b] backdrop-blur-[20px] bg-opacity-80 dark:bg-opacity-80 border-b border-[#1b1b1b]/5 dark:border-[#f9f9f9]/5">
+  <div class="flex justify-between items-center px-6 md:px-12 py-6 md:py-8 max-w-[1440px] mx-auto w-full">
+    <a href="/" class="text-[1.25rem] font-bold tracking-tighter text-[#1b1b1b] dark:text-[#f9f9f9]">SYS_ARCH</a>
+    <div class="hidden md:flex gap-12 items-center">
+      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath === '/' ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/">HOME</a>
+      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/blog') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/blog/">BLOG</a>
+      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/uses') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/uses/">USES</a>
+      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/garden') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/garden/">GARDEN</a>
+      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/now') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/now/">NOW</a>
     </div>
-    <div class="relative group">
-      <span
-        class="material-symbols-outlined text-slate-500 opacity-80 hover:opacity-100 hover:text-[#00d4ff] transition-all cursor-pointer"
-        >account_circle</span
-      >
+    <div class="flex items-center gap-6">
+      <button id="theme-toggle" class="material-symbols-outlined text-[#1b1b1b] dark:text-[#f9f9f9] text-xl cursor-pointer hover:opacity-80">
+        <span id="theme-icon-dark" class="material-symbols-outlined">dark_mode</span>
+        <span id="theme-icon-light" class="material-symbols-outlined hidden">light_mode</span>
+      </button>
+      <button class="md:hidden material-symbols-outlined text-[#1b1b1b] dark:text-[#f9f9f9] text-xl" data-icon="menu">menu</button>
     </div>
   </div>
-</header>
+</nav>
 
 <script>
   const toggle = document.getElementById("theme-toggle");

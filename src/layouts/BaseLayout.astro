@@ -1,6 +1,5 @@
 ---
 import "../styles/global.css";
-import Sidebar from "../components/Sidebar.astro";
 import TopBar from "../components/TopBar.astro";
 import Footer from "../components/Footer.astro";
 
@@ -12,22 +11,22 @@ interface Props {
 
 const {
   title,
-  description = "Software Engineer — Building lithography at scale. Kitesurfing when the code stops.",
+  description = "A radical pursuit of objectivity and mathematical grid logic in software architecture.",
   currentPath = "/",
 } = Astro.props;
 ---
 
 <!doctype html>
-<html class="dark" lang="en">
+<html class="light" lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | VELOCITY</title>
+    <title>{title} | SYS_ARCH</title>
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Open Graph -->
-    <meta property="og:title" content={`${title} | VELOCITY`} />
+    <meta property="og:title" content={`${title} | SYS_ARCH`} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url.href} />
@@ -36,7 +35,7 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Geist+Mono&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
       rel="stylesheet"
     />
     <link
@@ -51,7 +50,7 @@ const {
     <link
       rel="alternate"
       type="application/rss+xml"
-      title="VELOCITY RSS Feed"
+      title="SYS_ARCH RSS Feed"
       href="/rss.xml"
     />
 
@@ -59,24 +58,21 @@ const {
     <script is:inline>
       (function () {
         const stored = localStorage.getItem("theme");
-        if (stored === "light") {
-          document.documentElement.classList.remove("dark");
-        } else {
+        if (stored === "dark") {
           document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
         }
       })();
     </script>
   </head>
-  <body class="min-h-screen">
-    <Sidebar currentPath={currentPath} />
-    <TopBar />
+  <body class="bg-surface text-on-surface selection:bg-primary-container selection:text-white min-h-screen flex flex-col">
+    <TopBar currentPath={currentPath} />
 
-    <main class="ml-64 pt-16 min-h-screen">
+    <main class="flex-grow pt-32">
       <slot />
     </main>
 
-    <div class="ml-64">
-      <Footer />
-    </div>
+    <Footer />
   </body>
 </html>
