@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Velocity | Uses &amp; Gear</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary": "#520072",
+                      "on-primary-fixed": "#001f27",
+                      "on-secondary-container": "#fff6fc",
+                      "on-secondary-fixed-variant": "#74009f",
+                      "secondary": "#ebb2ff",
+                      "surface-container": "#1d2026",
+                      "surface-bright": "#363940",
+                      "surface-variant": "#32353c",
+                      "on-tertiary-fixed-variant": "#3c475a",
+                      "outline-variant": "#3c494e",
+                      "on-primary-container": "#00586b",
+                      "inverse-on-surface": "#2e3037",
+                      "on-primary": "#003642",
+                      "on-background": "#e1e2eb",
+                      "surface-container-low": "#191c22",
+                      "surface-container-lowest": "#0b0e14",
+                      "surface-dim": "#10131a",
+                      "secondary-fixed-dim": "#ebb2ff",
+                      "secondary-container": "#b600f8",
+                      "tertiary": "#d4dff7",
+                      "error-container": "#93000a",
+                      "primary-fixed-dim": "#3cd7ff",
+                      "error": "#ffb4ab",
+                      "on-surface": "#e1e2eb",
+                      "surface": "#10131a",
+                      "on-tertiary-container": "#455064",
+                      "outline": "#859398",
+                      "on-error-container": "#ffdad6",
+                      "primary": "#a8e8ff",
+                      "on-primary-fixed-variant": "#004e5f",
+                      "on-secondary-fixed": "#320047",
+                      "background": "#10131a",
+                      "on-tertiary": "#263143",
+                      "on-error": "#690005",
+                      "primary-container": "#00d4ff",
+                      "on-surface-variant": "#bbc9cf",
+                      "primary-fixed": "#b4ebff",
+                      "inverse-primary": "#00677e",
+                      "surface-tint": "#3cd7ff",
+                      "tertiary-fixed-dim": "#bcc7de",
+                      "on-tertiary-fixed": "#111c2d",
+                      "surface-container-highest": "#32353c",
+                      "surface-container-high": "#272a31",
+                      "secondary-fixed": "#f8d8ff",
+                      "inverse-surface": "#e1e2eb",
+                      "tertiary-fixed": "#d8e3fb",
+                      "tertiary-container": "#b8c3db"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Space Grotesk"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(50, 53, 60, 0.1);
+            backdrop-filter: blur(12px);
+            border-top: 0.5px solid rgba(187, 201, 207, 0.1);
+        }
+        .kinetic-gradient {
+            background: linear-gradient(45deg, #00D4FF, #B600F8);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface font-body selection:bg-primary-container selection:text-on-primary-fixed">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-white/5 bg-slate-950/60 backdrop-blur-xl flex flex-col h-full py-8 px-6 z-50 shadow-[40px_0_60px_-15px_rgba(0,212,255,0.04)] font-['Space_Grotesk'] tracking-tight">
+<div class="mb-10">
+<h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">VELOCITY</h1>
+<p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Software Engineer</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300 rounded-lg group scale-95 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Home</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300 rounded-lg group scale-95 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">article</span>
+<span>Blog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300 rounded-lg group scale-95 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span>Garden</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300 rounded-lg group scale-95 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span>Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300 rounded-lg group scale-95 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span>Now</span>
+</a>
+<!-- Active State: Uses -->
+<a class="flex items-center gap-3 px-4 py-3 text-cyan-400 font-bold border-r-2 border-cyan-400 bg-cyan-400/5 hover:bg-white/5 transition-all duration-300 rounded-lg group scale-95 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">category</span>
+<span>Uses</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/5">
+<div class="flex items-center gap-3 px-2 mb-6">
+<img alt="Engineer Profile Avatar" class="w-10 h-10 rounded-full object-cover grayscale hover:grayscale-0 transition-all border border-cyan-400/20" data-alt="Professional software engineer headshot with moody low-key blue lighting and sharp technical aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAySaWLXOaEz_gSpzOKkkaa7i_bI7CDesO_LxwCOFowltVks2m1QFIzpJOStm24OiPgaScqOzt8a2uABRGzDCTBQyj3xW7MjoJMH5YsoduVpcRlG3982Pgv73qG97pgScDBHcjbs8dHKI99N7MWsJqnHuOz-SabN_QKFFPpwmJTr_B8XzONMc9PEDQNXG6ixhWAFz5kD6EnW1NKSPMz5yEyn9lfzr7OrdsHx2LnGvhlBzQNeTvPgp4b3kJTXMYcaLGarqBV1s22QQ0"/>
+<div>
+<p class="text-sm font-bold text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-tighter">System Architect</p>
+</div>
+</div>
+<button class="w-full kinetic-gradient py-3 rounded-lg text-on-primary-fixed font-bold text-sm tracking-widest uppercase scale-95 active:scale-90 transition-transform">
+                Contact
+            </button>
+</div>
+</aside>
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] flex justify-end items-center px-8 h-16 z-40 bg-transparent font-['Space_Grotesk'] uppercase tracking-widest">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+<input class="bg-surface-container-low border-none focus:ring-1 focus:ring-primary-container rounded-lg py-2 pl-10 pr-4 text-xs w-48 transition-all focus:w-64" placeholder="Search gear..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-slate-500">
+<button class="hover:text-cyan-300 transition-opacity opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="hover:text-cyan-300 transition-opacity opacity-80 hover:opacity-100">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 pt-24 px-10 pb-20 max-w-[1400px]">
+<!-- Hero Header -->
+<header class="mb-16">
+<h2 class="font-headline text-7xl font-bold tracking-tighter text-on-surface mb-2">
+                GEAR <span class="text-primary-container italic">&amp;</span> STACK
+            </h2>
+<p class="text-on-surface-variant max-w-xl font-light leading-relaxed">
+                A living document of the high-performance tools I use to build systems and the precision equipment I trust when I'm away from the keyboard.
+            </p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6 auto-rows-[280px]">
+<!-- Tech Stack Primary -->
+<section class="col-span-12 md:col-span-8 row-span-2 glass-card rounded-xl p-8 flex flex-col justify-between overflow-hidden relative group">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-12 h-[2px] bg-primary-container"></span>
+<span class="font-headline uppercase tracking-widest text-xs text-primary-container">The Core IDE</span>
+</div>
+<h3 class="font-headline text-5xl font-bold leading-none mb-8">VS CODE<br/><span class="text-secondary-fixed-dim opacity-50">OBSIDIAN CONFIG</span></h3>
+<div class="grid grid-cols-2 gap-8">
+<div>
+<h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Extensions</h4>
+<ul class="space-y-2 text-sm text-on-surface-variant">
+<li class="flex items-center gap-2"><span class="w-1 h-1 bg-cyan-400 rounded-full"></span> GitHub Copilot Nightly</li>
+<li class="flex items-center gap-2"><span class="w-1 h-1 bg-cyan-400 rounded-full"></span> Error Lens</li>
+<li class="flex items-center gap-2"><span class="w-1 h-1 bg-cyan-400 rounded-full"></span> Prettier + ESLint</li>
+<li class="flex items-center gap-2"><span class="w-1 h-1 bg-cyan-400 rounded-full"></span> GitLens Supercharge</li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Theme / Font</h4>
+<p class="text-sm text-on-surface font-mono">Tokyo Night Storm</p>
+<p class="text-sm text-on-surface font-mono">Geist Mono 12px</p>
+</div>
+</div>
+</div>
+<!-- Background visual -->
+<div class="absolute -right-10 -bottom-10 opacity-10 font-mono text-[10rem] font-extrabold select-none pointer-events-none group-hover:text-primary-container transition-colors">
+                    &lt;/&gt;
+                </div>
+</section>
+<!-- Sports Highlight: Burton -->
+<section class="col-span-12 md:col-span-4 row-span-1 bg-surface-container-low rounded-xl p-6 relative overflow-hidden group">
+<div class="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-700">
+<img alt="Burton Snowboard" class="w-full h-full object-cover" data-alt="Modern snowboard lying in deep powder snow with sharp mountain peak and blue sky in background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAb03H7rGfPJwBGmiEGIoNKVfxi9_3jlxKS36XnkfwbbbaX1MAZqBCzolEuKTOqYxM_i2PcKJZgJRhpp8Ed4ehIKzppezH8g5PQ4UJVgj5v9iNBmepKy0DApOx8uK2HtGexD4GbuUsKBxghSY4vrjp6Pc83zc_dTiz5qN2C5x9hmI3kiJq5sT_NyOOCX9cvrpSjtJC-jy8kYpx3hWhl2hFoMEnGhVACTDhF3DtkVqJM_nxHmwwcMkVhVJSJDt3iCEAoNDIt6IG4gW0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-surface-dim/40 to-transparent"></div>
+</div>
+<div class="relative z-10 flex flex-col h-full justify-end">
+<span class="font-headline text-3xl font-extrabold tracking-tighter">BURTON CUSTOM X</span>
+<p class="text-xs uppercase tracking-widest text-primary">Freeride Precision</p>
+</div>
+</section>
+<!-- Terminal Stats -->
+<section class="col-span-12 md:col-span-4 row-span-1 bg-surface-container-lowest border border-white/5 rounded-xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="p-2 rounded bg-surface-container-high">
+<span class="material-symbols-outlined text-primary-container">terminal</span>
+</div>
+<span class="text-[10px] bg-primary-container/10 text-primary-container px-2 py-1 rounded">ACTIVE</span>
+</div>
+<h3 class="font-headline text-xl font-bold mb-2">iTerm2 + Oh My Zsh</h3>
+<p class="text-sm text-on-surface-variant flex-1 leading-relaxed">
+                    Custom aliases for Docker, Kubernetes, and Git workflows. Pure performance.
+                </p>
+<div class="mt-4 flex gap-2">
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-mono">zsh-autosuggestions</span>
+<span class="px-2 py-1 bg-surface-container-high rounded text-[10px] font-mono">starship</span>
+</div>
+</section>
+<!-- Kitesurfing Kit -->
+<section class="col-span-12 md:col-span-4 row-span-2 glass-card rounded-xl overflow-hidden flex flex-col">
+<div class="h-1/2 relative">
+<img alt="Kitesurfing gear" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" data-alt="Close up of kitesurfing lines and control bar against a vibrant blue ocean with sunlight reflecting on water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmHZTk_G_bgJKmuLCFEOYSQmPDJQo4p3EvhV9kvrCp9MUksZs7DI-TfiU9DODBC5aWMzvbVPppq1n5AqRr03SfZtNs6RHIShfSws4hYP_BFczxhWng1ijC8SZ-rcSKSMwi5nLegmqwh2QZcktvTQLISNZpuCYFHk1pvAocBEe398Hw1v1ntJ4X4RbpJNyob-fEmbcPJ3lH9WUbq2lera3jh1lbTMD1FXwKrle3NDztvS_GztQ4cATTk0MwaFpp2AsK-UDNAjspGFY"/>
+<div class="absolute bottom-4 left-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full">Pro Kit</span>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-2xl font-bold mb-2">CORE XR8 KITE</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">High-performance big air kite. Precision handling for megaloops and hung time.</p>
+</div>
+<div class="mt-6 pt-4 border-t border-white/5">
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-500">Max Jump Height</span>
+<span class="font-headline text-xl font-bold text-primary">18.4M</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high mt-2 rounded-full overflow-hidden">
+<div class="h-full kinetic-gradient w-[85%] shadow-[0_0_15px_rgba(0,212,255,0.4)]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Desk Hardware -->
+<section class="col-span-12 md:col-span-8 row-span-1 bg-surface-container-low rounded-xl p-8 flex items-center gap-10">
+<div class="flex-1">
+<h3 class="font-headline text-3xl font-bold mb-4 uppercase tracking-tighter">The Workstation</h3>
+<div class="grid grid-cols-2 gap-x-8 gap-y-3">
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-xs text-slate-500 uppercase">Machine</span>
+<span class="text-xs font-bold">MBP M3 Max 64GB</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-xs text-slate-500 uppercase">Monitor</span>
+<span class="text-xs font-bold">Studio Display 5K</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-xs text-slate-500 uppercase">Keyboard</span>
+<span class="text-xs font-bold">Keychron Q1 Pro</span>
+</div>
+<div class="flex justify-between border-b border-white/5 pb-1">
+<span class="text-xs text-slate-500 uppercase">Mouse</span>
+<span class="text-xs font-bold">MX Master 3S</span>
+</div>
+</div>
+</div>
+<div class="w-32 h-32 flex-shrink-0 bg-surface-container-highest rounded-xl flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">developer_board</span>
+</div>
+</section>
+<!-- Productivity Apps -->
+<section class="col-span-12 md:col-span-4 row-span-1 glass-card rounded-xl p-6 flex flex-col justify-center">
+<h4 class="text-[10px] text-primary-container font-bold tracking-[0.2em] uppercase mb-4">Productivity</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-4 group">
+<div class="w-10 h-10 rounded bg-slate-900 flex items-center justify-center group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-primary-container">edit_note</span>
+</div>
+<div>
+<p class="text-sm font-bold">Obsidian</p>
+<p class="text-[10px] text-slate-500">Second Brain / PKM</p>
+</div>
+</div>
+<div class="flex items-center gap-4 group">
+<div class="w-10 h-10 rounded bg-slate-900 flex items-center justify-center group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-primary-container">calendar_month</span>
+</div>
+<div>
+<p class="text-sm font-bold">Cron</p>
+<p class="text-[10px] text-slate-500">Rapid Scheduling</p>
+</div>
+</div>
+<div class="flex items-center gap-4 group">
+<div class="w-10 h-10 rounded bg-slate-900 flex items-center justify-center group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-primary-container">view_kanban</span>
+</div>
+<div>
+<p class="text-sm font-bold">Linear</p>
+<p class="text-[10px] text-slate-500">Issue Tracking</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Performance Metric: Coding Hours -->
+<section class="col-span-12 md:col-span-8 row-span-1 bg-gradient-to-br from-surface-container-low to-surface-dim rounded-xl p-8 flex flex-col justify-between border-l-2 border-primary-container">
+<div class="flex justify-between items-start">
+<h3 class="font-headline text-sm font-bold uppercase tracking-widest text-slate-500">Monthly Performance Output</h3>
+<span class="material-symbols-outlined text-primary-container/40">query_stats</span>
+</div>
+<div class="flex items-end gap-12">
+<div>
+<p class="text-5xl font-headline font-bold text-primary-container">248<span class="text-xl font-normal ml-1">HRS</span></p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Deep Work Logged</p>
+</div>
+<div>
+<p class="text-5xl font-headline font-bold text-secondary">98<span class="text-xl font-normal ml-1">%</span></p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Uptime Efficiency</p>
+</div>
+<div class="flex-1 h-12 flex items-end gap-1">
+<div class="flex-1 bg-surface-container-high h-[40%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container/40 h-[60%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container/60 h-[80%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container h-[100%] rounded-t-sm shadow-[0_0_10px_rgba(0,212,255,0.3)]"></div>
+<div class="flex-1 bg-primary-container/70 h-[70%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container/40 h-[50%] rounded-t-sm"></div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer -->
+<footer class="mt-20 flex justify-between items-center border-t border-white/5 pt-10">
+<div class="text-[10px] text-slate-500 uppercase tracking-[0.3em]">
+                Last Updated: OCT 2023 // Revision 4.2
+            </div>
+<div class="flex gap-8">
+<a class="text-xs text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest" href="#">Twitter</a>
+<a class="text-xs text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest" href="#">GitHub</a>
+<a class="text-xs text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest" href="#">Strava</a>
+</div>
+</footer>
+</main>
+</body></html>

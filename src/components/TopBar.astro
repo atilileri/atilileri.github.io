@@ -1,0 +1,65 @@
+---
+// TopBar with theme toggle
+---
+
+<header
+  class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 flex justify-end items-center px-8 z-40 bg-transparent font-[Space_Grotesk] uppercase tracking-widest"
+>
+  <div class="flex items-center space-x-6">
+    <!-- Theme Toggle -->
+    <button
+      id="theme-toggle"
+      class="opacity-80 hover:opacity-100 hover:text-[#00d4ff] transition-all cursor-pointer"
+      aria-label="Toggle theme"
+    >
+      <span id="theme-icon-dark" class="material-symbols-outlined text-slate-500"
+        >dark_mode</span
+      >
+      <span
+        id="theme-icon-light"
+        class="material-symbols-outlined text-slate-500 hidden"
+        >light_mode</span
+      >
+    </button>
+    <div class="relative group">
+      <span
+        class="material-symbols-outlined text-slate-500 opacity-80 hover:opacity-100 hover:text-[#00d4ff] transition-all cursor-pointer"
+        >settings</span
+      >
+    </div>
+    <div class="relative group">
+      <span
+        class="material-symbols-outlined text-slate-500 opacity-80 hover:opacity-100 hover:text-[#00d4ff] transition-all cursor-pointer"
+        >account_circle</span
+      >
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById("theme-toggle");
+  const iconDark = document.getElementById("theme-icon-dark");
+  const iconLight = document.getElementById("theme-icon-light");
+
+  function updateIcons() {
+    const isDark = document.documentElement.classList.contains("dark");
+    if (iconDark && iconLight) {
+      iconDark.classList.toggle("hidden", !isDark);
+      iconLight.classList.toggle("hidden", isDark);
+    }
+  }
+
+  updateIcons();
+
+  toggle?.addEventListener("click", () => {
+    const isDark = document.documentElement.classList.contains("dark");
+    if (isDark) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    }
+    updateIcons();
+  });
+</script>

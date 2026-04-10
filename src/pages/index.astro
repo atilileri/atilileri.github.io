@@ -1,0 +1,277 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Home" currentPath="/">
+  <div class="max-w-7xl mx-auto px-12 py-12">
+    <!-- Hero Section: Kinetic Precision -->
+    <section class="relative grid grid-cols-12 gap-8 mb-24 items-center">
+      <div class="col-span-12 lg:col-span-7">
+        <div
+          class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[var(--color-surface-container-high)] ghost-border mb-6"
+        >
+          <span
+            class="w-2 h-2 rounded-full bg-[var(--color-primary-container)] animate-pulse"
+          ></span>
+          <span
+            class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]"
+            >System Status: Operational</span
+          >
+        </div>
+        <h1
+          class="font-[Space_Grotesk] text-7xl md:text-8xl font-bold leading-[0.9] tracking-tighter text-[var(--color-on-surface)] mb-8"
+        >
+          BUILDING <br />
+          <span
+            class="bg-gradient-to-r from-[var(--color-primary-container)] via-cyan-300 to-[var(--color-secondary-container)] bg-clip-text text-transparent"
+            >LITHOGRAPHY</span
+          > <br />
+          AT SCALE.
+        </h1>
+        <p
+          class="font-[Inter] text-xl text-[var(--color-on-surface-variant)] leading-relaxed max-w-xl mb-10"
+        >
+          Senior Software Engineer at <span
+            class="text-[var(--color-primary-container)] font-mono">ASML</span
+          >. I architect high-velocity control systems for the future of chips.
+          When the code stops, the kite goes up.
+        </p>
+        <div class="flex items-center space-x-6">
+          <button
+            class="px-8 py-4 kinetic-gradient text-[var(--color-on-primary-fixed)] font-bold rounded-md hover:shadow-[0_0_30px_rgba(0,212,255,0.3)] transition-all"
+          >
+            View Engineering Log
+          </button>
+          <a
+            class="text-[var(--color-primary-container)] border-b border-[var(--color-primary-container)]/30 pb-1 font-bold hover:text-[var(--color-primary)] transition-all"
+            href="/blog/"
+          >
+            The Kite Diary →
+          </a>
+        </div>
+      </div>
+      <div class="col-span-12 lg:col-span-5 relative">
+        <div
+          class="aspect-[4/5] rounded-xl overflow-hidden glass-card shadow-2xl relative"
+        >
+          <img
+            src="/images/hero-kite.jpg"
+            alt="Kitesurfing Performance"
+            class="w-full h-full object-cover grayscale-[0.5] hover:grayscale-0 transition-all duration-700"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-[var(--color-surface-container-lowest)] via-transparent to-transparent opacity-60"
+          >
+          </div>
+          <!-- Performance Metric Overlay -->
+          <div class="absolute bottom-6 left-6 right-6 p-4 glass-card rounded-lg">
+            <div
+              class="text-[10px] uppercase tracking-widest text-[var(--color-primary-container)] mb-1"
+            >
+              Last Session Apex
+            </div>
+            <div class="font-[Space_Grotesk] text-4xl font-bold text-white">
+              12.4m
+            </div>
+            <div
+              class="h-1 w-full bg-[var(--color-surface-variant)] mt-2 overflow-hidden"
+            >
+              <div
+                class="h-full kinetic-gradient w-3/4 glow-bar"
+              >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack: Minimalist Bento Grid -->
+    <section class="mb-24">
+      <div class="flex items-end justify-between mb-12">
+        <div>
+          <h2
+            class="font-[Space_Grotesk] text-4xl font-bold tracking-tight mb-2"
+          >
+            ENGINEERING STACK
+          </h2>
+          <div class="h-1 w-12 bg-[var(--color-primary-container)]"></div>
+        </div>
+        <div
+          class="text-[var(--color-on-surface-variant)] font-mono text-sm uppercase tracking-tighter"
+        >
+          Updated Q3 // 2024
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {
+          [
+            { icon: "developer_board", name: "C++", sub: "Performance Core", accent: "primary" },
+            { icon: "schema", name: "Python", sub: "System Automation", accent: "secondary" },
+            { icon: "data_object", name: "Rust", sub: "Memory Safety", accent: "primary" },
+            { icon: "cloud", name: "Azure", sub: "Cloud Infra", accent: "secondary" },
+            { icon: "precision_manufacturing", name: "PLC", sub: "Industrial Control", accent: "primary" },
+            { icon: "monitoring", name: "Grafana", sub: "Real-time Metrics", accent: "secondary" },
+          ].map((tech) => (
+            <div
+              class={`p-6 glass-card ghost-border group hover:bg-${tech.accent === "primary" ? "[var(--color-primary-container)]" : "[var(--color-secondary-container)]"}/5 transition-all cursor-default`}
+            >
+              <span
+                class={`material-symbols-outlined text-4xl ${tech.accent === "primary" ? "text-[var(--color-primary-container)]" : "text-[var(--color-secondary)]"} mb-4 block transition-transform group-hover:scale-110`}
+              >
+                {tech.icon}
+              </span>
+              <div class="font-[Space_Grotesk] font-bold text-lg mb-1">{tech.name}</div>
+              <div class="text-[10px] uppercase text-slate-500 font-mono">{tech.sub}</div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Experience / Lifestyle Asymmetric Split -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <div class="space-y-12">
+        <div>
+          <h3
+            class="font-[Space_Grotesk] text-2xl font-bold mb-6 flex items-center gap-3"
+          >
+            <span class="material-symbols-outlined text-[var(--color-primary)]"
+              >history_edu</span
+            >
+            Engineering Trajectory
+          </h3>
+          <div class="space-y-8">
+            <!-- Current Role -->
+            <div
+              class="relative pl-6 border-l-2 border-[var(--color-outline-variant)]/30"
+            >
+              <div
+                class="absolute -left-[9px] top-0 w-4 h-4 bg-[var(--color-primary-container)] rounded-full ring-4 ring-[var(--color-surface-container-lowest)]"
+              >
+              </div>
+              <div class="text-sm font-mono text-[var(--color-primary)] mb-1">
+                2021 — PRESENT
+              </div>
+              <h4 class="font-bold text-lg">Senior Software Engineer</h4>
+              <p class="text-slate-500 text-sm">ASML • Eindhoven, NL</p>
+              <p class="mt-2 text-[var(--color-on-surface-variant)] text-sm">
+                Leading development for EUV lithography control software,
+                focusing on high-precision motion sub-systems.
+              </p>
+            </div>
+            <!-- Previous Role -->
+            <div
+              class="relative pl-6 border-l-2 border-[var(--color-outline-variant)]/30"
+            >
+              <div
+                class="absolute -left-[9px] top-0 w-4 h-4 bg-[var(--color-surface-variant)] rounded-full ring-4 ring-[var(--color-surface-container-lowest)]"
+              >
+              </div>
+              <div class="text-sm font-mono text-slate-500 mb-1">
+                2018 — 2021
+              </div>
+              <h4 class="font-bold text-lg">Embedded Systems Dev</h4>
+              <p class="text-slate-500 text-sm">TechCorp Systems • Berlin, DE</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-12">
+        <div
+          class="p-8 glass-card ghost-border rounded-xl relative overflow-hidden"
+        >
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-[var(--color-secondary-container)]/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2"
+          >
+          </div>
+          <h3
+            class="font-[Space_Grotesk] text-2xl font-bold mb-6 flex items-center gap-3"
+          >
+            <span class="material-symbols-outlined text-[var(--color-secondary)]"
+              >waves</span
+            >
+            Kinetic Obsessions
+          </h3>
+          <div class="space-y-4">
+            {
+              [
+                { name: "Kitesurfing", sub: "Big Air & Freestyle", level: "LEVEL: PRO", accent: "primary" },
+                { name: "Backcountry Snowboarding", sub: "Alpine Steep", level: "LEVEL: ADVANCED", accent: "secondary" },
+                { name: "MTB Downhill", sub: "Tech Trails", level: "LEVEL: INTERMEDIATE", accent: "primary" },
+              ].map((sport) => (
+                <div class="flex justify-between items-center p-4 bg-[var(--color-surface-container-low)]/50 rounded-lg group hover:bg-[var(--color-surface-container-high)] transition-colors">
+                  <div>
+                    <div class="font-bold">{sport.name}</div>
+                    <div class="text-xs text-slate-500">{sport.sub}</div>
+                  </div>
+                  <div
+                    class={`px-3 py-1 ${sport.accent === "primary" ? "bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)]" : "bg-[var(--color-secondary-container)]/10 text-[var(--color-secondary)]"} text-[10px] font-bold rounded`}
+                  >
+                    {sport.level}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map / Location Section -->
+    <section class="mt-24 pt-24 border-t border-[var(--color-outline-variant)]/10">
+      <div
+        class="flex flex-col md:flex-row items-center justify-between gap-8"
+      >
+        <div class="max-w-md">
+          <h4 class="font-[Space_Grotesk] text-3xl font-bold mb-4">
+            LOCATED IN EINDHOVEN
+          </h4>
+          <p class="text-[var(--color-on-surface-variant)] font-[Inter]">
+            The silicon heart of Europe. Reach out for collaboration or a
+            session at the Brouwersdam.
+          </p>
+        </div>
+        <div
+          class="w-full md:w-1/2 h-48 glass-card rounded-xl overflow-hidden relative ghost-border"
+        >
+          <img
+            src="/images/eindhoven.jpg"
+            alt="Eindhoven Cityscape"
+            class="w-full h-full object-cover opacity-40 grayscale"
+          />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="flex flex-col items-center">
+              <div
+                class="w-12 h-12 bg-[var(--color-primary-container)] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,212,255,0.5)]"
+              >
+                <span
+                  class="material-symbols-outlined text-[var(--color-on-primary-fixed)]"
+                  >location_on</span
+                >
+              </div>
+              <div
+                class="mt-2 text-xs font-mono uppercase tracking-widest text-[var(--color-primary)]"
+              >
+                51.4416° N, 5.4697° E
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Floating Action Button -->
+  <div class="fixed bottom-10 right-10 z-50">
+    <button
+      class="w-14 h-14 kinetic-gradient rounded-full flex items-center justify-center text-white shadow-2xl scale-100 hover:scale-110 active:scale-95 duration-200 group"
+    >
+      <span
+        class="material-symbols-outlined group-hover:rotate-12 transition-transform"
+        >chat_bubble</span
+      >
+    </button>
+  </div>
+</BaseLayout>

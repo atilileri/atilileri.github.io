@@ -1,0 +1,78 @@
+---
+interface Props {
+  currentPath?: string;
+}
+const { currentPath = "/" } = Astro.props;
+
+const navItems = [
+  { href: "/", label: "Home", icon: "home" },
+  { href: "/blog/", label: "Blog", icon: "article" },
+  { href: "/garden/", label: "Garden", icon: "potted_plant" },
+  { href: "/portfolio/", label: "Portfolio", icon: "terminal" },
+  { href: "/now/", label: "Now", icon: "schedule" },
+  { href: "/uses/", label: "Uses", icon: "category" },
+];
+---
+
+<aside
+  class="h-screen w-64 fixed left-0 top-0 border-r border-white/5 bg-slate-950/60 backdrop-blur-xl z-50 flex flex-col py-8 px-6 font-[Space_Grotesk] tracking-tight glow-primary"
+>
+  <!-- Brand -->
+  <div class="mb-10">
+    <a href="/">
+      <div
+        class="text-2xl font-bold bg-gradient-to-r from-[#00d4ff] to-[#b600f8] bg-clip-text text-transparent"
+      >
+        VELOCITY
+      </div>
+    </a>
+    <div class="text-xs text-slate-400 uppercase tracking-widest mt-1">
+      Software Engineer
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 space-y-2">
+    {
+      navItems.map((item) => {
+        const isActive = currentPath === item.href;
+        return (
+          <a
+            href={item.href}
+            class={`flex items-center space-x-3 px-4 py-3 transition-all duration-300 rounded-lg ${
+              isActive
+                ? "text-[#00d4ff] font-bold border-r-2 border-[#00d4ff] bg-[#00d4ff]/5"
+                : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+            }`}
+          >
+            <span class="material-symbols-outlined">{item.icon}</span>
+            <span class="text-sm font-medium">{item.label}</span>
+          </a>
+        );
+      })
+    }
+  </nav>
+
+  <!-- Profile + Contact -->
+  <div class="mt-auto pt-8 border-t border-white/5">
+    <div class="flex items-center space-x-3 mb-6">
+      <img
+        src="/images/avatar.jpg"
+        alt="Profile"
+        class="w-10 h-10 rounded-full border border-[#00d4ff]/30 object-cover"
+      />
+      <div>
+        <div class="text-sm font-bold text-on-surface">Alex Chen</div>
+        <div class="text-[10px] text-slate-500 uppercase tracking-tighter">
+          ASML / Eindhoven
+        </div>
+      </div>
+    </div>
+    <button
+      class="w-full py-3 kinetic-gradient text-[#001f27] font-bold rounded-md hover:scale-[1.02] active:scale-95 transition-transform duration-200 flex items-center justify-center gap-2 text-sm"
+    >
+      Contact
+      <span class="material-symbols-outlined text-sm">send</span>
+    </button>
+  </div>
+</aside>

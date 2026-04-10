@@ -1,0 +1,77 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Portfolio"
+  description="Selected projects and engineering achievements."
+  currentPath="/portfolio/"
+>
+  <div class="max-w-5xl mx-auto px-12 py-12">
+    <header class="mb-16">
+      <h1
+        class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] mb-4"
+      >
+        SELECTED <br /><span class="text-[var(--color-primary-container)] italic"
+          >PROJECTS</span
+        >
+      </h1>
+      <p class="text-[var(--color-on-surface-variant)] max-w-xl font-light">
+        Engineering work spanning lithography control systems, open-source
+        tooling, and side projects born from wind and powder.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {
+        [
+          {
+            title: "EUV Control Pipeline",
+            description: "Real-time motion control system for ASML's EUV lithography scanners. Sub-microsecond latency, C++ with custom RTOS.",
+            tags: ["C++", "RTOS", "ASML"],
+            status: "Production",
+          },
+          {
+            title: "Wafer Defect Classifier",
+            description: "ML model detecting nanometer-scale defects on wafer surfaces. Deployed at edge via Azure IoT.",
+            tags: ["Python", "ML", "Azure"],
+            status: "Production",
+          },
+          {
+            title: "Wind Alert Bot",
+            description: "Personal project: Telegram bot that scrapes weather APIs and predicts optimal kitesurfing conditions at Brouwersdam.",
+            tags: ["Python", "Telegram", "API"],
+            status: "Side Project",
+          },
+          {
+            title: "Session Logger",
+            description: "Open-source GPS tracking app for kitesurfing sessions. Records jump height, speed, and distance.",
+            tags: ["Rust", "GPS", "WASM"],
+            status: "Open Source",
+          },
+        ].map((project) => (
+          <article class="glass-card ghost-border rounded-xl p-8 group hover:shadow-lg hover:shadow-[var(--color-primary-container)]/5 transition-all">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="font-[Space_Grotesk] text-xl font-bold group-hover:text-[var(--color-primary-container)] transition-colors">
+                {project.title}
+              </h3>
+              <span class="text-[10px] px-2 py-1 bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] rounded uppercase tracking-widest font-bold">
+                {project.status}
+              </span>
+            </div>
+            <p class="text-sm text-[var(--color-on-surface-variant)] leading-relaxed mb-6">
+              {project.description}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {project.tags.map((tag) => (
+                <span class="text-[10px] px-2 py-1 bg-[var(--color-surface-container-high)] rounded font-mono text-[var(--color-on-surface-variant)]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

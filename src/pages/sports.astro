@@ -1,0 +1,66 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const sports = await getCollection("sports");
+const sortedSports = sports.sort(
+  (a, b) => b.data.startDate.getTime() - a.data.startDate.getTime()
+);
+---
+
+<BaseLayout title="Volunteering & Sports" currentPath="/sports">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold font-space mb-4">Volunteering & Sports</h1>
+      <p class="text-slate-400 text-lg">
+        The pursuit of edge. American Football, Kitesurfing, and giving back to
+        the community.
+      </p>
+    </header>
+
+    <div class="space-y-12">
+      {
+        sortedSports.map((item) => (
+          <div class="relative pl-8 border-l border-slate-800 pb-12 last:pb-0">
+            <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div class="md:col-span-2">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="text-xs font-bold uppercase tracking-widest text-blue-400 px-2 py-1 bg-blue-500/10 rounded">
+                    {item.data.type}
+                  </span>
+                  <span class="text-slate-500 text-sm">
+                    {item.data.startDate.toLocaleDateString("en-US", {
+                      month: "short",
+                      year: "numeric",
+                    })}{" "}
+                    — {item.data.current ? "Present" : item.data.endDate?.toLocaleDateString()}
+                  </span>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">{item.data.title}</h2>
+                {item.data.role && (
+                  <p class="text-blue-200 font-medium mb-4">{item.data.role}</p>
+                )}
+                <div class="prose prose-invert max-w-none">
+                  <item.render />
+                </div>
+              </div>
+
+              {item.data.image && (
+                <div class="relative group h-48 md:h-auto">
+                  <img
+                    src={item.data.image}
+                    alt={item.data.title}
+                    class="w-full h-full object-cover rounded-xl grayscale group-hover:grayscale-0 transition-all duration-500"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
+                </div>
+              )}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

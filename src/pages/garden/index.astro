@@ -1,0 +1,175 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const gardenNotes = [
+  {
+    slug: "decentralized-auth-rust",
+    title: "Decentralized Auth with Rust",
+    excerpt: "Exploring zero-knowledge proof mechanisms for distributed authentication in high-security embedded environments. Initial benchmarks show 40% reduction in handshake latency vs. TLS 1.3...",
+    status: "Sapling",
+    tags: ["Rust", "CryptoSec"],
+    date: "Updated 3d ago",
+    image: "/images/garden-circuit.jpg",
+  },
+  {
+    slug: "visualizing-throughput",
+    title: "Visualizing Throughput: D3.js for fab metrics",
+    excerpt: "Building real-time D3 dashboards to visualize wafer throughput, defect density heatmaps, and yield curves. Connects to the Grafana backend via WebSocket bridge...",
+    status: "Seed",
+    tags: ["D3.js", "DataViz"],
+    date: "Planted 1w ago",
+  },
+  {
+    slug: "clean-code-snowboarding",
+    title: "What Snowboarding Taught Me About Clean Code",
+    excerpt: "An essay mapping the principles of body mechanics in carving to the principles of modular, composable software architecture. Commitment in sport = commitment to refactoring...",
+    status: "Evergreen",
+    tags: ["Essay", "Philosophy"],
+    date: "Matured 2mo ago",
+  },
+  {
+    slug: "euv-realtime-kernel",
+    title: "EUV Real-time Kernel Constraints",
+    excerpt: "Notes on PREEMPT_RT patches and how we tune the Linux kernel for deterministic sub-microsecond interrupt latency in lithography systems...",
+    status: "Sapling",
+    tags: ["Linux", "RT"],
+    date: "Updated 5d ago",
+  },
+  {
+    slug: "azure-iot-edge",
+    title: "Azure IoT Edge at the Fab",
+    excerpt: "Deploying ML inference models at the edge for predictive maintenance in semiconductor manufacturing lines...",
+    status: "Seed",
+    tags: ["Azure", "IoT"],
+    date: "Planted 2w ago",
+  },
+  {
+    slug: "kite-wind-data",
+    title: "Wind Data Pipeline for Kite Sessions",
+    excerpt: "A personal project: scraping KNMI weather data, running it through a custom model, and getting Telegram alerts when conditions are perfect for 12m kite sessions...",
+    status: "Evergreen",
+    tags: ["Python", "Side Project"],
+    date: "Matured 3mo ago",
+  },
+];
+
+const statusConfig: Record<string, { bg: string; text: string }> = {
+  Seed: { bg: "bg-[var(--color-secondary-container)]/20", text: "text-[var(--color-secondary)]" },
+  Sapling: { bg: "bg-green-500/10", text: "text-green-400" },
+  Evergreen: { bg: "bg-[var(--color-primary-container)]/10", text: "text-[var(--color-primary-container)]" },
+};
+
+const stats = [
+  { label: "Seeds Planted", value: "24", icon: "eco" },
+  { label: "Growing Saplings", value: "12", icon: "forest" },
+  { label: "Evergreen Docs", value: "8", icon: "park" },
+];
+---
+
+<BaseLayout
+  title="Digital Garden"
+  description="Kinetic insights, raw notes, and evolving ideas from the intersection of engineering and sport."
+  currentPath="/garden/"
+>
+  <div class="max-w-6xl mx-auto px-12 py-12">
+    <!-- Hero -->
+    <header class="mb-16">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-surface-container-high)] ghost-border mb-6"
+      >
+        <span class="material-symbols-outlined text-sm text-green-400"
+          >potted_plant</span
+        >
+        <span
+          class="text-[10px] font-bold uppercase tracking-[0.2em] text-green-400"
+          >Living Knowledge Base</span
+        >
+      </div>
+      <h1
+        class="font-[Space_Grotesk] text-6xl font-bold tracking-tighter text-[var(--color-on-surface)] mb-4"
+      >
+        Kinetic Insights <br /><span class="text-[var(--color-on-surface-variant)] font-light italic"
+          >& Raw Notes</span
+        >
+      </h1>
+      <p
+        class="text-[var(--color-on-surface-variant)] max-w-xl font-light leading-relaxed"
+      >
+        A digital garden of evolving ideas — from cryptography seeds to
+        snowboarding philosophy. Some are polished, most are growing.
+      </p>
+    </header>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-3 gap-6 mb-16">
+      {
+        stats.map((stat) => (
+          <div class="glass-card ghost-border rounded-lg p-6 text-center">
+            <span class="material-symbols-outlined text-[var(--color-primary-container)] text-2xl mb-2 block">
+              {stat.icon}
+            </span>
+            <div class="font-[Space_Grotesk] text-3xl font-bold">
+              {stat.value}
+            </div>
+            <div class="text-[10px] text-[var(--color-outline)] uppercase tracking-widest mt-1">
+              {stat.label}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Masonry Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {
+        gardenNotes.map((note) => (
+          <article class="glass-card ghost-border rounded-xl overflow-hidden group hover:shadow-lg hover:shadow-[var(--color-primary-container)]/5 transition-all">
+            {note.image && (
+              <div class="h-40 overflow-hidden">
+                <img
+                  src={note.image}
+                  alt={note.title}
+                  class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                />
+              </div>
+            )}
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span
+                  class={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest ${statusConfig[note.status].bg} ${statusConfig[note.status].text}`}
+                >
+                  {note.status}
+                </span>
+                <span class="text-[10px] text-[var(--color-outline)] font-mono">
+                  {note.date}
+                </span>
+              </div>
+              <h3 class="font-[Space_Grotesk] text-lg font-bold mb-3 group-hover:text-[var(--color-primary-container)] transition-colors">
+                {note.title}
+              </h3>
+              <p class="text-sm text-[var(--color-on-surface-variant)] leading-relaxed mb-4">
+                {note.excerpt}
+              </p>
+              <div class="flex flex-wrap gap-2">
+                {note.tags.map((tag) => (
+                  <span class="text-[10px] px-2 py-1 bg-[var(--color-surface-container-high)] rounded font-mono text-[var(--color-on-surface-variant)]">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <div class="fixed bottom-10 right-10 z-50">
+    <button
+      class="w-14 h-14 kinetic-gradient rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 active:scale-95 transition-transform duration-200"
+    >
+      <span class="material-symbols-outlined">add</span>
+    </button>
+  </div>
+</BaseLayout>

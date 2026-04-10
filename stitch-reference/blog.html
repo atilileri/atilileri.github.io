@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=Geist+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#520072",
+                        "on-primary-fixed": "#001f27",
+                        "on-secondary-container": "#fff6fc",
+                        "on-secondary-fixed-variant": "#74009f",
+                        "secondary": "#ebb2ff",
+                        "surface-container": "#1d2026",
+                        "surface-bright": "#363940",
+                        "surface-variant": "#32353c",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "outline-variant": "#3c494e",
+                        "on-primary-container": "#00586b",
+                        "inverse-on-surface": "#2e3037",
+                        "on-primary": "#003642",
+                        "on-background": "#e1e2eb",
+                        "surface-container-low": "#191c22",
+                        "surface-container-lowest": "#0b0e14",
+                        "surface-dim": "#10131a",
+                        "secondary-fixed-dim": "#ebb2ff",
+                        "secondary-container": "#b600f8",
+                        "tertiary": "#d4dff7",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e1e2eb",
+                        "surface": "#10131a",
+                        "on-tertiary-container": "#455064",
+                        "outline": "#859398",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#a8e8ff",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-secondary-fixed": "#320047",
+                        "background": "#10131a",
+                        "on-tertiary": "#263143",
+                        "on-error": "#690005",
+                        "primary-container": "#00d4ff",
+                        "on-surface-variant": "#bbc9cf",
+                        "primary-fixed": "#b4ebff",
+                        "inverse-primary": "#00677e",
+                        "surface-tint": "#3cd7ff",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "on-tertiary-fixed": "#111c2d",
+                        "surface-container-highest": "#32353c",
+                        "surface-container-high": "#272a31",
+                        "secondary-fixed": "#f8d8ff",
+                        "inverse-surface": "#e1e2eb",
+                        "tertiary-fixed": "#d8e3fb",
+                        "tertiary-container": "#b8c3db"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["Geist Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .glass-card {
+            background: rgba(50, 53, 60, 0.1);
+            backdrop-filter: blur(12px);
+            border-top: 0.5px solid rgba(187, 201, 207, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface selection:bg-primary-container selection:text-on-primary-fixed">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-white/5 bg-slate-950/60 backdrop-blur-xl shadow-[40px_0_60px_-15px_rgba(0,212,255,0.04)] z-50 flex flex-col py-8 px-6 font-['Space_Grotesk'] tracking-tight">
+<div class="mb-12">
+<h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">VELOCITY</h1>
+<p class="text-xs text-slate-500 mt-1 uppercase tracking-[0.2em]">Software Engineer</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-sm font-medium">Home</span>
+</a>
+<!-- Active State: Blog -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-cyan-400 font-bold border-r-2 border-cyan-400 bg-cyan-400/5" href="#">
+<span class="material-symbols-outlined">article</span>
+<span class="text-sm font-medium">Blog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span class="text-sm font-medium">Garden</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-sm font-medium">Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span class="text-sm font-medium">Now</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="text-sm font-medium">Uses</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-3 rounded-lg bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed font-bold text-sm tracking-wide transition-transform scale-95 active:scale-90 duration-200">
+                Contact
+            </button>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] bg-transparent z-40 flex justify-end items-center px-8 h-16">
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+<input class="bg-surface-container-low border-none focus:ring-1 focus:ring-primary-container text-xs w-48 rounded-md pl-10 pr-4 py-2 text-on-surface-variant" placeholder="Search articles..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-cyan-400">
+<button class="material-symbols-outlined opacity-80 hover:opacity-100 transition-opacity">settings</button>
+<button class="material-symbols-outlined opacity-80 hover:opacity-100 transition-opacity">account_circle</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-12 pb-24 min-h-screen">
+<!-- Header Section -->
+<header class="mb-20 max-w-4xl">
+<h2 class="font-headline text-[3.5rem] font-bold leading-[0.95] tracking-tighter text-on-surface mb-6">
+                ENGINEERING <br/>
+<span class="bg-gradient-to-r from-primary-container to-secondary-container bg-clip-text text-transparent">PERSPECTIVES.</span>
+</h2>
+<p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed font-light">
+                Long-form technical writing on distributed systems, performance optimization, and the philosophy of clean architecture.
+            </p>
+</header>
+<!-- Formal Article List -->
+<section class="max-w-5xl space-y-16">
+<!-- Article 1 -->
+<article class="group cursor-pointer">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="w-full md:w-1/3 aspect-video overflow-hidden rounded-lg bg-surface-container-low relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" data-alt="abstract close-up of computer server rack glowing with cyan and purple led lights in a dark data center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUkwRW_NXQ40WfkfxpJfTa3rAEWVpmXVQ-zxjcm_uYrNdg06yazdq9naNRbnkYUY0eiEa7TCo80H9n01hnLXmxTudNtjRlUSIH5S8cP3zeInIjV8mwo2X19r0k1gMqZ9mzgRXSMw6sBIEPzxR7Derko3fdlEtL9GabdYDEAJUTmviY0tE5tEuFZCs4vdba0AZ6KuziGCgAIkcERs3n_uVLf0DLWZpdRofYkbbFN7VW6zaJOyF5xQt-LTj4mazbBjzWlSZKNGVfiQY"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex items-center gap-4 mb-4">
+<span class="font-mono text-[10px] tracking-widest text-primary-container uppercase px-2 py-0.5 border border-primary-container/20 rounded">Architecture</span>
+<span class="text-outline text-xs font-mono">2024.05.12</span>
+<span class="text-outline text-xs font-mono">14 MIN READ</span>
+</div>
+<h3 class="font-headline text-3xl font-bold text-on-surface group-hover:text-primary-container transition-colors mb-4 leading-tight">
+                            The Cost of Latency in Distributed Systems
+                        </h3>
+<p class="text-on-surface-variant leading-relaxed line-clamp-3 mb-6">
+                            Exploring the hidden performance overheads of service-to-service communication and how to mitigate them through intelligent caching and persistent connections. We dive deep into the TCP handshake and the impact of TLS 1.3 on modern cloud infrastructure.
+                        </p>
+<div class="mt-auto flex items-center gap-2 text-primary-container font-mono text-xs tracking-tighter group-hover:translate-x-2 transition-transform">
+                            READ ARTICLE <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Article 2 -->
+<article class="group cursor-pointer">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="w-full md:w-1/3 aspect-video overflow-hidden rounded-lg bg-surface-container-low relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" data-alt="high contrast macro shot of mechanical keyboard keys with dramatic top lighting and deep shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4SHF1-fk6Tkpe_SYQPkRTlk3XT_1WdrGJtwsHQLGIWwv0V6phDVh7Flrqvn5_UyIgM8CUBiMReaxjO5QAg9pRXSNHz0-012WohhZiLL9tl0P6X279lu7l1FP3shofOCecKExCkv2basx7487IyV0py9C_RYSy1u8tX7ai3OVhdDJPxcV9_EPwesPFCJFUgyqKVryju75UREJAHTuOzgVdf1617SJB64fef1r9O9TI4mpqOs07WhEUouAlDHMWYvpg3iV7QoGqqkI"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex items-center gap-4 mb-4">
+<span class="font-mono text-[10px] tracking-widest text-secondary uppercase px-2 py-0.5 border border-secondary/20 rounded">Productivity</span>
+<span class="text-outline text-xs font-mono">2024.04.28</span>
+<span class="text-outline text-xs font-mono">8 MIN READ</span>
+</div>
+<h3 class="font-headline text-3xl font-bold text-on-surface group-hover:text-primary-container transition-colors mb-4 leading-tight">
+                            Flow State: Programming as a Performance Sport
+                        </h3>
+<p class="text-on-surface-variant leading-relaxed line-clamp-3 mb-6">
+                            Drawing parallels between the kinetic focus required for kiteboarding and the mental clarity needed for complex debugging. How to engineer an environment that fosters uninterrupted cognitive flow.
+                        </p>
+<div class="mt-auto flex items-center gap-2 text-primary-container font-mono text-xs tracking-tighter group-hover:translate-x-2 transition-transform">
+                            READ ARTICLE <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Article 3 -->
+<article class="group cursor-pointer">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="w-full md:w-1/3 aspect-video overflow-hidden rounded-lg bg-surface-container-low relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" data-alt="clean dark code editor screen showing typescript logic with syntax highlighting in neon cyan and magenta" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Yc9kDqTD_GOTQs6cgMTVTFO-MS2bQeG6uu49PkbmyPEXS9OvTLPdl0CCeVreyks-GlEEmaB253arCmcExvr2i2ICTgTBS16iXeor8GPoObZFyBduqBDjlqljADWRQXKn2g7HJaOBS2haqDxM0DlrSD66XcL-HfDJnz7IZeISoBU2NN3huJ7YtgObDcE5l1BN_mVKb3oi4-sIoOSUDSgk_rZrg_RKSQoA6Ywc-WfkjU6mEA55-FCe99EbVwae3E_0fwYybRwCKYM"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex items-center gap-4 mb-4">
+<span class="font-mono text-[10px] tracking-widest text-primary-container uppercase px-2 py-0.5 border border-primary-container/20 rounded">Typescript</span>
+<span class="text-outline text-xs font-mono">2024.04.15</span>
+<span class="text-outline text-xs font-mono">22 MIN READ</span>
+</div>
+<h3 class="font-headline text-3xl font-bold text-on-surface group-hover:text-primary-container transition-colors mb-4 leading-tight">
+                            Advanced Type Gymnastics for Library Authors
+                        </h3>
+<p class="text-on-surface-variant leading-relaxed line-clamp-3 mb-6">
+                            A technical deep-dive into conditional types, template literal types, and mapped types. Learn how to build APIs that are both flexible and strictly typed without sacrificing developer experience.
+                        </p>
+<div class="mt-auto flex items-center gap-2 text-primary-container font-mono text-xs tracking-tighter group-hover:translate-x-2 transition-transform">
+                            READ ARTICLE <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Article 4 -->
+<article class="group cursor-pointer">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="w-full md:w-1/3 aspect-video overflow-hidden rounded-lg bg-surface-container-low relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" data-alt="abstract satellite view of earth at night with glowing blue fiber optic connections spanning across continents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASe6py6XqWK_E_BkZirmCFRIWzjua8zv6b3P6_z4wXE2tRPXzcfzl59cNUszMGeA7kSNAeivbLdnk-AmyevwMmIZV20V0KX9A96zN9osy1BRVHBlIxdOa5CNgcq02GEBttBNlW1sd7NUWSBBGDjFwi55qd2PoiCb7Bni1aa4UMseD9RAJMSSpQRDQEDgdK7s6NOJ5-W7pnE4naZbSSQSQWPDT7t9Ow9gCzyviIv9GEWaahqNTp5r0YNkg4ZkqbjxCcTfInnASI2o4"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex items-center gap-4 mb-4">
+<span class="font-mono text-[10px] tracking-widest text-secondary uppercase px-2 py-0.5 border border-secondary/20 rounded">Future Tech</span>
+<span class="text-outline text-xs font-mono">2024.03.30</span>
+<span class="text-outline text-xs font-mono">11 MIN READ</span>
+</div>
+<h3 class="font-headline text-3xl font-bold text-on-surface group-hover:text-primary-container transition-colors mb-4 leading-tight">
+                            Edge Computing: The End of the Centralized Cloud?
+                        </h3>
+<p class="text-on-surface-variant leading-relaxed line-clamp-3 mb-6">
+                            As 5G rolls out and IoT devices become ubiquitous, we analyze the shift from massive data centers to local execution. Why latency is the final frontier in the user experience battle.
+                        </p>
+<div class="mt-auto flex items-center gap-2 text-primary-container font-mono text-xs tracking-tighter group-hover:translate-x-2 transition-transform">
+                            READ ARTICLE <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+</div>
+</div>
+</div>
+</article>
+</section>
+<!-- Newsletter Subscription (Glassmorphism Section) -->
+<section class="mt-32 glass-card p-12 rounded-xl max-w-4xl border border-outline-variant/10">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<div>
+<h4 class="font-headline text-2xl font-bold text-on-surface mb-2">Subscribe to the Log</h4>
+<p class="text-on-surface-variant text-sm">Technical deep dives and software engineering philosophy delivered monthly. No spam, just precision code.</p>
+</div>
+<div class="flex gap-2">
+<input class="flex-1 bg-surface-container-lowest border-b border-outline-variant focus:border-primary-container focus:ring-0 text-sm py-3 px-0" placeholder="engineer@velocity.io" type="email"/>
+<button class="bg-primary-container text-on-primary-fixed px-6 py-2 text-sm font-bold uppercase tracking-wider rounded-md hover:brightness-110 transition-all">Join</button>
+</div>
+</div>
+</section>
+<footer class="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-8">
+<span class="font-mono text-[10px] text-outline tracking-widest uppercase">© 2024 VELOCITY PRECISION</span>
+<div class="flex gap-4">
+<a class="text-outline hover:text-primary-container transition-colors" href="#"><span class="material-symbols-outlined text-lg">terminal</span></a>
+<a class="text-outline hover:text-primary-container transition-colors" href="#"><span class="material-symbols-outlined text-lg">public</span></a>
+<a class="text-outline hover:text-primary-container transition-colors" href="#"><span class="material-symbols-outlined text-lg">code</span></a>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+<span class="font-mono text-[10px] text-on-surface-variant uppercase tracking-tighter">Systems Operational</span>
+</div>
+</footer>
+</main>
+</body></html>

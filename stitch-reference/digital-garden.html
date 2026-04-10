@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary": "#520072",
+                      "on-primary-fixed": "#001f27",
+                      "on-secondary-container": "#fff6fc",
+                      "on-secondary-fixed-variant": "#74009f",
+                      "secondary": "#ebb2ff",
+                      "surface-container": "#1d2026",
+                      "surface-bright": "#363940",
+                      "surface-variant": "#32353c",
+                      "on-tertiary-fixed-variant": "#3c475a",
+                      "outline-variant": "#3c494e",
+                      "on-primary-container": "#00586b",
+                      "inverse-on-surface": "#2e3037",
+                      "on-primary": "#003642",
+                      "on-background": "#e1e2eb",
+                      "surface-container-low": "#191c22",
+                      "surface-container-lowest": "#0b0e14",
+                      "surface-dim": "#10131a",
+                      "secondary-fixed-dim": "#ebb2ff",
+                      "secondary-container": "#b600f8",
+                      "tertiary": "#d4dff7",
+                      "error-container": "#93000a",
+                      "primary-fixed-dim": "#3cd7ff",
+                      "error": "#ffb4ab",
+                      "on-surface": "#e1e2eb",
+                      "surface": "#10131a",
+                      "on-tertiary-container": "#455064",
+                      "outline": "#859398",
+                      "on-error-container": "#ffdad6",
+                      "primary": "#a8e8ff",
+                      "on-primary-fixed-variant": "#004e5f",
+                      "on-secondary-fixed": "#320047",
+                      "background": "#10131a",
+                      "on-tertiary": "#263143",
+                      "on-error": "#690005",
+                      "primary-container": "#00d4ff",
+                      "on-surface-variant": "#bbc9cf",
+                      "primary-fixed": "#b4ebff",
+                      "inverse-primary": "#00677e",
+                      "surface-tint": "#3cd7ff",
+                      "tertiary-fixed-dim": "#bcc7de",
+                      "on-tertiary-fixed": "#111c2d",
+                      "surface-container-highest": "#32353c",
+                      "surface-container-high": "#272a31",
+                      "secondary-fixed": "#f8d8ff",
+                      "inverse-surface": "#e1e2eb",
+                      "tertiary-fixed": "#d8e3fb",
+                      "tertiary-container": "#b8c3db"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Space Grotesk"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-auto-rows: 10px;
+            gap: 24px;
+        }
+        .masonry-item {
+            grid-row-end: span 25; /* Fallback */
+        }
+        .glass-card {
+            background: rgba(50, 53, 60, 0.1);
+            backdrop-filter: blur(12px);
+            border: 0.5px solid rgba(187, 201, 207, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body selection:bg-primary-container selection:text-on-primary-fixed">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 border-r border-white/5 bg-slate-950/60 backdrop-blur-xl flex flex-col py-8 px-6 z-50 font-['Space_Grotesk'] tracking-tight shadow-[40px_0_60px_-15px_rgba(0,212,255,0.04)]">
+<div class="mb-12">
+<h1 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">VELOCITY</h1>
+<p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Software Engineer</p>
+</div>
+<div class="flex flex-col space-y-2 flex-grow">
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Home</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">article</span>
+<span>Blog</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-cyan-400 font-bold border-r-2 border-cyan-400 bg-cyan-400/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span>Garden</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span>Portfolio</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span>Now</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-lg text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">category</span>
+<span>Uses</span>
+</a>
+</div>
+<div class="mt-auto">
+<button class="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed font-bold scale-95 active:scale-90 duration-200">
+                Contact
+            </button>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] flex justify-end items-center px-8 h-16 bg-transparent z-40">
+<div class="flex items-center space-y-0 space-x-6 text-cyan-400 font-['Space_Grotesk'] uppercase tracking-widest text-sm">
+<button class="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-24 px-12 pb-24 min-h-screen bg-surface">
+<!-- Hero Section -->
+<section class="mb-20">
+<div class="max-w-4xl">
+<span class="text-primary-container font-headline tracking-widest uppercase text-sm mb-4 block">Digital Garden</span>
+<h2 class="text-6xl font-headline font-bold text-on-surface mb-6 tracking-tight">Kinetic <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary-container">Insights</span> &amp; Raw Notes.</h2>
+<p class="text-on-surface-variant text-xl leading-relaxed max-w-2xl">
+                    An open collection of thoughts, technical deep-dives, and evolving theories. This is where I process complex architectures before they become polished articles.
+                </p>
+</div>
+</section>
+<!-- Garden Stats / Tonal Layering -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+<div class="p-8 bg-surface-container-low rounded-xl border-l-2 border-primary-container">
+<div class="text-4xl font-headline font-bold text-primary mb-2">142</div>
+<div class="text-sm text-on-surface-variant uppercase tracking-widest">Seeds Planted</div>
+</div>
+<div class="p-8 bg-surface-container-low rounded-xl border-l-2 border-secondary-container">
+<div class="text-4xl font-headline font-bold text-secondary mb-2">56</div>
+<div class="text-sm text-on-surface-variant uppercase tracking-widest">Growing Saplings</div>
+</div>
+<div class="p-8 bg-surface-container-low rounded-xl border-l-2 border-tertiary">
+<div class="text-4xl font-headline font-bold text-tertiary mb-2">29</div>
+<div class="text-sm text-on-surface-variant uppercase tracking-widest">Evergreen Docs</div>
+</div>
+</div>
+<!-- Masonry Content -->
+<div class="masonry-grid">
+<!-- Item 1: Seed -->
+<article class="masonry-item glass-card rounded-xl p-8 flex flex-col" style="grid-row-end: span 28;">
+<div class="flex justify-between items-start mb-6">
+<span class="bg-surface-container-high px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-primary-container rounded border border-primary-container/20">Seed</span>
+<span class="text-xs text-on-surface-variant">Oct 24, 2023</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4 leading-tight">Decentralized Auth with Rust</h3>
+<p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+                    Initial thoughts on using WebAuthn combined with local SQLite storage for high-performance edge authentication. Investigating crate 'webauthn-rs'.
+                </p>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#rust</span>
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#auth</span>
+</div>
+</article>
+<!-- Item 2: Sapling with Image -->
+<article class="masonry-item glass-card rounded-xl overflow-hidden flex flex-col" style="grid-row-end: span 45;">
+<div class="h-48 w-full overflow-hidden">
+<img alt="Tech Concept" class="w-full h-full object-cover grayscale opacity-50 hover:grayscale-0 transition-all duration-700" data-alt="abstract high-tech circuit board with glowing neon cyan lines on a dark black background metallic texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ5G76wzqeU0JFESCnlVMWyi5_r07GwWjy1V33tPSxbmc9tJHgd0PbaAqQy5CKxI7qwMQH6mx-8Mqj512vHXrbwM2U6-DIp27mFHDyOVVs59VNwwlRu3CMDVX8lhEkdfzHCcYEDej_1akHz8__dZkw2C3I5uz_747xiGZrJKnbSLkHKn7ZefgyXu_zNFV30gx2oWCnUPkb3vOZ30Fx-6utnCAdC8_SVRvjk9DBiuUkl81bfbseK3up0Tqs38FHZHb8M5evCLp1y7s"/>
+</div>
+<div class="p-8 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-6">
+<span class="bg-surface-container-high px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-secondary-container rounded border border-secondary-container/20">Sapling</span>
+<span class="text-xs text-on-surface-variant">Sep 12, 2023</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4 leading-tight">Visualizing System Throughput</h3>
+<p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+                        Refining the mental model for back-pressure in asynchronous message queues. How visual metaphors help in debugging complex race conditions during peak kite-surfing season load.
+                    </p>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#architecture</span>
+</div>
+</div>
+</article>
+<!-- Item 3: Evergreen -->
+<article class="masonry-item glass-card rounded-xl p-8 flex flex-col" style="grid-row-end: span 32;">
+<div class="flex justify-between items-start mb-6">
+<span class="bg-tertiary-container px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-on-tertiary-container rounded border border-tertiary/20">Evergreen</span>
+<span class="text-xs text-on-surface-variant">Aug 05, 2023</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4 leading-tight">The Snowboarder's Guide to Clean Code</h3>
+<p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+                    Why carving a line in powder is exactly like refactoring a legacy codebase. Focusing on momentum, weight distribution (logic separation), and vision.
+                </p>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#philosophy</span>
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#clean-code</span>
+</div>
+</article>
+<!-- Item 4: Seed -->
+<article class="masonry-item glass-card rounded-xl p-8 flex flex-col" style="grid-row-end: span 26;">
+<div class="flex justify-between items-start mb-6">
+<span class="bg-surface-container-high px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-primary-container rounded border border-primary-container/20">Seed</span>
+<span class="text-xs text-on-surface-variant">Oct 02, 2023</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4 leading-tight">Tailwind Config Extensibility</h3>
+<p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+                    Experimenting with dynamic color generation based on user preferences using CSS variables and the 'withOptions' plugin API.
+                </p>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#css</span>
+</div>
+</article>
+<!-- Item 5: Sapling -->
+<article class="masonry-item glass-card rounded-xl p-8 flex flex-col" style="grid-row-end: span 30;">
+<div class="flex justify-between items-start mb-6">
+<span class="bg-surface-container-high px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-secondary-container rounded border border-secondary-container/20">Sapling</span>
+<span class="text-xs text-on-surface-variant">July 28, 2023</span>
+</div>
+<h3 class="text-2xl font-headline font-bold mb-4 leading-tight">Designing for Low Latency</h3>
+<p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+                    A deep dive into reducing TTFB on serverless edge functions. Comparing V8 isolates versus traditional microservices for real-time data sync.
+                </p>
+<div class="mt-auto flex flex-wrap gap-2">
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#devops</span>
+<span class="bg-surface-container-highest/40 text-[10px] px-2 py-1 rounded text-on-surface-variant uppercase tracking-tighter">#edge</span>
+</div>
+</article>
+<!-- Item 6: Evergreen with Performance Metric Style -->
+<article class="masonry-item glass-card rounded-xl p-8 flex flex-col border-b-4 border-secondary-container" style="grid-row-end: span 34;">
+<div class="flex justify-between items-start mb-6">
+<span class="bg-tertiary-container px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-on-tertiary-container rounded border border-tertiary/20">Evergreen</span>
+<span class="text-xs text-on-surface-variant">Jan 15, 2024</span>
+</div>
+<div class="text-sm font-label uppercase tracking-widest text-secondary-container mb-2">Performance Optimization</div>
+<h3 class="text-2xl font-headline font-bold mb-4 leading-tight">99.9th Percentile Latency Analysis</h3>
+<p class="text-on-surface-variant text-sm mb-8 leading-relaxed">
+                    How we achieved sub-50ms response times for a global user base using geo-distributed read replicas and strategic caching layers.
+                </p>
+<div class="flex items-end gap-2 mt-auto">
+<div class="text-3xl font-headline font-bold text-primary">0.05</div>
+<div class="text-[10px] text-on-surface-variant mb-1">MS DELAY</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Floating Action Button - suppressed as per mandate for detailed views but keeping "Garden" context -->
+<button class="fixed bottom-10 right-10 w-14 h-14 rounded-full bg-gradient-to-tr from-primary-container to-secondary-container flex items-center justify-center text-on-primary-fixed shadow-2xl z-50 hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</body></html>

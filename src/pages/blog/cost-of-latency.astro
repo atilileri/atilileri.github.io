@@ -1,0 +1,75 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+// Placeholder for dynamic blog post pages
+// Will be wired to content collections later
+---
+
+<BaseLayout title="Blog Post" currentPath="/blog/">
+  <article class="max-w-3xl mx-auto px-12 py-12">
+    <header class="mb-12">
+      <div class="flex items-center gap-3 mb-4">
+        <span
+          class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[10px] font-bold px-2 py-1 uppercase tracking-widest"
+          >Deep Dive</span
+        >
+        <span class="text-[10px] text-[var(--color-outline)] font-mono"
+          >2024-10-08</span
+        >
+      </div>
+      <h1
+        class="font-[Space_Grotesk] text-5xl font-bold tracking-tight leading-tight mb-6"
+      >
+        The Cost of 1ms: Latency in Lithography Control Systems
+      </h1>
+      <p class="text-[var(--color-on-surface-variant)] text-lg">
+        Exploring the non-linear cost of latency in high-precision EUV
+        manufacturing and why nanosecond-level optimization matters.
+      </p>
+    </header>
+    <div
+      class="prose prose-invert prose-lg max-w-none text-[var(--color-on-surface-variant)]"
+    >
+      <p>
+        In the world of EUV lithography, every millisecond counts. When you're
+        etching circuits at the 3nm node, the margin for error isn't just small
+        — it's nearly non-existent. This post explores why latency optimization
+        at the sub-millisecond level is the single most impactful engineering
+        challenge in modern chip manufacturing.
+      </p>
+      <h2
+        class="font-[Space_Grotesk] text-2xl font-bold text-[var(--color-on-surface)] mt-12 mb-4"
+      >
+        The Physics of Precision
+      </h2>
+      <p>
+        EUV light travels at just under 300,000 km/s. In the 1ms it takes for a
+        control signal to propagate, the wafer stage has already moved
+        micrometers. This is the fundamental tension: software must be faster
+        than physics.
+      </p>
+      <div
+        class="my-8 p-6 bg-[var(--color-surface-container-low)] rounded-lg ghost-border"
+      >
+        <code class="text-[var(--color-primary-container)] text-sm font-mono"
+          >// Critical path: 248μs budget for the complete control loop<br />
+          // Stage position → Sensor read → Compute → Actuate<br />
+          constexpr auto CONTROL_BUDGET = 248us;</code
+        >
+      </div>
+      <p>
+        The article continues with deep analysis of control loop architectures,
+        real-time operating system considerations, and hardware-software
+        co-design patterns that enable sub-microsecond response times...
+      </p>
+    </div>
+    <div class="mt-16 pt-8 border-t border-[var(--color-outline-variant)]/10">
+      <a
+        href="/blog/"
+        class="text-[var(--color-primary-container)] text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all"
+      >
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Back to All Articles
+      </a>
+    </div>
+  </article>
+</BaseLayout>

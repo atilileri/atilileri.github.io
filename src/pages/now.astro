@@ -1,0 +1,131 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Now"
+  description="What I'm currently focused on, reading, and building."
+  currentPath="/now/"
+>
+  <div class="max-w-4xl mx-auto px-12 py-12">
+    <header class="mb-16">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-surface-container-high)] ghost-border mb-6"
+      >
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        <span
+          class="text-[10px] font-bold uppercase tracking-[0.2em] text-green-400"
+          >Live Status</span
+        >
+      </div>
+      <h1
+        class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] mb-4"
+      >
+        WHAT I'M DOING <br /><span
+          class="text-[var(--color-primary-container)] italic">NOW</span
+        >
+      </h1>
+      <p class="text-[var(--color-on-surface-variant)] text-sm font-mono">
+        Last updated: October 2024 • Eindhoven, NL
+      </p>
+    </header>
+
+    <div class="space-y-12">
+      <!-- Current Focus -->
+      <section class="glass-card ghost-border rounded-xl p-8">
+        <h3
+          class="font-[Space_Grotesk] text-xl font-bold mb-6 flex items-center gap-3"
+        >
+          <span
+            class="material-symbols-outlined text-[var(--color-primary-container)]"
+            >code</span
+          >
+          Engineering
+        </h3>
+        <ul class="space-y-3 text-[var(--color-on-surface-variant)]">
+          <li class="flex items-start gap-3">
+            <span class="text-[var(--color-primary-container)] mt-1">▸</span>
+            <span
+              >Optimizing real-time control loops for next-gen EUV systems at
+              ASML</span
+            >
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-[var(--color-primary-container)] mt-1">▸</span>
+            <span>Exploring Rust for safety-critical embedded components</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-[var(--color-primary-container)] mt-1">▸</span>
+            <span>Building a wind data pipeline (personal project)</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Sport -->
+      <section class="glass-card ghost-border rounded-xl p-8">
+        <h3
+          class="font-[Space_Grotesk] text-xl font-bold mb-6 flex items-center gap-3"
+        >
+          <span class="material-symbols-outlined text-[var(--color-secondary)]"
+            >waves</span
+          >
+          Sport
+        </h3>
+        <ul class="space-y-3 text-[var(--color-on-surface-variant)]">
+          <li class="flex items-start gap-3">
+            <span class="text-[var(--color-secondary)] mt-1">▸</span>
+            <span
+              >Training for back-to-back megaloop sessions at Tarifa this
+              winter</span
+            >
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-[var(--color-secondary)] mt-1">▸</span>
+            <span>Snowboard season prep: Stubaier Gletscher opening week</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Reading -->
+      <section class="glass-card ghost-border rounded-xl p-8">
+        <h3
+          class="font-[Space_Grotesk] text-xl font-bold mb-6 flex items-center gap-3"
+        >
+          <span class="material-symbols-outlined text-green-400">menu_book</span
+          >
+          Reading
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {
+            [
+              {
+                title: "Systems Performance",
+                author: "Brendan Gregg",
+                progress: 72,
+              },
+              {
+                title: "The Art of Doing Science and Engineering",
+                author: "Richard Hamming",
+                progress: 45,
+              },
+            ].map((book) => (
+              <div class="p-4 bg-[var(--color-surface-container-low)]/50 rounded-lg">
+                <div class="font-bold text-sm mb-1">{book.title}</div>
+                <div class="text-[10px] text-slate-500 mb-3">{book.author}</div>
+                <div class="w-full h-1 bg-[var(--color-surface-container-high)] rounded-full overflow-hidden">
+                  <div
+                    class="h-full kinetic-gradient rounded-full"
+                    style={`width: ${book.progress}%`}
+                  />
+                </div>
+                <div class="text-[10px] text-slate-500 mt-1 text-right">
+                  {book.progress}%
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

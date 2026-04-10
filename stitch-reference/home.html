@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VELOCITY | Software Engineer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#520072",
+                        "on-primary-fixed": "#001f27",
+                        "on-secondary-container": "#fff6fc",
+                        "on-secondary-fixed-variant": "#74009f",
+                        "secondary": "#ebb2ff",
+                        "surface-container": "#1d2026",
+                        "surface-bright": "#363940",
+                        "surface-variant": "#32353c",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "outline-variant": "#3c494e",
+                        "on-primary-container": "#00586b",
+                        "inverse-on-surface": "#2e3037",
+                        "on-primary": "#003642",
+                        "on-background": "#e1e2eb",
+                        "surface-container-low": "#191c22",
+                        "surface-container-lowest": "#0b0e14",
+                        "surface-dim": "#10131a",
+                        "secondary-fixed-dim": "#ebb2ff",
+                        "secondary-container": "#b600f8",
+                        "tertiary": "#d4dff7",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "error": "#ffb4ab",
+                        "on-surface": "#e1e2eb",
+                        "surface": "#10131a",
+                        "on-tertiary-container": "#455064",
+                        "outline": "#859398",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#a8e8ff",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "on-secondary-fixed": "#320047",
+                        "background": "#10131a",
+                        "on-tertiary": "#263143",
+                        "on-error": "#690005",
+                        "primary-container": "#00d4ff",
+                        "on-surface-variant": "#bbc9cf",
+                        "primary-fixed": "#b4ebff",
+                        "inverse-primary": "#00677e",
+                        "surface-tint": "#3cd7ff",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "on-tertiary-fixed": "#111c2d",
+                        "surface-container-highest": "#32353c",
+                        "surface-container-high": "#272a31",
+                        "secondary-fixed": "#f8d8ff",
+                        "inverse-surface": "#e1e2eb",
+                        "tertiary-fixed": "#d8e3fb",
+                        "tertiary-container": "#b8c3db"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b0e14;
+            color: #e1e2eb;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(50, 53, 60, 0.1);
+            backdrop-filter: blur(12px);
+            border-top: 0.5px solid rgba(187, 201, 207, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-white/5 bg-slate-950/60 backdrop-blur-xl shadow-[40px_0_60px_-15px_rgba(0,212,255,0.04)] z-50 flex flex-col py-8 px-6 font-['Space_Grotesk'] tracking-tight">
+<div class="mb-10">
+<div class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">VELOCITY</div>
+<div class="text-xs text-slate-400 uppercase tracking-widest mt-1">Software Engineer</div>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active Tab: Home -->
+<a class="flex items-center space-x-3 px-4 py-3 text-cyan-400 font-bold border-r-2 border-cyan-400 bg-cyan-400/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Home</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">article</span>
+<span>Blog</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">potted_plant</span>
+<span>Garden</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span>Portfolio</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span>Now</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">category</span>
+<span>Uses</span>
+</a>
+</nav>
+<div class="mt-auto pt-8 border-t border-white/5">
+<div class="flex items-center space-x-3 mb-6">
+<img alt="Engineer Profile Avatar" class="w-10 h-10 rounded-full border border-cyan-400/30" data-alt="close-up portrait of a professional man in a tech environment, modern cinematic lighting with subtle blue reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8fII_pbGbX_2CsNDIJEsiQ0bifajMx3A9eyPc0hCsv0sIbkFDSV22P6G_wAD9lvNvJYvjNkrJA1yIepHZ4gDeVU2uQSGUYhfJdMf2P3jW5x2GM1qL23_ivO9cWoZ9ipiF5ZbCEvltmXw0n6ZtD7dBuu1QmGgCwXcqlVUgm496DtJWUUoqFIyLDQpuibcvcFta68mmHIxlhEqXpvXT6Mwbl8mg3vqk_osiaWoUmJjCS1-sfzFuB9JUhLjCnC13AD38_bBR5_-fvWU"/>
+<div>
+<div class="text-sm font-bold text-on-surface">Alex Chen</div>
+<div class="text-[10px] text-slate-500 uppercase tracking-tighter">ASML / Eindhoven</div>
+</div>
+</div>
+<button class="w-full py-3 bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed font-bold rounded-md scale-95 active:scale-90 duration-200 flex items-center justify-center gap-2">
+                Contact
+                <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</aside>
+<!-- TopAppBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 flex justify-end items-center px-8 z-40 bg-transparent font-['Space_Grotesk'] uppercase tracking-widest">
+<div class="flex items-center space-x-6">
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-500 opacity-80 hover:opacity-100 hover:text-cyan-300 transition-all cursor-pointer">settings</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-500 opacity-80 hover:opacity-100 hover:text-cyan-300 transition-all cursor-pointer">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="max-w-7xl mx-auto px-12 py-12">
+<!-- Hero Section: Kinetic Precision -->
+<section class="relative grid grid-cols-12 gap-8 mb-24 items-center">
+<div class="col-span-12 lg:col-span-7">
+<div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-surface-container-high border border-outline-variant/20 mb-6">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">System Status: Operational</span>
+</div>
+<h1 class="font-headline text-7xl md:text-8xl font-bold leading-[0.9] tracking-tighter text-on-surface mb-8">
+                        BUILDING <br/> <span class="bg-gradient-to-r from-primary-container via-cyan-300 to-secondary-container bg-clip-text text-transparent">LITHOGRAPHY</span> <br/> AT SCALE.
+                    </h1>
+<p class="font-body text-xl text-on-surface-variant leading-relaxed max-w-xl mb-10">
+                        Senior Software Engineer at <span class="text-primary-container font-mono">ASML</span>. I architect high-velocity control systems for the future of chips. When the code stops, the kite goes up. 
+                    </p>
+<div class="flex items-center space-x-6">
+<button class="px-8 py-4 bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed font-bold rounded-md hover:shadow-[0_0_30px_rgba(0,212,255,0.3)] transition-all">
+                            View Engineering Log
+                        </button>
+<a class="text-primary-container border-b border-primary-container/30 pb-1 font-bold hover:text-primary transition-all" href="#">
+                            The Kite Diary →
+                        </a>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-5 relative">
+<div class="aspect-[4/5] rounded-xl overflow-hidden glass-card shadow-2xl relative">
+<img alt="Kitesurfing Performance" class="w-full h-full object-cover grayscale-[0.5] hover:grayscale-0 transition-all duration-700" data-alt="dramatic action shot of a kitesurfer jumping high against a moody dark blue sky with sharp water spray details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1llUwhL4QNVch9IKZqsi_lvm3pP8scImqyt_XMhRO3OoVZPZBh0Tp5FsZ7aBIW7sO9g70Ta_NMSSId1KJ_eAKPF7b2oXs_tjy6TwQTsWn7hfot9t9SdAzhU4KaBg2XRQRVD8q9CFE8wjBNPzeqp-3yqpvZ6tG7Q9pcN0wkk6xjiu5nvV_IkVohgDNOfTJfHq0-b2079-t1WhOzXLnA_azVItKVKTANm2Ugcd33e2_mKrNGXsnN1bm3W-AKZkek01sAtEI6HTBE9c"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent opacity-60"></div>
+<!-- Performance Metric Overlay -->
+<div class="absolute bottom-6 left-6 right-6 p-4 glass-card rounded-lg">
+<div class="text-[10px] uppercase tracking-widest text-primary-container mb-1">Last Session Apex</div>
+<div class="font-headline text-4xl font-bold text-white">12.4m</div>
+<div class="h-1 w-full bg-surface-variant mt-2 overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary-container to-secondary-container w-3/4 shadow-[0_0_10px_rgba(0,212,255,0.5)]"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Tech Stack: Minimalist Bento Grid -->
+<section class="mb-24">
+<div class="flex items-end justify-between mb-12">
+<div>
+<h2 class="font-headline text-4xl font-bold tracking-tight mb-2">ENGINEERING STACK</h2>
+<div class="h-1 w-12 bg-primary-container"></div>
+</div>
+<div class="text-on-surface-variant font-mono text-sm uppercase tracking-tighter">
+                        Updated Q3 // 2024
+                    </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+<!-- Tech Item -->
+<div class="p-6 glass-card border border-outline-variant/10 group hover:bg-primary-container/5 transition-all cursor-default">
+<span class="material-symbols-outlined text-4xl text-primary-container mb-4 block transition-transform group-hover:scale-110">developer_board</span>
+<div class="font-headline font-bold text-lg mb-1">C++</div>
+<div class="text-[10px] uppercase text-slate-500 font-mono">Performance Core</div>
+</div>
+<div class="p-6 glass-card border border-outline-variant/10 group hover:bg-secondary-container/5 transition-all cursor-default">
+<span class="material-symbols-outlined text-4xl text-secondary mb-4 block transition-transform group-hover:scale-110">schema</span>
+<div class="font-headline font-bold text-lg mb-1">Python</div>
+<div class="text-[10px] uppercase text-slate-500 font-mono">System Automation</div>
+</div>
+<div class="p-6 glass-card border border-outline-variant/10 group hover:bg-primary-container/5 transition-all cursor-default">
+<span class="material-symbols-outlined text-4xl text-primary-container mb-4 block transition-transform group-hover:scale-110">data_object</span>
+<div class="font-headline font-bold text-lg mb-1">Rust</div>
+<div class="text-[10px] uppercase text-slate-500 font-mono">Memory Safety</div>
+</div>
+<div class="p-6 glass-card border border-outline-variant/10 group hover:bg-secondary-container/5 transition-all cursor-default">
+<span class="material-symbols-outlined text-4xl text-secondary mb-4 block transition-transform group-hover:scale-110">cloud</span>
+<div class="font-headline font-bold text-lg mb-1">Azure</div>
+<div class="text-[10px] uppercase text-slate-500 font-mono">Cloud Infra</div>
+</div>
+<div class="p-6 glass-card border border-outline-variant/10 group hover:bg-primary-container/5 transition-all cursor-default">
+<span class="material-symbols-outlined text-4xl text-primary-container mb-4 block transition-transform group-hover:scale-110">precision_manufacturing</span>
+<div class="font-headline font-bold text-lg mb-1">PLC</div>
+<div class="text-[10px] uppercase text-slate-500 font-mono">Industrial Control</div>
+</div>
+<div class="p-6 glass-card border border-outline-variant/10 group hover:bg-secondary-container/5 transition-all cursor-default">
+<span class="material-symbols-outlined text-4xl text-secondary mb-4 block transition-transform group-hover:scale-110">monitoring</span>
+<div class="font-headline font-bold text-lg mb-1">Grafana</div>
+<div class="text-[10px] uppercase text-slate-500 font-mono">Real-time Metrics</div>
+</div>
+</div>
+</section>
+<!-- Experience / Lifestyle Asymmetric Split -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+<div class="space-y-12">
+<div>
+<h3 class="font-headline text-2xl font-bold mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+                            Engineering Trajectory
+                        </h3>
+<div class="space-y-8">
+<div class="relative pl-6 border-l-2 border-outline-variant/30">
+<div class="absolute -left-[9px] top-0 w-4 h-4 bg-primary-container rounded-full ring-4 ring-surface-container-lowest"></div>
+<div class="text-sm font-mono text-primary mb-1">2021 — PRESENT</div>
+<h4 class="font-bold text-lg">Senior Software Engineer</h4>
+<p class="text-slate-500 text-sm">ASML • Eindhoven, NL</p>
+<p class="mt-2 text-on-surface-variant text-sm">Leading development for EUV lithography control software, focusing on high-precision motion sub-systems.</p>
+</div>
+<div class="relative pl-6 border-l-2 border-outline-variant/30">
+<div class="absolute -left-[9px] top-0 w-4 h-4 bg-surface-variant rounded-full ring-4 ring-surface-container-lowest"></div>
+<div class="text-sm font-mono text-slate-500 mb-1">2018 — 2021</div>
+<h4 class="font-bold text-lg">Embedded Systems Dev</h4>
+<p class="text-slate-500 text-sm">TechCorp Systems • Berlin, DE</p>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-12">
+<div class="p-8 glass-card border border-outline-variant/10 rounded-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2"></div>
+<h3 class="font-headline text-2xl font-bold mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">waves</span>
+                            Kinetic Obsessions
+                        </h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center p-4 bg-surface-container-low/50 rounded-lg group hover:bg-surface-container-high transition-colors">
+<div>
+<div class="font-bold">Kitesurfing</div>
+<div class="text-xs text-slate-500">Big Air &amp; Freestyle</div>
+</div>
+<div class="px-3 py-1 bg-primary-container/10 text-primary-container text-[10px] font-bold rounded">LEVEL: PRO</div>
+</div>
+<div class="flex justify-between items-center p-4 bg-surface-container-low/50 rounded-lg group hover:bg-surface-container-high transition-colors">
+<div>
+<div class="font-bold">Backcountry Snowboarding</div>
+<div class="text-xs text-slate-500">Alpine Steep</div>
+</div>
+<div class="px-3 py-1 bg-secondary-container/10 text-secondary text-[10px] font-bold rounded">LEVEL: ADVANCED</div>
+</div>
+<div class="flex justify-between items-center p-4 bg-surface-container-low/50 rounded-lg group hover:bg-surface-container-high transition-colors">
+<div>
+<div class="font-bold">MTB Downhill</div>
+<div class="text-xs text-slate-500">Tech Trails</div>
+</div>
+<div class="px-3 py-1 bg-primary-container/10 text-primary-container text-[10px] font-bold rounded">LEVEL: INTERMEDIATE</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Map / Location Subtle Section -->
+<section class="mt-24 pt-24 border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row items-center justify-between gap-8">
+<div class="max-w-md">
+<h4 class="font-headline text-3xl font-bold mb-4">LOCATED IN EINDHOVEN</h4>
+<p class="text-on-surface-variant font-body">The silicon heart of Europe. Reach out for collaboration or a session at the Brouwersdam.</p>
+</div>
+<div class="w-full md:w-1/2 h-48 glass-card rounded-xl overflow-hidden relative border border-outline-variant/10">
+<img alt="Eindhoven Cityscape" class="w-full h-full object-cover opacity-40 grayscale" data-alt="abstract architectural close-up of a modern tech building in Eindhoven, Netherlands, clean lines and glass reflections" data-location="Eindhoven" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn2tCDuLiLwAgJEbUueGFvTg8wd47wLD8U-otF7PHjJMkfLqrRstrveio5GPZ6ID738URaKefUNWnYZnNlsqVIWBSlP6rVlmibosJ3GJJIxxm1Sftmj8CAf7-myia9KlINpdPgrdk4yKS6nbMqt_4GraMC7swLTVQ8WeqcrREm7ez0a6TDQPYcap_uEfnnDdi4QlgAQSZLuTzaqS31GX8kKHV1tspidPTGbxZ469HlxOrfEhISj78SKwhzVPHGAxPG275tVAkaH2E"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,212,255,0.5)]">
+<span class="material-symbols-outlined text-on-primary-fixed">location_on</span>
+</div>
+<div class="mt-2 text-xs font-mono uppercase tracking-widest text-primary">51.4416° N, 5.4697° E</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Global Floating Action Button - Only on Home/Dashboards as per mandate -->
+<div class="fixed bottom-10 right-10 z-50">
+<button class="w-14 h-14 bg-gradient-to-tr from-primary-container to-secondary-container rounded-full flex items-center justify-center text-white shadow-2xl scale-100 hover:scale-110 active:scale-95 duration-200 group">
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">chat_bubble</span>
+</button>
+</div>
+</body></html>
