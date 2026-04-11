@@ -25,15 +25,7 @@ const garden = defineCollection({
   }),
 });
 
-const uses = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/uses" }),
-  schema: z.object({
-    title: z.string(),
-    category: z.enum(["hardware", "software", "desk", "sports"]),
-    icon: z.string().optional(),
-    order: z.number().default(0),
-  }),
-});
+
 
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
@@ -63,4 +55,4 @@ const sports = defineCollection({
   }),
 });
 
-export const collections = { blog, garden, uses, projects, sports };
+export const collections = { blog, garden, projects, sports };

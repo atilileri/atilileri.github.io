@@ -9,17 +9,27 @@ const { currentPath = "/" } = Astro.props;
     <div class="hidden md:flex gap-12 items-center">
       <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath === '/' ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/">HOME</a>
       <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/blog') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/blog/">BLOG</a>
-      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/uses') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/uses/">USES</a>
       <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/garden') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/garden/">GARDEN</a>
       <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/now') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/now/">NOW</a>
+      <a class={`font-['Inter'] font-medium tracking-tight text-[1rem] transition-colors duration-300 ${currentPath.startsWith('/cv') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black border-b border-[#1b1b1b] dark:border-[#f9f9f9] pb-1' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60 font-normal hover:text-[#00327d] dark:hover:text-[#0047AB]'}`} href="/cv/">CV</a>
     </div>
     <div class="flex items-center gap-6">
       <button id="theme-toggle" class="material-symbols-outlined text-[#1b1b1b] dark:text-[#f9f9f9] text-xl cursor-pointer hover:opacity-80">
-        <span id="theme-icon-dark" class="material-symbols-outlined">dark_mode</span>
-        <span id="theme-icon-light" class="material-symbols-outlined hidden">light_mode</span>
+        <span id="theme-icon-dark" class="material-symbols-outlined" style="display: none;">dark_mode</span>
+        <span id="theme-icon-light" class="material-symbols-outlined" style="display: none;">light_mode</span>
       </button>
-      <button class="md:hidden material-symbols-outlined text-[#1b1b1b] dark:text-[#f9f9f9] text-xl" data-icon="menu">menu</button>
+      <div class="max-md:block hidden">
+        <button id="mobile-menu-btn" class="material-symbols-outlined text-[#1b1b1b] dark:text-[#f9f9f9] text-xl" data-icon="menu">menu</button>
+      </div>
     </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden w-full bg-[#f9f9f9] dark:bg-[#1b1b1b] border-t border-[#1b1b1b]/5 dark:border-[#f9f9f9]/5 flex-col px-6 py-4 gap-4">
+    <a class={`font-['Inter'] font-medium tracking-tight text-[1.125rem] ${currentPath === '/' ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60'}`} href="/">HOME</a>
+    <a class={`font-['Inter'] font-medium tracking-tight text-[1.125rem] ${currentPath.startsWith('/blog') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60'}`} href="/blog/">BLOG</a>
+    <a class={`font-['Inter'] font-medium tracking-tight text-[1.125rem] ${currentPath.startsWith('/garden') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60'}`} href="/garden/">GARDEN</a>
+    <a class={`font-['Inter'] font-medium tracking-tight text-[1.125rem] ${currentPath.startsWith('/now') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60'}`} href="/now/">NOW</a>
+    <a class={`font-['Inter'] font-medium tracking-tight text-[1.125rem] ${currentPath.startsWith('/cv') ? 'text-[#1b1b1b] dark:text-[#f9f9f9] font-black' : 'text-[#1b1b1b]/60 dark:text-[#f9f9f9]/60'}`} href="/cv/">CV</a>
   </div>
 </nav>
 
@@ -31,8 +41,8 @@ const { currentPath = "/" } = Astro.props;
   function updateIcons() {
     const isDark = document.documentElement.classList.contains("dark");
     if (iconDark && iconLight) {
-      iconDark.classList.toggle("hidden", !isDark);
-      iconLight.classList.toggle("hidden", isDark);
+      iconDark.style.display = isDark ? "inline-block" : "none";
+      iconLight.style.display = !isDark ? "inline-block" : "none";
     }
   }
 
@@ -48,5 +58,15 @@ const { currentPath = "/" } = Astro.props;
       localStorage.setItem("theme", "dark");
     }
     updateIcons();
+  });
+
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  mobileMenuBtn?.addEventListener("click", () => {
+    if (mobileMenu) {
+      mobileMenu.classList.toggle("hidden");
+      mobileMenu.classList.toggle("flex");
+    }
   });
 </script>
