@@ -3,291 +3,306 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Curriculum Vitae" currentPath="/cv/">
-  <section class="py-16 md:py-24 px-6 md:px-12 max-w-[1000px] mx-auto min-h-screen">
-    
-    <!-- Headline Section -->
-    <div class="mb-20">
-      <span class="text-xs tracking-[0.3em] font-bold text-primary uppercase block mb-4">DOCUMENT : CV_01</span>
-      <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-none mb-6">CURRICULUM<br/>VITAE</h1>
-      <div class="flex flex-col md:flex-row gap-6 mt-12 pt-12 border-t border-on-surface/10">
-        <div class="md:w-1/3">
-          <h2 class="text-sm tracking-widest font-bold uppercase text-on-surface-variant">Profile Abstract</h2>
-        </div>
-        <div class="md:w-2/3 space-y-6 text-on-surface text-sm md:text-base leading-relaxed">
-          <p>
-            With over a decade of experience in software engineering, I have navigated complex technical landscapes across aerospace, defense, healthcare, and semiconductor industries. My career is defined by a commitment to safety-critical systems, robust architectural design, and mission-critical software development.
-          </p>
-          <p>
-            Currently, I am deeply interested in pivoting my career towards AI-centric domains. I am actively pursuing both professional and personal projects involving machine learning and deep learning, aiming to integrate my background in systems architecture with the latest advancements in artificial intelligence.
-          </p>
-          <div>
-            <span class="font-bold block mb-2">Core Competencies:</span>
-            <ul class="list-none space-y-1 pl-4 border-l-2 border-primary/30">
-              <li>· Avionics (e.g. IFF Transponder, CVDR)</li>
-              <li>· High and low-level software development in Safety Critical Systems (e.g. Bootloader, BSP&IO Drivers, Application Level)</li>
-              <li>· Graphical User Interface development (e.g. Qt, Scade Suite, VAPS XT, .NET)</li>
-              <li>· Software Development Life-cycle Methodologies (e.g. Agile, Waterfall, V-Model)</li>
-              <li>· Machine Learning Applications (e.g. Neural Networks, Tensorflow, Keras API)</li>
-              <li>· Embedded Software Development (e.g. Lithography & Aerospace domains)</li>
-            </ul>
-          </div>
+  <div class="pb-32 px-6 md:px-12 max-w-[1440px] mx-auto w-full">
+    <!-- Hero Section / Title -->
+    <section class="grid grid-cols-12 gap-8 mb-24 min-h-[30vh] items-end">
+      <div class="col-span-12 flex flex-col justify-end">
+        <h1 class="text-[4rem] md:text-[8rem] font-black leading-[0.9] tracking-tighter uppercase mb-4">
+          Software<br />Engineer
+        </h1>
+        <div class="flex flex-col md:flex-row gap-8 md:gap-24 mt-8 lg:mt-12">
+          <p class="text-[0.75rem] md:text-sm uppercase tracking-[0.2em] font-bold text-primary">Software Design Architect</p>
+          <p class="text-[0.75rem] md:text-sm uppercase tracking-[0.2em] font-bold text-on-surface/50">Eindhoven, Netherlands</p>
         </div>
       </div>
-    </div>
+    </section>
+
+    <div class="h-px w-full bg-on-surface/10 mb-24"></div>
 
     <!-- Experience Section -->
-    <div class="mb-20">
-      <div class="flex items-center gap-4 mb-12">
-        <div class="h-px bg-on-surface/10 grow"></div>
-        <h2 class="text-sm tracking-widest font-bold uppercase text-on-surface-variant">Professional Experience</h2>
-        <div class="h-px bg-on-surface/10 grow"></div>
+    <section class="grid grid-cols-12 gap-8 mb-32">
+      <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
+        <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">Experience</h2>
+        <p class="text-[0.75rem] uppercase tracking-[0.1em] text-on-surface/40 leading-relaxed max-w-[200px]">
+          Specializing in safety-critical systems, avionics and embedded software architectures.
+        </p>
       </div>
 
-      <div class="space-y-16">
-        <!-- ASML -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary">09.2023 — PRESENT</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Software Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">ASML</p>
-            <p class="text-sm leading-relaxed text-on-surface/80">
-              Development & Engineering, MX Exposure Imaging, DUV Image Align Software. Continued execution of responsibilities established during my YER contract, converted to ASML payroll. Implementations in C, Python and Julia languages. Acted as Scrum Master.
-            </p>
-          </div>
-        </div>
-
-        <!-- ASML (YER) -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">07.2022 — 09.2023</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Software Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">ASML (on behalf of YER Nederland B.V.)</p>
-            <p class="text-sm leading-relaxed text-on-surface/80 mb-2">
-              Development & Engineering, MX Exposure Imaging, DUV Image Align Software.
-            </p>
-            <ul class="list-none space-y-1 pl-4 border-l border-on-surface/20 text-sm text-on-surface/80">
-              <li>· Implementations in C, Python and Julia languages.</li>
-              <li>· Scrum Master roles.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- ICTerra -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">11.2021 — 06.2022</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">MIDAS Team Lead & Software Architect</h3>
-            <p class="text-on-surface-variant font-medium mb-4">ICterra</p>
-            <p class="text-sm leading-relaxed text-on-surface/80 mb-2">
-              MIDAS: Early Diagnosis, Evaluation and Tracking System for Breast Cancer. An R&D project (funded by Tubitak) detecting malignant breast sections in mammogram images in collaboration with Hacettepe University Hospital.
-            </p>
-            <ul class="list-none space-y-1 pl-4 border-l border-on-surface/20 text-sm text-on-surface/80 mb-4">
-              <li>· Development and training of the multi-stage (Abnormality + BIRADS) neural network classifier on a multi-view, multi-class, imbalanced dataset.</li>
-              <li>· Implementing a dockerized, remote working infrastructure.</li>
-              <li>· Utilization of training runs on the remote, multi-GPU, unix-based workstation environment.</li>
-            </ul>
-            <p class="text-xs text-on-surface-variant">
-              Additional role: Managed MXRAY (Mobile Digital XRAY System) firmware maintenance for Aselsan, on behalf of ICterra.
-            </p>
-          </div>
-        </div>
-
-        <!-- Turkish Aerospace (IMODE Lead) -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">01.2020 — 11.2021</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">IMODE Team Lead</h3>
-            <p class="text-on-surface-variant font-medium mb-4">Turkish Aerospace</p>
-            <p class="text-sm leading-relaxed text-on-surface/80 mb-2">
-              IMODE, Kit Development. Maintenance of the current tool and developing additional features including ARINC 661 Toolkit, Architecture Design Toolkit (AADL), Tool Qualification Kit (reg. DO standards), and Software Development Kit.
-            </p>
-            <ul class="list-none space-y-1 pl-4 border-l border-on-surface/20 text-sm text-on-surface/80">
-              <li>· Scrum Master, Sprint Planning.</li>
-              <li>· Researching new technologies and standards, identifying challenging topics and risks.</li>
-              <li>· Co-instructor at Model-Based Design lecture at Yildiz Technical University Avionics Engineering master's programme.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Turkish Aerospace (Senior SDE) -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">03.2019 — 01.2020</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Senior Software Design Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">Turkish Aerospace</p>
-            <p class="text-sm leading-relaxed text-on-surface/80 mb-2">
-              IMODE: Integrated Model-Based Design & Development Environment. Developed as a competition to VAPS and SCADE (Suite). Implemented in C++ with Qt Framework.
-            </p>
-            <ul class="list-none space-y-1 pl-4 border-l border-on-surface/20 text-sm text-on-surface/80">
-              <li>· Development of plans, standards, design, requirements and source code.</li>
-              <li>· Participated in Project & Model Management (incl. File IO module).</li>
-              <li>· Template-Based, multilingual Code Generator (incl. C, C++ and Python Language templates).</li>
-              <li>· License Management (Public Key Authentication).</li>
-              <li>· Graphical and logical model designs for Advanced Jet Trainer and Light Attack Aircraft, PVI (Pilot Vehicle Interface) Development project.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Aselsan -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">08.2017 — 03.2019</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Software Design Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">Aselsan <span class="text-xs font-normal opacity-80">(on behalf of Turkish Aerospace)</span></p>
-            <p class="text-sm leading-relaxed text-on-surface/80 mb-2">
-              New Generation Trainer Aircraft, OFP Development. Implemented in C++ using IBM Rational Rhapsody. Supported verification activities.
-            </p>
-            <ul class="list-none space-y-1 pl-4 border-l border-on-surface/20 text-sm text-on-surface/80">
-              <li>· IFF (Identification Friend or Foe) Transponder.</li>
-              <li>· CVRFDR (Cockpit Voice (CVR) and Flight Data (FDR) Recorder).</li>
-              <li>· Initial development of some radar pages using VAPS.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Turkish Aerospace (SDE) -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">08.2016 — 08.2017</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Software Design Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">Turkish Aerospace</p>
-            <p class="text-sm leading-relaxed text-on-surface/80">
-              <span class="font-bold underline decoration-primary underline-offset-4">New Gen Trainer Aircraft, LRU Firmware:</span> Development of source code for Bootloader and I2C Device Driver for Symbol Generator (SG) and Rudder Assistant System (RAS) hardwares. Implemented in C.<br/><br/>
-              <span class="font-bold underline decoration-primary underline-offset-4">Military Transport Aircraft, Avionics Modernization:</span> Development of an ARINC 429 data simulator tool for the verification environment using .NET Framework in C#.
-            </p>
-          </div>
-        </div>
-
-        <!-- AYESAŞ -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">08.2014 — 08.2016</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Software Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">AYESAŞ</p>
-            <p class="text-sm leading-relaxed text-on-surface/80">
-              <span class="font-bold underline decoration-primary underline-offset-4">New Gen Trainer Aircraft, LRU Firmware:</span> Development of requirements using IBM Rational DOORS for Intercommunication System (ICS), Multi-Function Display (MFD), and Keyboard/Cockpit Display Unit (KDU/CDU).<br/><br/>
-              <span class="font-bold underline decoration-primary underline-offset-4">MALE class Unmanned Aerial Vehicle, BSP & IO Drivers:</span> Development of plans, standards, design, requirements and source code for Bootloader, Dataloader, and BSP & IO Device Drivers (Ethernet, Serial, Flash, NVRAM) implemented in C and Assembly.
-            </p>
-          </div>
-        </div>
-
-        <!-- Bilişim AŞ -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 group">
-          <div class="md:col-span-3">
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60">06.2013 — 08.2014</span>
-          </div>
-          <div class="md:col-span-9">
-            <h3 class="text-2xl font-black tracking-tight mb-1">Software Engineer</h3>
-            <p class="text-on-surface-variant font-medium mb-4">Bilişim AŞ</p>
-            <p class="text-sm leading-relaxed text-on-surface/80">
-              <span class="font-bold underline decoration-primary underline-offset-4">DGCA Information Administration System:</span> Development, maintenance and support using Java Server Faces.<br/><br/>
-              <span class="font-bold underline decoration-primary underline-offset-4">Business Intelligence Application:</span> Development using PHP, Java and Javascript. Multiple DB management systems used (OracleDB, MySQL, MsSQL).
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Dual Columns: Education & Certifications -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-      <!-- Education -->
-      <div>
-        <div class="flex items-center gap-4 mb-8">
-          <h2 class="text-sm tracking-widest font-bold uppercase text-on-surface-variant">Education</h2>
-          <div class="h-px bg-on-surface/10 grow"></div>
-        </div>
+      <div class="col-span-12 md:col-span-8 flex flex-col gap-16">
         
-        <div class="space-y-8">
-          <div>
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60 mb-1 block">2016 — 2019</span>
-            <h3 class="text-xl font-bold tracking-tight mb-1">MSc. Multimedia Computing</h3>
-            <p class="text-on-surface-variant font-medium mb-2 text-sm">Middle East Technical University</p>
-            <p class="text-sm leading-relaxed text-on-surface/80">
-              Courses: Signal Processing, Machine Learning, Motion Capture, Speech Recognition, Image Processing, Deep Learning. Used Python for development.<br/>
-              <span class="italic text-xs mt-2 block opacity-80">Thesis: Speaker and Posture Classification using Instantaneous Acoustic Features of Breath Signals</span>
-            </p>
+        <!-- Job 1 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">Software Engineer / ASML</h3>
+            <span class="text-[1rem] font-black tabular-nums">07.2022 — PRESENT</span>
           </div>
-          
-          <div>
-            <span class="text-xs font-bold tracking-widest text-primary opacity-60 mb-1 block">2009 — 2013</span>
-            <h3 class="text-xl font-bold tracking-tight mb-1">BSc. Computer Engineering</h3>
-            <p class="text-on-surface-variant font-medium mb-2 text-sm">Hacettepe University</p>
-            <p class="text-sm leading-relaxed text-on-surface/80">
-              Focus: Operating Systems, Data Structures and Algorithms, Software Design Patterns.
-            </p>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            Development & Engineering, MX Exposure Imaging, DUV Image Align Software. Continued execution of responsibilities established during my YER contract, converted to ASML payroll on September 2023. Implementations in C, Python and Julia languages. Acted as Scrum Master.
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">C</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Python</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Julia</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Scrum</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">DUV Exposure</span>
           </div>
         </div>
 
-        <!-- Publications -->
-        <div class="mt-12">
-          <div class="flex items-center gap-4 mb-8">
-            <h2 class="text-sm tracking-widest font-bold uppercase text-on-surface-variant">Publications</h2>
-            <div class="h-px bg-on-surface/10 grow"></div>
+        <!-- Job 2 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">MIDAS Team Lead & Architect / ICterra</h3>
+            <span class="text-[1rem] font-black tabular-nums">11.2021 — 06.2022</span>
           </div>
-          <ul class="space-y-4">
-            <li class="text-sm">
-              <span class="font-bold">Speaker and Posture Classification using Instantaneous Intraspeech Breathing Features</span><br/>
-              <a href="https://arxiv.org/abs/2005.12230" class="text-primary hover:underline" target="_blank">arXiv:2005.12230 (2020)</a>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            MIDAS: Early Diagnosis, Evaluation and Tracking System for Breast Cancer. Development and training of the multi-stage (Abnormality + BIRADS) neural network classifier on a multi-view, multi-class, imbalanced dataset. Implemented dockerized remote working infrastructure with multi-GPU workstations. Handled MXRAY (Mobile Digital XRAY System) firmware maintainance.
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Python</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Deep Learning</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Neural Networks</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">TensorFlow</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Keras</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Docker</span>
+          </div>
+        </div>
+
+        <!-- Job 3 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">IMODE Team Lead & Senior SDE / Turkish Aerospace</h3>
+            <span class="text-[1rem] font-black tabular-nums">03.2019 — 11.2021</span>
+          </div>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            IMODE: Integrated Model-Based Design & Development Environment, advanced tool for avionics GUI / model-based design. Developed plans, standards, design, requirements and source code. Managed a team, served as Scrum master, and conducted research for core avionics tech (ARINC 661). Developed multi-lingual code generators and graphical model designs for Jet Trainer aircraft.
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">C++</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Qt Framework</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">System Architecture</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">DO-330</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Code Generation</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">ARINC 661</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Agile</span>
+          </div>
+        </div>
+
+        <!-- Job 4 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">Software Design Engineer / Aselsan (via Turkish Aerospace)</h3>
+            <span class="text-[1rem] font-black tabular-nums">08.2017 — 03.2019</span>
+          </div>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            New Generation Trainer Aircraft, OFP Development. Implementation of software requirements and source code using IBM Rational Rhapsody and C++. Contributed to IFF (Identification Friend or Foe) Transponder and Cockpit Voice/Flight Data Recorder (CVRFDR). Delivered initial VAPS radar pages.
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">C++</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Embedded Software</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Avionics</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">RTOS</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">IBM Rational Rhapsody</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">DO-178C</span>
+          </div>
+        </div>
+
+        <!-- Job 5 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">Software Design Engineer / Turkish Aerospace</h3>
+            <span class="text-[1rem] font-black tabular-nums">08.2016 — 08.2017</span>
+          </div>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            Development of source code for New Generation Trainer Aircraft LRU firmwares, including Bootloader and I2C Device Driver for Symbol Generator (SG) and Rudder Assistant hardwares. Developed an ARINC 429 data simulator tool using .NET Framework C# for a Military Transport Aircraft modernization.
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">C</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">C#</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">.NET Framework</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Bootloader</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">I2C</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">ARINC 429</span>
+          </div>
+        </div>
+
+        <!-- Job 6 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">Software Engineer / AYESAŞ</h3>
+            <span class="text-[1rem] font-black tabular-nums">08.2014 — 08.2016</span>
+          </div>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            MALE class Unmanned Aerial UAV, BSP & IO Drivers. Implemented Bootloader (setting up Minimum Processing Environment), Dataloader, and board support packages (Ethernet, Serial, Flash, NVRAM) in C and Assembly. Also oversaw requirements for LRU firmwares for New Gen Trainer Aircraft using DOORS.
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">C</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Assembly</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Embedded Software</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">BSP & IO Drivers</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">DO-178C</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">DOORS</span>
+          </div>
+        </div>
+
+        <!-- Job 7 -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-baseline border-b border-on-surface/5 pb-4">
+            <h3 class="text-[1.5rem] font-bold tracking-tight">Software Engineer / Bilişim AŞ</h3>
+            <span class="text-[1rem] font-black tabular-nums">06.2013 — 08.2014</span>
+          </div>
+          <p class="text-on-surface/70 leading-relaxed max-w-2xl text-sm">
+            Developed and maintained DGCA Information Administration System using Java Server Faces. Built Business Intelligence Applications using PHP, Java, and Javascript with multiple DB management systems (OracleDB, MySQL, MsSQL).
+          </p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">Java</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">PHP</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">JavaScript</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">OracleDB</span>
+            <span class="text-[0.65rem] border border-on-surface/10 px-2 py-1 uppercase tracking-wider font-bold">MySQL</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="h-px w-full bg-on-surface/10 mb-24"></div>
+
+    <!-- Skills Section -->
+    <section class="grid grid-cols-12 gap-8 mb-32">
+      <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
+        <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">Technical Stack</h2>
+      </div>
+
+      <div class="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-12 text-sm">
+        <div>
+          <h4 class="text-[0.75rem] uppercase tracking-[0.2em] font-black mb-6 text-primary">Core Engineering</h4>
+          <ul class="flex flex-col gap-3">
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Safety Critical Systems</span>
+              <span class="text-[0.75rem] font-black opacity-30">01</span>
             </li>
-            <li class="text-sm">
-              <span class="font-bold">BreathBase: Intra-Speech Breathing Dataset</span><br/>
-              <a href="https://doi.org/10.5281/zenodo.3841039" class="text-primary hover:underline" target="_blank">10.5281/zenodo.3841039 (2020)</a>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Avionics Architecture</span>
+              <span class="text-[0.75rem] font-black opacity-30">02</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Embedded Software (BSP/IO)</span>
+              <span class="text-[0.75rem] font-black opacity-30">03</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Machine Learning & AI</span>
+              <span class="text-[0.75rem] font-black opacity-30">04</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Graphical User Interfaces</span>
+              <span class="text-[0.75rem] font-black opacity-30">05</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-[0.75rem] uppercase tracking-[0.2em] font-black mb-6 text-primary">Standards & Ops</h4>
+          <ul class="flex flex-col gap-3">
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>DO-178C / DO-330 / DO-331</span>
+              <span class="text-[0.75rem] font-black opacity-30">06</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>ARINC 661 / 653 / 429</span>
+              <span class="text-[0.75rem] font-black opacity-30">07</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Docker & CI/CD Tooling</span>
+              <span class="text-[0.75rem] font-black opacity-30">08</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>Agile / SCRUM / V-Model</span>
+              <span class="text-[0.75rem] font-black opacity-30">09</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2 hover:text-primary transition-colors">
+              <span>IBM Rhapsody / DOORS</span>
+              <span class="text-[0.75rem] font-black opacity-30">10</span>
             </li>
           </ul>
         </div>
       </div>
+    </section>
 
-      <!-- Certifications -->
-      <div>
-        <div class="flex items-center gap-4 mb-8">
-          <h2 class="text-sm tracking-widest font-bold uppercase text-on-surface-variant">Certifications & Exam Scores</h2>
-          <div class="h-px bg-on-surface/10 grow"></div>
-        </div>
-        
-        <ul class="space-y-6">
-          <li class="flex justify-between border-b border-on-surface/5 pb-2">
-            <span class="text-sm font-bold">Deep Learning Fundamentals</span>
-            <span class="text-xs text-on-surface-variant text-right">NVIDIA DLI (2017)</span>
-          </li>
-          <li class="flex justify-between border-b border-on-surface/5 pb-2">
-            <span class="text-sm font-bold">ALES: 83</span>
-            <span class="text-xs text-on-surface-variant text-right">Equiv. GRE: 157 (2016)</span>
-          </li>
-          <li class="flex justify-between border-b border-on-surface/5 pb-2">
-            <span class="text-sm font-bold">YDS: 95</span>
-            <span class="text-xs text-on-surface-variant text-right">Equiv. TOEFL-IBT: 114 (2016)</span>
-          </li>
-          <li class="flex justify-between border-b border-on-surface/5 pb-2">
-            <span class="text-sm font-bold">DO-178C Short Courses</span>
-            <span class="text-xs text-on-surface-variant text-right">AFuzion Inc (2015)</span>
-          </li>
-          <li class="flex justify-between border-b border-on-surface/5 pb-2">
-            <span class="text-sm font-bold">Using DOORS for Requirement Mgmt.</span>
-            <span class="text-xs text-on-surface-variant text-right">PROYA (2015)</span>
-          </li>
-          <li class="flex justify-between border-b border-on-surface/5 pb-2">
-            <span class="text-sm font-bold">Integrity BSP & IO Drivers</span>
-            <span class="text-xs text-on-surface-variant text-right">Green Hills Software (2014)</span>
-          </li>
-        </ul>
+    <div class="h-px w-full bg-on-surface/10 mb-24"></div>
+
+    <!-- Education Section -->
+    <section class="grid grid-cols-12 gap-8 mb-32">
+      <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
+        <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">Education</h2>
       </div>
-    </div>
-  </section>
+
+      <div class="col-span-12 md:col-span-8 flex flex-col gap-12">
+        <div class="flex flex-col md:flex-row justify-between gap-4 border-b border-on-surface/5 pb-6">
+          <div>
+            <h3 class="text-[1.25rem] font-bold">MSc. in Multimedia Computing</h3>
+            <p class="text-on-surface/60 text-sm mt-1">Middle East Technical University / Machine Learning, Signal Processing</p>
+            <p class="text-on-surface/40 text-[0.75rem] italic mt-2">Thesis: Speaker and Posture Classification using Instantaneous Acoustic Features of Breath Signals</p>
+          </div>
+          <span class="text-[1rem] font-black tabular-nums md:text-right">2016 — 2019</span>
+        </div>
+        <div class="flex flex-col md:flex-row justify-between gap-4 border-b border-on-surface/5 pb-6">
+          <div>
+            <h3 class="text-[1.25rem] font-bold">BSc. in Computer Engineering</h3>
+            <p class="text-on-surface/60 text-sm mt-1">Hacettepe University</p>
+          </div>
+          <span class="text-[1rem] font-black tabular-nums md:text-right">2009 — 2013</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="h-px w-full bg-on-surface/10 mb-24"></div>
+
+    <!-- Publications & Certs Section -->
+    <section class="grid grid-cols-12 gap-8">
+      <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
+        <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">Awards<br />& Certs</h2>
+      </div>
+
+      <div class="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-12 text-sm">
+        <div>
+          <h4 class="text-[0.75rem] uppercase tracking-[0.2em] font-black mb-6 text-primary">Publications</h4>
+          <ul class="flex flex-col gap-4">
+            <li class="flex flex-col border-b border-on-surface/5 pb-3">
+              <span class="font-bold">Speaker and Posture Classification using Instantaneous Intraspeech Breathing Features</span>
+              <a href="https://arxiv.org/abs/2005.12230" class="text-[0.75rem] text-on-surface/50 hover:text-primary mt-1 transition-colors" target="_blank">arXiv:2005.12230 (2020)</a>
+            </li>
+            <li class="flex flex-col border-b border-on-surface/5 pb-3">
+              <span class="font-bold">BreathBase: Intra-Speech Breathing Dataset</span>
+              <a href="https://doi.org/10.5281/zenodo.3841039" class="text-[0.75rem] text-on-surface/50 hover:text-primary mt-1 transition-colors" target="_blank">10.5281/zenodo.3841039 (2020)</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-[0.75rem] uppercase tracking-[0.2em] font-black mb-6 text-primary">Certifications & Scores</h4>
+          <ul class="flex flex-col gap-3">
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2">
+              <span>Deep Learning Fundamentals</span>
+              <span class="text-[0.75rem] font-black opacity-40">2017</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2">
+              <span>ALES: 83 (Equiv. min. GRE: 157)</span>
+              <span class="text-[0.75rem] font-black opacity-40">2016</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2">
+              <span>YDS: 95 (Equiv. TOEFL-IBT: 114)</span>
+              <span class="text-[0.75rem] font-black opacity-40">2016</span>
+            </li>
+            <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2">
+              <span>DO-178C Short Courses</span>
+              <span class="text-[0.75rem] font-black opacity-40">2015</span>
+            </li>
+             <li class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2">
+              <span>Using DOORS for Requirement Mgmt.</span>
+              <span class="text-[0.75rem] font-black opacity-40">2015</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
 </BaseLayout>
