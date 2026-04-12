@@ -1,46 +1,22 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 
-// Placeholder blog posts — will be replaced by content collections
-const posts = [
-  {
-    slug: "cost-of-latency",
-    title: "The Cost of 1ms: Latency in Lithography Control Systems",
-    excerpt: "Exploring the non-linear cost of latency in high-precision EUV manufacturing and why nanosecond-level optimization matters.",
-    date: "2024-10-08",
-    category: "Deep Dive",
-    readTime: "12 min read",
-    image: "/images/blog-1.jpg",
-  },
-  {
-    slug: "flow-state-programming",
-    title: "Harnessing Flow State: A Programmer's Guide to Deep Work",
-    excerpt: "Borrowing techniques from extreme sports to achieve consistent flow states in software engineering.",
-    date: "2024-09-22",
-    category: "Productivity",
-    readTime: "8 min read",
-    image: "/images/blog-2.jpg",
-  },
-  {
-    slug: "rust-embedded-systems",
-    title: "Rust for Embedded: Memory Safety When It Matters Most",
-    excerpt: "How Rust's ownership model prevents entire categories of bugs in mission-critical embedded systems.",
-    date: "2024-09-05",
-    category: "Technical",
-    readTime: "15 min read",
-    image: "/images/blog-3.jpg",
-  },
-  {
-    slug: "kitesurfing-decision-making",
-    title: "What 20-knot Wind Teaches About Engineering Decisions",
-    excerpt: "Drawing parallels between high-speed kite maneuvers and critical system design choices under pressure.",
-    date: "2024-08-18",
-    category: "Essay",
-    readTime: "6 min read",
-    image: "/images/blog-4.jpg",
-  },
-];
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 ---
+
 
 <BaseLayout
   title="Blog"
@@ -64,7 +40,6 @@ const posts = [
       </p>
     </header>
 
-    <!-- Article List -->
     <section class="space-y-12">
       {
         posts.map((post) => (
@@ -72,8 +47,8 @@ const posts = [
             <div class="w-full md:w-1/3 flex-shrink-0">
               <div class="aspect-video overflow-hidden rounded-lg ghost-border">
                 <img
-                  src={post.image}
-                  alt={post.title}
+                  src={post.data.heroImage || "/images/blog-placeholder.jpg"}
+                  alt={post.data.title}
                   class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:scale-105"
                 />
               </div>
@@ -81,28 +56,25 @@ const posts = [
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-3">
                 <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
-                  {post.category}
+                  {post.data.tags[0] || "General"}
                 </span>
                 <span class="text-[10px] text-[var(--color-outline)] font-mono">
-                  {post.date}
-                </span>
-                <span class="text-[10px] text-[var(--color-outline)] font-mono">
-                  {post.readTime}
+                  {formatDate(post.data.pubDate)}
                 </span>
               </div>
               <a
-                href={`/blog/${post.slug}/`}
+                href={`/blog/${post.id}/`}
                 class="block"
               >
                 <h2 class="font-[Space_Grotesk] text-2xl font-bold tracking-tight group-hover:text-[var(--color-primary-container)] transition-colors mb-3">
-                  {post.title}
+                  {post.data.title}
                 </h2>
               </a>
               <p class="text-[var(--color-on-surface-variant)] text-sm leading-relaxed mb-4">
-                {post.excerpt}
+                {post.data.description}
               </p>
               <a
-                href={`/blog/${post.slug}/`}
+                href={`/blog/${post.id}/`}
                 class="text-[var(--color-primary-container)] text-xs font-bold uppercase tracking-widest flex items-center gap-1 group-hover:gap-3 transition-all"
               >
                 READ ARTICLE

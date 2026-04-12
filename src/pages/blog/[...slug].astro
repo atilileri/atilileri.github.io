@@ -1,0 +1,88 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  currentPath="/blog/"
+>
+  <article class="max-w-3xl mx-auto px-6 py-24">
+    <header class="mb-12">
+      <div class="flex items-center gap-4 mb-6">
+        <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-xs font-bold px-3 py-1 uppercase tracking-widest">
+          {post.data.tags[0] || "Blog"}
+        </span>
+        <span class="text-sm text-[var(--color-outline)] font-mono">
+          {formatDate(post.data.pubDate)}
+        </span>
+      </div>
+      
+      <h1 class="font-[Space_Grotesk] text-5xl md:text-6xl font-bold tracking-tighter leading-[0.9] mb-8">
+        {post.data.title}
+      </h1>
+      
+      <p class="text-xl text-[var(--color-on-surface-variant)] font-light leading-relaxed">
+        {post.data.description}
+      </p>
+    </header>
+
+    {post.data.heroImage && (
+      <div class="aspect-video mb-16 rounded-xl overflow-hidden ghost-border">
+        <img 
+          src={post.data.heroImage} 
+          alt={post.data.title}
+          class="w-full h-full object-cover"
+        />
+      </div>
+    )}
+
+    <div class="prose prose-invert max-w-none 
+      prose-headings:font-[Space_Grotesk] prose-headings:font-bold prose-headings:tracking-tighter
+      prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+      prose-p:text-[var(--color-on-surface-variant)] prose-p:leading-relaxed prose-p:text-lg
+      prose-a:text-[var(--color-primary-container)] prose-a:no-underline hover:prose-a:underline
+      prose-strong:text-[var(--color-on-surface)]
+      prose-code:text-[var(--color-primary-container)] prose-code:bg-[var(--color-primary-container)]/5 prose-code:px-1 prose-code:rounded
+      prose-pre:bg-[var(--color-surface-container-low)] prose-pre:ghost-border
+      prose-blockquote:border-l-4 prose-blockquote:border-[var(--color-primary-container)] prose-blockquote:bg-[var(--color-primary-container)]/5 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:italic
+    ">
+      <Content />
+    </div>
+
+    <footer class="mt-24 pt-12 border-t border-[var(--color-outline-variant)]/20">
+      <div class="flex flex-wrap gap-2 mb-8">
+        {post.data.tags.map(tag => (
+          <span class="text-xs font-mono text-[var(--color-outline)] border border-[var(--color-outline-variant)]/30 px-2 py-1 rounded">
+            #{tag}
+          </span>
+        ))}
+      </div>
+      
+      <a href="/blog/" class="inline-flex items-center gap-2 text-[var(--color-primary-container)] font-bold tracking-widest text-sm uppercase group">
+        <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
+        Back to Blog
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
