@@ -30,9 +30,12 @@ const formatDate = (date: Date) => {
   <article class="max-w-3xl mx-auto px-6 py-24">
     <header class="mb-12">
       <div class="flex items-center gap-4 mb-6">
-        <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-xs font-bold px-3 py-1 uppercase tracking-widest">
+        <a 
+          href={`/blog/tag/${post.data.tags[0] || "Blog"}/`}
+          class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] hover:bg-[var(--color-primary-container)]/20 text-xs font-bold px-3 py-1 uppercase tracking-widest transition-colors"
+        >
           {post.data.tags[0] || "Blog"}
-        </span>
+        </a>
         <span class="text-sm text-[var(--color-outline)] font-mono">
           {formatDate(post.data.pubDate)}
         </span>
@@ -73,9 +76,12 @@ const formatDate = (date: Date) => {
     <footer class="mt-24 pt-12 border-t border-[var(--color-outline-variant)]/20">
       <div class="flex flex-wrap gap-2 mb-8">
         {post.data.tags.map(tag => (
-          <span class="text-xs font-mono text-[var(--color-outline)] border border-[var(--color-outline-variant)]/30 px-2 py-1 rounded">
+          <a 
+            href={`/blog/tag/${tag}/`}
+            class="text-xs font-mono text-[var(--color-outline)] border border-[var(--color-outline-variant)]/30 px-2 py-1 rounded hover:bg-[var(--color-primary-container)]/5 hover:border-[var(--color-primary-container)]/50 hover:text-[var(--color-primary-container)] transition-all"
+          >
             #{tag}
-          </span>
+          </a>
         ))}
       </div>
       

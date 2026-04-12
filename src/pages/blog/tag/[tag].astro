@@ -1,12 +1,26 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
 
-const posts = (await getCollection("blog"))
-  .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+export async function getStaticPaths() {
+  const allPosts = await getCollection("blog");
+  const uniqueTags = [
+    ...new Set(allPosts.map((post) => post.data.tags).flat()),
+  ];
 
+  return uniqueTags.map((tag) => {
+    const filteredPosts = allPosts
+      .filter((post) => post.data.tags.includes(tag))
+      .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
 
+const { tag } = Astro.params;
+const { posts } = Astro.props;
 
 const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
@@ -17,26 +31,31 @@ const formatDate = (date: Date) => {
 };
 ---
 
-
 <BaseLayout
-  title="Blog"
-  description="Engineering perspectives, deep dives, and field notes from the intersection of lithography and extreme sports."
+  title={`Posts tagged with "${tag}"`}
+  description={`Browse all engineering logs and field notes tagged with ${tag}.`}
   currentPath="/blog/"
 >
   <div class="max-w-5xl mx-auto px-12 py-12">
-    <!-- Hero -->
     <header class="mb-16">
+      <div
+        class="flex items-center gap-2 text-[var(--color-primary-container)] mb-4 font-mono text-xs font-bold uppercase tracking-widest"
+      >
+        <a href="/blog/" class="hover:underline">Blog</a>
+        <span>/</span>
+        <span>Tag</span>
+      </div>
       <h1
         class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] leading-[0.9] mb-4"
       >
-        ENGINEERING <br />
+        TAG: <br />
         <span class="text-[var(--color-primary-container)] italic"
-          >PERSPECTIVES</span
+          >{tag.toUpperCase()}</span
         >
       </h1>
       <p class="text-[var(--color-on-surface-variant)] max-w-xl font-light">
-        Deep dives, system breakdowns, and field notes from the intersection of
-        software architecture and kinetic performance.
+        Showing {posts.length}
+        {posts.length === 1 ? "article" : "articles"} matching this category.
       </p>
     </header>
 
@@ -55,20 +74,14 @@ const formatDate = (date: Date) => {
             </div>
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-3">
-                <a 
-                  href={`/blog/tag/${post.data.tags[0] || "General"}/`}
-                  class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] hover:bg-[var(--color-primary-container)]/20 text-[10px] font-bold px-2 py-1 uppercase tracking-widest transition-colors"
-                >
-                  {post.data.tags[0] || "General"}
-                </a>
+                <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
+                  {tag}
+                </span>
                 <span class="text-[10px] text-[var(--color-outline)] font-mono">
                   {formatDate(post.data.pubDate)}
                 </span>
               </div>
-              <a
-                href={`/blog/${post.id}/`}
-                class="block"
-              >
+              <a href={`/blog/${post.id}/`} class="block">
                 <h2 class="font-[Space_Grotesk] text-2xl font-bold tracking-tight group-hover:text-[var(--color-primary-container)] transition-colors mb-3">
                   {post.data.title}
                 </h2>
@@ -81,7 +94,9 @@ const formatDate = (date: Date) => {
                 class="text-[var(--color-primary-container)] text-xs font-bold uppercase tracking-widest flex items-center gap-1 group-hover:gap-3 transition-all"
               >
                 READ ARTICLE
-                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                <span class="material-symbols-outlined text-sm">
+                  arrow_forward
+                </span>
               </a>
             </div>
           </article>
@@ -89,33 +104,14 @@ const formatDate = (date: Date) => {
       }
     </section>
 
-    <!-- Newsletter Section -->
-    <section class="mt-24 glass-card ghost-border rounded-xl p-12 text-center">
-      <span
-        class="material-symbols-outlined text-[var(--color-primary-container)] text-3xl mb-4 block"
-        >mail</span
+    <div class="mt-16">
+      <a
+        href="/blog/"
+        class="inline-flex items-center gap-2 text-[var(--color-outline)] font-bold tracking-widest text-xs uppercase hover:text-[var(--color-on-surface)] transition-colors"
       >
-      <h3 class="font-[Space_Grotesk] text-2xl font-bold mb-3">
-        SUBSCRIBE TO THE ENGINEERING LOG
-      </h3>
-      <p
-        class="text-[var(--color-on-surface-variant)] text-sm max-w-md mx-auto mb-8"
-      >
-        Monthly dispatches on system architecture, precision engineering, and
-        what wind teaches about code.
-      </p>
-      <div class="flex max-w-md mx-auto">
-        <input
-          type="email"
-          placeholder="your@email.com"
-          class="flex-1 bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/20 rounded-l-lg px-4 py-3 text-sm focus:ring-1 focus:ring-[var(--color-primary-container)] focus:outline-none"
-        />
-        <button
-          class="kinetic-gradient px-6 py-3 rounded-r-lg text-[var(--color-on-primary-fixed)] font-bold text-sm"
-        >
-          SUBSCRIBE
-        </button>
-      </div>
-    </section>
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Back to all posts
+      </a>
+    </div>
   </div>
 </BaseLayout>
