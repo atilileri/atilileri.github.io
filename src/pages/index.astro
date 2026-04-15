@@ -4,103 +4,331 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout title="Home" currentPath="/">
   <!-- Hero Section: Swiss Modernist Layout -->
-  <section class="relative min-h-[max(calc(100vh-160px),700px)] flex items-center px-12 max-w-[1440px] mx-auto overflow-hidden">
+  <section
+    class="relative min-h-[max(calc(100vh-160px),700px)] flex items-center px-12 max-w-[1440px] mx-auto overflow-hidden"
+  >
     <!-- Background Geometric Soul -->
-    <div class="absolute right-[-10%] top-[10%] w-[600px] h-[600px] rounded-full geometric-accent opacity-90 mix-blend-multiply filter blur-[2px] dark:opacity-30"></div>
+    <div
+      class="absolute right-[-10%] top-[10%] w-[600px] h-[600px] rounded-full geometric-accent opacity-90 mix-blend-multiply filter blur-[2px] dark:opacity-30"
+    >
+    </div>
     <div class="relative z-10 w-full grid grid-cols-12 gap-8 items-end">
       <div class="col-span-12 lg:col-span-8">
-        <span class="label-md text-[0.75rem] uppercase tracking-[0.2em] text-primary font-bold mb-6 block">01 / MANIFESTO</span>
-        <h1 class="text-[5rem] md:text-[8rem] lg:text-[10rem] font-black leading-[0.85] tracking-[-0.05em] text-on-background mb-8">
+        <span
+          class="label-md text-[0.75rem] uppercase tracking-[0.2em] text-primary font-bold mb-6 block"
+          >01 / MANIFESTO</span
+        >
+        <h1
+          class="text-[5rem] md:text-[8rem] lg:text-[10rem] font-black leading-[0.85] tracking-[-0.05em] text-on-background mb-8"
+        >
           LESS IS<br />MORE.
         </h1>
-        <p class="max-w-md text-lg leading-relaxed text-on-surface-variant font-medium">
+        <p
+          class="max-w-md text-lg leading-relaxed text-on-surface-variant font-medium"
+        >
           A radical pursuit of objectivity and mathematical grid logic. We strip
           away the unnecessary to reveal the architectural soul of digital
           experiences.
         </p>
       </div>
       <!-- B&W Portrait with Sharp Edge -->
-      <div class="col-span-12 lg:col-span-4 flex justify-end relative h-[500px]">
-        <div class="w-full h-full bg-surface-container-highest relative overflow-hidden group">
+      <div
+        class="col-span-12 lg:col-span-4 flex justify-end relative h-[500px]"
+      >
+        <div
+          class="w-full h-full bg-surface-container-highest relative overflow-hidden group"
+        >
           <img
             alt="Professional portrait"
             class="w-full h-full object-cover grayscale contrast-125 brightness-90"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSHeegDGzzwqWlVo7xzxdySqkQ3JqU63lfN2C4SAaXLGeDXHvv_r2eCSM23rkq6ERhalMvQE187zKQJOH_1HPfdTmPi66VmTT-3m9Sysj9LZWLSAzaOH-3rnQQlrOBF0MQ5KMXY_t_Zn_FVqETU86n-azhrvIkpDf6OhE2XjwiWrBM0xLwCGp8qdl2fPFCIgdtTJ-ufJ_m0-6ozEVipaGTMDb05l71g9tzGkR4Y9z86OZbrx7YvF98eCkJjqgezMFemsBTm-b-WZ3P"
           />
           <!-- Technical Overlay -->
-          <div class="absolute bottom-4 left-4 bg-on-background text-surface text-[0.65rem] px-3 py-1 tracking-widest uppercase">
+          <div
+            class="absolute bottom-4 left-4 bg-on-background text-surface text-[0.65rem] px-3 py-1 tracking-widest uppercase"
+          >
             FOUNDER / ARCHITECT
           </div>
         </div>
       </div>
     </div>
   </section>
-  
-  <!-- Bento Philosophy Grid -->
-  <section class="bg-surface-container-low py-32 px-12 mt-12 w-full">
+
+  <section
+    class="bg-surface-container-highest py-32 px-12 border-y border-on-surface/5"
+  >
     <div class="max-w-[1440px] mx-auto">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-1">
-        <!-- Grid Item 1 -->
-        <div class="bg-surface p-12 flex flex-col justify-between h-[400px]">
-          <span class="text-xs tracking-[0.3em] font-bold text-outline">PRECISION</span>
-          <div>
-            <h3 class="text-3xl font-bold mb-4 tracking-tighter">0.01mm Tolerance</h3>
-            <p class="text-sm text-on-surface-variant leading-relaxed">
-              Every pixel is accounted for in a mathematical grid that ensures perfect harmony across all viewport scales.
+    <div class="grid grid-cols-12 gap-12">
+      <div class="col-span-12 lg:col-span-4">
+        <span
+          class="label-md text-[0.75rem] uppercase tracking-[0.2em] text-primary font-bold mb-6 block"
+          >02 / ETHOS</span
+        >
+        <h2 class="text-4xl font-black tracking-tighter uppercase mb-12">
+          Core<br />Principles
+        </h2>
+      </div>
+
+      <div
+        class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-16"
+      >
+        <!-- Principle 1: Fail Better -->
+        <div class="space-y-6">
+          <h3
+            class="text-2xl font-bold tracking-tight uppercase border-b border-primary/20 pb-4"
+          >
+            Fail Better
+          </h3>
+          <blockquote
+            class="text-xl italic font-serif text-on-surface-variant border-l-2 border-primary pl-6 py-2"
+          >
+            "Ever tried. Ever failed. No matter. Try again. Fail again. <span
+              class="text-primary font-bold">Fail better.</span
+            >"
+            <footer
+              class="text-sm font-sans uppercase tracking-widest mt-4 opacity-70"
+            >
+              — Samuel Beckett
+            </footer>
+          </blockquote>
+          <p
+            class="text-sm leading-relaxed text-on-surface-variant font-medium"
+          >
+            In an iterative world, failure is the most reliable data point. We
+            don't view setbacks as terminal; we view them as essential
+            refinements. By leaning into the discomfort of the "broken" and
+            analyzing the wreckage, we ensure that every version of our work is
+            more resilient and sophisticated than the last.
+          </p>
+        </div>
+
+        <!-- Principle 2: Via Negativa -->
+        <div class="space-y-6">
+          <h3
+            class="text-2xl font-bold tracking-tight uppercase border-b border-primary/20 pb-4"
+          >
+            Via Negativa
+          </h3>
+          <p class="text-xs font-bold tracking-[0.2em] text-primary uppercase">
+            Excellence through Subtraction
+          </p>
+          <p
+            class="text-sm leading-relaxed text-on-surface-variant font-medium"
+          >
+            Derived from the principle that we understand the world best by
+            stripping away what is false or non-essential. In practice, this
+            means focus is achieved not by adding features, but by removing the
+            noise. We believe that the most robust systems are those that have
+            been distilled to their core.
+          </p>
+        </div>
+
+        <!-- Principle 3: The Pale Blue Dot -->
+        <div
+          class="col-span-1 md:col-span-2 space-y-6 pt-8 border-t border-on-surface/5"
+        >
+          <h3
+            class="text-2xl font-bold tracking-tight uppercase border-b border-primary/20 pb-4"
+          >
+            The Pale Blue Dot
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <p
+              class="text-xs font-bold tracking-[0.2em] text-primary uppercase"
+            >
+              Cosmic Perspective
+            </p>
+            <p
+              class="text-sm leading-relaxed text-on-surface-variant font-medium"
+            >
+              Inspired by Carl Sagan’s reflection on our "mote of dust suspended
+              in a sunbeam." This perspective is a reminder of our shared
+              responsibility and the scale of our impact. In the vastness of the
+              universe, our efforts should be directed toward building things
+              that matter—fostering connection and preserving our only home.
             </p>
           </div>
         </div>
-        <!-- Grid Item 2 -->
-        <div class="bg-primary p-12 flex flex-col justify-between h-[400px] text-on-primary">
-          <span class="text-xs tracking-[0.3em] font-bold opacity-60">SYSTEMS</span>
-          <div>
-            <h3 class="text-3xl font-bold mb-4 tracking-tighter">Modular Core</h3>
-            <p class="text-sm opacity-80 leading-relaxed">
-              Built on a foundation of interchangeable modules, allowing for rapid evolution without sacrificing structural integrity.
-            </p>
-          </div>
-        </div>
-        <!-- Grid Item 3 -->
-        <div class="bg-surface p-12 flex flex-col justify-between h-[400px]">
-          <span class="text-xs tracking-[0.3em] font-bold text-outline">AESTHETIC</span>
-          <div>
-            <h3 class="text-3xl font-bold mb-4 tracking-tighter">Objective Clarity</h3>
-            <p class="text-sm text-on-surface-variant leading-relaxed">
-              We favor functional beauty over decorative clutter. The content dictates the form, always.
-            </p>
-          </div>
         </div>
       </div>
     </div>
   </section>
-  
-  <!-- Signature Component: The Geometric Hero -->
-  <section class="py-32 px-12 max-w-[1440px] mx-auto overflow-hidden relative">
-    <div class="grid grid-cols-12 gap-12 items-center">
-      <div class="col-span-12 lg:col-span-5 relative z-20">
-        <h2 class="text-5xl font-black tracking-tighter leading-none mb-12 uppercase">The Digital<br />Lithograph</h2>
-        <div class="space-y-8">
-          <div class="border-l-4 border-primary pl-6">
-            <h4 class="font-bold uppercase tracking-widest text-xs mb-2">Typography as Structure</h4>
-            <p class="text-on-surface-variant">Type is not just for reading; it is the primary structural element of our design language.</p>
+
+  <!-- Section 03: SHOWCASE -->
+  <section
+    class="py-32 px-12 max-w-[1440px] mx-auto border-b border-on-surface/5"
+  >
+      <div
+        class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8"
+      >
+        <div>
+          <span
+            class="label-md text-[0.75rem] uppercase tracking-[0.2em] text-primary font-bold mb-6 block"
+            >03 / SHOWCASE</span
+          >
+          <h2
+            class="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]"
+          >
+            Technical<br />Inventory
+          </h2>
+        </div>
+        <p
+          class="max-w-xs text-xs uppercase tracking-widest leading-relaxed text-on-surface-variant opacity-70"
+        >
+          A curated selection of specialized instruments maintained for peak
+          performance in high-stakes environments.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-12 gap-12">
+        <!-- Snowboard Setup -->
+        <div class="col-span-12 lg:col-span-6 space-y-8">
+          <div class="flex items-center gap-4">
+            <h3 class="text-xl font-bold tracking-tight uppercase">
+              Alpine Kit_01
+            </h3>
+            <span class="h-[1px] flex-1 bg-on-surface/10"></span>
+            <span class="text-[0.6rem] font-mono opacity-50"
+              >SNOWBOARD_SETUP</span
+            >
           </div>
-          <div class="border-l-4 border-surface-variant pl-6">
-            <h4 class="font-bold uppercase tracking-widest text-xs mb-2">Intentional Asymmetry</h4>
-            <p class="text-on-surface-variant">We break the grid to create focal tension, guiding the eye through a curated narrative path.</p>
+          <div class="overflow-x-auto">
+            <table
+              class="w-full text-left text-[0.7rem] font-mono border-collapse"
+            >
+              <thead>
+                <tr
+                  class="border-b border-on-surface/20 uppercase tracking-widest text-on-surface/60"
+                >
+                  <th class="py-3 pr-4">Component</th>
+                  <th class="py-3 px-4">Model</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 pl-4">Notes</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-on-surface/5">
+                <tr>
+                  <td class="py-4 pr-4 font-bold">Snowboard</td>
+                  <td class="py-4 px-4 text-primary">Korua Apollo 157</td>
+                  <td class="py-4 px-4"
+                    ><span
+                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.6rem]"
+                      >READY</span
+                    ></td
+                  >
+                  <td class="py-4 pl-4 italic"
+                    >Carving machine, +21°/+6° angles.</td
+                  >
+                </tr>
+                <tr>
+                  <td class="py-4 pr-4 font-bold">Bindings</td>
+                  <td class="py-4 px-4">Rome Katana FASE</td>
+                  <td class="py-4 px-4"
+                    ><span
+                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.6rem]"
+                      >READY</span
+                    ></td
+                  >
+                  <td class="py-4 pl-4 italic"
+                    >Centering and strap adjustments complete.</td
+                  >
+                </tr>
+                <tr>
+                  <td class="py-4 pr-4 font-bold">Boots</td>
+                  <td class="py-4 px-4">Nidecker Kita (Camo)</td>
+                  <td class="py-4 px-4"
+                    ><span
+                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.6rem]"
+                      >READY</span
+                    ></td
+                  >
+                  <td class="py-4 pl-4 italic"
+                    >Heat-molded, "Performance Fit" achieved.</td
+                  >
+                </tr>
+                <tr>
+                  <td class="py-4 pr-4 font-bold">Protection</td>
+                  <td class="py-4 px-4">Demon Zero RF D3O</td>
+                  <td class="py-4 px-4"
+                    ><span
+                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.6rem]"
+                      >READY</span
+                    ></td
+                  >
+                  <td class="py-4 pl-4 italic">No-limit mobility armor.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
-      <div class="col-span-12 lg:col-span-7 relative">
-        <!-- Abstract Geometric Artifact -->
-        <div class="aspect-square w-full relative flex items-center justify-center">
-          <div class="absolute inset-0 bg-surface-variant opacity-50 transform rotate-45 scale-75"></div>
-          <div class="absolute inset-0 bg-primary opacity-10 transform -rotate-12 translate-x-12 translate-y-12"></div>
-          <div class="z-20 p-12 border border-on-surface/10 backdrop-blur-xl">
-            <img
-              alt="Abstract geometry"
-              class="w-full grayscale contrast-150 mix-blend-luminosity dark:mix-blend-screen opacity-90"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIgEePWUIGs6LiG-huSo6osGkLBdUyJsBdXsuhXjV6MhPM1AOvAC_wPHH6nqVSPiH9YKon0NdlpSrHPeTlIRbI0l76gQZgYsKvZSE1uHGvRhZoYQ6hZIhX3OwOJzkIQJzPJBTYYasRDCdpyWhGokoDDcuGcxfeC8L-aQdK3DFn_MDVXx8EAAEsrs8gxepCzJqofNi7FZX17bs8D_DvECqwG-2qbjGdiewLwRgd0wABWRHk3EFOPH-XVCuJaiLV_uVY49lxcwYyuIyI"
-            />
+
+        <!-- Home Server -->
+        <div class="col-span-12 lg:col-span-6 space-y-8">
+          <div class="flex items-center gap-4">
+            <h3 class="text-xl font-bold tracking-tight uppercase">
+              Computation Unit_01
+            </h3>
+            <span class="h-[1px] flex-1 bg-on-surface/10"></span>
+            <span class="text-[0.6rem] font-mono opacity-50">HOME_SERVER</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table
+              class="w-full text-left text-[0.7rem] font-mono border-collapse"
+            >
+              <thead>
+                <tr
+                  class="border-b border-on-surface/20 uppercase tracking-widest text-on-surface/60"
+                >
+                  <th class="py-3 pr-4">Component</th>
+                  <th class="py-3 px-4">Model & Key Details</th>
+                  <th class="py-3 pl-4 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-on-surface/5">
+                <tr>
+                  <td class="py-4 pr-4 font-bold">Case</td>
+                  <td class="py-4 px-4"
+                    >Fractal Design Meshify 2 Lite (White)</td
+                  >
+                  <td class="py-4 pl-4 text-right"
+                    ><span
+                      class="bg-on-surface/10 text-on-surface px-2 py-0.5 rounded text-[0.6rem] uppercase"
+                      >Purchased</span
+                    ></td
+                  >
+                </tr>
+                <tr>
+                  <td class="py-4 pr-4 font-bold">CPU</td>
+                  <td class="py-4 px-4">AMD Ryzen 5 7600 (6-Core/12-Thread)</td>
+                  <td class="py-4 pl-4 text-right"
+                    ><span
+                      class="bg-on-surface/10 text-on-surface px-2 py-0.5 rounded text-[0.6rem] uppercase"
+                      >Purchased</span
+                    ></td
+                  >
+                </tr>
+                <tr>
+                  <td class="py-4 pr-4 font-bold">GPU</td>
+                  <td class="py-4 px-4">RTX 4060 Ti 16GB (AI & Transcoding)</td>
+                  <td class="py-4 pl-4 text-right"
+                    ><span
+                      class="bg-primary/20 text-primary px-2 py-0.5 rounded text-[0.6rem] uppercase font-bold text-nowrap"
+                      >FUTURE PLAN</span
+                    ></td
+                  >
+                </tr>
+                <tr>
+                  <td class="py-4 pr-4 font-bold">RAM</td>
+                  <td class="py-4 px-4">Corsair Vengeance 32GB 5200MHz</td>
+                  <td class="py-4 pl-4 text-right"
+                    ><span
+                      class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[0.6rem] uppercase text-nowrap"
+                      >NEGOTIATING</span
+                    ></td
+                  >
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

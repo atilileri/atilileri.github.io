@@ -35,12 +35,18 @@ const formatDate = (date: Date) => {
 >
   <article class="max-w-3xl mx-auto px-6 py-24">
     <header class="mb-12">
+      <div class="mb-8">
+        <a href="/blog/" class="inline-flex items-center gap-2 text-[var(--color-primary-container)] font-bold tracking-widest text-xs uppercase group mb-6 hover:opacity-80 transition-opacity">
+          <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          Back to Blog
+        </a>
+      </div>
       <div class="flex items-center gap-4 mb-6">
         <a 
           href={`/blog/tag/${post.data.tags[0] || "Blog"}/`}
           class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] hover:bg-[var(--color-primary-container)]/20 text-xs font-bold px-3 py-1 uppercase tracking-widest transition-colors"
         >
-          {post.data.tags[0] || "Blog"}
+          {post.data.tags[0]?.toLocaleUpperCase(post.data.lang === 'tr' ? 'tr-TR' : 'en-US') || "Blog"}
         </a>
         <span class="text-sm text-[var(--color-outline)] font-mono">
           {formatDate(post.data.pubDate)}
@@ -66,13 +72,17 @@ const formatDate = (date: Date) => {
       </p>
     </header>
 
-    {post.data.heroImage && (
+    {post.data.heroImage ? (
       <div class="aspect-video mb-16 rounded-xl overflow-hidden ghost-border">
         <img 
           src={post.data.heroImage} 
           alt={post.data.title}
           class="w-full h-full object-cover"
         />
+      </div>
+    ) : (
+      <div class="aspect-video mb-16 rounded-xl overflow-hidden ghost-border bg-[var(--color-surface-container-low)] relative flex items-center justify-center">
+        <img src="/favicon.svg" alt="atilileri Logo" class="w-24 h-24 opacity-20 grayscale" />
       </div>
     )}
 
@@ -96,7 +106,7 @@ const formatDate = (date: Date) => {
             href={`/blog/tag/${tag}/`}
             class="text-xs font-mono text-[var(--color-outline)] border border-[var(--color-outline-variant)]/30 px-2 py-1 rounded hover:bg-[var(--color-primary-container)]/5 hover:border-[var(--color-primary-container)]/50 hover:text-[var(--color-primary-container)] transition-all"
           >
-            #{tag}
+            #{tag.toLocaleUpperCase(post.data.lang === 'tr' ? 'tr-TR' : 'en-US')}
           </a>
         ))}
       </div>
