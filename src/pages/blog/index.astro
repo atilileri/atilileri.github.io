@@ -6,8 +6,6 @@ const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-
-
 const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -16,7 +14,6 @@ const formatDate = (date: Date) => {
   });
 };
 ---
-
 
 <BaseLayout
   title="Blog"
@@ -29,14 +26,12 @@ const formatDate = (date: Date) => {
       <h1
         class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] leading-[0.9] mb-4"
       >
-        ENGINEERING <br />
-        <span class="text-[var(--color-primary-container)] italic"
-          >PERSPECTIVES</span
-        >
+        UNCOMMON
+        <span class="text-[var(--color-primary-container)] italic">SENSE</span>
       </h1>
       <p class="text-[var(--color-on-surface-variant)] max-w-xl font-light">
-        Deep dives, system breakdowns, and field notes from the intersection of
-        software architecture and kinetic performance.
+        Distilling human research and AI-powered insights to uncover the
+        counter-intuitive truths of a life in motion.
       </p>
     </header>
 
@@ -55,7 +50,7 @@ const formatDate = (date: Date) => {
             </div>
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-3">
-                <a 
+                <a
                   href={`/blog/tag/${post.data.tags[0] || "General"}/`}
                   class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] hover:bg-[var(--color-primary-container)]/20 text-[10px] font-bold px-2 py-1 uppercase tracking-widest transition-colors"
                 >
@@ -65,10 +60,7 @@ const formatDate = (date: Date) => {
                   {formatDate(post.data.pubDate)}
                 </span>
               </div>
-              <a
-                href={`/blog/${post.id}/`}
-                class="block"
-              >
+              <a href={`/blog/${post.id}/`} class="block">
                 <h2 class="font-[Space_Grotesk] text-2xl font-bold tracking-tight group-hover:text-[var(--color-primary-container)] transition-colors mb-3">
                   {post.data.title}
                 </h2>
@@ -81,7 +73,9 @@ const formatDate = (date: Date) => {
                 class="text-[var(--color-primary-container)] text-xs font-bold uppercase tracking-widest flex items-center gap-1 group-hover:gap-3 transition-all"
               >
                 READ ARTICLE
-                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                <span class="material-symbols-outlined text-sm">
+                  arrow_forward
+                </span>
               </a>
             </div>
           </article>
