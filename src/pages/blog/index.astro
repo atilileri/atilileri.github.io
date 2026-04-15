@@ -22,23 +22,35 @@ const formatDate = (date: Date) => {
 >
   <div class="max-w-5xl mx-auto px-12 py-12">
     <!-- Hero -->
-    <header class="mb-16">
-      <h1
-        class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] leading-[0.9] mb-4"
-      >
-        UNCOMMON
-        <span class="text-[var(--color-primary-container)] italic">SENSE</span>
-      </h1>
-      <p class="text-[var(--color-on-surface-variant)] max-w-xl font-light">
-        Distilling human research and AI-powered insights to uncover the
-        counter-intuitive truths of a life in motion.
-      </p>
+    <header class="mb-16 flex flex-col md:flex-row md:justify-between md:items-end gap-6 border-b border-[var(--color-outline-variant)]/10 pb-8">
+      <div>
+        <h1
+          class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] leading-[0.9] mb-4"
+        >
+          UNCOMMON
+          <span class="text-[var(--color-primary-container)] italic">SENSE</span>
+        </h1>
+        <p class="text-[var(--color-on-surface-variant)] max-w-xl font-light">
+          Distilling human research and AI-powered insights to uncover the
+          counter-intuitive truths of a life in motion.
+        </p>
+      </div>
+
+      <!-- Language Toggle -->
+      <div class="flex bg-[var(--color-surface-container-low)] rounded-lg p-1 border border-[var(--color-outline-variant)]/20 w-fit">
+        <button id="lang-toggle-en" class="px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all bg-[var(--color-primary-container)] text-[var(--color-on-primary-fixed)]">EN</button>
+        <button id="lang-toggle-tr" class="px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)]">TR</button>
+      </div>
     </header>
 
     <section class="space-y-12">
       {
         posts.map((post) => (
-          <article class="group flex flex-col md:flex-row gap-8 items-start pb-12 border-b border-[var(--color-outline-variant)]/10">
+          <article 
+            class="blog-post-card group flex flex-col md:flex-row gap-8 items-start pb-12 border-b border-[var(--color-outline-variant)]/10"
+            data-lang={post.data.lang}
+            data-translation-id={post.data.translationId || ""}
+          >
             <div class="w-full md:w-1/3 flex-shrink-0">
               <div class="aspect-video overflow-hidden rounded-lg ghost-border">
                 <img
@@ -113,3 +125,80 @@ const formatDate = (date: Date) => {
     </section>
   </div>
 </BaseLayout>
+
+<script>
+  function setupLangToggle() {
+    const btnEn = document.getElementById('lang-toggle-en');
+    const btnTr = document.getElementById('lang-toggle-tr');
+    const articles = document.querySelectorAll('.blog-post-card');
+
+    if (!btnEn || !btnTr || articles.length === 0) return;
+
+    // Use Astro view transitions safe initialization
+    let currentLang = localStorage.getItem('blog-lang') || 'en';
+
+    const renderToggle = () => {
+      if (currentLang === 'en') {
+        btnEn.className = 'px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all bg-[var(--color-primary-container)] text-[var(--color-on-primary-fixed)]';
+        btnTr.className = 'px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)]';
+      } else {
+        btnTr.className = 'px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all bg-[var(--color-primary-container)] text-[var(--color-on-primary-fixed)]';
+        btnEn.className = 'px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all text-[var(--color-on-surface-variant)] hover:text-[var(--color-on-surface)]';
+      }
+    };
+
+    const filterArticles = () => {
+      const translationGroups: Record<string, Element[]> = {};
+      
+      articles.forEach(article => {
+        const tId = article.getAttribute('data-translation-id');
+        if (tId) {
+          if (!translationGroups[tId]) translationGroups[tId] = [];
+          translationGroups[tId].push(article);
+        }
+      });
+
+      articles.forEach(article => {
+        const lang = article.getAttribute('data-lang');
+        const tId = article.getAttribute('data-translation-id');
+        let show = false;
+
+        if (lang === currentLang) {
+          show = true;
+        } else if (tId && translationGroups[tId].length === 1) {
+          show = true; // Fallback to other lang if no translation
+        } else if (!tId) {
+          show = true; // Fallback to other lang if no translation
+        }
+
+        if (show) {
+          (article as HTMLElement).style.display = 'flex';
+        } else {
+          (article as HTMLElement).style.display = 'none';
+        }
+      });
+    };
+
+    const setLang = (lang: string) => {
+      currentLang = lang;
+      localStorage.setItem('blog-lang', lang);
+      renderToggle();
+      filterArticles();
+    };
+
+    btnEn.addEventListener('click', () => setLang('en'));
+    btnTr.addEventListener('click', () => setLang('tr'));
+
+    renderToggle();
+    filterArticles();
+  }
+
+  // Handle both initial load and Astro page transitions
+  document.addEventListener('DOMContentLoaded', setupLangToggle);
+  document.addEventListener('astro:page-load', setupLangToggle);
+  
+  // Also run immediately in case it's loaded late
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    setupLangToggle();
+  }
+</script>
