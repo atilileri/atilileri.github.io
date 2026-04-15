@@ -601,8 +601,41 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
 
       <div
-        class="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-12 text-sm"
+        class="col-span-12 md:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-sm"
       >
+        <div>
+          <h4
+            class="text-[0.75rem] uppercase tracking-[0.2em] font-black mb-6 text-primary"
+          >
+            Awards
+          </h4>
+          <ul class="flex flex-col gap-3">
+            <li
+              class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2"
+            >
+              <span>National American Football League Champion</span>
+              <span class="text-[0.75rem] font-black opacity-40">2016</span>
+            </li>
+            <li
+              class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2"
+            >
+              <span>National American Football League Champion</span>
+              <span class="text-[0.75rem] font-black opacity-40">2011</span>
+            </li>
+            <li
+              class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2"
+            >
+              <span>National American Football League Champion</span>
+              <span class="text-[0.75rem] font-black opacity-40">2010</span>
+            </li>
+            <li
+              class="flex justify-between items-center font-medium border-b border-on-surface/5 pb-2"
+            >
+              <span>Eindhoven Marathon 20K 02:01:22</span>
+              <span class="text-[0.75rem] font-black opacity-40">2025</span>
+            </li>
+          </ul>
+        </div>
         <div>
           <h4
             class="text-[0.75rem] uppercase tracking-[0.2em] font-black mb-6 text-primary"
@@ -677,30 +710,38 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   </div>
 
   <!-- Lightbox Modal -->
-  <div id="lightbox" class="fixed inset-0 z-50 hidden bg-surface/95 backdrop-blur-sm items-center justify-center p-4 md:p-12 cursor-zoom-out">
-    <img id="lightbox-img" src="" alt="Full size infographic" class="max-w-full max-h-full rounded-sm shadow-2xl object-contain" />
+  <div
+    id="lightbox"
+    class="fixed inset-0 z-50 hidden bg-surface/95 backdrop-blur-sm items-center justify-center p-4 md:p-12 cursor-zoom-out"
+  >
+    <img
+      id="lightbox-img"
+      src=""
+      alt="Full size infographic"
+      class="max-w-full max-h-full rounded-sm shadow-2xl object-contain"
+    />
   </div>
 
   <script>
     function setupLightbox() {
-      const figure = document.getElementById('thesis-figure');
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
+      const figure = document.getElementById("thesis-figure");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightbox-img");
 
       if (figure && lightbox && lightboxImg) {
         figure.onclick = () => {
-          lightboxImg.setAttribute('src', figure.getAttribute('src') || '');
-          lightbox.classList.remove('hidden');
-          lightbox.classList.add('flex');
+          lightboxImg.setAttribute("src", figure.getAttribute("src") || "");
+          lightbox.classList.remove("hidden");
+          lightbox.classList.add("flex");
         };
         lightbox.onclick = () => {
-          lightbox.classList.remove('flex');
-          lightbox.classList.add('hidden');
+          lightbox.classList.remove("flex");
+          lightbox.classList.add("hidden");
         };
       }
     }
-    
-    document.addEventListener('astro:page-load', setupLightbox);
+
+    document.addEventListener("astro:page-load", setupLightbox);
     setupLightbox();
   </script>
 </BaseLayout>
