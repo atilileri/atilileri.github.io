@@ -3,7 +3,7 @@ title: "Deconstructing RAG: A Deep Dive into How Vector Databases Unlock Smarter
 description: "Unlock the technical secrets of Retrieval-Augmented Generation (RAG). This deep dive for developers, AI engineers, and data scientists explores RAG's architecture, demonstrating how vector databases like Pinecone are indispensable for grounding LLMs with real-time, domain-specific knowledge and combating hallucination."
 pubDate: 2026-05-07
 tags: ["AI", "LLM", "RAG", "Vector Database", "Pinecone", "Machine Learning", "Data Science", "NLP", "Generative AI", "Architecture"]
-heroImage: "/public/images/blog/deconstructing-rag-a-deep-dive-into-how-vector-dat.webp"
+heroImage: "/images/blog/deconstructing-rag-a-deep-dive-into-how-vector-dat.webp"
 lang: "en"
 translationId: "73d1bd7c"
 ---

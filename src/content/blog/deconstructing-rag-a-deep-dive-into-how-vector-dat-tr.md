@@ -3,7 +3,7 @@ title: "RAG'ı Anlamak: Vektör Veritabanları Daha Akıllı LLM'lerin Kilidini 
 description: "Geri Getirim Artırılmış Üretim (RAG) teknolojisinin teknik sırlarını keşfedin. Geliştiriciler, yapay zeka mühendisleri ve veri bilimcileri için hazırlanan bu derinlemesine inceleme, RAG mimarisini ele alıyor ve Pinecone gibi vektör veritabanlarının, LLM'leri gerçek zamanlı, alana özgü bilgilerle destekleyerek halüsinasyonları engellemede nasıl vazgeçilmez olduğunu gösteriyor."
 pubDate: 2026-05-07
 tags: ["Yapay Zeka", "BDM", "RAG", "Vektör Veritabanı", "Pinecone", "Makine Öğrenimi", "Veri Bilimi", "Doğal Dil İşleme", "Üretken Yapay Zeka", "Mimari"]
-heroImage: "/public/images/blog/deconstructing-rag-a-deep-dive-into-how-vector-dat.webp"
+heroImage: "/images/blog/deconstructing-rag-a-deep-dive-into-how-vector-dat.webp"
 lang: "tr"
 translationId: "73d1bd7c"
 ---
