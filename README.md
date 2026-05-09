@@ -1,43 +1,118 @@
-# Astro Starter Kit: Minimal
+# atilileri.github.io
 
-```sh
-npm create astro@latest -- --template minimal
+Personal website and digital garden of Atil İleri, built with [Astro](https://astro.build). Deployed to [GitHub Pages](https://atilileri.github.io).
+
+## Architecture
+
+### Core Framework
+- **[Astro](https://astro.build) 6.1.5** - Static site generator with zero client-side JavaScript by default
+- **Node.js >= 22.12.0** - Runtime requirement (ES modules)
+- **TypeScript** - Type-safe configuration and component development
+
+### Styling
+- **[Tailwind CSS 4.0](https://tailwindcss.com)** - Utility-first CSS via Vite plugin (`@tailwindcss/vite`)
+- No custom CSS framework; all styling via Tailwind utilities
+
+### Content System
+Astro Content Collections with Zod schema validation:
+
+| Collection | Location | Schema Fields |
+|------------|----------|---------------|
+| `blog` | `src/content/blog/` | `title`, `description`, `pubDate`, `updatedDate?`, `heroImage?`, `tags[]`, `draft`, `lang` (en/tr), `translationId?` |
+| `garden` | `src/content/garden/` | `title`, `description?`, `lastUpdated`, `status` (seedling/budding/evergreen), `tags[]` |
+| `projects` | `src/content/projects/` | `title`, `description`, `image?`, `link?`, `github?`, `tags[]`, `featured`, `order` |
+| `sports` | `src/content/sports/` | `title`, `role?`, `location`, `startDate`, `endDate?`, `current`, `image?`, `type` (sports/volunteering) |
+
+Content loaded via `astro/loaders` glob loader for `**/*.{md,mdx}` files.
+
+### Integrations
+- `@astrojs/mdx` - MDX support for JSX components in markdown
+- `@astrojs/sitemap` - Automatic sitemap generation
+- `@astrojs/rss` - RSS feed generation
+- `sharp` - Image optimization
+
+## Project Structure
+
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
 ├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+│   ├── components/          # Reusable Astro components
+│   │   ├── Footer.astro
+│   │   ├── PipelineVisualizer.astro
+│   │   └── TopBar.astro
+│   ├── content/             # Markdown/MDX content collections
+│   │   ├── blog/           # 15+ posts
+│   │   ├── garden/         # Digital garden entries
+│   │   ├── projects/       # Portfolio projects
+│   │   └── sports/         # Sports/volunteering history
+│   ├── content.config.ts   # Collection schemas (Zod)
+│   ├── layouts/            # Page layout templates
+│   ├── pages/              # File-based routing
+│   │   ├── index.astro     # Homepage
+│   │   ├── cv.astro        # CV/Resume page
+│   │   ├── now.astro       # /now page
+│   │   ├── sports.astro    # Sports timeline
+│   │   ├── blog/           # Blog index + posts
+│   │   ├── garden/         # Digital garden
+│   │   ├── portfolio/      # Projects showcase
+│   │   └── rss.xml.js      # RSS feed endpoint
+│   └── styles/             # Global styles
+├── public/                 # Static assets (images, fonts)
+├── astro.config.mjs        # Site config + integrations
+├── tsconfig.json           # TypeScript configuration
+└── dist/                   # Build output (gitignored)
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Development
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+### Prerequisites
+- Node.js >= 22.12.0
+- npm
 
-Any static assets, like images, can be placed in the `public/` directory.
+### Commands
 
-## 🧞 Commands
+```bash
+npm install          # Install dependencies
+npm run dev          # Dev server at localhost:4321
+npm run build        # Production build to ./dist/
+npm run preview      # Preview production build locally
+```
 
-All commands are run from the root of the project, from a terminal:
+### Configuration
+Site URL configured in `astro.config.mjs`:
+```javascript
+export default defineConfig({
+  site: "https://atilileri.github.io",
+  integrations: [mdx(), sitemap()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Deployment
 
-## 👀 Want to learn more?
+**Target:** GitHub Pages via GitHub Actions
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+**Workflow:** `.github/workflows/deploy.yml`
+- Triggers: Push to `main`/`master`, or manual dispatch
+- Build: `withastro/action@v3` with Node.js 24
+- Deploy: `actions/deploy-pages@v4`
+- Permissions: `pages: write`, `id-token: write`
+
+The site builds to `./dist/` and deploys automatically on every push.
+
+## Dependencies
+
+```json
+{
+  "astro": "^6.1.5",
+  "@astrojs/mdx": "^5.0.0",
+  "@astrojs/rss": "^4.0.0",
+  "@astrojs/sitemap": "^3.3.0",
+  "tailwindcss": "^4.0.0",
+  "@tailwindcss/vite": "^4.0.0",
+  "sharp": "^0.33.0"
+}
+```
+
+All dependencies are ESM-only (`"type": "module"`).
