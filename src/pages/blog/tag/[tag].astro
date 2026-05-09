@@ -36,8 +36,10 @@ const formatDate = (date: Date) => {
   description={`Browse all engineering logs and field notes tagged with ${tag}.`}
   currentPath="/blog/"
 >
-  <div class="max-w-5xl mx-auto px-12 py-12">
-    <header class="mb-16">
+  <div
+    class="max-w-5xl mx-auto w-full min-w-0 overflow-x-clip px-6 py-12 md:px-12"
+  >
+    <header class="mb-16 min-w-0 max-w-full">
       <div
         class="flex items-center gap-2 text-[var(--color-primary-container)] mb-4 font-mono text-xs font-bold uppercase tracking-widest"
       >
@@ -46,7 +48,7 @@ const formatDate = (date: Date) => {
         <span>Tag</span>
       </div>
       <h1
-        class="font-[Space_Grotesk] text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] leading-[0.9] mb-4"
+        class="font-[Space_Grotesk] max-w-full text-[clamp(2rem,10vw,4.5rem)] md:text-7xl font-bold tracking-tighter text-[var(--color-on-surface)] leading-[0.9] mb-4 [overflow-wrap:break-word]"
       >
         TAG: <br />
         <span class="text-[var(--color-primary-container)] italic"
@@ -74,7 +76,7 @@ const formatDate = (date: Date) => {
                 </div>
               </a>
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <div class="flex items-center gap-3 mb-3">
                 <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[10px] font-bold px-2 py-1 uppercase tracking-widest">
                   {tag.toLocaleUpperCase(post.data.lang === 'tr' ? 'tr-TR' : 'en-US')}

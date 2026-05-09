@@ -3,13 +3,15 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Digital Garden" currentPath="/garden">
-  <div class="px-6 md:px-12 max-w-[1440px] mx-auto">
+  <div class="px-6 md:px-12 max-w-[1440px] mx-auto w-full min-w-0 overflow-x-clip">
     <!-- Hero Section -->
-    <section class="mb-32">
-      <div class="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-12 items-end">
+    <section class="mb-32 min-w-0">
+      <div
+        class="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-12 items-end min-w-0 [&>*]:min-w-0"
+      >
         <div>
           <span class="block text-[0.75rem] uppercase tracking-[0.2em] font-bold mb-4 text-primary">Digital Garden</span>
-          <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-on-surface">
+          <h1 class="max-w-full text-[clamp(2.5rem,8vw,3.75rem)] md:text-8xl font-black tracking-tighter leading-[0.9] text-on-surface [overflow-wrap:break-word]">
             COLLECTED <br /> THOUGHTS.
           </h1>
         </div>
@@ -22,16 +24,18 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     </section>
 
     <!-- Featured Section: Bento Style -->
-    <section class="mb-40">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-surface-container-highest p-1">
+    <section class="mb-40 min-w-0">
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-surface-container-highest p-1 min-w-0 [&>*]:min-w-0"
+      >
         <!-- Bento Item 1 -->
-        <div class="md:col-span-2 bg-surface-container-low p-12 min-h-[500px] flex flex-col justify-between group">
+        <div class="md:col-span-2 bg-surface-container-low p-6 md:p-12 min-h-[500px] flex flex-col justify-between group min-w-0">
           <div class="flex justify-between items-start">
             <span class="text-xs font-black tracking-widest text-primary">01 // FEATURED</span>
             <span class="material-symbols-outlined text-on-surface opacity-20 group-hover:opacity-100 transition-opacity">arrow_outward</span>
           </div>
           <div>
-            <h2 class="text-4xl font-bold tracking-tight mb-6">THE ARCHITECTURAL RATIO IN INTERFACE DESIGN.</h2>
+            <h2 class="text-2xl sm:text-4xl font-bold tracking-tight mb-6 max-w-full [overflow-wrap:break-word]">THE ARCHITECTURAL RATIO IN INTERFACE DESIGN.</h2>
             <div class="flex gap-4">
               <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-on-surface/10 px-3 py-1">Theory</span>
               <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-on-surface/10 px-3 py-1">12 Min Read</span>
@@ -39,7 +43,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           </div>
         </div>
         <!-- Bento Item 2 -->
-        <div class="bg-primary text-on-primary p-12 flex flex-col justify-between">
+        <div class="bg-primary text-on-primary p-6 md:p-12 flex flex-col justify-between min-w-0">
           <div>
             <span class="text-xs font-black tracking-widest opacity-60 text-[rgba(255,255,255,0.7)]">02 // LATEST</span>
             <h2 class="text-2xl font-bold tracking-tight mt-8">SYSTEMIC <br /> ENTROPY.</h2>
@@ -49,7 +53,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           </p>
         </div>
         <!-- Bento Item 3 -->
-        <div class="bg-surface-container p-12 flex flex-col justify-center items-center text-center">
+        <div class="bg-surface-container p-6 md:p-12 flex flex-col justify-center items-center text-center min-w-0">
           <div class="w-full h-48 bg-surface-container-highest mb-8 overflow-hidden relative border border-on-surface/5">
             <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent"></div>
             <img
@@ -61,21 +65,21 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           <h3 class="text-lg font-bold">GEOMETRIC TRUTH</h3>
         </div>
         <!-- Bento Item 4 -->
-        <div class="md:col-span-2 bg-surface-container-low p-12 flex items-center justify-between">
-          <div class="flex items-center gap-12">
-            <span class="text-5xl font-black text-on-surface/10">04</span>
+        <div class="md:col-span-2 bg-surface-container-low p-6 md:p-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 md:gap-12 min-w-0">
+            <span class="text-5xl font-black text-on-surface/10 shrink-0">04</span>
             <div>
-              <h3 class="text-xl font-bold">RUST FOR FRONTEND ENGINEERS</h3>
+              <h3 class="text-lg sm:text-xl font-bold max-w-full [overflow-wrap:break-word]">RUST FOR FRONTEND ENGINEERS</h3>
               <p class="text-sm text-on-surface-variant mt-2">The paradigm shift in memory safety.</p>
             </div>
           </div>
-          <span class="text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 bg-on-surface text-surface">Technical</span>
+            <span class="shrink-0 self-start sm:self-center text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 bg-on-surface text-surface">Technical</span>
         </div>
       </div>
     </section>
 
     <!-- Hybrid List View -->
-    <section class="max-w-4xl">
+    <section class="max-w-4xl w-full min-w-0">
       <div class="mb-12">
         <h2 class="text-[0.75rem] uppercase font-black tracking-[0.3em] text-on-surface/40">Archive // Index</h2>
       </div>

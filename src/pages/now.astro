@@ -3,9 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Now" currentPath="/now">
-  <div class="px-6 md:px-12 max-w-[1440px] mx-auto overflow-hidden">
+  <div
+    class="px-6 md:px-12 max-w-[1440px] mx-auto w-full min-w-0 overflow-x-clip overflow-y-visible"
+  >
     <!-- Hero Section: Swiss Typography Focal Point -->
-    <header class="mb-32 grid grid-cols-12 gap-8 items-end">
+    <header class="mb-32 grid grid-cols-12 gap-8 items-end min-w-0 [&>*]:min-w-0">
       <div class="col-span-12 md:col-span-8">
         <span class="text-[0.75rem] font-bold uppercase tracking-[0.2em] text-primary mb-6 block">STATUS REPORT / CURRENT PHASE</span>
         <h1 class="text-[clamp(3.5rem,10vw,8rem)] leading-[0.9] font-black tracking-tighter uppercase mb-8">
@@ -21,7 +23,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </header>
 
     <!-- The Timeline / Typographic List -->
-    <section class="relative grid grid-cols-1 md:grid-cols-12 gap-0">
+    <section
+      class="relative grid grid-cols-1 md:grid-cols-12 gap-0 min-w-0 [&>*]:min-w-0"
+    >
       <!-- Vertical Line -->
       <div class="hidden md:block absolute left-[50%] top-0 bottom-0 w-[1px] bg-on-surface/10 translate-x-[-0.5px]"></div>
 
@@ -76,13 +80,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   </div>
 
   <!-- Geometric Signature Section -->
-  <section class="mt-40 bg-[#1b1b1b] p-12 md:p-24 relative overflow-hidden">
+  <section class="mt-40 bg-[#1b1b1b] px-6 py-14 md:p-24 relative overflow-x-clip overflow-y-hidden">
     <!-- Background Shape -->
     <div
       class="absolute right-0 top-0 w-2/3 h-full opacity-20 pointer-events-none"
       style="background: conic-gradient(from 180deg at 50% 50%, #00327d 0deg, #651f00 360deg); filter: blur(100px);"
     ></div>
-    <div class="relative z-10 max-w-3xl mx-auto md:mx-0">
+    <div class="relative z-10 max-w-3xl mx-auto md:mx-0 w-full min-w-0">
       <span class="text-[var(--color-primary-container)] font-bold tracking-[0.3em] text-xs uppercase mb-8 block">THE ARCHITECTURAL CORE</span>
       <h3 class="text-[#f9f9f9] text-4xl md:text-7xl font-black tracking-tighter mb-12 uppercase leading-[0.9]">
         EVERY UPDATE IS A <span class="text-[var(--color-primary)]">STRUCTURE</span> IN PROGRESS.

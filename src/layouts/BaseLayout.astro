@@ -66,10 +66,12 @@ const {
       })();
     </script>
   </head>
-  <body class="bg-surface text-on-surface selection:bg-primary-container selection:text-white min-h-screen flex flex-col">
+  <body
+    class="bg-surface text-on-surface selection:bg-primary-container selection:text-white min-h-screen min-w-0 flex flex-col"
+  >
     <TopBar currentPath={currentPath} />
 
-    <main class="grow pt-32">
+    <main class="min-w-0 w-full grow pt-32">
       <slot />
     </main>
 

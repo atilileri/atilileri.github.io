@@ -3,12 +3,16 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Curriculum Vitae" currentPath="/cv/">
-  <div class="pb-32 px-6 md:px-12 max-w-[1440px] mx-auto w-full">
+  <div
+    class="pb-32 px-6 md:px-12 max-w-[1440px] mx-auto w-full min-w-0 overflow-x-clip"
+  >
     <!-- Hero Section / Title -->
-    <section class="grid grid-cols-12 gap-8 mb-24 min-h-[30vh] items-end">
+    <section
+      class="grid grid-cols-12 gap-6 md:gap-8 mb-24 min-h-[30vh] items-end [&>*]:min-w-0"
+    >
       <div class="col-span-12 flex flex-col justify-end">
         <h1
-          class="text-[4rem] md:text-[8rem] font-black leading-[0.9] tracking-tighter uppercase mb-4"
+          class="max-w-full text-[clamp(2.5rem,11vw,4rem)] md:text-[8rem] font-black leading-[0.9] tracking-tighter uppercase mb-4 [overflow-wrap:break-word]"
         >
           Software<br />Engineer
         </h1>
@@ -30,7 +34,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <div class="h-px w-full bg-on-surface/10 mb-24"></div>
 
     <!-- Experience Section -->
-    <section class="grid grid-cols-12 gap-8 mb-32">
+    <section class="grid grid-cols-12 gap-6 md:gap-8 mb-32 [&>*]:min-w-0">
       <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
         <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">
           Experience
@@ -424,7 +428,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <div class="h-px w-full bg-on-surface/10 mb-24"></div>
 
     <!-- Skills Section -->
-    <section class="grid grid-cols-12 gap-8 mb-32">
+    <section class="grid grid-cols-12 gap-6 md:gap-8 mb-32 [&>*]:min-w-0">
       <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
         <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">
           Technical Stack
@@ -518,7 +522,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <div class="h-px w-full bg-on-surface/10 mb-24"></div>
 
     <!-- Education Section -->
-    <section class="grid grid-cols-12 gap-8 mb-32">
+    <section class="grid grid-cols-12 gap-6 md:gap-8 mb-32 [&>*]:min-w-0">
       <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
         <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">
           Education
@@ -593,7 +597,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <div class="h-px w-full bg-on-surface/10 mb-24"></div>
 
     <!-- Publications & Certs Section -->
-    <section class="grid grid-cols-12 gap-8">
+    <section class="grid grid-cols-12 gap-6 md:gap-8 [&>*]:min-w-0">
       <div class="col-span-12 md:col-span-4 mb-8 md:mb-0">
         <h2 class="text-[2rem] font-black tracking-tighter uppercase mb-8">
           Awards<br />& Certs

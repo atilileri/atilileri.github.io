@@ -17,7 +17,7 @@ const renderedSports = await Promise.all(
 ---
 
 <BaseLayout title="Volunteering & Sports" currentPath="/sports">
-  <div class="max-w-4xl mx-auto px-6 py-12">
+  <div class="max-w-4xl mx-auto w-full min-w-0 overflow-x-clip px-6 py-12">
     <header class="mb-12">
       <h1 class="text-4xl font-bold font-space mb-4">Volunteering & Sports</h1>
       <p class="text-slate-400 text-lg">
@@ -50,7 +50,7 @@ const renderedSports = await Promise.all(
                 {item.data.role && (
                   <p class="text-blue-200 font-medium mb-4">{item.data.role}</p>
                 )}
-                <div class="prose prose-invert max-w-none">
+                <div class="prose prose-invert max-w-none min-w-0">
                   <item.Content />
                 </div>
               </div>

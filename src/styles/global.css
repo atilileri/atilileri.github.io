@@ -75,10 +75,26 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   font-family: var(--font-body);
+}
+
+/* Each Astro page outputs one or more direct children inside <main> (often sections).
+   min-width:auto on flex/grid descendants is a common cause of horizontal overflow on phones. */
+main > * {
+  min-width: 0;
+}
+
+/* Let grid tracks shrink instead of widening the page past the viewport */
+main .grid {
+  min-width: 0;
+}
+
+main .grid > * {
+  min-width: 0;
 }
 
 ::selection {
@@ -100,6 +116,7 @@ body {
 .prose {
   color: var(--color-on-surface-variant);
   line-height: 1.75;
+  overflow-wrap: break-word;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
@@ -151,5 +168,11 @@ body {
   overflow-x: auto;
   margin: 1.5rem 0;
   border: 1px solid var(--color-outline-variant);
+  max-width: 100%;
+}
+
+.prose :where(img, video, iframe) {
+  max-width: 100%;
+  height: auto;
 }
 

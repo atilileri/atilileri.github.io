@@ -3,8 +3,8 @@
 const { currentPath = "/" } = Astro.props;
 ---
 
-<nav class="fixed top-0 w-full z-50 bg-[#f9f9f9] dark:bg-[#1b1b1b] backdrop-blur-[20px] bg-opacity-80 dark:bg-opacity-80 border-b border-[#1b1b1b]/5 dark:border-[#f9f9f9]/5">
-  <div class="flex justify-between items-center px-6 md:px-12 py-6 md:py-8 max-w-[1440px] mx-auto w-full">
+<nav class="fixed top-0 inset-x-0 z-50 min-w-0 bg-[#f9f9f9] dark:bg-[#1b1b1b] backdrop-blur-[20px] bg-opacity-80 dark:bg-opacity-80 border-b border-[#1b1b1b]/5 dark:border-[#f9f9f9]/5">
+  <div class="flex justify-between items-center gap-4 min-w-0 px-6 md:px-12 py-6 md:py-8 max-w-[1440px] mx-auto w-full">
     <a href="/" class="flex items-center gap-2 text-[1.25rem] font-bold tracking-tighter text-[#1b1b1b] dark:text-[#f9f9f9]">
       <img src="/favicon.svg" alt="Logo" class="w-8 h-8" />
       atilileri
