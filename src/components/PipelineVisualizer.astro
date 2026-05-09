@@ -24,82 +24,82 @@
     </p>
   </div>
 
-  <div class="pipeline-canvas relative min-h-[320px] md:min-h-[240px] w-full flex items-center justify-center overflow-x-auto overflow-y-hidden pb-4 pt-4">
+  <div class="pipeline-canvas relative min-h-[350px] md:min-h-[280px] w-full flex items-center justify-center overflow-x-auto overflow-y-hidden pb-4 pt-4">
     <!-- SVG Connections Container -->
     <svg class="absolute inset-0 w-full h-full pointer-events-none" id="pipeline-svg">
       <defs>
         <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="var(--color-primary-container)" opacity="0.4" />
+          <polygon points="0 0, 8 3, 0 6" fill="var(--color-primary-container)" fill-opacity="0.5" />
         </marker>
         <filter id="glow">
-          <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
       </defs>
-      <g id="connections-group"></g>
+      <g id="connections-group" fill="none"></g>
     </svg>
 
-    <!-- Horizontal Flow on Desktop -->
-    <div class="nodes-container relative flex flex-col md:flex-row items-center gap-8 md:gap-4 w-full max-w-5xl mx-auto z-10 px-4">
+    <!-- Horizontal Flow -->
+    <div class="nodes-container relative flex flex-col md:flex-row items-center gap-12 md:gap-6 w-full max-w-6xl mx-auto z-10 px-8">
       
       <!-- Intake -->
-      <div class="node-item intake" data-id="intake" data-tooltip="Ingests YouTube & Web URLs via Telegram webhook.">
+      <div class="node-item intake" data-id="intake" data-title="Intake Node" data-desc="The entry point of the pipeline. It handles incoming Telegram webhooks, validates user permissions, and enqueues tasks into Redis RQ. It's designed to handle both YouTube transcripts and arbitrary web content.">
         <div class="node-icon"><span class="material-symbols-outlined text-lg">input</span></div>
         <div class="node-label">Intake</div>
       </div>
 
       <!-- Parallel Box -->
-      <div class="relative flex flex-row md:flex-col gap-2 p-3 border border-dashed border-[var(--color-outline-variant)]/20 rounded-xl bg-[var(--color-surface-container-lowest)]/30">
-        <div class="absolute -top-2 left-3 px-1.5 bg-[var(--color-surface)] text-[7px] font-black text-[var(--color-outline)] uppercase tracking-tighter">Parallel</div>
-        <div class="node-item mini" data-id="trans" data-tooltip="Whisper Transcription">
-          <span class="material-symbols-outlined text-sm">transcribe</span>
+      <div class="relative flex flex-row gap-3 p-4 border border-dashed border-[var(--color-outline-variant)]/20 rounded-2xl bg-[var(--color-surface-container-lowest)]/30 group/parallel">
+        <div class="absolute -top-2.5 left-4 px-2 bg-[var(--color-surface)] text-[8px] font-black text-[var(--color-outline)] uppercase tracking-widest border border-[var(--color-outline-variant)]/10 rounded-full">Parallel Extraction</div>
+        <div class="node-item mini" data-id="trans" data-title="Whisper Transcription" data-desc="Utilizes Faster-Whisper (a reimplementation of OpenAI's Whisper) to transcribe video audio with extreme speed and accuracy. It processes multi-lingual audio and outputs structured text.">
+          <span class="material-symbols-outlined text-base">transcribe</span>
         </div>
-        <div class="node-item mini" data-id="writer" data-tooltip="Gemini Technical Writer">
-          <span class="material-symbols-outlined text-sm">history_edu</span>
+        <div class="node-item mini" data-id="writer" data-title="Technical Writer" data-desc="A Gemini-powered agent that specializes in extracting technical details, code snippets, and architectural patterns from web content. It focuses on precision and developer-centric insights.">
+          <span class="material-symbols-outlined text-base">history_edu</span>
         </div>
-        <div class="node-item mini" data-id="reader" data-tooltip="Gemini Summary Reader">
-          <span class="material-symbols-outlined text-sm">auto_stories</span>
+        <div class="node-item mini" data-id="reader" data-tooltip="Summary Reader" data-title="Summary Reader" data-desc="Focuses on the narrative and high-level takeaways. It distills complex articles into digestible summaries, ensuring the 'Uncommon Sense' philosophy is preserved in the final output.">
+          <span class="material-symbols-outlined text-base">auto_stories</span>
         </div>
       </div>
 
       <!-- Gather -->
-      <div class="node-item tiny" data-id="gather" data-tooltip="Sync State">
+      <div class="node-item tiny" data-id="gather" data-title="Gather Results" data-desc="A synchronization node that waits for all parallel extraction paths to complete. It merges the technical findings, transcriptions, and summaries into a unified state for downstream processing.">
         <span class="material-symbols-outlined text-sm">join_inner</span>
       </div>
 
       <!-- HitL Agent Chain -->
-      <div class="flex flex-row md:flex-row gap-2">
-        <div class="node-item agent hitl" data-id="ref" data-tooltip="Reference Agent (HitL)">
+      <div class="flex flex-row gap-3">
+        <div class="node-item agent hitl" data-id="ref" data-title="Reference Agent" data-desc="The first agentic step. It cross-references the gathered data with internal context and previous notes. Requires human approval via Telegram before proceeding.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">psychology</span></div>
           <div class="node-label">Ref</div>
         </div>
-        <div class="node-item agent hitl" data-id="research" data-tooltip="Research Agent (HitL)">
+        <div class="node-item agent hitl" data-id="research" data-title="Research Agent" data-desc="Powered by Tavily, this agent performs live web searches to verify claims, find missing data, or provide broader context. It acts as an autonomous fact-checker with a human-in-the-loop.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">travel_explore</span></div>
           <div class="node-label">Res</div>
         </div>
-        <div class="node-item agent hitl" data-id="creative" data-tooltip="Creative Agent (HitL)">
+        <div class="node-item agent hitl" data-id="creative" data-title="Creative Agent" data-desc="The storyteller. It takes the research and technical notes to craft compelling storylines. It provides multiple narrative options to the user for selection.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">auto_awesome</span></div>
           <div class="node-label">Cre</div>
         </div>
       </div>
 
       <!-- Finalization -->
-      <div class="flex flex-row gap-2">
-        <div class="node-item final" data-id="visual" data-tooltip="AI Visual Node">
+      <div class="flex flex-row gap-3">
+        <div class="node-item final" data-id="visual" data-title="Visual Node" data-desc="Generates the hero image for the post using Pollinations.ai. It crafts unique prompts based on the selected storyline to ensure a cohesive visual identity.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">palette</span></div>
           <div class="node-label">Vis</div>
         </div>
-        <div class="node-item final" data-id="gitops" data-tooltip="GitOps Node">
+        <div class="node-item final" data-id="gitops" data-title="GitOps Node" data-desc="The deployment arm. It performs an atomic commit to the GitHub repository, including the Markdown content and generated images, triggering the Astro build pipeline.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">terminal</span></div>
           <div class="node-label">Git</div>
         </div>
       </div>
 
       <!-- Success -->
-      <div class="node-item success kinetic-gradient" data-id="success" data-tooltip="Blog post is live!">
+      <div class="node-item success kinetic-gradient" data-id="success" data-title="Live Deployment" data-desc="Success! The blog post is now live, translated into English and Turkish, and linked to the original sources. A truly 'automagical' process from URL to URL.">
         <div class="node-icon pulse"><span class="material-symbols-outlined text-lg">rocket_launch</span></div>
         <div class="node-label">Live</div>
       </div>
@@ -107,7 +107,43 @@
     </div>
   </div>
 
-  <div id="pipeline-tooltip" class="fixed pointer-events-none bg-[var(--color-inverse-surface)] text-[var(--color-inverse-on-surface)] text-[9px] px-2 py-1.5 rounded-md opacity-0 transition-opacity duration-200 z-[100] shadow-lg max-w-[150px] font-medium"></div>
+  <!-- Detail Panel (Side Drawer / Bottom Sheet) -->
+  <div id="node-detail-panel" class="fixed inset-y-0 right-0 w-full md:w-80 bg-[var(--color-surface)]/95 backdrop-blur-xl border-l border-[var(--color-outline-variant)]/20 shadow-2xl translate-x-full transition-transform duration-500 ease-in-out z-[100] flex flex-col">
+    <div class="p-6 flex items-center justify-between border-b border-[var(--color-outline-variant)]/10">
+      <div class="flex items-center gap-3">
+        <div id="panel-icon" class="w-10 h-10 rounded-xl bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] flex items-center justify-center"></div>
+        <h3 id="panel-title" class="font-[Space_Grotesk] text-lg font-bold">Node Detail</h3>
+      </div>
+      <button id="close-panel" class="w-8 h-8 rounded-full hover:bg-[var(--color-surface-container-high)] flex items-center justify-center transition-colors">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    </div>
+    <div class="p-8 overflow-y-auto flex-1">
+      <div id="panel-desc" class="text-[var(--color-on-surface-variant)] text-sm leading-relaxed font-light"></div>
+      <div class="mt-12 p-4 rounded-xl bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/10">
+        <h4 class="text-[10px] font-bold text-[var(--color-outline)] uppercase tracking-widest mb-2">Technical Specs</h4>
+        <div class="space-y-2" id="panel-specs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="text-[var(--color-outline)]">Status</span>
+            <span class="text-green-600 font-bold">Production Ready</span>
+          </div>
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="text-[var(--color-outline)]">Latency</span>
+            <span class="font-mono">&lt; 500ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="p-6 bg-[var(--color-surface-container-low)]/50">
+      <a href="https://github.com/atilileri/blogger" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[var(--color-primary-container)] text-white text-xs font-bold hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-sm">code</span>
+        VIEW SOURCE ON GITHUB
+      </a>
+    </div>
+  </div>
+  <div id="panel-overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500 z-[90]"></div>
+
+  <div id="pipeline-tooltip" class="fixed pointer-events-none bg-[var(--color-inverse-surface)] text-[var(--color-inverse-on-surface)] text-[9px] px-2 py-1.5 rounded-md opacity-0 transition-opacity duration-200 z-[100] shadow-lg max-w-[150px] font-medium hidden md:block"></div>
 </section>
 
 <style>
@@ -118,16 +154,16 @@
   }
 
   .node-item {
-    @apply flex flex-col items-center gap-1 bg-[var(--color-surface)] border border-[var(--color-outline-variant)]/20 p-2 rounded-xl shadow-sm transition-all duration-300 relative min-w-[60px] cursor-default;
+    @apply flex flex-col items-center gap-1 bg-[var(--color-surface)] border border-[var(--color-outline-variant)]/20 p-2 rounded-xl shadow-sm transition-all duration-300 relative min-w-[64px] cursor-pointer;
     z-index: 20;
   }
 
   .node-item.mini {
-    @apply p-1.5 min-w-[40px] rounded-lg bg-[var(--color-surface-container-high)]/50 border-none;
+    @apply p-1.5 min-w-[44px] rounded-lg bg-[var(--color-surface-container-high)]/50 border-none;
   }
 
   .node-item.tiny {
-    @apply p-1 min-w-[30px] rounded-full border-none bg-transparent shadow-none;
+    @apply p-1 min-w-[34px] rounded-full border-none bg-transparent shadow-none;
   }
 
   .node-item:hover:not(.tiny) {
@@ -144,7 +180,7 @@
   }
 
   .node-label {
-    @apply font-[Space_Grotesk] text-[9px] font-bold tracking-tight text-[var(--color-on-surface)] m-0 leading-none text-center;
+    @apply font-[Space_Grotesk] text-[10px] font-bold tracking-tight text-[var(--color-on-surface)] m-0 leading-none text-center;
   }
 
   /* Specific Styles */
@@ -173,7 +209,7 @@
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
   }
 
-  /* Kinetic Gradient from main styles */
+  /* Kinetic Gradient */
   .kinetic-gradient {
     background: linear-gradient(135deg, var(--color-primary-container) 0%, #002e6e 100%);
     background-size: 200% 200%;
@@ -186,20 +222,20 @@
     100% { background-position: 0% 50%; }
   }
 
-  /* Connection Animation */
+  /* Connection Lines */
   .flow-line {
-    fill: none;
+    fill: none !important;
     stroke: var(--color-outline-variant);
-    stroke-width: 1;
-    opacity: 0.1;
+    stroke-width: 0.8;
+    opacity: 0.15;
   }
 
   .flow-line.active {
     stroke: var(--color-primary-container);
-    opacity: 0.4;
-    stroke-dasharray: 4, 8;
+    opacity: 0.5;
+    stroke-dasharray: 4, 12;
     stroke-dashoffset: 100;
-    animation: flow 4s linear infinite;
+    animation: flow 5s linear infinite;
     filter: url(#glow);
   }
 
@@ -207,10 +243,23 @@
     to { stroke-dashoffset: 0; }
   }
 
-  /* Responsive Adjustments */
+  /* Detail Panel */
+  #node-detail-panel.active {
+    @apply translate-x-0;
+  }
+  #panel-overlay.active {
+    @apply opacity-100 pointer-events-auto;
+  }
+
   @media (max-width: 768px) {
     .pipeline-canvas {
-      @apply min-h-[500px];
+      @apply min-h-[550px];
+    }
+    #node-detail-panel {
+      @apply top-auto h-[60vh] translate-y-full translate-x-0 rounded-t-3xl border-l-0 border-t;
+    }
+    #node-detail-panel.active {
+      @apply translate-y-0;
     }
   }
 </style>
@@ -220,7 +269,11 @@
     const svg = document.getElementById('pipeline-svg') as unknown as SVGSVGElement;
     const group = document.getElementById('connections-group');
     const tooltip = document.getElementById('pipeline-tooltip');
-    if (!svg || !group || !tooltip) return;
+    const panel = document.getElementById('node-detail-panel');
+    const overlay = document.getElementById('panel-overlay');
+    const closeBtn = document.getElementById('close-panel');
+    
+    if (!svg || !group || !tooltip || !panel || !overlay || !closeBtn) return;
 
     const connections = [
       { from: 'intake', to: 'trans' },
@@ -256,11 +309,12 @@
           const y2 = (tRect.top + tRect.height / 2) - svgRect.top;
 
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          const midY = (y1 + y2) / 2;
-          const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+          const midX = (x1 + x2) / 2;
+          const d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
           
           path.setAttribute('d', d);
           path.setAttribute('class', 'flow-line');
+          path.setAttribute('fill', 'none');
           path.setAttribute('marker-end', 'url(#arrowhead)');
           group!.appendChild(path);
 
@@ -271,7 +325,7 @@
       });
     }
 
-    // Tooltip Logic
+    // Interaction Logic
     const nodes = document.querySelectorAll('.node-item');
     nodes.forEach(node => {
       node.addEventListener('mouseenter', (e) => {
@@ -290,30 +344,47 @@
       node.addEventListener('mouseleave', () => {
         tooltip.style.opacity = '0';
       });
+
+      node.addEventListener('click', () => {
+        const title = node.getAttribute('data-title');
+        const desc = node.getAttribute('data-desc');
+        const iconHtml = node.querySelector('.node-icon')?.innerHTML || node.innerHTML;
+
+        if (title && desc) {
+          (document.getElementById('panel-title') as HTMLElement).textContent = title;
+          (document.getElementById('panel-desc') as HTMLElement).innerHTML = desc;
+          (document.getElementById('panel-icon') as HTMLElement).innerHTML = iconHtml;
+          
+          panel.classList.add('active');
+          overlay.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      });
     });
+
+    const closePanel = () => {
+      panel.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    closeBtn.addEventListener('click', closePanel);
+    overlay.addEventListener('click', closePanel);
 
     // Initial draw
     setTimeout(drawConnections, 100);
     window.addEventListener('resize', drawConnections);
-    
     document.addEventListener('astro:page-load', drawConnections);
     
-    // Also run immediately
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          drawConnections();
-        }
+        if (entry.isIntersecting) drawConnections();
       });
     }, { threshold: 0.1 });
     observer.observe(svg);
   }
 
-  // Run on load and on Astro view transitions
   document.addEventListener('DOMContentLoaded', initPipeline);
   document.addEventListener('astro:page-load', initPipeline);
-  
-  if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    initPipeline();
-  }
+  if (document.readyState === 'interactive' || document.readyState === 'complete') initPipeline();
 </script>
