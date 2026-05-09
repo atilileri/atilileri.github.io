@@ -74,14 +74,17 @@
       <!-- HitL Agent Chain -->
       <div class="flex flex-row gap-2">
         <div class="node-item agent hitl" data-id="ref" data-title="Reference Agent" data-desc="The first agentic step. It cross-references the gathered data with internal context and previous notes. Requires human approval via Telegram before proceeding.">
+          <div class="hitl-patch">HitL</div>
           <div class="node-icon"><span class="material-symbols-outlined text-sm">psychology</span></div>
           <div class="node-label">Reference</div>
         </div>
         <div class="node-item agent hitl" data-id="research" data-title="Research Agent" data-desc="Powered by Tavily, this agent performs live web searches to verify claims, find missing data, or provide broader context. It acts as an autonomous fact-checker with a human-in-the-loop.">
+          <div class="hitl-patch">HitL</div>
           <div class="node-icon"><span class="material-symbols-outlined text-sm">travel_explore</span></div>
           <div class="node-label">Research</div>
         </div>
         <div class="node-item agent hitl" data-id="creative" data-title="Creative Agent" data-desc="The storyteller. It takes the research and technical notes to craft compelling storylines. It provides multiple narrative options to the user for selection.">
+          <div class="hitl-patch">HitL</div>
           <div class="node-icon"><span class="material-symbols-outlined text-sm">auto_awesome</span></div>
           <div class="node-label">Creative</div>
         </div>
@@ -102,7 +105,7 @@
       <!-- Success -->
       <div class="node-item success kinetic-gradient" data-id="success" data-title="Live Deployment" data-desc="Success! The blog post is now live, translated into English and Turkish, and linked to the original sources. A truly 'automagical' process from URL to URL.">
         <div class="node-icon pulse"><span class="material-symbols-outlined text-lg">rocket_launch</span></div>
-        <div class="node-label">Success</div>
+        <div class="node-label">Live</div>
       </div>
 
     </div>
@@ -166,20 +169,26 @@
   }
 
   /* Specific Styles */
-  .node-item.hitl {
-    @apply border-orange-500/20;
-  }
-  .node-item.hitl .node-icon {
+  .node-item.hitl { @apply border-orange-500/20; }
+  .node-item.hitl .node-icon, .hitl-icon-style {
     @apply bg-orange-500/5 text-orange-600;
+  }
+
+  .node-item.final { @apply border-blue-500/20; }
+  .node-item.final .node-icon, .final-icon-style {
+    @apply bg-blue-500/5 text-blue-600;
   }
 
   .node-item.success {
     @apply border-none text-white;
   }
-  .node-item.success .node-icon {
-    @apply bg-white/10 text-white;
-  }
   .node-item.success .node-label { @apply text-white; }
+  .node-item.success .node-icon { @apply bg-white/10 text-white; }
+
+  .hitl-patch {
+    @apply absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[10px] font-normal px-1.5 py-0.5 rounded-full shadow-sm z-30 uppercase tracking-tighter;
+    border: 1.5px solid var(--color-surface);
+  }
 
   .pulse {
     animation: pulse 2s infinite;
@@ -340,12 +349,11 @@
           panelIconContainer.innerHTML = iconContainer.innerHTML;
           
           // Copy relevant classes for styling (colors)
-          let baseClasses = iconContainer.className + ' w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300';
+          let baseClasses = 'w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300';
           
-          // Special case for success node to keep its gradient
-          if (node.classList.contains('success')) {
-            baseClasses += ' kinetic-gradient border-none';
-          }
+          if (node.classList.contains('hitl')) baseClasses += ' hitl-icon-style';
+          if (node.classList.contains('final')) baseClasses += ' final-icon-style';
+          if (node.classList.contains('success')) baseClasses += ' kinetic-gradient border-none';
           
           panelIconContainer.className = baseClasses;
           
