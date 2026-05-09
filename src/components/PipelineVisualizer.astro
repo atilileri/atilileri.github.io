@@ -5,32 +5,29 @@
  */
 ---
 
-<section class="pipeline-section mt-4 mb-12 relative overflow-hidden rounded-2xl bg-[var(--color-surface-container-low)]/50 border border-[var(--color-outline-variant)]/10 p-6">
-  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-    <div>
-      <div class="flex items-center gap-2 mb-2">
-        <span class="px-2 py-0.5 rounded-full bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[9px] font-bold tracking-widest uppercase">The Engine</span>
-        <a href="https://github.com/atilileri/blogger" target="_blank" class="flex items-center gap-1 text-[var(--color-outline)] hover:text-[var(--color-primary-container)] transition-colors text-[10px] font-medium">
-          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+<section class="pipeline-section mt-2 mb-6 relative overflow-hidden rounded-2xl bg-[var(--color-surface-container-low)]/50 border border-[var(--color-outline-variant)]/10 p-5 md:p-8">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 gap-4">
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-1 rounded-full bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[10px] md:text-xs font-bold tracking-widest uppercase">The Engine</span>
+        <a href="https://github.com/atilileri/blogger" target="_blank" class="flex items-center gap-1.5 text-[var(--color-outline)] hover:text-[var(--color-primary-container)] transition-colors text-[11px] md:text-sm font-medium">
+          <svg class="w-3.5 h-3.5 md:w-4 md:h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
           atilileri/blogger
         </a>
       </div>
-      <h2 class="font-[Space_Grotesk] text-xl font-bold tracking-tight">
+      <h2 class="font-[Space_Grotesk] text-2xl md:text-3xl font-bold tracking-tight">
         Automated <span class="text-[var(--color-primary-container)]">AI Content Forge</span>
       </h2>
     </div>
-    <p class="text-[var(--color-on-surface-variant)] text-[11px] max-w-sm font-light leading-relaxed hidden md:block">
+    <p class="text-[var(--color-on-surface-variant)] text-sm md:text-base max-w-md font-light leading-relaxed">
       Multi-agent <strong>LangGraph</strong> pipeline transforming raw URLs into bilingual blog posts with HitL validation.
     </p>
   </div>
 
-  <div class="pipeline-canvas relative min-h-[350px] md:min-h-[280px] w-full flex items-center justify-center overflow-x-auto overflow-y-hidden pb-4 pt-4">
+  <div class="pipeline-canvas relative w-full flex items-center justify-center overflow-x-hidden pb-4 pt-4">
     <!-- SVG Connections Container -->
     <svg class="absolute inset-0 w-full h-full pointer-events-none" id="pipeline-svg">
       <defs>
-        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="var(--color-primary-container)" fill-opacity="0.5" />
-        </marker>
         <filter id="glow">
           <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
           <feMerge>
@@ -43,7 +40,7 @@
     </svg>
 
     <!-- Horizontal Flow -->
-    <div class="nodes-container relative flex flex-col md:flex-row items-center gap-12 md:gap-6 w-full max-w-6xl mx-auto z-10 px-8">
+    <div class="nodes-container relative flex flex-col md:flex-row items-center gap-6 md:gap-3 w-full max-w-full mx-auto z-10 px-4 md:px-2">
       
       <!-- Intake -->
       <div class="node-item intake" data-id="intake" data-title="Intake Node" data-desc="The entry point of the pipeline. It handles incoming Telegram webhooks, validates user permissions, and enqueues tasks into Redis RQ. It's designed to handle both YouTube transcripts and arbitrary web content.">
@@ -52,56 +49,60 @@
       </div>
 
       <!-- Parallel Box -->
-      <div class="relative flex flex-row gap-3 p-4 border border-dashed border-[var(--color-outline-variant)]/20 rounded-2xl bg-[var(--color-surface-container-lowest)]/30 group/parallel">
+      <div class="relative flex flex-row gap-2 p-3 border border-dashed border-[var(--color-outline-variant)]/20 rounded-2xl bg-[var(--color-surface-container-lowest)]/30 group/parallel">
         <div class="absolute -top-2.5 left-4 px-2 bg-[var(--color-surface)] text-[8px] font-black text-[var(--color-outline)] uppercase tracking-widest border border-[var(--color-outline-variant)]/10 rounded-full">Parallel Extraction</div>
-        <div class="node-item mini" data-id="trans" data-title="Whisper Transcription" data-desc="Utilizes Faster-Whisper (a reimplementation of OpenAI's Whisper) to transcribe video audio with extreme speed and accuracy. It processes multi-lingual audio and outputs structured text.">
-          <span class="material-symbols-outlined text-base">transcribe</span>
+        <div class="node-item mini" data-id="trans" data-title="Whisper Transcription" data-desc="Utilizes Faster-Whisper to transcribe video audio with extreme speed and accuracy. It processes multi-lingual audio and outputs structured text.">
+          <div class="node-icon"><span class="material-symbols-outlined text-base">transcribe</span></div>
+          <span class="text-[8px] font-bold uppercase tracking-tighter opacity-60">Whisper</span>
         </div>
         <div class="node-item mini" data-id="writer" data-title="Technical Writer" data-desc="A Gemini-powered agent that specializes in extracting technical details, code snippets, and architectural patterns from web content. It focuses on precision and developer-centric insights.">
-          <span class="material-symbols-outlined text-base">history_edu</span>
+          <div class="node-icon"><span class="material-symbols-outlined text-base">history_edu</span></div>
+          <span class="text-[8px] font-bold uppercase tracking-tighter opacity-60">Technical</span>
         </div>
         <div class="node-item mini" data-id="reader" data-tooltip="Summary Reader" data-title="Summary Reader" data-desc="Focuses on the narrative and high-level takeaways. It distills complex articles into digestible summaries, ensuring the 'Uncommon Sense' philosophy is preserved in the final output.">
-          <span class="material-symbols-outlined text-base">auto_stories</span>
+          <div class="node-icon"><span class="material-symbols-outlined text-base">auto_stories</span></div>
+          <span class="text-[8px] font-bold uppercase tracking-tighter opacity-60">Summary</span>
         </div>
       </div>
 
       <!-- Gather -->
       <div class="node-item tiny" data-id="gather" data-title="Gather Results" data-desc="A synchronization node that waits for all parallel extraction paths to complete. It merges the technical findings, transcriptions, and summaries into a unified state for downstream processing.">
-        <span class="material-symbols-outlined text-sm">join_inner</span>
+        <div class="node-icon"><span class="material-symbols-outlined text-sm">join_inner</span></div>
+        <div class="node-label">Gather</div>
       </div>
 
       <!-- HitL Agent Chain -->
-      <div class="flex flex-row gap-3">
+      <div class="flex flex-row gap-2">
         <div class="node-item agent hitl" data-id="ref" data-title="Reference Agent" data-desc="The first agentic step. It cross-references the gathered data with internal context and previous notes. Requires human approval via Telegram before proceeding.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">psychology</span></div>
-          <div class="node-label">Ref</div>
+          <div class="node-label">Reference</div>
         </div>
         <div class="node-item agent hitl" data-id="research" data-title="Research Agent" data-desc="Powered by Tavily, this agent performs live web searches to verify claims, find missing data, or provide broader context. It acts as an autonomous fact-checker with a human-in-the-loop.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">travel_explore</span></div>
-          <div class="node-label">Res</div>
+          <div class="node-label">Research</div>
         </div>
         <div class="node-item agent hitl" data-id="creative" data-title="Creative Agent" data-desc="The storyteller. It takes the research and technical notes to craft compelling storylines. It provides multiple narrative options to the user for selection.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">auto_awesome</span></div>
-          <div class="node-label">Cre</div>
+          <div class="node-label">Creative</div>
         </div>
       </div>
 
       <!-- Finalization -->
-      <div class="flex flex-row gap-3">
+      <div class="flex flex-row gap-2">
         <div class="node-item final" data-id="visual" data-title="Visual Node" data-desc="Generates the hero image for the post using Pollinations.ai. It crafts unique prompts based on the selected storyline to ensure a cohesive visual identity.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">palette</span></div>
-          <div class="node-label">Vis</div>
+          <div class="node-label">Visual</div>
         </div>
         <div class="node-item final" data-id="gitops" data-title="GitOps Node" data-desc="The deployment arm. It performs an atomic commit to the GitHub repository, including the Markdown content and generated images, triggering the Astro build pipeline.">
           <div class="node-icon"><span class="material-symbols-outlined text-sm">terminal</span></div>
-          <div class="node-label">Git</div>
+          <div class="node-label">GitOps</div>
         </div>
       </div>
 
       <!-- Success -->
       <div class="node-item success kinetic-gradient" data-id="success" data-title="Live Deployment" data-desc="Success! The blog post is now live, translated into English and Turkish, and linked to the original sources. A truly 'automagical' process from URL to URL.">
         <div class="node-icon pulse"><span class="material-symbols-outlined text-lg">rocket_launch</span></div>
-        <div class="node-label">Live</div>
+        <div class="node-label">Success</div>
       </div>
 
     </div>
@@ -315,7 +316,6 @@
           path.setAttribute('d', d);
           path.setAttribute('class', 'flow-line');
           path.setAttribute('fill', 'none');
-          path.setAttribute('marker-end', 'url(#arrowhead)');
           group!.appendChild(path);
 
           const activePath = path.cloneNode() as SVGPathElement;
@@ -348,7 +348,9 @@
       node.addEventListener('click', () => {
         const title = node.getAttribute('data-title');
         const desc = node.getAttribute('data-desc');
-        const iconHtml = node.querySelector('.node-icon')?.innerHTML || node.innerHTML;
+        // Always look for the .node-icon div to ensure we only get the logo
+        const iconContainer = node.querySelector('.node-icon');
+        const iconHtml = iconContainer ? iconContainer.innerHTML : node.innerHTML;
 
         if (title && desc) {
           (document.getElementById('panel-title') as HTMLElement).textContent = title;
