@@ -5,34 +5,34 @@
  */
 ---
 
-<section class="pipeline-section mt-8 mb-24 relative overflow-hidden rounded-3xl bg-[var(--color-surface-container-low)] border border-[var(--color-outline-variant)]/20 p-8 md:p-12">
-  <div class="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">
-    <div class="max-w-2xl">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="px-3 py-1 rounded-full bg-[var(--color-primary-container)] text-[var(--color-on-primary-fixed)] text-[10px] font-bold tracking-[0.2em] uppercase">Engine Architecture</span>
-        <a href="https://github.com/atilileri/blogger" target="_blank" class="flex items-center gap-1.5 text-[var(--color-outline)] hover:text-[var(--color-primary-container)] transition-colors text-xs font-medium">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-          View Source
+<section class="pipeline-section mt-4 mb-12 relative overflow-hidden rounded-2xl bg-[var(--color-surface-container-low)]/50 border border-[var(--color-outline-variant)]/10 p-6">
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="px-2 py-0.5 rounded-full bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-[9px] font-bold tracking-widest uppercase">The Engine</span>
+        <a href="https://github.com/atilileri/blogger" target="_blank" class="flex items-center gap-1 text-[var(--color-outline)] hover:text-[var(--color-primary-container)] transition-colors text-[10px] font-medium">
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          atilileri/blogger
         </a>
       </div>
-      <h2 class="font-[Space_Grotesk] text-3xl md:text-4xl font-bold tracking-tight mb-4">
-        The "Automagical" <span class="text-[var(--color-primary-container)]">Content Forge</span>
+      <h2 class="font-[Space_Grotesk] text-xl font-bold tracking-tight">
+        Automated <span class="text-[var(--color-primary-container)]">AI Content Forge</span>
       </h2>
-      <p class="text-[var(--color-on-surface-variant)] text-sm md:text-base font-light leading-relaxed">
-        A multi-agent autonomous pipeline built with <span class="font-semibold">LangGraph</span>. It transforms raw YouTube and web URLs into high-fidelity, bilingual blog posts with human-in-the-loop validation via Telegram.
-      </p>
     </div>
+    <p class="text-[var(--color-on-surface-variant)] text-[11px] max-w-sm font-light leading-relaxed hidden md:block">
+      Multi-agent <strong>LangGraph</strong> pipeline transforming raw URLs into bilingual blog posts with HitL validation.
+    </p>
   </div>
 
-  <div class="pipeline-canvas relative min-h-[600px] w-full flex items-center justify-center overflow-x-auto pb-12">
+  <div class="pipeline-canvas relative min-h-[320px] md:min-h-[240px] w-full flex items-center justify-center overflow-x-auto overflow-y-hidden pb-4 pt-4">
     <!-- SVG Connections Container -->
     <svg class="absolute inset-0 w-full h-full pointer-events-none" id="pipeline-svg">
       <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-primary-container)" />
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="var(--color-primary-container)" opacity="0.4" />
         </marker>
         <filter id="glow">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
@@ -42,129 +42,72 @@
       <g id="connections-group"></g>
     </svg>
 
-    <!-- Nodes Container -->
-    <div class="nodes-container relative flex flex-col items-center gap-16 w-full max-w-4xl mx-auto z-10">
+    <!-- Horizontal Flow on Desktop -->
+    <div class="nodes-container relative flex flex-col md:flex-row items-center gap-8 md:gap-4 w-full max-w-5xl mx-auto z-10 px-4">
       
-      <!-- Entry Node -->
-      <div class="node-item intake" data-id="intake" data-tooltip="Ingests YouTube transcripts and Website URLs via Telegram Bot webhook.">
-        <div class="node-icon"><span class="material-symbols-outlined">input</span></div>
-        <div class="node-content">
-          <h3>Intake Node</h3>
-          <p>Multi-source ingestion</p>
+      <!-- Intake -->
+      <div class="node-item intake" data-id="intake" data-tooltip="Ingests YouTube & Web URLs via Telegram webhook.">
+        <div class="node-icon"><span class="material-symbols-outlined text-lg">input</span></div>
+        <div class="node-label">Intake</div>
+      </div>
+
+      <!-- Parallel Box -->
+      <div class="relative flex flex-row md:flex-col gap-2 p-3 border border-dashed border-[var(--color-outline-variant)]/20 rounded-xl bg-[var(--color-surface-container-lowest)]/30">
+        <div class="absolute -top-2 left-3 px-1.5 bg-[var(--color-surface)] text-[7px] font-black text-[var(--color-outline)] uppercase tracking-tighter">Parallel</div>
+        <div class="node-item mini" data-id="trans" data-tooltip="Whisper Transcription">
+          <span class="material-symbols-outlined text-sm">transcribe</span>
+        </div>
+        <div class="node-item mini" data-id="writer" data-tooltip="Gemini Technical Writer">
+          <span class="material-symbols-outlined text-sm">history_edu</span>
+        </div>
+        <div class="node-item mini" data-id="reader" data-tooltip="Gemini Summary Reader">
+          <span class="material-symbols-outlined text-sm">auto_stories</span>
         </div>
       </div>
 
-      <!-- Parallel Layer -->
-      <div class="relative w-full border-2 border-dashed border-[var(--color-outline-variant)]/20 rounded-3xl p-8 bg-[var(--color-surface-container-lowest)]/50">
-        <div class="absolute -top-3 left-6 px-3 py-0.5 bg-[var(--color-surface)] border border-[var(--color-outline-variant)]/30 rounded-full text-[10px] font-bold tracking-widest text-[var(--color-outline)] uppercase">Parallel Processing</div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="node-item parallel" data-id="trans" data-tooltip="Uses Faster-Whisper to transcribe audio content with high precision.">
-            <div class="node-icon"><span class="material-symbols-outlined">transcribe</span></div>
-            <div class="node-content">
-              <h3>Whisper</h3>
-              <p>Transcription</p>
-            </div>
-          </div>
-          <div class="node-item parallel" data-id="writer" data-tooltip="Gemini-powered technical analysis focusing on architecture and code.">
-            <div class="node-icon"><span class="material-symbols-outlined">history_edu</span></div>
-            <div class="node-content">
-              <h3>Tech Writer</h3>
-              <p>Deep Analysis</p>
-            </div>
-          </div>
-          <div class="node-item parallel" data-id="reader" data-tooltip="Extracts key insights and summaries from long-form web articles.">
-            <div class="node-icon"><span class="material-symbols-outlined">auto_stories</span></div>
-            <div class="node-content">
-              <h3>Summary</h3>
-              <p>Key Takeaways</p>
-            </div>
-          </div>
+      <!-- Gather -->
+      <div class="node-item tiny" data-id="gather" data-tooltip="Sync State">
+        <span class="material-symbols-outlined text-sm">join_inner</span>
+      </div>
+
+      <!-- HitL Agent Chain -->
+      <div class="flex flex-row md:flex-row gap-2">
+        <div class="node-item agent hitl" data-id="ref" data-tooltip="Reference Agent (HitL)">
+          <div class="node-icon"><span class="material-symbols-outlined text-sm">psychology</span></div>
+          <div class="node-label">Ref</div>
+        </div>
+        <div class="node-item agent hitl" data-id="research" data-tooltip="Research Agent (HitL)">
+          <div class="node-icon"><span class="material-symbols-outlined text-sm">travel_explore</span></div>
+          <div class="node-label">Res</div>
+        </div>
+        <div class="node-item agent hitl" data-id="creative" data-tooltip="Creative Agent (HitL)">
+          <div class="node-icon"><span class="material-symbols-outlined text-sm">auto_awesome</span></div>
+          <div class="node-label">Cre</div>
         </div>
       </div>
 
-      <!-- Sync Node -->
-      <div class="node-item gather" data-id="gather" data-tooltip="Synchronizes parallel outputs into a unified state for the agentic chain.">
-        <div class="node-icon"><span class="material-symbols-outlined">join_inner</span></div>
-        <div class="node-content">
-          <h3>Gather</h3>
-          <p>State Sync</p>
+      <!-- Finalization -->
+      <div class="flex flex-row gap-2">
+        <div class="node-item final" data-id="visual" data-tooltip="AI Visual Node">
+          <div class="node-icon"><span class="material-symbols-outlined text-sm">palette</span></div>
+          <div class="node-label">Vis</div>
+        </div>
+        <div class="node-item final" data-id="gitops" data-tooltip="GitOps Node">
+          <div class="node-icon"><span class="material-symbols-outlined text-sm">terminal</span></div>
+          <div class="node-label">Git</div>
         </div>
       </div>
 
-      <!-- HitL Agent Layer (Sequential) -->
-      <div class="flex flex-col gap-12 items-center w-full">
-        <div class="node-item agent hitl" data-id="ref" data-tooltip="Reference Agent: Links gathered data with internal context. Requires User Approval.">
-          <div class="node-icon"><span class="material-symbols-outlined">psychology</span></div>
-          <div class="node-content">
-            <h3>Reference</h3>
-            <p>Context Agent</p>
-          </div>
-          <div class="hitl-badge">HitL</div>
-        </div>
-        <div class="node-item agent hitl" data-id="research" data-tooltip="Research Agent: Uses Tavily API to verify facts and gather missing data. Requires User Approval.">
-          <div class="node-icon"><span class="material-symbols-outlined">travel_explore</span></div>
-          <div class="node-content">
-            <h3>Research</h3>
-            <p>Tavily Search</p>
-          </div>
-          <div class="hitl-badge">HitL</div>
-        </div>
-        <div class="node-item agent hitl" data-id="creative" data-tooltip="Creative Agent: Generates story arcs and bilingual content. User selects final narrative.">
-          <div class="node-icon"><span class="material-symbols-outlined">auto_awesome</span></div>
-          <div class="node-content">
-            <h3>Creative</h3>
-            <p>Storylining</p>
-          </div>
-          <div class="hitl-badge">HitL</div>
-        </div>
-      </div>
-
-      <!-- Finalization Layer (Sequential) -->
-      <div class="flex flex-col gap-12 items-center w-full">
-        <div class="node-item final" data-id="visual" data-tooltip="Generates hero images via Pollinations.ai based on creative prompts.">
-          <div class="node-icon"><span class="material-symbols-outlined">palette</span></div>
-          <div class="node-content">
-            <h3>Visual</h3>
-            <p>AI Hero Image</p>
-          </div>
-        </div>
-        <div class="node-item final" data-id="gitops" data-tooltip="Atomic commit to GitHub repository using GitOps principles.">
-          <div class="node-icon"><span class="material-symbols-outlined">terminal</span></div>
-          <div class="node-content">
-            <h3>GitOps</h3>
-            <p>GitHub Commit</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Output Node -->
-      <div class="node-item success kinetic-gradient" data-id="success" data-tooltip="Pipeline complete! The post is live and translated in EN/TR.">
-        <div class="node-icon pulse"><span class="material-symbols-outlined">rocket_launch</span></div>
-        <div class="node-content">
-          <h3>Success</h3>
-          <p>Blog Live!</p>
-        </div>
+      <!-- Success -->
+      <div class="node-item success kinetic-gradient" data-id="success" data-tooltip="Blog post is live!">
+        <div class="node-icon pulse"><span class="material-symbols-outlined text-lg">rocket_launch</span></div>
+        <div class="node-label">Live</div>
       </div>
 
     </div>
   </div>
 
-  <div id="pipeline-tooltip" class="fixed pointer-events-none bg-[var(--color-inverse-surface)] text-[var(--color-inverse-on-surface)] text-[10px] px-3 py-2 rounded-lg opacity-0 transition-opacity duration-200 z-[100] shadow-xl max-w-[200px]"></div>
-
-  <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-    <div class="flex items-center gap-2 text-[var(--color-outline)] text-xs">
-      <span class="w-2 h-2 rounded-full bg-[var(--color-primary-container)]"></span>
-      Automated Flow
-    </div>
-    <div class="flex items-center gap-2 text-[var(--color-outline)] text-xs">
-      <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-      Human-in-the-Loop
-    </div>
-    <div class="flex items-center gap-2 text-[var(--color-outline)] text-xs">
-      <span class="w-2 h-2 rounded-full bg-green-500"></span>
-      Success Output
-    </div>
-  </div>
+  <div id="pipeline-tooltip" class="fixed pointer-events-none bg-[var(--color-inverse-surface)] text-[var(--color-inverse-on-surface)] text-[9px] px-2 py-1.5 rounded-md opacity-0 transition-opacity duration-200 z-[100] shadow-lg max-w-[150px] font-medium"></div>
 </section>
 
 <style>
@@ -175,29 +118,33 @@
   }
 
   .node-item {
-    @apply flex items-center gap-4 bg-[var(--color-surface)] border border-[var(--color-outline-variant)]/30 p-4 rounded-2xl shadow-sm transition-all duration-300 relative min-w-[180px] cursor-default;
+    @apply flex flex-col items-center gap-1 bg-[var(--color-surface)] border border-[var(--color-outline-variant)]/20 p-2 rounded-xl shadow-sm transition-all duration-300 relative min-w-[60px] cursor-default;
     z-index: 20;
   }
 
-  .node-item:hover {
-    @apply border-[var(--color-primary-container)]/50 shadow-lg scale-[1.05];
-    background: color-mix(in srgb, var(--color-surface), var(--color-primary-container) 5%);
+  .node-item.mini {
+    @apply p-1.5 min-w-[40px] rounded-lg bg-[var(--color-surface-container-high)]/50 border-none;
+  }
+
+  .node-item.tiny {
+    @apply p-1 min-w-[30px] rounded-full border-none bg-transparent shadow-none;
+  }
+
+  .node-item:hover:not(.tiny) {
+    @apply border-[var(--color-primary-container)]/50 shadow-md scale-[1.1];
+    background: color-mix(in srgb, var(--color-surface), var(--color-primary-container) 8%);
   }
 
   .node-icon {
-    @apply w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-[var(--color-surface-container-high)] text-[var(--color-primary-container)] transition-transform duration-300;
+    @apply w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-[var(--color-surface-container-high)] text-[var(--color-primary-container)] transition-transform duration-300;
   }
 
   .node-item:hover .node-icon {
     @apply scale-110;
   }
 
-  .node-content h3 {
-    @apply font-[Space_Grotesk] text-xs font-bold tracking-tight text-[var(--color-on-surface)] m-0 leading-none mb-1;
-  }
-
-  .node-content p {
-    @apply text-[10px] text-[var(--color-outline)] m-0 leading-none;
+  .node-label {
+    @apply font-[Space_Grotesk] text-[9px] font-bold tracking-tight text-[var(--color-on-surface)] m-0 leading-none text-center;
   }
 
   /* Specific Styles */
@@ -205,28 +152,24 @@
     @apply border-orange-500/20;
   }
   .node-item.hitl .node-icon {
-    @apply bg-orange-500/10 text-orange-600;
-  }
-  .hitl-badge {
-    @apply absolute -top-2 -right-2 bg-orange-500 text-white text-[8px] font-bold px-2 py-0.5 rounded-full shadow-sm;
+    @apply bg-orange-500/5 text-orange-600;
   }
 
   .node-item.success {
     @apply border-none text-white;
   }
   .node-item.success .node-icon {
-    @apply bg-white/20 text-white;
+    @apply bg-white/10 text-white;
   }
-  .node-item.success h3 { @apply text-white; }
-  .node-item.success p { @apply text-white/70; }
+  .node-item.success .node-label { @apply text-white; }
 
   .pulse {
     animation: pulse 2s infinite;
   }
 
   @keyframes pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
   }
 
@@ -247,16 +190,16 @@
   .flow-line {
     fill: none;
     stroke: var(--color-outline-variant);
-    stroke-width: 1.5;
-    opacity: 0.15;
+    stroke-width: 1;
+    opacity: 0.1;
   }
 
   .flow-line.active {
     stroke: var(--color-primary-container);
-    opacity: 0.6;
-    stroke-dasharray: 5, 10;
+    opacity: 0.4;
+    stroke-dasharray: 4, 8;
     stroke-dashoffset: 100;
-    animation: flow 3s linear infinite;
+    animation: flow 4s linear infinite;
     filter: url(#glow);
   }
 
@@ -267,10 +210,7 @@
   /* Responsive Adjustments */
   @media (max-width: 768px) {
     .pipeline-canvas {
-      @apply min-h-[1400px] pt-8;
-    }
-    .node-item {
-      @apply min-w-full;
+      @apply min-h-[500px];
     }
   }
 </style>
