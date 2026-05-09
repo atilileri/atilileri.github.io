@@ -13,6 +13,7 @@ const formatDate = (date: Date) => {
     day: "numeric",
   });
 };
+import PipelineVisualizer from "../../components/PipelineVisualizer.astro";
 ---
 
 <BaseLayout
@@ -44,6 +45,9 @@ const formatDate = (date: Date) => {
         <button id="lang-toggle-tr" class="px-4 py-2 rounded-md text-sm font-bold tracking-widest transition-all cursor-pointer text-[var(--color-outline)] hover:text-[var(--color-on-surface)]">TR</button>
       </div>
     </header>
+
+    <!-- Pipeline Visualization -->
+    <PipelineVisualizer />
 
     <section class="space-y-12">
       {
