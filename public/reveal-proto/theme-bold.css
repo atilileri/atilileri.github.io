@@ -17,6 +17,9 @@
 .reveal.overview .slides { text-align: center; }
 
 html, body { background: var(--bg); }
+/* reveal 5 paints its own viewport/background layer; without a stock theme it
+   defaults to white on slides that have no data-background-*. Pin it dark. */
+.reveal-viewport, .reveal .backgrounds { background: var(--bg); }
 .reveal h1, .reveal h2, .reveal h3 {
   color: var(--ink);
   font-weight: 800;
