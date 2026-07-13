@@ -1,0 +1,17 @@
+{
+  "name": "slidev-showcase",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "slidev --open",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "^0.49.0",
+    "@slidev/theme-default": "*",
+    "@slidev/theme-seriph": "*",
+    "gpt-tokenizer": "^2.5.0",
+    "vue": "^3.4.0"
+  }
+}

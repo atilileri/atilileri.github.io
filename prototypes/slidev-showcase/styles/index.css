@@ -1,0 +1,61 @@
+/* Bold, cinematic, standalone deck theme — deliberately not the main site look. */
+:root {
+  --bold-bg: #06060a;
+  --bold-fg: #ececf4;
+  --bold-accent: #7c5cff;
+  --bold-accent2: #ff5c8a;
+}
+
+.slidev-layout {
+  background: var(--bold-bg);
+  color: var(--bold-fg);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+.slidev-layout h1 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* A reusable dramatic gradient headline */
+.grad-title {
+  background: linear-gradient(100deg, #7c5cff 0%, #ff5c8a 50%, #ff9a5c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 0.75rem;
+  color: var(--bold-accent);
+  font-family: 'DM Mono', ui-monospace, monospace;
+}
+
+/* Animated aurora backdrop for the hero */
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+.aurora::before,
+.aurora::after {
+  content: '';
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  animation: drift 14s ease-in-out infinite alternate;
+}
+.aurora::before { background: #7c5cff; top: -20%; left: -10%; }
+.aurora::after { background: #ff5c8a; bottom: -25%; right: -10%; animation-delay: -6s; }
+@keyframes drift {
+  to { transform: translate3d(10vw, 8vh, 0) scale(1.25); }
+}
