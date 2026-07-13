@@ -1,0 +1,341 @@
+---
+/**
+ * DeckLayout.astro — PROTOTYPE (throwaway)
+ * Astro-native web-presentation shell. No presentation framework.
+ *
+ * Demonstrates:
+ *  - Astro View Transitions (<ClientRouter />) for cross-route cinematic morphs
+ *  - CSS scroll-snap "slides" (a web presentation, not a rigid deck)
+ *  - Keyboard navigation (arrows / space / j·k / number jump / f / n)
+ *  - A side progress rail
+ *  - A presenter-notes overlay (press "n")
+ *  - A bold, self-contained theme (deliberately NOT the site's Material look)
+ *
+ * This layout owns its own <html>; it does not use BaseLayout.
+ */
+import { ClientRouter } from "astro:transitions";
+
+interface Props {
+  title: string;
+  /** 1-based index of the current route within the deck, for cross-route decks */
+  route?: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-deck>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · Astro-native prototype</title>
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <ClientRouter />
+  </head>
+  <body>
+    <!-- Side progress rail (populated per-page by the deck script) -->
+    <nav class="rail" aria-label="Slides" data-rail></nav>
+
+    <!-- Global cinematic wipe used for the "chapter" transition -->
+    <div class="wipe" data-wipe aria-hidden="true"></div>
+
+    <div class="deck" data-deck-scroll>
+      <slot />
+    </div>
+
+    <!-- Presenter notes overlay -->
+    <aside class="notes" data-notes hidden>
+      <div class="notes__head">
+        <span>Presenter notes</span>
+        <kbd>n</kbd> to close
+      </div>
+      <div class="notes__body" data-notes-body>
+        Notes appear here for whichever slide is on screen.
+      </div>
+    </aside>
+
+    <!-- Help chip -->
+    <div class="help" data-help>
+      <kbd>↑</kbd><kbd>↓</kbd> move · <kbd>n</kbd> notes · <kbd>f</kbd> full · <kbd>1-9</kbd> jump
+    </div>
+
+    <style is:global>
+      :root {
+        --ink: #f4f1ff;
+        --dim: #a99fce;
+        --bg0: #07030f;
+        --bg1: #140a26;
+        --accent: #ff3d81;
+        --accent2: #6a5bff;
+        --accent3: #23e0c8;
+        --font-display: "Space Grotesk", system-ui, sans-serif;
+        --font-body: "Inter", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; height: 100%; }
+      body {
+        background: var(--bg0);
+        color: var(--ink);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        overflow: hidden; /* the deck scroller owns scrolling */
+      }
+
+      /* ---- scroll-snap deck ---- */
+      .deck {
+        height: 100vh;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+      }
+      .deck::-webkit-scrollbar { display: none; }
+
+      .slide {
+        min-height: 100vh;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        display: grid;
+        place-items: center;
+        padding: clamp(1.5rem, 5vw, 5rem);
+        position: relative;
+        isolation: isolate;
+      }
+      .slide--tall { min-height: 260vh; display: block; }
+
+      .slide__inner { width: min(1100px, 100%); }
+
+      /* ---- side rail ---- */
+      .rail {
+        position: fixed; top: 50%; right: 1.1rem; translate: 0 -50%;
+        display: flex; flex-direction: column; gap: 0.6rem; z-index: 50;
+      }
+      .rail button {
+        width: 10px; height: 10px; border-radius: 999px; border: 0;
+        background: #ffffff2e; cursor: pointer; padding: 0;
+        transition: transform .25s, background .25s;
+      }
+      .rail button[aria-current="true"] {
+        background: var(--accent); transform: scale(1.7);
+        box-shadow: 0 0 14px var(--accent);
+      }
+
+      /* ---- help + notes ---- */
+      .help {
+        position: fixed; left: 1rem; bottom: .9rem; z-index: 50;
+        font-size: .72rem; color: var(--dim); letter-spacing: .02em;
+        opacity: .55; transition: opacity .3s;
+      }
+      .help:hover { opacity: 1; }
+      kbd {
+        font-family: var(--font-mono); font-size: .68rem;
+        background: #ffffff14; border: 1px solid #ffffff26;
+        border-radius: 5px; padding: .05rem .35rem; margin: 0 .1rem;
+      }
+      .notes {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+        background: #0b0618f2; backdrop-filter: blur(14px);
+        border-top: 1px solid #ffffff1f;
+        padding: 1rem 1.4rem 1.4rem; max-height: 42vh; overflow: auto;
+      }
+      .notes[hidden] { display: none; }
+      .notes__head {
+        display: flex; justify-content: space-between; align-items: center;
+        font-family: var(--font-mono); font-size: .72rem; color: var(--accent3);
+        text-transform: uppercase; letter-spacing: .18em; margin-bottom: .6rem;
+      }
+      .notes__body { color: var(--ink); font-size: 1rem; line-height: 1.6; max-width: 70ch; }
+
+      /* ---- cinematic wipe ---- */
+      .wipe {
+        position: fixed; inset: 0; z-index: 70; pointer-events: none;
+        background: linear-gradient(120deg, var(--accent2), var(--accent));
+        transform: scaleY(0); transform-origin: bottom;
+      }
+      .wipe.run {
+        animation: wipe 900ms cubic-bezier(.7,0,.2,1) forwards;
+      }
+      @keyframes wipe {
+        0%   { transform: scaleY(0); transform-origin: bottom; }
+        45%  { transform: scaleY(1); transform-origin: bottom; }
+        55%  { transform: scaleY(1); transform-origin: top; }
+        100% { transform: scaleY(0); transform-origin: top; }
+      }
+
+      /* ---- View Transition: name a shared element to morph across routes ---- */
+      ::view-transition-old(root),
+      ::view-transition-new(root) { animation-duration: .55s; }
+
+      /* ---- reveal-on-scroll primitive ---- */
+      [data-reveal] {
+        opacity: 0; translate: 0 34px; filter: blur(6px);
+        transition: opacity .7s ease, translate .7s cubic-bezier(.2,.7,.2,1), filter .7s;
+      }
+      [data-reveal].in { opacity: 1; translate: 0 0; filter: blur(0); }
+      [data-reveal-delay="1"] { transition-delay: .12s; }
+      [data-reveal-delay="2"] { transition-delay: .24s; }
+      [data-reveal-delay="3"] { transition-delay: .36s; }
+
+      /* ---- fragment build-up primitive (advanced by arrow keys) ---- */
+      [data-frag] { opacity: .12; transition: opacity .45s, translate .45s; translate: 0 6px; }
+      [data-frag].shown { opacity: 1; translate: 0 0; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .deck { scroll-behavior: auto; }
+        [data-reveal], [data-frag] { transition: none; opacity: 1; translate: none; filter: none; }
+        .wipe.run { animation: none; }
+      }
+
+      /* small shared type helpers */
+      .eyebrow {
+        font-family: var(--font-mono); text-transform: uppercase;
+        letter-spacing: .3em; font-size: .72rem; color: var(--accent3);
+      }
+      .display {
+        font-family: var(--font-display); font-weight: 700; line-height: .98;
+        letter-spacing: -.02em; margin: .3em 0;
+      }
+    </style>
+
+    <script>
+      // ---- Astro-native deck controller ----
+      function initDeck() {
+        const scroller = document.querySelector<HTMLElement>("[data-deck-scroll]");
+        if (!scroller) return;
+        const slides = Array.from(scroller.querySelectorAll<HTMLElement>(".slide"));
+        const rail = document.querySelector<HTMLElement>("[data-rail]");
+        const notesEl = document.querySelector<HTMLElement>("[data-notes]");
+        const notesBody = document.querySelector<HTMLElement>("[data-notes-body]");
+        const wipe = document.querySelector<HTMLElement>("[data-wipe]");
+
+        // Build the progress rail
+        if (rail) {
+          rail.innerHTML = "";
+          slides.forEach((s, i) => {
+            const b = document.createElement("button");
+            b.setAttribute("aria-label", `Slide ${i + 1}`);
+            b.addEventListener("click", () =>
+              s.scrollIntoView({ behavior: "smooth" }),
+            );
+            rail.appendChild(b);
+          });
+        }
+
+        let current = 0;
+        const railBtns = () =>
+          Array.from(rail?.querySelectorAll("button") ?? []);
+
+        function setCurrent(i: number) {
+          current = Math.max(0, Math.min(slides.length - 1, i));
+          railBtns().forEach((b, k) =>
+            b.setAttribute("aria-current", String(k === current)),
+          );
+          const note = slides[current].getAttribute("data-note");
+          if (notesBody) notesBody.textContent = note || "— no notes for this slide —";
+        }
+
+        // Track the on-screen slide + fire scroll reveals
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting && e.intersectionRatio > 0.55) {
+                setCurrent(slides.indexOf(e.target as HTMLElement));
+              }
+            });
+          },
+          { threshold: [0.2, 0.55, 0.9] },
+        );
+        slides.forEach((s) => io.observe(s));
+
+        const revealIO = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) e.target.classList.add("in");
+            });
+          },
+          { threshold: 0.35 },
+        );
+        document
+          .querySelectorAll("[data-reveal]")
+          .forEach((el) => revealIO.observe(el));
+
+        // Fragment build-up: track a pointer per slide that has [data-frag]
+        function advanceFragments(dir: 1 | -1): boolean {
+          const slide = slides[current];
+          const frags = Array.from(
+            slide.querySelectorAll<HTMLElement>("[data-frag]"),
+          );
+          if (frags.length === 0) return false;
+          const shownCount = frags.filter((f) =>
+            f.classList.contains("shown"),
+          ).length;
+          if (dir === 1 && shownCount < frags.length) {
+            frags[shownCount].classList.add("shown");
+            return true; // consumed the keypress
+          }
+          if (dir === -1 && shownCount > 0) {
+            frags[shownCount - 1].classList.remove("shown");
+            return true;
+          }
+          return false; // nothing left to build; let the deck advance
+        }
+
+        function go(dir: 1 | -1) {
+          const target = slides[current + dir];
+          if (target) {
+            // cinematic wipe when crossing INTO a slide flagged as a chapter
+            if (dir === 1 && target.hasAttribute("data-chapter") && wipe) {
+              wipe.classList.remove("run");
+              void wipe.offsetWidth;
+              wipe.classList.add("run");
+              setTimeout(() => target.scrollIntoView({ behavior: "smooth" }), 260);
+            } else {
+              target.scrollIntoView({ behavior: "smooth" });
+            }
+          }
+        }
+
+        window.addEventListener("keydown", (e) => {
+          if ((e.target as HTMLElement)?.tagName === "TEXTAREA") return; // don't hijack the tokenizer
+          switch (e.key) {
+            case "ArrowDown":
+            case "ArrowRight":
+            case " ":
+            case "PageDown":
+              if (!advanceFragments(1)) go(1);
+              e.preventDefault();
+              break;
+            case "ArrowUp":
+            case "ArrowLeft":
+            case "PageUp":
+              if (!advanceFragments(-1)) go(-1);
+              e.preventDefault();
+              break;
+            case "n":
+              notesEl?.toggleAttribute("hidden");
+              break;
+            case "f":
+              if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+              else document.exitFullscreen?.();
+              break;
+            default:
+              if (/^[1-9]$/.test(e.key)) {
+                slides[Number(e.key) - 1]?.scrollIntoView({ behavior: "smooth" });
+              }
+          }
+        });
+
+        setCurrent(0);
+      }
+
+      document.addEventListener("astro:page-load", initDeck);
+    </script>
+  </body>
+</html>

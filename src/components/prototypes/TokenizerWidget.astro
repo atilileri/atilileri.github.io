@@ -1,0 +1,143 @@
+---
+/**
+ * TokenizerWidget.astro — PROTOTYPE (throwaway)
+ * Live, fully client-side token counter + cost estimator.
+ * Uses a lightweight heuristic tokenizer (no WASM / no network) so it runs
+ * anywhere GitHub Pages serves it. Good enough to *feel* live on stage.
+ */
+---
+<div class="tok" data-tok>
+  <div class="tok__grid">
+    <label class="tok__field">
+      <span class="eyebrow">Paste a prompt</span>
+      <textarea
+        data-tok-input
+        rows="7"
+        spellcheck="false"
+        >You are a senior staff engineer. Summarise the attached RFC in three bullet points, then propose the single riskiest assumption and how you would de-risk it in one sprint.</textarea>
+    </label>
+
+    <div class="tok__readout">
+      <div class="stat">
+        <div class="stat__num" data-tok-tokens>0</div>
+        <div class="stat__lbl">tokens (approx)</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num" data-tok-chars>0</div>
+        <div class="stat__lbl">characters</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num" data-tok-words>0</div>
+        <div class="stat__lbl">words</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tok__models" data-tok-costs>
+    <!-- rows injected by script -->
+  </div>
+
+  <p class="tok__foot">
+    Heuristic tokenizer (~¼ token/char, whitespace &amp; punctuation aware) — indicative, not billing-grade.
+  </p>
+</div>
+
+<style>
+  .tok { font-family: var(--font-body); }
+  .tok__grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 1.2rem; }
+  @media (max-width: 720px) { .tok__grid { grid-template-columns: 1fr; } }
+  .tok__field { display: flex; flex-direction: column; gap: .5rem; }
+  textarea {
+    width: 100%; resize: vertical; min-height: 160px;
+    background: #ffffff0a; color: var(--ink);
+    border: 1px solid #ffffff26; border-radius: 14px;
+    padding: 1rem; font-family: var(--font-mono); font-size: .92rem; line-height: 1.5;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px #6a5bff33; }
+  .tok__readout {
+    display: grid; grid-template-rows: repeat(3, 1fr); gap: .7rem;
+  }
+  .stat {
+    background: #ffffff0a; border: 1px solid #ffffff1c; border-radius: 14px;
+    padding: .7rem 1rem; display: flex; flex-direction: column; justify-content: center;
+  }
+  .stat__num {
+    font-family: var(--font-display); font-weight: 700; font-size: 2rem;
+    line-height: 1; color: var(--accent3); font-variant-numeric: tabular-nums;
+  }
+  .stat__lbl { color: var(--dim); font-size: .72rem; text-transform: uppercase; letter-spacing: .16em; }
+
+  .tok__models { margin-top: 1.1rem; display: flex; flex-direction: column; gap: .5rem; }
+  .cost-row {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 1rem;
+    background: #ffffff08; border: 1px solid #ffffff14; border-radius: 12px; padding: .55rem .9rem;
+  }
+  .cost-row b { font-family: var(--font-display); font-weight: 500; }
+  .cost-row .bar {
+    height: 8px; border-radius: 999px; min-width: 6px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width .4s ease;
+  }
+  .cost-row .price { font-family: var(--font-mono); color: var(--accent3); font-variant-numeric: tabular-nums; }
+  .cost-row small { color: var(--dim); }
+  .tok__foot { color: var(--dim); font-size: .74rem; margin-top: .9rem; }
+</style>
+
+<script>
+  // Prices are illustrative $ per 1M input tokens — demo data only.
+  const MODELS = [
+    { name: "Haiku-class", rate: 0.8, tone: 0.35 },
+    { name: "Sonnet-class", rate: 3.0, tone: 0.65 },
+    { name: "Opus-class", rate: 15.0, tone: 1.0 },
+  ];
+
+  function approxTokens(text: string): number {
+    if (!text.trim()) return 0;
+    // whitespace + punctuation aware heuristic: split, then charge sub-word cost
+    const chunks = text.trim().split(/\s+/);
+    let t = 0;
+    for (const w of chunks) {
+      t += Math.max(1, Math.ceil(w.length / 4)) + (/[.,;:!?()"'`]/.test(w) ? 1 : 0);
+    }
+    return t;
+  }
+
+  function initTokenizer() {
+    document.querySelectorAll<HTMLElement>("[data-tok]").forEach((root) => {
+      const input = root.querySelector<HTMLTextAreaElement>("[data-tok-input]");
+      const tEl = root.querySelector<HTMLElement>("[data-tok-tokens]");
+      const cEl = root.querySelector<HTMLElement>("[data-tok-chars]");
+      const wEl = root.querySelector<HTMLElement>("[data-tok-words]");
+      const costs = root.querySelector<HTMLElement>("[data-tok-costs]");
+      if (!input || !tEl || !cEl || !wEl || !costs) return;
+
+      const maxRate = Math.max(...MODELS.map((m) => m.rate));
+
+      function render() {
+        const text = input!.value;
+        const tokens = approxTokens(text);
+        tEl!.textContent = tokens.toLocaleString();
+        cEl!.textContent = text.length.toLocaleString();
+        wEl!.textContent = (text.trim() ? text.trim().split(/\s+/).length : 0).toLocaleString();
+
+        costs!.innerHTML = "";
+        for (const m of MODELS) {
+          const dollars = (tokens / 1_000_000) * m.rate;
+          const row = document.createElement("div");
+          row.className = "cost-row";
+          row.innerHTML =
+            `<b>${m.name}</b>` +
+            `<span class="bar" style="width:${6 + m.tone * 120}px"></span>` +
+            `<span class="price">$${dollars.toFixed(6)} <small>/ run</small></span>`;
+          costs!.appendChild(row);
+        }
+      }
+
+      input.addEventListener("input", render);
+      render();
+    });
+  }
+
+  document.addEventListener("astro:page-load", initTokenizer);
+</script>
