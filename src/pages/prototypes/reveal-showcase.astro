@@ -1,0 +1,309 @@
+---
+// ⚠️ THROWAWAY PROTOTYPE — Wayfinder ticket #5 (Prototype: reveal.js capability showcase)
+// Not production. Explores reveal.js as the presentation approach by exercising the
+// full capability range on one deck. Delete once the framework decision is made.
+//
+// Standalone: deliberately does NOT use the site BaseLayout — a bold deck theme,
+// full-viewport, own <html>. Integrated as an Astro page so we prove reveal.js
+// bundles and serves under a static build (astro build → dist, no server).
+const codeSample = `// Token-aware prompt assembly
+export function assemblePrompt(sections: Section[], budget: number) {
+  const sorted = sections.sort((a, b) => b.priority - a.priority);
+  let used = 0;
+  const kept: Section[] = [];
+  for (const s of sorted) {
+    const cost = estimateTokens(s.body);      // ~chars / 4
+    if (used + cost > budget) continue;       // drop low-priority overflow
+    kept.push(s);
+    used += cost;
+  }
+  return { prompt: kept.map((s) => s.body).join("\\n\\n"), used, budget };
+}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>reveal.js showcase — PROTOTYPE</title>
+    <link rel="stylesheet" href="/reveal-proto/reveal.css" />
+    <link rel="stylesheet" href="/reveal-proto/theme-bold.css" />
+    <link rel="stylesheet" href="/reveal-proto/highlight-atom-one-dark.css" />
+  </head>
+  <body>
+    <div class="proto-banner">⚠️ THROWAWAY PROTOTYPE · reveal.js · ticket #5</div>
+
+    <div class="reveal">
+      <div class="slides">
+        <!-- 1 ─────────────────────── HERO / STATIC TITLE (motion on entry) -->
+        <section
+          data-background-gradient="radial-gradient(circle at 30% 20%, #1e1b4b, #020617 70%)"
+          class="hero"
+        >
+          <h1 class="hero-title">
+            <span class="line">GET MORE</span>
+            <span class="line accent">FROM AI</span>
+          </h1>
+          <p class="hero-sub">Token optimization &amp; the skills that compound it</p>
+          <p class="hero-byline">Atil İleri · live from atilileri.github.io</p>
+          <div class="hero-glow"></div>
+        </section>
+
+        <!-- 2 ─────────────────────── SCROLL-DRIVEN NARRATIVE SECTION -->
+        <!-- A "slide" that is really a tall scrollable page, with IntersectionObserver
+             reveals. Demonstrates heterogeneous nav: press ↓ inside, or scroll. -->
+        <section class="scrollytelling">
+          <div class="scroll-hint">↓ scroll inside this slide ↓</div>
+          <div class="scroll-track">
+            <div class="scroll-step" data-scroll>
+              <h2>Every token has a price.</h2>
+              <p>At scale, the difference between a lean prompt and a bloated one is a budget line.</p>
+            </div>
+            <div class="scroll-step" data-scroll>
+              <h2>Context is not free real estate.</h2>
+              <p>Filling the window degrades attention long before it errors.</p>
+            </div>
+            <div class="scroll-step" data-scroll>
+              <h2>Structure beats volume.</h2>
+              <p>Prioritized, deduplicated, budgeted — the same answer for a fraction of the cost.</p>
+            </div>
+            <div class="scroll-step big" data-scroll>
+              <h2 class="accent">So we optimize on purpose.</h2>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3 ─────────────────────── LIVE INTERACTIVE WIDGET (tokenizer) -->
+        <section class="widget-slide">
+          <h2>Live: token counter</h2>
+          <textarea
+            id="tok-input"
+            class="tok-input"
+            spellcheck="false"
+          >Rewrite this paragraph to be shorter while keeping every fact intact.</textarea>
+          <div class="tok-stats">
+            <div class="stat"><span id="tok-chars" class="stat-n">0</span><span class="stat-l">chars</span></div>
+            <div class="stat"><span id="tok-words" class="stat-n">0</span><span class="stat-l">words</span></div>
+            <div class="stat accent"><span id="tok-tokens" class="stat-n">0</span><span class="stat-l">≈ tokens</span></div>
+            <div class="stat"><span id="tok-cost" class="stat-n">$0</span><span class="stat-l">est. in-cost</span></div>
+          </div>
+          <p class="tok-note">Rough client-side estimate (≈ chars ÷ 4). Real deck would ship a proper BPE tokenizer.</p>
+        </section>
+
+        <!-- 4 ─────────────────────── ANIMATED DATA-VIZ -->
+        <section class="viz-slide">
+          <h2>Cost per 1M tokens</h2>
+          <div class="bars" id="bars">
+            <div class="bar-row"><span class="bar-label">Naive dump</span><div class="bar"><span data-value="100" style="--w:100%">$15.00</span></div></div>
+            <div class="bar-row"><span class="bar-label">+ dedupe</span><div class="bar"><span data-value="64" style="--w:64%">$9.60</span></div></div>
+            <div class="bar-row"><span class="bar-label">+ budget</span><div class="bar"><span data-value="38" style="--w:38%">$5.70</span></div></div>
+            <div class="bar-row"><span class="bar-label">+ caching</span><div class="bar accent"><span data-value="12" style="--w:12%">$1.80</span></div></div>
+          </div>
+          <p class="viz-note fragment fade-up">Same task. 8× cheaper. Bars animate when the slide is shown.</p>
+        </section>
+
+        <!-- 5 ─────────────────────── CODE DEMO (step-by-step line reveals) -->
+        <section class="code-slide">
+          <h2>Budgeted prompt assembly</h2>
+          <pre><code
+            class="language-typescript"
+            data-trim
+            data-line-numbers="1-3|4-7|8-11|13"
+          >{codeSample}</code></pre>
+        </section>
+
+        <!-- 6 ─────────────────────── PRE-RECORDED TERMINAL REPLAY -->
+        <section class="term-slide">
+          <h2>Skills, replayed</h2>
+          <div class="terminal" id="terminal">
+            <div class="term-bar"><span></span><span></span><span></span>claude-code — zsh</div>
+            <pre id="term-body" class="term-body"></pre>
+          </div>
+          <p class="term-note">Deterministic replay — no server, plays every time the slide opens.</p>
+        </section>
+
+        <!-- 7 ─────────────────────── CINEMATIC auto-animate (2 slides) -->
+        <section
+          data-auto-animate
+          data-background-color="#020617"
+          class="cine"
+        >
+          <h2 data-id="cine-word" class="cine-word">optimize.</h2>
+        </section>
+        <section
+          data-auto-animate
+          data-auto-animate-easing="cubic-bezier(0.25,1,0.5,1)"
+          data-background-gradient="radial-gradient(circle at 70% 80%, #4c1d95, #020617 70%)"
+          class="cine"
+        >
+          <h2 data-id="cine-word" class="cine-word huge accent">optimize<br />everything.</h2>
+          <p class="fragment fade-in cine-sub">↑ same element — reveal.js auto-animate tweens size, position, color.</p>
+        </section>
+
+        <!-- 8 ─────────────────────── FRAGMENT / STEP BUILD-UP -->
+        <section class="fragments-slide">
+          <h2>What a good deck needs</h2>
+          <ul class="build">
+            <li class="fragment fade-in-then-semi-out">Static, high-impact slides</li>
+            <li class="fragment fade-in-then-semi-out">Scrollable narrative pages</li>
+            <li class="fragment fade-in-then-semi-out">Live, interactive demos</li>
+            <li class="fragment fade-in-then-semi-out">Animated data</li>
+            <li class="fragment highlight-current-blue">Code &amp; terminal replays</li>
+            <li class="fragment grow accent">…all in one deck.</li>
+          </ul>
+          <aside class="notes">
+            Speaker note (press S for presenter view): reveal.js ships a Notes plugin —
+            second-window presenter view with next-slide preview, timer, and these notes.
+          </aside>
+        </section>
+
+        <!-- 9 ─────────────────────── VERTICAL STACK (nav depth demo) -->
+        <section>
+          <section class="plain">
+            <h2>Vertical stacks</h2>
+            <p>Press <kbd>↓</kbd> — sub-slides let a topic go deep without cluttering the main line.</p>
+          </section>
+          <section class="plain">
+            <h3>Sub-slide</h3>
+            <p>Great for optional detail an exec might or might not want to drill into live.</p>
+          </section>
+        </section>
+
+        <!-- 10 ────────────────────── OUTRO -->
+        <section
+          data-background-gradient="linear-gradient(135deg, #1e1b4b, #020617)"
+          class="hero"
+        >
+          <h1 class="hero-title"><span class="line accent">THANK YOU</span></h1>
+          <p class="hero-sub">Press <kbd>S</kbd> speaker view · <kbd>ESC</kbd> overview · <kbd>F</kbd> fullscreen</p>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      import Reveal from "reveal.js";
+      import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
+      import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
+      import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      const deck = new Reveal({
+        hash: true,
+        transition: "slide",
+        transitionSpeed: "default",
+        backgroundTransition: "zoom",
+        controls: true,
+        progress: true,
+        center: true,
+        plugins: [RevealHighlight, RevealNotes, RevealZoom],
+      });
+      deck.initialize();
+
+      // ── 3. Live tokenizer widget ───────────────────────────────
+      const input = document.getElementById("tok-input") as HTMLTextAreaElement | null;
+      function updateTokens() {
+        if (!input) return;
+        const text = input.value;
+        const chars = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const tokens = Math.max(0, Math.ceil(chars / 4)); // rough proxy
+        const cost = ((tokens / 1_000_000) * 15).toFixed(6); // $15 / 1M in-tokens
+        const set = (id: string, v: string) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = v;
+        };
+        set("tok-chars", String(chars));
+        set("tok-words", String(words));
+        set("tok-tokens", String(tokens));
+        set("tok-cost", "$" + cost);
+      }
+      input?.addEventListener("input", updateTokens);
+      updateTokens();
+
+      // ── 4. Animate the data-viz bars when its slide is shown ────
+      function animateBars() {
+        document.querySelectorAll<HTMLElement>("#bars .bar span").forEach((el) => {
+          el.style.width = el.style.getPropertyValue("--w");
+        });
+      }
+      function resetBars() {
+        document.querySelectorAll<HTMLElement>("#bars .bar span").forEach((el) => {
+          el.style.width = "0%";
+        });
+      }
+
+      // ── 6. Pre-recorded terminal replay ────────────────────────
+      const replay = [
+        { t: "$ ", d: 300 },
+        { t: "claude /wayfinder issue-5\n", d: 40 },
+        { t: "→ claiming ticket… assigning @atilileri\n", d: 500 },
+        { t: "→ building reveal.js capability showcase\n", d: 400 },
+        { t: "  ✓ hero  ✓ scrollytelling  ✓ tokenizer\n", d: 350 },
+        { t: "  ✓ data-viz  ✓ code demo  ✓ terminal replay\n", d: 350 },
+        { t: "→ astro build … static, no server\n", d: 500 },
+        { t: "  ✓ dist/ ready for GitHub Pages\n", d: 400 },
+        { t: "$ ", d: 300 },
+      ];
+      const termBody = document.getElementById("term-body");
+      let termTimer: ReturnType<typeof setTimeout> | null = null;
+      function playTerminal() {
+        if (!termBody) return;
+        termBody.textContent = "";
+        let i = 0;
+        const step = () => {
+          if (i >= replay.length) {
+            termBody.insertAdjacentHTML("beforeend", '<span class="cursor">▋</span>');
+            return;
+          }
+          const { t, d } = replay[i++];
+          // type char by char for the command, instant for output lines
+          if (i <= 2) {
+            let c = 0;
+            const type = () => {
+              if (c < t.length) {
+                termBody.textContent += t[c++];
+                termTimer = setTimeout(type, 45);
+              } else {
+                termTimer = setTimeout(step, d);
+              }
+            };
+            type();
+          } else {
+            termBody.textContent += t;
+            termTimer = setTimeout(step, d);
+          }
+        };
+        step();
+      }
+
+      // ── Wire slide lifecycle to the interactive bits ───────────
+      deck.on("slidechanged", (event: any) => {
+        const el = event.currentSlide as HTMLElement;
+        if (el.classList.contains("viz-slide")) {
+          resetBars();
+          setTimeout(animateBars, 150);
+        }
+        if (el.classList.contains("term-slide")) {
+          if (termTimer) clearTimeout(termTimer);
+          playTerminal();
+        }
+      });
+
+      // fire on first load if we deep-linked straight onto one of them
+      deck.on("ready", (event: any) => {
+        const el = event.currentSlide as HTMLElement;
+        if (el?.classList.contains("viz-slide")) animateBars();
+        if (el?.classList.contains("term-slide")) playTerminal();
+      });
+
+      // ── 2. Scrollytelling reveals inside the tall slide ────────
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => e.target.classList.toggle("in", e.isIntersecting));
+        },
+        { threshold: 0.6 }
+      );
+      document.querySelectorAll("[data-scroll]").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>
