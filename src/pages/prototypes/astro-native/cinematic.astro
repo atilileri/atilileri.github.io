@@ -1,0 +1,40 @@
+---
+/**
+ * PROTOTYPE (throwaway) — cinematic View Transition target.
+ * The morph-card on the main deck shares transition:name="cinematic-cover"
+ * with the full-bleed cover here, so Astro morphs one into the other.
+ */
+import DeckLayout from "../../../layouts/DeckLayout.astro";
+---
+<DeckLayout title="Chapter II">
+  <section class="slide cover">
+    <div class="cover__cover" transition:name="cinematic-cover">
+      <div class="slide__inner">
+        <p class="eyebrow" style="color:#fff">Chapter II</p>
+        <h1 class="display cover__h">The skills that compound</h1>
+        <p class="cover__sub">
+          Reusable, intent-triggered capabilities that make every following prompt cheaper and sharper.
+        </p>
+        <a href="/prototypes/astro-native/#8" class="cover__back" transition:name="back-link">← back to the deck</a>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .cover { padding: 0; }
+    .cover__cover {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      background:
+        radial-gradient(60% 80% at 30% 20%, #6a5bff, transparent 70%),
+        linear-gradient(135deg, var(--accent2), var(--accent));
+    }
+    .cover__h { font-size: clamp(2.6rem, 9vw, 7rem); color: #fff; max-width: 16ch; }
+    .cover__sub { color: #ffffffd0; font-size: clamp(1.1rem, 2.4vw, 1.6rem); max-width: 42ch; }
+    .cover__back {
+      display: inline-block; margin-top: 2rem; color: #fff; text-decoration: none;
+      border: 1px solid #ffffff66; border-radius: 999px; padding: .6rem 1.3rem;
+      font-family: var(--font-mono); font-size: .85rem; transition: background .2s;
+    }
+    .cover__back:hover { background: #ffffff22; }
+  </style>
+</DeckLayout>

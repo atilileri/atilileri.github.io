@@ -1,0 +1,103 @@
+---
+/**
+ * TokenCostChart.astro — PROTOTYPE (throwaway)
+ * Animated SVG chart: cost-per-1000-runs before vs after prompt optimization.
+ * Pure SVG + CSS; bars grow when the slide scrolls into view. Demo data.
+ */
+const data = [
+  { label: "Naive prompt", value: 42, color: "var(--accent)" },
+  { label: "+ System reuse", value: 28, color: "#ff8a5b" },
+  { label: "+ Caching", value: 15, color: "var(--accent2)" },
+  { label: "+ Skills / tools", value: 6, color: "var(--accent3)" },
+];
+const max = Math.max(...data.map((d) => d.value));
+const W = 720;
+const H = 320;
+const pad = 44;
+const bw = (W - pad * 2) / data.length;
+---
+<div class="chart" data-chart>
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Cost per 1000 runs across optimization stages">
+    <!-- gridlines -->
+    {[0, 0.25, 0.5, 0.75, 1].map((f) => {
+      const y = pad + (H - pad * 2) * (1 - f);
+      return (
+        <g>
+          <line x1={pad} y1={y} x2={W - pad} y2={y} stroke="#ffffff14" />
+          <text x={pad - 8} y={y + 4} text-anchor="end" class="axis">${(max * f).toFixed(0)}</text>
+        </g>
+      );
+    })}
+    {data.map((d, i) => {
+      const full = (H - pad * 2) * (d.value / max);
+      const x = pad + i * bw + bw * 0.18;
+      const w = bw * 0.64;
+      return (
+        <g class="bar" style={`--h:${full}px; --delay:${i * 140}ms`}>
+          <rect
+            x={x}
+            width={w}
+            rx="8"
+            fill={d.color}
+            y={H - pad}
+            height="0"
+            data-full={full}
+            data-y0={H - pad}
+          />
+          <text x={x + w / 2} y={H - pad + 22} text-anchor="middle" class="axis lbl">{d.label}</text>
+          <text x={x + w / 2} y={H - pad - full - 10} text-anchor="middle" class="val" data-val={d.value} data-x={x + w / 2} data-y={H - pad - full - 10}>—</text>
+        </g>
+      );
+    })}
+  </svg>
+  <p class="chart__cap">Illustrative: $ per 1,000 runs as optimizations stack. <b>−86%</b> end to end.</p>
+</div>
+
+<style>
+  .chart svg { width: 100%; height: auto; }
+  .axis { fill: var(--dim); font-size: 12px; font-family: var(--font-mono); }
+  .lbl { font-size: 11px; }
+  .val { fill: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+  .chart__cap { color: var(--dim); font-size: .85rem; margin-top: .6rem; }
+  .chart__cap b { color: var(--accent3); }
+</style>
+
+<script>
+  function initChart() {
+    document.querySelectorAll<HTMLElement>("[data-chart]").forEach((root) => {
+      const svg = root.querySelector("svg");
+      if (!svg) return;
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            root.querySelectorAll<SVGRectElement>("rect[data-full]").forEach((rect, i) => {
+              const full = Number(rect.dataset.full);
+              const y0 = Number(rect.dataset.y0);
+              rect.style.transition = `height .9s cubic-bezier(.2,.7,.2,1) ${i * 140}ms, y .9s cubic-bezier(.2,.7,.2,1) ${i * 140}ms`;
+              requestAnimationFrame(() => {
+                rect.setAttribute("height", String(full));
+                rect.setAttribute("y", String(y0 - full));
+              });
+            });
+            // count-up the value labels
+            root.querySelectorAll<SVGTextElement>("text[data-val]").forEach((t, i) => {
+              const target = Number(t.dataset.val);
+              let n = 0;
+              const step = () => {
+                n = Math.min(target, n + Math.max(1, target / 24));
+                t.textContent = "$" + n.toFixed(0);
+                if (n < target) requestAnimationFrame(step);
+              };
+              setTimeout(() => requestAnimationFrame(step), i * 140 + 200);
+            });
+            io.disconnect();
+          });
+        },
+        { threshold: 0.5 },
+      );
+      io.observe(svg);
+    });
+  }
+  document.addEventListener("astro:page-load", initChart);
+</script>

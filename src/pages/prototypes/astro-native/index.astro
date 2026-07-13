@@ -1,0 +1,252 @@
+---
+/**
+ * PROTOTYPE (throwaway) — Astro-native capability showcase deck.
+ * Route: /prototypes/astro-native/
+ * Part of wayfinder ticket #8. No presentation framework; plain Astro.
+ */
+import { Code } from "astro:components";
+import DeckLayout from "../../../layouts/DeckLayout.astro";
+import TokenizerWidget from "../../../components/prototypes/TokenizerWidget.astro";
+import TokenCostChart from "../../../components/prototypes/TokenCostChart.astro";
+import TerminalReplay from "../../../components/prototypes/TerminalReplay.astro";
+
+const demoCode = `// A Claude Code "skill" is just a folder with a SKILL.md
+export const skill = {
+  name: "wayfinder",
+  trigger: "a loose idea, too big for one session",
+  run: async (idea) => {
+    const map = await chartTheMap(idea);   // destination + fog
+    const tickets = map.frontier();        // decisions, one at a time
+    return tickets;                        // resolve until the way is clear
+  },
+};`;
+---
+<DeckLayout title="Getting the most from AI">
+  <!-- 1 · HERO ------------------------------------------------------------ -->
+  <section
+    class="slide hero"
+    data-chapter
+    data-note="Open big. This whole thing is one static Astro build — no server, no slides framework. Everything you'll see runs client-side and deploys to GitHub Pages."
+  >
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="slide__inner hero__inner">
+      <p class="eyebrow" data-reveal>Astro-native · zero framework</p>
+      <h1 class="display hero__title">
+        <span class="w" style="--i:0">Getting</span>
+        <span class="w" style="--i:1">the</span>
+        <span class="w" style="--i:2">most</span>
+        <span class="w hero__accent" style="--i:3">from&nbsp;AI</span>
+      </h1>
+      <p class="hero__sub" data-reveal data-reveal-delay="2">
+        Token optimization &amp; the skills that compound it — a live web presentation.
+      </p>
+      <p class="hero__hint" data-reveal data-reveal-delay="3">Scroll, or press <kbd>↓</kbd></p>
+    </div>
+  </section>
+
+  <!-- 2 · SCROLL-DRIVEN NARRATIVE ---------------------------------------- -->
+  <section
+    class="slide slide--tall narrative"
+    data-note="This is a 'slide' that is really a tall scrollable page. Each beat reveals on scroll. Point: the deck can hold both punchy slides AND long-form narrative."
+  >
+    <div class="narrative__sticky">
+      <p class="eyebrow">The narrative unfolds as you scroll ↓</p>
+    </div>
+    <div class="narrative__flow">
+      <p class="beat" data-reveal>Every token you send is a token you <b>pay for</b> — and wait for.</p>
+      <p class="beat" data-reveal>Most prompts carry <b>dead weight</b>: restated context, verbose scaffolding, redundant examples.</p>
+      <p class="beat" data-reveal>Reuse the system prompt. <b>Cache</b> the stable prefix. Push structure into <b>tools</b>.</p>
+      <p class="beat beat--big" data-reveal>The result compounds: <span class="hero__accent">smaller, faster, cheaper</span> — at the same quality.</p>
+    </div>
+  </section>
+
+  <!-- 3 · LIVE INTERACTIVE WIDGET ---------------------------------------- -->
+  <section
+    class="slide"
+    data-chapter
+    data-note="Fully live and client-side: type on stage, tokens and cost update in real time. This is as 'live' as a static host gets — no backend."
+  >
+    <div class="slide__inner">
+      <p class="eyebrow" data-reveal>Live · runs in your browser</p>
+      <h2 class="display slide__h" data-reveal>Count the cost as you type</h2>
+      <div data-reveal data-reveal-delay="1"><TokenizerWidget /></div>
+    </div>
+  </section>
+
+  <!-- 4 · ANIMATED DATA-VIZ ---------------------------------------------- -->
+  <section
+    class="slide"
+    data-note="Animated SVG — bars grow and numbers count up when the slide lands. Illustrative data; swap real numbers in later."
+  >
+    <div class="slide__inner">
+      <p class="eyebrow" data-reveal>The payoff, stacked</p>
+      <h2 class="display slide__h" data-reveal>Cost per 1,000 runs</h2>
+      <div data-reveal data-reveal-delay="1"><TokenCostChart /></div>
+    </div>
+  </section>
+
+  <!-- 5 · CODE DEMO with step reveals ------------------------------------ -->
+  <section
+    class="slide code-slide"
+    data-note="Syntax highlighting is Astro's built-in Shiki — highlighted at build time, zero client JS. The callouts on the right are fragments: press → to reveal them one at a time."
+  >
+    <div class="slide__inner code-slide__grid">
+      <div class="code-slide__code" data-reveal>
+        <Code code={demoCode} lang="ts" theme="night-owl" />
+      </div>
+      <ol class="callouts">
+        <li data-frag><b>A folder is a skill.</b> No SDK, no config — a <code>SKILL.md</code> and Claude finds it.</li>
+        <li data-frag><b>Triggered by intent</b>, not a command name — described in plain language.</li>
+        <li data-frag><b>Charts a map</b> of decision tickets before any code is written.</li>
+        <li data-frag><b>Resolved one at a time</b> until the way to the destination is clear.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 6 · TERMINAL / CLI REPLAY ------------------------------------------ -->
+  <section
+    class="slide"
+    data-chapter
+    data-note="A pre-recorded terminal that types itself. No asciinema, no server — a timed script. Hit ↻ replay to run it again on stage."
+  >
+    <div class="slide__inner">
+      <p class="eyebrow" data-reveal>Pre-recorded · replays on demand</p>
+      <h2 class="display slide__h" data-reveal>A skills session, captured</h2>
+      <div data-reveal data-reveal-delay="1"><TerminalReplay /></div>
+    </div>
+  </section>
+
+  <!-- 7 · FRAGMENT BUILD-UP ---------------------------------------------- -->
+  <section
+    class="slide"
+    data-note="Classic fragment build-up: press → to add each line. The deck controller tracks a per-slide fragment pointer, and only advances to the next slide once the build is exhausted."
+  >
+    <div class="slide__inner">
+      <p class="eyebrow">Build it up — press <kbd>→</kbd></p>
+      <h2 class="display slide__h">What made this deck?</h2>
+      <ul class="buildup">
+        <li data-frag>CSS <b>scroll-snap</b> — the slides, for free</li>
+        <li data-frag>Astro <b>View Transitions</b> — cinematic route morphs</li>
+        <li data-frag><b>IntersectionObserver</b> — reveals &amp; autoplay</li>
+        <li data-frag>Built-in <b>Shiki</b> — highlighted code, zero client JS</li>
+        <li data-frag>A handful of <b>vanilla TS</b> scripts — no framework</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8 · CINEMATIC MOMENT (cross-route View Transition) ----------------- -->
+  <section
+    class="slide cinematic-tease"
+    data-chapter
+    data-note="Click the card — Astro's View Transitions morph it into a full-screen chapter cover on a separate route. This is the one deliberately cinematic beat."
+  >
+    <div class="slide__inner" style="text-align:center">
+      <p class="eyebrow" data-reveal>One cinematic beat</p>
+      <h2 class="display slide__h" data-reveal>Cross the threshold</h2>
+      <a
+        href="/prototypes/astro-native/cinematic/"
+        class="morph-card"
+        transition:name="cinematic-cover"
+      >
+        <span class="morph-card__k">Chapter II</span>
+        <span class="morph-card__t">The skills that compound</span>
+        <span class="morph-card__go">click to morph →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 9 · CLOSE ---------------------------------------------------------- -->
+  <section
+    class="slide close"
+    data-note="Close. Reminder to self: press n any time for these notes; f for fullscreen. True dual-screen presenter view is NOT native — see the reaction note in the PR."
+  >
+    <div class="slide__inner" style="text-align:center">
+      <p class="eyebrow" data-reveal>Fin · atilileri.github.io</p>
+      <h2 class="display close__h" data-reveal>Thank you.</h2>
+      <p class="hero__sub" data-reveal data-reveal-delay="1">
+        Built with plain Astro — <kbd>n</kbd> for notes, <kbd>f</kbd> for fullscreen.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .slide__h { font-size: clamp(2rem, 5vw, 3.6rem); margin: .2em 0 .6em; }
+
+    /* HERO */
+    .hero { overflow: hidden; }
+    .hero__bg {
+      position: absolute; inset: -30%; z-index: -1;
+      background:
+        radial-gradient(40% 50% at 20% 25%, #6a5bff55, transparent 60%),
+        radial-gradient(45% 55% at 80% 70%, #ff3d8155, transparent 60%),
+        radial-gradient(35% 45% at 60% 20%, #23e0c833, transparent 60%);
+      filter: blur(20px); animation: drift 18s ease-in-out infinite alternate;
+    }
+    @keyframes drift { to { transform: translate3d(4%, -3%, 0) rotate(6deg) scale(1.1); } }
+    .hero__title { font-size: clamp(3rem, 12vw, 9rem); }
+    .hero__title .w {
+      display: inline-block; opacity: 0; translate: 0 .5em;
+      animation: word .8s cubic-bezier(.2,.8,.2,1) forwards;
+      animation-delay: calc(var(--i) * .12s + .1s);
+    }
+    @keyframes word { to { opacity: 1; translate: 0 0; } }
+    .hero__accent {
+      background: linear-gradient(100deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero__sub { font-size: clamp(1.1rem, 2.4vw, 1.6rem); color: var(--dim); max-width: 44ch; }
+    .hero__hint { color: var(--dim); margin-top: 2rem; font-size: .9rem; }
+
+    /* NARRATIVE */
+    .narrative { padding-top: 0; }
+    .narrative__sticky {
+      position: sticky; top: 0; height: 22vh; display: grid; place-items: center;
+    }
+    .narrative__flow { max-width: 900px; margin: 0 auto; padding-bottom: 40vh; }
+    .beat {
+      font-family: var(--font-display); font-weight: 500;
+      font-size: clamp(1.6rem, 4vw, 3rem); line-height: 1.15; margin: 24vh 0;
+    }
+    .beat b { color: var(--accent3); }
+    .beat--big { font-weight: 700; }
+
+    /* CODE SLIDE */
+    .code-slide__grid { display: grid; grid-template-columns: 1.3fr .8fr; gap: 2rem; align-items: center; }
+    @media (max-width: 820px) { .code-slide__grid { grid-template-columns: 1fr; } }
+    .code-slide__code :global(pre) {
+      border-radius: 14px; padding: 1.2rem !important; font-size: .86rem;
+      border: 1px solid #ffffff1f; box-shadow: 0 30px 80px -40px #000;
+      max-height: 60vh; overflow: auto;
+    }
+    .callouts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+    .callouts li {
+      border-left: 3px solid var(--accent); padding-left: 1rem; line-height: 1.5; color: var(--dim);
+    }
+    .callouts b { color: var(--ink); font-family: var(--font-display); }
+    .callouts code { font-family: var(--font-mono); color: var(--accent3); font-size: .85em; }
+
+    /* BUILD-UP */
+    .buildup { list-style: none; margin: 1rem 0 0; padding: 0; }
+    .buildup li {
+      font-family: var(--font-display); font-size: clamp(1.3rem, 3.4vw, 2.2rem);
+      padding: .5rem 0; border-bottom: 1px solid #ffffff12;
+    }
+    .buildup b { color: var(--accent3); }
+
+    /* CINEMATIC */
+    .morph-card {
+      display: inline-flex; flex-direction: column; gap: .5rem; text-align: left;
+      margin-top: 1.4rem; padding: 2rem 2.4rem; border-radius: 20px; text-decoration: none;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff; box-shadow: 0 40px 90px -40px var(--accent2);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .morph-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 50px 110px -40px var(--accent); }
+    .morph-card__k { font-family: var(--font-mono); font-size: .8rem; opacity: .8; letter-spacing: .2em; text-transform: uppercase; }
+    .morph-card__t { font-family: var(--font-display); font-weight: 700; font-size: 1.8rem; }
+    .morph-card__go { font-size: .85rem; opacity: .85; }
+
+    /* CLOSE */
+    .close__h { font-size: clamp(2.6rem, 8vw, 6rem); }
+  </style>
+</DeckLayout>
