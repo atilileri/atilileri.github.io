@@ -6,10 +6,10 @@ Feeds the framework comparison at "Choose the presentation approach" (#11).
 ## Run it
 
 ```bash
-cd prototypes/slidev-showcase
+cd prototypes/slidev
 npm install
 npm run dev                                        # presenter view: press `p`
-npm run build -- --base /prototypes/slidev-showcase/ --out dist   # static GitHub Pages build
+npm run build -- --base /proto/slidev/ --out ../../public/proto/slidev   # static build served at /proto/slidev/
 ```
 
 ## What's in the deck (every ticket-required capability)
@@ -32,7 +32,7 @@ notes + timer + next-slide preview out of the box.
 
 ## Verified
 
-- ✅ `slidev build --base /prototypes/slidev-showcase/` succeeds; base path baked into `dist/index.html`.
+- ✅ `slidev build --base /proto/slidev/` succeeds; base path baked into `index.html`.
 - ✅ Served under the base path → HTTP 200, fully static (no server process).
 - ✅ Token counter tokenizes live in-browser via `gpt-tokenizer` — no API calls.
 
