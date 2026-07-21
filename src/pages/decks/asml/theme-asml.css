@@ -90,6 +90,13 @@
   flex-direction: column;
   justify-content: center;
 }
+/* Content-heavy slides top-align: centering would clip a tall block (code,
+   terminal, tokenizer) off the top edge, hiding the eyebrow + headline. */
+.reveal section.code,
+.reveal section[data-terminal],
+.reveal section[data-tokenizer] {
+  justify-content: flex-start;
+}
 
 /* ─────────────────────────────────────────── Type primitives ── */
 .reveal h1,
