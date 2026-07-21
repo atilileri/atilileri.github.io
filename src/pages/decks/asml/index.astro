@@ -1,0 +1,530 @@
+---
+/**
+ * /decks/asml — "Getting more from AI" — the ORIGINAL VERSION.
+ *
+ * The hosted, feature-abundant skeleton showcasing every locked capability at
+ * its best, in the decided approach (thin Astro shell + embedded reveal.js,
+ * single-deck spine — wayfinder #11) and the "ASML Editorial" light theme (#12).
+ * Real ASML presentation copy is swapped in later by Atil; the demo content here
+ * exists to demonstrate the full capability range (#10) as a reference gallery.
+ *
+ * Standalone, full-viewport, no site chrome — deliberately does NOT use
+ * BaseLayout. Decks are first-class routes: src/pages/decks/<slug>. This is /decks/asml.
+ * Fully static: reveal.js@5 + plugins bundle into the Astro JS chunk via Vite;
+ * fonts self-hosted under /public/fonts. No CDN, no server, no secrets.
+ */
+
+// reveal.js base + our fresh light theme (import order = cascade order).
+import "reveal.js/dist/reveal.css";
+import "./theme-asml.css";
+
+const promptCode = `// Token-aware prompt assembly
+export function assemblePrompt(sections: Section[], budget: number) {
+  const ranked = sections.sort((a, b) => b.priority - a.priority);
+  let used = 0;
+  const kept: Section[] = [];
+  for (const s of ranked) {
+    const cost = estimateTokens(s.body);   // ~chars / 4
+    if (used + cost > budget) continue;    // drop low-priority overflow
+    kept.push(s);
+    used += cost;
+  }
+  return { prompt: kept.map((s) => s.body).join("\\n\\n"), used, budget };
+}`;
+
+const helperCode = `// The estimate every budget leans on
+export function estimateTokens(text: string): number {
+  // Cheap client-side proxy: ~4 chars per token for English prose.
+  // A shipping deck would swap in a real BPE tokenizer here.
+  return Math.ceil(text.length / 4);
+}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Getting more from AI · Atil İleri</title>
+    <meta
+      name="description"
+      content="An executive web presentation on token optimization and compounding skills — reference capability deck."
+    />
+  </head>
+  <body>
+    <!-- Persistent mono "instrument" chrome + keyboard legend + chapter wash.
+         Populated / driven by the controller below. -->
+    <div class="deck-chrome" aria-hidden="true">
+      <div class="chrome-section">
+        <b>&#9632;</b> <span data-chrome-section>Getting more from AI</span>
+      </div>
+      <div class="chrome-progress">
+        <span class="now" data-chrome-now>01</span> / <span data-chrome-total>00</span>
+      </div>
+    </div>
+    <div class="deck-legend">
+      <kbd>&larr;</kbd><kbd>&rarr;</kbd> move ·
+      <kbd>&darr;</kbd> sub-slide ·
+      <kbd>ESC</kbd> overview ·
+      <kbd>S</kbd> notes ·
+      <kbd>F</kbd> full
+    </div>
+    <div class="chapter-wash" data-wash aria-hidden="true"></div>
+
+    <div class="reveal">
+      <div class="slides">
+        <!-- 1 ───────────────────────────── HERO (eyebrow + big headline) -->
+        <section class="hero" data-section="Opening">
+          <span class="eyebrow">ASML · Executive Briefing</span>
+          <h1 class="h-set">
+            <span class="h-line"><span>GETTING MORE</span></span>
+            <span class="h-line"><span class="accent">FROM AI.</span></span>
+          </h1>
+          <p>Token optimization &amp; the skills that compound it.</p>
+          <p class="byline">Atil İleri · live from atilileri.github.io</p>
+          <aside class="notes">
+            Welcome. This deck is the reference capability gallery — every kind of
+            slide we can build, exercised once. The real ASML content drops into
+            this skeleton. Press S any time for this presenter view.
+          </aside>
+        </section>
+
+        <!-- 2 ───────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <section class="chapter" data-section="01 — The cost" data-chapter>
+          <span class="chapter-no">CHAPTER 01</span>
+          <h2>The cost of<br />thinking out loud.</h2>
+          <aside class="notes">
+            A chapter wash (signal-blue panel sweeping the screen) divides sections.
+            One of the three cinematic devices; use it 2–3× in the real talk.
+          </aside>
+        </section>
+
+        <!-- 3 ───────────────────── SCROLL-DRIVEN NARRATIVE (in-slide overflow) -->
+        <section class="scrolly" data-section="01 — The cost" data-scrolly>
+          <span class="eyebrow">Scroll-driven narrative</span>
+          <div class="scroll-hint">&darr; scroll inside this slide</div>
+          <div class="scroll-frame" data-scroll-frame>
+            <div class="scroll-step" data-scroll-step>
+              <h3>Every token has a price.</h3>
+              <p>
+                At scale, the gap between a lean prompt and a bloated one is a
+                budget line — not a rounding error.
+              </p>
+            </div>
+            <div class="scroll-step" data-scroll-step>
+              <h3>Context is not free real estate.</h3>
+              <p>
+                Filling the window degrades attention long before it errors. More
+                context is not more signal.
+              </p>
+            </div>
+            <div class="scroll-step" data-scroll-step>
+              <h3>Structure beats volume.</h3>
+              <p>
+                Prioritized, deduplicated, budgeted — the same answer for a
+                fraction of the cost.
+              </p>
+            </div>
+            <div class="scroll-step finale" data-scroll-step>
+              <h3>So we optimize on purpose.</h3>
+            </div>
+          </div>
+          <aside class="notes">
+            A long downward-scrolling section presented as ONE slide. The active
+            step brightens as it enters; the rest dim. Scroll is occasional here —
+            reveal owns the between-slide nav.
+          </aside>
+        </section>
+
+        <!-- 4 ───────────────────── CINEMATIC: "the one number" -->
+        <section class="one-number" data-section="01 — The cost" data-one-number>
+          <span class="eyebrow">The punchline, in one figure</span>
+          <div class="fig">
+            <span data-count-to="8" data-count-suffix="">0</span><span class="unit"
+              >&times;</span
+            >
+          </div>
+          <div class="caption">cheaper — same task, optimized on purpose</div>
+          <aside class="notes">
+            Cinematic device #2: an oversized figure fills the viewport and counts
+            into place, orange unit tick. Save it for the number that matters.
+          </aside>
+        </section>
+
+        <!-- 5 ───────────────────── ANIMATED DATA-VIZ (hand-rolled CSS, no lib) -->
+        <section class="viz" data-section="01 — The cost" data-viz>
+          <span class="eyebrow">Animated data-viz</span>
+          <h2 class="h-set"><span class="h-line"><span>Cost per 1M tokens</span></span></h2>
+          <div class="bars" data-bars>
+            <div class="bar-row">
+              <span class="bar-label">Naive dump</span>
+              <div class="bar-track"><div class="bar-fill" data-w="100">$15.00</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">+ dedupe</span>
+              <div class="bar-track"><div class="bar-fill" data-w="64">$9.60</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">+ budget</span>
+              <div class="bar-track"><div class="bar-fill" data-w="38">$5.70</div></div>
+            </div>
+            <div class="bar-row hot">
+              <span class="bar-label">+ caching</span>
+              <div class="bar-track"><div class="bar-fill" data-w="12">$1.80</div></div>
+            </div>
+          </div>
+          <p class="viz fragment rise">
+            Same task, <em class="hot">8&times; cheaper</em>. Bars grow on slide
+            enter — and replay every time you return.
+          </p>
+          <aside class="notes">
+            Bars are hand-rolled CSS/SVG — no charting library, so the ASML palette
+            reaches inside the chart. Deterministic replay: re-enter and they re-grow.
+          </aside>
+        </section>
+
+        <!-- 6 ───────────────────── CODE DEMO + VERTICAL SUB-SLIDE stack -->
+        <section data-section="02 — How">
+          <section class="code" data-section="02 — How">
+            <span class="eyebrow">Code demo · stepped focus</span>
+            <h2 class="h-set"><span class="h-line"><span>Budgeted assembly</span></span></h2>
+            <pre><code class="language-typescript" data-trim data-line-numbers="2|3-4|6-11|13">{promptCode}</code></pre>
+            <aside class="notes">
+              Press &rarr; to step the focus: signature → the ranking → the budget
+              loop → the return. Then press &darr; to drop into the helper it leans on.
+            </aside>
+          </section>
+          <section class="code" data-section="02 — How">
+            <span class="eyebrow">Sub-slide · vertical stack</span>
+            <h2 class="h-set"><span class="h-line"><span>The estimate underneath</span></span></h2>
+            <pre><code class="language-typescript" data-trim data-line-numbers="4|5">{helperCode}</code></pre>
+            <aside class="notes">
+              Vertical sub-slides let one topic go deep without cluttering the main
+              line — the bottom-right arrows go 4-directional when a stack exists.
+            </aside>
+          </section>
+        </section>
+
+        <!-- 7 ───────────────────── LIVE TOKENIZER WIDGET (vanilla TS island) -->
+        <section data-section="02 — How" data-tokenizer>
+          <span class="eyebrow">Live · type &amp; watch the token bill</span>
+          <h2 class="h-set"><span class="h-line"><span>The token counter</span></span></h2>
+          <div class="tokenizer">
+            <textarea class="tok-input" spellcheck="false" data-tok-input
+              >Rewrite this paragraph to be shorter while keeping every fact intact.</textarea
+            >
+            <div class="tok-stats">
+              <div class="tok-stat">
+                <span class="n" data-tok-chars>0</span><span class="l">chars</span>
+              </div>
+              <div class="tok-stat">
+                <span class="n" data-tok-words>0</span><span class="l">words</span>
+              </div>
+              <div class="tok-stat hot">
+                <span class="n" data-tok-tokens>0</span><span class="l">&asymp; tokens</span>
+              </div>
+              <div class="tok-stat">
+                <span class="n" data-tok-cost>$0</span><span class="l">est. in-cost</span>
+              </div>
+            </div>
+            <p class="tok-note">
+              Client-side estimate (&asymp; chars &divide; 4). A shipping deck swaps
+              in a real BPE tokenizer.
+            </p>
+          </div>
+          <aside class="notes">
+            Genuinely live and client-side — as live as a static host allows.
+            Typing here never leaves the browser.
+          </aside>
+        </section>
+
+        <!-- 8 ───────────────────── TERMINAL / CLI REPLAY (deterministic) -->
+        <section data-section="02 — How" data-terminal>
+          <span class="eyebrow">Pre-recorded · replays on demand</span>
+          <h2 class="h-set"><span class="h-line"><span>A skills session, captured</span></span></h2>
+          <div class="terminal">
+            <div class="term-bar">
+              <i></i><i></i><i></i><span class="term-title">claude-code — zsh</span>
+            </div>
+            <pre class="term-body" data-term-body></pre>
+          </div>
+          <p class="term-note">
+            Deterministic replay — no server, plays every time the slide opens.
+          </p>
+          <aside class="notes">
+            A captured skills session, replayed. Nothing runs live; the transcript
+            is baked in, so it is reliable in any venue.
+          </aside>
+        </section>
+
+        <!-- 9 ───────────────────── TWO-COLUMN SPLIT (nice-to-have) -->
+        <section data-section="03 — The compound">
+          <span class="eyebrow">Two-column layout</span>
+          <h2 class="h-set"><span class="h-line"><span>Two levers, one system</span></span></h2>
+          <div class="split">
+            <div class="card">
+              <h3>Token optimization</h3>
+              <p>
+                Rank, dedupe, budget, cache. Every prompt earns its place in the
+                window. The floor of good AI economics.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Compounding skills</h3>
+              <p>
+                Matt Pocock's skills repository, installed here. Each captured
+                skill makes the next task cheaper — optimization that persists.
+              </p>
+            </div>
+          </div>
+          <aside class="notes">
+            The two ideas the talk braids together — set side by side.
+          </aside>
+        </section>
+
+        <!-- 10 ──────────────────── FRAGMENT / PROGRESSIVE REVEAL -->
+        <section data-section="03 — The compound" data-frags>
+          <span class="eyebrow">Fragment reveal</span>
+          <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
+          <ul class="build">
+            <li class="fragment rise">Static, high-impact hero slides</li>
+            <li class="fragment rise">Scrollable narrative pages</li>
+            <li class="fragment rise">Live, interactive demos</li>
+            <li class="fragment rise">Animated data &amp; code walk-throughs</li>
+            <li class="fragment rise">Terminal &amp; CLI replays</li>
+            <li class="fragment rise signal">&hellip; all in one deck.</li>
+          </ul>
+          <aside class="notes">
+            Generic click-to-build: press &rarr; to reveal each item; the last turns
+            signal-blue as the current fragment.
+          </aside>
+        </section>
+
+        <!-- 11 ──────────────────── CINEMATIC: COLOUR FLOOD (full-bleed) -->
+        <section class="flood" data-section="Closing">
+          <span class="eyebrow">The statement</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Optimize</span></span>
+            <span class="h-line"><span>on <em class="hot">purpose.</em></span></span>
+          </h2>
+          <aside class="notes">
+            Cinematic device #1: the slide floods to solid signal-blue with one
+            huge white sentence. The palette-break moment.
+          </aside>
+        </section>
+
+        <!-- 12 ──────────────────── OUTRO -->
+        <section class="hero" data-section="Closing">
+          <span class="eyebrow">Thank you</span>
+          <h1 class="h-set"><span class="h-line"><span class="accent">LET'S BUILD.</span></span></h1>
+          <p class="byline">
+            <kbd>S</kbd> presenter view · <kbd>ESC</kbd> overview · <kbd>F</kbd> fullscreen
+          </p>
+          <aside class="notes">
+            Close. Everything shown is one static bundle on GitHub Pages — no
+            backend, presentable from any machine.
+          </aside>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      import Reveal from "reveal.js";
+      import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
+      import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
+      import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      const deck = new Reveal({
+        hash: true,
+        // disableLayout: reveal does NOT transform-scale slides — they fill the
+        // viewport responsively, so the theme's vw-based fluid type behaves as
+        // designed (a "web presentation", not a fixed-aspect deck).
+        disableLayout: true,
+        transition: "slide", // advance right → left; verticals slide down
+        transitionSpeed: "default",
+        controls: true,
+        controlsLayout: "bottom-right",
+        progress: true,
+        center: false, // hard-left editorial grid
+        hideInactiveCursor: true,
+        plugins: [RevealHighlight, RevealNotes, RevealZoom],
+      });
+      deck.initialize();
+
+      // ── Instrument chrome: section label + slide counter ──────────
+      const chromeSection = document.querySelector("[data-chrome-section]");
+      const chromeNow = document.querySelector("[data-chrome-now]");
+      const chromeTotal = document.querySelector("[data-chrome-total]");
+      const wash = document.querySelector<HTMLElement>("[data-wash]");
+      const pad = (n: number) => String(n).padStart(2, "0");
+
+      function updateChrome() {
+        const cur = deck.getCurrentSlide() as HTMLElement | undefined;
+        const label =
+          cur?.getAttribute("data-section") ??
+          cur?.parentElement?.getAttribute("data-section");
+        if (label && chromeSection) chromeSection.textContent = label;
+        const idx = deck.getIndices();
+        if (chromeNow) chromeNow.textContent = pad(idx.h + 1);
+        if (chromeTotal)
+          chromeTotal.textContent = pad(deck.getHorizontalSlides().length);
+      }
+
+      // ── Signature headline replay: re-arm .is-live on the live slide ──
+      function armHeadline(slide: HTMLElement) {
+        document
+          .querySelectorAll(".reveal section.is-live")
+          .forEach((s) => s.classList.remove("is-live"));
+        // force reflow so the wipe restarts from baseline every entry
+        void slide.offsetWidth;
+        slide.classList.add("is-live");
+      }
+
+      // ── Animated data-viz (deterministic — resets & regrows on entry) ──
+      function resetBars(slide: HTMLElement) {
+        slide
+          .querySelectorAll<HTMLElement>("[data-bars] .bar-fill")
+          .forEach((el) => (el.style.width = "0%"));
+      }
+      function growBars(slide: HTMLElement) {
+        slide
+          .querySelectorAll<HTMLElement>("[data-bars] .bar-fill")
+          .forEach((el) => {
+            const w = el.getAttribute("data-w") ?? "0";
+            el.style.width = w + "%";
+          });
+      }
+
+      // ── "The one number" count-up ─────────────────────────────────
+      let countTimer: number | undefined;
+      function playCount(slide: HTMLElement) {
+        const el = slide.querySelector<HTMLElement>("[data-count-to]");
+        if (!el) return;
+        const to = Number(el.getAttribute("data-count-to") ?? "0");
+        const suffix = el.getAttribute("data-count-suffix") ?? "";
+        const start = performance.now();
+        const dur = 900;
+        if (countTimer) cancelAnimationFrame(countTimer);
+        const tick = (now: number) => {
+          const t = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = String(Math.round(eased * to)) + suffix;
+          if (t < 1) countTimer = requestAnimationFrame(tick);
+        };
+        countTimer = requestAnimationFrame(tick);
+      }
+
+      // ── Live tokenizer ────────────────────────────────────────────
+      const tokInput = document.querySelector<HTMLTextAreaElement>("[data-tok-input]");
+      function updateTokens() {
+        if (!tokInput) return;
+        const text = tokInput.value;
+        const chars = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const tokens = Math.max(0, Math.ceil(chars / 4));
+        const cost = ((tokens / 1_000_000) * 15).toFixed(6);
+        const set = (sel: string, v: string) => {
+          const el = document.querySelector(sel);
+          if (el) el.textContent = v;
+        };
+        set("[data-tok-chars]", String(chars));
+        set("[data-tok-words]", String(words));
+        set("[data-tok-tokens]", String(tokens));
+        set("[data-tok-cost]", "$" + cost);
+      }
+      tokInput?.addEventListener("input", updateTokens);
+      updateTokens();
+
+      // ── Terminal / CLI replay (deterministic) ─────────────────────
+      const replay: { t: string; d: number; cls?: string; type?: boolean }[] = [
+        { t: "$ ", d: 250 },
+        { t: "claude /wayfinder issue-13\n", d: 40, type: true },
+        { t: "→ claiming ticket · assigning @atilileri\n", d: 420, cls: "sig" },
+        { t: "→ building the exemplary showcase\n", d: 360, cls: "sig" },
+        { t: "  ✓ hero   ✓ scrollytelling   ✓ tokenizer\n", d: 300, cls: "ok" },
+        { t: "  ✓ data-viz   ✓ code demo   ✓ terminal\n", d: 300, cls: "ok" },
+        { t: "  ✓ sub-slides ✓ chapter wash  ✓ one-number\n", d: 300, cls: "ok" },
+        { t: "→ astro build … static, no server\n", d: 460, cls: "sig" },
+        { t: "  ✓ dist/ ready for GitHub Pages\n", d: 360, cls: "ok" },
+        { t: "$ ", d: 250 },
+      ];
+      let termTimer: number | undefined;
+      function playTerminal(slide: HTMLElement) {
+        const body = slide.querySelector<HTMLElement>("[data-term-body]");
+        if (!body) return;
+        if (termTimer) clearTimeout(termTimer);
+        body.innerHTML = "";
+        let i = 0;
+        const step = () => {
+          if (i >= replay.length) {
+            body.insertAdjacentHTML("beforeend", '<span class="term-cursor">&nbsp;</span>');
+            return;
+          }
+          const { t, d, cls, type } = replay[i++];
+          if (type) {
+            let c = 0;
+            const typeChar = () => {
+              if (c < t.length) {
+                body.append(t[c++]);
+                termTimer = window.setTimeout(typeChar, 42);
+              } else {
+                termTimer = window.setTimeout(step, d);
+              }
+            };
+            typeChar();
+          } else {
+            const span = document.createElement("span");
+            if (cls) span.className = cls;
+            span.textContent = t;
+            body.appendChild(span);
+            termTimer = window.setTimeout(step, d);
+          }
+        };
+        step();
+      }
+
+      // ── Chapter wash on entering a chapter divider ────────────────
+      function runWash() {
+        if (!wash) return;
+        wash.classList.remove("run");
+        void wash.offsetWidth;
+        wash.classList.add("run");
+      }
+
+      // ── Scroll-driven narrative reveals ───────────────────────────
+      document.querySelectorAll<HTMLElement>("[data-scroll-frame]").forEach((frame) => {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) =>
+              e.target.classList.toggle("in", e.isIntersecting),
+            );
+          },
+          { root: frame, threshold: 0.55 },
+        );
+        frame
+          .querySelectorAll("[data-scroll-step]")
+          .forEach((s) => io.observe(s));
+      });
+
+      // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
+      function onShow(slide: HTMLElement) {
+        armHeadline(slide);
+        updateChrome();
+        if (slide.hasAttribute("data-chapter")) runWash();
+        if (slide.hasAttribute("data-viz")) {
+          resetBars(slide);
+          window.setTimeout(() => growBars(slide), 160);
+        }
+        if (slide.hasAttribute("data-one-number")) playCount(slide);
+        if (slide.hasAttribute("data-terminal")) playTerminal(slide);
+        if (slide.hasAttribute("data-scrolly")) {
+          const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
+          if (frame) frame.scrollTop = 0;
+        }
+      }
+
+      deck.on("slidechanged", (e: any) => onShow(e.currentSlide as HTMLElement));
+      deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
+    </script>
+  </body>
+</html>

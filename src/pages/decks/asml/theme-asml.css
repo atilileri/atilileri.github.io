@@ -1,0 +1,679 @@
+/**
+ * theme-asml.css — "ASML Editorial"
+ * The bold-but-LIGHT deck language for the executive web presentation.
+ * Built fresh against the design tokens locked on wayfinder ticket #12 —
+ * this is NOT an extension of the throwaway dark proto (proto/reveal/theme-bold.css);
+ * it is its light inverse. Sits on top of reveal.js's base reveal.css.
+ *
+ * Boldness is engineered from oversized type + decisive motion + confident
+ * asymmetry, on a light ground. Editorial-Swiss keynote character.
+ */
+
+/* ─────────────────────────── Self-hosted fonts (fully static, offline) ── */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/spacegrotesk.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrainsmono.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* ─────────────────────────────────────────────────────────── Tokens ── */
+:root {
+  /* two-blue system + one hot accent */
+  --navy: #00327d; /* display headlines & structural type */
+  --signal: #0066cc; /* energy: fills, links, active fragments, progress */
+  --orange: #ff6600; /* the single hot accent — one moment per slide */
+  --ground: #f9f9f9; /* warm near-white ground */
+  --card: #ffffff; /* cards floating on the ground for depth */
+  --ink: #1b1b1b; /* body ink */
+  --hair: #0066cc26; /* hairline blue border */
+  --shadow: 0 18px 48px -22px #00327d40;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Native's fluid clamp scale (locked must-have #10) */
+  --fs-hero: clamp(3rem, 12vw, 9rem);
+  --fs-slide-h: clamp(2rem, 5vw, 3.6rem);
+  --fs-close: clamp(2.6rem, 8vw, 6rem);
+
+  /* precision-typesetting motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 550ms;
+  --stagger: 80ms;
+}
+
+/* ───────────────────────────────────────────────── Base surfaces ── */
+.reveal-viewport {
+  background: var(--ground);
+}
+.reveal {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.reveal ::selection {
+  background: var(--signal);
+  color: #fff;
+}
+
+/* Slides align hard-left, top — editorial grid (reveal center:false).
+   Generous outer margins; the mono instrument chrome frames every slide. */
+.reveal .slides {
+  text-align: left;
+}
+.reveal .slides section {
+  height: 100%;
+  padding: clamp(2.4rem, 5vw, 5rem) clamp(2.4rem, 6vw, 6.5rem);
+  box-sizing: border-box;
+}
+.reveal .slides > section,
+.reveal .slides > section > section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ─────────────────────────────────────────── Type primitives ── */
+.reveal h1,
+.reveal h2,
+.reveal h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.35em;
+  text-transform: none;
+}
+.reveal h2 {
+  font-size: var(--fs-slide-h);
+}
+.reveal p {
+  line-height: 1.5;
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+  color: var(--ink);
+  max-width: 40ch;
+}
+.reveal strong {
+  color: var(--signal);
+  font-weight: 600;
+}
+.reveal a {
+  color: var(--signal);
+  text-decoration: none;
+  border-bottom: 2px solid var(--hair);
+}
+.reveal em.hot {
+  color: var(--orange);
+  font-style: normal;
+}
+.reveal kbd {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: #fff;
+  border: 1px solid var(--hair);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: 0.08em 0.4em;
+  color: var(--navy);
+}
+
+/* eyebrow — mono, uppercase, wide tracking */
+.reveal .eyebrow {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: clamp(0.7rem, 0.9vw, 0.82rem);
+  font-weight: 600;
+  color: var(--signal);
+  margin: 0 0 1.1rem;
+  display: block;
+}
+
+/* ─────────────────── Signature headline: clip-wipe + rule + tick ── */
+/* Applied to a heading with .h-set; reveal fires .h-set when slide shows
+   via our controller adding .is-live to the section. */
+.reveal .h-set {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+.reveal .h-set .h-line {
+  display: block;
+  overflow: hidden;
+}
+.reveal .h-set .h-line > span {
+  display: inline-block;
+  transform: translateY(105%);
+  transition: transform var(--dur) var(--ease);
+}
+.reveal .h-set .h-line:nth-child(2) > span {
+  transition-delay: var(--stagger);
+}
+/* blue rule draws L→R under the headline */
+.reveal .h-set::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.22em;
+  height: 5px;
+  width: 100%;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease) 0.18s;
+}
+/* orange accent tick — the one hot moment, ticks in last */
+.reveal .h-set::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.22em;
+  height: 5px;
+  width: 2.4rem;
+  background: var(--orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease) 0.55s;
+  z-index: 1;
+}
+.reveal section.is-live .h-set .h-line > span {
+  transform: translateY(0);
+}
+.reveal section.is-live .h-set::after,
+.reveal section.is-live .h-set::before {
+  transform: scaleX(1);
+}
+
+/* fragments: rise + fade (overrides reveal's default opacity-only) */
+.reveal .fragment.rise {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  visibility: inherit;
+}
+.reveal .fragment.rise.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal .fragment.current-fragment.signal {
+  color: var(--signal);
+}
+
+/* ───────────────────────────────── Instrument chrome (mono) ── */
+/* Persistent connective tissue — section label top-left, progress top-right.
+   Injected once by the controller; positioned over the fixed viewport. */
+.deck-chrome {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+.deck-chrome .chrome-section {
+  position: absolute;
+  top: 1.5rem;
+  left: clamp(1.4rem, 3vw, 2.6rem);
+}
+.deck-chrome .chrome-section b {
+  color: var(--signal);
+}
+.deck-chrome .chrome-progress {
+  position: absolute;
+  top: 1.5rem;
+  right: clamp(1.4rem, 3vw, 2.6rem);
+}
+.deck-chrome .chrome-progress .now {
+  color: var(--orange);
+}
+
+/* reveal's built-in progress bar — recoloured to signal blue */
+.reveal .progress {
+  color: var(--signal);
+  height: 4px;
+}
+.reveal .controls {
+  color: var(--signal);
+}
+
+/* Keyboard legend chip (bottom-left), fades unless hovered */
+.deck-legend {
+  position: fixed;
+  left: clamp(1.4rem, 3vw, 2.6rem);
+  bottom: 1.3rem;
+  z-index: 45;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: #00327d99;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+.deck-legend:hover {
+  opacity: 1;
+}
+.deck-legend kbd {
+  margin: 0 0.15rem;
+}
+
+/* ────────────────────────────────────────────── Cards ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  padding: clamp(1.2rem, 2.2vw, 2rem);
+}
+
+/* ═══════════════════════════════════ SLIDE-KIND LAYOUTS ═══════════ */
+
+/* HERO — breaks the left grid to a big editorial title block */
+.reveal section.hero .eyebrow {
+  color: var(--signal);
+}
+.reveal section.hero h1 {
+  font-size: var(--fs-hero);
+  color: var(--navy);
+  letter-spacing: -0.03em;
+}
+.reveal section.hero h1 .accent {
+  color: var(--signal);
+}
+.reveal section.hero .byline {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #00327d99;
+  margin-top: 2rem;
+}
+
+/* TWO-COLUMN split (nice-to-have) */
+.reveal .split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .reveal .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* SCROLL-DRIVEN NARRATIVE — a tall in-slide overflow section */
+.reveal section.scrolly {
+  justify-content: flex-start;
+}
+.scroll-frame {
+  height: 68vh;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--signal) transparent;
+  width: 100%;
+  padding-right: 1rem;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+.scroll-step {
+  min-height: 62vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scroll-snap-align: center;
+  opacity: 0.18;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+.scroll-step.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.scroll-step h3 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+}
+.scroll-step.finale h3 {
+  color: var(--signal);
+}
+.scroll-hint {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-bottom: 0.8rem;
+}
+
+/* ─────────────────────── Live tokenizer widget ── */
+.tokenizer {
+  width: 100%;
+  max-width: 60rem;
+}
+.tok-input {
+  width: 100%;
+  min-height: 5.5rem;
+  resize: vertical;
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  padding: 1rem 1.2rem;
+  outline: none;
+}
+.tok-input:focus {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px #0066cc1f;
+}
+.tok-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+.tok-stat {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  padding: 0.9rem 1rem;
+}
+.tok-stat .n {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  color: var(--navy);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.tok-stat.hot .n {
+  color: var(--orange);
+}
+.tok-stat .l {
+  display: block;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.66rem;
+  color: #00327d99;
+  margin-top: 0.4rem;
+}
+.tok-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #00327d99;
+  margin-top: 0.9rem;
+}
+
+/* ─────────────────────── Animated data-viz (hand-rolled CSS/SVG) ── */
+.bars {
+  width: 100%;
+  max-width: 54rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 0.5rem;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+.bar-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  text-align: right;
+}
+.bar-track {
+  height: 2.6rem;
+  background: #0066cc12;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--signal);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.7rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  transition: width 0.9s var(--ease);
+}
+.bar-row.hot .bar-fill {
+  background: var(--orange);
+}
+.viz-note {
+  font-size: 1rem;
+  margin-top: 1.4rem;
+}
+
+/* ─────────────────────── Code demo with stepped focus ── */
+.reveal pre {
+  width: 100%;
+  max-width: 62rem;
+  box-shadow: var(--shadow);
+  font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+  margin: 0;
+}
+.reveal pre code {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  padding: 1.4rem 1.6rem;
+  font-family: var(--font-mono);
+  line-height: 1.55;
+  max-height: 60vh;
+}
+/* Light code-highlight theme (reveal highlight plugin uses .hljs-* tokens) */
+.reveal .hljs { background: var(--card); color: var(--ink); }
+.reveal .hljs-comment,
+.reveal .hljs-quote { color: #7a8aa0; font-style: italic; }
+.reveal .hljs-keyword,
+.reveal .hljs-selector-tag,
+.reveal .hljs-literal { color: var(--signal); font-weight: 600; }
+.reveal .hljs-string,
+.reveal .hljs-attr { color: #0a7a4b; }
+.reveal .hljs-number,
+.reveal .hljs-built_in { color: var(--orange); }
+.reveal .hljs-title,
+.reveal .hljs-function .hljs-title,
+.reveal .hljs-title.function_ { color: var(--navy); font-weight: 600; }
+.reveal .hljs-params { color: var(--ink); }
+.reveal .hljs-ln-numbers { color: #b6c2d4; user-select: none; }
+/* reveal dims non-highlighted lines; brighten the focused row */
+.reveal .hljs .highlight-line { background: #0066cc14; }
+
+/* ─────────────────────── Terminal / CLI replay ── */
+.terminal {
+  width: 100%;
+  max-width: 60rem;
+  background: #041024;
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1rem;
+  background: #071a34;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #7fb0e8;
+}
+.term-bar i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.term-bar i:nth-child(1) { background: #ff6058; }
+.term-bar i:nth-child(2) { background: #ffbd2e; }
+.term-bar i:nth-child(3) { background: #28c840; }
+.term-bar .term-title { margin-left: 0.6rem; }
+.term-body {
+  margin: 0;
+  padding: 1.2rem 1.3rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.78rem, 1.2vw, 1rem);
+  line-height: 1.6;
+  color: #d7e6f7;
+  min-height: 15rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.term-body .ok { color: #35d07f; }
+.term-body .sig { color: #4aa8ff; }
+.term-body .amber { color: #ffbd2e; }
+.term-cursor {
+  display: inline-block;
+  width: 0.55em;
+  background: var(--orange);
+  animation: term-blink 1s steps(2) infinite;
+}
+@keyframes term-blink {
+  50% { opacity: 0; }
+}
+.term-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #00327d99;
+  margin-top: 0.9rem;
+}
+
+/* ═══════════════════════════ CINEMATIC KIT (3 named devices) ═══════ */
+
+/* 1 — COLOUR FLOOD: full-bleed signal/navy, one huge white sentence */
+.reveal section.flood {
+  background: var(--signal);
+  align-items: flex-start;
+}
+.reveal section.flood.navy {
+  background: var(--navy);
+}
+.reveal section.flood h2 {
+  color: #fff;
+  font-size: var(--fs-close);
+  max-width: 20ch;
+}
+.reveal section.flood .eyebrow {
+  color: #ffffffcc;
+}
+.reveal section.flood em.hot {
+  color: var(--orange);
+}
+
+/* 2 — THE ONE NUMBER: oversized figure fills the viewport, orange unit tick */
+.reveal section.one-number {
+  align-items: flex-start;
+}
+.one-number .fig {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(6rem, 30vw, 22rem);
+  color: var(--navy);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.one-number .fig .unit {
+  color: var(--orange);
+  font-size: 0.32em;
+  vertical-align: super;
+  margin-left: 0.15em;
+}
+.one-number .caption {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.9rem;
+  color: var(--signal);
+  margin-top: 1rem;
+}
+
+/* 3 — CHAPTER WASH: a signal-blue panel wipes across to divide sections */
+.chapter-wash {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+.chapter-wash.run {
+  animation: chapter-wash 780ms var(--ease) forwards;
+}
+@keyframes chapter-wash {
+  0% { transform: scaleX(0); transform-origin: left; }
+  48% { transform: scaleX(1); transform-origin: left; }
+  52% { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
+}
+
+/* Chapter divider slide look */
+.reveal section.chapter h2 {
+  font-size: var(--fs-close);
+  color: var(--navy);
+}
+.reveal section.chapter .chapter-no {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: var(--orange);
+}
+
+/* ─────────────────────────────────── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal .h-set .h-line > span { transform: none; }
+  .reveal .h-set::after,
+  .reveal .h-set::before { transform: scaleX(1); }
+  .scroll-step { opacity: 1; transform: none; }
+  .bar-fill { transition: none; }
+  .chapter-wash.run { animation: none; }
+  .term-cursor { animation: none; }
+}
