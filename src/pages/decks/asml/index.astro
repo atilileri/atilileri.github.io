@@ -336,10 +336,16 @@ export function estimateTokens(text: string): number {
 
       const deck = new Reveal({
         hash: true,
-        // disableLayout: reveal does NOT transform-scale slides — they fill the
-        // viewport responsively, so the theme's vw-based fluid type behaves as
-        // designed (a "web presentation", not a fixed-aspect deck).
-        disableLayout: true,
+        // Standard reveal layout: a wide 16:9 canvas that reveal scales to fit
+        // the viewport. (An earlier disableLayout:true left slides unpositioned
+        // and registered zero slides — the blank-page bug.) The theme's fluid
+        // clamp() type keys off the real viewport, so it still reads as a
+        // responsive "web presentation" rather than a rigid fixed deck.
+        width: 1600,
+        height: 900,
+        margin: 0.04,
+        minScale: 0.2,
+        maxScale: 2.0,
         transition: "slide", // advance right → left; verticals slide down
         transitionSpeed: "default",
         controls: true,
@@ -350,6 +356,8 @@ export function estimateTokens(text: string): number {
         plugins: [RevealHighlight, RevealNotes, RevealZoom],
       });
       deck.initialize();
+      // Expose the instance (debugging / headless verification navigation).
+      (window as any).__deck = deck;
 
       // ── Instrument chrome: section label + slide counter ──────────
       const chromeSection = document.querySelector("[data-chrome-section]");
