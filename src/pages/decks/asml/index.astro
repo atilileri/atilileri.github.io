@@ -66,9 +66,10 @@ export function estimateTokens(text: string): number {
       <kbd>&larr;</kbd><kbd>&rarr;</kbd> move ·
       <kbd>&darr;</kbd> sub-slide ·
       <kbd>ESC</kbd> overview ·
-      <kbd>S</kbd> notes ·
-      <kbd>P</kbd> presenter ·
-      <kbd>F</kbd> full
+      <kbd>s</kbd> notes ·
+      <kbd>p</kbd> presenter ·
+      <kbd>f</kbd> full ·
+      <kbd>q</kbd> quit
     </div>
     <div class="chapter-wash" data-wash aria-hidden="true"></div>
 
@@ -435,6 +436,13 @@ export function estimateTokens(text: string): number {
       deck.addKeyBinding(
         { keyCode: 80, key: "P", description: "Open presenter view (window)" },
         () => (deck.getPlugin("notes") as any)?.open?.(),
+      );
+      // "q" quits the deck and returns to the website's main page.
+      deck.addKeyBinding(
+        { keyCode: 81, key: "Q", description: "Quit deck → site home" },
+        () => {
+          window.location.href = "/";
+        },
       );
 
       // ── Instrument chrome: section label + slide counter ──────────
