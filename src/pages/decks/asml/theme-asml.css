@@ -266,6 +266,63 @@
   color: var(--signal);
 }
 
+/* Inline presenter-notes overlay (toggled by "s") — native-proto style */
+.deck-notes {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 55;
+  background: #fffffff2;
+  backdrop-filter: blur(12px);
+  border-top: 3px solid var(--signal);
+  box-shadow: 0 -18px 48px -24px #00327d55;
+  padding: 1rem clamp(1.4rem, 3vw, 2.6rem) 1.3rem;
+  max-height: 42vh;
+  overflow: auto;
+}
+.deck-notes[hidden] {
+  display: none;
+}
+.deck-notes__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  color: var(--signal);
+  margin-bottom: 0.6rem;
+}
+.deck-notes__head kbd {
+  color: var(--navy);
+}
+.deck-notes__body {
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  max-width: 72ch;
+}
+
+/* Depth indicator for the vertical sub-slide stack */
+.stack-depth {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+}
+.stack-depth span {
+  width: 2.4rem;
+  height: 4px;
+  background: #0066cc26;
+  border-radius: 2px;
+}
+.stack-depth span.on {
+  background: var(--signal);
+}
+
 /* Keyboard legend chip (bottom-left), fades unless hovered */
 .deck-legend {
   position: fixed;

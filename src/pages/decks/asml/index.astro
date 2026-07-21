@@ -67,9 +67,23 @@ export function estimateTokens(text: string): number {
       <kbd>&darr;</kbd> sub-slide ·
       <kbd>ESC</kbd> overview ·
       <kbd>S</kbd> notes ·
+      <kbd>P</kbd> presenter ·
       <kbd>F</kbd> full
     </div>
     <div class="chapter-wash" data-wash aria-hidden="true"></div>
+
+    <!-- Inline presenter-notes overlay (native-proto style), toggled by "s".
+         Shows the current slide's <aside class="notes"> text without leaving
+         the deck. reveal's separate presenter window moves to "p". -->
+    <aside class="deck-notes" data-notes hidden>
+      <div class="deck-notes__head">
+        <span>Presenter notes</span>
+        <span><kbd>S</kbd> close · <kbd>P</kbd> presenter view</span>
+      </div>
+      <div class="deck-notes__body" data-notes-body>
+        Notes for the current slide appear here.
+      </div>
+    </aside>
 
     <div class="reveal">
       <div class="slides">
@@ -85,7 +99,8 @@ export function estimateTokens(text: string): number {
           <aside class="notes">
             Welcome. This deck is the reference capability gallery — every kind of
             slide we can build, exercised once. The real ASML content drops into
-            this skeleton. Press S any time for this presenter view.
+            this skeleton. Press S any time for these inline notes; P opens the
+            separate presenter window.
           </aside>
         </section>
 
@@ -282,6 +297,45 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
+        <!-- 9b ──────────────────── VERTICAL SUB-SLIDE STACK (3 deep) -->
+        <!-- A dedicated stack: press ↓ to drill from the overview down through
+             three levels. Bottom-right arrows go 4-directional inside a stack. -->
+        <section data-section="03 — The compound">
+          <section class="stack" data-stack data-section="03 — The compound">
+            <span class="eyebrow">Vertical sub-slides · press &darr;</span>
+            <h2 class="h-set"><span class="h-line"><span>Compounding, three levels deep</span></span></h2>
+            <p>
+              One topic, drilled without cluttering the main line. Each
+              <kbd>&darr;</kbd> goes a level deeper; <kbd>&uarr;</kbd> climbs back.
+            </p>
+            <div class="stack-depth"><span class="on"></span><span></span><span></span></div>
+            <aside class="notes">
+              This is the sub-slide capability on its own. The horizontal line
+              stays clean; the depth lives underneath. Press ↓ to demo it live.
+            </aside>
+          </section>
+          <section class="stack" data-stack data-section="03 — The compound">
+            <span class="eyebrow">Level 1 · prompt</span>
+            <h2 class="h-set"><span class="h-line"><span>Optimize the prompt</span></span></h2>
+            <p>
+              Rank, dedupe, budget every request. The immediate win — cheaper
+              tokens on the very next call.
+            </p>
+            <div class="stack-depth"><span></span><span class="on"></span><span></span></div>
+            <aside class="notes">Level one: the single-prompt economics.</aside>
+          </section>
+          <section class="stack" data-stack data-section="03 — The compound">
+            <span class="eyebrow">Level 2 · session</span>
+            <h2 class="h-set"><span class="h-line"><span>Optimize the session</span></span></h2>
+            <p>
+              Cache, reuse, prune context across a run. The savings start
+              compounding turn over turn.
+            </p>
+            <div class="stack-depth"><span></span><span></span><span class="on"></span></div>
+            <aside class="notes">Level two: the whole session, not one call.</aside>
+          </section>
+        </section>
+
         <!-- 10 ──────────────────── FRAGMENT / PROGRESSIVE REVEAL -->
         <section data-section="03 — The compound" data-frags>
           <span class="eyebrow">Fragment reveal</span>
@@ -358,6 +412,30 @@ export function estimateTokens(text: string): number {
       deck.initialize();
       // Expose the instance (debugging / headless verification navigation).
       (window as any).__deck = deck;
+
+      // ── Presenter notes: "s" toggles an inline overlay (native-proto style),
+      //    "p" opens reveal's separate presenter window. We override reveal's
+      //    default "s" binding (keyCode 83, normally the speaker view). ──────
+      const notesEl = document.querySelector<HTMLElement>("[data-notes]");
+      const notesBody = document.querySelector<HTMLElement>("[data-notes-body]");
+      function syncNotes() {
+        if (!notesBody) return;
+        const cur = deck.getCurrentSlide() as HTMLElement | undefined;
+        const note = cur?.querySelector("aside.notes")?.textContent?.trim();
+        notesBody.textContent = note && note.length ? note : "— no notes for this slide —";
+      }
+      deck.addKeyBinding(
+        { keyCode: 83, key: "S", description: "Toggle presenter notes (inline)" },
+        () => {
+          if (!notesEl) return;
+          notesEl.toggleAttribute("hidden");
+          if (!notesEl.hasAttribute("hidden")) syncNotes();
+        },
+      );
+      deck.addKeyBinding(
+        { keyCode: 80, key: "P", description: "Open presenter view (window)" },
+        () => (deck.getPlugin("notes") as any)?.open?.(),
+      );
 
       // ── Instrument chrome: section label + slide counter ──────────
       const chromeSection = document.querySelector("[data-chrome-section]");
@@ -529,6 +607,8 @@ export function estimateTokens(text: string): number {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
         }
+        // Keep the inline notes overlay in sync while it's open.
+        if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
 
       deck.on("slidechanged", (e: any) => onShow(e.currentSlide as HTMLElement));
