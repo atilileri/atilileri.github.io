@@ -4,9 +4,11 @@
  *
  * Every locked capability exercised once, at its best, in the decided approach
  * (thin Astro shell + embedded reveal.js, single-deck spine — wayfinder #11)
- * and the "ASML Editorial" light theme (#12). The copy here is demo material
- * whose only job is to show the full capability range (#10); real slides are
- * designed against this gallery, picking the slide kinds they need.
+ * and the "ASML Editorial" light theme (#12). NOTHING here is real talk
+ * content: every headline, figure and code sample is placeholder demo material
+ * whose only job is to show what a slide kind looks like (#10). The real deck
+ * lives at /decks/asml-ai — it is designed against this gallery, picking the
+ * slide kinds it needs. Never present this deck; present from that one.
  *
  * Standalone, full-viewport, no site chrome — deliberately does NOT use
  * BaseLayout. Decks are first-class routes: src/pages/decks/<slug>. This is /decks/showcase-for-asml.
@@ -18,25 +20,27 @@
 import "reveal.js/dist/reveal.css";
 import "./theme-asml.css";
 
-const promptCode = `// Token-aware prompt assembly
-export function assemblePrompt(sections: Section[], budget: number) {
-  const ranked = sections.sort((a, b) => b.priority - a.priority);
+// DEMO SAMPLE — placeholder code, chosen only because it steps well under
+// data-line-numbers. Swap it for whatever the real deck needs to walk through.
+const sampleCode = `// Sample: fit items into a fixed budget, highest priority first
+export function fitToBudget(items: Item[], budget: number) {
+  const ranked = items.sort((a, b) => b.priority - a.priority);
   let used = 0;
-  const kept: Section[] = [];
-  for (const s of ranked) {
-    const cost = estimateTokens(s.body);   // ~chars / 4
+  const kept: Item[] = [];
+  for (const it of ranked) {
+    const cost = weigh(it);                // see the sub-slide below
     if (used + cost > budget) continue;    // drop low-priority overflow
-    kept.push(s);
+    kept.push(it);
     used += cost;
   }
-  return { prompt: kept.map((s) => s.body).join("\\n\\n"), used, budget };
+  return { kept, used, budget };
 }`;
 
-const helperCode = `// The estimate every budget leans on
-export function estimateTokens(text: string): number {
-  // Cheap client-side proxy: ~4 chars per token for English prose.
-  // A shipping deck would swap in a real BPE tokenizer here.
-  return Math.ceil(text.length / 4);
+// DEMO SAMPLE — the helper the sub-slide drills into.
+const sampleHelperCode = `// The one-line estimate the loop above leans on
+export function weigh(item: Item): number {
+  // Placeholder heuristic — a real deck swaps in the actual measure.
+  return Math.ceil(item.body.length / 4);
 }`;
 ---
 
@@ -48,7 +52,7 @@ export function estimateTokens(text: string): number {
     <title>Capability Showcase · Atil Ilerialkan</title>
     <meta
       name="description"
-      content="Reference capability deck — every slide kind this web-presentation system can build, exercised once."
+      content="Reference capability deck — every slide kind this web-presentation system can build, exercised once on placeholder demo content."
     />
   </head>
   <body>
@@ -56,7 +60,7 @@ export function estimateTokens(text: string): number {
          Populated / driven by the controller below. -->
     <div class="deck-chrome" aria-hidden="true">
       <div class="chrome-section">
-        <b>&#9632;</b> <span data-chrome-section>Getting more from AI</span>
+        <b>&#9632;</b> <span data-chrome-section>Capability showcase</span>
       </div>
       <div class="chrome-progress">
         <span class="now" data-chrome-now>01</span> / <span data-chrome-total>00</span>
@@ -90,144 +94,150 @@ export function estimateTokens(text: string): number {
       <div class="slides">
         <!-- 1 ───────────────────────────── HERO (eyebrow + big headline) -->
         <section class="hero" data-section="Opening">
-          <span class="eyebrow">Capability Showcase</span>
+          <span class="eyebrow">Capability Showcase · demo content only</span>
           <h1 class="h-set">
-            <span class="h-line"><span>GETTING MORE</span></span>
-            <span class="h-line"><span class="accent">FROM AI.</span></span>
+            <span class="h-line"><span>EVERY SLIDE</span></span>
+            <span class="h-line"><span class="accent">KIND, ONCE.</span></span>
           </h1>
-          <p>Token optimization &amp; the skills that compound it.</p>
-          <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
+          <p>A reference gallery, not a talk. Every word here is placeholder.</p>
+          <p class="byline">Reference deck · atilileri.github.io/decks/showcase-for-asml</p>
           <aside class="notes">
-            Welcome. This deck is the reference capability gallery — every kind of
-            slide we can build, exercised once. Real decks are designed against it.
-            Press S any time for these inline notes; P opens the separate presenter
-            window.
+            This is the capability gallery, not a presentation. Every headline,
+            number and code sample is demo filler — the point is the slide kind
+            underneath it. The real deck is /decks/asml-ai. Press S for these
+            inline notes; P opens the separate presenter window.
           </aside>
         </section>
 
         <!-- 2 ───────────────────── CHAPTER divider (triggers chapter-wash) -->
-        <section class="chapter" data-section="01 — The cost" data-chapter>
+        <section class="chapter" data-section="01 — Telling a story" data-chapter>
           <span class="chapter-no">CHAPTER 01</span>
-          <h2>The cost of<br />thinking out loud.</h2>
+          <h2>Slides that<br />carry a narrative.</h2>
           <aside class="notes">
-            A chapter wash (signal-blue panel sweeping the screen) divides sections.
-            One of the three cinematic devices; use it 2–3× in the real talk.
+            Slide kind: CHAPTER DIVIDER. A signal-blue panel sweeps the screen on
+            entry. One of the three cinematic devices — worth 2–3× in a real talk,
+            no more. Headline text is placeholder.
           </aside>
         </section>
 
         <!-- 3 ───────────────────── SCROLL-DRIVEN NARRATIVE (in-slide overflow) -->
-        <section class="scrolly" data-section="01 — The cost" data-scrolly>
+        <section class="scrolly" data-section="01 — Telling a story" data-scrolly>
           <span class="eyebrow">Scroll-driven narrative</span>
           <div class="scroll-hint">&darr; scroll inside this slide</div>
           <div class="scroll-frame" data-scroll-frame>
             <div class="scroll-step" data-scroll-step>
-              <h3>Every token has a price.</h3>
+              <h3>One slide, several beats.</h3>
               <p>
-                At scale, the gap between a lean prompt and a bloated one is a
-                budget line — not a rounding error.
+                Placeholder beat one. A scrolly slide holds an argument that needs
+                room to unfold, without spending four slides on it.
               </p>
             </div>
             <div class="scroll-step" data-scroll-step>
-              <h3>Context is not free real estate.</h3>
+              <h3>The active beat brightens.</h3>
               <p>
-                Filling the window degrades attention long before it errors. More
-                context is not more signal.
+                Placeholder beat two. Whatever is centred holds full contrast; the
+                beats above and below dim back out of the way.
               </p>
             </div>
             <div class="scroll-step" data-scroll-step>
-              <h3>Structure beats volume.</h3>
+              <h3>The room reads at your pace.</h3>
               <p>
-                Prioritized, deduplicated, budgeted — the same answer for a
-                fraction of the cost.
+                Placeholder beat three. You control the scroll, so the reveal stays
+                as deliberate as a click — just smoother.
               </p>
             </div>
             <div class="scroll-step finale" data-scroll-step>
-              <h3>So we optimize on purpose.</h3>
+              <h3>Then the payoff lands.</h3>
             </div>
           </div>
           <aside class="notes">
-            A long downward-scrolling section presented as ONE slide. The active
-            step brightens as it enters; the rest dim. Scroll is occasional here —
-            reveal owns the between-slide nav.
+            Slide kind: SCROLL-DRIVEN NARRATIVE. A long downward-scrolling section
+            presented as ONE slide. The active step brightens as it enters; the rest
+            dim. Scroll is occasional — reveal still owns between-slide nav. Beats
+            are placeholder text.
           </aside>
         </section>
 
         <!-- 4 ───────────────────── CINEMATIC: "the one number" -->
-        <section class="one-number" data-section="01 — The cost" data-one-number>
+        <section class="one-number" data-section="01 — Telling a story" data-one-number>
           <span class="eyebrow">The punchline, in one figure</span>
           <div class="fig">
-            <span data-count-to="8" data-count-suffix="">0</span><span class="unit"
+            <span data-count-to="12" data-count-suffix="">0</span><span class="unit"
               >&times;</span
             >
           </div>
-          <div class="caption">cheaper — same task, optimized on purpose</div>
+          <div class="caption">sample figure — swap in the number that matters</div>
           <aside class="notes">
-            Cinematic device #2: an oversized figure fills the viewport and counts
-            into place, orange unit tick. Save it for the number that matters.
+            Slide kind: THE ONE NUMBER. An oversized figure fills the viewport and
+            counts into place with an orange unit tick. The 12 is arbitrary demo
+            data. Save this device for the single figure a talk turns on.
           </aside>
         </section>
 
         <!-- 5 ───────────────────── ANIMATED DATA-VIZ (hand-rolled CSS, no lib) -->
-        <section class="viz" data-section="01 — The cost" data-viz>
-          <span class="eyebrow">Animated data-viz</span>
-          <h2 class="h-set"><span class="h-line"><span>Cost per 1M tokens</span></span></h2>
+        <section class="viz" data-section="01 — Telling a story" data-viz>
+          <span class="eyebrow">Animated data-viz · sample data</span>
+          <h2 class="h-set"><span class="h-line"><span>Bars that grow on entry</span></span></h2>
           <div class="bars" data-bars>
             <div class="bar-row">
-              <span class="bar-label">Naive dump</span>
-              <div class="bar-track"><div class="bar-fill" data-w="100">$15.00</div></div>
+              <span class="bar-label">Baseline</span>
+              <div class="bar-track"><div class="bar-fill" data-w="100">100</div></div>
             </div>
             <div class="bar-row">
-              <span class="bar-label">+ dedupe</span>
-              <div class="bar-track"><div class="bar-fill" data-w="64">$9.60</div></div>
+              <span class="bar-label">Step one</span>
+              <div class="bar-track"><div class="bar-fill" data-w="64">64</div></div>
             </div>
             <div class="bar-row">
-              <span class="bar-label">+ budget</span>
-              <div class="bar-track"><div class="bar-fill" data-w="38">$5.70</div></div>
+              <span class="bar-label">Step two</span>
+              <div class="bar-track"><div class="bar-fill" data-w="38">38</div></div>
             </div>
             <div class="bar-row hot">
-              <span class="bar-label">+ caching</span>
-              <div class="bar-track"><div class="bar-fill" data-w="12">$1.80</div></div>
+              <span class="bar-label">Step three</span>
+              <div class="bar-track"><div class="bar-fill" data-w="12">12</div></div>
             </div>
           </div>
           <p class="viz fragment rise">
-            Same task, <em class="hot">8&times; cheaper</em>. Bars grow on slide
-            enter — and replay every time you return.
+            Placeholder series — the shape is the point. Bars grow on slide enter,
+            and <em class="hot">replay every time you return</em>.
           </p>
           <aside class="notes">
-            Bars are hand-rolled CSS/SVG — no charting library, so the deck palette
-            reaches inside the chart. Deterministic replay: re-enter and they re-grow.
+            Slide kind: ANIMATED DATA-VIZ. Hand-rolled CSS/SVG — no charting library,
+            so the deck palette reaches inside the chart and the last row can go hot.
+            Numbers are invented demo data. Deterministic replay: re-enter, they re-grow.
           </aside>
         </section>
 
         <!-- 6 ───────────────────── CODE DEMO + VERTICAL SUB-SLIDE stack -->
-        <section data-section="02 — How">
-          <section class="code" data-section="02 — How">
+        <section data-section="02 — Showing the work">
+          <section class="code" data-section="02 — Showing the work">
             <span class="eyebrow">Code demo · stepped focus</span>
-            <h2 class="h-set"><span class="h-line"><span>Budgeted assembly</span></span></h2>
-            <pre><code class="language-typescript" data-trim data-line-numbers="2|3-4|6-11|13">{promptCode}</code></pre>
+            <h2 class="h-set"><span class="h-line"><span>Sample walk-through</span></span></h2>
+            <pre><code class="language-typescript" data-trim data-line-numbers="3|4-5|7-12|14">{sampleCode}</code></pre>
             <aside class="notes">
-              Press &rarr; to step the focus: signature → the ranking → the budget
-              loop → the return. Then press &darr; to drop into the helper it leans on.
+              Slide kind: CODE DEMO. Press → to step the focus: signature → the
+              ranking → the loop → the return. Then ↓ drops into the helper it
+              leans on. The code itself is a placeholder sample.
             </aside>
           </section>
-          <section class="code" data-section="02 — How">
+          <section class="code" data-section="02 — Showing the work">
             <span class="eyebrow">Sub-slide · vertical stack</span>
-            <h2 class="h-set"><span class="h-line"><span>The estimate underneath</span></span></h2>
-            <pre><code class="language-typescript" data-trim data-line-numbers="4|5">{helperCode}</code></pre>
+            <h2 class="h-set"><span class="h-line"><span>The helper underneath</span></span></h2>
+            <pre><code class="language-typescript" data-trim data-line-numbers="4|5">{sampleHelperCode}</code></pre>
             <aside class="notes">
-              Vertical sub-slides let one topic go deep without cluttering the main
-              line — the bottom-right arrows go 4-directional when a stack exists.
+              Slide kind: VERTICAL SUB-SLIDE. One topic goes deep without cluttering
+              the main line — the bottom-right arrows go 4-directional when a stack
+              exists.
             </aside>
           </section>
         </section>
 
-        <!-- 7 ───────────────────── LIVE TOKENIZER WIDGET (vanilla TS island) -->
-        <section data-section="02 — How" data-tokenizer>
-          <span class="eyebrow">Live · type &amp; watch the token bill</span>
-          <h2 class="h-set"><span class="h-line"><span>The token counter</span></span></h2>
+        <!-- 7 ───────────────────── LIVE INTERACTIVE WIDGET (vanilla TS island) -->
+        <section data-section="02 — Showing the work" data-tokenizer>
+          <span class="eyebrow">Live island · type and watch it recompute</span>
+          <h2 class="h-set"><span class="h-line"><span>An interactive widget</span></span></h2>
           <div class="tokenizer">
             <textarea class="tok-input" spellcheck="false" data-tok-input
-              >Rewrite this paragraph to be shorter while keeping every fact intact.</textarea
+              >Type anything here. This is placeholder demo text — the widget just proves a slide can compute, live, in the room.</textarea
             >
             <div class="tok-stats">
               <div class="tok-stat">
@@ -237,27 +247,28 @@ export function estimateTokens(text: string): number {
                 <span class="n" data-tok-words>0</span><span class="l">words</span>
               </div>
               <div class="tok-stat hot">
-                <span class="n" data-tok-tokens>0</span><span class="l">&asymp; tokens</span>
+                <span class="n" data-tok-tokens>0</span><span class="l">&asymp; units</span>
               </div>
               <div class="tok-stat">
-                <span class="n" data-tok-cost>$0</span><span class="l">est. in-cost</span>
+                <span class="n" data-tok-cost>0.00</span><span class="l">sample index</span>
               </div>
             </div>
             <p class="tok-note">
-              Client-side estimate (&asymp; chars &divide; 4). A shipping deck swaps
-              in a real BPE tokenizer.
+              Placeholder maths (&asymp; chars &divide; 4, arbitrary index). Swap the
+              readouts for whatever the real deck needs to measure live.
             </p>
           </div>
           <aside class="notes">
-            Genuinely live and client-side — as live as a static host allows.
-            Typing here never leaves the browser.
+            Slide kind: LIVE INTERACTIVE ISLAND. Genuinely live and client-side — as
+            live as a static host allows; typing here never leaves the browser. The
+            quantities shown are placeholders for a real measure.
           </aside>
         </section>
 
         <!-- 8 ───────────────────── TERMINAL / CLI REPLAY (deterministic) -->
-        <section data-section="02 — How" data-terminal>
+        <section data-section="02 — Showing the work" data-terminal>
           <span class="eyebrow">Pre-recorded · replays on demand</span>
-          <h2 class="h-set"><span class="h-line"><span>A skills session, captured</span></span></h2>
+          <h2 class="h-set"><span class="h-line"><span>A captured CLI session</span></span></h2>
           <div class="terminal">
             <div class="term-bar">
               <i></i><i></i><i></i><span class="term-title">claude-code — zsh</span>
@@ -268,43 +279,44 @@ export function estimateTokens(text: string): number {
             Deterministic replay — no server, plays every time the slide opens.
           </p>
           <aside class="notes">
-            A captured skills session, replayed. Nothing runs live; the transcript
-            is baked in, so it is reliable in any venue.
+            Slide kind: TERMINAL REPLAY. A captured session, replayed character by
+            character. Nothing runs live — the transcript is baked in, so it behaves
+            identically in any venue, on any network. Transcript is demo content.
           </aside>
         </section>
 
         <!-- 9 ───────────────────── TWO-COLUMN SPLIT (nice-to-have) -->
-        <section data-section="03 — The compound">
+        <section data-section="03 — Structure">
           <span class="eyebrow">Two-column layout</span>
-          <h2 class="h-set"><span class="h-line"><span>Two levers, one system</span></span></h2>
+          <h2 class="h-set"><span class="h-line"><span>Two things, side by side</span></span></h2>
           <div class="split">
             <div class="card">
-              <h3>Token optimization</h3>
+              <h3>Left card</h3>
               <p>
-                Rank, dedupe, budget, cache. Every prompt earns its place in the
-                window. The floor of good AI economics.
+                Placeholder copy. Use this layout when two ideas earn equal weight
+                and the comparison is the message — not a list, a pairing.
               </p>
             </div>
             <div class="card">
-              <h3>Compounding skills</h3>
+              <h3>Right card</h3>
               <p>
-                Matt Pocock's skills repository, installed here. Each captured
-                skill makes the next task cheaper — optimization that persists.
+                Placeholder copy. Keep both cards to roughly the same length; the
+                symmetry is what makes the pairing read from the back of the room.
               </p>
             </div>
           </div>
           <aside class="notes">
-            The two ideas the talk braids together — set side by side.
+            Slide kind: TWO-COLUMN SPLIT. Both cards are placeholder text.
           </aside>
         </section>
 
         <!-- 9b ──────────────────── VERTICAL SUB-SLIDE STACK (3 deep) -->
         <!-- A dedicated stack: press ↓ to drill from the overview down through
              three levels. Bottom-right arrows go 4-directional inside a stack. -->
-        <section data-section="03 — The compound">
-          <section class="stack" data-stack data-section="03 — The compound">
+        <section data-section="03 — Structure">
+          <section class="stack" data-stack data-section="03 — Structure">
             <span class="eyebrow">Vertical sub-slides · press &darr;</span>
-            <h2 class="h-set"><span class="h-line"><span>Compounding, three levels deep</span></span></h2>
+            <h2 class="h-set"><span class="h-line"><span>Three levels deep</span></span></h2>
             <p>
               One topic, drilled without cluttering the main line. Each
               <kbd>&darr;</kbd> goes a level deeper; <kbd>&uarr;</kbd> climbs back.
@@ -315,30 +327,30 @@ export function estimateTokens(text: string): number {
               stays clean; the depth lives underneath. Press ↓ to demo it live.
             </aside>
           </section>
-          <section class="stack" data-stack data-section="03 — The compound">
-            <span class="eyebrow">Level 1 · prompt</span>
-            <h2 class="h-set"><span class="h-line"><span>Optimize the prompt</span></span></h2>
+          <section class="stack" data-stack data-section="03 — Structure">
+            <span class="eyebrow">Level 1 · detail</span>
+            <h2 class="h-set"><span class="h-line"><span>The first level down</span></span></h2>
             <p>
-              Rank, dedupe, budget every request. The immediate win — cheaper
-              tokens on the very next call.
+              Placeholder copy. This is where the detail lives that only some
+              audiences will ask for — reachable, but never in the main line.
             </p>
             <div class="stack-depth"><span></span><span class="on"></span><span></span></div>
-            <aside class="notes">Level one: the single-prompt economics.</aside>
+            <aside class="notes">Level one: demo filler for the first depth.</aside>
           </section>
-          <section class="stack" data-stack data-section="03 — The compound">
-            <span class="eyebrow">Level 2 · session</span>
-            <h2 class="h-set"><span class="h-line"><span>Optimize the session</span></span></h2>
+          <section class="stack" data-stack data-section="03 — Structure">
+            <span class="eyebrow">Level 2 · deepest</span>
+            <h2 class="h-set"><span class="h-line"><span>The bottom of the stack</span></span></h2>
             <p>
-              Cache, reuse, prune context across a run. The savings start
-              compounding turn over turn.
+              Placeholder copy. Three deep is about the limit before an audience
+              loses the thread of where they are.
             </p>
             <div class="stack-depth"><span></span><span></span><span class="on"></span></div>
-            <aside class="notes">Level two: the whole session, not one call.</aside>
+            <aside class="notes">Level two: demo filler for the deepest level.</aside>
           </section>
         </section>
 
         <!-- 10 ──────────────────── FRAGMENT / PROGRESSIVE REVEAL -->
-        <section data-section="03 — The compound" data-frags>
+        <section data-section="03 — Structure" data-frags>
           <span class="eyebrow">Fragment reveal</span>
           <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
           <ul class="build">
@@ -356,7 +368,7 @@ export function estimateTokens(text: string): number {
         </section>
 
         <!-- 10a ─────────────── ALT A: numbered editorial rows (hairline grid) -->
-        <section class="alt-rows" data-section="03 — The compound" data-frags>
+        <section class="alt-rows" data-section="03 — Structure" data-frags>
           <span class="eyebrow">Alt A · Numbered rows</span>
           <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
           <ol class="rows">
@@ -374,7 +386,7 @@ export function estimateTokens(text: string): number {
         </section>
 
         <!-- 10b ─────────────── ALT B: card grid (floating cards, 3 × 2) -->
-        <section class="alt-cards" data-section="03 — The compound" data-frags>
+        <section class="alt-cards" data-section="03 — Structure" data-frags>
           <span class="eyebrow">Alt B · Card grid</span>
           <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
           <div class="cardgrid">
@@ -392,7 +404,7 @@ export function estimateTokens(text: string): number {
         </section>
 
         <!-- 10c ─────────────── ALT C: big-type spotlight stack -->
-        <section class="alt-stack" data-section="03 — The compound" data-frags>
+        <section class="alt-stack" data-section="03 — Structure" data-frags>
           <span class="eyebrow">Alt C · Big-type stack</span>
           <ul class="stack">
             <li class="fragment rise">Hero slides</li>
@@ -409,7 +421,7 @@ export function estimateTokens(text: string): number {
         </section>
 
         <!-- 10d ─────────────── ALT D: split — anchored headline / right column -->
-        <section class="alt-split" data-section="03 — The compound" data-frags>
+        <section class="alt-split" data-section="03 — Structure" data-frags>
           <div class="split-left">
             <span class="eyebrow">Alt D · Split</span>
             <h2 class="h-set">
@@ -434,7 +446,7 @@ export function estimateTokens(text: string): number {
         </section>
 
         <!-- 10e ─────────────── ALT E: colour bands (full-bleed, fills on reveal) -->
-        <section class="alt-bands" data-section="03 — The compound" data-frags>
+        <section class="alt-bands" data-section="03 — Structure" data-frags>
           <span class="eyebrow">Alt E · Colour bands</span>
           <div class="bands">
             <div class="fragment rise band"><span class="n">01</span><span class="t">Static, high-impact hero slides</span></div>
@@ -454,25 +466,26 @@ export function estimateTokens(text: string): number {
         <section class="flood" data-section="Closing">
           <span class="eyebrow">The statement</span>
           <h2 class="h-set">
-            <span class="h-line"><span>Optimize</span></span>
-            <span class="h-line"><span>on <em class="hot">purpose.</em></span></span>
+            <span class="h-line"><span>One sentence.</span></span>
+            <span class="h-line"><span>Whole <em class="hot">room.</em></span></span>
           </h2>
           <aside class="notes">
-            Cinematic device #1: the slide floods to solid signal-blue with one
-            huge white sentence. The palette-break moment.
+            Slide kind: COLOUR FLOOD. The slide floods to solid signal-blue with one
+            huge white sentence — the palette-break moment. Sentence is placeholder.
           </aside>
         </section>
 
         <!-- 12 ──────────────────── OUTRO -->
         <section class="hero" data-section="Closing">
-          <span class="eyebrow">Thank you</span>
-          <h1 class="h-set"><span class="h-line"><span class="accent">LET'S BUILD.</span></span></h1>
+          <span class="eyebrow">End of gallery</span>
+          <h1 class="h-set"><span class="h-line"><span class="accent">PICK YOUR SLIDES.</span></span></h1>
           <p class="byline">
             <kbd>S</kbd> presenter view · <kbd>ESC</kbd> overview · <kbd>F</kbd> fullscreen
           </p>
           <aside class="notes">
-            Close. Everything shown is one static bundle on GitHub Pages — no
-            backend, presentable from any machine.
+            Close. Every slide kind above is available to the real deck at
+            /decks/asml-ai. Everything shown is one static bundle on GitHub Pages —
+            no backend, presentable from any machine.
           </aside>
         </section>
       </div>
@@ -603,7 +616,7 @@ export function estimateTokens(text: string): number {
         countTimer = requestAnimationFrame(tick);
       }
 
-      // ── Live tokenizer ────────────────────────────────────────────
+      // ── Live widget (demo: text metrics) ──────────────────────────
       const tokInput = document.querySelector<HTMLTextAreaElement>("[data-tok-input]");
       function updateTokens() {
         if (!tokInput) return;
@@ -611,7 +624,8 @@ export function estimateTokens(text: string): number {
         const chars = text.length;
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
         const tokens = Math.max(0, Math.ceil(chars / 4));
-        const cost = ((tokens / 1_000_000) * 15).toFixed(6);
+        // Placeholder index — arbitrary demo maths, not a real unit of anything.
+        const cost = (tokens / 100).toFixed(2);
         const set = (sel: string, v: string) => {
           const el = document.querySelector(sel);
           if (el) el.textContent = v;
@@ -619,7 +633,7 @@ export function estimateTokens(text: string): number {
         set("[data-tok-chars]", String(chars));
         set("[data-tok-words]", String(words));
         set("[data-tok-tokens]", String(tokens));
-        set("[data-tok-cost]", "$" + cost);
+        set("[data-tok-cost]", cost);
       }
       tokInput?.addEventListener("input", updateTokens);
       updateTokens();
@@ -627,10 +641,10 @@ export function estimateTokens(text: string): number {
       // ── Terminal / CLI replay (deterministic) ─────────────────────
       const replay: { t: string; d: number; cls?: string; type?: boolean }[] = [
         { t: "$ ", d: 250 },
-        { t: "claude /wayfinder issue-13\n", d: 40, type: true },
-        { t: "→ claiming ticket · assigning @atilileri\n", d: 420, cls: "sig" },
-        { t: "→ building the exemplary showcase\n", d: 360, cls: "sig" },
-        { t: "  ✓ hero   ✓ scrollytelling   ✓ tokenizer\n", d: 300, cls: "ok" },
+        { t: "npm run build   # sample transcript\n", d: 40, type: true },
+        { t: "→ collecting slide kinds from the gallery\n", d: 420, cls: "sig" },
+        { t: "→ rendering the capability showcase\n", d: 360, cls: "sig" },
+        { t: "  ✓ hero   ✓ scrollytelling   ✓ live widget\n", d: 300, cls: "ok" },
         { t: "  ✓ data-viz   ✓ code demo   ✓ terminal\n", d: 300, cls: "ok" },
         { t: "  ✓ sub-slides ✓ chapter wash  ✓ one-number\n", d: 300, cls: "ok" },
         { t: "→ astro build … static, no server\n", d: 460, cls: "sig" },
