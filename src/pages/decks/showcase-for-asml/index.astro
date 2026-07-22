@@ -1,15 +1,15 @@
 ---
 /**
- * /decks/asml — "Getting more from AI" — the ORIGINAL VERSION.
+ * /decks/showcase-for-asml — the CAPABILITY SHOWCASE deck.
  *
- * The hosted, feature-abundant skeleton showcasing every locked capability at
- * its best, in the decided approach (thin Astro shell + embedded reveal.js,
- * single-deck spine — wayfinder #11) and the "ASML Editorial" light theme (#12).
- * Real ASML presentation copy is swapped in later by Atil; the demo content here
- * exists to demonstrate the full capability range (#10) as a reference gallery.
+ * Every locked capability exercised once, at its best, in the decided approach
+ * (thin Astro shell + embedded reveal.js, single-deck spine — wayfinder #11)
+ * and the "ASML Editorial" light theme (#12). The copy here is demo material
+ * whose only job is to show the full capability range (#10); real slides are
+ * designed against this gallery, picking the slide kinds they need.
  *
  * Standalone, full-viewport, no site chrome — deliberately does NOT use
- * BaseLayout. Decks are first-class routes: src/pages/decks/<slug>. This is /decks/asml.
+ * BaseLayout. Decks are first-class routes: src/pages/decks/<slug>. This is /decks/showcase-for-asml.
  * Fully static: reveal.js@5 + plugins bundle into the Astro JS chunk via Vite;
  * fonts self-hosted under /public/fonts. No CDN, no server, no secrets.
  */
@@ -45,10 +45,10 @@ export function estimateTokens(text: string): number {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Getting more from AI · Atil İleri</title>
+    <title>Capability Showcase · Atil Ilerialkan</title>
     <meta
       name="description"
-      content="An executive web presentation on token optimization and compounding skills — reference capability deck."
+      content="Reference capability deck — every slide kind this web-presentation system can build, exercised once."
     />
   </head>
   <body>
@@ -90,18 +90,18 @@ export function estimateTokens(text: string): number {
       <div class="slides">
         <!-- 1 ───────────────────────────── HERO (eyebrow + big headline) -->
         <section class="hero" data-section="Opening">
-          <span class="eyebrow">ASML · Executive Briefing</span>
+          <span class="eyebrow">Capability Showcase</span>
           <h1 class="h-set">
             <span class="h-line"><span>GETTING MORE</span></span>
             <span class="h-line"><span class="accent">FROM AI.</span></span>
           </h1>
           <p>Token optimization &amp; the skills that compound it.</p>
-          <p class="byline">Atil İleri · live from atilileri.github.io</p>
+          <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
           <aside class="notes">
             Welcome. This deck is the reference capability gallery — every kind of
-            slide we can build, exercised once. The real ASML content drops into
-            this skeleton. Press S any time for these inline notes; P opens the
-            separate presenter window.
+            slide we can build, exercised once. Real decks are designed against it.
+            Press S any time for these inline notes; P opens the separate presenter
+            window.
           </aside>
         </section>
 
@@ -194,7 +194,7 @@ export function estimateTokens(text: string): number {
             enter — and replay every time you return.
           </p>
           <aside class="notes">
-            Bars are hand-rolled CSS/SVG — no charting library, so the ASML palette
+            Bars are hand-rolled CSS/SVG — no charting library, so the deck palette
             reaches inside the chart. Deterministic replay: re-enter and they re-grow.
           </aside>
         </section>

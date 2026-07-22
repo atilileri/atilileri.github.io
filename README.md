@@ -1,6 +1,6 @@
 # atilileri.github.io
 
-Personal website and digital garden of Atil İleri, built with [Astro](https://astro.build). Deployed to [GitHub Pages](https://atilileri.github.io).
+Personal website and digital garden of Atil Ilerialkan, built with [Astro](https://astro.build). Deployed to [GitHub Pages](https://atilileri.github.io).
 
 ## Architecture
 
