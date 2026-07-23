@@ -199,6 +199,38 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
+        <!-- 5b ──────────────────── INTERACTIVE BENCHMARK CHART (DeepSWE v1.1) -->
+        <section class="bench" data-section="01 — The cost" data-bench>
+          <span class="eyebrow">Interactive · hover a model, click a family</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>DeepSWE v1.1 &mdash; capability vs. cost</span></span>
+          </h2>
+          <div class="bench-bar">
+            <div class="bench-toggle" role="group" aria-label="Chart view">
+              <button type="button" data-view="scatter" class="on">Score vs. cost</button>
+              <button type="button" data-view="bars">Ranked pass rate</button>
+            </div>
+            <div class="bench-legend" data-bench-legend></div>
+          </div>
+          <div class="bench-plot">
+            <svg data-bench-svg viewBox="0 0 900 570" role="img"
+              aria-label="DeepSWE v1.1 results: pass rate against average cost per task, one curve per model across reasoning-effort levels."
+            ></svg>
+            <div class="bench-tip" data-bench-tip hidden></div>
+          </div>
+          <p class="bench-note">
+            113 tasks · one line per model across reasoning-effort levels · source:
+            <span class="mono">deepswe.datacurve.ai/blog/deepswe-v1-1</span>
+          </p>
+          <aside class="notes">
+            The live leaderboard, rebuilt inside the deck — same data, our palette.
+            Hover any point for cost, output tokens and steps; click a family chip to
+            isolate it; the toggle swaps the scatter for the ranked bars with error
+            bars. Point to the bottom-left quadrant: cheap and good is now a real
+            option, and the expensive models are not the top of the board.
+          </aside>
+        </section>
+
         <!-- 6 ───────────────────── CODE DEMO + VERTICAL SUB-SLIDE stack -->
         <section data-section="02 — How">
           <section class="code" data-section="02 — How">
@@ -671,6 +703,307 @@ export function estimateTokens(text: string): number {
         };
         step();
       }
+
+      // ── Interactive benchmark chart (DeepSWE v1.1) ────────────────
+      // Hand-rolled SVG — no charting library, so the deck palette reaches
+      // inside the chart. Two views over one dataset: a cost/pass-rate scatter
+      // and ranked bars with 95% CI whiskers. Data transcribed from the public
+      // leaderboard at deepswe.datacurve.ai/blog/deepswe-v1-1 (113 tasks).
+      type Model = {
+        name: string;
+        fam: string;
+        rate: number; // pass@1 %
+        ci: number; // ± percentage points
+        cost: number; // avg $ / task
+        tok: string; // output tokens
+        steps: number;
+        effort?: string; // reasoning effort — set only for scatter points
+      };
+      const MODELS: Model[] = [
+        { name: "gpt-5.6-sol", fam: "OpenAI", rate: 73, ci: 3, cost: 8.39, tok: "60k", steps: 61 },
+        { name: "claude-fable-5", fam: "Anthropic", rate: 70, ci: 4, cost: 21.63, tok: "119k", steps: 88 },
+        { name: "gpt-5.6-terra", fam: "OpenAI", rate: 70, ci: 3, cost: 4.95, tok: "72k", steps: 76 },
+        { name: "kimi-k3", fam: "Moonshot", rate: 69, ci: 5, cost: 4.65, tok: "81k", steps: 98 },
+        { name: "gpt-5.6-luna", fam: "OpenAI", rate: 67, ci: 4, cost: 3.03, tok: "73k", steps: 102 },
+        { name: "gpt-5.5", fam: "OpenAI", rate: 67, ci: 6, cost: 7.23, tok: "46k", steps: 82 },
+        { name: "claude-opus-4.8", fam: "Anthropic", rate: 59, ci: 2, cost: 13.22, tok: "135k", steps: 120 },
+        { name: "claude-sonnet-5", fam: "Anthropic", rate: 54, ci: 4, cost: 26.4, tok: "214k", steps: 268 },
+        { name: "grok-4.5", fam: "Other", rate: 54, ci: 2, cost: 2.42, tok: "36k", steps: 61 },
+        { name: "muse-spark-1.1", fam: "Other", rate: 53, ci: 3, cost: 2.36, tok: "74k", steps: 96 },
+        { name: "gpt-5.4", fam: "OpenAI", rate: 52, ci: 2, cost: 5.65, tok: "71k", steps: 70 },
+        { name: "gemini-3.6-flash", fam: "Google", rate: 49, ci: 5, cost: 3.53, tok: "97k", steps: 108 },
+        { name: "glm-5.2", fam: "Other", rate: 44, ci: 2, cost: 3.92, tok: "78k", steps: 129 },
+        { name: "gemini-3.5-flash", fam: "Google", rate: 37, ci: 2, cost: 7.34, tok: "276k", steps: 86 },
+        { name: "kimi-k2.7-code", fam: "Moonshot", rate: 31, ci: 1, cost: 2.82, tok: "59k", steps: 149 },
+        { name: "claude-sonnet-4.6", fam: "Anthropic", rate: 30, ci: 4, cost: 5.52, tok: "76k", steps: 134 },
+        { name: "gemini-3.1-pro", fam: "Google", rate: 12, ci: 2, cost: 9.48, tok: "196k", steps: 81 },
+      ];
+      // Fixed hue order, never cycled — validated for CVD separation on this
+      // light surface (scripts/validate_palette.js, all six checks pass).
+      const FAMS: { key: string; color: string }[] = [
+        { key: "OpenAI", color: "#1a6fd4" },
+        { key: "Anthropic", color: "#e0620d" },
+        { key: "Google", color: "#0f8f6f" },
+        { key: "Moonshot", color: "#8a4fd0" },
+        { key: "Other", color: "#c2185b" },
+      ];
+      const famColor = (f: string) =>
+        FAMS.find((x) => x.key === f)?.color ?? "#c2185b";
+
+      // The scatter is per reasoning-effort, not per leaderboard row: one model
+      // traces a curve as you spend more on it. Points and label placements are
+      // transcribed from the published chart; label dx/dy are its own collision
+      // solve, kept so 15 callouts sit clean at any size.
+      type Curve = {
+        name: string;
+        fam: string;
+        eff: string; // effort level of the labelled point
+        anchor: string;
+        dx: number;
+        dy: number;
+        lx: number;
+        ly: number;
+        at: number; // index of the labelled point
+        pts: [number, number][]; // [avg $ / task, pass@1 %], cheapest first
+      };
+      const CURVES: Curve[] = [
+        { name: "gpt-5.6-sol", fam: "OpenAI", eff: "MEDIUM", anchor: "start", dx: 11, dy: 4, lx: 10, ly: 0, at: 1,
+          pts: [[1.08, 45.4], [1.86, 61.1], [3.47, 69.4], [4.7, 70.7], [8.39, 72.7]] },
+        { name: "claude-fable-5", fam: "Anthropic", eff: "HIGH", anchor: "end", dx: -11, dy: 4, lx: -10, ly: 0, at: 2,
+          pts: [[3.76, 59.6], [6.09, 65.4], [9.18, 68.6], [13.41, 69.9], [21.64, 69.7]] },
+        { name: "gpt-5.5", fam: "OpenAI", eff: "MEDIUM", anchor: "start", dx: 18, dy: 4, lx: 17, ly: 0, at: 1,
+          pts: [[1.2, 27.0], [2.75, 54.0], [5.1, 64.4], [7.23, 67.0]] },
+        { name: "claude-opus-4.8", fam: "Anthropic", eff: "HIGH", anchor: "start", dx: 36, dy: 16, lx: 35, ly: 12, at: 2,
+          pts: [[2.29, 40.8], [3.44, 48.7], [4.28, 51.8], [8.01, 54.4], [13.22, 59.0]] },
+        { name: "claude-sonnet-5", fam: "Anthropic", eff: "HIGH", anchor: "end", dx: -11, dy: -10, lx: -10, ly: -14, at: 2,
+          pts: [[2.19, 30.5], [4.08, 39.8], [7.42, 48.2], [11.89, 49.7], [26.4, 53.8]] },
+        { name: "glm-5.2", fam: "Other", eff: "MAX", anchor: "end", dx: -11, dy: 28, lx: -10, ly: 24, at: 1,
+          pts: [[2.84, 36.3], [3.92, 43.8]] },
+        { name: "kimi-k3", fam: "Moonshot", eff: "MAX", anchor: "end", dx: -11, dy: -10, lx: -10, ly: -14, at: 0, pts: [[4.65, 68.5]] },
+        { name: "grok-4.5", fam: "Other", eff: "HIGH", anchor: "end", dx: -18, dy: -10, lx: -17, ly: -14, at: 0, pts: [[2.42, 53.8]] },
+        { name: "muse-spark-1.1", fam: "Other", eff: "XHIGH", anchor: "end", dx: -48, dy: -46, lx: -47, ly: -50, at: 0, pts: [[2.36, 53.3]] },
+        { name: "gpt-5.4", fam: "OpenAI", eff: "XHIGH", anchor: "end", dx: -11, dy: 40, lx: -10, ly: 36, at: 0, pts: [[5.65, 51.8]] },
+        { name: "gemini-3.6-flash", fam: "Google", eff: "HIGH", anchor: "start", dx: 36, dy: 52, lx: 35, ly: 48, at: 0, pts: [[3.53, 48.6]] },
+        { name: "gemini-3.5-flash", fam: "Google", eff: "MEDIUM", anchor: "end", dx: -11, dy: 4, lx: -10, ly: 0, at: 0, pts: [[7.34, 37.4]] },
+        { name: "kimi-k2.7-code", fam: "Moonshot", eff: "", anchor: "start", dx: 11, dy: -10, lx: 10, ly: -14, at: 0, pts: [[2.82, 30.5]] },
+        { name: "claude-sonnet-4.6", fam: "Anthropic", eff: "HIGH", anchor: "end", dx: -11, dy: 4, lx: -10, ly: 0, at: 0, pts: [[5.52, 29.9]] },
+        { name: "gemini-3.1-pro", fam: "Google", eff: "HIGH", anchor: "start", dx: 11, dy: 4, lx: 10, ly: 0, at: 0, pts: [[9.48, 11.8]] },
+      ];
+
+      const benchSvg = document.querySelector<SVGSVGElement>("[data-bench-svg]");
+      const benchTip = document.querySelector<HTMLElement>("[data-bench-tip]");
+      const benchLegend = document.querySelector<HTMLElement>("[data-bench-legend]");
+      const benchPlot = benchSvg?.closest<HTMLElement>(".bench-plot");
+      let benchView: "scatter" | "bars" = "scatter";
+      // Empty = show every family; otherwise only the picked ones.
+      const benchOn = new Set<string>();
+
+      const NS = "http://www.w3.org/2000/svg";
+      function el(tag: string, attrs: Record<string, string | number>) {
+        const n = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+        return n;
+      }
+      const visible = (m: Model) => benchOn.size === 0 || benchOn.has(m.fam);
+      const dim = (m: Model) => (visible(m) ? "1" : "0.12");
+
+      function showTip(m: Model, ev: MouseEvent) {
+        if (!benchTip || !benchPlot) return;
+        // Scatter points carry an effort level and their own cost/score; the
+        // token and step counts are the leaderboard row's, so they only show
+        // where the whole row is what's on screen.
+        benchTip.innerHTML =
+          `<b style="color:${famColor(m.fam)}">${m.name}</b>` +
+          (m.effort ? `<span class="e">${m.effort.toLowerCase()}</span>` : "") +
+          `<span class="r">${m.rate}%${m.effort ? "" : `<i>±${m.ci}</i>`}</span>` +
+          `<span class="k">avg cost<b>$${m.cost.toFixed(2)}</b></span>` +
+          (m.effort
+            ? ""
+            : `<span class="k">output<b>${m.tok}</b></span>` +
+              `<span class="k">steps<b>${m.steps}</b></span>`);
+        benchTip.hidden = false;
+        const box = benchPlot.getBoundingClientRect();
+        const x = ev.clientX - box.left;
+        const y = ev.clientY - box.top;
+        benchTip.style.left = Math.min(x + 16, box.width - 210) + "px";
+        benchTip.style.top = Math.max(y - 12, 0) + "px";
+      }
+      function hideTip() {
+        if (benchTip) benchTip.hidden = true;
+      }
+      benchPlot?.addEventListener("mouseleave", hideTip);
+
+      /** Attach hover affordances to one mark. */
+      function wireMark(g: SVGElement, m: Model) {
+        g.addEventListener("mousemove", (e) => showTip(m, e as MouseEvent));
+        g.addEventListener("mouseleave", hideTip);
+      }
+
+      // Cost runs RIGHT-to-LEFT: $0 at the right edge, so "cheap and good" is
+      // the top-right corner and every curve reads as "what more money buys".
+      const CX = (c: number) => 840 - c * 28.9192;
+      const CY = (s: number) => 511 - s * 5.8875;
+
+      function drawCurves() {
+        if (!benchSvg) return;
+        const T = 40, B = 511, L = CX(28.5), R = 855;
+        for (let s = 0; s <= 80; s += 10) {
+          benchSvg.append(el("line", { x1: L, x2: R, y1: CY(s), y2: CY(s), class: "grid" }));
+          const t = el("text", { x: L - 10, y: CY(s) + 4, class: "tick end" });
+          t.textContent = s + "%";
+          benchSvg.append(t);
+        }
+        for (let c = 0; c <= 25; c += 5) {
+          if (c) benchSvg.append(el("line", { x1: CX(c), x2: CX(c), y1: T, y2: B, class: "grid" }));
+          const t = el("text", { x: CX(c), y: B + 22, class: "tick mid" });
+          t.textContent = "$" + c;
+          benchSvg.append(t);
+        }
+        benchSvg.append(el("line", { x1: L, x2: R, y1: B, y2: B, class: "axis" }));
+        const xl = el("text", { x: (L + R) / 2, y: B + 44, class: "axis-label mid" });
+        xl.textContent = "avg cost per task";
+        const head = el("text", { x: L, y: 22, class: "plot-title" });
+        head.textContent = "DeepSWE score";
+        const eff = el("text", { x: R - 6, y: 52, class: "efficient end" });
+        eff.textContent = "most efficient ↗";
+        benchSvg.append(xl, head, eff);
+
+        for (const cv of CURVES) {
+          const m = MODELS.find((x) => x.name === cv.name);
+          const on = benchOn.size === 0 || benchOn.has(cv.fam);
+          const g = el("g", { class: "curve", opacity: on ? 1 : 0.12 }) as SVGGElement;
+          const color = famColor(cv.fam);
+          if (cv.pts.length > 1) {
+            g.append(
+              el("path", {
+                d: cv.pts.map(([c, s], i) => `${i ? "L" : "M"} ${CX(c)} ${CY(s)}`).join(" "),
+                fill: "none", stroke: color, "stroke-width": 2.5,
+                "stroke-linecap": "round", "stroke-linejoin": "round", opacity: 0.75,
+              }),
+            );
+          }
+          cv.pts.forEach(([c, s], i) => {
+            g.append(
+              el("circle", {
+                cx: CX(c), cy: CY(s), r: i === cv.at ? 4.5 : 3.5,
+                fill: color, class: "dot",
+              }),
+            );
+          });
+          const [lc, ls] = cv.pts[cv.at];
+          const x = CX(lc), y = CY(ls);
+          g.append(
+            el("line", {
+              x1: x, y1: y, x2: x + cv.lx, y2: y + cv.ly,
+              stroke: color, "stroke-width": 1, opacity: 0.35,
+            }),
+          );
+          const name = el("text", {
+            x: x + cv.dx, y: y + cv.dy, "text-anchor": cv.anchor,
+            fill: color, class: "curve-label",
+          });
+          name.textContent = cv.name;
+          g.append(name);
+          if (cv.eff) {
+            const e2 = el("text", {
+              x: x + cv.dx, y: y + cv.dy + 11, "text-anchor": cv.anchor,
+              fill: color, class: "curve-eff",
+            });
+            e2.textContent = cv.eff;
+            g.append(e2);
+          }
+          // One generous hit target per point, over the top of the labels.
+          if (on && m) {
+            cv.pts.forEach(([c, s], i) => {
+              const hit = el("circle", { cx: CX(c), cy: CY(s), r: 11, fill: "transparent" });
+              const at: Model = {
+                ...m,
+                cost: c,
+                rate: s,
+                effort: i === cv.at ? cv.eff : `effort ${i + 1} of ${cv.pts.length}`,
+              };
+              hit.addEventListener("mousemove", (ev) => showTip(at, ev as MouseEvent));
+              hit.addEventListener("mouseleave", hideTip);
+              g.append(hit);
+            });
+          }
+          benchSvg.append(g);
+        }
+      }
+
+      function drawBars() {
+        if (!benchSvg) return;
+        const L = 250, R = 1090, T = 14;
+        const rowH = 25;
+        const bw = (r: number) => (r / 80) * (R - L);
+        MODELS.forEach((m, i) => {
+          const y = T + i * rowH;
+          const g = el("g", { class: "row", opacity: dim(m) }) as SVGGElement;
+          const name = el("text", { x: L - 16, y: y + 14, class: "row-name end" });
+          name.textContent = m.name;
+          const track = el("rect", { x: L, y: y + 3, width: R - L, height: 15, class: "row-track" });
+          const fill = el("rect", {
+            x: L, y: y + 3, width: bw(m.rate), height: 15, rx: 4,
+            fill: famColor(m.fam),
+          });
+          const lo = L + bw(m.rate - m.ci), hi = L + bw(m.rate + m.ci);
+          const whisk = el("line", { x1: lo, x2: hi, y1: y + 10.5, y2: y + 10.5, class: "ci" });
+          const cap1 = el("line", { x1: lo, x2: lo, y1: y + 5, y2: y + 16, class: "ci" });
+          const cap2 = el("line", { x1: hi, x2: hi, y1: y + 5, y2: y + 16, class: "ci" });
+          const val = el("text", { x: R + 14, y: y + 14, class: "row-val" });
+          val.textContent = `${m.rate}% ±${m.ci}`;
+          const hit = el("rect", { x: 0, y, width: 1180, height: rowH, fill: "transparent" });
+          g.append(name, track, fill, whisk, cap1, cap2, val, hit);
+          if (visible(m)) wireMark(g, m);
+          benchSvg!.append(g);
+        });
+      }
+
+      function drawBench() {
+        if (!benchSvg) return;
+        hideTip();
+        benchSvg.textContent = "";
+        // Each view owns its coordinate space; the SVG scales to the slide.
+        benchSvg.setAttribute(
+          "viewBox",
+          benchView === "scatter" ? "0 0 900 570" : "0 0 1180 470",
+        );
+        if (benchView === "scatter") drawCurves();
+        else drawBars();
+      }
+
+      // Legend doubles as the family filter (click to isolate, click to release).
+      FAMS.forEach((f) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.style.setProperty("--c", f.color);
+        b.textContent = f.key;
+        b.addEventListener("click", () => {
+          if (benchOn.has(f.key)) benchOn.delete(f.key);
+          else benchOn.add(f.key);
+          benchLegend
+            ?.querySelectorAll<HTMLElement>(".chip")
+            .forEach((c) =>
+              c.classList.toggle("on", benchOn.has(c.textContent ?? "")),
+            );
+          benchLegend?.classList.toggle("filtered", benchOn.size > 0);
+          drawBench();
+        });
+        benchLegend?.append(b);
+      });
+      document
+        .querySelectorAll<HTMLButtonElement>(".bench-toggle button")
+        .forEach((b) =>
+          b.addEventListener("click", () => {
+            benchView = b.dataset.view as "scatter" | "bars";
+            document
+              .querySelectorAll(".bench-toggle button")
+              .forEach((o) => o.classList.toggle("on", o === b));
+            drawBench();
+          }),
+        );
+      drawBench();
 
       // ── Chapter wash on entering a chapter divider ────────────────
       function runWash() {

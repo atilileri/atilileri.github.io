@@ -551,6 +551,250 @@
   margin-top: 1.4rem;
 }
 
+/* ─────────────── Interactive benchmark chart (DeepSWE v1.1) ── */
+.reveal section.bench {
+  --bench-ink: #00327dcc;
+}
+.bench-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.4rem;
+  width: 100%;
+  max-width: 54rem;
+  margin: 0.2rem 0 0.5rem;
+}
+.bench-toggle {
+  display: flex;
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bench-toggle button {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  background: var(--card);
+  color: var(--navy);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.bench-toggle button + button {
+  border-left: 1px solid var(--hair);
+}
+.bench-toggle button.on {
+  background: var(--signal);
+  color: #fff;
+}
+.bench-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.bench-legend .chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  padding: 0.35rem 0.7rem 0.35rem 1.55rem;
+  position: relative;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--navy);
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.bench-legend .chip::before {
+  content: "";
+  position: absolute;
+  left: 0.62rem;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--c);
+  transform: translateY(-50%);
+}
+/* While a filter is active, unselected families recede. */
+.bench-legend.filtered .chip {
+  opacity: 0.4;
+}
+.bench-legend.filtered .chip.on {
+  opacity: 1;
+  border-color: var(--c);
+}
+.bench-plot {
+  position: relative;
+  width: 100%;
+  /* The scatter is 900×570, so the width sets the height — capped so the whole
+     plot, its axis and the footnote all clear the 16:9 slide. */
+  max-width: 54rem;
+}
+.bench-plot svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.bench-plot .grid {
+  stroke: #0066cc1f;
+  stroke-width: 1;
+}
+.bench-plot .axis {
+  stroke: #00327d40;
+  stroke-width: 1;
+}
+.bench-plot .tick,
+.bench-plot .axis-label,
+.bench-plot .plot-title,
+.bench-plot .efficient,
+.bench-plot .curve-label,
+.bench-plot .curve-eff,
+.bench-plot .row-name,
+.bench-plot .row-val,
+.bench-plot .pt-label {
+  font-family: var(--font-mono);
+  fill: var(--bench-ink);
+}
+.bench-plot .tick {
+  font-size: 15px;
+  opacity: 0.75;
+}
+.bench-plot .axis-label {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.bench-plot .end {
+  text-anchor: end;
+}
+.bench-plot .mid {
+  text-anchor: middle;
+}
+.bench-plot .row-name {
+  font-size: 16px;
+}
+.bench-plot .row-val {
+  font-size: 15px;
+  font-weight: 600;
+}
+.bench-plot .pt-label {
+  font-size: 15px;
+  font-weight: 600;
+}
+.bench-plot .plot-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--navy);
+}
+.bench-plot .efficient {
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.7;
+}
+/* Direct labels sit over the crowd — a surface halo keeps them legible. */
+.bench-plot .curve-label,
+.bench-plot .curve-eff {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12.5px;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+.bench-plot .curve-eff {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  stroke-width: 3px;
+}
+.bench-plot .curve .dot {
+  transition: r 0.15s var(--ease);
+}
+.bench-plot .curve:hover .dot {
+  r: 6;
+}
+.bench-plot .row-track {
+  fill: #0066cc12;
+}
+.bench-plot .ci {
+  stroke: #1b1b1b;
+  stroke-width: 1.5;
+  opacity: 0.55;
+}
+.bench-plot .row:hover .row-track {
+  fill: #0066cc22;
+}
+.bench-tip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  min-width: 12rem;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--signal);
+  box-shadow: var(--shadow);
+  padding: 0.6rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+}
+/* display:flex above would otherwise beat the UA's [hidden] rule. */
+.bench-tip[hidden] {
+  display: none;
+}
+.bench-tip b {
+  font-weight: 700;
+}
+.bench-tip .e {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #00327d99;
+}
+.bench-tip .r {
+  font-size: 1.15rem;
+  font-family: var(--font-display);
+  color: var(--navy);
+}
+.bench-tip .r i {
+  font-style: normal;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-left: 0.3rem;
+}
+.bench-tip .k {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.2rem;
+  color: #00327d99;
+}
+.bench-tip .k b {
+  color: var(--ink);
+}
+.reveal .bench-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  max-width: 54rem;
+  color: #00327d99;
+  margin-top: 0.7rem;
+}
+.bench-note .mono {
+  color: var(--signal);
+}
+
 /* ─────────────────────── Code demo with stepped focus ── */
 .reveal pre {
   width: 100%;
