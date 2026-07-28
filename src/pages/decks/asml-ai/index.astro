@@ -231,6 +231,63 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
+        <!-- 5c ──────────────────── MENTAL MODEL: the four layers (rings) -->
+        <section class="layers" data-section="02 — How" data-layers>
+          <span class="eyebrow">The mental model · after Matt Pocock</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>The model is only the middle</span></span>
+          </h2>
+          <div class="layers-grid">
+            <div class="layers-diagram">
+              <svg viewBox="0 0 460 460" role="img"
+                aria-label="Four nested layers: the model at the centre, wrapped by the harness, the two together forming the agent, all of it acting inside the environment."
+              >
+                <circle class="ring env" cx="230" cy="230" r="205" />
+                <circle class="ring agent" cx="230" cy="230" r="150" />
+                <circle class="ring harness" cx="230" cy="230" r="100" />
+                <circle class="ring model" cx="230" cy="230" r="50" />
+                <text class="lbl env" x="230" y="43" text-anchor="middle">ENVIRONMENT</text>
+                <text class="lbl agent" x="230" y="97" text-anchor="middle">AGENT</text>
+                <text class="lbl harness" x="230" y="147" text-anchor="middle">HARNESS</text>
+                <text class="lbl model" x="230" y="236" text-anchor="middle">MODEL</text>
+              </svg>
+            </div>
+            <ol class="layers-defs">
+              <li class="model">
+                <span class="k">Model</span>
+                <p>The core intelligence engine — Opus, GPT.</p>
+              </li>
+              <li class="harness">
+                <span class="k">Harness</span>
+                <p>The wrapper that drives it — Claude Code, ChatGPT, Codex.</p>
+              </li>
+              <li class="agent">
+                <span class="k">Agent</span>
+                <p>Model <em>+</em> harness, working as one unit.</p>
+              </li>
+              <li class="env">
+                <span class="k">Environment</span>
+                <p>Where the agent acts — your file system, your codebase.</p>
+              </li>
+            </ol>
+          </div>
+          <p class="layers-take">
+            Everyone races to swap the <em>model</em>. It's a small part of the
+            picture — the <strong>harness</strong> and the
+            <strong>environment</strong> are roughly
+            <em class="hot">50%</em> of the result, and improving them is free.
+          </p>
+          <aside class="notes">
+            Matt Pocock's framing for what an agent actually is. Point to the
+            centre and work outward: the model is the engine; the harness is the
+            wrapper that drives it; the two together are the agent; the
+            environment is the space it acts in. The takeaway is the reframe for
+            this whole talk — most people only ever swap the model, but half the
+            gain is sitting in the harness and the environment, and that half
+            costs nothing but attention.
+          </aside>
+        </section>
+
         <!-- 6 ───────────────────── CODE DEMO + VERTICAL SUB-SLIDE stack -->
         <section data-section="02 — How">
           <section class="code" data-section="02 — How">

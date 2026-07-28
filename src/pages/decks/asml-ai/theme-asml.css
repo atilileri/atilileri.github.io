@@ -795,6 +795,161 @@
   color: var(--signal);
 }
 
+/* ─────────────── Mental model: the four layers (nested rings) ──
+   A concentric diagram — model at the core, wrapped by harness, the two
+   together the agent, all of it inside the environment. Rings scale in from
+   the centre outward on entry (staggered), so the build reads as "the model
+   is only the middle"; the dashed agent boundary marches to mark it as the
+   conceptual unit, not a physical layer. Replay keys off .is-live like the
+   headline — added on show, removed on leave. */
+.reveal section.layers {
+  justify-content: flex-start;
+}
+.layers-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  width: 100%;
+  margin-top: clamp(0.8rem, 2vh, 1.6rem);
+}
+.layers-diagram svg {
+  width: 100%;
+  height: auto;
+  max-width: 27rem;
+  overflow: visible;
+  display: block;
+  margin: 0 auto;
+}
+.layers-diagram .ring {
+  fill: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.55);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.layers-diagram .ring.model {
+  fill: var(--orange);
+  stroke: none;
+}
+.layers-diagram .ring.harness {
+  stroke: var(--signal);
+  stroke-width: 3;
+}
+.layers-diagram .ring.agent {
+  stroke: var(--navy);
+  stroke-width: 2;
+  stroke-dasharray: 7 7;
+}
+.layers-diagram .ring.env {
+  stroke: #00327d55;
+  stroke-width: 2;
+}
+/* Stagger the grow inner → outer. */
+.layers-diagram .ring.model { transition-delay: 0ms; }
+.layers-diagram .ring.harness { transition-delay: 90ms; }
+.layers-diagram .ring.agent { transition-delay: 180ms; }
+.layers-diagram .ring.env { transition-delay: 270ms; }
+.reveal section.layers.is-live .layers-diagram .ring {
+  opacity: 1;
+  transform: scale(1);
+}
+/* The agent boundary is a concept, not a layer — its dashes drift once live. */
+.reveal section.layers.is-live .layers-diagram .ring.agent {
+  animation: layers-dash 6s linear infinite;
+}
+@keyframes layers-dash {
+  to { stroke-dashoffset: -140; }
+}
+/* Ring labels — mono caps, haloed so they stay legible over the strokes. */
+.layers-diagram .lbl {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.layers-diagram .lbl.model {
+  fill: #fff;
+  stroke: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+.layers-diagram .lbl.harness { fill: var(--signal); }
+.layers-diagram .lbl.agent { fill: var(--navy); }
+.layers-diagram .lbl.env { fill: #00327dcc; }
+.layers-diagram .lbl.model { transition-delay: 60ms; }
+.layers-diagram .lbl.harness { transition-delay: 150ms; }
+.layers-diagram .lbl.agent { transition-delay: 240ms; }
+.layers-diagram .lbl.env { transition-delay: 330ms; }
+.reveal section.layers.is-live .layers-diagram .lbl { opacity: 1; }
+
+/* Definition column — a colour-keyed dot per layer, matching the rings. */
+.layers-defs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.7rem, 1.8vh, 1.3rem);
+}
+.layers-defs > li {
+  position: relative;
+  padding-left: 1.6rem;
+}
+.layers-defs > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.32em;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.layers-defs .model::before { background: var(--orange); }
+.layers-defs .harness::before { background: var(--signal); }
+.layers-defs .agent::before {
+  background: var(--ground);
+  border: 2px dashed var(--navy);
+}
+.layers-defs .env::before {
+  background: transparent;
+  border: 2px solid #00327d80;
+}
+.layers-defs .k {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.7vw, 1.35rem);
+  color: var(--navy);
+  line-height: 1.1;
+}
+.layers-defs p {
+  margin: 0.15rem 0 0;
+  font-size: clamp(0.85rem, 1.2vw, 1.02rem);
+  line-height: 1.4;
+  max-width: 34ch;
+}
+.layers-defs .agent em {
+  color: var(--signal);
+  font-style: normal;
+  font-weight: 600;
+}
+.layers-take {
+  margin-top: clamp(1.2rem, 3vh, 2rem);
+  max-width: 66ch;
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+}
+
 /* ─────────────────────── Code demo with stepped focus ── */
 .reveal pre {
   width: 100%;
@@ -1204,6 +1359,8 @@
 @media (max-width: 900px) {
   .reveal section.alt-cards .cardgrid { grid-template-columns: repeat(2, 1fr); }
   .reveal section.alt-split { grid-template-columns: 1fr; align-content: center; }
+  .layers-grid { grid-template-columns: 1fr; }
+  .layers-diagram svg { max-width: 20rem; }
 }
 
 /* ─────────────────────────────────── Reduced motion ── */
