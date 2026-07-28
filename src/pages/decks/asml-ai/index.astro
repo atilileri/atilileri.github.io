@@ -235,19 +235,19 @@ export function estimateTokens(text: string): number {
         <section class="layers" data-section="02 — How" data-layers>
           <span class="eyebrow">The mental model · after Matt Pocock</span>
           <h2 class="h-set">
-            <span class="h-line"><span>The model is only the middle</span></span>
+            <span class="h-line"><span>The model is only the engine</span></span>
           </h2>
           <div class="layers-grid">
             <div class="layers-diagram">
               <svg viewBox="0 0 460 460" role="img"
-                aria-label="Four nested layers: the model at the centre, wrapped by the harness, the two together forming the agent, all of it acting inside the environment."
+                aria-label="Three composable layers acting in an environment: the model at the centre, wrapped by the harness, wrapped by the skills you add, all of it running inside the environment. Together, in a loop, they are the agent."
               >
                 <circle class="ring env" cx="230" cy="230" r="205" />
-                <circle class="ring agent" cx="230" cy="230" r="150" />
+                <circle class="ring skills" cx="230" cy="230" r="150" />
                 <circle class="ring harness" cx="230" cy="230" r="100" />
                 <circle class="ring model" cx="230" cy="230" r="50" />
                 <text class="lbl env" x="230" y="43" text-anchor="middle">ENVIRONMENT</text>
-                <text class="lbl agent" x="230" y="97" text-anchor="middle">AGENT</text>
+                <text class="lbl skills" x="230" y="97" text-anchor="middle">SKILLS</text>
                 <text class="lbl harness" x="230" y="147" text-anchor="middle">HARNESS</text>
                 <text class="lbl model" x="230" y="236" text-anchor="middle">MODEL</text>
               </svg>
@@ -255,36 +255,54 @@ export function estimateTokens(text: string): number {
             <ol class="layers-defs">
               <li class="model">
                 <span class="k">Model</span>
-                <p>The core intelligence engine — Opus, GPT.</p>
+                <p>The core intelligence engine — Opus, GPT. Given; you swap it, you don't build it.</p>
               </li>
               <li class="harness">
                 <span class="k">Harness</span>
-                <p>The wrapper that drives it — Claude Code, ChatGPT, Codex.</p>
+                <p>The wrapper that drives it — Claude Code, ChatGPT, Copilot.</p>
               </li>
-              <li class="agent">
-                <span class="k">Agent</span>
-                <p>Model <em>+</em> harness, working as one unit.</p>
+              <li class="skills">
+                <span class="k">Skills</span>
+                <p><em>Yours</em> — the reusable playbooks you write and install on top of the harness. Capture a procedure once, reuse it for free.</p>
               </li>
               <li class="env">
                 <span class="k">Environment</span>
-                <p>Where the agent acts — your file system, your codebase.</p>
+                <p>Your codebase — the source of truth. Skills are only as good as it is: accurate, well-structured, well-documented.</p>
               </li>
             </ol>
+            <p class="layers-agent">
+              <span class="k">Agent</span> — not a layer. It's what these
+              <em>become</em> when you run them in a loop, acting in the
+              environment.
+            </p>
+            <p class="layers-take">
+              The model and the harness are <em>given</em>. What you actually
+              own is the <strong>skills</strong> you write and the
+              <strong>environment</strong> they act in.
+            </p>
           </div>
-          <p class="layers-take">
-            Everyone races to swap the <em>model</em>. It's a small part of the
-            picture — the <strong>harness</strong> and the
-            <strong>environment</strong> are roughly
-            <em class="hot">50%</em> of the result, and improving them is free.
-          </p>
           <aside class="notes">
-            Matt Pocock's framing for what an agent actually is. Point to the
-            centre and work outward: the model is the engine; the harness is the
-            wrapper that drives it; the two together are the agent; the
-            environment is the space it acts in. The takeaway is the reframe for
-            this whole talk — most people only ever swap the model, but half the
-            gain is sitting in the harness and the environment, and that half
-            costs nothing but attention.
+            After Matt Pocock's model / harness / agent / environment framing —
+            but adjusted for a coding room, and the adjustment is the point.
+            Work outward from the centre: the model is the engine (given — you
+            pick one, you don't build it); the harness is the wrapper that
+            drives it, and here it's also given — we're on a Copilot
+            subscription, so don't dwell on it; skills are the reusable
+            instruction packages you install on top, and they're already
+            working well — no change needed, just keep building them; the
+            environment is the codebase itself, and it's the one lever with
+            the most headroom: the more accurate and well-structured it is,
+            the better every skill performs on top of it. Note the swap out
+            loud: in every primary definition — Anthropic, OpenAI, Pocock's own
+            words — "agent" isn't a component, it's the NAME for these running
+            together in a loop. Pocock even defines the harness as "everything
+            that turns the model into an agent" — so agent is the output, not
+            an ingredient. The landing line: model and harness are given; what
+            you control — and what's worth the room's attention — are skills
+            and the environment they read from. And phrase the compounding as
+            "you build a reusable skill library on a codebase that's actually
+            true," not "the agent teaches itself" — self-authoring skills is
+            still aspirational (Anthropic). See docs/research for sourcing.
           </aside>
         </section>
 

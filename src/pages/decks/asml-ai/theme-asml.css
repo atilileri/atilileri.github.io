@@ -827,7 +827,9 @@
   transform-origin: center;
   opacity: 0;
   transform: scale(0.55);
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  /* Half-speed bloom: 2× --dur so the rings grow slowly, centre → outward. */
+  transition: opacity calc(var(--dur) * 2) var(--ease),
+    transform calc(var(--dur) * 2) var(--ease);
 }
 .layers-diagram .ring.model {
   fill: var(--orange);
@@ -837,10 +839,9 @@
   stroke: var(--signal);
   stroke-width: 3;
 }
-.layers-diagram .ring.agent {
+.layers-diagram .ring.skills {
   stroke: var(--navy);
-  stroke-width: 2;
-  stroke-dasharray: 7 7;
+  stroke-width: 3;
 }
 .layers-diagram .ring.env {
   stroke: #00327d55;
@@ -849,18 +850,11 @@
 /* Stagger the grow inner → outer. */
 .layers-diagram .ring.model { transition-delay: 0ms; }
 .layers-diagram .ring.harness { transition-delay: 90ms; }
-.layers-diagram .ring.agent { transition-delay: 180ms; }
+.layers-diagram .ring.skills { transition-delay: 180ms; }
 .layers-diagram .ring.env { transition-delay: 270ms; }
 .reveal section.layers.is-live .layers-diagram .ring {
   opacity: 1;
   transform: scale(1);
-}
-/* The agent boundary is a concept, not a layer — its dashes drift once live. */
-.reveal section.layers.is-live .layers-diagram .ring.agent {
-  animation: layers-dash 6s linear infinite;
-}
-@keyframes layers-dash {
-  to { stroke-dashoffset: -140; }
 }
 /* Ring labels — mono caps, haloed so they stay legible over the strokes. */
 .layers-diagram .lbl {
@@ -884,11 +878,11 @@
   letter-spacing: 0.06em;
 }
 .layers-diagram .lbl.harness { fill: var(--signal); }
-.layers-diagram .lbl.agent { fill: var(--navy); }
+.layers-diagram .lbl.skills { fill: var(--navy); }
 .layers-diagram .lbl.env { fill: #00327dcc; }
 .layers-diagram .lbl.model { transition-delay: 60ms; }
 .layers-diagram .lbl.harness { transition-delay: 150ms; }
-.layers-diagram .lbl.agent { transition-delay: 240ms; }
+.layers-diagram .lbl.skills { transition-delay: 240ms; }
 .layers-diagram .lbl.env { transition-delay: 330ms; }
 .reveal section.layers.is-live .layers-diagram .lbl { opacity: 1; }
 
@@ -917,10 +911,7 @@
 }
 .layers-defs .model::before { background: var(--orange); }
 .layers-defs .harness::before { background: var(--signal); }
-.layers-defs .agent::before {
-  background: var(--ground);
-  border: 2px dashed var(--navy);
-}
+.layers-defs .skills::before { background: var(--navy); }
 .layers-defs .env::before {
   background: transparent;
   border: 2px solid #00327d80;
@@ -939,15 +930,37 @@
   line-height: 1.4;
   max-width: 34ch;
 }
-.layers-defs .agent em {
-  color: var(--signal);
+.layers-defs .skills em {
   font-style: normal;
   font-weight: 600;
+  color: var(--navy);
+}
+/* "Agent" is not one of the rings — it's the word for the running whole.
+   A hairline-left callout under the list marks it as a different kind of thing. */
+.layers-agent {
+  margin: clamp(0.9rem, 2.2vh, 1.5rem) 0 0;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--signal);
+  font-size: clamp(0.85rem, 1.2vw, 1.02rem);
+  line-height: 1.45;
+  max-width: 36ch;
+  color: #00327dcc;
+}
+.layers-agent .k {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--navy);
+}
+.layers-agent em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--signal);
 }
 .layers-take {
-  margin-top: clamp(1.2rem, 3vh, 2rem);
-  max-width: 66ch;
-  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  margin: clamp(0.9rem, 2.2vh, 1.5rem) 0 0;
+  max-width: 38ch;
+  font-size: clamp(0.95rem, 1.35vw, 1.15rem);
+  line-height: 1.45;
 }
 
 /* ─────────────────────── Code demo with stepped focus ── */
