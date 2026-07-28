@@ -380,6 +380,40 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
+        <!-- 8b ─────────────────── RELIABILITY SCATTER (result quality × spend) -->
+        <section class="lottery" data-section="03 — The compound" data-lottery>
+          <span class="eyebrow">Animated · press &rarr; to level up</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Your results don&rsquo;t have to be a lottery</span></span>
+          </h2>
+          <div class="lottery-plot">
+            <svg data-lottery-svg viewBox="0 0 980 600" role="img"
+              aria-label="Result quality against tokens spent. A regular user's outputs are scattered across the whole field — some ship, most miss, several overshoot the budget. After the training, the same attempts converge into a tight cluster in the ship-ready, on-budget corner: consistent quality at a consistent, minimal spend."
+            ></svg>
+          </div>
+          <p class="lottery-cap">
+            <span data-lottery-stat class="stat">On&nbsp;target &mdash; ship-ready &amp; on&nbsp;budget:
+              <b class="stat-n">3</b> of 18</span>
+            <span class="lottery-sub" data-lottery-sub>Random prompts in, random results out. More tokens roughly buys more quality &mdash; but the spread is huge and much of the spend is wasted.</span>
+          </p>
+          <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
+          <aside class="notes">
+            The pay-off of the whole talk, in one motion. On entry the field is a
+            wide scatter with a real trend: more tokens roughly buys more quality
+            (bottom-left up to top-right), but the spread is enormous and it touches
+            all four quadrants — cheap misses, dear misses, lucky wins, expensive
+            wins. Narrate the lottery here before advancing: the correlation is real,
+            yet the outcome is a gamble and much of the spend is wasted. Press &rarr;
+            and the SAME attempts shift — this is a distribution moving, not a
+            collapse, and not two archetypes: it's you, after the best practices. The
+            whole cloud slides up and to the left — top quality now reached at a
+            fraction of the tokens, spend pulled left, spread tightened. A couple
+            still miss; that's honest. Land it: you stop paying for quality you can
+            now get cheaply, and you hit the mark far more often. On-target goes
+            3-of-18 to 16-of-18. Press &larr; to replay the scatter.
+          </aside>
+        </section>
+
         <!-- 9 ───────────────────── TWO-COLUMN SPLIT (nice-to-have) -->
         <section data-section="03 — The compound">
           <span class="eyebrow">Two-column layout</span>
@@ -689,6 +723,117 @@ export function estimateTokens(text: string): number {
             const w = el.getAttribute("data-w") ?? "0";
             el.style.width = w + "%";
           });
+      }
+
+      // ── Reliability scatter (result quality × spend) ──────────────
+      //    Deterministic, presenter-driven: on entry the same dots sit
+      //    scattered; a reveal fragment collapses them into the target box.
+      const LOT = {
+        VB: { w: 980, h: 600 },
+        // plot frame (x grows right = more tokens; y grows down = worse).
+        // Y0 sits high enough to leave room for the x-axis label beneath it.
+        X0: 130, XN: 930, Y0: 470, YN: 60,
+        xBudget: 530, yShip: 265, // thresholds at the MIDDLE of each axis
+        // 18 attempts. Both populations share the same truth — more tokens
+        // roughly buys more quality (a positive trend). before = a wide,
+        // noisy spray touching all four quadrants. after = the SAME truth
+        // shifted: high quality reached at far fewer tokens, spend narrowed
+        // toward the left, spread tightened. It's a distribution shift, not
+        // a collapse — a couple of attempts still miss.
+        before: [
+          [230, 400], [300, 340], [190, 300],
+          [380, 300], [450, 250], [500, 240], [430, 360], [560, 200], [610, 300],
+          [700, 180], [780, 140], [850, 120], [720, 240], [900, 160], [820, 220],
+          [300, 150], [840, 380], [560, 430],
+        ],
+        // still a positive trend — quality rises with tokens — but a flatter
+        // slope, pulled left and tightened. Best quality still costs a little
+        // more (right edge of the band); two attempts still miss.
+        after: [
+          [205, 250], [220, 200], [240, 255],
+          [255, 190], [270, 235], [290, 168], [300, 225], [315, 150], [330, 205],
+          [350, 140], [365, 215], [465, 120], [380, 150], [400, 195], [420, 120],
+          [445, 180], [560, 175], [455, 300],
+        ],
+        // strategically chosen attempts leave a dotted trail along their
+        // path, each teaching a distinct vector: up (quality at same spend),
+        // left (quality kept, tokens slashed), up-left (a dear miss rescued).
+        TRACE: [0, 11, 16],
+      };
+      function buildLottery(slide: HTMLElement) {
+        const svg = slide.querySelector<SVGSVGElement>("[data-lottery-svg]");
+        if (!svg || svg.dataset.built) return;
+        const NS = "http://www.w3.org/2000/svg";
+        const mk = (t: string, a: Record<string, string | number>) => {
+          const n = document.createElementNS(NS, t);
+          for (const k in a) n.setAttribute(k, String(a[k]));
+          return n;
+        };
+        const { X0, XN, Y0, YN, xBudget, yShip } = LOT;
+        // target zone
+        svg.append(mk("rect", {
+          x: X0, y: YN, width: xBudget - X0, height: yShip - YN,
+          rx: 10, class: "lot-zone",
+        }));
+        const zl = mk("text", { x: X0 + 14, y: YN + 30, class: "lot-zone-lbl" });
+        zl.textContent = "SHIP-READY · ON BUDGET";
+        svg.append(zl);
+        // axes
+        svg.append(mk("line", { x1: X0, y1: Y0, x2: XN, y2: Y0, class: "lot-axis" }));
+        svg.append(mk("line", { x1: X0, y1: Y0, x2: X0, y2: YN, class: "lot-axis" }));
+        // threshold guides
+        svg.append(mk("line", { x1: X0, y1: yShip, x2: XN, y2: yShip, class: "lot-guide" }));
+        svg.append(mk("line", { x1: xBudget, y1: Y0, x2: xBudget, y2: YN, class: "lot-guide" }));
+        // axis titles
+        const yt = mk("text", { x: X0 - 40, y: (Y0 + YN) / 2, class: "lot-axtitle",
+          transform: `rotate(-90 ${X0 - 40} ${(Y0 + YN) / 2})` });
+        yt.textContent = "Result quality →";
+        svg.append(yt);
+        const xt = mk("text", { x: (X0 + XN) / 2, y: Y0 + 42, class: "lot-axtitle" });
+        xt.textContent = "Tokens spent →";
+        svg.append(xt);
+        // threshold indicators, sat where each guide line meets its axis
+        const qb = mk("text", { x: X0 + 12, y: yShip - 12, class: "lot-thresh" });
+        qb.textContent = "acceptable quality";
+        svg.append(qb);
+        const bb = mk("text", {
+          x: xBudget - 12, y: Y0 - 14, class: "lot-thresh", "text-anchor": "end",
+        });
+        bb.textContent = "monthly budget";
+        svg.append(bb);
+        // dotted traces for the chosen few — drawn first so they sit BEHIND
+        // the dots; they fade in as the attempts travel (.go).
+        LOT.TRACE.forEach((i) => {
+          const [bx, by] = LOT.before[i];
+          const [ax, ay] = LOT.after[i];
+          svg.append(mk("line", {
+            x1: bx, y1: by, x2: ax, y2: ay, class: "lot-trace",
+          }));
+        });
+        // dots — base position is the AFTER coord; a per-dot translate offsets
+        // them out to the scattered BEFORE coord until the box collapses (.go).
+        LOT.before.forEach(([bx, by], i) => {
+          const [ax, ay] = LOT.after[i];
+          const c = mk("circle", { cx: ax, cy: ay, r: 12, class: "lot-dot" });
+          (c as SVGElement).setAttribute(
+            "style",
+            `--tf:translate(${bx - ax}px,${by - ay}px);--d:${(i % 6) * 40}ms`,
+          );
+          svg.append(c);
+        });
+        svg.dataset.built = "1";
+      }
+      function setLottery(slide: HTMLElement, collapsed: boolean) {
+        const svg = slide.querySelector<SVGSVGElement>("[data-lottery-svg]");
+        const stat = slide.querySelector<HTMLElement>("[data-lottery-stat] .stat-n");
+        const sub = slide.querySelector<HTMLElement>("[data-lottery-sub]");
+        if (!svg) return;
+        svg.classList.toggle("go", collapsed);
+        if (stat) stat.textContent = collapsed ? "16" : "3";
+        if (sub)
+          sub.textContent = collapsed
+            ? "Better practice in → top quality at a fraction of the tokens, spend pulled to the left, spread tightened. You aim, not gamble."
+            : "Random prompts in, random results out. More tokens roughly buys more quality — but the spread is huge and much of the spend is wasted.";
       }
 
       // ── "The one number" count-up ─────────────────────────────────
@@ -1114,6 +1259,16 @@ export function estimateTokens(text: string): number {
         }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
         if (slide.hasAttribute("data-terminal")) playTerminal(slide);
+        if (slide.hasAttribute("data-lottery")) {
+          buildLottery(slide);
+          // Match the visual to reveal's fragment state. Entering forward the
+          // collapse fragment isn't shown yet (→ scattered); entering backward
+          // from the next slide it's already shown (→ collapsed). Forcing
+          // "before" here would desync the arrows (right would find no
+          // fragment and skip the slide).
+          const frag = slide.querySelector<HTMLElement>("[data-lottery-collapse]");
+          setLottery(slide, !!frag?.classList.contains("visible"));
+        }
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
@@ -1124,6 +1279,18 @@ export function estimateTokens(text: string): number {
 
       deck.on("slidechanged", (e: any) => onShow(e.currentSlide as HTMLElement));
       deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
+
+      // The reliability scatter collapses on a fragment, replays on step-back.
+      deck.on("fragmentshown", (e: any) => {
+        const f = e.fragment as HTMLElement;
+        if (f?.hasAttribute("data-lottery-collapse"))
+          setLottery(f.closest("section") as HTMLElement, true);
+      });
+      deck.on("fragmenthidden", (e: any) => {
+        const f = e.fragment as HTMLElement;
+        if (f?.hasAttribute("data-lottery-collapse"))
+          setLottery(f.closest("section") as HTMLElement, false);
+      });
     </script>
   </body>
 </html>
