@@ -1,0 +1,877 @@
+---
+/**
+ * PROTOTYPE — throwaway. Wayfinder ticket #25 ("Prototype: the cost dial").
+ *
+ * Three radically different variants of the cost-dial slide, switchable via
+ * `?variant=A|B|C` (and the floating bar at the bottom / the `[` `]` keys).
+ *
+ * Hosted in a miniature reveal deck — one stand-in slide either side of the
+ * real thing — because the sharpest question is a *deck* question: what the
+ * clicker's `→` does on this slide when reveal already owns that key.
+ *
+ * Not production code. Winner gets rewritten properly into the real deck by
+ * the build ticket #27. Rates are the four #21-verified rows locked by #23.
+ */
+import "reveal.js/dist/reveal.css";
+import "./theme-asml.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>PROTOTYPE · The cost dial · #25</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- ── stand-in for slide 4 (credits) — context on the left ── -->
+        <section data-section="03 — Tokens">
+          <span class="eyebrow">The price tag · one number</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Tokens are the unit.</span></span>
+            <span class="h-line"><span>Credits are the price.</span></span>
+          </h2>
+          <p>1 AI credit = 1 cent. You get 12,000 a month.</p>
+          <p class="proto-dim">(stand-in slide — not part of the prototype)</p>
+        </section>
+
+        <!-- ── THE SLIDE UNDER TEST ── -->
+        <section data-section="03 — Tokens" data-dial>
+          <span class="eyebrow" data-eyebrow>The bill · interactive, drag the dials</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Three numbers</span></span>
+            <span class="h-line"><span>make the bill.</span></span>
+          </h2>
+
+          <!-- ─────────────────────────── VARIANT A — knobs + live equation ── -->
+          <div class="v" data-variant="A" hidden>
+            <div class="a-wrap">
+              <div class="a-knobs">
+                <div class="knob" data-knob="input">
+                  <svg viewBox="0 0 100 100" data-knob-svg>
+                    <circle class="k-track" cx="50" cy="50" r="40"></circle>
+                    <circle class="k-fill" cx="50" cy="50" r="40" data-knob-arc></circle>
+                    <line class="k-ptr" x1="50" y1="50" x2="50" y2="16" data-knob-ptr></line>
+                  </svg>
+                  <b class="k-val" data-knob-val>0</b>
+                  <span class="k-lab">input</span>
+                </div>
+                <div class="knob" data-knob="cached">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="k-track" cx="50" cy="50" r="40"></circle>
+                    <circle class="k-fill" cx="50" cy="50" r="40" data-knob-arc></circle>
+                    <line class="k-ptr" x1="50" y1="50" x2="50" y2="16" data-knob-ptr></line>
+                  </svg>
+                  <b class="k-val" data-knob-val>0</b>
+                  <span class="k-lab">cached</span>
+                </div>
+                <div class="knob" data-knob="output">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="k-track" cx="50" cy="50" r="40"></circle>
+                    <circle class="k-fill" cx="50" cy="50" r="40" data-knob-arc></circle>
+                    <line class="k-ptr" x1="50" y1="50" x2="50" y2="16" data-knob-ptr></line>
+                  </svg>
+                  <b class="k-val" data-knob-val>0</b>
+                  <span class="k-lab">output</span>
+                </div>
+              </div>
+
+              <div class="a-right">
+                <div class="a-eq" data-eq>
+                  <span class="t" data-term="input"
+                    ><b data-t-tok>0</b> <i>×</i> <b data-t-rate>0</b></span
+                  >
+                  <span class="op">+</span>
+                  <span class="t" data-term="cached"
+                    ><b data-t-tok>0</b> <i>×</i> <b data-t-rate>0</b></span
+                  >
+                  <span class="op">+</span>
+                  <span class="t" data-term="output"
+                    ><b data-t-tok>0</b> <i>×</i> <b data-t-rate>0</b></span
+                  >
+                </div>
+                <div class="a-total">
+                  <span class="tot-n" data-aic>0.0</span><span class="tot-u">AIC</span>
+                  <span class="tot-usd" data-usd>$0.00</span>
+                </div>
+                <div class="models" data-models></div>
+              </div>
+            </div>
+            <p class="caveat">Rates as of July 2026. Per 1M tokens.</p>
+          </div>
+
+          <!-- ───────────────────────────── VARIANT B — the receipt ── -->
+          <div class="v" data-variant="B" hidden>
+            <div class="b-wrap">
+              <div class="b-left">
+                <div class="b-tabs models" data-models></div>
+                <div class="b-rates" data-rates></div>
+              </div>
+              <div class="b-receipt">
+                <div class="b-row" data-row="input">
+                  <span class="b-lab">input</span>
+                  <input
+                    class="b-slider"
+                    type="range"
+                    data-slider="input"
+                    min="0"
+                    max="200000"
+                    step="1000"
+                  />
+                  <span class="b-tok" data-b-tok>0</span>
+                  <span class="b-rate" data-b-rate>× 0</span>
+                  <span class="b-sub" data-b-sub>0.00</span>
+                </div>
+                <div class="b-row" data-row="cached">
+                  <span class="b-lab">cached</span>
+                  <input
+                    class="b-slider"
+                    type="range"
+                    data-slider="cached"
+                    min="0"
+                    max="200000"
+                    step="1000"
+                  />
+                  <span class="b-tok" data-b-tok>0</span>
+                  <span class="b-rate" data-b-rate>× 0</span>
+                  <span class="b-sub" data-b-sub>0.00</span>
+                </div>
+                <div class="b-row" data-row="output">
+                  <span class="b-lab">output</span>
+                  <input
+                    class="b-slider"
+                    type="range"
+                    data-slider="output"
+                    min="0"
+                    max="20000"
+                    step="250"
+                  />
+                  <span class="b-tok" data-b-tok>0</span>
+                  <span class="b-rate" data-b-rate>× 0</span>
+                  <span class="b-sub" data-b-sub>0.00</span>
+                </div>
+                <div class="b-rule"></div>
+                <div class="b-row b-tot">
+                  <span class="b-lab">total</span>
+                  <span class="b-usd" data-usd>$0.00</span>
+                  <span class="b-sub" data-aic>0.0</span>
+                </div>
+              </div>
+            </div>
+            <p class="caveat">Rates as of July 2026. AIC per 1M tokens.</p>
+          </div>
+
+          <!-- ──────────────────── VARIANT C — stepped presets + spread ── -->
+          <div class="v" data-variant="C" hidden>
+            <div class="c-wrap">
+              <div class="c-left">
+                <div class="c-scenario" data-c-name>—</div>
+                <div class="c-mix">
+                  <div class="c-mixrow">
+                    <span>input</span><b data-c-tok="input">0</b>
+                    <div class="c-bar"><i data-c-bar="input"></i></div>
+                  </div>
+                  <div class="c-mixrow">
+                    <span>cached</span><b data-c-tok="cached">0</b>
+                    <div class="c-bar"><i data-c-bar="cached"></i></div>
+                  </div>
+                  <div class="c-mixrow">
+                    <span>output</span><b data-c-tok="output">0</b>
+                    <div class="c-bar"><i data-c-bar="output"></i></div>
+                  </div>
+                </div>
+                <p class="c-hint">
+                  <kbd>&rarr;</kbd> next scenario &nbsp;·&nbsp; <kbd>&darr;</kbd> next model
+                </p>
+              </div>
+              <div class="c-spread" data-spread></div>
+            </div>
+            <p class="caveat">Rates as of July 2026. Same tokens, every model.</p>
+          </div>
+
+          <aside class="notes">
+            Anthropic also bills cache *writes* at 1.25× input (Sonnet 375, Opus
+            625). Deliberately off-screen — the three dials understate Anthropic.
+          </aside>
+        </section>
+
+        <!-- ── stand-in for the lottery slide — context on the right ── -->
+        <section data-section="03 — The compound">
+          <span class="eyebrow">Animated · press &rarr; to level up</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Your results don&rsquo;t have to be a lottery</span></span>
+          </h2>
+          <p class="proto-dim">(stand-in slide — not part of the prototype)</p>
+        </section>
+      </div>
+    </div>
+
+    <!-- floating prototype switcher — deliberately NOT in the deck's design -->
+    <div class="proto-bar">
+      <button data-proto-prev aria-label="previous variant">&#8592;</button>
+      <span data-proto-label>A</span>
+      <button data-proto-next aria-label="next variant">&#8594;</button>
+      <em>PROTOTYPE #25 · <kbd>[</kbd> <kbd>]</kbd></em>
+    </div>
+
+    <!-- is:global — the model buttons, rate rows and model spread are injected
+         by the island script, so they carry no Astro scope attribute. -->
+    <style is:global>
+      .reveal .proto-dim {
+        color: #9a9a9a;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+      }
+      .reveal .caveat {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: #8a8a8a;
+        letter-spacing: 0.04em;
+        margin-top: 1rem;
+      }
+
+      /* floating switcher — obviously not part of the design under test */
+      .proto-bar {
+        position: fixed;
+        z-index: 90;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #111;
+        color: #fff;
+        border-radius: 999px;
+        padding: 7px 14px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        box-shadow: 0 8px 30px #0005;
+      }
+      .proto-bar button {
+        background: #333;
+        color: #fff;
+        border: 0;
+        border-radius: 999px;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+      }
+      .proto-bar em {
+        opacity: 0.55;
+        font-style: normal;
+      }
+      .proto-bar kbd {
+        background: #333;
+        color: #fff;
+        border: 0;
+      }
+
+      /* shared model selector */
+      .models {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .models button {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        padding: 0.5rem 0.85rem;
+        border: 1px solid var(--hair);
+        border-radius: 4px;
+        background: var(--card);
+        color: var(--navy);
+        cursor: pointer;
+        transition:
+          background var(--dur) var(--ease),
+          color var(--dur) var(--ease);
+      }
+      .models button[aria-pressed="true"] {
+        background: var(--signal);
+        color: #fff;
+        border-color: var(--signal);
+      }
+
+      /* ───────────────────────────────────── VARIANT A — knobs ── */
+      .a-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 3rem;
+        align-items: center;
+        margin-top: 1.4rem;
+      }
+      .a-knobs {
+        display: flex;
+        gap: 1.6rem;
+      }
+      .knob {
+        text-align: center;
+        width: 9.5rem;
+        cursor: ns-resize;
+        user-select: none;
+      }
+      .knob svg {
+        width: 100%;
+        display: block;
+      }
+      .k-track {
+        fill: none;
+        stroke: #e3e8f0;
+        stroke-width: 9;
+      }
+      .k-fill {
+        fill: none;
+        stroke: var(--signal);
+        stroke-width: 9;
+        stroke-linecap: round;
+        transform: rotate(135deg);
+        transform-origin: 50% 50%;
+        stroke-dasharray: 251;
+      }
+      .knob[data-hot] .k-fill {
+        stroke: var(--orange);
+      }
+      .k-ptr {
+        stroke: var(--navy);
+        stroke-width: 4;
+        stroke-linecap: round;
+        transform-origin: 50% 50%;
+      }
+      .k-val {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 1.2rem;
+        color: var(--navy);
+        margin-top: 0.35rem;
+      }
+      .k-lab {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: #8a8a8a;
+      }
+      .a-eq {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+        font-family: var(--font-mono);
+        font-size: 0.95rem;
+        color: #9aa3b0;
+      }
+      .a-eq .t {
+        padding: 0.28rem 0.5rem;
+        border-radius: 4px;
+        transition: all var(--dur) var(--ease);
+      }
+      .a-eq .t b {
+        color: var(--navy);
+        font-weight: 500;
+      }
+      .a-eq .t i {
+        font-style: normal;
+        opacity: 0.45;
+      }
+      .a-eq .t.lit {
+        background: #0066cc14;
+      }
+      .a-eq .t.lit b {
+        color: var(--signal);
+      }
+      .a-total {
+        margin: 1.1rem 0 1.3rem;
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+      }
+      .tot-n {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(3rem, 7vw, 5.4rem);
+        color: var(--navy);
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .tot-u {
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        color: var(--signal);
+        letter-spacing: 0.12em;
+      }
+      .tot-usd {
+        font-family: var(--font-mono);
+        font-size: 1.1rem;
+        color: var(--orange);
+        margin-left: 0.6rem;
+      }
+
+      /* ─────────────────────────────────── VARIANT B — receipt ── */
+      .b-wrap {
+        display: grid;
+        grid-template-columns: 0.85fr 1.3fr;
+        gap: 2.6rem;
+        margin-top: 1.4rem;
+        align-items: start;
+      }
+      .b-tabs {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .b-rates {
+        margin-top: 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        color: #7b8494;
+        border-top: 1px solid var(--hair);
+        padding-top: 0.7rem;
+      }
+      .b-rates div {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.18rem 0;
+      }
+      .b-rates b {
+        color: var(--navy);
+        font-weight: 500;
+      }
+      .b-receipt {
+        background: var(--card);
+        border: 1px solid var(--hair);
+        box-shadow: var(--shadow);
+        padding: 1.4rem 1.6rem;
+      }
+      .b-row {
+        display: grid;
+        grid-template-columns: 4.6rem 1fr 5rem 4.6rem 5.4rem;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.5rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.86rem;
+      }
+      .b-lab {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.68rem;
+        color: #8a8a8a;
+      }
+      .b-tok,
+      .b-sub {
+        text-align: right;
+        color: var(--navy);
+        font-variant-numeric: tabular-nums;
+      }
+      .b-rate {
+        text-align: right;
+        color: #a6adb9;
+      }
+      .b-slider {
+        width: 100%;
+        accent-color: var(--signal);
+      }
+      .b-rule {
+        border-top: 2px solid var(--navy);
+        margin: 0.6rem 0;
+      }
+      .b-tot {
+        grid-template-columns: 4.6rem 1fr 5.4rem;
+      }
+      .b-usd {
+        text-align: right;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 2.6rem;
+        color: var(--navy);
+        font-variant-numeric: tabular-nums;
+      }
+      .b-tot .b-sub {
+        color: var(--orange);
+      }
+
+      /* ───────────────────────────── VARIANT C — presets + spread ── */
+      .c-wrap {
+        display: grid;
+        grid-template-columns: 0.9fr 1.25fr;
+        gap: 3rem;
+        margin-top: 1.4rem;
+        align-items: start;
+      }
+      .c-scenario {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.9rem;
+        color: var(--navy);
+        margin-bottom: 1rem;
+        line-height: 1.1;
+      }
+      .c-mixrow {
+        display: grid;
+        grid-template-columns: 4.4rem 5rem 1fr;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: #8a8a8a;
+        padding: 0.22rem 0;
+      }
+      .c-mixrow b {
+        color: var(--navy);
+        font-weight: 500;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .c-bar {
+        height: 8px;
+        background: #e6ebf3;
+      }
+      .c-bar i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--signal);
+        transition: width var(--dur) var(--ease);
+      }
+      .reveal .c-hint {
+        margin-top: 1.2rem;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: #9aa3b0;
+      }
+      .c-model {
+        display: grid;
+        grid-template-columns: 10.5rem 1fr 7.5rem;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.45rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.86rem;
+        color: #8a8a8a;
+        opacity: 0.55;
+        transition: opacity var(--dur) var(--ease);
+      }
+      .c-model[data-on] {
+        opacity: 1;
+        color: var(--navy);
+      }
+      .c-cost {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        color: var(--navy);
+      }
+      .c-cost s {
+        text-decoration: none;
+        color: #a6adb9;
+        margin-left: 0.4rem;
+      }
+      .c-mbar {
+        height: 14px;
+        background: #e6ebf3;
+      }
+      .c-mbar i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--signal);
+        transition: width var(--dur) var(--ease);
+      }
+      .c-model[data-on] .c-mbar i {
+        background: var(--orange);
+      }
+    </style>
+
+    <script>
+      import Reveal from "reveal.js";
+      import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
+
+      // ── the four #21-verified rows locked by #23 (AIC per 1M tokens) ──
+      type Model = { id: string; name: string; input: number; cached: number; output: number };
+      const MODELS: Model[] = [
+        { id: "flash", name: "Gemini 3 Flash", input: 50, cached: 5, output: 300 },
+        { id: "gpt", name: "GPT-5.4", input: 250, cached: 25, output: 1500 },
+        { id: "sonnet", name: "Sonnet 4.5", input: 300, cached: 30, output: 1500 },
+        { id: "opus", name: "Opus 4.6", input: 500, cached: 50, output: 2500 },
+      ];
+      type Key = "input" | "cached" | "output";
+      const KEYS: Key[] = ["input", "cached", "output"];
+      const MAX: Record<Key, number> = { input: 200000, cached: 200000, output: 20000 };
+      // Atil's worked example, re-based on the locked lineup.
+      const PRESET: Record<Key, number> = { input: 20000, cached: 60000, output: 3000 };
+
+      const state = { ...PRESET, model: 0 };
+      const aicOf = (m: Model, t = state) =>
+        (t.input * m.input + t.cached * m.cached + t.output * m.output) / 1e6;
+      const fmt = (n: number) => n.toLocaleString("en-US");
+      const aicStr = (n: number) => (n < 10 ? n.toFixed(2) : n.toFixed(1));
+      const usdStr = (n: number) => "$" + (n / 100).toFixed(n < 100 ? 3 : 2);
+
+      const deck = new Reveal({
+        hash: true,
+        width: 1600,
+        height: 900,
+        margin: 0.04,
+        center: false,
+        controls: true,
+        progress: true,
+        transition: "slide",
+        plugins: [RevealNotes],
+      });
+      deck.initialize();
+
+      // ── variant switching ─────────────────────────────────────────
+      const VARIANTS = ["A", "B", "C"] as const;
+      const NAMES: Record<string, string> = {
+        A: "Knobs + live equation",
+        B: "Receipt (sliders + rate table)",
+        C: "Stepped presets + model spread",
+      };
+      let variant =
+        (new URLSearchParams(location.search).get("variant") ?? "A").toUpperCase();
+      if (!VARIANTS.includes(variant as any)) variant = "A";
+
+      const label = document.querySelector("[data-proto-label]")!;
+      const eyebrow = document.querySelector("[data-eyebrow]")!;
+      function applyVariant() {
+        document.querySelectorAll<HTMLElement>("[data-variant]").forEach((el) => {
+          el.hidden = el.dataset.variant !== variant;
+        });
+        label.textContent = `${variant} — ${NAMES[variant]}`;
+        eyebrow.textContent =
+          variant === "C"
+            ? "The bill · stepped, press → to compare"
+            : "The bill · interactive, drag the dials";
+        const u = new URL(location.href);
+        u.searchParams.set("variant", variant);
+        history.replaceState(null, "", u);
+        render();
+      }
+      function cycle(d: number) {
+        const i = VARIANTS.indexOf(variant as any);
+        variant = VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length];
+        applyVariant();
+      }
+      document.querySelector("[data-proto-prev]")!.addEventListener("click", () => cycle(-1));
+      document.querySelector("[data-proto-next]")!.addEventListener("click", () => cycle(1));
+      addEventListener("keydown", (e) => {
+        if (e.key === "[") cycle(-1);
+        if (e.key === "]") cycle(1);
+      });
+
+      // ── model selectors (A + B share the markup hook) ──────────────
+      document.querySelectorAll<HTMLElement>("[data-models]").forEach((host) => {
+        MODELS.forEach((m, i) => {
+          const b = document.createElement("button");
+          b.textContent = m.name;
+          b.addEventListener("click", () => {
+            state.model = i;
+            render();
+          });
+          host.appendChild(b);
+        });
+      });
+
+      // ── A: knobs. drag vertically; arrow keys when focused ─────────
+      document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
+        const key = el.dataset.knob as Key;
+        el.tabIndex = 0;
+        let dragging = false;
+        let startY = 0;
+        let startV = 0;
+        el.addEventListener("pointerdown", (e) => {
+          dragging = true;
+          startY = e.clientY;
+          startV = state[key];
+          el.setPointerCapture(e.pointerId);
+        });
+        el.addEventListener("pointermove", (e) => {
+          if (!dragging) return;
+          const delta = ((startY - e.clientY) / 220) * MAX[key];
+          state[key] = Math.max(0, Math.min(MAX[key], Math.round((startV + delta) / 500) * 500));
+          render(key);
+        });
+        el.addEventListener("pointerup", () => (dragging = false));
+      });
+
+      // ── B: sliders ────────────────────────────────────────────────
+      document.querySelectorAll<HTMLInputElement>("[data-slider]").forEach((el) => {
+        el.addEventListener("input", () => {
+          state[el.dataset.slider as Key] = Number(el.value);
+          render(el.dataset.slider as Key);
+        });
+      });
+
+      // ── C: stepped scenarios ──────────────────────────────────────
+      const SCENARIOS = [
+        { name: "One quick question", input: 2000, cached: 0, output: 400 },
+        { name: "A code review", input: 20000, cached: 60000, output: 3000 },
+        { name: "A long agent session", input: 120000, cached: 400000, output: 14000 },
+      ];
+      let scenario = 1;
+      function applyScenario() {
+        const s = SCENARIOS[scenario];
+        state.input = s.input;
+        state.cached = s.cached;
+        state.output = s.output;
+        render();
+      }
+
+      // C wants → for scenarios, but reveal owns → for slides. Capture it
+      // only while the dial slide is live and steps remain.
+      addEventListener(
+        "keydown",
+        (e) => {
+          if (variant !== "C") return;
+          const cur = deck.getCurrentSlide() as HTMLElement;
+          if (!cur?.hasAttribute("data-dial")) return;
+          if (e.key === "ArrowRight" && scenario < SCENARIOS.length - 1) {
+            scenario++;
+            applyScenario();
+            e.stopPropagation();
+            e.preventDefault();
+          } else if (e.key === "ArrowLeft" && scenario > 0) {
+            scenario--;
+            applyScenario();
+            e.stopPropagation();
+            e.preventDefault();
+          } else if (e.key === "ArrowDown") {
+            state.model = (state.model + 1) % MODELS.length;
+            render();
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        },
+        true,
+      );
+
+      // ── C: the persistent four-model spread ───────────────────────
+      const spread = document.querySelector<HTMLElement>("[data-spread]")!;
+      MODELS.forEach((m) => {
+        spread.insertAdjacentHTML(
+          "beforeend",
+          `<div class="c-model" data-m="${m.id}"><span>${m.name}</span>
+             <div class="c-mbar"><i></i></div>
+             <span class="c-cost"><b data-c-aic>0</b> AIC<s data-c-usd></s></span></div>`,
+        );
+      });
+
+      // ── B: rate table ─────────────────────────────────────────────
+      const rates = document.querySelector<HTMLElement>("[data-rates]")!;
+
+      // ── count-up on the big totals ────────────────────────────────
+      const shown = new WeakMap<HTMLElement, number>();
+      function countTo(el: HTMLElement, target: number, f: (n: number) => string) {
+        const from = shown.get(el) ?? 0;
+        shown.set(el, target);
+        const t0 = performance.now();
+        const step = (t: number) => {
+          const p = Math.min(1, (t - t0) / 420);
+          const e = 1 - Math.pow(1 - p, 3);
+          el.textContent = f(from + (target - from) * e);
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+
+      // ── render everything from state ──────────────────────────────
+      let litTimer = 0;
+      function render(touched?: Key) {
+        const m = MODELS[state.model];
+        const total = aicOf(m);
+
+        document.querySelectorAll<HTMLElement>(".models button").forEach((b, i) => {
+          b.setAttribute("aria-pressed", String(i % MODELS.length === state.model));
+        });
+
+        // A — knobs, equation, totals
+        document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
+          const key = el.dataset.knob as Key;
+          const frac = state[key] / MAX[key];
+          const arc = el.querySelector<SVGElement>("[data-knob-arc]")!;
+          arc.style.strokeDasharray = `${frac * 188} 251`;
+          el.querySelector<SVGElement>("[data-knob-ptr]")!.style.transform =
+            `rotate(${135 + frac * 270}deg)`;
+          el.querySelector<HTMLElement>("[data-knob-val]")!.textContent = fmt(state[key]);
+          el.toggleAttribute("data-hot", touched === key);
+        });
+        document.querySelectorAll<HTMLElement>("[data-term]").forEach((el) => {
+          const key = el.dataset.term as Key;
+          el.querySelector<HTMLElement>("[data-t-tok]")!.textContent = fmt(state[key]);
+          el.querySelector<HTMLElement>("[data-t-rate]")!.textContent = String(m[key]);
+          el.classList.toggle("lit", touched === key);
+        });
+        clearTimeout(litTimer);
+        litTimer = window.setTimeout(() => {
+          document.querySelectorAll(".a-eq .t.lit").forEach((e) => e.classList.remove("lit"));
+          document.querySelectorAll("[data-knob]").forEach((e) => e.removeAttribute("data-hot"));
+        }, 900);
+
+        document.querySelectorAll<HTMLElement>("[data-aic]").forEach((el) => {
+          countTo(el, total, aicStr);
+        });
+        document.querySelectorAll<HTMLElement>("[data-usd]").forEach((el) => {
+          countTo(el, total, usdStr);
+        });
+
+        // B — sliders, rate table, receipt rows
+        document.querySelectorAll<HTMLInputElement>("[data-slider]").forEach((el) => {
+          el.value = String(state[el.dataset.slider as Key]);
+        });
+        rates.innerHTML = KEYS.map(
+          (k) => `<div><span>${k}</span><b>${m[k]} AIC / 1M</b></div>`,
+        ).join("");
+        document.querySelectorAll<HTMLElement>("[data-row]").forEach((row) => {
+          const key = row.dataset.row as Key;
+          row.querySelector<HTMLElement>("[data-b-tok]")!.textContent = fmt(state[key]);
+          row.querySelector<HTMLElement>("[data-b-rate]")!.textContent = `× ${m[key]}`;
+          row.querySelector<HTMLElement>("[data-b-sub]")!.textContent = (
+            (state[key] * m[key]) / 1e6
+          ).toFixed(2);
+        });
+
+        // C — scenario, mix bars, four-model spread
+        document.querySelector<HTMLElement>("[data-c-name]")!.textContent =
+          SCENARIOS[scenario].name;
+        KEYS.forEach((k) => {
+          document.querySelector<HTMLElement>(`[data-c-tok="${k}"]`)!.textContent = fmt(state[k]);
+          document.querySelector<HTMLElement>(`[data-c-bar="${k}"]`)!.style.width =
+            `${Math.min(100, (state[k] / MAX[k]) * 100)}%`;
+        });
+        const costs = MODELS.map((mm) => aicOf(mm));
+        const peak = Math.max(...costs, 0.0001);
+        MODELS.forEach((mm, i) => {
+          const row = spread.querySelector<HTMLElement>(`[data-m="${mm.id}"]`)!;
+          row.toggleAttribute("data-on", i === state.model);
+          row.querySelector<HTMLElement>(".c-mbar i")!.style.width = `${(costs[i] / peak) * 100}%`;
+          row.querySelector<HTMLElement>("[data-c-aic]")!.textContent = aicStr(costs[i]);
+          row.querySelector<HTMLElement>("[data-c-usd]")!.textContent = usdStr(costs[i]);
+        });
+      }
+
+      // deterministic replay on slide entry — every variant resets to preset
+      function onShow(slide: HTMLElement) {
+        document
+          .querySelectorAll(".reveal section.is-live")
+          .forEach((s) => s.classList.remove("is-live"));
+        void slide.offsetWidth;
+        slide.classList.add("is-live");
+        if (slide.hasAttribute("data-dial")) {
+          Object.assign(state, PRESET);
+          state.model = 0;
+          scenario = 1;
+          document
+            .querySelectorAll<HTMLElement>("[data-aic],[data-usd]")
+            .forEach((el) => shown.set(el, 0));
+          render();
+        }
+      }
+      deck.on("slidechanged", (e: any) => onShow(e.currentSlide));
+      deck.on("ready", (e: any) => onShow(e.currentSlide));
+
+      applyVariant();
+    </script>
+  </body>
+</html>
