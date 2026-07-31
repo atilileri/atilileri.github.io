@@ -1,0 +1,755 @@
+---
+/**
+ * PROTOTYPE — throwaway. Wayfinder ticket #24.
+ *
+ * Question: for slide 3 of map #20 ("The model never sees your words"), which
+ * 3D technique carries the embedding cloud —
+ *   A. hand-rolled SVG perspective projection, or
+ *   B. CSS 3D transforms on real DOM chips?
+ * And: does the cloud fake semantic clustering, or is it pure hash scatter?
+ *
+ * Two variants on one route, switchable via `?variant=A|B`; clustering via
+ * `?cluster=on|off`. Mounted inside a real reveal.js slide at the deck's real
+ * 1600×900 canvas with the real ASML Editorial theme, so "does it read on a
+ * projector" is a fair question here. Copy is verbatim from #23.
+ *
+ * Route: /decks/asml-ai/prototype-tokenizer-3d — delete before merge to main.
+ */
+import "reveal.js/dist/reveal.css";
+import "./theme-asml.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>PROTOTYPE · tokenizer + 3D embedding space</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-section="03 — Tokens" data-embed>
+          <span class="eyebrow">The vocabulary &middot; live, type anything</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>The model never</span></span>
+            <span class="h-line"><span>sees your words.</span></span>
+          </h2>
+          <p class="lede">
+            Every token is just an index into a fixed vocabulary &mdash; around
+            200,000 entries for a current frontier model.
+          </p>
+
+          <div class="embed">
+            <!-- ── left panel: typing → chips with IDs ── -->
+            <div class="embed-left">
+              <textarea
+                class="emb-input"
+                spellcheck="false"
+                data-emb-input>The engineer asked the model about budget, then wrote a function.</textarea
+              >
+              <div class="emb-chips" data-emb-chips></div>
+              <div class="emb-meter">
+                <span class="emb-count"><b data-emb-n>0</b> tokens</span>
+                <span class="emb-price" data-emb-price></span>
+              </div>
+              <p class="emb-cap">
+                IDs are addresses, not values. Meaning lives in what they point at. &rarr;
+              </p>
+            </div>
+
+            <!-- ── right panel: the 3D cloud (variant-swapped) ── -->
+            <div class="embed-right">
+              <div class="cloud" data-cloud>
+                <!-- variant A renders an <svg> here; variant B a CSS-3D stage -->
+              </div>
+              <p class="emb-cap emb-cap-right">
+                Similar meanings land near each other.<br />
+                A 3D shadow of a 1,536-dimensional space.
+              </p>
+            </div>
+          </div>
+
+          <p class="emb-note">
+            Approximate tokenizer (&asymp; chars &divide; 4), illustrative embedding
+            space. The counting is real; the geometry is a sketch.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── prototype switcher (obviously not part of the design) ── -->
+    <div class="proto-bar">
+      <button data-proto-prev aria-label="previous variant">&larr;</button>
+      <span class="proto-label" data-proto-label></span>
+      <button data-proto-next aria-label="next variant">&rarr;</button>
+      <span class="proto-sep"></span>
+      <button data-proto-cluster>clustering: ?</button>
+      <button data-proto-stress>stress: 40 chips</button>
+      <span class="proto-fps" data-proto-fps>&mdash;</span>
+    </div>
+
+    <style is:global>
+      /* ───────── prototype-only styling (throwaway) ───────── */
+      .reveal .lede {
+        font-size: clamp(0.95rem, 1.35vw, 1.3rem);
+        max-width: 46ch;
+        color: #1b1b1bcc;
+        margin: 0.4rem 0 1.1rem;
+      }
+      .embed {
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: clamp(1.2rem, 3vw, 2.6rem);
+        align-items: start;
+        flex: 1;
+        min-height: 0;
+      }
+      .embed-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-height: 0;
+      }
+      .emb-input {
+        font-family: var(--font-body);
+        font-size: clamp(0.85rem, 1.15vw, 1.05rem);
+        line-height: 1.5;
+        color: var(--navy);
+        background: var(--card);
+        border: 1px solid var(--hair);
+        border-radius: 4px;
+        padding: 0.85rem 1rem;
+        height: 5.4em;
+        resize: none;
+        outline: none;
+        box-shadow: var(--shadow);
+      }
+      .emb-input:focus {
+        border-color: var(--signal);
+      }
+      .emb-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        align-content: flex-start;
+        overflow: hidden;
+        flex: 1;
+        min-height: 0;
+      }
+      .chip {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+        padding: 0.2rem 0.42rem 0.16rem;
+        border-radius: 3px;
+        background: #0066cc12;
+        border: 1px solid #0066cc2e;
+        font-family: var(--font-mono);
+        line-height: 1.1;
+        animation: chipIn 260ms var(--ease) both;
+      }
+      .chip .t {
+        font-size: clamp(0.72rem, 0.95vw, 0.92rem);
+        color: var(--navy);
+        white-space: pre;
+      }
+      .chip .id {
+        font-size: clamp(0.5rem, 0.62vw, 0.62rem);
+        color: #0066cc;
+        opacity: 0.75;
+        letter-spacing: 0.04em;
+      }
+      .chip.clustered {
+        background: #ff660014;
+        border-color: #ff66003d;
+      }
+      @keyframes chipIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px) scale(0.94);
+        }
+      }
+      .reveal .emb-meter {
+        display: flex;
+        align-items: baseline;
+        gap: 1.1rem;
+        font-family: var(--font-mono);
+        font-size: clamp(0.66rem, 0.85vw, 0.82rem);
+        color: #1b1b1b99;
+      }
+      .reveal .emb-meter b {
+        font-size: clamp(1.1rem, 1.7vw, 1.6rem);
+        color: var(--orange);
+        font-weight: 700;
+      }
+      .emb-price span {
+        color: var(--navy);
+      }
+      .reveal .emb-cap {
+        font-family: var(--font-mono);
+        font-size: clamp(0.6rem, 0.78vw, 0.76rem);
+        letter-spacing: 0.03em;
+        color: #1b1b1b8c;
+        margin: 0;
+      }
+      .reveal .emb-cap-right {
+        text-align: right;
+      }
+      .reveal .emb-note {
+        font-family: var(--font-mono);
+        font-size: clamp(0.55rem, 0.7vw, 0.68rem);
+        color: #1b1b1b73;
+        margin: 0.9rem 0 0;
+      }
+      .embed-right {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-height: 0;
+        height: 100%;
+      }
+      .cloud {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        background: var(--card);
+        border: 1px solid var(--hair);
+        border-radius: 4px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      /* variant B stage */
+      .stage {
+        position: absolute;
+        inset: 0;
+        perspective: 900px;
+        perspective-origin: 50% 50%;
+      }
+      .stage-inner {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform-style: preserve-3d;
+        will-change: transform;
+      }
+      .stage-floor {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 460px;
+        height: 460px;
+        margin: -230px 0 0 -230px;
+        transform: rotateX(90deg) translateZ(-150px);
+        background:
+          repeating-linear-gradient(0deg, #0066cc1f 0 1px, transparent 1px 46px),
+          repeating-linear-gradient(90deg, #0066cc1f 0 1px, transparent 1px 46px);
+      }
+      .pt {
+        position: absolute;
+        transform-style: preserve-3d;
+        font-family: var(--font-mono);
+        font-size: 15px;
+        line-height: 1;
+        white-space: pre;
+        color: var(--navy);
+        background: #ffffffd9;
+        border: 1px solid #0066cc33;
+        border-radius: 3px;
+        padding: 2px 5px;
+        will-change: transform, opacity;
+      }
+      .pt.hot {
+        color: #b34700;
+        border-color: #ff660052;
+        background: #fff6f0e6;
+      }
+
+      /* ───────── switcher bar ───────── */
+      .proto-bar {
+        position: fixed;
+        z-index: 99;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: #10141c;
+        color: #fff;
+        font: 500 12px/1 ui-monospace, monospace;
+        box-shadow: 0 10px 30px -8px #000a;
+      }
+      .proto-bar button {
+        background: #ffffff1a;
+        color: #fff;
+        border: 0;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font: inherit;
+        cursor: pointer;
+      }
+      .proto-bar button:hover {
+        background: #ffffff33;
+      }
+      .proto-label {
+        min-width: 20ch;
+        text-align: center;
+        color: #ffcda6;
+      }
+      .proto-sep {
+        width: 1px;
+        height: 18px;
+        background: #ffffff33;
+      }
+      .proto-fps {
+        color: #9fe6a0;
+        min-width: 7ch;
+        text-align: right;
+      }
+    </style>
+
+    <script>
+      import Reveal from "reveal.js";
+
+      const deck = new Reveal({
+        width: 1600,
+        height: 900,
+        margin: 0.04,
+        center: false,
+        controls: false,
+        progress: false,
+        hash: false,
+        keyboard: false, // prototype: arrows drive the variant switcher
+      });
+      deck.initialize();
+
+      /* ══════════════════ shared: hand-rolled pseudo-tokenizer ══════════════════
+         Not BPE. Whitespace/punctuation split, peel common affixes, chop long
+         stems, stable hashed ID into a ~200k vocab. Must look convincing on
+         arbitrary typed prose — that is the whole bar. */
+
+      const PREFIX = ["un", "re", "pre", "dis", "non", "over", "under", "inter", "sub", "mis"];
+      const SUFFIX = ["ing", "tion", "ness", "ment", "able", "ible", "ally", "ed", "ly", "er", "est", "ful", "ize", "ise", "ity", "es", "s"];
+
+      function hash32(s: string): number {
+        let h = 2166136261;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return h >>> 0;
+      }
+      const tokenId = (piece: string) => hash32(piece) % 199_998; // ~200k vocab
+
+      function splitWord(word: string): string[] {
+        const out: string[] = [];
+        let w = word;
+        if (w.length > 6) {
+          for (const p of PREFIX) {
+            if (w.toLowerCase().startsWith(p) && w.length - p.length >= 3) {
+              out.push(w.slice(0, p.length));
+              w = w.slice(p.length);
+              break;
+            }
+          }
+        }
+        let tail = "";
+        if (w.length > 5) {
+          for (const s of SUFFIX) {
+            if (w.toLowerCase().endsWith(s) && w.length - s.length >= 3) {
+              tail = w.slice(w.length - s.length);
+              w = w.slice(0, w.length - s.length);
+              break;
+            }
+          }
+        }
+        // chop what's left into believable 4–6 char stems
+        while (w.length > 7) {
+          const n = 4 + (hash32(w) % 3);
+          out.push(w.slice(0, n));
+          w = w.slice(n);
+        }
+        if (w) out.push(w);
+        if (tail) out.push(tail);
+        return out;
+      }
+
+      type Tok = { text: string; id: number };
+
+      function tokenize(text: string): Tok[] {
+        const toks: Tok[] = [];
+        // a leading space rides with its word, GPT-style
+        const parts = text.match(/\s+|[A-Za-z]+|\d+|[^\sA-Za-z\d]/g) ?? [];
+        let pendingSpace = "";
+        for (const part of parts) {
+          if (/^\s+$/.test(part)) {
+            // newlines are their own token; a single space rides along
+            if (part.includes("\n")) {
+              toks.push({ text: "\\n", id: tokenId("\n") });
+              pendingSpace = "";
+            } else {
+              pendingSpace = " ";
+              if (part.length > 1) {
+                toks.push({ text: "␣".repeat(part.length - 1), id: tokenId(part) });
+              }
+            }
+            continue;
+          }
+          const pieces = /^[A-Za-z]+$/.test(part) ? splitWord(part) : [part];
+          pieces.forEach((p, i) => {
+            const text = i === 0 ? pendingSpace + p : p;
+            toks.push({ text, id: tokenId(text.trim().toLowerCase()) });
+          });
+          pendingSpace = "";
+        }
+        return toks;
+      }
+
+      /* ══════════════════ shared: pseudo-embedding positions ══════════════════
+         Hash scatter by default. With clustering on, a small hand-seeded table
+         pulls related words toward a shared centre; everything unknown falls
+         back to hash — which is the case Atil typing unplanned words hits. */
+
+      const CLUSTERS: Record<string, string[]> = {
+        creature: ["cat", "dog", "wolf", "bird", "horse", "fish", "mouse", "lion", "animal", "bear"],
+        colour: ["red", "blue", "green", "orange", "purple", "black", "white", "yellow", "colour", "color"],
+        code: ["function", "return", "const", "class", "import", "async", "token", "model", "code", "api", "type", "null", "func", "vari", "prompt"],
+        money: ["cost", "price", "budget", "credit", "euro", "dollar", "spend", "bill", "cent", "pay", "invoice"],
+        people: ["team", "manager", "engineer", "customer", "user", "client", "people", "board", "exec"],
+        time: ["day", "week", "month", "year", "hour", "minute", "today", "soon", "later"],
+      };
+      const CLUSTER_KEYS = Object.keys(CLUSTERS);
+      const LOOKUP = new Map<string, string>();
+      for (const k of CLUSTER_KEYS) for (const w of CLUSTERS[k]) LOOKUP.set(w, k);
+
+      const R = 150; // cloud radius in cloud-space units
+
+      function centreOf(key: string): [number, number, number] {
+        const i = CLUSTER_KEYS.indexOf(key);
+        const golden = Math.PI * (3 - Math.sqrt(5));
+        const y = 1 - (i / (CLUSTER_KEYS.length - 1)) * 2;
+        const r = Math.sqrt(Math.max(0, 1 - y * y));
+        const th = golden * i;
+        return [Math.cos(th) * r * R * 0.72, y * R * 0.6, Math.sin(th) * r * R * 0.72];
+      }
+
+      /** deterministic position for a token; `cluster` toggles the seeded table */
+      function place(tok: Tok, cluster: boolean): { p: [number, number, number]; hot: boolean } {
+        const word = tok.text.trim().toLowerCase();
+        const h = hash32(word || tok.text);
+        const u = ((h >>> 0) % 1000) / 1000;
+        const v = ((h >>> 10) % 1000) / 1000;
+        const w = ((h >>> 20) % 1000) / 1000;
+        const key = cluster ? LOOKUP.get(word) : undefined;
+        if (key) {
+          const c = centreOf(key);
+          const j = R * 0.16;
+          return { p: [c[0] + (u - 0.5) * j, c[1] + (v - 0.5) * j, c[2] + (w - 0.5) * j], hot: true };
+        }
+        // hash scatter over the ball
+        const th = u * Math.PI * 2;
+        const ph = Math.acos(2 * v - 1);
+        const rad = R * (0.35 + 0.65 * Math.cbrt(w));
+        return {
+          p: [rad * Math.sin(ph) * Math.cos(th), rad * Math.cos(ph) * 0.75, rad * Math.sin(ph) * Math.sin(th)],
+          hot: false,
+        };
+      }
+
+      /* ══════════════════ shared: price readout ══════════════════
+         AIC per 1M input tokens, #21-verified rates (see #23's table). */
+      const RATES: [string, number][] = [
+        ["Gemini 3 Flash", 50],
+        ["GPT-5.4", 250],
+        ["Sonnet 4.5", 300],
+        ["Opus 4.6", 500],
+      ];
+
+      /* ══════════════════ variant renderers ══════════════════ */
+
+      type Renderer = {
+        name: string;
+        mount: (host: HTMLElement) => void;
+        set: (toks: Tok[], cluster: boolean) => void;
+        frame: (angle: number) => void;
+        destroy: () => void;
+      };
+
+      /* ── A. hand-rolled SVG perspective projection ── */
+      function svgRenderer(): Renderer {
+        const NS = "http://www.w3.org/2000/svg";
+        let svg: SVGSVGElement;
+        let gBox: SVGGElement;
+        let gPts: SVGGElement;
+        let pts: { p: [number, number, number]; label: string; hot: boolean }[] = [];
+        let W = 800;
+        let H = 480;
+        const FOCAL = 620;
+        const CAM = 520;
+        const TILT = 0.32;
+
+        function project(p: [number, number, number], a: number) {
+          const [x, y, z] = p;
+          const cx = Math.cos(a), sx = Math.sin(a);
+          let X = x * cx - z * sx;
+          let Z = x * sx + z * cx;
+          const cy = Math.cos(TILT), sy = Math.sin(TILT);
+          let Y = y * cy - Z * sy;
+          Z = y * sy + Z * cy;
+          const d = CAM + Z;
+          const s = FOCAL / Math.max(60, d);
+          return { x: W / 2 + X * s, y: H / 2 + Y * s, s, z: Z };
+        }
+
+        const CUBE: [number, number, number][] = [];
+        for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1])
+          CUBE.push([sx * R, sy * R * 0.8, sz * R]);
+        const EDGES: [number, number][] = [];
+        CUBE.forEach((a, i) => CUBE.forEach((b, j) => {
+          if (j <= i) return;
+          const diff = a.filter((v, k) => v !== b[k]).length;
+          if (diff === 1) EDGES.push([i, j]);
+        }));
+
+        return {
+          name: "SVG perspective projection",
+          mount(host) {
+            host.innerHTML = "";
+            const r = host.getBoundingClientRect();
+            W = Math.max(400, r.width);
+            H = Math.max(280, r.height);
+            svg = document.createElementNS(NS, "svg") as SVGSVGElement;
+            svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+            svg.setAttribute("width", "100%");
+            svg.setAttribute("height", "100%");
+            gBox = document.createElementNS(NS, "g") as SVGGElement;
+            gPts = document.createElementNS(NS, "g") as SVGGElement;
+            svg.append(gBox, gPts);
+            host.append(svg);
+          },
+          set(toks, cluster) {
+            pts = toks
+              .filter((t) => t.text.trim())
+              .slice(-48)
+              .map((t) => {
+                const { p, hot } = place(t, cluster);
+                return { p, label: t.text.trim(), hot };
+              });
+          },
+          frame(a) {
+            // axis box
+            let box = "";
+            for (const [i, j] of EDGES) {
+              const p1 = project(CUBE[i], a), p2 = project(CUBE[j], a);
+              box += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="#0066cc" stroke-opacity="0.10" stroke-width="1"/>`;
+            }
+            gBox.innerHTML = box;
+
+            const proj = pts
+              .map((pt) => ({ ...project(pt.p, a), label: pt.label, hot: pt.hot }))
+              .sort((m, n) => n.z - m.z); // far first
+            let out = "";
+            for (const p of proj) {
+              const depth = Math.max(0.18, Math.min(1, (p.s - 0.55) / 0.7));
+              const fs = (11 + depth * 8).toFixed(1);
+              const col = p.hot ? "#b34700" : "#00327d";
+              out +=
+                `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(1.4 + depth * 2.2).toFixed(1)}" fill="${p.hot ? "#FF6600" : "#0066CC"}" fill-opacity="${(depth * 0.85).toFixed(2)}"/>` +
+                // white halo under the glyphs — the cheap win SVG gives us:
+                // labels stay readable where the cloud crowds.
+                `<text x="${(p.x + 6).toFixed(1)}" y="${(p.y + 4).toFixed(1)}" font-family="JetBrains Mono, monospace" font-size="${fs}" fill="${col}" fill-opacity="${(depth * 0.95).toFixed(2)}" stroke="#ffffff" stroke-width="3" stroke-opacity="${(depth * 0.8).toFixed(2)}" paint-order="stroke" stroke-linejoin="round">${escapeXml(p.label)}</text>`;
+            }
+            gPts.innerHTML = out;
+          },
+          destroy() {},
+        };
+      }
+
+      function escapeXml(s: string) {
+        return s.replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]!);
+      }
+
+      /* ── B. CSS 3D transforms on real DOM chips ── */
+      function cssRenderer(): Renderer {
+        let stage: HTMLElement;
+        let inner: HTMLElement;
+        let nodes: { el: HTMLElement; p: [number, number, number] }[] = [];
+
+        return {
+          name: "CSS 3D transforms",
+          mount(host) {
+            host.innerHTML = "";
+            stage = document.createElement("div");
+            stage.className = "stage";
+            const floor = document.createElement("div");
+            floor.className = "stage-floor";
+            inner = document.createElement("div");
+            inner.className = "stage-inner";
+            stage.append(floor, inner);
+            host.append(stage);
+            nodes = [];
+          },
+          set(toks, cluster) {
+            inner.innerHTML = "";
+            nodes = toks
+              .filter((t) => t.text.trim())
+              .slice(-48)
+              .map((t) => {
+                const { p, hot } = place(t, cluster);
+                const el = document.createElement("div");
+                el.className = "pt" + (hot ? " hot" : "");
+                el.textContent = t.text.trim();
+                inner.append(el);
+                return { el, p };
+              });
+          },
+          frame(a) {
+            inner.style.transform = `rotateX(18deg) rotateY(${(a * 180) / Math.PI}deg)`;
+            const deg = (-a * 180) / Math.PI;
+            for (const n of nodes) {
+              // scale up so the cloud fills the panel like the projected one does
+              const [x, y, z] = n.p.map((v) => v * 1.6) as [number, number, number];
+              // counter-rotate each chip so its text always faces the room
+              n.el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${deg}deg) rotateX(-18deg)`;
+              // depth cue has to be computed anyway — CSS gives us scale, not opacity
+              const zz = x * Math.sin(a) + z * Math.cos(a);
+              n.el.style.opacity = String(Math.max(0.4, Math.min(1, (zz + R * 1.4) / (R * 2.2))));
+            }
+          },
+          destroy() {},
+        };
+      }
+
+      /* ══════════════════ wiring ══════════════════ */
+
+      const params = new URLSearchParams(location.search);
+      const VARIANTS = ["A", "B"] as const;
+      let variant = (params.get("variant") ?? "A").toUpperCase();
+      if (!VARIANTS.includes(variant as any)) variant = "A";
+      // DECIDED (#24): pure hash scatter. The seed table stays behind the toggle
+      // only so the rejected alternative can still be seen side by side.
+      let cluster = (params.get("cluster") ?? "off") !== "off";
+
+      const input = document.querySelector<HTMLTextAreaElement>("[data-emb-input]")!;
+      const chipHost = document.querySelector<HTMLElement>("[data-emb-chips]")!;
+      const cloudHost = document.querySelector<HTMLElement>("[data-cloud]")!;
+      const nEl = document.querySelector<HTMLElement>("[data-emb-n]")!;
+      const priceEl = document.querySelector<HTMLElement>("[data-emb-price]")!;
+      const label = document.querySelector<HTMLElement>("[data-proto-label]")!;
+      const clusterBtn = document.querySelector<HTMLButtonElement>("[data-proto-cluster]")!;
+      const fpsEl = document.querySelector<HTMLElement>("[data-proto-fps]")!;
+
+      let renderer: Renderer = svgRenderer();
+      let toks: Tok[] = [];
+
+      function renderChips() {
+        chipHost.innerHTML = "";
+        for (const t of toks.slice(-60)) {
+          const hot = cluster && LOOKUP.has(t.text.trim().toLowerCase());
+          const el = document.createElement("span");
+          el.className = "chip" + (hot ? " clustered" : "");
+          el.innerHTML = `<span class="t">${t.text.replace(/ /g, "·")}</span><span class="id">${t.id}</span>`;
+          chipHost.append(el);
+        }
+        nEl.textContent = String(toks.length);
+        const n = toks.length;
+        priceEl.innerHTML = RATES.map(
+          ([m, r]) => `${m} <span>${((n * r) / 1e6).toFixed(4)} AIC</span>`,
+        ).join(" &nbsp;·&nbsp; ");
+      }
+
+      function update() {
+        toks = tokenize(input.value);
+        renderChips();
+        renderer.set(toks, cluster);
+      }
+
+      function mountVariant() {
+        renderer.destroy();
+        renderer = variant === "A" ? svgRenderer() : cssRenderer();
+        renderer.mount(cloudHost);
+        renderer.set(toks, cluster);
+        label.textContent = `${variant} — ${renderer.name}`;
+        clusterBtn.textContent = `clustering: ${cluster ? "on" : "off"}`;
+        const p = new URLSearchParams(location.search);
+        p.set("variant", variant);
+        p.set("cluster", cluster ? "on" : "off");
+        history.replaceState(null, "", "?" + p.toString());
+      }
+
+      input.addEventListener("input", update);
+
+      // auto-rotation + fps meter
+      let angle = 0;
+      let last = performance.now();
+      let frames = 0;
+      let acc = 0;
+      function loop(now: number) {
+        const dt = now - last;
+        last = now;
+        angle += dt * 0.00022;
+        renderer.frame(angle);
+        acc += dt;
+        frames++;
+        if (acc > 500) {
+          fpsEl.textContent = `${Math.round((frames * 1000) / acc)} fps`;
+          acc = 0;
+          frames = 0;
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      // switcher
+      function cycle(d: number) {
+        const i = VARIANTS.indexOf(variant as any);
+        variant = VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length];
+        mountVariant();
+      }
+      document.querySelector("[data-proto-prev]")!.addEventListener("click", () => cycle(-1));
+      document.querySelector("[data-proto-next]")!.addEventListener("click", () => cycle(1));
+      clusterBtn.addEventListener("click", () => {
+        cluster = !cluster;
+        update();
+        clusterBtn.textContent = `clustering: ${cluster ? "on" : "off"}`;
+        mountVariant();
+      });
+      document.querySelector("[data-proto-stress]")!.addEventListener("click", () => {
+        input.value =
+          "The engineer asked the model about budget and price, then wrote a function that returns a token for every customer on the team this week, in blue and orange, like a cat chasing a bird.";
+        update();
+      });
+      document.addEventListener("keydown", (e) => {
+        const t = e.target as HTMLElement;
+        if (t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.isContentEditable)) return;
+        if (e.key === "ArrowLeft") cycle(-1);
+        if (e.key === "ArrowRight") cycle(1);
+      });
+
+      // the deck's headline wipe: the controller adds .is-live on entry
+      function armHeadline() {
+        const s = document.querySelector<HTMLElement>(".reveal section")!;
+        s.classList.remove("is-live");
+        void s.offsetWidth;
+        s.classList.add("is-live");
+      }
+
+      update();
+      mountVariant();
+      deck.on("ready", armHeadline);
+      // deterministic replay on (re-)entry, like every other slide in the deck
+      deck.on("slidechanged", () => {
+        angle = 0;
+        update();
+        mountVariant();
+        armHeadline();
+      });
+    </script>
+  </body>
+</html>
