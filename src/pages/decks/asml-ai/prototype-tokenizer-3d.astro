@@ -2,16 +2,15 @@
 /**
  * PROTOTYPE — throwaway. Wayfinder ticket #24.
  *
- * Question: for slide 3 of map #20 ("The model never sees your words"), which
- * 3D technique carries the embedding cloud —
- *   A. hand-rolled SVG perspective projection, or
- *   B. CSS 3D transforms on real DOM chips?
- * And: does the cloud fake semantic clustering, or is it pure hash scatter?
+ * ANSWERED: slide 3 of map #20 ("The model never sees your words") uses a
+ * hand-rolled SVG perspective projection, with pure hash scatter — no faked
+ * semantic clustering. The rejected alternatives (CSS 3D transforms; a
+ * hand-seeded cluster table) were built and compared, and live in this
+ * branch's first commit.
  *
- * Two variants on one route, switchable via `?variant=A|B`; clustering via
- * `?cluster=on|off`. Mounted inside a real reveal.js slide at the deck's real
- * 1600×900 canvas with the real ASML Editorial theme, so "does it read on a
- * projector" is a fair question here. Copy is verbatim from #23.
+ * Mounted inside a real reveal.js slide at the deck's real 1600×900 canvas
+ * with the real ASML Editorial theme, so "does it read on a projector" is a
+ * fair question here. Copy is verbatim from #23, minus the clustering claim.
  *
  * Route: /decks/asml-ai/prototype-tokenizer-3d — delete before merge to main.
  */
@@ -65,7 +64,6 @@ import "./theme-asml.css";
                 <!-- variant A renders an <svg> here; variant B a CSS-3D stage -->
               </div>
               <p class="emb-cap emb-cap-right">
-                Similar meanings land near each other.<br />
                 A 3D shadow of a 1,536-dimensional space.
               </p>
             </div>
@@ -81,12 +79,8 @@ import "./theme-asml.css";
 
     <!-- ── prototype switcher (obviously not part of the design) ── -->
     <div class="proto-bar">
-      <button data-proto-prev aria-label="previous variant">&larr;</button>
       <span class="proto-label" data-proto-label></span>
-      <button data-proto-next aria-label="next variant">&rarr;</button>
       <span class="proto-sep"></span>
-      <button data-proto-cluster>clustering: ?</button>
-      <button data-proto-stress>stress: 40 chips</button>
       <span class="proto-fps" data-proto-fps>&mdash;</span>
     </div>
 
@@ -162,10 +156,6 @@ import "./theme-asml.css";
         opacity: 0.75;
         letter-spacing: 0.04em;
       }
-      .chip.clustered {
-        background: #ff660014;
-        border-color: #ff66003d;
-      }
       @keyframes chipIn {
         from {
           opacity: 0;
@@ -220,52 +210,6 @@ import "./theme-asml.css";
         border-radius: 4px;
         box-shadow: var(--shadow);
         overflow: hidden;
-      }
-
-      /* variant B stage */
-      .stage {
-        position: absolute;
-        inset: 0;
-        perspective: 900px;
-        perspective-origin: 50% 50%;
-      }
-      .stage-inner {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform-style: preserve-3d;
-        will-change: transform;
-      }
-      .stage-floor {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 460px;
-        height: 460px;
-        margin: -230px 0 0 -230px;
-        transform: rotateX(90deg) translateZ(-150px);
-        background:
-          repeating-linear-gradient(0deg, #0066cc1f 0 1px, transparent 1px 46px),
-          repeating-linear-gradient(90deg, #0066cc1f 0 1px, transparent 1px 46px);
-      }
-      .pt {
-        position: absolute;
-        transform-style: preserve-3d;
-        font-family: var(--font-mono);
-        font-size: 15px;
-        line-height: 1;
-        white-space: pre;
-        color: var(--navy);
-        background: #ffffffd9;
-        border: 1px solid #0066cc33;
-        border-radius: 3px;
-        padding: 2px 5px;
-        will-change: transform, opacity;
-      }
-      .pt.hot {
-        color: #b34700;
-        border-color: #ff660052;
-        background: #fff6f0e6;
       }
 
       /* ───────── switcher bar ───────── */
@@ -412,54 +356,32 @@ import "./theme-asml.css";
       }
 
       /* ══════════════════ shared: pseudo-embedding positions ══════════════════
-         Hash scatter by default. With clustering on, a small hand-seeded table
-         pulls related words toward a shared centre; everything unknown falls
-         back to hash — which is the case Atil typing unplanned words hits. */
+         DECIDED (#24): pure hash scatter, no faked semantic clustering. The
+         seed-table version was built and rejected — it only clusters words it
+         was seeded with, so it silently degrades to this the moment Atil types
+         something unrehearsed, while the caption keeps claiming otherwise. */
 
-      const CLUSTERS: Record<string, string[]> = {
-        creature: ["cat", "dog", "wolf", "bird", "horse", "fish", "mouse", "lion", "animal", "bear"],
-        colour: ["red", "blue", "green", "orange", "purple", "black", "white", "yellow", "colour", "color"],
-        code: ["function", "return", "const", "class", "import", "async", "token", "model", "code", "api", "type", "null", "func", "vari", "prompt"],
-        money: ["cost", "price", "budget", "credit", "euro", "dollar", "spend", "bill", "cent", "pay", "invoice"],
-        people: ["team", "manager", "engineer", "customer", "user", "client", "people", "board", "exec"],
-        time: ["day", "week", "month", "year", "hour", "minute", "today", "soon", "later"],
-      };
-      const CLUSTER_KEYS = Object.keys(CLUSTERS);
-      const LOOKUP = new Map<string, string>();
-      for (const k of CLUSTER_KEYS) for (const w of CLUSTERS[k]) LOOKUP.set(w, k);
+      // The cloud is a landscape volume, matching the panel it sits in:
+      // wide and deep, shallow in height.
+      const R = 150; // base radius in cloud-space units
+      const SPREAD_XZ = R * 1.45;
+      const SPREAD_Y = R * 0.62;
 
-      const R = 150; // cloud radius in cloud-space units
-
-      function centreOf(key: string): [number, number, number] {
-        const i = CLUSTER_KEYS.indexOf(key);
-        const golden = Math.PI * (3 - Math.sqrt(5));
-        const y = 1 - (i / (CLUSTER_KEYS.length - 1)) * 2;
-        const r = Math.sqrt(Math.max(0, 1 - y * y));
-        const th = golden * i;
-        return [Math.cos(th) * r * R * 0.72, y * R * 0.6, Math.sin(th) * r * R * 0.72];
-      }
-
-      /** deterministic position for a token; `cluster` toggles the seeded table */
-      function place(tok: Tok, cluster: boolean): { p: [number, number, number]; hot: boolean } {
+      /** deterministic position for a token — same text, same point, every replay */
+      function place(tok: Tok): [number, number, number] {
         const word = tok.text.trim().toLowerCase();
         const h = hash32(word || tok.text);
         const u = ((h >>> 0) % 1000) / 1000;
         const v = ((h >>> 10) % 1000) / 1000;
         const w = ((h >>> 20) % 1000) / 1000;
-        const key = cluster ? LOOKUP.get(word) : undefined;
-        if (key) {
-          const c = centreOf(key);
-          const j = R * 0.16;
-          return { p: [c[0] + (u - 0.5) * j, c[1] + (v - 0.5) * j, c[2] + (w - 0.5) * j], hot: true };
-        }
-        // hash scatter over the ball
         const th = u * Math.PI * 2;
         const ph = Math.acos(2 * v - 1);
-        const rad = R * (0.35 + 0.65 * Math.cbrt(w));
-        return {
-          p: [rad * Math.sin(ph) * Math.cos(th), rad * Math.cos(ph) * 0.75, rad * Math.sin(ph) * Math.sin(th)],
-          hot: false,
-        };
+        const rad = 0.4 + 0.6 * Math.cbrt(w); // 0..1, biased outward
+        return [
+          rad * Math.sin(ph) * Math.cos(th) * SPREAD_XZ,
+          rad * Math.cos(ph) * SPREAD_Y,
+          rad * Math.sin(ph) * Math.sin(th) * SPREAD_XZ,
+        ];
       }
 
       /* ══════════════════ shared: price readout ══════════════════
@@ -471,27 +393,22 @@ import "./theme-asml.css";
         ["Opus 4.6", 500],
       ];
 
-      /* ══════════════════ variant renderers ══════════════════ */
-
-      type Renderer = {
-        name: string;
-        mount: (host: HTMLElement) => void;
-        set: (toks: Tok[], cluster: boolean) => void;
-        frame: (angle: number) => void;
-        destroy: () => void;
-      };
+      /* ══════════════════ the cloud — SVG perspective projection ══════════════════ */
 
       /* ── A. hand-rolled SVG perspective projection ── */
-      function svgRenderer(): Renderer {
+      function cloudRenderer() {
         const NS = "http://www.w3.org/2000/svg";
         let svg: SVGSVGElement;
         let gBox: SVGGElement;
         let gPts: SVGGElement;
-        let pts: { p: [number, number, number]; label: string; hot: boolean }[] = [];
+        let pts: { p: [number, number, number]; label: string }[] = [];
         let W = 800;
         let H = 480;
-        const FOCAL = 620;
-        const CAM = 520;
+        // Camera tuned so the (deliberately roomy) box fills the panel without
+        // clipping, with the cloud floating inside it. CAM is deliberately far
+        // back: closer, and the near face distorts into a funnel.
+        const FOCAL = 550;
+        const CAM = 760;
         const TILT = 0.32;
 
         function project(p: [number, number, number], a: number) {
@@ -507,9 +424,13 @@ import "./theme-asml.css";
           return { x: W / 2 + X * s, y: H / 2 + Y * s, s, z: Z };
         }
 
+        // The box sits outside the point ball so the cloud reads as *inside a
+        // space* rather than bursting out of a tight crate.
+        const BOX_XZ = SPREAD_XZ * 1.3;
+        const BOX_Y = SPREAD_Y * 1.35;
         const CUBE: [number, number, number][] = [];
         for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1])
-          CUBE.push([sx * R, sy * R * 0.8, sz * R]);
+          CUBE.push([sx * BOX_XZ, sy * BOX_Y, sz * BOX_XZ]);
         const EDGES: [number, number][] = [];
         CUBE.forEach((a, i) => CUBE.forEach((b, j) => {
           if (j <= i) return;
@@ -518,8 +439,7 @@ import "./theme-asml.css";
         }));
 
         return {
-          name: "SVG perspective projection",
-          mount(host) {
+          mount(host: HTMLElement) {
             host.innerHTML = "";
             const r = host.getBoundingClientRect();
             W = Math.max(400, r.width);
@@ -533,16 +453,13 @@ import "./theme-asml.css";
             svg.append(gBox, gPts);
             host.append(svg);
           },
-          set(toks, cluster) {
+          set(toks: Tok[]) {
             pts = toks
               .filter((t) => t.text.trim())
               .slice(-48)
-              .map((t) => {
-                const { p, hot } = place(t, cluster);
-                return { p, label: t.text.trim(), hot };
-              });
+              .map((t) => ({ p: place(t), label: t.text.trim() }));
           },
-          frame(a) {
+          frame(a: number) {
             // axis box
             let box = "";
             for (const [i, j] of EDGES) {
@@ -552,15 +469,16 @@ import "./theme-asml.css";
             gBox.innerHTML = box;
 
             const proj = pts
-              .map((pt) => ({ ...project(pt.p, a), label: pt.label, hot: pt.hot }))
+              .map((pt) => ({ ...project(pt.p, a), label: pt.label }))
               .sort((m, n) => n.z - m.z); // far first
             let out = "";
             for (const p of proj) {
-              const depth = Math.max(0.18, Math.min(1, (p.s - 0.55) / 0.7));
-              const fs = (11 + depth * 8).toFixed(1);
-              const col = p.hot ? "#b34700" : "#00327d";
+              // p.s runs ~0.54 (far face) to ~1.08 (near face) at this camera
+              const depth = Math.max(0.28, Math.min(1, (p.s - 0.5) / 0.52));
+              const fs = (12 + depth * 8).toFixed(1);
+              const col = "#00327d";
               out +=
-                `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(1.4 + depth * 2.2).toFixed(1)}" fill="${p.hot ? "#FF6600" : "#0066CC"}" fill-opacity="${(depth * 0.85).toFixed(2)}"/>` +
+                `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(1.4 + depth * 2.2).toFixed(1)}" fill="#0066CC" fill-opacity="${(depth * 0.85).toFixed(2)}"/>` +
                 // white halo under the glyphs — the cheap win SVG gives us:
                 // labels stay readable where the cloud crowds.
                 `<text x="${(p.x + 6).toFixed(1)}" y="${(p.y + 4).toFixed(1)}" font-family="JetBrains Mono, monospace" font-size="${fs}" fill="${col}" fill-opacity="${(depth * 0.95).toFixed(2)}" stroke="#ffffff" stroke-width="3" stroke-opacity="${(depth * 0.8).toFixed(2)}" paint-order="stroke" stroke-linejoin="round">${escapeXml(p.label)}</text>`;
@@ -575,66 +493,7 @@ import "./theme-asml.css";
         return s.replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]!);
       }
 
-      /* ── B. CSS 3D transforms on real DOM chips ── */
-      function cssRenderer(): Renderer {
-        let stage: HTMLElement;
-        let inner: HTMLElement;
-        let nodes: { el: HTMLElement; p: [number, number, number] }[] = [];
-
-        return {
-          name: "CSS 3D transforms",
-          mount(host) {
-            host.innerHTML = "";
-            stage = document.createElement("div");
-            stage.className = "stage";
-            const floor = document.createElement("div");
-            floor.className = "stage-floor";
-            inner = document.createElement("div");
-            inner.className = "stage-inner";
-            stage.append(floor, inner);
-            host.append(stage);
-            nodes = [];
-          },
-          set(toks, cluster) {
-            inner.innerHTML = "";
-            nodes = toks
-              .filter((t) => t.text.trim())
-              .slice(-48)
-              .map((t) => {
-                const { p, hot } = place(t, cluster);
-                const el = document.createElement("div");
-                el.className = "pt" + (hot ? " hot" : "");
-                el.textContent = t.text.trim();
-                inner.append(el);
-                return { el, p };
-              });
-          },
-          frame(a) {
-            inner.style.transform = `rotateX(18deg) rotateY(${(a * 180) / Math.PI}deg)`;
-            const deg = (-a * 180) / Math.PI;
-            for (const n of nodes) {
-              // scale up so the cloud fills the panel like the projected one does
-              const [x, y, z] = n.p.map((v) => v * 1.6) as [number, number, number];
-              // counter-rotate each chip so its text always faces the room
-              n.el.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${deg}deg) rotateX(-18deg)`;
-              // depth cue has to be computed anyway — CSS gives us scale, not opacity
-              const zz = x * Math.sin(a) + z * Math.cos(a);
-              n.el.style.opacity = String(Math.max(0.4, Math.min(1, (zz + R * 1.4) / (R * 2.2))));
-            }
-          },
-          destroy() {},
-        };
-      }
-
       /* ══════════════════ wiring ══════════════════ */
-
-      const params = new URLSearchParams(location.search);
-      const VARIANTS = ["A", "B"] as const;
-      let variant = (params.get("variant") ?? "A").toUpperCase();
-      if (!VARIANTS.includes(variant as any)) variant = "A";
-      // DECIDED (#24): pure hash scatter. The seed table stays behind the toggle
-      // only so the rejected alternative can still be seen side by side.
-      let cluster = (params.get("cluster") ?? "off") !== "off";
 
       const input = document.querySelector<HTMLTextAreaElement>("[data-emb-input]")!;
       const chipHost = document.querySelector<HTMLElement>("[data-emb-chips]")!;
@@ -642,18 +501,17 @@ import "./theme-asml.css";
       const nEl = document.querySelector<HTMLElement>("[data-emb-n]")!;
       const priceEl = document.querySelector<HTMLElement>("[data-emb-price]")!;
       const label = document.querySelector<HTMLElement>("[data-proto-label]")!;
-      const clusterBtn = document.querySelector<HTMLButtonElement>("[data-proto-cluster]")!;
       const fpsEl = document.querySelector<HTMLElement>("[data-proto-fps]")!;
 
-      let renderer: Renderer = svgRenderer();
+      const cloud = cloudRenderer();
       let toks: Tok[] = [];
+      label.textContent = "SVG perspective projection";
 
       function renderChips() {
         chipHost.innerHTML = "";
         for (const t of toks.slice(-60)) {
-          const hot = cluster && LOOKUP.has(t.text.trim().toLowerCase());
           const el = document.createElement("span");
-          el.className = "chip" + (hot ? " clustered" : "");
+          el.className = "chip";
           el.innerHTML = `<span class="t">${t.text.replace(/ /g, "·")}</span><span class="id">${t.id}</span>`;
           chipHost.append(el);
         }
@@ -667,20 +525,7 @@ import "./theme-asml.css";
       function update() {
         toks = tokenize(input.value);
         renderChips();
-        renderer.set(toks, cluster);
-      }
-
-      function mountVariant() {
-        renderer.destroy();
-        renderer = variant === "A" ? svgRenderer() : cssRenderer();
-        renderer.mount(cloudHost);
-        renderer.set(toks, cluster);
-        label.textContent = `${variant} — ${renderer.name}`;
-        clusterBtn.textContent = `clustering: ${cluster ? "on" : "off"}`;
-        const p = new URLSearchParams(location.search);
-        p.set("variant", variant);
-        p.set("cluster", cluster ? "on" : "off");
-        history.replaceState(null, "", "?" + p.toString());
+        cloud.set(toks);
       }
 
       input.addEventListener("input", update);
@@ -694,7 +539,7 @@ import "./theme-asml.css";
         const dt = now - last;
         last = now;
         angle += dt * 0.00022;
-        renderer.frame(angle);
+        cloud.frame(angle);
         acc += dt;
         frames++;
         if (acc > 500) {
@@ -706,32 +551,6 @@ import "./theme-asml.css";
       }
       requestAnimationFrame(loop);
 
-      // switcher
-      function cycle(d: number) {
-        const i = VARIANTS.indexOf(variant as any);
-        variant = VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length];
-        mountVariant();
-      }
-      document.querySelector("[data-proto-prev]")!.addEventListener("click", () => cycle(-1));
-      document.querySelector("[data-proto-next]")!.addEventListener("click", () => cycle(1));
-      clusterBtn.addEventListener("click", () => {
-        cluster = !cluster;
-        update();
-        clusterBtn.textContent = `clustering: ${cluster ? "on" : "off"}`;
-        mountVariant();
-      });
-      document.querySelector("[data-proto-stress]")!.addEventListener("click", () => {
-        input.value =
-          "The engineer asked the model about budget and price, then wrote a function that returns a token for every customer on the team this week, in blue and orange, like a cat chasing a bird.";
-        update();
-      });
-      document.addEventListener("keydown", (e) => {
-        const t = e.target as HTMLElement;
-        if (t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.isContentEditable)) return;
-        if (e.key === "ArrowLeft") cycle(-1);
-        if (e.key === "ArrowRight") cycle(1);
-      });
-
       // the deck's headline wipe: the controller adds .is-live on entry
       function armHeadline() {
         const s = document.querySelector<HTMLElement>(".reveal section")!;
@@ -740,14 +559,14 @@ import "./theme-asml.css";
         s.classList.add("is-live");
       }
 
+      cloud.mount(cloudHost);
       update();
-      mountVariant();
       deck.on("ready", armHeadline);
       // deterministic replay on (re-)entry, like every other slide in the deck
       deck.on("slidechanged", () => {
         angle = 0;
+        cloud.mount(cloudHost);
         update();
-        mountVariant();
         armHeadline();
       });
     </script>
