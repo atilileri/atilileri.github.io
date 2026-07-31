@@ -1,0 +1,968 @@
+---
+/**
+ * THROWAWAY PROTOTYPE — wayfinder ticket #26.
+ * "Prototype: agent-loop step machine + the three bars"
+ *
+ * Question: what should the agent-loop slide look like, and how should it
+ * advance? Three radically different layouts of the same step machine and the
+ * same number model, switchable via ?variant=A|B|C plus a floating bottom bar.
+ *
+ * NOT production. The winner gets rewritten properly into
+ * src/pages/decks/asml-ai/index.astro by build ticket #28.
+ *
+ * Route: /decks/asml-ai/prototype-agent-loop?variant=A
+ *
+ * Real theme, real reveal chrome, real slide geometry — the variants are judged
+ * against the deck they have to live in, not in a vacuum.
+ */
+import "reveal.js/dist/reveal.css";
+import "./theme-asml.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>PROTOTYPE · Agent loop + the three bars</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <div class="deck-chrome" aria-hidden="true">
+      <div class="chrome-section">
+        <b>&#9632;</b> <span>04 &mdash; Context</span>
+      </div>
+      <div class="chrome-progress">
+        <span class="now">08</span> / <span>10</span>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="slides">
+        <section class="agentloop" data-section="04 — Context" data-agentloop>
+          <span class="eyebrow">The loop &middot; stepped, press &rarr; to advance</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>The whole context,</span></span>
+            <span class="h-line"><span>every single turn.</span></span>
+          </h2>
+
+          <!-- All three variants ship in the markup; the controller deletes the
+               two that aren't selected before reveal initialises, so fragment
+               counts stay correct. -->
+          <div class="al-stage" data-variant="A" hidden></div>
+          <div class="al-stage" data-variant="B" hidden></div>
+          <div class="al-stage" data-variant="C" hidden></div>
+
+          <p class="al-caveat">
+            Illustrative numbers. Actual caching depends on provider and model
+            cache boundaries, which change.
+          </p>
+
+          <!-- Fragment spine: injected by the controller (12 steps + bridge). -->
+          <div class="al-spine" data-spine aria-hidden="true"></div>
+
+          <p class="al-bridge" data-bridge>
+            So how you work<br />decides what this costs.
+          </p>
+
+          <aside class="notes">
+            A cache miss re-bills the entire context at full input price.
+            Model-hopping mid-task is the usual cause; caches also expire after
+            inactivity. The routing saving is real but GitHub never quantifies
+            it, so the only number on screen is the documented 10%.
+          </aside>
+        </section>
+      </div>
+    </div>
+
+    <!-- Prototype switcher — obviously not part of the design under evaluation. -->
+    <div class="proto-bar" data-proto-bar>
+      <button type="button" data-proto-prev aria-label="Previous variant">&larr;</button>
+      <span data-proto-label>A</span>
+      <button type="button" data-proto-next aria-label="Next variant">&rarr;</button>
+    </div>
+
+    <style is:global>
+      /* ─────────────────────────────────────────────────────────────
+         PROTOTYPE CSS. Throwaway. Leans on theme-asml.css tokens:
+         --navy --signal --orange --ground --card --ink --hair --shadow
+         --font-display --font-body --font-mono --ease --dur
+         ───────────────────────────────────────────────────────────── */
+
+      .agentloop .al-caveat {
+        font-family: var(--font-body);
+        font-size: 0.72rem;
+        color: #1b1b1b88;
+        margin: 0.5rem 0 0;
+      }
+      .agentloop .al-spine { position: absolute; width: 0; height: 0; overflow: hidden; }
+      .agentloop .al-bridge {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(1.4rem, 3.2vw, 2.6rem);
+        line-height: 1.08;
+        color: var(--navy);
+        margin: 0.6rem 0 0;
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+      }
+      .agentloop.bridge-on .al-bridge { opacity: 1; transform: none; }
+      .agentloop.bridge-on .al-stage { opacity: 0.28; filter: saturate(0.4); }
+      .agentloop .al-stage { transition: opacity var(--dur) var(--ease), filter var(--dur) var(--ease); }
+
+      /* shared atoms ------------------------------------------------ */
+      .al-tag {
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #00327d99;
+      }
+      .al-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+      .al-role {
+        font-family: var(--font-mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .al-role.user { color: var(--navy); }
+      .al-role.assistant { color: var(--signal); }
+      .al-role.tool { color: var(--orange); }
+
+      /* ══════════════ VARIANT A — three panes, literal spec ══════════ */
+      .al-stage[data-variant="A"] {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr 0.9fr;
+        gap: 0.9rem;
+        height: 46vh;
+        margin-top: 0.8rem;
+      }
+      .alA-pane {
+        background: var(--card);
+        border: 1px solid var(--hair);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .alA-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 0.5rem 0.7rem;
+        border-bottom: 1px solid var(--hair);
+        flex: none;
+      }
+      .alA-body { overflow: hidden; padding: 0.55rem 0.7rem; flex: 1; }
+      .alA-msg {
+        border-left: 2px solid var(--hair);
+        padding: 0.28rem 0 0.28rem 0.5rem;
+        margin-bottom: 0.4rem;
+        font-family: var(--font-body);
+        font-size: 0.74rem;
+        line-height: 1.35;
+        animation: alIn 420ms var(--ease) both;
+      }
+      .alA-msg.user { border-color: var(--navy); }
+      .alA-msg.assistant { border-color: var(--signal); }
+      .alA-msg.tool { border-color: var(--orange); }
+      .alA-msg code {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        background: #0066cc0f;
+        padding: 0.05rem 0.25rem;
+        border-radius: 3px;
+      }
+      @keyframes alIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+      /* context window: stacked strata, height ∝ tokens */
+      .alA-strata { display: flex; flex-direction: column; gap: 2px; height: 100%; }
+      .alA-block {
+        background: #0066cc14;
+        border-left: 3px solid var(--signal);
+        padding: 0.15rem 0.4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.6rem;
+        min-height: 14px;
+        animation: alIn 420ms var(--ease) both;
+      }
+      .alA-block.cached { background: #00327d0d; border-left-color: #00327d55; }
+      .alA-block.fresh { background: #ff66001f; border-left-color: var(--orange); }
+      .alA-block .lbl { font-family: var(--font-mono); color: var(--navy); }
+      .alA-block .tk { font-family: var(--font-mono); color: #1b1b1baa; }
+
+      /* the bars */
+      .alA-bars { padding: 0.6rem 0.7rem; display: flex; flex-direction: column; gap: 0.55rem; }
+      .al-bar-row { display: grid; grid-template-rows: auto 1fr; gap: 3px; }
+      .al-bar-label { display: flex; justify-content: space-between; }
+      .al-bar-track { height: 12px; background: #00327d0f; border-radius: 2px; overflow: hidden; }
+      .al-bar-fill {
+        height: 100%;
+        width: 0;
+        transition: width var(--dur) var(--ease);
+      }
+      .al-bar-fill.input { background: var(--signal); }
+      .al-bar-fill.output { background: var(--navy); }
+      .al-bar-fill.cached { background: #0066cc4d; }
+      .al-bar-fill.credit { background: var(--orange); }
+      .alA-credit {
+        margin-top: 0.4rem;
+        border-top: 1px solid var(--hair);
+        padding-top: 0.6rem;
+      }
+      .al-bar-fill.coldcache { background: #00327d26; }
+      .alA-total {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--orange);
+        font-variant-numeric: tabular-nums;
+      }
+      .agentloop .al-ghost {
+        font-size: 0.62rem;
+        line-height: 1.3;
+        color: #1b1b1b88;
+        font-family: var(--font-body);
+        margin: 0.3rem 0 0;
+      }
+
+      /* ══════════ VARIANT B — context is the hero, bars as a ribbon ═══ */
+      .al-stage[data-variant="B"] {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 0.6rem;
+        height: 48vh;
+        margin-top: 0.6rem;
+      }
+      .alB-turn {
+        background: var(--card);
+        border: 1px solid var(--hair);
+        border-left: 4px solid var(--signal);
+        border-radius: 8px;
+        padding: 0.5rem 0.8rem;
+        display: flex;
+        gap: 0.8rem;
+        align-items: baseline;
+        box-shadow: var(--shadow);
+        min-height: 3.1rem;
+      }
+      .alB-turn .txt {
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        line-height: 1.3;
+        color: var(--ink);
+      }
+      .alB-turn .txt code {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        background: #0066cc12;
+        padding: 0.08rem 0.3rem;
+        border-radius: 3px;
+      }
+      .alB-window {
+        border: 1px solid var(--hair);
+        border-radius: 10px;
+        background: var(--card);
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        overflow: hidden;
+        position: relative;
+        max-width: 62%;
+      }
+      .alB-stratum { flex: none; min-height: 9px; }
+      .alB-window::before {
+        content: "CONTEXT WINDOW — re-sent in full on every call · heights compressed";
+        font-family: var(--font-mono);
+        font-size: 0.56rem;
+        letter-spacing: 0.08em;
+        color: #00327d77;
+        padding: 0 0.2rem 0.35rem;
+        flex: none;
+      }
+      .alB-stratum {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0 0.5rem;
+        background: #0066cc12;
+        border-left: 3px solid var(--signal);
+        font-size: 0.62rem;
+        animation: alIn 420ms var(--ease) both;
+      }
+      .alB-stratum.cached { background: #00327d0a; border-left-color: #00327d44; }
+      .alB-stratum.fresh { background: #ff66001c; border-left-color: var(--orange); }
+      .alB-stratum .lbl { font-family: var(--font-mono); color: var(--navy); flex: 1; }
+      .alB-stratum .tk { font-family: var(--font-mono); color: #1b1b1b99; }
+      .alB-ribbon {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1.2rem;
+        align-items: center;
+        border-top: 1px solid var(--hair);
+        padding-top: 0.5rem;
+      }
+      .alB-stack { height: 20px; display: flex; border-radius: 3px; overflow: hidden; background: #00327d0f; }
+      .alB-seg { height: 100%; width: 0; transition: width var(--dur) var(--ease); }
+      .alB-seg.input { background: var(--signal); }
+      .alB-seg.cached { background: #0066cc45; }
+      .alB-seg.output { background: var(--navy); }
+      .alB-legend { display: flex; gap: 1rem; margin-top: 0.3rem; }
+      .alB-legend span { font-family: var(--font-mono); font-size: 0.62rem; color: var(--navy); }
+      .alB-legend i { display: inline-block; width: 8px; height: 8px; margin-right: 4px; }
+      .alB-money { text-align: right; }
+      .alB-money .big {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 2.1rem;
+        color: var(--orange);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+
+      /* ══════════════ VARIANT C — the ledger ═════════════════════════ */
+      .al-stage[data-variant="C"] {
+        display: grid;
+        grid-template-columns: 54px 1fr 210px;
+        gap: 0.9rem;
+        height: 48vh;
+        margin-top: 0.6rem;
+      }
+      .alC-column {
+        border: 1px solid var(--hair);
+        border-radius: 6px;
+        background: var(--card);
+        display: flex;
+        flex-direction: column-reverse;
+        overflow: hidden;
+        position: relative;
+      }
+      /* flex:none — otherwise the percentage heights get shrunk and the gutter
+         never fills, understating the context window. */
+      .alC-seg { width: 100%; flex: none; animation: alIn 380ms var(--ease) both; }
+      .alC-seg.harness { background: #00327d33; }
+      .alC-seg.tools { background: #00327d22; }
+      .alC-seg.user { background: var(--navy); }
+      .alC-seg.assistant { background: var(--signal); }
+      .alC-seg.tool { background: var(--orange); }
+      .alC-rows { overflow: hidden; display: flex; flex-direction: column; gap: 1px; }
+      .alC-row {
+        display: grid;
+        grid-template-columns: 26px 68px 1fr 92px;
+        gap: 0.6rem;
+        align-items: baseline;
+        padding: 0.22rem 0.5rem;
+        border-bottom: 1px solid #0066cc12;
+        font-size: 0.72rem;
+        animation: alIn 380ms var(--ease) both;
+      }
+      .alC-row.billed { background: #ff66000d; }
+      .alC-row .no { font-family: var(--font-mono); font-size: 0.6rem; color: #1b1b1b66; }
+      .alC-row .txt { font-family: var(--font-body); line-height: 1.25; }
+      .alC-row .txt code { font-family: var(--font-mono); font-size: 0.68rem; }
+      .alC-row .cost {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        text-align: right;
+        color: #1b1b1b88;
+      }
+      .alC-row.billed .cost { color: var(--orange); }
+      .alC-panel { display: flex; flex-direction: column; gap: 0.7rem; }
+      .alC-odo {
+        border: 1px solid var(--hair);
+        border-radius: 8px;
+        background: var(--card);
+        padding: 0.6rem 0.7rem;
+        box-shadow: var(--shadow);
+      }
+      .alC-odo .big {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 2.3rem;
+        line-height: 1;
+        color: var(--orange);
+        font-variant-numeric: tabular-nums;
+      }
+      .alC-spark { display: flex; flex-direction: column; gap: 0.45rem; }
+
+      /* ══════════════ the switcher ═══════════════════════════════════ */
+      .proto-bar {
+        position: fixed;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #111;
+        color: #fff;
+        border-radius: 999px;
+        padding: 0.35rem 0.5rem;
+        box-shadow: 0 10px 30px -8px #0009;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+      }
+      .proto-bar button {
+        background: #ffffff1a;
+        color: #fff;
+        border: 0;
+        border-radius: 999px;
+        width: 26px;
+        height: 26px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+      .proto-bar span { min-width: 15rem; text-align: center; }
+    </style>
+
+    <script>
+      import Reveal from "reveal.js";
+      import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
+
+      /* ═══════════════════════════════════════════════════════════════
+         THE NUMBER MODEL — deterministic, shared by all three variants.
+
+         Task: (3 + 5) × 2 − 4 = 12, with an agent that cannot do
+         arithmetic. Two tools: add_subtract, multiply_divide.
+
+         Billing rule the slide has to teach: an API call bills the WHOLE
+         context. Tokens already sent in a previous call bill at the cached
+         rate; only the delta since the last call bills at full input price.
+         Tool results are produced locally and cost nothing until the next
+         call re-sends them.
+
+         Rates: GPT-5.4, AIC per 1M tokens, from ticket #21's verified table.
+         GPT-5.4 deliberately chosen over the Anthropic models: #23 keeps
+         Anthropic's 1.25× cache-WRITE rate off-screen, and with a cache bar
+         on screen that omission would be visible. OpenAI has no cache-write
+         surcharge, so this widget is complete rather than quietly partial.
+         ═══════════════════════════════════════════════════════════════ */
+
+      const RATE = { in: 250, cached: 25, out: 1500 }; // AIC / 1M tokens
+      const AUTO_DISCOUNT = 0.1; // documented flat 10%, #21. Nothing more.
+
+      type Step = {
+        role: "system" | "user" | "assistant" | "tool";
+        kind: string;
+        text: string;
+        /** context block label, if this step adds one */
+        block?: { label: string; tokens: number }[];
+        /** a model call fires here: input = fresh delta, cached = prefix */
+        call?: boolean;
+        /** output tokens billed at this step */
+        out?: number;
+      };
+
+      const SCRIPT: Step[] = [
+        {
+          role: "system",
+          kind: "seed",
+          text: "Harness bundle and two tool schemas are loaded before anything is said.",
+          block: [
+            { label: "Harness bundle", tokens: 1840 },
+            { label: "Tool schemas ×2", tokens: 620 },
+          ],
+        },
+        {
+          role: "user",
+          kind: "message",
+          text: "What is (3 + 5) × 2 − 4?",
+          block: [{ label: "User message", tokens: 26 }],
+        },
+        {
+          role: "assistant",
+          kind: "reasoning",
+          text: "I can't do arithmetic myself. Start inside the brackets: 3 + 5.",
+          block: [{ label: "Assistant · reasoning", tokens: 34 }],
+          call: true,
+          out: 34,
+        },
+        {
+          role: "assistant",
+          kind: "tool_call",
+          text: "<code>add_subtract(3, 5, \"+\")</code>",
+          block: [{ label: "Tool call · add_subtract", tokens: 28 }],
+          out: 28,
+        },
+        {
+          role: "tool",
+          kind: "tool_result",
+          text: "<code>→ 8</code>",
+          block: [{ label: "Tool result · 8", tokens: 12 }],
+        },
+        {
+          role: "assistant",
+          kind: "reasoning",
+          text: "Now multiply that by 2.",
+          block: [{ label: "Assistant · reasoning", tokens: 32 }],
+          call: true,
+          out: 32,
+        },
+        {
+          role: "assistant",
+          kind: "tool_call",
+          text: "<code>multiply_divide(8, 2, \"×\")</code>",
+          block: [{ label: "Tool call · multiply_divide", tokens: 26 }],
+          out: 26,
+        },
+        {
+          role: "tool",
+          kind: "tool_result",
+          text: "<code>→ 16</code>",
+          block: [{ label: "Tool result · 16", tokens: 11 }],
+        },
+        {
+          role: "assistant",
+          kind: "reasoning",
+          text: "Then subtract 4.",
+          block: [{ label: "Assistant · reasoning", tokens: 30 }],
+          call: true,
+          out: 30,
+        },
+        {
+          role: "assistant",
+          kind: "tool_call",
+          text: "<code>add_subtract(16, 4, \"−\")</code>",
+          block: [{ label: "Tool call · add_subtract", tokens: 25 }],
+          out: 25,
+        },
+        {
+          role: "tool",
+          kind: "tool_result",
+          text: "<code>→ 12</code>",
+          block: [{ label: "Tool result · 12", tokens: 12 }],
+        },
+        {
+          role: "assistant",
+          kind: "answer",
+          text: "(3 + 5) × 2 − 4 = <b>12</b>",
+          block: [{ label: "Assistant · answer", tokens: 19 }],
+          call: true,
+          out: 19,
+        },
+      ];
+
+      const N = SCRIPT.length; // 12
+
+      type Block = { label: string; tokens: number; sentAt: number };
+      type Frame = {
+        step: number;
+        blocks: Block[];
+        contextTokens: number;
+        billedInput: number;
+        billedCached: number;
+        billedOutput: number;
+        credits: number;
+        /** what the same run would have cost with a cold cache every call */
+        creditsNoCache: number;
+        callIndex: number;
+      };
+
+      /** Replay the script from 0 to `upTo` (inclusive). Pure — no mutation. */
+      function frameAt(upTo: number): Frame {
+        const blocks: Block[] = [];
+        let ctx = 0;
+        let sentCtx = 0; // tokens already sent in a previous call → cached
+        let bi = 0,
+          bc = 0,
+          bo = 0,
+          calls = 0;
+        for (let i = 0; i <= upTo && i < N; i++) {
+          const s = SCRIPT[i];
+          if (s.call) {
+            const fresh = ctx - sentCtx;
+            bi += fresh;
+            bc += sentCtx;
+            sentCtx = ctx;
+            calls++;
+          }
+          for (const b of s.block ?? []) {
+            blocks.push({ ...b, sentAt: calls });
+            ctx += b.tokens;
+          }
+          if (s.out) bo += s.out;
+        }
+        const credits =
+          ((bi * RATE.in + bc * RATE.cached + bo * RATE.out) / 1e6) *
+          (1 - AUTO_DISCOUNT);
+        const creditsNoCache =
+          (((bi + bc) * RATE.in + bo * RATE.out) / 1e6) * (1 - AUTO_DISCOUNT);
+        return {
+          step: upTo,
+          blocks,
+          contextTokens: ctx,
+          billedInput: bi,
+          billedCached: bc,
+          billedOutput: bo,
+          credits,
+          creditsNoCache,
+          callIndex: calls,
+        };
+      }
+
+      const FINAL = frameAt(N - 1);
+      const MAX_CTX = FINAL.contextTokens;
+      const MAX_TOK = Math.max(FINAL.billedInput, FINAL.billedCached, FINAL.billedOutput);
+
+      const SQRT_TOTAL = FINAL.blocks.reduce((a, b) => a + Math.sqrt(b.tokens), 0);
+
+      const fmt = (n: number) => n.toLocaleString("en-US");
+      const aic = (n: number) => n.toFixed(2);
+
+      /* ═══════════════════ variant renderers ════════════════════════ */
+
+      const slide = document.querySelector<HTMLElement>("[data-agentloop]")!;
+
+      /** Variant A — three panes: conversation | context window | bars. */
+      function buildA(root: HTMLElement) {
+        root.innerHTML = `
+          <div class="alA-pane">
+            <div class="alA-head">
+              <span class="al-tag">Conversation</span>
+              <span class="al-tag al-num" data-a-counter>Step 0 / ${N}</span>
+            </div>
+            <div class="alA-body" data-a-convo></div>
+          </div>
+          <div class="alA-pane">
+            <div class="alA-head">
+              <span class="al-tag">Context window</span>
+              <span class="al-tag al-num" data-a-ctx>0 tokens</span>
+            </div>
+            <div class="alA-body"><div class="alA-strata" data-a-strata></div></div>
+          </div>
+          <div class="alA-pane">
+            <div class="alA-head">
+              <span class="al-tag">The bill</span>
+              <span class="al-tag al-num" data-a-calls>0 calls</span>
+            </div>
+            <div class="alA-body alA-bars">
+              ${["input", "cached", "output"]
+                .map(
+                  (k) => `
+                <div class="al-bar-row">
+                  <div class="al-bar-label">
+                    <span class="al-tag">${k}</span>
+                    <span class="al-tag al-num" data-a-${k}>0</span>
+                  </div>
+                  <div class="al-bar-track"><div class="al-bar-fill ${k}" data-a-bar-${k}></div></div>
+                </div>`,
+                )
+                .join("")}
+              <div class="alA-credit">
+                <div class="al-bar-label">
+                  <span class="al-tag">credits</span>
+                  <span class="alA-total"><span data-a-credit>0.00</span> <small>AIC</small></span>
+                </div>
+                <div class="al-bar-track"><div class="al-bar-fill credit" data-a-bar-credit></div></div>
+                <div class="al-bar-label" style="margin-top:.45rem">
+                  <span class="al-tag">same run, cold cache</span>
+                  <span class="al-tag al-num" data-a-cold>0.00</span>
+                </div>
+                <div class="al-bar-track"><div class="al-bar-fill coldcache" data-a-bar-cold></div></div>
+                <p class="al-ghost" data-a-ghost></p>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function paintA(f: Frame) {
+        const q = <T extends Element>(s: string) => slide.querySelector<T>(s)!;
+        q("[data-a-counter]").textContent = `Step ${f.step + 1} / ${N}`;
+        q("[data-a-ctx]").textContent = `${fmt(f.contextTokens)} tokens`;
+        q("[data-a-calls]").textContent = `${f.callIndex} call${f.callIndex === 1 ? "" : "s"}`;
+
+        const convo = q<HTMLElement>("[data-a-convo]");
+        convo.innerHTML = SCRIPT.slice(0, f.step + 1)
+          .map(
+            (s) => `<div class="alA-msg ${s.role}">
+              <span class="al-role ${s.role}">${s.role}</span><br />${s.text}
+            </div>`,
+          )
+          .join("");
+        // keep the tail visible without a scrollbar
+        convo.scrollTop = convo.scrollHeight;
+
+        const strata = q<HTMLElement>("[data-a-strata]");
+        strata.innerHTML = f.blocks
+          .map((b) => {
+            // Cached once a *later* call has re-sent it; orange while it is
+            // still the delta the next call pays full input price for.
+            const cls = b.sentAt < f.callIndex ? "cached" : "fresh";
+            const h = Math.max(14, (b.tokens / MAX_CTX) * 260);
+            return `<div class="alA-block ${cls}" style="height:${h}px">
+              <span class="lbl">${b.label}</span><span class="tk">${fmt(b.tokens)}</span>
+            </div>`;
+          })
+          .join("");
+
+        const set = (k: "input" | "cached" | "output", v: number) => {
+          q(`[data-a-${k}]`).textContent = fmt(v);
+          q<HTMLElement>(`[data-a-bar-${k}]`).style.width = `${(v / MAX_TOK) * 100}%`;
+        };
+        set("input", f.billedInput);
+        set("cached", f.billedCached);
+        set("output", f.billedOutput);
+        q("[data-a-credit]").textContent = aic(f.credits);
+        q<HTMLElement>("[data-a-bar-credit]").style.width =
+          `${(f.credits / FINAL.creditsNoCache) * 100}%`;
+        q("[data-a-cold]").textContent = aic(f.creditsNoCache);
+        q<HTMLElement>("[data-a-bar-cold]").style.width =
+          `${(f.creditsNoCache / FINAL.creditsNoCache) * 100}%`;
+        q("[data-a-ghost]").textContent = f.billedCached
+          ? `The cache is doing ${Math.round((1 - f.credits / f.creditsNoCache) * 100)}% of the work. A cache miss re-bills the whole window at full input price.`
+          : "";
+      }
+
+      /** Variant B — the context window is the hero; bars are a bottom ribbon. */
+      function buildB(root: HTMLElement) {
+        root.innerHTML = `
+          <div class="alB-turn">
+            <span class="al-role" data-b-role>—</span>
+            <span class="txt" data-b-text>Press &rarr; to run the loop.</span>
+            <span class="al-tag al-num" style="margin-left:auto" data-b-counter>0 / ${N}</span>
+          </div>
+          <div class="alB-window" data-b-window></div>
+          <div class="alB-ribbon">
+            <div>
+              <div class="alB-stack">
+                <div class="alB-seg input" data-b-seg-input></div>
+                <div class="alB-seg cached" data-b-seg-cached></div>
+                <div class="alB-seg output" data-b-seg-output></div>
+              </div>
+              <div class="alB-legend">
+                <span><i style="background:var(--signal)"></i>INPUT <b data-b-input>0</b></span>
+                <span><i style="background:#0066cc45"></i>CACHED <b data-b-cached>0</b></span>
+                <span><i style="background:var(--navy)"></i>OUTPUT <b data-b-output>0</b></span>
+              </div>
+            </div>
+            <div class="alB-money">
+              <div class="big"><span data-b-credit>0.00</span> AIC</div>
+              <div class="al-ghost" data-b-ghost>&nbsp;</div>
+            </div>
+          </div>`;
+      }
+
+      function paintB(f: Frame) {
+        const q = <T extends Element>(s: string) => slide.querySelector<T>(s)!;
+        const cur = SCRIPT[f.step];
+        q("[data-b-role]").textContent = cur.role.toUpperCase();
+        q("[data-b-role]").className = `al-role ${cur.role}`;
+        q("[data-b-text]").innerHTML = cur.text;
+        q("[data-b-counter]").textContent = `${f.step + 1} / ${N}`;
+        q<HTMLElement>(".alB-turn").style.borderLeftColor =
+          cur.role === "tool" ? "var(--orange)" : cur.role === "user" ? "var(--navy)" : "var(--signal)";
+
+        const win = q<HTMLElement>("[data-b-window]");
+        win.innerHTML = f.blocks
+          .map((b) => {
+            const cls = b.sentAt < f.callIndex ? "cached" : "fresh";
+            // FINDING: true proportion does not survive here. The harness
+            // bundle alone is 68% of the final window, so at full scale the
+            // twelve conversation strata are slivers and overflow the box.
+            // B therefore uses a sqrt-compressed scale — ordering stays
+            // readable, magnitude is distorted. That distortion is B's cost,
+            // and it is a real strike against making the window the hero.
+            const pct = (Math.sqrt(b.tokens) / SQRT_TOTAL) * 84;
+            return `<div class="alB-stratum ${cls}" style="height:${pct}%">
+              <span class="lbl">${b.label}</span>
+              <span class="tk">${fmt(b.tokens)}${cls === "cached" ? " · cached" : ""}</span>
+            </div>`;
+          })
+          .join("");
+
+        const tot = f.billedInput + f.billedCached + f.billedOutput || 1;
+        const seg = (k: "input" | "cached" | "output", v: number) => {
+          q<HTMLElement>(`[data-b-seg-${k}]`).style.width = `${(v / tot) * 100}%`;
+          q(`[data-b-${k}]`).textContent = fmt(v);
+        };
+        seg("input", f.billedInput);
+        seg("cached", f.billedCached);
+        seg("output", f.billedOutput);
+        q("[data-b-credit]").textContent = aic(f.credits);
+        q("[data-b-ghost]").textContent = f.billedCached
+          ? `cold cache would be ${aic(f.creditsNoCache)}`
+          : " ";
+      }
+
+      /** Variant C — a ledger: strata gutter + one row per step + odometer. */
+      function buildC(root: HTMLElement) {
+        root.innerHTML = `
+          <div class="alC-column" data-c-column></div>
+          <div class="alC-rows" data-c-rows></div>
+          <div class="alC-panel">
+            <div class="alC-odo">
+              <span class="al-tag">running cost</span>
+              <div class="big"><span data-c-credit>0.00</span></div>
+              <span class="al-tag">AIC &middot; <span data-c-calls>0</span> model calls</span>
+              <p class="al-ghost" data-c-ghost></p>
+            </div>
+            <div class="alC-spark">
+              ${["input", "cached", "output"]
+                .map(
+                  (k) => `
+                <div class="al-bar-row">
+                  <div class="al-bar-label">
+                    <span class="al-tag">${k}</span>
+                    <span class="al-tag al-num" data-c-${k}>0</span>
+                  </div>
+                  <div class="al-bar-track"><div class="al-bar-fill ${k}" data-c-bar-${k}></div></div>
+                </div>`,
+                )
+                .join("")}
+            </div>
+            <p class="al-ghost">Gutter = the context window. Every band is re-sent on the next call.</p>
+          </div>`;
+      }
+
+      function paintC(f: Frame) {
+        const q = <T extends Element>(s: string) => slide.querySelector<T>(s)!;
+        const col = q<HTMLElement>("[data-c-column]");
+        col.innerHTML = f.blocks
+          .map((b) => {
+            const role = b.label.startsWith("Harness")
+              ? "harness"
+              : b.label.startsWith("Tool schemas")
+                ? "tools"
+                : b.label.startsWith("User")
+                  ? "user"
+                  : b.label.startsWith("Tool result")
+                    ? "tool"
+                    : "assistant";
+            return `<div class="alC-seg ${role}" style="height:${(b.tokens / MAX_CTX) * 100}%"></div>`;
+          })
+          .reverse()
+          .join("");
+
+        q<HTMLElement>("[data-c-rows]").innerHTML = SCRIPT.slice(0, f.step + 1)
+          .map((s, i) => {
+            const cost = s.call
+              ? `call ${SCRIPT.slice(0, i + 1).filter((x) => x.call).length}`
+              : s.out
+                ? `+${s.out} out`
+                : "free";
+            return `<div class="alC-row ${s.call ? "billed" : ""}">
+              <span class="no">${String(i + 1).padStart(2, "0")}</span>
+              <span class="al-role ${s.role}">${s.role}</span>
+              <span class="txt">${s.text}</span>
+              <span class="cost">${cost}</span>
+            </div>`;
+          })
+          .join("");
+
+        const set = (k: "input" | "cached" | "output", v: number) => {
+          q(`[data-c-${k}]`).textContent = fmt(v);
+          q<HTMLElement>(`[data-c-bar-${k}]`).style.width = `${(v / MAX_TOK) * 100}%`;
+        };
+        set("input", f.billedInput);
+        set("cached", f.billedCached);
+        set("output", f.billedOutput);
+        q("[data-c-credit]").textContent = aic(f.credits);
+        q("[data-c-calls]").textContent = String(f.callIndex);
+        q("[data-c-ghost]").textContent = f.billedCached
+          ? `Cold cache: ${aic(f.creditsNoCache)} AIC`
+          : "";
+      }
+
+      /* ═══════════ variant selection + fragment spine ═════════════════
+         The step machine is fragment-driven: 12 invisible fragments (one per
+         step) plus a 13th for the bridge line. That means the clicker's → is
+         the advance key with no custom binding, reveal's own back/forward
+         still works, and Atil can always leave the slide by pressing → past
+         the last fragment. Cost: 13 fragments the presenter must click
+         through, and reveal's progress bar treats them as slide progress.
+         ═══════════════════════════════════════════════════════════════ */
+
+      const VARIANTS: Record<string, { name: string; build: (r: HTMLElement) => void; paint: (f: Frame) => void }> = {
+        A: { name: "Three panes (literal spec)", build: buildA, paint: paintA },
+        B: { name: "Context is the hero + bottom ribbon", build: buildB, paint: paintB },
+        C: { name: "The ledger (strata gutter + odometer)", build: buildC, paint: paintC },
+      };
+
+      const params = new URLSearchParams(location.search);
+      const key = (params.get("variant") ?? "A").toUpperCase();
+      const active = VARIANTS[key] ? key : "A";
+
+      slide.querySelectorAll<HTMLElement>(".al-stage").forEach((el) => {
+        if (el.dataset.variant === active) el.hidden = false;
+        else el.remove();
+      });
+      const stage = slide.querySelector<HTMLElement>(".al-stage")!;
+      VARIANTS[active].build(stage);
+
+      const spine = slide.querySelector<HTMLElement>("[data-spine]")!;
+      spine.innerHTML =
+        Array.from({ length: N }, (_, i) => `<span class="fragment" data-step="${i}"></span>`).join("") +
+        `<span class="fragment" data-bridge-frag></span>`;
+
+      function render(step: number, bridge: boolean) {
+        VARIANTS[active].paint(frameAt(Math.max(0, step)));
+        slide.classList.toggle("bridge-on", bridge);
+      }
+
+      /** Derive the step from reveal's fragment state — the single source of
+          truth, so entering the slide backwards replays correctly. */
+      function syncFromFragments() {
+        const shown = slide.querySelectorAll(".al-spine .fragment.visible").length;
+        const bridge = !!slide.querySelector("[data-bridge-frag]")?.classList.contains("visible");
+        render(shown - 1, bridge);
+      }
+
+      const deck = new Reveal({
+        hash: true,
+        width: 1600,
+        height: 900,
+        margin: 0.04,
+        minScale: 0.2,
+        maxScale: 2.0,
+        transition: "slide",
+        controls: true,
+        controlsLayout: "bottom-right",
+        progress: true,
+        center: false,
+        hideInactiveCursor: true,
+        plugins: [RevealNotes],
+      });
+      // The real deck arms the headline wipe on slide entry; mirror it so the
+      // variants are judged with the headline actually on screen.
+      function armHeadline() {
+        slide.classList.remove("is-live");
+        void slide.offsetWidth;
+        slide.classList.add("is-live");
+      }
+
+      deck.initialize().then(() => {
+        armHeadline();
+        syncFromFragments();
+        deck.on("fragmentshown", syncFromFragments);
+        deck.on("fragmenthidden", syncFromFragments);
+        deck.on("slidechanged", syncFromFragments);
+      });
+      (window as any).__deck = deck;
+      (window as any).__frameAt = frameAt; // headless verification hook
+
+      /* ═══════════════════ prototype switcher ════════════════════════ */
+      const order = Object.keys(VARIANTS);
+      const label = document.querySelector<HTMLElement>("[data-proto-label]")!;
+      label.textContent = `${active} — ${VARIANTS[active].name}`;
+      const go = (d: number) => {
+        const i = (order.indexOf(active) + d + order.length) % order.length;
+        params.set("variant", order[i]);
+        location.search = params.toString();
+      };
+      document.querySelector("[data-proto-prev]")!.addEventListener("click", () => go(-1));
+      document.querySelector("[data-proto-next]")!.addEventListener("click", () => go(1));
+      // ← / → are reveal's; use [ and ] so the switcher doesn't fight the deck.
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "[") go(-1);
+        if (e.key === "]") go(1);
+      });
+    </script>
+  </body>
+</html>
