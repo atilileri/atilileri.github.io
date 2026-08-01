@@ -23,8 +23,11 @@
  * models — deliberate (#26), and a presenter note, not a bug.
  */
 
-/** GPT-5.4, AI credits per 1M tokens — from #21's verified rate table. */
-export const RATE = { in: 250, cached: 25, out: 1500 };
+import { MODELS } from "./rates";
+
+/** GPT-5.4's row of the deck's ONE rate table — never a second copy of it.
+ *  AI credits per 1M tokens, from #21's verified figures. */
+export const RATE = MODELS.find((m) => m.id === "gpt")!;
 
 /** Documented flat 10% auto-model-selection discount (#21). Nothing more:
  *  the routing-efficiency saving is real but never quantified, so no number
@@ -167,9 +170,9 @@ export function frameAt(upTo: number): Frame {
     if (s.out) bo += s.out;
   }
   const credits =
-    ((bi * RATE.in + bc * RATE.cached + bo * RATE.out) / 1e6) * (1 - AUTO_DISCOUNT);
+    ((bi * RATE.input + bc * RATE.cached + bo * RATE.output) / 1e6) * (1 - AUTO_DISCOUNT);
   const creditsNoCache =
-    (((bi + bc) * RATE.in + bo * RATE.out) / 1e6) * (1 - AUTO_DISCOUNT);
+    (((bi + bc) * RATE.input + bo * RATE.output) / 1e6) * (1 - AUTO_DISCOUNT);
   return {
     step: upTo,
     blocks,
