@@ -854,6 +854,7 @@ export function estimateTokens(text: string): number {
         MODELS as RATES,
         eurOfAic,
         eurDecimals,
+        eurSigDecimals,
         fmtEur,
         fmtAic,
         fmtInt,
@@ -1702,15 +1703,20 @@ export function estimateTokens(text: string): number {
           )
           .join("");
         tkLiveN.textContent = String(toks.length);
-        // Euros sit on the per-1M rate, never on the typed text: one sentence
-        // costs a fraction of a cent and reads as "free", which is the
-        // opposite of the point. AIC keeps the live tie-in.
+        // The typed text in euros is ~EUR 0.000007, far below the capped
+        // decimal rule — so it gets the uncapped one, and the whole column
+        // shares the width the *cheapest* model needs, or the figures don't
+        // line up. The orange accent stays on the per-1M rate: that is the
+        // stable number the room can hold, and it only lands once.
+        const textEur = RATES.map((m) => eurOfAic((toks.length * m.input) / 1e6));
+        const dp = eurSigDecimals(Math.min(...textEur));
         tkPrice.innerHTML =
-          `<tr><th>model</th><th>this text</th><th>per 1M tokens</th></tr>` +
+          `<tr><th>model</th><th>this text</th><th>in euros</th><th>per 1M tokens</th></tr>` +
           RATES.map(
-            (m) =>
+            (m, i) =>
               `<tr><td>${m.name}</td>` +
               `<td class="aic">${((toks.length * m.input) / 1e6).toFixed(4)} AIC</td>` +
+              `<td class="aic">${fmtEur(textEur[i], dp)}</td>` +
               `<td class="eur">${fmtEur(eurOfAic(m.input))}</td></tr>`,
           ).join("");
         cloud.set(toks);

@@ -48,6 +48,18 @@ export function eurDecimals(v: number): number {
   return Math.min(4, Math.max(2, -Math.floor(Math.log10(v)) + 1));
 }
 
+/**
+ * Decimals for two significant figures with **no ceiling** — for figures the
+ * capped rule above would round to nothing, like the euro cost of one typed
+ * sentence (~EUR 0.000007). Use it only where the true number is wanted at
+ * whatever precision it takes; live counters and headline totals keep the
+ * capped rule, which is what stops them printing an over-precise tail.
+ */
+export function eurSigDecimals(v: number, sig = 2): number {
+  if (!(v > 0)) return 2;
+  return Math.max(2, -Math.floor(Math.log10(v)) + sig - 1);
+}
+
 /** Format euros with the decimal rule above. */
 export const fmtEur = (v: number, decimals = eurDecimals(v)) =>
   "€" + v.toFixed(decimals);
