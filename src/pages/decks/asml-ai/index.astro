@@ -18,6 +18,139 @@
 import "reveal.js/dist/reveal.css";
 import "./theme-asml.css";
 
+// Chapter 04 "Where the tokens go" — the agent loop's step script and number
+// model live in src/lib so the markup below and the controller at the bottom
+// read the SAME table. See the file header for what is locked and why.
+import { SCRIPT, FINAL } from "../../../lib/agent-loop-model";
+
+/**
+ * Slide 7 — the context primitives. Eight blocks in three groups, copy taken
+ * verbatim from wayfinder #23's resolution. Two things here are decisions, not
+ * wording, and must survive edits:
+ *
+ * 1. The first block is `Harness bundle`, not "system prompt" — it echoes the
+ *    deck's Model / Harness / Skills / Environment rings slide, so `Harness`
+ *    joins `Skills` as a term appearing at two altitudes, both true. That
+ *    double appearance is the bridge, not a contradiction to fix.
+ * 2. Token cost is QUALITATIVE — framed by *when* you pay, never a number.
+ *    No first-party figure exists for the size of a harness bundle, a tool
+ *    definition or a skill (#22), and #21 publishes rates but never volumes.
+ *    Any number here would be invented.
+ */
+type PrimBlock = {
+  label: string;
+  /** parenthetical qualifier, e.g. "incl. reasoning" */
+  sub?: string;
+  contains: string;
+  why: string;
+  cost: string;
+};
+const primitiveGroups: { group: string; note: string; blocks: PrimBlock[] }[] = [
+  {
+    group: "Static",
+    note: "Loaded before you say a word, and re-sent unchanged every turn.",
+    blocks: [
+      {
+        label: "Harness bundle",
+        contains:
+          "The instructions that turn a model into an agent — how to use tools, when to stop, house rules.",
+        why: "Without it you have a model, not an agent.",
+        cost: "Paid on every single turn.",
+      },
+      {
+        label: "Tools",
+        contains:
+          "A written description of every tool the agent may call, with its parameters.",
+        why: "The model can only call what it’s been described.",
+        cost: "Paid every turn — whether you use them or not.",
+      },
+      {
+        label: "Skills",
+        contains:
+          "Your team’s procedures, loaded so the agent works the same way twice.",
+        why: "This is what makes the output consistent instead of a lottery.",
+        cost: "Paid on every turn it stays loaded.",
+      },
+      {
+        label: "Project prompt",
+        contains:
+          "Facts about this project — conventions, architecture, what not to touch.",
+        why: "Stops the agent rediscovering your codebase from scratch.",
+        cost: "Paid on every turn.",
+      },
+    ],
+  },
+  {
+    group: "Dynamic",
+    note: "Produced by the turns themselves. It only ever grows.",
+    blocks: [
+      {
+        label: "User prompt",
+        contains: "What you actually asked for.",
+        why: "The only part most people think they’re paying for.",
+        cost: "Almost always the smallest block here.",
+      },
+      {
+        label: "The conversation",
+        contains: "Every previous turn, question and answer, replayed in full.",
+        why: "The model has no memory. The transcript <em>is</em> the memory.",
+        cost: "Grows every turn. Never shrinks.",
+      },
+      {
+        label: "Tool results",
+        contains:
+          "Every file read, search result and command output the agent pulled in.",
+        why: "The agent has to see what it found.",
+        cost: "Usually the largest block, and the fastest-growing.",
+      },
+    ],
+  },
+  {
+    group: "Reserved",
+    note: "Room held back, so there is somewhere to answer.",
+    blocks: [
+      {
+        label: "The answer",
+        sub: "incl. reasoning",
+        contains:
+          "Room held back for the reply — and for the thinking that precedes it.",
+        why: "The window has to have space left to answer in.",
+        cost: "Billed as output — 5–6× the price of input.",
+      },
+    ],
+  },
+];
+
+// Flat, in click / fragment order — the panel cards and the fragment spine are
+// indexed off this, so the two can never drift apart.
+const primitives = primitiveGroups.flatMap((g) =>
+  g.blocks.map((b) => ({ ...b, group: g.group })),
+);
+
+// Slide 8 — pre-rendered ledger rows and context strata. The geometry is
+// deterministic (it comes straight out of the model), so it is server-rendered
+// and the controller only toggles visibility and repaints the numbers.
+const loopRows = SCRIPT.map((s, i) => ({
+  step: i,
+  role: s.role,
+  text: s.text,
+  billed: !!s.call,
+  cost: s.call
+    ? `call ${SCRIPT.slice(0, i + 1).filter((x) => x.call).length}`
+    : s.out
+      ? `+${s.out} out`
+      : "free",
+}));
+// Heights are a true proportion of the final 2,715-token window — no
+// compression. That is what makes the harness bundle read as 68% of it.
+const loopStrata = SCRIPT.flatMap((s, i) =>
+  s.block.map((b) => ({
+    ...b,
+    step: i,
+    heightPct: (b.tokens / FINAL.contextTokens) * 100,
+  })),
+);
+
 const promptCode = `// Token-aware prompt assembly
 export function assemblePrompt(sections: Section[], budget: number) {
   const ranked = sections.sort((a, b) => b.priority - a.priority);
@@ -381,6 +514,256 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             CHAPTER 04 — "Where the tokens go." (wayfinder #20, built by #28)
+             Three slides: divider → context primitives → the agent loop, which
+             bridges straight into the reliability scatter below. Copy is
+             verbatim from #23's resolution; the loop's layout and numbers are
+             #26's variant C. Integrate, don't re-decide.
+
+             NOTE the deliberate "03" collision: this block is 04, while the
+             scatter below stays "03 — The compound". Renumbering the deck's
+             existing chapters is out of scope on the map — the duplicate is a
+             loud TODO sitting exactly where the renumbering pass has to happen.
+             ══════════════════════════════════════════════════════════════ -->
+
+        <!-- 8c ─────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <section class="chapter" data-section="04 — Context" data-chapter>
+          <span class="chapter-no">CHAPTER 04</span>
+          <h2>Where the<br />tokens go.</h2>
+          <aside class="notes">
+            Chapter A priced the unit; this one shows where the units actually
+            go. Two slides: what is in the window, then what a single task does
+            to it.
+          </aside>
+        </section>
+
+        <!-- 8d ─────────────────── CONTEXT PRIMITIVES (click a block) -->
+        <section class="primitives" data-section="04 — Context" data-primitives>
+          <span class="eyebrow">The anatomy &middot; interactive, click a block</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Every turn, you send</span></span>
+            <span class="h-line"><span>the whole thing.</span></span>
+          </h2>
+          <p class="prim-lede">
+            The model has no memory &mdash; each turn re-sends everything it
+            needs to know.
+          </p>
+
+          <div class="prim-stage">
+            <div class="prim-window">
+              {
+                primitiveGroups.map((g) => (
+                  <div class="prim-group" style={`flex:${g.blocks.length}`}>
+                    <span class="prim-group-label">{g.group}</span>
+                    {g.blocks.map((b) => (
+                      <button
+                        type="button"
+                        class="prim-block"
+                        data-prim-block={primitives.findIndex(
+                          (p) => p.label === b.label,
+                        )}
+                        aria-controls="prim-panel"
+                        aria-pressed="false"
+                      >
+                        <span class="lbl">{b.label}</span>
+                        {b.sub && <span class="sub">{b.sub}</span>}
+                      </button>
+                    ))}
+                  </div>
+                ))
+              }
+            </div>
+
+            <div class="prim-panel" id="prim-panel" data-prim-panel aria-live="polite">
+              <!-- Summary: what the three regions ARE. Shown on entry, and
+                   returned to by the clear affordance. -->
+              <article class="prim-card is-on" data-prim-card="summary">
+                <span class="al-tag">The context window</span>
+                <h3>Every block here is sent again, in full, every turn.</h3>
+                {
+                  primitiveGroups.map((g) => (
+                    <p class="prim-region">
+                      <b>{g.group}</b> {g.note}
+                    </p>
+                  ))
+                }
+                <p class="prim-hint">
+                  Press <kbd>&rarr;</kbd> to walk the blocks, or click one.
+                </p>
+              </article>
+
+              {
+                primitives.map((p, i) => (
+                  <article class="prim-card" data-prim-card={i}>
+                    <span class="al-tag">{p.group}</span>
+                    <h3>
+                      {p.label}
+                      {p.sub && <em> ({p.sub})</em>}
+                    </h3>
+                    <dl class="prim-facts">
+                      <dt>Contains</dt>
+                      <dd set:html={p.contains} />
+                      <dt>Why it exists</dt>
+                      <dd set:html={p.why} />
+                      <dt>Token cost</dt>
+                      <dd class="cost" set:html={p.cost} />
+                    </dl>
+                  </article>
+                ))
+              }
+
+              <button type="button" class="prim-clear" data-prim-clear>
+                &larr; clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Fragment spine: one invisible fragment per block, so the clicker's
+               → walks them with no custom key binding and reveal's fragment
+               state stays the single source of truth. Clicking a block just
+               navigates to that fragment, which is why click and clicker can
+               never disagree. -->
+          <div class="prim-spine" data-prim-spine aria-hidden="true">
+            {primitives.map(() => <span class="fragment" />)}
+          </div>
+
+          <aside class="notes">
+            Open Tools first &mdash; &ldquo;paid every turn, whether you use them
+            or not&rdquo; is the most surprising line here for an executive. The
+            Skills block is the bridge planted early: consistent instead of a
+            lottery, and paid on every turn it stays loaded. Costs here are
+            deliberately qualitative &mdash; nobody publishes the size of a
+            harness bundle or a skill, so any number would be invented.
+          </aside>
+        </section>
+
+        <!-- 8e ─────────────────── AGENT LOOP IN ACTION (the ledger, #26 var. C) -->
+        <section class="agentloop" data-section="04 — Context" data-agentloop>
+          <span class="eyebrow">The loop &middot; stepped, press &rarr; to advance</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>The whole context,</span></span>
+            <span class="h-line"><span>every single turn.</span></span>
+          </h2>
+          <p class="al-lede">
+            The agent thinks, calls a tool, reads the result, thinks again
+            &mdash; re-sending the whole window each time.
+          </p>
+
+          <div class="al-stage">
+            <!-- The context window itself, as a strata gutter at true
+                 proportion — the harness bundle really is 68% of it. -->
+            <div class="al-column" data-al-column>
+              {
+                loopStrata.map((b, i) => (
+                  <span
+                    class={`al-seg ${b.kind}`}
+                    data-al-seg={i}
+                    data-al-seg-step={b.step}
+                    style={`--h:${b.heightPct}%`}
+                    title={`${b.label} — ${b.tokens.toLocaleString("en-US")} tokens`}
+                  />
+                ))
+              }
+            </div>
+
+            <!-- The ledger: all twelve steps stay on screen at once. -->
+            <div class="al-rows">
+              {
+                loopRows.map((r) => (
+                  <div
+                    class={`al-row ${r.role}${r.billed ? " billed" : ""}`}
+                    data-al-row={r.step}
+                  >
+                    <span class="no">{String(r.step + 1).padStart(2, "0")}</span>
+                    <span class={`al-role ${r.role}`}>{r.role}</span>
+                    <span class="txt" set:html={r.text} />
+                    <span class="cost">{r.cost}</span>
+                  </div>
+                ))
+              }
+            </div>
+
+            <div class="al-panel">
+              <div class="al-odo">
+                <span class="al-tag">running cost</span>
+                <div class="big" data-al-eur>&euro;0.0000</div>
+                <span class="al-tag">
+                  <span data-al-aic>0.00</span> AIC &middot;
+                  <span data-al-calls>0</span> model calls
+                </span>
+                <p class="al-ghost" data-al-ghost></p>
+              </div>
+              <div class="al-spark">
+                <div class="al-bar-label al-window-size">
+                  <span class="al-tag">context window</span>
+                  <span class="al-tag al-num"><span data-al-ctx>0</span> tokens</span>
+                </div>
+                <div class="al-bar-row">
+                  <div class="al-bar-label">
+                    <span class="al-tag">input</span>
+                    <span class="al-tag al-num" data-al-input>0</span>
+                  </div>
+                  <div class="al-bar-track"><i class="al-bar-fill input" data-al-bar-input></i></div>
+                </div>
+                <div class="al-bar-row">
+                  <div class="al-bar-label">
+                    <span class="al-tag">cached</span>
+                    <span class="al-tag al-num" data-al-cached>0</span>
+                  </div>
+                  <div class="al-bar-track"><i class="al-bar-fill cached" data-al-bar-cached></i></div>
+                </div>
+                <div class="al-bar-row">
+                  <div class="al-bar-label">
+                    <span class="al-tag">output</span>
+                    <span class="al-tag al-num" data-al-output>0</span>
+                  </div>
+                  <div class="al-bar-track"><i class="al-bar-fill output" data-al-bar-output></i></div>
+                </div>
+              </div>
+              <p class="al-ghost">
+                Gutter = the context window. Every band is re-sent on the next
+                call.
+              </p>
+            </div>
+          </div>
+
+          <p class="al-caveat">
+            Illustrative numbers. Actual caching depends on provider and model
+            cache boundaries, which change. GPT-5.4 rates, as of July 2026.
+          </p>
+
+          <!-- 12 step fragments + a 13th for the bridge. No custom binding: →
+               advances, ← steps back, and re-entry from either direction
+               replays correctly because reveal's fragment state is the only
+               state there is — the same lesson the scatter slide records. -->
+          <div class="al-spine" data-al-spine aria-hidden="true">
+            {loopRows.map(() => <span class="fragment" />)}
+            <span class="fragment" data-al-bridge-frag></span>
+          </div>
+
+          <p class="al-bridge" data-al-bridge>
+            So how you work<br />decides what this costs.
+          </p>
+
+          <aside class="notes">
+            Twelve steps, four model calls &mdash; the bars sit still while the
+            agent reasons and while a tool comes back, then jump when a request
+            goes out. Tool results are free until the next call re-sends them.
+            Watch the cached bar pass the window three times over: nothing is
+            forgotten, everything is re-sent. A cache miss re-bills the entire
+            context at full input price; model-hopping mid-task is the usual
+            cause, and caches expire after inactivity &mdash; 24 hours on
+            OpenAI, about an hour on most others. Changing reasoning effort,
+            context size or the enabled tool set mid-session kills it too. The
+            routing saving is real but GitHub never quantifies it, so the only
+            discounts claimed here are the two documented 10%s. This slide runs
+            on GPT-5.4 while the cost dial defaults to Gemini &mdash; deliberate:
+            Anthropic bills cache writes at 1.25&times; input, which would
+            overstate the saving on screen here. No model was called.
+          </aside>
+        </section>
+
         <!-- 8b ─────────────────── RELIABILITY SCATTER (result quality × spend) -->
         <section class="lottery" data-section="03 — The compound" data-lottery>
           <span class="eyebrow">Animated · press &rarr; to level up</span>
@@ -625,6 +1008,8 @@ export function estimateTokens(text: string): number {
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+      import { frameAt, FINAL, MAX_TOKENS } from "../../../lib/agent-loop-model";
+      import { aicToEur, eur } from "../../../lib/deck-rates";
 
       const deck = new Reveal({
         hash: true,
@@ -1249,6 +1634,123 @@ export function estimateTokens(text: string): number {
           .forEach((s) => io.observe(s));
       });
 
+      /* ══════════════ CHAPTER 04 — context primitives (slide 7) ══════════
+         Fragment index selects the block: -1 is the summary panel, 0-7 pick a
+         block. That makes the clicker's → walk the eight blocks with no custom
+         binding, and clicking a block simply navigates to its fragment — so
+         pointer and clicker share one state and can never disagree. ────── */
+
+      function paintPrimitives(slide: HTMLElement, index: number) {
+        slide.querySelectorAll<HTMLElement>("[data-prim-block]").forEach((b) => {
+          const on = Number(b.dataset.primBlock) === index;
+          b.classList.toggle("is-on", on);
+          b.setAttribute("aria-pressed", String(on));
+        });
+        const key = index < 0 ? "summary" : String(index);
+        slide
+          .querySelectorAll<HTMLElement>("[data-prim-card]")
+          .forEach((c) => c.classList.toggle("is-on", c.dataset.primCard === key));
+        slide.classList.toggle("has-selection", index >= 0);
+      }
+
+      function syncPrimitives(slide: HTMLElement) {
+        const shown = slide.querySelectorAll(
+          "[data-prim-spine] .fragment.visible",
+        ).length;
+        paintPrimitives(slide, shown - 1);
+      }
+
+      /** Move reveal to the fragment that selects `index` (-1 = summary). */
+      function selectPrimitive(slide: HTMLElement, index: number) {
+        const idx = deck.getIndices(slide);
+        deck.slide(idx.h, idx.v, index);
+      }
+
+      document.querySelectorAll<HTMLElement>("[data-primitives]").forEach((slide) => {
+        slide.querySelectorAll<HTMLElement>("[data-prim-block]").forEach((b) =>
+          b.addEventListener("click", () =>
+            selectPrimitive(slide, Number(b.dataset.primBlock)),
+          ),
+        );
+        slide
+          .querySelector("[data-prim-clear]")
+          ?.addEventListener("click", () => selectPrimitive(slide, -1));
+      });
+
+      /* ══════════════ CHAPTER 04 — the agent loop (slide 8) ══════════════
+         Variant C, the ledger (#26): twelve rows always on screen, the context
+         window as a strata gutter, a credit odometer over the three token bars.
+         12 step fragments + a 13th for the bridge; the step is DERIVED from
+         reveal's fragment state, never counted, which is what makes stepping
+         back and re-entering replay correctly. ─────────────────────────── */
+
+      function paintLoop(slide: HTMLElement, step: number, bridge: boolean) {
+        // step -1 (no fragments yet) is a genuinely empty window, so the first
+        // → lands the harness bundle and the tool schemas — 2,460 tokens on the
+        // clock before anyone has said a word. The prototype clamped to step 0
+        // here, which made the first click do nothing visible.
+        const f = frameAt(step);
+
+        slide.querySelectorAll<HTMLElement>("[data-al-row]").forEach((row) => {
+          row.classList.toggle("is-on", Number(row.dataset.alRow) <= f.step);
+        });
+
+        slide.querySelectorAll<HTMLElement>("[data-al-seg]").forEach((seg, i) => {
+          // The gutter stays colour-keyed by role for the whole run — it is the
+          // window, not the bill. What is cached and what is fresh is the bars'
+          // job; tinting the gutter too flattened it to one colour by step 12.
+          seg.classList.toggle("is-on", !!f.blocks[i]);
+        });
+
+        const q = (sel: string) => slide.querySelector<HTMLElement>(sel);
+        const bar = (
+          k: "input" | "cached" | "output",
+          v: number,
+        ) => {
+          const n = q(`[data-al-${k}]`);
+          if (n) n.textContent = v.toLocaleString("en-US");
+          const fill = q(`[data-al-bar-${k}]`);
+          if (fill) fill.style.width = `${(v / MAX_TOKENS) * 100}%`;
+        };
+        bar("input", f.billedInput);
+        bar("cached", f.billedCached);
+        bar("output", f.billedOutput);
+
+        // Euro is the currency a delegate reads; AIC stays on screen because it
+        // is what the allowance and the admin console are denominated in.
+        // Widths are pinned to the largest value the run reaches (€0.0096 →
+        // 4 dp, €0.024 → 3 dp) so no digit appears mid-run.
+        const eurNode = q("[data-al-eur]");
+        if (eurNode) eurNode.textContent = eur(aicToEur(f.credits), 4);
+        const aicNode = q("[data-al-aic]");
+        if (aicNode) aicNode.textContent = f.credits.toFixed(2);
+        const ctxNode = q("[data-al-ctx]");
+        if (ctxNode) ctxNode.textContent = f.contextTokens.toLocaleString("en-US");
+        const callsNode = q("[data-al-calls]");
+        if (callsNode) callsNode.textContent = String(f.callIndex);
+        const ghost = q("[data-al-ghost]");
+        if (ghost)
+          ghost.textContent = f.billedCached
+            ? `Cold cache: ${eur(aicToEur(f.creditsNoCache), 3)} · ${f.creditsNoCache.toFixed(2)} AIC — the cache is doing ${Math.round((1 - f.credits / f.creditsNoCache) * 100)}% of the work.`
+            : "";
+
+        slide.classList.toggle("bridge-on", bridge);
+      }
+
+      function syncLoop(slide: HTMLElement) {
+        const shown = slide.querySelectorAll(
+          "[data-al-spine] .fragment.visible:not([data-al-bridge-frag])",
+        ).length;
+        const bridge = !!slide
+          .querySelector("[data-al-bridge-frag]")
+          ?.classList.contains("visible");
+        paintLoop(slide, shown - 1, bridge);
+      }
+
+      // Sanity net for the two figures the slide's whole argument rests on.
+      if (import.meta.env.DEV && FINAL.contextTokens !== 2715)
+        console.warn("agent-loop model drifted from #26's locked numbers");
+
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -1270,6 +1772,10 @@ export function estimateTokens(text: string): number {
           const frag = slide.querySelector<HTMLElement>("[data-lottery-collapse]");
           setLottery(slide, !!frag?.classList.contains("visible"));
         }
+        // Chapter 04's two islands read reveal's fragment state on entry, so
+        // they replay from step 0 forwards and from the last step backwards.
+        if (slide.hasAttribute("data-primitives")) syncPrimitives(slide);
+        if (slide.hasAttribute("data-agentloop")) syncLoop(slide);
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
@@ -1282,16 +1788,18 @@ export function estimateTokens(text: string): number {
       deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
 
       // The reliability scatter collapses on a fragment, replays on step-back.
-      deck.on("fragmentshown", (e: any) => {
+      // Chapter 04's islands re-derive their whole state from the fragments on
+      // every change, in both directions.
+      function onFragment(e: any, shown: boolean) {
         const f = e.fragment as HTMLElement;
         if (f?.hasAttribute("data-lottery-collapse"))
-          setLottery(f.closest("section") as HTMLElement, true);
-      });
-      deck.on("fragmenthidden", (e: any) => {
-        const f = e.fragment as HTMLElement;
-        if (f?.hasAttribute("data-lottery-collapse"))
-          setLottery(f.closest("section") as HTMLElement, false);
-      });
+          setLottery(f.closest("section") as HTMLElement, shown);
+        const section = f?.closest("section") as HTMLElement | null;
+        if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
+        if (section?.hasAttribute("data-agentloop")) syncLoop(section);
+      }
+      deck.on("fragmentshown", (e: any) => onFragment(e, true));
+      deck.on("fragmenthidden", (e: any) => onFragment(e, false));
     </script>
   </body>
 </html>

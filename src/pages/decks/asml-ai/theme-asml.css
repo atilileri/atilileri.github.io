@@ -1469,6 +1469,461 @@
 }
 .lottery-trigger { display: none; }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   CHAPTER 04 — "Where the tokens go." (wayfinder #28)
+   Two islands: the context primitives (slide 7) and the agent loop (slide 8).
+   Both are vanilla — no runtime, no charting library; the bars and strata are
+   plain CSS boxes driven by inline widths/heights from the model.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* shared atoms ─────────────────────────────────────────────── */
+.reveal .al-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #00327d99;
+}
+.reveal .al-num {
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
+}
+.reveal .al-ghost {
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: #1b1b1b99;
+  margin: 0.35rem 0 0;
+  max-width: none;
+  min-height: 2.6em; /* reserved, so the panel never reflows mid-run */
+}
+
+/* ── Slide 7: the context primitives ─────────────────────────── */
+.reveal .primitives .prim-lede {
+  font-size: clamp(0.9rem, 1.25vw, 1.15rem);
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 60ch;
+  margin: 0.4rem 0 0;
+}
+.prim-stage {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 1.4rem;
+  align-items: start;
+  margin-top: 0.9rem;
+  height: 44vh;
+}
+.prim-window {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  height: 100%;
+}
+/* Groups flex in proportion to how many blocks they hold, so the eight blocks
+   fill the column at an even height and it reads as a whole window. */
+.prim-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+}
+.prim-group .prim-block {
+  flex: 1;
+  align-items: center;
+}
+.prim-group-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #00327d88;
+  margin-bottom: 2px;
+}
+.reveal .prim-block {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: clamp(0.78rem, 1.05vw, 0.98rem);
+  color: var(--navy);
+  background: #0066cc0f;
+  border: 1px solid transparent;
+  border-left: 4px solid var(--signal);
+  border-radius: 4px;
+  padding: 0.42rem 0.6rem;
+  cursor: pointer;
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.prim-group:nth-child(1) .prim-block {
+  background: #00327d0f;
+  border-left-color: #00327d66;
+}
+.prim-group:nth-child(3) .prim-block {
+  background: #ff66000f;
+  border-left-color: #ff660066;
+}
+.reveal .prim-block .sub {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: #1b1b1b88;
+}
+.reveal .prim-block:hover,
+.reveal .prim-block:focus-visible {
+  background: #0066cc1f;
+}
+.reveal .prim-block.is-on {
+  background: #ff66001f;
+  border-left-color: var(--orange);
+  border-color: #ff660055;
+  transform: translateX(6px);
+}
+.prim-panel {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 1rem 1.1rem 2.6rem;
+  height: 100%;
+  overflow: hidden;
+}
+.prim-card {
+  display: none;
+}
+.prim-card.is-on {
+  display: block;
+  animation: primIn 380ms var(--ease) both;
+}
+@keyframes primIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal .prim-card h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 1.9vw, 1.6rem);
+  line-height: 1.1;
+  color: var(--navy);
+  margin: 0.25rem 0 0.7rem;
+  text-transform: none;
+}
+.reveal .prim-card h3 em {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.6em;
+  color: #1b1b1b88;
+}
+.reveal .prim-region {
+  font-size: clamp(0.78rem, 1.05vw, 0.95rem);
+  line-height: 1.45;
+  color: var(--ink);
+  opacity: 0.85;
+  max-width: none;
+  margin: 0 0 0.4rem;
+}
+.reveal .prim-region b {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-right: 0.4rem;
+}
+.reveal .prim-hint {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: #1b1b1b77;
+  max-width: none;
+  margin: 0.9rem 0 0;
+}
+.reveal .prim-hint kbd {
+  font-size: 0.9em;
+}
+.prim-facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto;
+  gap: 0.1rem;
+}
+.reveal .prim-facts dt {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #00327d88;
+  margin-top: 0.55rem;
+}
+.reveal .prim-facts dd {
+  margin: 0.1rem 0 0;
+  font-size: clamp(0.8rem, 1.1vw, 1rem);
+  line-height: 1.4;
+  color: var(--ink);
+}
+.reveal .prim-facts dd.cost {
+  color: var(--orange);
+  font-weight: 600;
+}
+.reveal .prim-clear {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+  background: none;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+.primitives.has-selection .prim-clear {
+  opacity: 1;
+  pointer-events: auto;
+}
+.prim-spine {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ── Slide 8: the agent loop (variant C — the ledger) ─────────── */
+.reveal .agentloop .al-lede {
+  font-size: clamp(0.88rem, 1.2vw, 1.1rem);
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 72ch;
+  margin: 0.35rem 0 0;
+}
+.al-stage {
+  display: grid;
+  grid-template-columns: 54px 1fr 230px;
+  gap: 0.9rem;
+  height: 42vh;
+  margin-top: 0.6rem;
+  transition:
+    opacity var(--dur) var(--ease),
+    filter var(--dur) var(--ease);
+}
+
+/* the context window, as a strata gutter at TRUE proportion */
+.al-column {
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* --h is the block's true share of the final window, set inline from the
+   model; the gutter GROWS as blocks land rather than reserving their space. */
+.al-seg {
+  display: block;
+  width: 100%;
+  flex: none; /* or the percentage heights get shrunk and understate the window */
+  height: 0;
+  opacity: 0;
+  transition:
+    height var(--dur) var(--ease),
+    opacity var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+.al-seg.is-on {
+  height: var(--h);
+  opacity: 1;
+}
+.al-seg.harness { background: #00327d33; }
+.al-seg.tools { background: #00327d22; }
+.al-seg.user { background: var(--navy); }
+.al-seg.assistant { background: var(--signal); }
+.al-seg.tool { background: var(--orange); }
+
+/* the ledger */
+.al-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+.al-row {
+  display: grid;
+  grid-template-columns: 26px 74px 1fr 84px;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.24rem 0.5rem;
+  border-bottom: 1px solid #0066cc12;
+  font-size: clamp(0.66rem, 0.85vw, 0.82rem);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 380ms var(--ease),
+    transform 380ms var(--ease);
+}
+.al-row.is-on {
+  opacity: 1;
+  transform: none;
+}
+.al-row.billed {
+  background: #ff66000d;
+}
+.al-row .no {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: #1b1b1b66;
+}
+.al-row .txt {
+  font-family: var(--font-body);
+  line-height: 1.25;
+  color: var(--ink);
+}
+.al-row .txt code {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+  background: #0066cc0f;
+  padding: 0.04rem 0.24rem;
+  border-radius: 3px;
+}
+.al-row .cost {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-align: right;
+  color: #1b1b1b88;
+}
+.al-row.billed .cost {
+  color: var(--orange);
+  font-weight: 700;
+}
+.reveal .al-role {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.reveal .al-role.system { color: #00327d88; }
+.reveal .al-role.user { color: var(--navy); }
+.reveal .al-role.assistant { color: var(--signal); }
+.reveal .al-role.tool { color: var(--orange); }
+
+/* odometer + the three bars */
+.al-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.al-odo {
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  padding: 0.6rem 0.7rem;
+}
+.al-odo .big {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+  line-height: 1.05;
+  color: var(--orange);
+  font-variant-numeric: tabular-nums;
+}
+.al-spark {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.al-window-size {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--hair);
+}
+.al-bar-row {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 3px;
+}
+.al-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.al-bar-track {
+  height: 11px;
+  background: #00327d0f;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.al-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width var(--dur) var(--ease);
+}
+.al-bar-fill.input { background: var(--signal); }
+.al-bar-fill.cached { background: #0066cc4d; }
+.al-bar-fill.output { background: var(--navy); }
+
+.reveal .agentloop .al-caveat {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: #1b1b1b88;
+  max-width: none;
+  margin: 0.5rem 0 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.al-spine {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* the bridge — the loop stays visible behind the conclusion it earned */
+.reveal .agentloop .al-bridge {
+  position: absolute;
+  /* the section's own padding — absolute positioning ignores it */
+  left: clamp(2.4rem, 6vw, 6.5rem);
+  bottom: 11%;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
+  line-height: 1.08;
+  color: var(--navy);
+  margin: 0;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.agentloop.bridge-on .al-bridge {
+  opacity: 1;
+  transform: none;
+}
+.agentloop.bridge-on .al-stage {
+  opacity: 0.28;
+  filter: saturate(0.4);
+}
+/* the caveat goes all the way out — the bridge line sits over it */
+.reveal .agentloop.bridge-on .al-caveat {
+  opacity: 0;
+}
+
 /* ─────────────────────────────────── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal .h-set .h-line > span { transform: none; }
@@ -1481,4 +1936,8 @@
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }
   .lot-dot, .lot-zone, .lot-trace { transition: none; }
+  .prim-card.is-on { animation: none; }
+  .reveal .prim-block.is-on { transform: none; }
+  .al-seg, .al-row, .al-bar-fill { transition: none; }
+  .reveal .agentloop .al-bridge { transition: none; }
 }
