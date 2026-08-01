@@ -498,6 +498,10 @@ export function estimateTokens(text: string): number {
           <p class="tk-body tk-body-lead">
             1 AI credit = 1 US cent &mdash; and you get 12,000 of them a month.
           </p>
+          <!-- Built from src/lib/asml-ai/rates.ts: the same four models the
+               cost dial and the agent loop use, so the room meets every rate
+               here before either widget spends one. -->
+          <table class="credit-rates" data-credit-rates></table>
           <p class="tk-caveat">
             Code completions and next edit suggestions aren&rsquo;t billed at
             all &mdash; unlimited on every paid plan. Rates as of July 2026.
@@ -508,8 +512,11 @@ export function estimateTokens(text: string): number {
             and 3,900, and ours is what the company contracted for, so don't go
             looking for it in the docs. The credit is a US cent because that's
             how GitHub bills it; everything we price in euros on these slides is
-            our own conversion. And the thing people always ask about — inline
-            completions and next edit suggestions — isn't billed at all.
+            our own conversion. Read the table across, not down — these are the
+            same four models the next slide lets you play with, and all that
+            matters here is that the price depends on which one you picked. And
+            the thing people always ask about — inline completions and next
+            edit suggestions — isn't billed at all.
           </aside>
         </section>
 
@@ -1552,6 +1559,21 @@ export function estimateTokens(text: string): number {
         // a break if the room saw the whole sentence before it.
         if (reducedMotion()) go();
         else shatterTimer = window.setTimeout(go, 620);
+      }
+
+      // ── A4: the credit rate table ─────────────────────────────────
+      // Static, but generated — the rates live in one module and nothing else
+      // in the deck is allowed to know a number.
+      const creditRates = document.querySelector<HTMLElement>("[data-credit-rates]");
+      if (creditRates) {
+        creditRates.innerHTML =
+          `<tr><th>model</th><th>input</th><th>cached</th><th>output</th></tr>` +
+          RATES.map(
+            (m) =>
+              `<tr><td>${m.name}</td><td>${fmtInt(m.input)}</td>` +
+              `<td>${fmtInt(m.cached)}</td><td>${fmtInt(m.output)}</td></tr>`,
+          ).join("") +
+          `<tr class="unit"><td colspan="4">AI credits per 1M tokens</td></tr>`;
       }
 
       // ── A3: live tokenizer + the 3D embedding space ───────────────

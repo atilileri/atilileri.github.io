@@ -1728,6 +1728,54 @@
   overflow: hidden;
 }
 
+/* ── A4: the credit rate table ──────────────────────────────────────────
+   The room meets all four models and all three token kinds here, once, so
+   the cost dial can spend the rates without stopping to introduce them.
+   Deliberately unaccented: the "output is the expensive half" discovery
+   belongs to the dial, so nothing on this table narrates it. */
+.credit-rates {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: clamp(0.8rem, 1.15vw, 1.05rem);
+  font-variant-numeric: tabular-nums;
+  margin: 0.2rem 0 0.4rem;
+}
+.credit-rates th {
+  font-weight: 400;
+  font-size: 0.76em;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #1b1b1b66;
+  text-align: right;
+  padding: 0 0 0.5rem 2.2rem;
+  border-bottom: 1px solid var(--hair);
+}
+.credit-rates th:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+.credit-rates td {
+  padding: 0.42rem 0 0.42rem 2.2rem;
+  text-align: right;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.credit-rates td:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+.credit-rates tr:first-of-type td {
+  padding-top: 0.7rem;
+}
+.credit-rates .unit td {
+  padding: 0.55rem 0 0;
+  text-align: right;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1b1b1b66;
+}
+
 /* ── A5: the cost dial ──────────────────────────────────────────────────
    Three knobs, and the equation IS the rate table: each rate appears once,
    as the second factor of its own term. No separate table on this slide. */
