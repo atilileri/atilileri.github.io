@@ -56,6 +56,10 @@
   /* precision-typesetting motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 550ms;
+  /* The two tokenizing widgets (slides 2 and 3 of chapter A) run at half the
+     deck's speed: the room is reading the pieces come apart, not just
+     registering a transition. */
+  --tok-dur: 1100ms;
   --stagger: 80ms;
 }
 
@@ -1514,77 +1518,6 @@
   text-align: right;
 }
 
-/* ── A2: the sentence shatters ──────────────────────────────────────────
-   Pre-break the pieces sit flush and read as prose; on .go they separate,
-   take chip borders, and the leading space turns into a visible dot — the
-   space rides with its token, which is the surprise worth staging. */
-.tk-stage {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.4rem, 4vh, 2.8rem);
-  align-items: flex-start;
-  margin-top: clamp(0.6rem, 2vh, 1.4rem);
-}
-.tk-sentence {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  /* Wide enough that the sentence breaks over two or three lines: the shape
-     has to still read as a sentence after the pieces separate. */
-  max-width: 60ch;
-}
-.tk-piece {
-  font-family: var(--font-mono);
-  font-size: clamp(1rem, 1.9vw, 1.6rem);
-  line-height: 1.55;
-  color: var(--navy);
-  border: 1px solid transparent;
-  border-radius: 3px;
-  padding: 0.1em 0;
-  margin: 0;
-  transition:
-    background var(--dur) var(--ease),
-    border-color var(--dur) var(--ease),
-    margin var(--dur) var(--ease),
-    padding var(--dur) var(--ease);
-  transition-delay: calc(var(--i, 0) * 26ms);
-}
-.tk-piece[data-sp]::before {
-  content: " ";
-  white-space: pre;
-}
-.tk-sentence.go .tk-piece {
-  background: #0066cc12;
-  border-color: #0066cc2e;
-  margin: 0.16em 0.14em;
-  padding: 0.1em 0.34em;
-}
-.tk-sentence.go .tk-piece[data-sp]::before {
-  content: "·";
-  color: var(--signal);
-  opacity: 0.55;
-}
-.tk-count {
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-}
-.tk-count b {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(2.6rem, 6vw, 4.4rem);
-  line-height: 1;
-  color: var(--orange);
-  font-variant-numeric: tabular-nums;
-}
-.tk-count span {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: clamp(0.7rem, 0.95vw, 0.85rem);
-  color: var(--signal);
-}
-
 /* ── A3: live tokenizer (left) + embedding space (right) ────────────────
    Two panels, never stacked: the adjacency is the teaching. */
 .tk-embed {
@@ -1629,6 +1562,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
+  transition: gap var(--tok-dur) var(--ease);
   align-content: flex-start;
   overflow: hidden;
   flex: 1;
@@ -1645,7 +1579,14 @@
   border: 1px solid #0066cc2e;
   font-family: var(--font-mono);
   line-height: 1.1;
-  animation: tk-chip-in 260ms var(--ease) both;
+  /* Transitions, not an animation: they only fire when `.intro` is removed
+     on slide entry, so typing re-renders chips silently. An animation would
+     replay on every keystroke, because every keystroke rebuilds the nodes. */
+  transition:
+    background var(--tok-dur) var(--ease),
+    border-color var(--tok-dur) var(--ease),
+    padding var(--tok-dur) var(--ease);
+  transition-delay: calc(var(--i, 0) * 44ms);
 }
 .tk-chip .t {
   font-size: clamp(0.72rem, 0.95vw, 0.92rem);
@@ -1657,12 +1598,41 @@
   color: var(--signal);
   opacity: 0.75;
   letter-spacing: 0.04em;
+  /* max-width, not display, so the ID collapses its *width* too: a hidden ID
+     still holds the chip as wide as "155340", which is what stopped the
+     pre-break row reading as a sentence. */
+  max-width: 12ch;
+  overflow: hidden;
+  transition:
+    opacity var(--tok-dur) var(--ease),
+    max-width var(--tok-dur) var(--ease);
+  transition-delay: calc(var(--i, 0) * 44ms);
 }
-@keyframes tk-chip-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px) scale(0.94);
-  }
+/* A leading space rides with its token — a real space while the row still
+   reads as prose, a visible dot once the tokens have separated. */
+.tk-chip[data-sp] .t::before {
+  content: "·";
+  color: var(--signal);
+  opacity: 0.55;
+}
+
+/* The pre-break state, held for a beat on slide entry: flush, unboxed, no
+   IDs yet — the same sentence the room just saw, before it comes apart. */
+.tk-chips.intro {
+  gap: 0;
+  transition: gap var(--tok-dur) var(--ease);
+}
+.tk-chips.intro .tk-chip {
+  background: transparent;
+  border-color: transparent;
+  padding: 0.2rem 0 0.16rem;
+}
+.tk-chips.intro .tk-chip .id {
+  opacity: 0;
+  max-width: 0;
+}
+.tk-chips.intro .tk-chip[data-sp] .t::before {
+  content: " ";
 }
 .tk-meter {
   display: flex;
@@ -2036,7 +2006,6 @@
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }
   .lot-dot, .lot-zone, .lot-trace { transition: none; }
-  .tk-piece { transition: none; }
-  .tk-chip { animation: none; }
+  .tk-chips, .tk-chip, .tk-chip .id { transition: none; }
   .dial-eq .t, .dial-models button { transition: none; }
 }

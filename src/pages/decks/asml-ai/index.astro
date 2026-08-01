@@ -383,8 +383,11 @@ export function estimateTokens(text: string): number {
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER A — "What you're actually buying" (wayfinder #20 / #27).
-             Five slides: divider → tokens → live tokenizer + embedding space →
-             credits → the cost dial. Copy is verbatim from #23's resolution
+             Four slides: divider → live tokenizer + embedding space → credits
+             → the cost dial. (#23's arc also had a static "Everything you type
+             breaks into tokens" slide before the tokenizer; Atil cut it — the
+             live widget makes the same point with the room's own words.)
+             Copy is verbatim from #23's resolution
              (with #24's amendment to the cloud caption); rates come from #21
              via src/lib/asml-ai/rates.ts; the two widgets ship the interactions
              settled by the #24 and #25 prototypes.
@@ -406,37 +409,6 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
-        <!-- A2 ─────────────────── TOKENS: a sentence shatters into chips -->
-        <section data-section="03 — Tokens" data-token-shatter>
-          <span class="eyebrow">The unit &middot; animated</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>Everything you type</span></span>
-            <span class="h-line"><span>breaks into tokens.</span></span>
-          </h2>
-          <p class="tk-body">&asymp; 4 characters. &asymp; &frac34; of a word.</p>
-          <div class="tk-stage">
-            <!-- The chips are built from this text on slide entry; edit the
-                 sentence here. Deliberately an ordinary request, in the room's
-                 own vocabulary, so the shatter lands on something familiar. -->
-            <div
-              class="tk-sentence"
-              data-tk-sentence="Summarise last week's throughput report and flag anything unusual."
-            ></div>
-            <div class="tk-count">
-              <b data-tk-count>0</b><span>tokens</span>
-            </div>
-          </div>
-          <p class="tk-caveat">
-            English prose. Code and other languages cost more.
-          </p>
-          <aside class="notes">
-            Watch what happens to a perfectly ordinary sentence: it doesn't
-            break into words, it breaks into pieces — and the space in front of
-            a word travels with it. That count is what you're billed on, not
-            the words and not the characters.
-          </aside>
-        </section>
-
         <!-- A3 ─────────────────── LIVE TOKENIZER + 3D EMBEDDING SPACE -->
         <!-- Two panels, not a vertical stack (#23): the payoff IS the
              adjacency — your typing becomes numbers, the numbers become
@@ -445,12 +417,12 @@ export function estimateTokens(text: string): number {
         <section data-section="03 — Tokens" data-token-live>
           <span class="eyebrow">The vocabulary &middot; live, type anything</span>
           <h2 class="h-set">
-            <span class="h-line"><span>The model never</span></span>
-            <span class="h-line"><span>sees your words.</span></span>
+            <span class="h-line"><span>Everything you type</span></span>
+            <span class="h-line"><span>breaks into tokens.</span></span>
           </h2>
           <p class="tk-body">
-            Every token is just an index into a fixed vocabulary &mdash; around
-            200,000 entries for a current frontier model.
+            The model never sees your words. &mdash; Every token is just an index
+             into a vocabulary.
           </p>
 
           <div class="tk-embed">
@@ -1574,35 +1546,6 @@ export function estimateTokens(text: string): number {
         requestAnimationFrame(step);
       }
 
-      // ── A2: a sentence shatters into token pieces ─────────────────
-      const shatterHost = document.querySelector<HTMLElement>("[data-tk-sentence]");
-      const shatterCount = document.querySelector<HTMLElement>("[data-tk-count]");
-      let shatterTimer: number | undefined;
-      function playShatter() {
-        if (!shatterHost || !shatterCount) return;
-        const toks = tokenize(shatterHost.dataset.tkSentence ?? "");
-        shatterHost.innerHTML = toks
-          .map((t, i) => {
-            const sp = t.text.startsWith(" ") ? " data-sp" : "";
-            return `<span class="tk-piece"${sp} style="--i:${i}"><b>${escapeHtml(
-              t.text.trimStart(),
-            )}</b></span>`;
-          })
-          .join("");
-        shatterHost.classList.remove("go");
-        shatterCount.textContent = "0";
-        countShown.set(shatterCount, 0);
-        window.clearTimeout(shatterTimer);
-        const go = () => {
-          shatterHost.classList.add("go");
-          countUp(shatterCount, toks.length, (n) => String(Math.round(n)), 700);
-        };
-        // Hold the intact sentence for a beat first — the break only reads as
-        // a break if the room saw the whole sentence before it.
-        if (reducedMotion()) go();
-        else shatterTimer = window.setTimeout(go, 620);
-      }
-
       // ── A4: the credit rate table ─────────────────────────────────
       // Static, but generated — the rates live in one module and nothing else
       // in the deck is allowed to know a number.
@@ -1751,19 +1694,45 @@ export function estimateTokens(text: string): number {
       let cloudRaf = 0;
       let cloudAngle = 0;
 
-      function renderLive() {
+      // The entry animation: chips start flush and read as the sentence, then
+      // break apart while the counter ticks up.
+      // It plays *once*, on slide entry — typing after that updates instantly,
+      // because re-shattering on every keystroke would make the widget feel
+      // slow and would bury the thing the room is actually watching.
+      let liveIntroTimer = 0;
+      function renderLive(intro = false) {
         if (!tkInput || !tkChips || !tkLiveN || !tkPrice) return;
         const toks = tokenize(tkInput.value);
         tkChips.innerHTML = toks
           .slice(-60)
-          .map(
-            (t) =>
-              `<span class="tk-chip"><span class="t">${escapeHtml(
-                t.text.replace(/ /g, "·"),
-              )}</span><span class="id">${t.id}</span></span>`,
-          )
+          .map((t, i) => {
+            const sp = t.text.startsWith(" ") ? " data-sp" : "";
+            return `<span class="tk-chip"${sp} style="--i:${i}"><span class="t">${escapeHtml(
+              t.text.trimStart(),
+            )}</span><span class="id">${t.id}</span></span>`;
+          })
           .join("");
-        tkLiveN.textContent = String(toks.length);
+        window.clearTimeout(liveIntroTimer);
+        if (intro) {
+          tkChips.classList.add("intro");
+          void tkChips.offsetWidth; // reflow, so the break starts from flush
+          tkLiveN.textContent = "0";
+          countShown.set(tkLiveN, 0);
+          // The count and the break start together — holding the sentence
+          // intact while the number has already finished counting is what
+          // made the two read as unrelated.
+          liveIntroTimer = window.setTimeout(
+            () => {
+              tkChips.classList.remove("intro");
+              countUp(tkLiveN, toks.length, (n) => String(Math.round(n)), 1400);
+            },
+            reducedMotion() ? 0 : 520,
+          );
+        } else {
+          tkChips.classList.remove("intro");
+          tkLiveN.textContent = String(toks.length);
+          countShown.set(tkLiveN, toks.length);
+        }
         // The typed text in euros is ~EUR 0.000007, far below the capped
         // decimal rule — so it gets the uncapped one, and the whole column
         // shares the width the *cheapest* model needs, or the figures don't
@@ -1782,13 +1751,13 @@ export function estimateTokens(text: string): number {
           ).join("");
         cloud.set(toks);
       }
-      tkInput?.addEventListener("input", renderLive);
+      tkInput?.addEventListener("input", () => renderLive());
 
       function startCloud() {
         if (!tkCloudHost || cloudRaf) return;
         cloudAngle = 0;
         cloud.mount(tkCloudHost);
-        renderLive();
+        renderLive(true);
         if (reducedMotion()) {
           cloud.frame(0);
           return;
@@ -1975,7 +1944,6 @@ export function estimateTokens(text: string): number {
           setLottery(slide, !!frag?.classList.contains("visible"));
         }
         // Chapter A. The cloud's rAF loop only runs while its slide is live.
-        if (slide.hasAttribute("data-token-shatter")) playShatter();
         if (slide.hasAttribute("data-token-live")) startCloud();
         else stopCloud();
         if (slide.hasAttribute("data-cost-dial")) resetDial();
