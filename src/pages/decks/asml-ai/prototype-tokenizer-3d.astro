@@ -51,7 +51,7 @@ import "./theme-asml.css";
               <div class="emb-chips" data-emb-chips></div>
               <div class="emb-meter">
                 <span class="emb-count"><b data-emb-n>0</b> tokens</span>
-                <span class="emb-price" data-emb-price></span>
+                <table class="emb-price" data-emb-price></table>
               </div>
               <p class="emb-cap">
                 IDs are addresses, not values. Meaning lives in what they point at. &rarr;
@@ -164,19 +164,54 @@ import "./theme-asml.css";
       }
       .reveal .emb-meter {
         display: flex;
-        align-items: baseline;
-        gap: 1.1rem;
+        align-items: flex-start;
+        gap: 1.4rem;
         font-family: var(--font-mono);
         font-size: clamp(0.66rem, 0.85vw, 0.82rem);
         color: #1b1b1b99;
+      }
+      .reveal .emb-count {
+        white-space: nowrap;
       }
       .reveal .emb-meter b {
         font-size: clamp(1.1rem, 1.7vw, 1.6rem);
         color: var(--orange);
         font-weight: 700;
       }
-      .emb-price span {
+      /* one model per row — a price list, not a run-on sentence */
+      .emb-price {
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+      }
+      .emb-price th {
+        font-weight: 400;
+        font-size: 0.82em;
+        color: #1b1b1b66;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-align: right;
+        padding: 0 0 0.25rem 0.9rem;
+      }
+      .emb-price th:first-child {
+        text-align: left;
+        padding-left: 0;
+      }
+      .emb-price td {
+        padding: 0.1rem 0 0.1rem 0.9rem;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .emb-price td:first-child {
+        text-align: left;
+        padding-left: 0;
         color: var(--navy);
+      }
+      .emb-price .eur {
+        color: var(--orange);
+        font-weight: 700;
+      }
+      .emb-price .aic {
+        color: #1b1b1b8c;
       }
       .reveal .emb-cap {
         font-family: var(--font-mono);
@@ -364,8 +399,10 @@ import "./theme-asml.css";
       // The cloud is a landscape volume, matching the panel it sits in:
       // wide and deep, shallow in height.
       const R = 150; // base radius in cloud-space units
-      const SPREAD_XZ = R * 1.45;
-      const SPREAD_Y = R * 0.62;
+      // Sized for the *worst* rotation: corner-on, the box's projected width is
+      // ~1.4x its face-on width, so these leave that much headroom.
+      const SPREAD_XZ = R * 1.29;
+      const SPREAD_Y = R * 0.58;
 
       /** deterministic position for a token — same text, same point, every replay */
       function place(tok: Tok): [number, number, number] {
@@ -376,7 +413,8 @@ import "./theme-asml.css";
         const w = ((h >>> 20) % 1000) / 1000;
         const th = u * Math.PI * 2;
         const ph = Math.acos(2 * v - 1);
-        const rad = 0.4 + 0.6 * Math.cbrt(w); // 0..1, biased outward
+        const rad = 0.58 + 0.42 * Math.cbrt(w); // 0..1, pushed outward: a hollow
+        // shell reads as a *volume*; a solid ball just clumps at the centre
         return [
           rad * Math.sin(ph) * Math.cos(th) * SPREAD_XZ,
           rad * Math.cos(ph) * SPREAD_Y,
@@ -385,13 +423,17 @@ import "./theme-asml.css";
       }
 
       /* ══════════════════ shared: price readout ══════════════════
-         AIC per 1M input tokens, #21-verified rates (see #23's table). */
+         AIC per 1M input tokens, #21-verified rates (see #23's table).
+         1 AIC = 1 US cent (#21, verbatim current). Euros are a conversion we
+         do ourselves — GitHub publishes USD only — so the rate is stated. */
       const RATES: [string, number][] = [
         ["Gemini 3 Flash", 50],
         ["GPT-5.4", 250],
         ["Sonnet 4.5", 300],
         ["Opus 4.6", 500],
       ];
+      const USD_PER_EUR = 1.08; // NEEDS A DECISION — see #24 follow-up
+      const eurPerMillion = (aicPerM: number) => (aicPerM * 0.01) / USD_PER_EUR;
 
       /* ══════════════════ the cloud — SVG perspective projection ══════════════════ */
 
@@ -407,7 +449,11 @@ import "./theme-asml.css";
         // Camera tuned so the (deliberately roomy) box fills the panel without
         // clipping, with the cloud floating inside it. CAM is deliberately far
         // back: closer, and the near face distorts into a funnel.
-        const FOCAL = 550;
+        // FOCAL/CAM are tuned together with SPREAD_* so the box lands at ~92%
+        // of the panel: any bigger and its edges clip and it stops reading as
+        // a closed volume. Label size is independent of these, so the tokens
+        // stay large regardless.
+        const FOCAL = 700;
         const CAM = 760;
         const TILT = 0.32;
 
@@ -426,8 +472,8 @@ import "./theme-asml.css";
 
         // The box sits outside the point ball so the cloud reads as *inside a
         // space* rather than bursting out of a tight crate.
-        const BOX_XZ = SPREAD_XZ * 1.3;
-        const BOX_Y = SPREAD_Y * 1.35;
+        const BOX_XZ = SPREAD_XZ * 1.16;
+        const BOX_Y = SPREAD_Y * 1.22;
         const CUBE: [number, number, number][] = [];
         for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1])
           CUBE.push([sx * BOX_XZ, sy * BOX_Y, sz * BOX_XZ]);
@@ -475,10 +521,10 @@ import "./theme-asml.css";
             for (const p of proj) {
               // p.s runs ~0.54 (far face) to ~1.08 (near face) at this camera
               const depth = Math.max(0.28, Math.min(1, (p.s - 0.5) / 0.52));
-              const fs = (12 + depth * 8).toFixed(1);
+              const fs = (15 + depth * 10).toFixed(1);
               const col = "#00327d";
               out +=
-                `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(1.4 + depth * 2.2).toFixed(1)}" fill="#0066CC" fill-opacity="${(depth * 0.85).toFixed(2)}"/>` +
+                `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(1.6 + depth * 2.6).toFixed(1)}" fill="#0066CC" fill-opacity="${(depth * 0.85).toFixed(2)}"/>` +
                 // white halo under the glyphs — the cheap win SVG gives us:
                 // labels stay readable where the cloud crowds.
                 `<text x="${(p.x + 6).toFixed(1)}" y="${(p.y + 4).toFixed(1)}" font-family="JetBrains Mono, monospace" font-size="${fs}" fill="${col}" fill-opacity="${(depth * 0.95).toFixed(2)}" stroke="#ffffff" stroke-width="3" stroke-opacity="${(depth * 0.8).toFixed(2)}" paint-order="stroke" stroke-linejoin="round">${escapeXml(p.label)}</text>`;
@@ -517,9 +563,14 @@ import "./theme-asml.css";
         }
         nEl.textContent = String(toks.length);
         const n = toks.length;
-        priceEl.innerHTML = RATES.map(
-          ([m, r]) => `${m} <span>${((n * r) / 1e6).toFixed(4)} AIC</span>`,
-        ).join(" &nbsp;·&nbsp; ");
+        priceEl.innerHTML =
+          `<tr><th>model</th><th>this text</th><th>per 1M tokens</th></tr>` +
+          RATES.map(
+            ([m, r]) =>
+              `<tr><td>${m}</td>` +
+              `<td class="aic">${((n * r) / 1e6).toFixed(4)} AIC</td>` +
+              `<td class="eur">&euro;${eurPerMillion(r).toFixed(2)}</td></tr>`,
+          ).join("");
       }
 
       function update() {
