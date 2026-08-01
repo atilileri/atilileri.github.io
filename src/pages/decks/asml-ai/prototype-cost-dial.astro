@@ -100,6 +100,10 @@ import "./theme-asml.css";
                 <div class="models" data-models></div>
               </div>
             </div>
+            <p class="c-hint">
+              drag a knob &nbsp;·&nbsp; or <kbd>tab</kbd> to one and
+              <kbd>&larr;</kbd><kbd>&rarr;</kbd> fine, <kbd>&uarr;</kbd><kbd>&darr;</kbd> coarse
+            </p>
             <p class="caveat">Rates as of July 2026. Per 1M tokens.</p>
           </div>
 
@@ -313,6 +317,15 @@ import "./theme-asml.css";
         width: 9.5rem;
         cursor: ns-resize;
         user-select: none;
+      }
+      .knob:focus {
+        outline: none;
+      }
+      .knob:focus .k-track {
+        stroke: #ff660033;
+      }
+      .knob:focus .k-lab {
+        color: var(--orange);
       }
       .knob svg {
         width: 100%;
@@ -694,6 +707,23 @@ import "./theme-asml.css";
           render(key);
         });
         el.addEventListener("pointerup", () => (dragging = false));
+        // Keyboard: a focused knob owns ←/→ (a step) and ↑/↓ (a coarse step),
+        // stealing them from reveal only while it holds focus.
+        el.addEventListener("keydown", (e) => {
+          const step = MAX[key] / 40;
+          const d =
+            e.key === "ArrowRight" || e.key === "ArrowUp"
+              ? 1
+              : e.key === "ArrowLeft" || e.key === "ArrowDown"
+                ? -1
+                : 0;
+          if (!d) return;
+          const coarse = e.key === "ArrowUp" || e.key === "ArrowDown" ? 4 : 1;
+          state[key] = Math.max(0, Math.min(MAX[key], state[key] + d * step * coarse));
+          render(key);
+          e.preventDefault();
+          e.stopPropagation();
+        });
       });
 
       // ── B: sliders ────────────────────────────────────────────────
