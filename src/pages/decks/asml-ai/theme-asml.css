@@ -94,7 +94,9 @@
    terminal, tokenizer) off the top edge, hiding the eyebrow + headline. */
 .reveal section.code,
 .reveal section[data-terminal],
-.reveal section[data-tokenizer] {
+.reveal section[data-tokenizer],
+.reveal section[data-token-live],
+.reveal section[data-cost-dial] {
   justify-content: flex-start;
 }
 
@@ -1469,6 +1471,426 @@
 }
 .lottery-trigger { display: none; }
 
+/* ══════════════════════════ CHAPTER A — tokens, credits, the cost dial ══
+   Slides A2–A5 of the literacy run (wayfinder #27). Shared small-type first,
+   then one block per slide. Every class is namespaced (tk- / dial-) so it
+   can't collide with the showcase-era slides above. */
+
+/* One sentence of body under the headline; the caveat that qualifies it. */
+.reveal .tk-body {
+  max-width: 54ch;
+  margin: 0.2rem 0 1.2rem;
+}
+.reveal .tk-body-lead {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.4rem, 2.8vw, 2.3rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--navy);
+  max-width: 24ch;
+  margin: 0.6rem 0 1.6rem;
+}
+/* Small type has to out-specify `.reveal p`, hence the `.reveal` prefix. */
+.reveal .tk-caveat {
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.78vw, 0.74rem);
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+  color: #1b1b1b73;
+  max-width: 72ch;
+  margin: 1rem 0 0;
+}
+.reveal .tk-cap {
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.78vw, 0.76rem);
+  letter-spacing: 0.03em;
+  color: #1b1b1b8c;
+  max-width: none;
+  margin: 0;
+}
+.reveal .tk-cap-right {
+  text-align: right;
+}
+
+/* ── A2: the sentence shatters ──────────────────────────────────────────
+   Pre-break the pieces sit flush and read as prose; on .go they separate,
+   take chip borders, and the leading space turns into a visible dot — the
+   space rides with its token, which is the surprise worth staging. */
+.tk-stage {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.4rem, 4vh, 2.8rem);
+  align-items: flex-start;
+  margin-top: clamp(0.6rem, 2vh, 1.4rem);
+}
+.tk-sentence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* Wide enough that the sentence breaks over two or three lines: the shape
+     has to still read as a sentence after the pieces separate. */
+  max-width: 60ch;
+}
+.tk-piece {
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 1.9vw, 1.6rem);
+  line-height: 1.55;
+  color: var(--navy);
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 0.1em 0;
+  margin: 0;
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    margin var(--dur) var(--ease),
+    padding var(--dur) var(--ease);
+  transition-delay: calc(var(--i, 0) * 26ms);
+}
+.tk-piece[data-sp]::before {
+  content: " ";
+  white-space: pre;
+}
+.tk-sentence.go .tk-piece {
+  background: #0066cc12;
+  border-color: #0066cc2e;
+  margin: 0.16em 0.14em;
+  padding: 0.1em 0.34em;
+}
+.tk-sentence.go .tk-piece[data-sp]::before {
+  content: "·";
+  color: var(--signal);
+  opacity: 0.55;
+}
+.tk-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+.tk-count b {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  line-height: 1;
+  color: var(--orange);
+  font-variant-numeric: tabular-nums;
+}
+.tk-count span {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: clamp(0.7rem, 0.95vw, 0.85rem);
+  color: var(--signal);
+}
+
+/* ── A3: live tokenizer (left) + embedding space (right) ────────────────
+   Two panels, never stacked: the adjacency is the teaching. */
+.tk-embed {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: clamp(1.2rem, 3vw, 2.6rem);
+  align-items: start;
+  flex: 1;
+  min-height: 0;
+}
+.tk-embed-left,
+.tk-embed-right {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.tk-embed-left {
+  gap: 0.75rem;
+}
+.tk-embed-right {
+  gap: 0.5rem;
+  height: 100%;
+}
+.tk-input {
+  font-family: var(--font-body);
+  font-size: clamp(0.85rem, 1.15vw, 1.05rem);
+  line-height: 1.5;
+  color: var(--navy);
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  height: 5.4em;
+  resize: none;
+  outline: none;
+  box-shadow: var(--shadow);
+}
+.tk-input:focus {
+  border-color: var(--signal);
+}
+.tk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-content: flex-start;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+.tk-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 0.2rem 0.42rem 0.16rem;
+  border-radius: 3px;
+  background: #0066cc12;
+  border: 1px solid #0066cc2e;
+  font-family: var(--font-mono);
+  line-height: 1.1;
+  animation: tk-chip-in 260ms var(--ease) both;
+}
+.tk-chip .t {
+  font-size: clamp(0.72rem, 0.95vw, 0.92rem);
+  color: var(--navy);
+  white-space: pre;
+}
+.tk-chip .id {
+  font-size: clamp(0.5rem, 0.62vw, 0.62rem);
+  color: var(--signal);
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+}
+@keyframes tk-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.94);
+  }
+}
+.tk-meter {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.85vw, 0.82rem);
+  color: #1b1b1b99;
+}
+.tk-meter-n {
+  white-space: nowrap;
+}
+.tk-meter b {
+  font-size: clamp(1.1rem, 1.7vw, 1.6rem);
+  color: var(--orange);
+  font-weight: 700;
+}
+/* One model per row — a price list, not a run-on sentence. Euros carry the
+   rate (a stable number the room can hold); AIC carries the live text. */
+.tk-price {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.tk-price th {
+  font-weight: 400;
+  font-size: 0.82em;
+  color: #1b1b1b66;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: right;
+  padding: 0 0 0.25rem 0.9rem;
+}
+.tk-price th:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+.tk-price td {
+  padding: 0.1rem 0 0.1rem 0.9rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.tk-price td:first-child {
+  text-align: left;
+  padding-left: 0;
+  color: var(--navy);
+}
+.tk-price .eur {
+  color: var(--orange);
+  font-weight: 700;
+}
+.tk-price .aic {
+  color: #1b1b1b8c;
+}
+.tk-cloud {
+  flex: 1;
+  /* The cloud needs real height or the box projects into a letterbox and
+     stops reading as a volume; the panel is wider than it is tall either way. */
+  min-height: 26rem;
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ── A5: the cost dial ──────────────────────────────────────────────────
+   Three knobs, and the equation IS the rate table: each rate appears once,
+   as the second factor of its own term. No separate table on this slide. */
+.dial-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(1.6rem, 4vw, 3rem);
+  align-items: center;
+  margin-top: 0.4rem;
+}
+.dial-knobs {
+  display: flex;
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+}
+.knob {
+  text-align: center;
+  flex: 1;
+  max-width: 9.5rem;
+  cursor: ns-resize;
+  user-select: none;
+  touch-action: none;
+}
+.knob:focus {
+  outline: none;
+}
+.knob:focus .k-track {
+  stroke: #ff660033;
+}
+.knob:focus .k-lab {
+  color: var(--orange);
+}
+.knob svg {
+  width: 100%;
+  display: block;
+}
+.k-track {
+  fill: none;
+  stroke: #e3e8f0;
+  stroke-width: 9;
+}
+.k-fill {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transform: rotate(135deg);
+  transform-origin: 50% 50%;
+  stroke-dasharray: 251;
+}
+.knob[data-hot] .k-fill {
+  stroke: var(--orange);
+}
+.k-ptr {
+  stroke: var(--navy);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform-origin: 50% 50%;
+}
+.k-val {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.35rem;
+}
+.k-lab {
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #8a8a8a;
+}
+.dial-eq {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1.1vw, 0.95rem);
+  color: #9aa3b0;
+}
+.dial-eq .t {
+  padding: 0.28rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.dial-eq .t b {
+  color: var(--navy);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.dial-eq .t i {
+  font-style: normal;
+  opacity: 0.45;
+}
+.dial-eq .t.lit {
+  background: #0066cc14;
+}
+.dial-eq .t.lit b {
+  color: var(--signal);
+}
+.dial-total {
+  margin: 0.9rem 0 1.1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.dial-total .tot-n {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 7vw, 5.4rem);
+  color: var(--navy);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dial-total .tot-u {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--signal);
+  letter-spacing: 0.12em;
+}
+.dial-total .tot-eur {
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  color: var(--orange);
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.6rem;
+}
+.dial-models {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dial-models button {
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.95vw, 0.78rem);
+  letter-spacing: 0.04em;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  background: var(--card);
+  color: var(--navy);
+  cursor: pointer;
+  transition:
+    background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.dial-models button[aria-pressed="true"] {
+  background: var(--signal);
+  color: #fff;
+  border-color: var(--signal);
+}
+.reveal .dial-hint {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.8vw, 0.72rem);
+  color: #9aa3b0;
+  max-width: none;
+}
+
 /* ─────────────────────────────────── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal .h-set .h-line > span { transform: none; }
@@ -1481,4 +1903,7 @@
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }
   .lot-dot, .lot-zone, .lot-trace { transition: none; }
+  .tk-piece { transition: none; }
+  .tk-chip { animation: none; }
+  .dial-eq .t, .dial-models button { transition: none; }
 }
