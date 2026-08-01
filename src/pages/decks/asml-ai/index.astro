@@ -1768,7 +1768,7 @@ export function estimateTokens(text: string): number {
       RATES.forEach((m, i) => {
         const b = document.createElement("button");
         b.type = "button";
-        b.textContent = m.name;
+        b.innerHTML = `${m.name} <span class="m-mult" data-mult></span>`;
         b.addEventListener("click", () => {
           dial.model = i;
           renderDial();
@@ -1819,12 +1819,26 @@ export function estimateTokens(text: string): number {
         });
       });
 
+      /** "1×", "9.3×" — trailing .0 dropped so the cheapest reads as a clean 1. */
+      const fmtMult = (n: number) => n.toFixed(1).replace(/\.0$/, "") + "×";
+
       let dialLitTimer = 0;
       function renderDial(touched?: DialKey) {
         const m = RATES[dial.model];
-        dialModelHost
-          ?.querySelectorAll("button")
-          .forEach((b, i) => b.setAttribute("aria-pressed", String(i === dial.model)));
+        // Each model carries what it costs relative to the cheapest one *at the
+        // current mix* — so the spread widens and narrows as the knobs move,
+        // which is the point: the gap is a property of the work, not the badge.
+        const costs = RATES.map((r) =>
+          (dial.input * r.input + dial.cached * r.cached + dial.output * r.output) / 1e6,
+        );
+        const cheapest = Math.min(...costs);
+        dialModelHost?.querySelectorAll("button").forEach((b, i) => {
+          b.setAttribute("aria-pressed", String(i === dial.model));
+          const mult = b.querySelector<HTMLElement>("[data-mult]");
+          // With every knob at zero every model costs nothing and the ratio is
+          // undefined — show nothing rather than a made-up 1×.
+          if (mult) mult.textContent = cheapest > 0 ? fmtMult(costs[i] / cheapest) : "";
+        });
         document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
           const key = el.dataset.knob as DialKey;
           const frac = dial[key] / DIAL_MAX[key];
