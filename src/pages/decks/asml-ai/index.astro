@@ -381,6 +381,276 @@ export function estimateTokens(text: string): number {
           </aside>
         </section>
 
+        <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER A — "What you're actually buying" (wayfinder #20 / #27).
+             Five slides: divider → tokens → live tokenizer + embedding space →
+             credits → the cost dial. Copy is verbatim from #23's resolution
+             (with #24's amendment to the cloud caption); rates come from #21
+             via src/lib/asml-ai/rates.ts; the two widgets ship the interactions
+             settled by the #24 and #25 prototypes.
+
+             The "03" here deliberately collides with the lottery block's
+             "03 — The compound": editing existing slides is out of scope, so
+             the duplicate stands as a loud renumbering TODO, visible in the
+             on-screen section indicator.
+             ══════════════════════════════════════════════════════════════════ -->
+
+        <!-- A1 ─────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <section class="chapter" data-section="03 — Tokens" data-chapter>
+          <span class="chapter-no">CHAPTER 03</span>
+          <h2>What you&rsquo;re<br />actually buying.</h2>
+          <aside class="notes">
+            We've talked about what this costs you. Now we're going to look at
+            what you're actually paying for — and it's a smaller, stranger unit
+            than most people expect.
+          </aside>
+        </section>
+
+        <!-- A2 ─────────────────── TOKENS: a sentence shatters into chips -->
+        <section data-section="03 — Tokens" data-token-shatter>
+          <span class="eyebrow">The unit &middot; animated</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Everything you type</span></span>
+            <span class="h-line"><span>breaks into tokens.</span></span>
+          </h2>
+          <p class="tk-body">&asymp; 4 characters. &asymp; &frac34; of a word.</p>
+          <div class="tk-stage">
+            <!-- The chips are built from this text on slide entry; edit the
+                 sentence here. Deliberately an ordinary request, in the room's
+                 own vocabulary, so the shatter lands on something familiar. -->
+            <div
+              class="tk-sentence"
+              data-tk-sentence="Summarise last week's throughput report and flag anything unusual."
+            ></div>
+            <div class="tk-count">
+              <b data-tk-count>0</b><span>tokens</span>
+            </div>
+          </div>
+          <p class="tk-caveat">
+            English prose. Code and other languages cost more.
+          </p>
+          <aside class="notes">
+            Watch what happens to a perfectly ordinary sentence: it doesn't
+            break into words, it breaks into pieces — and the space in front of
+            a word travels with it. That count is what you're billed on, not
+            the words and not the characters.
+          </aside>
+        </section>
+
+        <!-- A3 ─────────────────── LIVE TOKENIZER + 3D EMBEDDING SPACE -->
+        <!-- Two panels, not a vertical stack (#23): the payoff IS the
+             adjacency — your typing becomes numbers, the numbers become
+             positions. The cloud is a pure hash scatter (#24); it must never
+             be described as "what's inside the model". -->
+        <section data-section="03 — Tokens" data-token-live>
+          <span class="eyebrow">The vocabulary &middot; live, type anything</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>The model never</span></span>
+            <span class="h-line"><span>sees your words.</span></span>
+          </h2>
+          <p class="tk-body">
+            Every token is just an index into a fixed vocabulary &mdash; around
+            200,000 entries for a current frontier model.
+          </p>
+
+          <div class="tk-embed">
+            <div class="tk-embed-left">
+              <textarea class="tk-input" spellcheck="false" data-tk-input
+                >The engineer asked the model about budget, then wrote a function.</textarea
+              >
+              <div class="tk-chips" data-tk-chips></div>
+              <div class="tk-meter">
+                <span class="tk-meter-n"><b data-tk-live-n>0</b> tokens</span>
+                <table class="tk-price" data-tk-price></table>
+              </div>
+              <p class="tk-cap">
+                IDs are addresses, not values. Meaning lives in what they point
+                at. &rarr;
+              </p>
+            </div>
+            <div class="tk-embed-right">
+              <div class="tk-cloud" data-tk-cloud></div>
+              <p class="tk-cap tk-cap-right">
+                A 3D shadow of a 1,536-dimensional space.
+              </p>
+            </div>
+          </div>
+
+          <p class="tk-caveat">
+            Approximate tokenizer (&asymp; chars &divide; 4), illustrative
+            embedding space. The counting is real; the geometry is a sketch.
+          </p>
+          <aside class="notes">
+            Type anything you like here — it never leaves the browser, and no
+            model was called. The point is the handoff from left to right: your
+            letters become numbers, and those numbers are addresses into a
+            space where position is the only thing that carries meaning.
+          </aside>
+        </section>
+
+        <!-- A4 ─────────────────── TOKENS ARE THE UNIT, CREDITS THE PRICE -->
+        <section data-section="03 — Tokens" data-credits>
+          <span class="eyebrow">The price &middot; static</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Tokens are the unit.</span></span>
+            <span class="h-line"><span>Credits are the price.</span></span>
+          </h2>
+          <p class="tk-body tk-body-lead">
+            1 AI credit = 1 US cent &mdash; and you get 12,000 of them a month.
+          </p>
+          <div class="credits-cols">
+            <div class="credits-left">
+              <!-- Built from src/lib/asml-ai/rates.ts: the same four models the
+                   cost dial and the agent loop use, so the room meets every
+                   rate here before either widget spends one. -->
+              <table class="credit-rates" data-credit-rates></table>
+              <p class="tk-caveat">
+                Code completions and next edit suggestions aren&rsquo;t billed
+                at all &mdash; unlimited on every paid plan. Rates as of July
+                2026.
+              </p>
+            </div>
+            <!-- How one input prompt becomes a bill, one stage per row with
+                 the operator riding on the arrow between them. The worked
+                 example is a realistic prompt rather than slide 3's sentence:
+                 fifteen tokens costs €0.0000347, which reads as "free" and is
+                 exactly the figure #24 kept euros away from. The attached
+                 report also quietly sets up chapter B's "you send the whole
+                 thing". Figures are filled from src/lib/asml-ai/rates.ts. -->
+            <div class="credits-right">
+              <ol class="bill-ladder">
+                <li class="st">
+                  <span class="lab">your prompt</span>
+                  <span class="quote"
+                    >&ldquo;Summarise last week&rsquo;s throughput report and
+                    flag anything unusual.&rdquo;</span
+                  >
+                  <span class="sub">+ the 4-page report you attached</span>
+                </li>
+                <li class="op"><i>counted &mdash; roughly chars &divide; 4</i></li>
+                <li class="st">
+                  <b class="n" data-bill-tokens>0</b>
+                  <span class="lab">input tokens</span>
+                </li>
+                <li class="op"><i data-bill-rate></i></li>
+                <li class="st">
+                  <b class="n" data-bill-aic>0</b>
+                  <span class="lab">AI credits</span>
+                </li>
+                <li class="op"><i>1 AIC = 1 US cent, &divide; 1.08</i></li>
+                <li class="st last">
+                  <b class="n" data-bill-eur>&euro;0.00</b>
+                  <span class="lab">what it cost</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          <aside class="notes">
+            One credit is one US cent, and your allowance is 12,000 a month.
+            That number is ours, not GitHub's — their published plans are 1,900
+            and 3,900, and ours is what the company contracted for, so don't go
+            looking for it in the docs. The credit is a US cent because that's
+            how GitHub bills it; everything we price in euros on these slides is
+            our own conversion. Read the table across, not down — these are the
+            same four models the next slide lets you play with. The ladder on
+            the right takes one real prompt all the way to a euro figure; the
+            line worth pausing on is that most of those 1,240 tokens are the
+            attached report, not the question, which is where chapter four
+            picks up. And the thing people always ask about — inline
+            completions and next edit suggestions — isn't billed at all.
+          </aside>
+        </section>
+
+        <!-- A5 ─────────────────── THE COST DIAL (knobs + live equation) -->
+        <!-- Three dials, four models (#23/#25). Anthropic's fourth rate — cache
+             writes at 1.25x input — is deliberately off-screen; the presenter
+             note carries it. Do not add a fourth dial. -->
+        <section data-section="03 — Tokens" data-cost-dial>
+          <span class="eyebrow">The bill &middot; interactive, drag the dials</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Three numbers</span></span>
+            <span class="h-line"><span>make the bill.</span></span>
+          </h2>
+          <p class="tk-body">
+            Input, cached input, output &mdash; multiplied by whichever model
+            you picked.
+          </p>
+
+          <div class="dial-wrap">
+            <div class="dial-knobs">
+              <div class="knob" data-knob="input">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle class="k-track" cx="50" cy="50" r="40"></circle>
+                  <circle class="k-fill" cx="50" cy="50" r="40" data-knob-arc></circle>
+                  <line class="k-ptr" x1="50" y1="50" x2="50" y2="16" data-knob-ptr></line>
+                </svg>
+                <b class="k-val" data-knob-val>0</b>
+                <span class="k-lab">input</span>
+              </div>
+              <div class="knob" data-knob="cached">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle class="k-track" cx="50" cy="50" r="40"></circle>
+                  <circle class="k-fill" cx="50" cy="50" r="40" data-knob-arc></circle>
+                  <line class="k-ptr" x1="50" y1="50" x2="50" y2="16" data-knob-ptr></line>
+                </svg>
+                <b class="k-val" data-knob-val>0</b>
+                <span class="k-lab">cached</span>
+              </div>
+              <div class="knob" data-knob="output">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle class="k-track" cx="50" cy="50" r="40"></circle>
+                  <circle class="k-fill" cx="50" cy="50" r="40" data-knob-arc></circle>
+                  <line class="k-ptr" x1="50" y1="50" x2="50" y2="16" data-knob-ptr></line>
+                </svg>
+                <b class="k-val" data-knob-val>0</b>
+                <span class="k-lab">output</span>
+              </div>
+            </div>
+
+            <div class="dial-right">
+              <!-- The equation IS the rate table: every rate appears exactly
+                   once, as the second factor in its own term. -->
+              <div class="dial-eq">
+                <span class="t" data-term="input"
+                  ><b data-t-tok>0</b> <i>&times;</i> <b data-t-rate>0</b></span
+                >
+                <span class="op">+</span>
+                <span class="t" data-term="cached"
+                  ><b data-t-tok>0</b> <i>&times;</i> <b data-t-rate>0</b></span
+                >
+                <span class="op">+</span>
+                <span class="t" data-term="output"
+                  ><b data-t-tok>0</b> <i>&times;</i> <b data-t-rate>0</b></span
+                >
+              </div>
+              <div class="dial-total">
+                <span class="tot-n" data-dial-aic>0.00</span
+                ><span class="tot-u">AIC</span>
+                <span class="tot-eur" data-dial-eur>&euro;0.00</span>
+              </div>
+              <div class="dial-models" data-dial-models></div>
+              <p class="dial-hint">
+                drag a knob &nbsp;&middot;&nbsp; or <kbd>tab</kbd> to one and
+                <kbd>&larr;</kbd><kbd>&rarr;</kbd> fine,
+                <kbd>&uarr;</kbd><kbd>&darr;</kbd> coarse
+              </p>
+            </div>
+          </div>
+
+          <p class="tk-caveat">Rates as of July 2026.</p>
+          <aside class="notes">
+            Three numbers, one multiplication each — that's the whole bill.
+            Start on Flash, then reach for Opus: same tokens, nine times the
+            money, and nothing about the work changed. Cached input is a tenth
+            of the price of fresh input, which is the lever this whole talk is
+            about. One thing this widget doesn't show: Anthropic also bills
+            cache *writes* at 1.25 times input — 375 for Sonnet, 625 for Opus —
+            so the two Claude rows here are slightly optimistic. The euro figure
+            is our own conversion at 1.08 dollars to the euro; the credit is the
+            number GitHub actually bills.
+          </aside>
+        </section>
+
         <!-- 8b ─────────────────── RELIABILITY SCATTER (result quality × spend) -->
         <section class="lottery" data-section="03 — The compound" data-lottery>
           <span class="eyebrow">Animated · press &rarr; to level up</span>
@@ -621,6 +891,22 @@ export function estimateTokens(text: string): number {
     </div>
 
     <script>
+      import {
+        MODELS as RATES,
+        eurOfAic,
+        eurDecimals,
+        eurSigDecimals,
+        fmtEur,
+        fmtAic,
+        fmtInt,
+      } from "../../../lib/asml-ai/rates";
+      import {
+        tokenize,
+        place,
+        SPREAD_XZ,
+        SPREAD_Y,
+        type Tok,
+      } from "../../../lib/asml-ai/tokenize";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -1249,6 +1535,424 @@ export function estimateTokens(text: string): number {
           .forEach((s) => io.observe(s));
       });
 
+      /* ══════════════════════════════════════════════════════════════════
+         CHAPTER A — tokens, credits, the cost dial (wayfinder #27)
+
+         Three vanilla-TS islands, no new runtime dependency. Every one is a
+         pure function of its markup plus module constants, so slide entry
+         replays them identically with no stored state.
+         ══════════════════════════════════════════════════════════════════ */
+
+      const escapeHtml = (s: string) =>
+        s.replace(/[<>&"]/g, (c) =>
+          ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]!,
+        );
+      const reducedMotion = () =>
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      /** Count a number into place. Formatter is fixed by the caller so the
+          decimal width can't change mid-animation. */
+      const countShown = new WeakMap<HTMLElement, number>();
+      function countUp(
+        el: HTMLElement,
+        target: number,
+        fmt: (n: number) => string,
+        dur = 420,
+      ) {
+        const from = countShown.get(el) ?? 0;
+        countShown.set(el, target);
+        if (reducedMotion()) {
+          el.textContent = fmt(target);
+          return;
+        }
+        const t0 = performance.now();
+        const step = (t: number) => {
+          const p = Math.min(1, (t - t0) / dur);
+          el.textContent = fmt(from + (target - from) * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+
+      // ── A2: a sentence shatters into token pieces ─────────────────
+      const shatterHost = document.querySelector<HTMLElement>("[data-tk-sentence]");
+      const shatterCount = document.querySelector<HTMLElement>("[data-tk-count]");
+      let shatterTimer: number | undefined;
+      function playShatter() {
+        if (!shatterHost || !shatterCount) return;
+        const toks = tokenize(shatterHost.dataset.tkSentence ?? "");
+        shatterHost.innerHTML = toks
+          .map((t, i) => {
+            const sp = t.text.startsWith(" ") ? " data-sp" : "";
+            return `<span class="tk-piece"${sp} style="--i:${i}"><b>${escapeHtml(
+              t.text.trimStart(),
+            )}</b></span>`;
+          })
+          .join("");
+        shatterHost.classList.remove("go");
+        shatterCount.textContent = "0";
+        countShown.set(shatterCount, 0);
+        window.clearTimeout(shatterTimer);
+        const go = () => {
+          shatterHost.classList.add("go");
+          countUp(shatterCount, toks.length, (n) => String(Math.round(n)), 700);
+        };
+        // Hold the intact sentence for a beat first — the break only reads as
+        // a break if the room saw the whole sentence before it.
+        if (reducedMotion()) go();
+        else shatterTimer = window.setTimeout(go, 620);
+      }
+
+      // ── A4: the credit rate table ─────────────────────────────────
+      // Static, but generated — the rates live in one module and nothing else
+      // in the deck is allowed to know a number.
+      const creditRates = document.querySelector<HTMLElement>("[data-credit-rates]");
+      if (creditRates) {
+        creditRates.innerHTML =
+          `<tr><th>model</th><th>input</th><th>cached</th><th>output</th></tr>` +
+          RATES.map(
+            (m) =>
+              `<tr><td>${m.name}</td><td>${fmtInt(m.input)}</td>` +
+              `<td>${fmtInt(m.cached)}</td><td>${fmtInt(m.output)}</td></tr>`,
+          ).join("") +
+          `<tr class="unit"><td colspan="4">AI credits per 1M tokens</td></tr>`;
+      }
+
+      // ── A4: the input-billing ladder ──────────────────────────────
+      // Copy lives in the markup; only the figures come from here, so the
+      // ladder can never disagree with the rate table above it.
+      (() => {
+        const model = RATES[1]; // GPT-5.4 — the middle of the lineup
+        const tokens = 1240;
+        const aic = (tokens * model.input) / 1e6;
+        const eur = eurOfAic(aic);
+        const set = (sel: string, v: string) => {
+          const el = document.querySelector<HTMLElement>(sel);
+          if (el) el.textContent = v;
+        };
+        set("[data-bill-tokens]", fmtInt(tokens));
+        set("[data-bill-rate]", `× ${fmtInt(model.input)} AIC per 1M · ${model.name}`);
+        set("[data-bill-aic]", aic.toFixed(2));
+        // Well below the capped decimal rule, so this uses the uncapped one —
+        // same reasoning as slide 3's euro column.
+        set("[data-bill-eur]", fmtEur(eur, eurSigDecimals(eur)));
+      })();
+
+      // ── A3: live tokenizer + the 3D embedding space ───────────────
+      // Hand-rolled SVG perspective projection (#24 variant A). A 12-edge
+      // wireframe box is what makes the panel read as a space with things
+      // inside it rather than words sprayed on a card; the white halo under
+      // each glyph (paint-order: stroke) keeps labels legible where it crowds.
+      function cloudRenderer() {
+        const SVGNS = "http://www.w3.org/2000/svg";
+        let svg: SVGSVGElement;
+        let gBox: SVGGElement;
+        let gPts: SVGGElement;
+        let pts: { p: [number, number, number]; label: string }[] = [];
+        let W = 800;
+        let H = 480;
+        // CAM is far back on purpose — closer and the near face distorts into
+        // a funnel. `fit` is solved at mount so the box lands at ~92% of
+        // whatever panel it gets *at its widest rotation*: corner-on it
+        // projects ~1.4x its face-on width, and sizing to the face-on view
+        // clips the edges so the volume stops reading as closed.
+        const FOCAL = 700;
+        const CAM = 760;
+        const TILT = 0.32;
+        let fit = 1;
+
+        function project(p: [number, number, number], a: number) {
+          const [x, y, z] = p;
+          const cx = Math.cos(a), sx = Math.sin(a);
+          const X = x * cx - z * sx;
+          let Z = x * sx + z * cx;
+          const cy = Math.cos(TILT), sy = Math.sin(TILT);
+          const Y = y * cy - Z * sy;
+          Z = y * sy + Z * cy;
+          const s = FOCAL / Math.max(60, CAM + Z);
+          return { x: W / 2 + X * s * fit, y: H / 2 + Y * s * fit, s, z: Z };
+        }
+
+        /** FOCAL/CAM/SPREAD_* were calibrated against a panel this size. */
+        const REF_W = 800;
+        const REF_H = 480;
+        const solveFit = () => (fit = Math.min(W / REF_W, H / REF_H));
+
+        // The box sits outside the point shell, so the cloud reads as inside a
+        // space rather than bursting out of a tight crate.
+        const BOX_XZ = SPREAD_XZ * 1.16;
+        const BOX_Y = SPREAD_Y * 1.22;
+        const CUBE: [number, number, number][] = [];
+        for (const sx of [-1, 1])
+          for (const sy of [-1, 1])
+            for (const sz of [-1, 1]) CUBE.push([sx * BOX_XZ, sy * BOX_Y, sz * BOX_XZ]);
+        const EDGES: [number, number][] = [];
+        CUBE.forEach((a, i) =>
+          CUBE.forEach((b, j) => {
+            if (j <= i) return;
+            if (a.filter((v, k) => v !== b[k]).length === 1) EDGES.push([i, j]);
+          }),
+        );
+
+        return {
+          mount(host: HTMLElement) {
+            host.innerHTML = "";
+            const r = host.getBoundingClientRect();
+            W = Math.max(400, r.width);
+            H = Math.max(280, r.height);
+            solveFit();
+            svg = document.createElementNS(SVGNS, "svg");
+            svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+            svg.setAttribute("width", "100%");
+            svg.setAttribute("height", "100%");
+            svg.setAttribute("aria-hidden", "true");
+            gBox = document.createElementNS(SVGNS, "g");
+            gPts = document.createElementNS(SVGNS, "g");
+            svg.append(gBox, gPts);
+            host.append(svg);
+          },
+          set(toks: Tok[]) {
+            pts = toks
+              .filter((t) => t.text.trim())
+              .slice(-48)
+              .map((t) => ({ p: place(t), label: t.text.trim() }));
+          },
+          frame(a: number) {
+            if (!gBox) return;
+            let box = "";
+            for (const [i, j] of EDGES) {
+              const p1 = project(CUBE[i], a), p2 = project(CUBE[j], a);
+              box += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" stroke="#0066cc" stroke-opacity="0.10" stroke-width="1"/>`;
+            }
+            gBox.innerHTML = box;
+            let out = "";
+            for (const p of pts
+              .map((pt) => ({ ...project(pt.p, a), label: pt.label }))
+              .sort((m, n) => n.z - m.z)) {
+              // s runs ~0.54 (far face) to ~1.08 (near face) at this camera
+              const depth = Math.max(0.28, Math.min(1, (p.s - 0.5) / 0.52));
+              // No orange in the cloud: the slide's one hot accent is already
+              // spent on the token count.
+              out +=
+                `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(1.6 + depth * 2.6).toFixed(1)}" fill="#0066CC" fill-opacity="${(depth * 0.85).toFixed(2)}"/>` +
+                `<text x="${(p.x + 6).toFixed(1)}" y="${(p.y + 4).toFixed(1)}" font-family="JetBrains Mono, monospace" font-size="${(15 + depth * 10).toFixed(1)}" fill="#00327d" fill-opacity="${(depth * 0.95).toFixed(2)}" stroke="#ffffff" stroke-width="3" stroke-opacity="${(depth * 0.8).toFixed(2)}" paint-order="stroke" stroke-linejoin="round">${escapeHtml(p.label)}</text>`;
+            }
+            gPts.innerHTML = out;
+          },
+        };
+      }
+
+      const tkInput = document.querySelector<HTMLTextAreaElement>("[data-tk-input]");
+      const tkChips = document.querySelector<HTMLElement>("[data-tk-chips]");
+      const tkCloudHost = document.querySelector<HTMLElement>("[data-tk-cloud]");
+      const tkLiveN = document.querySelector<HTMLElement>("[data-tk-live-n]");
+      const tkPrice = document.querySelector<HTMLElement>("[data-tk-price]");
+      const cloud = cloudRenderer();
+      let cloudRaf = 0;
+      let cloudAngle = 0;
+
+      function renderLive() {
+        if (!tkInput || !tkChips || !tkLiveN || !tkPrice) return;
+        const toks = tokenize(tkInput.value);
+        tkChips.innerHTML = toks
+          .slice(-60)
+          .map(
+            (t) =>
+              `<span class="tk-chip"><span class="t">${escapeHtml(
+                t.text.replace(/ /g, "·"),
+              )}</span><span class="id">${t.id}</span></span>`,
+          )
+          .join("");
+        tkLiveN.textContent = String(toks.length);
+        // The typed text in euros is ~EUR 0.000007, far below the capped
+        // decimal rule — so it gets the uncapped one, and the whole column
+        // shares the width the *cheapest* model needs, or the figures don't
+        // line up. The orange accent stays on the per-1M rate: that is the
+        // stable number the room can hold, and it only lands once.
+        const textEur = RATES.map((m) => eurOfAic((toks.length * m.input) / 1e6));
+        const dp = eurSigDecimals(Math.min(...textEur));
+        tkPrice.innerHTML =
+          `<tr><th>model</th><th>this text</th><th>in euros</th><th>per 1M tokens</th></tr>` +
+          RATES.map(
+            (m, i) =>
+              `<tr><td>${m.name}</td>` +
+              `<td class="aic">${((toks.length * m.input) / 1e6).toFixed(4)} AIC</td>` +
+              `<td class="aic">${fmtEur(textEur[i], dp)}</td>` +
+              `<td class="eur">${fmtEur(eurOfAic(m.input))}</td></tr>`,
+          ).join("");
+        cloud.set(toks);
+      }
+      tkInput?.addEventListener("input", renderLive);
+
+      function startCloud() {
+        if (!tkCloudHost || cloudRaf) return;
+        cloudAngle = 0;
+        cloud.mount(tkCloudHost);
+        renderLive();
+        if (reducedMotion()) {
+          cloud.frame(0);
+          return;
+        }
+        let last = performance.now();
+        const loop = (now: number) => {
+          cloudAngle += (now - last) * 0.00022;
+          last = now;
+          cloud.frame(cloudAngle);
+          cloudRaf = requestAnimationFrame(loop);
+        };
+        cloudRaf = requestAnimationFrame(loop);
+      }
+      function stopCloud() {
+        if (cloudRaf) cancelAnimationFrame(cloudRaf);
+        cloudRaf = 0;
+      }
+
+      // ── A5: the cost dial ─────────────────────────────────────────
+      type DialKey = "input" | "cached" | "output";
+      const DIAL_MAX: Record<DialKey, number> = {
+        input: 200_000,
+        cached: 200_000,
+        output: 20_000,
+      };
+      // Flash is the default and Opus is the reach: on the locked rates
+      // GPT-5.4 → Opus is only 1.9x, but Flash → Opus is 9.3x. Cached is
+      // non-zero so a third of the widget isn't dead on arrival.
+      const DIAL_PRESET: Record<DialKey, number> = {
+        input: 20_000,
+        cached: 60_000,
+        output: 3_000,
+      };
+      const dial = { ...DIAL_PRESET, model: 0 };
+      const dialAic = () => {
+        const m = RATES[dial.model];
+        return (
+          (dial.input * m.input + dial.cached * m.cached + dial.output * m.output) /
+          1e6
+        );
+      };
+
+      const dialModelHost = document.querySelector<HTMLElement>("[data-dial-models]");
+      RATES.forEach((m, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = `${m.name} <span class="m-mult" data-mult></span>`;
+        b.addEventListener("click", () => {
+          dial.model = i;
+          renderDial();
+        });
+        dialModelHost?.append(b);
+      });
+
+      document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
+        const key = el.dataset.knob as DialKey;
+        el.tabIndex = 0;
+        let dragging = false;
+        let startY = 0;
+        let startV = 0;
+        el.addEventListener("pointerdown", (e) => {
+          dragging = true;
+          startY = e.clientY;
+          startV = dial[key];
+          el.setPointerCapture(e.pointerId);
+        });
+        el.addEventListener("pointermove", (e) => {
+          if (!dragging) return;
+          const delta = ((startY - e.clientY) / 220) * DIAL_MAX[key];
+          dial[key] = Math.max(
+            0,
+            Math.min(DIAL_MAX[key], Math.round((startV + delta) / 500) * 500),
+          );
+          renderDial(key);
+        });
+        el.addEventListener("pointerup", () => (dragging = false));
+        // A focused knob owns the arrows and stops them reaching reveal, so an
+        // unfocused → still advances the slide and the clicker behaves.
+        el.addEventListener("keydown", (e) => {
+          const d =
+            e.key === "ArrowRight" || e.key === "ArrowUp"
+              ? 1
+              : e.key === "ArrowLeft" || e.key === "ArrowDown"
+                ? -1
+                : 0;
+          if (!d) return;
+          const coarse = e.key === "ArrowUp" || e.key === "ArrowDown" ? 4 : 1;
+          dial[key] = Math.max(
+            0,
+            Math.min(DIAL_MAX[key], dial[key] + (d * DIAL_MAX[key] * coarse) / 40),
+          );
+          renderDial(key);
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      /** "1×", "9.3×" — trailing .0 dropped so the cheapest reads as a clean 1. */
+      const fmtMult = (n: number) => n.toFixed(1).replace(/\.0$/, "") + "×";
+
+      let dialLitTimer = 0;
+      function renderDial(touched?: DialKey) {
+        const m = RATES[dial.model];
+        // Each model carries what it costs relative to the cheapest one *at the
+        // current mix* — so the spread widens and narrows as the knobs move,
+        // which is the point: the gap is a property of the work, not the badge.
+        const costs = RATES.map((r) =>
+          (dial.input * r.input + dial.cached * r.cached + dial.output * r.output) / 1e6,
+        );
+        const cheapest = Math.min(...costs);
+        dialModelHost?.querySelectorAll("button").forEach((b, i) => {
+          b.setAttribute("aria-pressed", String(i === dial.model));
+          const mult = b.querySelector<HTMLElement>("[data-mult]");
+          // With every knob at zero every model costs nothing and the ratio is
+          // undefined — show nothing rather than a made-up 1×.
+          if (mult) mult.textContent = cheapest > 0 ? fmtMult(costs[i] / cheapest) : "";
+        });
+        document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
+          const key = el.dataset.knob as DialKey;
+          const frac = dial[key] / DIAL_MAX[key];
+          el.querySelector<SVGElement>("[data-knob-arc]")!.style.strokeDasharray =
+            `${frac * 188} 251`;
+          el.querySelector<SVGElement>("[data-knob-ptr]")!.style.transform =
+            `rotate(${135 + frac * 270}deg)`;
+          el.querySelector<HTMLElement>("[data-knob-val]")!.textContent = fmtInt(dial[key]);
+          el.toggleAttribute("data-hot", touched === key);
+        });
+        document.querySelectorAll<HTMLElement>("[data-term]").forEach((el) => {
+          const key = el.dataset.term as DialKey;
+          el.querySelector<HTMLElement>("[data-t-tok]")!.textContent = fmtInt(dial[key]);
+          el.querySelector<HTMLElement>("[data-t-rate]")!.textContent = String(m[key]);
+          el.classList.toggle("lit", touched === key);
+        });
+        window.clearTimeout(dialLitTimer);
+        dialLitTimer = window.setTimeout(() => {
+          document
+            .querySelectorAll(".dial-eq .t.lit")
+            .forEach((e) => e.classList.remove("lit"));
+          document
+            .querySelectorAll("[data-knob]")
+            .forEach((e) => e.removeAttribute("data-hot"));
+        }, 900);
+
+        const aic = dialAic();
+        const eurEl = document.querySelector<HTMLElement>("[data-dial-eur]");
+        const aicEl = document.querySelector<HTMLElement>("[data-dial-aic]");
+        if (aicEl) countUp(aicEl, aic, fmtAic);
+        if (eurEl) {
+          // Decimals are pinned to the target, so the width can't change
+          // mid-count; tabular numerals keep the columns from jittering.
+          const eur = eurOfAic(aic);
+          const dp = eurDecimals(eur);
+          countUp(eurEl, eur, (n) => fmtEur(n, dp));
+        }
+      }
+      function resetDial() {
+        Object.assign(dial, DIAL_PRESET);
+        dial.model = 0;
+        document
+          .querySelectorAll<HTMLElement>("[data-dial-aic],[data-dial-eur]")
+          .forEach((el) => countShown.set(el, 0));
+        renderDial();
+      }
+
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -1270,6 +1974,11 @@ export function estimateTokens(text: string): number {
           const frag = slide.querySelector<HTMLElement>("[data-lottery-collapse]");
           setLottery(slide, !!frag?.classList.contains("visible"));
         }
+        // Chapter A. The cloud's rAF loop only runs while its slide is live.
+        if (slide.hasAttribute("data-token-shatter")) playShatter();
+        if (slide.hasAttribute("data-token-live")) startCloud();
+        else stopCloud();
+        if (slide.hasAttribute("data-cost-dial")) resetDial();
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
