@@ -96,6 +96,7 @@
 .reveal section[data-terminal],
 .reveal section[data-tokenizer],
 .reveal section[data-token-live],
+.reveal section[data-credits],
 .reveal section[data-cost-dial] {
   justify-content: flex-start;
 }
@@ -1774,6 +1775,256 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #1b1b1b66;
+}
+
+/* ── A4 (TEMPORARY): the input-billing summary, four ways ───────────────
+   Four treatments of one worked example, for Atil to pick from. Everything
+   in this block except `.credits-cols` comes out with the losing three. */
+.credits-cols {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: start;
+  margin-top: 0.4rem;
+}
+.credits-right {
+  font-family: var(--font-mono);
+  /* No cap here — each treatment sets its own width, and the flow variant
+     needs the whole column or it wraps and stops reading left-to-right. */
+}
+
+/* A — vertical ladder */
+.bill-ladder {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 34rem;
+}
+.bill-ladder .st {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.bill-ladder .lab {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #8a8a8a;
+}
+.bill-ladder .quote {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--navy);
+  line-height: 1.35;
+}
+.bill-ladder .sub {
+  font-size: 0.72rem;
+  color: #1b1b1b73;
+}
+.bill-ladder .n {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+.bill-ladder .last .n {
+  color: var(--orange);
+}
+/* the operator rides on the arrow between two stages */
+.bill-ladder .op {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.35rem 0 0.35rem 0.15rem;
+  font-size: 0.7rem;
+  color: #9aa3b0;
+}
+.bill-ladder .op::before {
+  content: "↓";
+  color: var(--signal);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.bill-ladder .op i {
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* B — receipt */
+.bill-receipt {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  box-shadow: var(--shadow);
+  padding: 1.3rem 1.5rem;
+  max-width: 26rem;
+}
+.bill-receipt .r-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.4rem;
+  padding: 0.42rem 0;
+  font-size: 0.82rem;
+  color: #8a8a8a;
+}
+.bill-receipt .r-row b {
+  color: var(--navy);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bill-receipt .r-rule {
+  border-top: 2px solid var(--navy);
+  margin: 0.5rem 0;
+}
+.bill-receipt .r-tot b {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--orange);
+}
+
+/* C — horizontal flow */
+.bill-flow {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+}
+.bill-flow .f-step {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 6.2rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+}
+.bill-flow .f-step b {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.bill-flow .f-step span {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #8a8a8a;
+}
+.bill-flow .f-step.hot b {
+  color: var(--orange);
+}
+.bill-flow .f-op {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0 0.15rem;
+  font-size: 0.6rem;
+  color: #9aa3b0;
+  text-align: center;
+}
+.bill-flow .f-op::before {
+  content: "→";
+  color: var(--signal);
+  font-size: 1rem;
+  line-height: 1;
+}
+.bill-flow .f-op i {
+  font-style: normal;
+  white-space: nowrap;
+}
+
+/* D — annotated equation */
+.bill-eq .e-terms,
+.bill-eq .e-notes {
+  display: grid;
+  grid-template-columns: repeat(7, auto);
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: start;
+}
+.bill-eq .e-terms b {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+.bill-eq .e-terms b.hot {
+  color: var(--orange);
+}
+.bill-eq .e-terms i {
+  font-style: normal;
+  color: #9aa3b0;
+  font-size: 1.1rem;
+}
+.bill-eq .e-notes {
+  margin-top: 0.5rem;
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: #8a8a8a;
+}
+.bill-eq .e-notes span:not(:empty)::before {
+  content: "▲";
+  display: block;
+  color: var(--signal);
+  font-size: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+/* the switcher itself — obviously not part of the design */
+.bill-switch {
+  position: fixed;
+  z-index: 95;
+  left: 50%;
+  /* Top-centre, not bottom: Astro's dev toolbar owns bottom-centre and
+     swallows the clicks. The deck's own chrome is top-left and top-right. */
+  top: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #10141c;
+  color: #fff;
+  font: 500 12px/1 ui-monospace, monospace;
+  box-shadow: 0 10px 30px -8px #000a;
+}
+.bill-switch button {
+  background: #ffffff1a;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font: inherit;
+}
+.bill-switch button.on {
+  background: var(--orange);
+}
+.bill-switch span {
+  min-width: 18ch;
+  color: #ffcda6;
+}
+.bill-switch em {
+  opacity: 0.5;
+  font-style: normal;
+}
+.bill-switch kbd {
+  background: #ffffff1a;
+  border: 0;
+  color: #fff;
 }
 
 /* ── A5: the cost dial ──────────────────────────────────────────────────

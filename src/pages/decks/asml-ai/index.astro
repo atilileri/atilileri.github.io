@@ -74,6 +74,18 @@ export function estimateTokens(text: string): number {
     </div>
     <div class="chapter-wash" data-wash aria-hidden="true"></div>
 
+    <!-- TEMPORARY switcher for slide 14's billing-summary alternatives.
+         Deliberately not in the deck's design language — it comes out with the
+         three losing variants once Atil picks one. -->
+    <div class="bill-switch">
+      <button type="button" data-bill-pick="A">A</button>
+      <button type="button" data-bill-pick="B">B</button>
+      <button type="button" data-bill-pick="C">C</button>
+      <button type="button" data-bill-pick="D">D</button>
+      <span data-bill-label></span>
+      <em>slide 14 &middot; <kbd>[</kbd> <kbd>]</kbd></em>
+    </div>
+
     <!-- Inline presenter-notes overlay (native-proto style), toggled by "s".
          Shows the current slide's <aside class="notes"> text without leaving
          the deck. reveal's separate presenter window moves to "p". -->
@@ -489,7 +501,7 @@ export function estimateTokens(text: string): number {
         </section>
 
         <!-- A4 ─────────────────── TOKENS ARE THE UNIT, CREDITS THE PRICE -->
-        <section data-section="03 — Tokens">
+        <section data-section="03 — Tokens" data-credits>
           <span class="eyebrow">The price &middot; static</span>
           <h2 class="h-set">
             <span class="h-line"><span>Tokens are the unit.</span></span>
@@ -498,14 +510,29 @@ export function estimateTokens(text: string): number {
           <p class="tk-body tk-body-lead">
             1 AI credit = 1 US cent &mdash; and you get 12,000 of them a month.
           </p>
-          <!-- Built from src/lib/asml-ai/rates.ts: the same four models the
-               cost dial and the agent loop use, so the room meets every rate
-               here before either widget spends one. -->
-          <table class="credit-rates" data-credit-rates></table>
-          <p class="tk-caveat">
-            Code completions and next edit suggestions aren&rsquo;t billed at
-            all &mdash; unlimited on every paid plan. Rates as of July 2026.
-          </p>
+          <div class="credits-cols">
+            <div class="credits-left">
+              <!-- Built from src/lib/asml-ai/rates.ts: the same four models the
+                   cost dial and the agent loop use, so the room meets every
+                   rate here before either widget spends one. -->
+              <table class="credit-rates" data-credit-rates></table>
+              <p class="tk-caveat">
+                Code completions and next edit suggestions aren&rsquo;t billed
+                at all &mdash; unlimited on every paid plan. Rates as of July
+                2026.
+              </p>
+            </div>
+            <!-- TEMPORARY: four alternative treatments of the same worked
+                 example, switchable with [ / ] or ?bill=A|B|C|D, for Atil to
+                 pick from. The winner's copy gets lifted into this markup and
+                 the other three plus the switcher come out. -->
+            <div class="credits-right">
+              <div class="bill-v" data-bill="A" hidden></div>
+              <div class="bill-v" data-bill="B" hidden></div>
+              <div class="bill-v" data-bill="C" hidden></div>
+              <div class="bill-v" data-bill="D" hidden></div>
+            </div>
+          </div>
           <aside class="notes">
             One credit is one US cent, and your allowance is 12,000 a month.
             That number is ours, not GitHub's — their published plans are 1,900
@@ -1576,6 +1603,125 @@ export function estimateTokens(text: string): number {
           ).join("") +
           `<tr class="unit"><td colspan="4">AI credits per 1M tokens</td></tr>`;
       }
+
+      /* ── A4 (TEMPORARY): four treatments of the input-billing chain ──
+         All four render from one BILL object, so they cannot disagree about
+         the arithmetic — only about how it reads. Switch with [ / ] or
+         ?bill=A|B|C|D. When Atil picks one, its copy moves into the markup
+         and this whole block, the switcher and the other three come out.
+
+         The worked example is a realistic prompt, not slide 3's sentence:
+         fifteen tokens costs €0.0000347, which reads as "free" and is exactly
+         the figure #24 kept euros away from. A prompt with a document
+         attached lands at €0.0029 and quietly sets up chapter B. */
+      const BILL = (() => {
+        const model = RATES[1]; // GPT-5.4 — the middle of the lineup
+        const tokens = 1240;
+        const aic = (tokens * model.input) / 1e6;
+        const eur = eurOfAic(aic);
+        return {
+          model,
+          tokens,
+          aic,
+          eur,
+          quote: "“Summarise last week’s throughput report and flag anything unusual.”",
+          source: "+ the 4-page report you attached",
+          tokensStr: fmtInt(tokens),
+          rateStr: `× ${fmtInt(model.input)} AIC per 1M`,
+          aicStr: aic.toFixed(2),
+          eurStr: fmtEur(eur, eurSigDecimals(eur)),
+        };
+      })();
+
+      const BILL_VARIANTS: Record<string, string> = {
+        // A — vertical ladder: one stage per row, the operator on the arrow.
+        A: `<ol class="bill-ladder">
+              <li class="st"><span class="lab">your prompt</span>
+                <span class="quote">${BILL.quote}</span>
+                <span class="sub">${BILL.source}</span></li>
+              <li class="op"><i>counted &mdash; roughly chars &divide; 4</i></li>
+              <li class="st"><b class="n">${BILL.tokensStr}</b><span class="lab">input tokens</span></li>
+              <li class="op"><i>${BILL.rateStr} &middot; ${BILL.model.name}</i></li>
+              <li class="st"><b class="n">${BILL.aicStr}</b><span class="lab">AI credits</span></li>
+              <li class="op"><i>1 AIC = 1 US cent, &divide; 1.08</i></li>
+              <li class="st last"><b class="n">${BILL.eurStr}</b><span class="lab">what it cost</span></li>
+            </ol>`,
+        // B — receipt: the visual language of a bill, which is the slide's claim.
+        B: `<div class="bill-receipt">
+              <div class="r-row"><span>your prompt + report</span><b>${BILL.tokensStr} tokens</b></div>
+              <div class="r-row"><span>${BILL.model.name} input rate</span><b>${BILL.rateStr}</b></div>
+              <div class="r-rule"></div>
+              <div class="r-row"><span>billed</span><b>${BILL.aicStr} AIC</b></div>
+              <div class="r-row r-tot"><span>at 1 US cent, &divide; 1.08</span><b>${BILL.eurStr}</b></div>
+            </div>`,
+        // C — horizontal flow: shortest, sits beside the table rather than over it.
+        C: `<div class="bill-flow">
+              <div class="f-step"><b>prompt</b><span>${BILL.source.replace("+ ", "")}</span></div>
+              <div class="f-op"><i>chars &divide; 4</i></div>
+              <div class="f-step"><b>${BILL.tokensStr}</b><span>tokens</span></div>
+              <div class="f-op"><i>${BILL.rateStr}</i></div>
+              <div class="f-step"><b>${BILL.aicStr}</b><span>AIC</span></div>
+              <div class="f-op"><i>&divide; 1.08</i></div>
+              <div class="f-step hot"><b>${BILL.eurStr}</b><span>${BILL.model.name}</span></div>
+            </div>`,
+        // D — annotated equation. Smallest, but slide 5 is already a live
+        // equation, so this shows the room the same device twice.
+        D: `<div class="bill-eq">
+              <div class="e-terms">
+                <b>${BILL.tokensStr}</b><i>&times;</i><b>${fmtInt(BILL.model.input)}/1M</b>
+                <i>=</i><b>${BILL.aicStr} AIC</b><i>=</i><b class="hot">${BILL.eurStr}</b>
+              </div>
+              <div class="e-notes">
+                <span>tokens in<br />your prompt</span><span></span>
+                <span>input rate for<br />${BILL.model.name}</span><span></span>
+                <span>credits you<br />are billed</span><span></span>
+                <span>what it<br />costs you</span>
+              </div>
+            </div>`,
+      };
+
+      const BILL_NAMES: Record<string, string> = {
+        A: "Vertical ladder",
+        B: "Receipt block",
+        C: "Horizontal flow",
+        D: "Annotated equation",
+      };
+      const billHosts = document.querySelectorAll<HTMLElement>("[data-bill]");
+      let billPick = (
+        new URLSearchParams(location.search).get("bill") ?? "A"
+      ).toUpperCase();
+      if (!BILL_VARIANTS[billPick]) billPick = "A";
+      const billLabel = document.querySelector<HTMLElement>("[data-bill-label]");
+      function applyBill() {
+        billHosts.forEach((el) => {
+          const k = el.dataset.bill!;
+          if (!el.innerHTML) el.innerHTML = BILL_VARIANTS[k];
+          el.hidden = k !== billPick;
+        });
+        if (billLabel) billLabel.textContent = `${billPick} — ${BILL_NAMES[billPick]}`;
+        document
+          .querySelectorAll<HTMLElement>("[data-bill-pick]")
+          .forEach((b) => b.classList.toggle("on", b.dataset.billPick === billPick));
+        const u = new URL(location.href);
+        u.searchParams.set("bill", billPick);
+        history.replaceState(null, "", u);
+      }
+      function cycleBill(d: number) {
+        const ks = Object.keys(BILL_VARIANTS);
+        billPick = ks[(ks.indexOf(billPick) + d + ks.length) % ks.length];
+        applyBill();
+      }
+      document.querySelectorAll<HTMLElement>("[data-bill-pick]").forEach((b) =>
+        b.addEventListener("click", () => {
+          billPick = b.dataset.billPick!;
+          applyBill();
+        }),
+      );
+      addEventListener("keydown", (e) => {
+        if (e.key === "[") cycleBill(-1);
+        if (e.key === "]") cycleBill(1);
+      });
+      applyBill();
 
       // ── A3: live tokenizer + the 3D embedding space ───────────────
       // Hand-rolled SVG perspective projection (#24 variant A). A 12-edge
