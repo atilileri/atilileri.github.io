@@ -1763,7 +1763,12 @@
    the fit supports the cloud, it doesn't replace it. */
 .lot-fit {
   stroke-width: 3;
-  stroke-linecap: round;
+  stroke-linecap: butt;
+  /* Striped, not solid — it is a fitted line, not measured data, and the
+     dashes keep it from reading as a nineteenth attempt. Longer dash and
+     wider gap than `.lot-trace`'s dotted 1/9, so the two dashed marks on
+     this slide stay tellable apart. */
+  stroke-dasharray: 12 8;
   transition: opacity var(--dur) var(--ease);
 }
 .lot-fit-before {
@@ -1774,11 +1779,13 @@
   stroke: var(--orange);
   opacity: 0;
 }
-/* Swap on the same beat the cloud moves. What the two fits actually show,
-   measured: slope goes -0.182 → -0.163 (barely flatter, don't oversell it),
-   but the line sits MUCH higher and spans half the x-range — 710px of spend
-   down to 355px. So the argument the fits carry is "same trend, reached
-   sooner and higher", not "the trend went away". */
+/* Swap on the same beat the cloud moves. Measured, with the tails excluded:
+   slope -0.301 → -0.369 and x-span 710 → 260. The "after" fit is STEEPER,
+   not flatter — so the fits are not a slope story and must never be narrated
+   as one. What they show is POSITION and SPAN: the same relationship,
+   compressed into the left quarter of the spend axis and lifted into the
+   ship-ready box. (Before the outliers were trimmed these read -0.182 →
+   -0.163, which looked like flattening; that was the tail talking.) */
 .lottery-plot svg.go .lot-fit-before { opacity: 0; }
 .lottery-plot svg.go .lot-fit-after { opacity: 0.9; }
 

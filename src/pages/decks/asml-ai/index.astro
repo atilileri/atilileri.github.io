@@ -529,14 +529,26 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             honest. Attribute it to all four factors together, never to best
             practices alone — the four you just saw on the roadmap are what
             move this cloud, and each chapter from here moves it a little more.
-            Each cloud carries its own fitted trend line, and the pair is
-            worth pointing at explicitly. Both slope the same way — more
-            tokens really does buy more quality, in both worlds, so you are
-            not claiming the relationship disappears. What changes is where
-            the line SITS and how far it has to run: after the four factors it
-            starts higher and covers half the spend. Same trend, reached
-            sooner and higher. Don't say the trend flattens — it barely does,
-            and someone will check.
+            Each cloud carries its own fitted trend line — dashed, so it reads
+            as a fit rather than as another attempt — and the pair is worth
+            pointing at explicitly. Both slope the same way: more tokens
+            really does buy more quality, in both worlds, so you are never
+            claiming the relationship disappears.
+
+            Narrate POSITION and SPAN, never slope. The after line is short,
+            high and inside the box; the before line is long, low and ends
+            outside it. Same relationship, compressed into the left quarter of
+            the spend axis and lifted into ship-ready. If someone asks: the
+            after line is actually slightly STEEPER, which is fine and is not
+            the point — a steep short line that starts high is exactly what
+            "you get there sooner" looks like.
+
+            The lines are fitted to the body of each cloud, not to every dot:
+            before's three odd attempts (the lucky win, the dear miss, the bad
+            miss) and after's two remaining misses are left out of the fit but
+            deliberately left on screen. If asked, say so plainly — they are
+            the honest tail, and a trend line dragged around by three outliers
+            would tell you less.
 
             Nothing else on this slide is labelled, so the two readings are
             yours to give. BEFORE: random prompts in, random results out — more
@@ -1725,13 +1737,22 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // Ordinary least squares over each cloud, computed here rather than
         // hard-coded so the lines cannot drift if the point sets are ever
         // retuned. Both slopes are NEGATIVE in SVG space (y grows downward),
-        // i.e. both clouds really do trend "more tokens → better results" —
-        // that is the honest reading the presenter note already gives, and
-        // the whole point is that the AFTER line is FLATTER and higher: you
-        // stop paying for quality with tokens.
+        // i.e. both clouds really do trend "more tokens → better results".
         //
-        // Each line spans only its own cloud's x-range, so it reads as a fit
-        // of those points rather than a prediction beyond them.
+        // OUTLIERS ARE EXCLUDED FROM THE FIT (Atil, 2026-08-02) — the last
+        // three "before" points and the last two "after" points. That is not
+        // arbitrary trimming: those points are the deliberately odd ones the
+        // set was built with — before's lucky win, dear miss and bad miss
+        // (the "touches all four quadrants" tail), and after's two attempts
+        // that still miss. They stay ON SCREEN, because the honest picture
+        // includes them; they are just kept out of the line so the fit
+        // describes the body of the distribution rather than being dragged by
+        // its tail. Both counts are tied to the tail's length, so anything
+        // appended to these arrays lands INSIDE the fit unless this changes.
+        //
+        // Each line spans only its own fitted points' x-range, so it reads as
+        // a fit of those points rather than a prediction beyond them.
+        const FIT_DROP = { before: 3, after: 2 };
         const fit = (pts: number[][]) => {
           const n = pts.length;
           const mx = pts.reduce((s, p) => s + p[0], 0) / n;
@@ -1750,11 +1771,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             y2: my + slope * (x2 - mx),
           };
         };
-        for (const [pts, cls] of [
-          [LOT.before, "lot-fit lot-fit-before"],
-          [LOT.after, "lot-fit lot-fit-after"],
+        for (const [pts, drop, cls] of [
+          [LOT.before, FIT_DROP.before, "lot-fit lot-fit-before"],
+          [LOT.after, FIT_DROP.after, "lot-fit lot-fit-after"],
         ] as const) {
-          const f = fit(pts as number[][]);
+          const body = (pts as number[][]).slice(0, pts.length - drop);
+          const f = fit(body);
           svg.append(mk("line", {
             x1: f.x1, y1: f.y1, x2: f.x2, y2: f.y2, class: cls,
           }));
