@@ -384,10 +384,11 @@
      `p` rule assumes, so the byline was breaking mid-credit. */
   max-width: none;
 }
-/* The sub-line is one sentence framing the deck; 40ch broke it over three
-   lines under a three-line title. */
-.reveal section.hero p {
-  max-width: 52ch;
+/* The sub-line is the deck's contents in four beats and is meant to read as
+   one unbroken line — the base `p` rule's 40ch cap broke it in half. */
+.reveal section.hero .hero-sub {
+  max-width: none;
+  white-space: nowrap;
 }
 
 /* TWO-COLUMN split (nice-to-have) */
@@ -1710,10 +1711,14 @@
 .lottery-plot svg {
   width: 100%;
   height: 100%;
-  /* Back up from the 50vh it was briefly squeezed to: the slide gained a
-     sentence under the headline (#34) but then lost the whole caption block,
-     so the scatter is the only thing below the copy and can have the room. */
-  max-height: 62vh;
+  /* Capped in CANVAS pixels, not vh. Reveal scales a fixed 1600x900 canvas to
+     the window with a CSS transform, so px inside a slide are canvas px and
+     are stable — but vh resolves against the real viewport, so on a shorter
+     window the same `62vh` bought MORE canvas height and pushed the x-axis
+     label off the bottom of the slide. That is the clipping Atil hit on a
+     browser with tab and bookmark bars. 500px is ~10% smaller than the old
+     cap at full height, and now cannot overflow at any window size. */
+  max-height: 500px;
   overflow: visible;
 }
 /* The promise sentence sits tight under the headline: it is the headline's
