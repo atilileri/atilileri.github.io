@@ -1,0 +1,420 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   PROTOTYPE — wayfinder #35. Chapter 2's stochastic slide, three variants.
+   Throwaway: lives on `prototype/stochastic-slide` only. #38 rewrites the
+   winner into theme-asml.css properly.
+
+   Loaded AFTER theme-asml.css so it can lean on the theme's tokens
+   (--navy / --signal / --orange / --hair / --ease) and override where a
+   variant needs to.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.reveal section[data-stoch] {
+  justify-content: flex-start;
+}
+
+/* The fragment carriers are invisible — the slide reads its frame off how many
+   of them reveal has made visible (#26's rule). */
+.reveal section[data-stoch] .stoch-step {
+  display: none;
+}
+
+/* ── The prompt, shared by all three variants ───────────────────────────── */
+
+.stoch-prompt {
+  display: flex;
+  align-items: baseline;
+  gap: 1.1rem;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--signal);
+  box-shadow: var(--shadow);
+  padding: 0.85rem 1.3rem;
+  max-width: 62rem;
+  margin: 0.2rem 0 0;
+}
+.stoch-prompt .k {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--signal);
+  flex: none;
+}
+.stoch-prompt .v {
+  font-family: var(--font-mono);
+  font-size: 1.32rem;
+  color: var(--navy);
+  font-weight: 500;
+}
+.reveal .stoch-note {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #1b1b1b8c;
+  margin: 0.55rem 0 0;
+  max-width: none;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal section[data-stoch].is-fanned .stoch-note {
+  opacity: 1;
+}
+
+/* Runs fan in one after another — the stagger IS the "five separate runs"
+   claim, so it is not decoration. The per-column delay is set inline by the
+   controller (grid children are flat, so nth-child can't see columns). */
+.stoch-fade {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+section[data-stoch].is-fanned .stoch-fade {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── The honesty label (ticket question 4) — toggleable in the bar ──────── */
+
+.stoch-honesty {
+  position: absolute;
+  right: clamp(2.4rem, 6vw, 6.5rem);
+  bottom: clamp(2.4rem, 5vw, 5rem);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #1b1b1b73;
+  border: 1px dashed #0066cc40;
+  border-radius: 2px;
+  padding: 0.3rem 0.6rem;
+  background: #ffffffcc;
+}
+body:not(.proto-honesty) .stoch-honesty {
+  display: none;
+}
+
+/* ══ VARIANT A — the diff matrix ═══════════════════════════════════════════
+   Five columns, five parameter rows. Agreement is greyed almost out; the
+   disagreeing cells carry the ink, so the SHAPE of the disagreement is what
+   reads from the back of the room. */
+
+.stoch-grid {
+  display: grid;
+  grid-template-columns: 9.5rem repeat(5, 1fr);
+  gap: 0 0.5rem;
+  margin: 1.4rem 0 0;
+  max-width: 74rem;
+}
+.stoch-grid .hd {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--signal);
+  padding: 0 0 0.55rem;
+  border-bottom: 2px solid var(--hair);
+}
+.stoch-grid .rk {
+  font-family: var(--font-mono);
+  font-size: 0.98rem;
+  color: #1b1b1b8c;
+  padding: 0.62rem 0;
+  border-bottom: 1px solid #0066cc14;
+  white-space: nowrap;
+}
+.stoch-grid .cell {
+  font-family: var(--font-mono);
+  font-size: 1.12rem;
+  padding: 0.75rem 0.6rem;
+  border-bottom: 1px solid #0066cc14;
+  color: var(--navy);
+  font-weight: 600;
+  background: #0066cc0a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The modal value — what most runs agreed on — steps back so it stops
+   competing with the divergences. */
+.stoch-grid .cell.is-modal {
+  color: #1b1b1b47;
+  font-weight: 400;
+  background: transparent;
+}
+/* The fabrication is in the grid from the start — it is only NAMED on the
+   last fragment, so the slide argues variance first and lying second. */
+section[data-stoch].is-halluc .stoch-grid .cell.hcell {
+  color: var(--orange);
+  background: #ff66000f;
+  box-shadow: inset 2px 0 0 var(--orange);
+}
+
+/* ══ VARIANT B — five cards of the real text, diffed ═══════════════════════
+   The full answers, agreed text ghosted to near-nothing so the orange
+   divergences form a ragged column the eye reads as a shape. This is the
+   legibility gamble the ticket asks about. */
+
+.stoch-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.7rem;
+  margin: 1.3rem 0 0;
+  max-width: 76rem;
+  align-items: start;
+}
+.stoch-card {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  padding: 0.75rem 0.7rem 0.9rem;
+  min-height: 12rem;
+}
+.stoch-card .lbl {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal);
+  display: block;
+  margin: 0 0 0.5rem;
+}
+.stoch-card pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.79rem;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  color: #1b1b1b2b; /* agreed text: present, not readable — deliberately */
+}
+.stoch-card .d {
+  color: var(--navy);
+  font-weight: 600;
+}
+section[data-stoch].is-halluc .stoch-card.hcard {
+  border-color: var(--orange);
+}
+section[data-stoch].is-halluc .stoch-card.hcard .d {
+  color: var(--orange);
+  background: #ff66001a;
+}
+
+/* ══ VARIANT C — one answer that forks in place ════════════════════════════
+   Not five things side by side: ONE answer, legible at full size, which then
+   opens at the four positions where the runs actually disagreed. The forks
+   are the sampling, so the mechanism reveal needs no second widget. */
+
+.stoch-fork-wrap {
+  margin: 1.1rem 0 0;
+  max-width: 68rem;
+}
+.stoch-code {
+  font-family: var(--font-mono);
+  font-size: 1.12rem;
+  line-height: 1.95;
+  color: var(--navy);
+  white-space: pre-wrap;
+  margin: 0;
+}
+.stoch-fork {
+  display: inline-grid;
+  align-items: start;
+}
+.stoch-fork .alt {
+  display: grid;
+  grid-template-columns: auto 5.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease),
+    max-height var(--dur) var(--ease);
+  max-height: 0;
+}
+.stoch-fork .alt .t {
+  padding: 0 0.28em;
+  border-radius: 2px;
+}
+/* The picked token is always visible; the rest fan out under it. */
+.stoch-fork .alt.is-pick {
+  opacity: 1;
+  max-height: 3rem;
+}
+.stoch-fork .alt.is-pick .t {
+  background: #0066cc14;
+  color: var(--navy);
+  font-weight: 600;
+}
+section[data-stoch].is-fanned .stoch-fork .alt {
+  opacity: 1;
+  max-height: 3rem;
+}
+section[data-stoch].is-fanned .stoch-fork .alt:not(.is-pick) .t {
+  color: #1b1b1b5c;
+}
+/* The bar is the distribution — it appears one fragment later, which is the
+   whole mechanism reveal for this variant. */
+.stoch-fork .bar {
+  height: 5px;
+  background: #0066cc1f;
+  position: relative;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.stoch-fork .bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--p);
+  background: var(--signal);
+  display: block;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease);
+}
+.stoch-fork .alt.is-pick .bar i {
+  background: var(--orange);
+}
+section[data-stoch].is-mech .stoch-fork .bar {
+  opacity: 1;
+}
+section[data-stoch].is-mech .stoch-fork .bar i {
+  transform: scaleX(1);
+}
+
+section[data-stoch].is-halluc .stoch-fork .alt.halt .t {
+  color: var(--orange);
+  background: #ff66001a;
+}
+
+/* ══ The mechanism strip — variants A and B ════════════════════════════════
+   A second widget, deliberately small and deliberately at the bottom: the
+   ticket asks whether it can be a fragment on this slide rather than a slide
+   of its own. */
+
+.stoch-mech {
+  margin: 1.35rem 0 0;
+  max-width: 72rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+section[data-stoch].is-mech .stoch-mech {
+  opacity: 1;
+  transform: none;
+}
+.stoch-mech .cap {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--signal);
+  margin: 0 0 0.5rem;
+  max-width: none;
+}
+.stoch-mech .row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+.stoch-mech .at {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  color: #1b1b1b8c;
+  padding-bottom: 0.35rem;
+  white-space: pre;
+}
+.stoch-mech .col {
+  width: 5.6rem;
+  text-align: center;
+}
+.stoch-mech .col .v {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  color: var(--navy);
+  font-weight: 600;
+}
+.stoch-mech .col .p {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #1b1b1b73;
+}
+.stoch-mech .col .b {
+  height: 0;
+  background: var(--signal);
+  transition: height var(--dur) var(--ease);
+  margin: 0.25rem 0 0.3rem;
+}
+section[data-stoch].is-mech .stoch-mech .col .b {
+  height: var(--h);
+}
+.stoch-mech .col:first-of-type .b {
+  background: var(--orange);
+}
+
+/* ── The hallucination beat (toggleable) ────────────────────────────────── */
+
+.stoch-halluc-line {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--orange);
+  margin: 0.9rem 0 0;
+  max-width: 60ch;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+section[data-stoch].is-halluc .stoch-halluc-line {
+  opacity: 1;
+  transform: none;
+}
+body:not(.proto-halluc) .stoch-halluc-line {
+  display: none;
+}
+
+/* ══ The prototype switcher bar — never ships ══════════════════════════════ */
+
+.proto-bar {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #00327d;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  box-shadow: 0 12px 34px -12px #00327d99;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.proto-bar button {
+  font: inherit;
+  color: #fff;
+  background: #ffffff1f;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+.proto-bar button:hover {
+  background: #ffffff33;
+}
+.proto-bar button[aria-pressed="true"] {
+  background: var(--orange);
+}
+.proto-bar .name {
+  padding: 0 0.5rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.proto-bar .sep {
+  width: 1px;
+  align-self: stretch;
+  background: #ffffff33;
+  margin: 0 0.2rem;
+}

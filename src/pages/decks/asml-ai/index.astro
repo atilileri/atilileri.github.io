@@ -17,6 +17,9 @@
 // reveal.js base + our fresh light theme (import order = cascade order).
 import "reveal.js/dist/reveal.css";
 import "./theme-asml.css";
+// PROTOTYPE (#35) — chapter 2's stochastic slide, three variants. Throwaway;
+// dies with the branch `prototype/stochastic-slide`.
+import "./prototype-stochastic.css";
 
 const promptCode = `// Token-aware prompt assembly
 export function assemblePrompt(sections: Section[], budget: number) {
@@ -661,7 +664,137 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              the mechanism (every token sampled from a distribution). Outputs
              are pre-scripted; nothing is called. Prototyped by #35, built by
              #38. It is the lottery slide's mechanism at a lower altitude — the
-             two are one argument at two scales. -->
+             two are one argument at two scales.
+
+             ┌─────────────────────────────────────────────────────────────┐
+             │ PROTOTYPE (#35) — THREE VARIANTS, NOT SLIDES.               │
+             │ Three answers to "how do five answers fit on one slide and  │
+             │ stay legible", switchable with ?variant=A|B|C and the       │
+             │ floating bar. Only ONE is in the DOM at a time (the script  │
+             │ prunes the others before reveal initialises), so the deck    │
+             │ still walks as 31 slides in every variant.                  │
+             │   A — the diff matrix (abstraction; disagreement is a shape)│
+             │   B — five cards of the real text, agreement ghosted out    │
+             │   C — one answer that forks in place at the sampled tokens  │
+             │ Two independent toggles, both off by default:               │
+             │   ?honesty=1  the on-screen "no model was called" label     │
+             │   ?halluc=1   run 4 becomes a confident fabrication          │
+             │ This whole block dies with the branch. #38 rewrites the      │
+             │ winner properly.                                            │
+             └─────────────────────────────────────────────────────────────┘ -->
+
+        <!-- ── VARIANT A ── the diff matrix ─────────────────────────────── -->
+        <section
+          class="stoch"
+          data-section="02 — Under the hood"
+          data-stoch
+          data-stoch-variant="A"
+        >
+          <span class="eyebrow">Under the hood &middot; press &rarr; for five runs</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Ask five times, get five answers.</span></span>
+          </h2>
+          <div class="stoch-prompt">
+            <span class="k">prompt</span>
+            <span class="v" data-stoch-prompt></span>
+          </div>
+          <p class="stoch-note" data-stoch-note></p>
+          <div class="stoch-grid" data-stoch-grid></div>
+          <div class="stoch-mech" data-stoch-mech></div>
+          <p class="stoch-halluc-line" data-stoch-halluc-line></p>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <span class="fragment stoch-step" aria-hidden="true" data-stoch-halluc-frag></span>
+          <p class="stoch-honesty" data-stoch-honesty></p>
+          <aside class="notes">
+            PROTOTYPE variant A. The abstraction: five runs, five parameters,
+            and the modal value greyed down so the eye reads only where the
+            runs disagreed. Press &rarr; once and the five fan in; again and
+            the mechanism strip appears underneath.
+
+            The line to say while they fan: nothing broke, nothing was
+            configured differently — same prompt, same model, same settings.
+            The machine is not looking an answer up, it is sampling one.
+
+            Every output here is pre-recorded; no model was called. The
+            probabilities on the strip are illustrative, not measured — say so
+            if anyone asks for the number.
+          </aside>
+        </section>
+
+        <!-- ── VARIANT B ── five cards of the real text, diffed ──────────── -->
+        <section
+          class="stoch"
+          data-section="02 — Under the hood"
+          data-stoch
+          data-stoch-variant="B"
+        >
+          <span class="eyebrow">Under the hood &middot; press &rarr; for five runs</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Ask five times, get five answers.</span></span>
+          </h2>
+          <div class="stoch-prompt">
+            <span class="k">prompt</span>
+            <span class="v" data-stoch-prompt></span>
+          </div>
+          <p class="stoch-note" data-stoch-note></p>
+          <div class="stoch-cards" data-stoch-cards></div>
+          <div class="stoch-mech" data-stoch-mech></div>
+          <p class="stoch-halluc-line" data-stoch-halluc-line></p>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <span class="fragment stoch-step" aria-hidden="true" data-stoch-halluc-frag></span>
+          <p class="stoch-honesty" data-stoch-honesty></p>
+          <aside class="notes">
+            PROTOTYPE variant B. The real answers, side by side, with the text
+            every run agreed on ghosted almost to nothing — so what reads from
+            the back is the ragged column of blue where they diverged, not the
+            code. Nobody is meant to read five snippets; they are meant to see
+            five snippets that are the same shape and different in the same
+            four places.
+
+            This is the legibility gamble: if the room squints at the code,
+            variant A is the right answer instead.
+          </aside>
+        </section>
+
+        <!-- ── VARIANT C ── one answer that forks in place ───────────────── -->
+        <section
+          class="stoch"
+          data-section="02 — Under the hood"
+          data-stoch
+          data-stoch-variant="C"
+        >
+          <span class="eyebrow">Under the hood &middot; press &rarr; to fork it</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Ask five times, get five answers.</span></span>
+          </h2>
+          <div class="stoch-prompt">
+            <span class="k">prompt</span>
+            <span class="v" data-stoch-prompt></span>
+          </div>
+          <p class="stoch-note" data-stoch-note></p>
+          <div class="stoch-fork-wrap">
+            <pre class="stoch-code" data-stoch-code></pre>
+          </div>
+          <p class="stoch-halluc-line" data-stoch-halluc-line></p>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <span class="fragment stoch-step" aria-hidden="true" data-stoch-halluc-frag></span>
+          <p class="stoch-honesty" data-stoch-honesty></p>
+          <aside class="notes">
+            PROTOTYPE variant C. One answer, full size and actually readable —
+            the room reads it as THE answer. Press &rarr; and it opens at the
+            four positions where the five runs disagreed: the alternatives fan
+            out under each one, still in place, still in the same line of code.
+            Press &rarr; again and each fork grows a bar — that is the
+            distribution, and it needs no second widget.
+
+            The claim this variant makes and the others do not: the divergence
+            happens AT a token, not between documents. It is the lottery
+            scatter's atom.
+          </aside>
+        </section>
 
         <!-- 2d ─── GAP: Agent & MCP — explain both, briefly, in the rings'
              own vocabulary, in support of the slide above. Mechanic decided by
@@ -1552,10 +1685,34 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         type Tok,
       } from "../../../lib/asml-ai/tokenize";
       import { frameAt, FINAL, MAX_TOKENS } from "../../../lib/asml-ai/agent-loop";
+      // PROTOTYPE (#35) — the stochastic slide's data table, read by all three
+      // variants so they can only disagree about presentation.
+      import * as STOCH from "../../../lib/asml-ai/prototype-stochastic";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      // ══ PROTOTYPE (#35) — variant pruning, BEFORE reveal counts slides ══
+      //    Three variants of the stochastic slide sit in the DOM; exactly one
+      //    survives, so the deck walks at its real length in every variant and
+      //    the slide is judged in its real neighbourhood (rings before it,
+      //    the Agent/MCP gap after).
+      const protoParams = new URLSearchParams(window.location.search);
+      const protoVariant = (protoParams.get("variant") ?? "A").toUpperCase();
+      document
+        .querySelectorAll<HTMLElement>("[data-stoch]")
+        .forEach((s) => {
+          if (s.dataset.stochVariant !== protoVariant) s.remove();
+        });
+      document.body.classList.toggle("proto-honesty", protoParams.get("honesty") === "1");
+      document.body.classList.toggle("proto-halluc", protoParams.get("halluc") === "1");
+      // With the fabrication off there is no third beat, so the third fragment
+      // stops being a fragment — otherwise the slide costs a dead press.
+      if (protoParams.get("halluc") !== "1")
+        document
+          .querySelectorAll("[data-stoch-halluc-frag]")
+          .forEach((f) => f.classList.remove("fragment"));
 
       const deck = new Reveal({
         hash: true,
@@ -2960,6 +3117,218 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       if (import.meta.env.DEV && FINAL.contextTokens !== 2715)
         console.warn("agent-loop model drifted from #26's locked numbers");
 
+      // ══════════════════════════════════════════════════════════════════════
+      //  PROTOTYPE (#35) — the stochastic slide, three variants.
+      //  Throwaway. Every variant reads the same table and derives its frame
+      //  from reveal's fragment state, never from a counter (#26's rule), so
+      //  → and ← replay identically and re-entry from either direction lands
+      //  on the right frame.
+      // ══════════════════════════════════════════════════════════════════════
+
+      const protoHalluc = document.body.classList.contains("proto-halluc");
+
+      function ph(tag: string, cls?: string, txt?: string) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (txt != null) n.textContent = txt;
+        return n;
+      }
+      /** Column stagger — the fan-out is the "five separate runs" claim. */
+      function phDelay(n: HTMLElement, col: number) {
+        n.style.transitionDelay = col * 80 + "ms";
+        return n;
+      }
+
+      /** A — the diff matrix. Agreement greys out; disagreement carries ink. */
+      function buildStochGrid(slide: HTMLElement) {
+        const g = slide.querySelector<HTMLElement>("[data-stoch-grid]");
+        if (!g) return;
+        g.textContent = "";
+        g.append(ph("span", "hd"));
+        for (let c = 0; c < 5; c++)
+          g.append(phDelay(ph("span", "hd stoch-fade", "run " + (c + 1)), c));
+        STOCH.PARAMS.forEach((p, r) => {
+          // The keys arrive with the runs — an empty labelled frame sitting on
+          // screen before the first press reads as a broken slide.
+          g.append(ph("span", "rk stoch-fade", p.k));
+          for (let c = 0; c < 5; c++) {
+            const isH = protoHalluc && c === STOCH.HALLUC.runIndex;
+            const val = isH ? STOCH.HALLUC.params[r] : p.vals[c];
+            const cell = ph("span", "cell stoch-fade", val);
+            if (!isH && val === STOCH.MODAL[r]) cell.classList.add("is-modal");
+            if (isH) cell.classList.add("hcell");
+            g.append(phDelay(cell, c));
+          }
+        });
+      }
+
+      /** B — the real text, five ways, with the agreed parts ghosted out. */
+      function buildStochCards(slide: HTMLElement) {
+        const wrap = slide.querySelector<HTMLElement>("[data-stoch-cards]");
+        if (!wrap) return;
+        wrap.textContent = "";
+        STOCH.RUNS.forEach((run, c) => {
+          const isH = protoHalluc && c === STOCH.HALLUC.runIndex;
+          const card = ph("div", "stoch-card stoch-fade");
+          if (isH) card.classList.add("hcard");
+          card.append(ph("span", "lbl", run.label));
+          const pre = ph("pre");
+          const lines = isH ? STOCH.HALLUC.code : run.code;
+          lines.forEach((line, i) => {
+            line.forEach(([txt, d]) => {
+              if (d) pre.append(ph("span", "d", txt));
+              else pre.append(document.createTextNode(txt));
+            });
+            if (i < lines.length - 1) pre.append(document.createTextNode("\n"));
+          });
+          card.append(pre);
+          wrap.append(phDelay(card, c));
+        });
+      }
+
+      /** C — one answer that forks in place at the sampled positions. */
+      function buildStochForks(slide: HTMLElement) {
+        const pre = slide.querySelector<HTMLElement>("[data-stoch-code]");
+        if (!pre) return;
+        pre.textContent = "";
+        let forkNo = 0;
+        STOCH.CODE_C.forEach((piece) => {
+          if (typeof piece === "string") {
+            pre.append(document.createTextNode(piece));
+            return;
+          }
+          // C's version of the fabrication beat: the SECOND fork — the one
+          // that picked a real backoff helper — picks a method that does not
+          // exist. Same fork, same mechanism, one worse draw.
+          const hFork = protoHalluc && forkNo === 1;
+          forkNo++;
+          const fork = ph("span", "stoch-fork");
+          piece.alts.forEach((a, i) => {
+            const row = ph("div", "alt" + (i === 0 ? " is-pick" : ""));
+            if (hFork && i === 0) row.classList.add("halt");
+            row.append(
+              ph("span", "t", hFork && i === 0 ? STOCH.HALLUC.forkAlt : a.v),
+            );
+            const bar = ph("div", "bar");
+            const fill = ph("i");
+            fill.style.setProperty("--p", Math.round(a.p * 100) + "%");
+            bar.append(fill);
+            row.append(bar);
+            fork.append(row);
+          });
+          pre.append(fork);
+        });
+      }
+
+      /** A + B — the mechanism as a second, deliberately small widget. */
+      function buildStochMech(slide: HTMLElement) {
+        const m = slide.querySelector<HTMLElement>("[data-stoch-mech]");
+        if (!m) return;
+        m.textContent = "";
+        m.append(ph("p", "cap", STOCH.COPY.mechanism));
+        const row = ph("div", "row");
+        row.append(ph("span", "at", STOCH.DIST.at));
+        STOCH.DIST.alts.forEach((a) => {
+          const col = ph("div", "col");
+          col.append(ph("span", "p", Math.round(a.p * 100) + "%"));
+          const b = ph("div", "b");
+          b.style.setProperty("--h", Math.round(a.p * 190) + "px");
+          col.append(b, ph("span", "v", a.v));
+          row.append(col);
+        });
+        m.append(row);
+      }
+
+      function buildStoch(slide: HTMLElement) {
+        if (slide.dataset.built === "1") return;
+        const set = (sel: string, txt: string) => {
+          const n = slide.querySelector<HTMLElement>(sel);
+          if (n) n.textContent = txt;
+        };
+        set("[data-stoch-prompt]", STOCH.PROMPT);
+        set("[data-stoch-note]", STOCH.PROMPT_NOTE);
+        set("[data-stoch-honesty]", STOCH.COPY.honesty);
+        const v = slide.dataset.stochVariant;
+        set(
+          "[data-stoch-halluc-line]",
+          (v === "C" ? STOCH.HALLUC.flagC : STOCH.HALLUC.flag) +
+            " " +
+            STOCH.HALLUC.line,
+        );
+        if (v === "A") buildStochGrid(slide);
+        if (v === "B") buildStochCards(slide);
+        if (v === "C") buildStochForks(slide);
+        if (v !== "C") buildStochMech(slide);
+        slide.dataset.built = "1";
+      }
+
+      /** Derive the frame from reveal's fragment state — never from a counter. */
+      function syncStoch(slide: HTMLElement) {
+        const shown = slide.querySelectorAll(".stoch-step.visible").length;
+        slide.classList.toggle("is-fanned", shown >= 1);
+        slide.classList.toggle("is-mech", shown >= 2);
+        slide.classList.toggle("is-halluc", shown >= 3);
+      }
+
+      // ── The prototype switcher bar. DEV only: a stray merge can't ship it,
+      //    and the ?variant= param is inert without these three sections. ──
+      if (import.meta.env.DEV) {
+        const NAMES: Record<string, string> = {
+          A: "the diff matrix",
+          B: "five cards, real text",
+          C: "one answer, forked",
+        };
+        const keys = ["A", "B", "C"];
+        const go = (patch: Record<string, string | null>) => {
+          const p = new URLSearchParams(window.location.search);
+          for (const [k, val] of Object.entries(patch)) {
+            if (val === null) p.delete(k);
+            else p.set(k, val);
+          }
+          // Keep the hash so the reload lands on the same slide.
+          window.location.search = p.toString();
+        };
+        const cycle = (d: number) =>
+          go({ variant: keys[(keys.indexOf(protoVariant) + d + 3) % 3] });
+
+        const bar = ph("div", "proto-bar");
+        const prev = ph("button", undefined, "‹");
+        const next = ph("button", undefined, "›");
+        const name = ph(
+          "span",
+          "name",
+          `#35 · ${protoVariant} — ${NAMES[protoVariant] ?? "?"} · v to cycle`,
+        );
+        prev.onclick = () => cycle(-1);
+        next.onclick = () => cycle(1);
+        const toggle = (
+          label: string,
+          param: string,
+          on: boolean,
+        ) => {
+          const b = ph("button", undefined, label);
+          b.setAttribute("aria-pressed", String(on));
+          b.onclick = () => go({ [param]: on ? null : "1" });
+          return b;
+        };
+        bar.append(prev, name, next, ph("span", "sep"));
+        bar.append(
+          toggle(
+            "honesty label",
+            "honesty",
+            document.body.classList.contains("proto-honesty"),
+          ),
+        );
+        bar.append(toggle("run 4 hallucinates", "halluc", protoHalluc));
+        document.body.append(bar);
+
+        // "v" cycles variants. ← / → are deliberately NOT bound: they belong
+        // to the fragments, which are the thing being judged.
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "v" || e.key === "V") cycle(1);
+        });
+      }
+
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -2977,6 +3346,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (slide.hasAttribute("data-stop")) {
           buildStop(slide);
           syncStop(slide);
+        }
+        // PROTOTYPE #35 — chapter 2's stochastic slide.
+        if (slide.hasAttribute("data-stoch")) {
+          buildStoch(slide);
+          syncStoch(slide);
         }
         if (slide.hasAttribute("data-lottery")) {
           buildLottery(slide);
@@ -3016,6 +3390,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           setLottery(f.closest("section") as HTMLElement, shown);
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stop")) syncStop(section);
+        if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
       }
