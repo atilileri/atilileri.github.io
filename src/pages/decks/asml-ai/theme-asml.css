@@ -1716,9 +1716,10 @@
      are stable — but vh resolves against the real viewport, so on a shorter
      window the same `62vh` bought MORE canvas height and pushed the x-axis
      label off the bottom of the slide. That is the clipping Atil hit on a
-     browser with tab and bookmark bars. 500px is ~10% smaller than the old
-     cap at full height, and now cannot overflow at any window size. */
-  max-height: 500px;
+     browser with tab and bookmark bars. The old cap worked out to ~620 canvas
+     px on that window, which clipped; 500 was legible but too small. 560 is
+     the middle, and still cannot overflow at any window size. */
+  max-height: 560px;
   overflow: visible;
 }
 /* The promise sentence sits tight under the headline: it is the headline's
