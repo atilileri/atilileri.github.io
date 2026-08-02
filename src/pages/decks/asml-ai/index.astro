@@ -660,139 +660,152 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 2c ─── GAP: the stochastic slide — one prompt, five answers, then
-             the mechanism (every token sampled from a distribution). Outputs
-             are pre-scripted; nothing is called. Prototyped by #35, built by
-             #38. It is the lottery slide's mechanism at a lower altitude — the
-             two are one argument at two scales.
+        <!-- 2c ─── GAP: the stochastic slide. RESHAPED by #35 on 2026-08-02:
+             one prompt with its context pasted, five answers the room can
+             rank but not tell apart, and THREE OF THE FIVE ARE WRONG — in two
+             nameable ways (faithfulness · factuality). The argument is that
+             hallucination is inherent, not a fault mode: the wrong answers
+             came out of the same draw as the right ones. Outputs are
+             pre-scripted; nothing is called. Built by #38.
 
              ┌─────────────────────────────────────────────────────────────┐
              │ PROTOTYPE (#35) — THREE VARIANTS, NOT SLIDES.               │
-             │ Three answers to "how do five answers fit on one slide and  │
-             │ stay legible", switchable with ?variant=A|B|C and the       │
-             │ floating bar. Only ONE is in the DOM at a time (the script  │
-             │ prunes the others before reveal initialises), so the deck    │
-             │ still walks as 31 slides in every variant.                  │
-             │   A — the diff matrix (abstraction; disagreement is a shape)│
-             │   B — five cards of the real text, agreement ghosted out    │
-             │   C — one answer that forks in place at the sampled tokens  │
-             │ Two independent toggles, both off by default:               │
+             │ Three ways to display one prompt + five ranked answers,     │
+             │ switchable with ?variant=A|B|C and the floating bar. Only   │
+             │ ONE is in the DOM at a time (the script prunes the others   │
+             │ before reveal initialises), so the deck still walks at its  │
+             │ real length in every variant.                               │
+             │   A — the ladder: one ranked list, 3 rows go orange in place│
+             │   B — the sort:   one pile that splits into two lanes       │
+             │   C — the draw:   one bar = the distribution, 3 segs orange │
+             │ Same three fragments in each: answers → labels → tells.     │
              │   ?honesty=1  the on-screen "no model was called" label     │
-             │   ?halluc=1   run 4 becomes a confident fabrication          │
-             │ This whole block dies with the branch. #38 rewrites the      │
+             │ This whole block dies with the branch. #38 rewrites the     │
              │ winner properly.                                            │
              └─────────────────────────────────────────────────────────────┘ -->
 
-        <!-- ── VARIANT A ── the diff matrix ─────────────────────────────── -->
+        <!-- ── VARIANT A ── the ladder ──────────────────────────────────── -->
         <section
           class="stoch"
           data-section="02 — Under the hood"
           data-stoch
           data-stoch-variant="A"
         >
-          <span class="eyebrow">Under the hood &middot; press &rarr; for five runs</span>
+          <span class="eyebrow" data-stoch-eyebrow></span>
           <h2 class="h-set">
-            <span class="h-line"><span>Ask five times, get five answers.</span></span>
+            <span class="h-line"><span data-stoch-headline></span></span>
           </h2>
-          <div class="stoch-prompt">
-            <span class="k">prompt</span>
-            <span class="v" data-stoch-prompt></span>
+          <div class="stoch-ask">
+            <p class="stoch-trace" data-stoch-trace></p>
+            <p class="stoch-q" data-stoch-q></p>
           </div>
-          <p class="stoch-note" data-stoch-note></p>
-          <div class="stoch-grid" data-stoch-grid></div>
-          <div class="stoch-mech" data-stoch-mech></div>
-          <p class="stoch-halluc-line" data-stoch-halluc-line></p>
+          <div class="stoch-ladder" data-stoch-ladder></div>
+          <p class="stoch-beat" data-stoch-beat></p>
+          <div class="stoch-defs" data-stoch-defs></div>
           <span class="fragment stoch-step" aria-hidden="true"></span>
           <span class="fragment stoch-step" aria-hidden="true"></span>
-          <span class="fragment stoch-step" aria-hidden="true" data-stoch-halluc-frag></span>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
           <p class="stoch-honesty" data-stoch-honesty></p>
           <aside class="notes">
-            PROTOTYPE variant A. The abstraction: five runs, five parameters,
-            and the modal value greyed down so the eye reads only where the
-            runs disagreed. Press &rarr; once and the five fan in; again and
-            the mechanism strip appears underneath.
+            PROTOTYPE variant A — the ladder. Five ranked answers in one list.
 
-            The line to say while they fan: nothing broke, nothing was
-            configured differently — same prompt, same model, same settings.
-            The machine is not looking an answer up, it is sampling one.
+            Press → once: the five arrive, most likely at the top, and NOTHING
+            is coloured. Let the room read them. Ask out loud which one they'd
+            take — they will not agree, and that is the point.
 
-            Every output here is pre-recorded; no model was called. The
-            probabilities on the strip are illustrative, not measured — say so
-            if anyone asks for the number.
+            Press → again: the tags land and three of the five go orange, in
+            place, without moving. Nobody could have picked them out, and they
+            are not the tail of the distribution — the third most likely answer
+            is already wrong.
+
+            Press → a third time: the tells appear (the single fact that makes
+            each one wrong), the line the faithfulness answer contradicts
+            lights up in the trace above, and the two definitions land.
+
+            The landing line: this is not a bug and not a bad day. The wrong
+            answers came out of the same draw as the right ones. The bar order
+            is a rank, not measured probabilities — don't put a number on it.
           </aside>
         </section>
 
-        <!-- ── VARIANT B ── five cards of the real text, diffed ──────────── -->
+        <!-- ── VARIANT B ── the sort ────────────────────────────────────── -->
         <section
           class="stoch"
           data-section="02 — Under the hood"
           data-stoch
           data-stoch-variant="B"
         >
-          <span class="eyebrow">Under the hood &middot; press &rarr; for five runs</span>
+          <span class="eyebrow" data-stoch-eyebrow></span>
           <h2 class="h-set">
-            <span class="h-line"><span>Ask five times, get five answers.</span></span>
+            <span class="h-line"><span data-stoch-headline></span></span>
           </h2>
-          <div class="stoch-prompt">
-            <span class="k">prompt</span>
-            <span class="v" data-stoch-prompt></span>
+          <div class="stoch-ask">
+            <p class="stoch-trace" data-stoch-trace></p>
+            <p class="stoch-q" data-stoch-q></p>
           </div>
-          <p class="stoch-note" data-stoch-note></p>
-          <div class="stoch-cards" data-stoch-cards></div>
-          <div class="stoch-mech" data-stoch-mech></div>
-          <p class="stoch-halluc-line" data-stoch-halluc-line></p>
+          <div class="stoch-lanes">
+            <div class="stoch-lane-heads" data-stoch-lane-heads></div>
+            <div class="stoch-sorted" data-stoch-sorted></div>
+          </div>
+          <p class="stoch-beat" data-stoch-beat></p>
           <span class="fragment stoch-step" aria-hidden="true"></span>
           <span class="fragment stoch-step" aria-hidden="true"></span>
-          <span class="fragment stoch-step" aria-hidden="true" data-stoch-halluc-frag></span>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
           <p class="stoch-honesty" data-stoch-honesty></p>
           <aside class="notes">
-            PROTOTYPE variant B. The real answers, side by side, with the text
-            every run agreed on ghosted almost to nothing — so what reads from
-            the back is the ragged column of blue where they diverged, not the
-            code. Nobody is meant to read five snippets; they are meant to see
-            five snippets that are the same shape and different in the same
-            four places.
+            PROTOTYPE variant B — the sort. The five arrive as one undivided
+            pile of full-width cards, then physically split into two lanes:
+            grounded on the left, hallucinated on the right.
 
-            This is the legibility gamble: if the room squints at the code,
-            variant A is the right answer instead.
+            The motion is the argument. They were ONE pile — that pile is what
+            the model gave you. The sorting is work somebody had to do, and on
+            a real task nobody does it, because all five look like this.
+
+            Third press: the tells. No definitions block here — the lane heads
+            and the tags carry the taxonomy, which is the trade this variant
+            makes for the motion.
           </aside>
         </section>
 
-        <!-- ── VARIANT C ── one answer that forks in place ───────────────── -->
+        <!-- ── VARIANT C ── the draw ────────────────────────────────────── -->
         <section
           class="stoch"
           data-section="02 — Under the hood"
           data-stoch
           data-stoch-variant="C"
         >
-          <span class="eyebrow">Under the hood &middot; press &rarr; to fork it</span>
+          <span class="eyebrow" data-stoch-eyebrow></span>
           <h2 class="h-set">
-            <span class="h-line"><span>Ask five times, get five answers.</span></span>
+            <span class="h-line"><span data-stoch-headline></span></span>
           </h2>
-          <div class="stoch-prompt">
-            <span class="k">prompt</span>
-            <span class="v" data-stoch-prompt></span>
+          <div class="stoch-ask">
+            <p class="stoch-trace" data-stoch-trace></p>
+            <p class="stoch-q" data-stoch-q></p>
           </div>
-          <p class="stoch-note" data-stoch-note></p>
-          <div class="stoch-fork-wrap">
-            <pre class="stoch-code" data-stoch-code></pre>
+          <div class="stoch-draw">
+            <div class="stoch-bar" data-stoch-bar></div>
+            <p class="cap" data-stoch-cap></p>
+            <div class="stoch-key" data-stoch-key></div>
           </div>
-          <p class="stoch-halluc-line" data-stoch-halluc-line></p>
+          <p class="stoch-beat" data-stoch-beat></p>
+          <div class="stoch-defs" data-stoch-defs></div>
           <span class="fragment stoch-step" aria-hidden="true"></span>
           <span class="fragment stoch-step" aria-hidden="true"></span>
-          <span class="fragment stoch-step" aria-hidden="true" data-stoch-halluc-frag></span>
+          <span class="fragment stoch-step" aria-hidden="true"></span>
           <p class="stoch-honesty" data-stoch-honesty></p>
           <aside class="notes">
-            PROTOTYPE variant C. One answer, full size and actually readable —
-            the room reads it as THE answer. Press &rarr; and it opens at the
-            four positions where the five runs disagreed: the alternatives fan
-            out under each one, still in place, still in the same line of code.
-            Press &rarr; again and each fork grows a bar — that is the
-            distribution, and it needs no second widget.
+            PROTOTYPE variant C — the draw. One bar across the slide IS the
+            distribution: five segments, ranked most to least likely, with the
+            answers keyed underneath by number.
 
-            The claim this variant makes and the others do not: the divergence
-            happens AT a token, not between documents. It is the lottery
-            scatter's atom.
+            Second press: three of the five segments turn orange — and they are
+            nearly half the bar. That picture is the argument in one frame:
+            hallucination is not the tail, it is a large part of what the model
+            can hand you for this exact question.
+
+            The bar is a RANK, not measured probability. Say "roughly, in
+            order" and never put a percentage on it; the caption on screen says
+            most likely / least likely and nothing more.
           </aside>
         </section>
 
@@ -1706,13 +1719,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           if (s.dataset.stochVariant !== protoVariant) s.remove();
         });
       document.body.classList.toggle("proto-honesty", protoParams.get("honesty") === "1");
-      document.body.classList.toggle("proto-halluc", protoParams.get("halluc") === "1");
-      // With the fabrication off there is no third beat, so the third fragment
-      // stops being a fragment — otherwise the slide costs a dead press.
-      if (protoParams.get("halluc") !== "1")
-        document
-          .querySelectorAll("[data-stoch-halluc-frag]")
-          .forEach((f) => f.classList.remove("fragment"));
 
       const deck = new Reveal({
         hash: true,
@@ -3118,14 +3124,16 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         console.warn("agent-loop model drifted from #26's locked numbers");
 
       // ══════════════════════════════════════════════════════════════════════
-      //  PROTOTYPE (#35) — the stochastic slide, three variants.
+      //  PROTOTYPE (#35) — the stochastic / hallucination slide, 3 variants.
       //  Throwaway. Every variant reads the same table and derives its frame
-      //  from reveal's fragment state, never from a counter (#26's rule), so
+      //  from reveal's fragment state (#26's rule), never from a counter, so
       //  → and ← replay identically and re-entry from either direction lands
       //  on the right frame.
+      //
+      //  Three fragments in every variant, and they mean the same thing in
+      //  each: 1 the five answers arrive, uncoloured · 2 the labels land and
+      //  three of five go orange · 3 the tells + the definitions.
       // ══════════════════════════════════════════════════════════════════════
-
-      const protoHalluc = document.body.classList.contains("proto-halluc");
 
       function ph(tag: string, cls?: string, txt?: string) {
         const n = document.createElement(tag);
@@ -3133,110 +3141,125 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (txt != null) n.textContent = txt;
         return n;
       }
-      /** Column stagger — the fan-out is the "five separate runs" claim. */
-      function phDelay(n: HTMLElement, col: number) {
-        n.style.transitionDelay = col * 80 + "ms";
+      function phDelay(n: HTMLElement, i: number) {
+        n.style.transitionDelay = i * 80 + "ms";
         return n;
       }
+      const isBad = (k: string) => k !== "legit";
 
-      /** A — the diff matrix. Agreement greys out; disagreement carries ink. */
-      function buildStochGrid(slide: HTMLElement) {
-        const g = slide.querySelector<HTMLElement>("[data-stoch-grid]");
-        if (!g) return;
-        g.textContent = "";
-        g.append(ph("span", "hd"));
-        for (let c = 0; c < 5; c++)
-          g.append(phDelay(ph("span", "hd stoch-fade", "run " + (c + 1)), c));
-        STOCH.PARAMS.forEach((p, r) => {
-          // The keys arrive with the runs — an empty labelled frame sitting on
-          // screen before the first press reads as a broken slide.
-          g.append(ph("span", "rk stoch-fade", p.k));
-          for (let c = 0; c < 5; c++) {
-            const isH = protoHalluc && c === STOCH.HALLUC.runIndex;
-            const val = isH ? STOCH.HALLUC.params[r] : p.vals[c];
-            const cell = ph("span", "cell stoch-fade", val);
-            if (!isH && val === STOCH.MODAL[r]) cell.classList.add("is-modal");
-            if (isH) cell.classList.add("hcell");
-            g.append(phDelay(cell, c));
-          }
-        });
-      }
-
-      /** B — the real text, five ways, with the agreed parts ghosted out. */
-      function buildStochCards(slide: HTMLElement) {
-        const wrap = slide.querySelector<HTMLElement>("[data-stoch-cards]");
-        if (!wrap) return;
-        wrap.textContent = "";
-        STOCH.RUNS.forEach((run, c) => {
-          const isH = protoHalluc && c === STOCH.HALLUC.runIndex;
-          const card = ph("div", "stoch-card stoch-fade");
-          if (isH) card.classList.add("hcard");
-          card.append(ph("span", "lbl", run.label));
-          const pre = ph("pre");
-          const lines = isH ? STOCH.HALLUC.code : run.code;
-          lines.forEach((line, i) => {
-            line.forEach(([txt, d]) => {
-              if (d) pre.append(ph("span", "d", txt));
-              else pre.append(document.createTextNode(txt));
-            });
-            if (i < lines.length - 1) pre.append(document.createTextNode("\n"));
+      /** The trace, with the line the faithfulness answer contradicts wrapped
+       *  so it can light up later. Nothing is highlighted before that. */
+      function buildStochAsk(slide: HTMLElement) {
+        const t = slide.querySelector<HTMLElement>("[data-stoch-trace]");
+        if (t) {
+          t.textContent = "";
+          STOCH.TRACE.forEach((ln, i) => {
+            if (i) t.append(document.createTextNode("\n"));
+            // Second frame carries "manifest.ts:42" — the fact answer 3 gets
+            // wrong. Bolding it up front would tip the room off, so the
+            // element exists from the start and only takes colour at the tell.
+            if (ln.includes("manifest.ts:42")) {
+              const [pre, post] = ln.split("manifest.ts:42");
+              t.append(document.createTextNode(pre));
+              t.append(ph("b", undefined, "manifest.ts:42"));
+              t.append(document.createTextNode(post));
+            } else t.append(document.createTextNode(ln));
           });
-          card.append(pre);
-          wrap.append(phDelay(card, c));
+        }
+        const q = slide.querySelector<HTMLElement>("[data-stoch-q]");
+        if (q) q.textContent = '"' + STOCH.PROMPT + '"';
+      }
+
+      /** The two definitions, landing on the last fragment (A and C). */
+      function buildStochDefs(slide: HTMLElement) {
+        const d = slide.querySelector<HTMLElement>("[data-stoch-defs]");
+        if (!d) return;
+        d.textContent = "";
+        (["faithfulness", "factuality"] as const).forEach((k) => {
+          const box = ph("div", "def");
+          box.append(ph("span", "k", STOCH.KINDS[k].tag));
+          box.append(ph("p", undefined, STOCH.KINDS[k].def));
+          d.append(box);
         });
       }
 
-      /** C — one answer that forks in place at the sampled positions. */
-      function buildStochForks(slide: HTMLElement) {
-        const pre = slide.querySelector<HTMLElement>("[data-stoch-code]");
-        if (!pre) return;
-        pre.textContent = "";
-        let forkNo = 0;
-        STOCH.CODE_C.forEach((piece) => {
-          if (typeof piece === "string") {
-            pre.append(document.createTextNode(piece));
-            return;
-          }
-          // C's version of the fabrication beat: the SECOND fork — the one
-          // that picked a real backoff helper — picks a method that does not
-          // exist. Same fork, same mechanism, one worse draw.
-          const hFork = protoHalluc && forkNo === 1;
-          forkNo++;
-          const fork = ph("span", "stoch-fork");
-          piece.alts.forEach((a, i) => {
-            const row = ph("div", "alt" + (i === 0 ? " is-pick" : ""));
-            if (hFork && i === 0) row.classList.add("halt");
-            row.append(
-              ph("span", "t", hFork && i === 0 ? STOCH.HALLUC.forkAlt : a.v),
-            );
-            const bar = ph("div", "bar");
-            const fill = ph("i");
-            fill.style.setProperty("--p", Math.round(a.p * 100) + "%");
-            bar.append(fill);
-            row.append(bar);
-            fork.append(row);
+      /** A — the ladder. One ranked list; three rows go orange in place. */
+      function buildStochLadder(slide: HTMLElement) {
+        const l = slide.querySelector<HTMLElement>("[data-stoch-ladder]");
+        if (!l) return;
+        l.textContent = "";
+        STOCH.ANSWERS.forEach((a, i) => {
+          const bad = isBad(a.kind);
+          const bar = ph("div", "rowbar row stoch-fade" + (bad ? " bad" : ""));
+          const fill = ph("i");
+          fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
+          bar.append(fill);
+          const txt = ph("p", "txt row stoch-fade" + (bad ? " bad" : ""), a.text);
+          const tag = ph(
+            "span",
+            "tag row stoch-fade" + (bad ? " bad" : ""),
+            STOCH.KINDS[a.kind].tag,
+          );
+          l.append(phDelay(bar, i), phDelay(txt, i), phDelay(tag, i));
+          l.append(ph("span", "tell", a.tell));
+        });
+      }
+
+      /** B — the sort. One pile that splits into two lanes. */
+      function buildStochSort(slide: HTMLElement) {
+        const heads = slide.querySelector<HTMLElement>("[data-stoch-lane-heads]");
+        if (heads) {
+          heads.textContent = "";
+          heads.append(ph("span", undefined, STOCH.COPY.lanes.legit));
+          heads.append(ph("span", "bad", STOCH.COPY.lanes.halluc));
+        }
+        const s = slide.querySelector<HTMLElement>("[data-stoch-sorted]");
+        if (!s) return;
+        s.textContent = "";
+        STOCH.ANSWERS.forEach((a, i) => {
+          const bad = isBad(a.kind);
+          const card = ph("div", "card stoch-fade" + (bad ? " bad" : ""));
+          // Which lane it lands in once the sort happens.
+          card.style.setProperty("--lane", bad ? "2 / 3" : "1 / 2");
+          card.append(ph("span", "tag", STOCH.KINDS[a.kind].tag));
+          card.append(ph("p", undefined, a.text));
+          card.append(ph("span", "tell", a.tell));
+          s.append(phDelay(card, i));
+        });
+      }
+
+      /** C — the draw. One bar = the whole distribution, keyed underneath. */
+      function buildStochDraw(slide: HTMLElement) {
+        const bar = slide.querySelector<HTMLElement>("[data-stoch-bar]");
+        const total = STOCH.RANK.reduce((s, r) => s + r, 0);
+        if (bar) {
+          bar.textContent = "";
+          STOCH.ANSWERS.forEach((a, i) => {
+            const seg = ph("div", "seg" + (isBad(a.kind) ? " bad" : ""));
+            seg.style.setProperty("--w", (STOCH.RANK[i] / total) * 100 + "%");
+            seg.style.transitionDelay = i * 80 + "ms";
+            seg.append(ph("span", "n", String(i + 1)));
+            bar.append(seg);
           });
-          pre.append(fork);
+        }
+        const cap = slide.querySelector<HTMLElement>("[data-stoch-cap]");
+        if (cap) {
+          cap.textContent = "";
+          cap.append(ph("span", undefined, "most likely"));
+          cap.append(ph("span", undefined, "least likely"));
+        }
+        const key = slide.querySelector<HTMLElement>("[data-stoch-key]");
+        if (!key) return;
+        key.textContent = "";
+        STOCH.ANSWERS.forEach((a, i) => {
+          const row = ph("div", "k stoch-fade" + (isBad(a.kind) ? " bad" : ""));
+          row.append(ph("span", "n", String(i + 1)));
+          const body = ph("div");
+          body.append(ph("p", undefined, a.text));
+          body.append(ph("span", "tag", STOCH.KINDS[a.kind].tag));
+          row.append(body);
+          key.append(phDelay(row, i));
         });
-      }
-
-      /** A + B — the mechanism as a second, deliberately small widget. */
-      function buildStochMech(slide: HTMLElement) {
-        const m = slide.querySelector<HTMLElement>("[data-stoch-mech]");
-        if (!m) return;
-        m.textContent = "";
-        m.append(ph("p", "cap", STOCH.COPY.mechanism));
-        const row = ph("div", "row");
-        row.append(ph("span", "at", STOCH.DIST.at));
-        STOCH.DIST.alts.forEach((a) => {
-          const col = ph("div", "col");
-          col.append(ph("span", "p", Math.round(a.p * 100) + "%"));
-          const b = ph("div", "b");
-          b.style.setProperty("--h", Math.round(a.p * 190) + "px");
-          col.append(b, ph("span", "v", a.v));
-          row.append(col);
-        });
-        m.append(row);
       }
 
       function buildStoch(slide: HTMLElement) {
@@ -3245,20 +3268,16 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const n = slide.querySelector<HTMLElement>(sel);
           if (n) n.textContent = txt;
         };
-        set("[data-stoch-prompt]", STOCH.PROMPT);
-        set("[data-stoch-note]", STOCH.PROMPT_NOTE);
+        set("[data-stoch-eyebrow]", STOCH.COPY.eyebrow);
+        set("[data-stoch-headline]", STOCH.COPY.headline);
+        set("[data-stoch-beat]", STOCH.COPY.labelBeat);
         set("[data-stoch-honesty]", STOCH.COPY.honesty);
+        buildStochAsk(slide);
+        buildStochDefs(slide);
         const v = slide.dataset.stochVariant;
-        set(
-          "[data-stoch-halluc-line]",
-          (v === "C" ? STOCH.HALLUC.flagC : STOCH.HALLUC.flag) +
-            " " +
-            STOCH.HALLUC.line,
-        );
-        if (v === "A") buildStochGrid(slide);
-        if (v === "B") buildStochCards(slide);
-        if (v === "C") buildStochForks(slide);
-        if (v !== "C") buildStochMech(slide);
+        if (v === "A") buildStochLadder(slide);
+        if (v === "B") buildStochSort(slide);
+        if (v === "C") buildStochDraw(slide);
         slide.dataset.built = "1";
       }
 
@@ -3266,17 +3285,17 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       function syncStoch(slide: HTMLElement) {
         const shown = slide.querySelectorAll(".stoch-step.visible").length;
         slide.classList.toggle("is-fanned", shown >= 1);
-        slide.classList.toggle("is-mech", shown >= 2);
-        slide.classList.toggle("is-halluc", shown >= 3);
+        slide.classList.toggle("is-labelled", shown >= 2);
+        slide.classList.toggle("is-told", shown >= 3);
       }
 
       // ── The prototype switcher bar. DEV only: a stray merge can't ship it,
       //    and the ?variant= param is inert without these three sections. ──
       if (import.meta.env.DEV) {
         const NAMES: Record<string, string> = {
-          A: "the diff matrix",
-          B: "five cards, real text",
-          C: "one answer, forked",
+          A: "the ladder",
+          B: "the sort",
+          C: "the draw",
         };
         const keys = ["A", "B", "C"];
         const go = (patch: Record<string, string | null>) => {
@@ -3319,7 +3338,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             document.body.classList.contains("proto-honesty"),
           ),
         );
-        bar.append(toggle("run 4 hallucinates", "halluc", protoHalluc));
         document.body.append(bar);
 
         // "v" cycles variants. ← / → are deliberately NOT bound: they belong
