@@ -8,8 +8,11 @@
  *     one you are entering lit and the rest dim. This replaces the full
  *     `.chapter` wash for chapters 2–5 — the wash is now reserved for chapters
  *     1 and 6 only, so it keeps its impact (map #29, resolving #20's fog).
- *   - `chapter` omitted: chapter 1's ROADMAP slide — all four at equal weight.
- *     It is the roadmap, not a divider; every later divider is a callback to it.
+ *   - `chapter` omitted: chapter 1's ROADMAP slide — all four at equal weight,
+ *     and the only instance that renders each factor's `gloss` (#34). It is
+ *     the roadmap, not a divider; every later divider is a callback to it, and
+ *     the dividers stay bare so the callback reads as recognition, not a
+ *     re-read.
  *
  * The bridge is never explained, only walked: the room learns the shape once,
  * then recognises it four times.
@@ -54,6 +57,7 @@ const kicker =
       FACTORS.map((f) => (
         <li class:list={["roadmap-factor", chapter === f.chapter && "on"]}>
           <span class="k">{f.label}</span>
+          {!chapter && <span class="g">{f.gloss}</span>}
         </li>
       ))
     }

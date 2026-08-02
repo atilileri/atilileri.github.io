@@ -380,6 +380,15 @@
   text-transform: uppercase;
   color: #00327d99;
   margin-top: 2rem;
+  /* Uppercased mono at 0.14em tracking runs far wider than the 40ch the base
+     `p` rule assumes, so the byline was breaking mid-credit. */
+  max-width: none;
+}
+/* The sub-line is the deck's contents in four beats and is meant to read as
+   one unbroken line — the base `p` rule's 40ch cap broke it in half. */
+.reveal section.hero .hero-sub {
+  max-width: none;
+  white-space: nowrap;
 }
 
 /* TWO-COLUMN split (nice-to-have) */
@@ -654,6 +663,23 @@
   stroke: #00327d40;
   stroke-width: 1;
 }
+/* The ceiling rule at 72.7% (#33) — muted ink, dashed, deliberately quieter
+   than any curve. It is furniture that states a fact, not a series. */
+.bench-plot .ceiling {
+  stroke: #00327d59;
+  stroke-width: 1.5;
+  stroke-dasharray: 7 6;
+}
+.bench-plot .ceiling-lbl {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  fill: #00327d99;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
 .bench-plot .tick,
 .bench-plot .axis-label,
 .bench-plot .plot-title,
@@ -698,10 +724,21 @@
   font-weight: 700;
   fill: var(--navy);
 }
+/* Promoted from a 12px muted italic (Atil, 2026-08-02). It labels the
+   quadrant the slide exists to point at — cheap AND good, now top-left — so
+   it carries the deck's accent and the weight of a real annotation. */
 .bench-plot .efficient {
-  font-size: 12px;
-  font-style: italic;
-  opacity: 0.7;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  fill: var(--orange);
+  opacity: 1;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 /* Direct labels sit over the crowd — a surface halo keeps them legible. */
 .bench-plot .curve-label,
@@ -800,6 +837,179 @@
 }
 .bench-note .mono {
   color: var(--signal);
+}
+
+/* ══════════════ Chapter 1 — the stop-point (#33) ══════════════════════════
+   The bench chart reduced to one line and one number: rhetorically loud,
+   visually quiet, because it is a CALLBACK and not a fourth widget. It reuses
+   the bench plot's own tick/axis/grid classes on purpose — same furniture,
+   same room, one curve. The only new marks are the marker, the marginal
+   readout, and the grey-out that hands the slide to the copy. */
+.reveal section.stop {
+  justify-content: flex-start;
+}
+.stop-plot {
+  position: relative;
+  width: 100%;
+  /* Width sets the height here (the SVG keeps its aspect), so this is the
+     dial that buys room for the turn phrase below. At 58rem the phrase ran
+     into the chrome strip once it was promoted to statement scale. */
+  max-width: 49rem;
+  margin: clamp(0.3rem, 1.2vh, 0.9rem) 0 0;
+}
+.stop-plot svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+/* The bench plot's furniture classes are scoped to .bench-plot; re-point the
+   same rules at this slide rather than restating the values. */
+.stop-plot .grid {
+  stroke: #0066cc1f;
+  stroke-width: 1;
+}
+.stop-plot .axis {
+  stroke: #00327d40;
+  stroke-width: 1;
+}
+.stop-plot .tick,
+.stop-plot .axis-label,
+.stop-plot .plot-title {
+  font-family: var(--font-mono);
+  fill: var(--bench-ink);
+}
+.stop-plot .tick {
+  font-size: 15px;
+  opacity: 0.75;
+}
+.stop-plot .axis-label {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.stop-plot .plot-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--navy);
+}
+.stop-plot .end {
+  text-anchor: end;
+}
+.stop-plot .mid {
+  text-anchor: middle;
+}
+
+/* The line grows to the marker by dash-offset — it is drawn once, so the
+   curve's shape is fixed from the first frame and only its reveal moves. */
+.stop-line {
+  stroke: var(--signal);
+  stroke-width: 3;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  transition:
+    stroke-dashoffset var(--dur) var(--ease),
+    stroke var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+.stop-dot {
+  fill: var(--signal);
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease),
+    fill var(--dur) var(--ease);
+}
+.stop-dot.is-on {
+  opacity: 1;
+}
+.stop-marker {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 3;
+  transition:
+    cx var(--dur) var(--ease),
+    cy var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+/* The turn-over: the last step is the argument, so it is inked, not implied. */
+[data-stop-svg].is-down .stop-line {
+  stroke: var(--orange);
+}
+[data-stop-svg].is-down .stop-dot.is-on {
+  fill: var(--orange);
+}
+/* Landed — the curve steps back and the copy takes the slide. */
+[data-stop-svg].is-landed .stop-line,
+[data-stop-svg].is-landed .stop-dot {
+  opacity: 0.28;
+}
+[data-stop-svg].is-landed .stop-marker {
+  opacity: 0.35;
+}
+
+/* The marginal number, beside the plot rather than inside it — it changes
+   every step, and an SVG label would fight the curve for the same space. */
+.reveal .stop-read {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.stop-read .k {
+  font-size: clamp(0.62rem, 0.85vw, 0.8rem);
+  letter-spacing: 0.04em;
+  color: #00327d99;
+}
+.stop-read .k i {
+  font-style: normal;
+  opacity: 0.7;
+}
+.stop-read .v {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.2vw, 1.8rem);
+  line-height: 1.1;
+  color: var(--navy);
+}
+.stop-read.is-loss .v {
+  color: var(--orange);
+}
+
+/* The turn phrase is the slide's last beat, and the answer to its headline —
+   so it is set at statement scale, not caveat scale. It holds its space from
+   the first frame so nothing reflows, and inks when the curve greys out. */
+.reveal .stop-turn {
+  margin: clamp(0.6rem, 2vh, 1.4rem) 0 0;
+  max-width: 34ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.7vw, 2.25rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--navy);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.reveal section.stop.has-landed .stop-turn {
+  opacity: 1;
+  transform: none;
+}
+/* The phrase inside the phrase — the three words doing the work. */
+.reveal .stop-turn b {
+  font-weight: 700;
+  color: var(--orange);
+}
+/* The five step fragments are pure state carriers — reveal's own .fragment
+   opacity would otherwise leave five invisible boxes in the flow. */
+.reveal section.stop .stop-step {
+  display: none;
 }
 
 /* ─────────────── Mental model: the four layers (nested rings) ──
@@ -1149,6 +1359,19 @@
   letter-spacing: 0.2em;
   color: var(--orange);
 }
+/* The wash's second question. Big enough to be read as part of the objection
+   rather than as a caption on it, but clearly subordinate to the headline —
+   it is the quieter half of the same voice. */
+.reveal section.chapter .chapter-sub {
+  margin: clamp(1.2rem, 3vh, 2.2rem) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.6vw, 2.4rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+  opacity: 0.62;
+  max-width: 26ch;
+}
 
 /* ══════════════════════ ROADMAP SPINE — the deck's navigation device ══
    One component, two jobs (src/components/deck/RoadmapDivider.astro):
@@ -1223,6 +1446,26 @@
 }
 .reveal section.roadmap .roadmap-factor.on::before {
   background: var(--orange);
+}
+/* The gloss line — chapter 1's roadmap only (#34). The component renders it
+   nowhere else, so this rule can never fire on a divider; it is scoped to
+   `.is-all` anyway, because the row's geometry is the callback and the
+   dividers must keep their exact height. */
+.reveal section.roadmap.is-all .roadmap-factor .k {
+  display: block;
+}
+.reveal section.roadmap.is-all .roadmap-factor .g {
+  display: block;
+  margin-top: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.82vw, 0.78rem);
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  /* Glosses 3 and 4 run to two lines at most widths while 1 and 2 stay on
+     one. That is #34's deliberate asymmetry — the row is top-aligned
+     (`align-items: flex-start`), so the labels stay on one baseline and the
+     ragged bottom is the intended shape. */
+  color: #1b1b1b8c;
 }
 
 /* ══════════════════════════ Build-list treatments (slide 10 + alts A–E) ══
@@ -1468,8 +1711,21 @@
 .lottery-plot svg {
   width: 100%;
   height: 100%;
-  max-height: 58vh;
+  /* Capped in CANVAS pixels, not vh. Reveal scales a fixed 1600x900 canvas to
+     the window with a CSS transform, so px inside a slide are canvas px and
+     are stable — but vh resolves against the real viewport, so on a shorter
+     window the same `62vh` bought MORE canvas height and pushed the x-axis
+     label off the bottom of the slide. That is the clipping Atil hit on a
+     browser with tab and bookmark bars. The old cap worked out to ~620 canvas
+     px on that window, which clipped; 500 was legible but too small. 560 is
+     the middle, and still cannot overflow at any window size. */
+  max-height: 560px;
   overflow: visible;
+}
+/* The promise sentence sits tight under the headline: it is the headline's
+   second half, not a paragraph. */
+.reveal section.lottery .tk-body {
+  margin: 0.2rem 0 0.4rem;
 }
 /* the target box — signal-blue, quiet until the dots arrive */
 .lot-zone {
@@ -1500,6 +1756,39 @@
   font: 600 15px var(--font-mono);
   letter-spacing: 0.02em;
 }
+/* Fitted trend line, one per state, cross-faded with the dots. Each is keyed
+   to its cloud's own colour — grey for the scattered "before", orange for the
+   converged "after" — so the line is read as belonging to those points rather
+   than as a second annotation. Both are deliberately quieter than the dots:
+   the fit supports the cloud, it doesn't replace it. */
+.lot-fit {
+  stroke-width: 3;
+  stroke-linecap: butt;
+  /* Striped, not solid — it is a fitted line, not measured data, and the
+     dashes keep it from reading as a nineteenth attempt. Longer dash and
+     wider gap than `.lot-trace`'s dotted 1/9, so the two dashed marks on
+     this slide stay tellable apart. */
+  stroke-dasharray: 12 8;
+  transition: opacity var(--dur) var(--ease);
+}
+.lot-fit-before {
+  stroke: var(--ink);
+  opacity: 0.42;
+}
+.lot-fit-after {
+  stroke: var(--orange);
+  opacity: 0;
+}
+/* Swap on the same beat the cloud moves. Measured, with the tails excluded:
+   slope -0.301 → -0.369 and x-span 710 → 260. The "after" fit is STEEPER,
+   not flatter — so the fits are not a slope story and must never be narrated
+   as one. What they show is POSITION and SPAN: the same relationship,
+   compressed into the left quarter of the spend axis and lifted into the
+   ship-ready box. (Before the outliers were trimmed these read -0.182 →
+   -0.163, which looked like flattening; that was the tail talking.) */
+.lottery-plot svg.go .lot-fit-before { opacity: 0; }
+.lottery-plot svg.go .lot-fit-after { opacity: 0.9; }
+
 /* trace of a chosen attempt's path — dotted, behind the dots, fades in
    as the distribution shifts */
 .lot-trace {
@@ -1527,28 +1816,10 @@
   fill: var(--orange);
   fill-opacity: 1;
 }
-.lottery-cap {
-  margin-top: 0.6rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.4rem 1.4rem;
-}
-.lottery-cap .stat {
-  font: 600 clamp(1rem, 1.7vw, 1.4rem) var(--font-display);
-  color: var(--signal);
-  white-space: nowrap;
-}
-.lottery-cap .stat-n {
-  color: var(--orange);
-  font-variant-numeric: tabular-nums;
-}
-.lottery-sub {
-  color: var(--ink);
-  opacity: 0.72;
-  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
-  max-width: 62ch;
-}
+/* `.lottery-cap` / `.lottery-sub` / `.stat` lived here until 2026-08-02, when
+   the caption block came off the slide (Atil's call) and its two figures moved
+   into the presenter note. Removed rather than left dark — nothing renders
+   them any more. */
 .lottery-trigger { display: none; }
 
 /* ══════════════════════════ CHAPTER A — tokens, credits, the cost dial ══

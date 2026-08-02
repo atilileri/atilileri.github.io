@@ -230,17 +230,46 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       <div class="slides">
         <!-- 1 ───────────────────────────── HERO (eyebrow + big headline) -->
         <section class="hero" data-section="Opening">
-          <span class="eyebrow">Getting the Most from AI</span>
+          <!-- Eyebrow, title and sub-line each do a DIFFERENT job (Atil,
+               2026-08-02): the old eyebrow "Getting the Most from AI" was a
+               paraphrase of the old title "GETTING MORE FROM AI." and said
+               nothing twice. Now: the eyebrow is the provocation, the title
+               the promise, the sub-line the contents.
+
+               "Coding agents" is deliberately vendor-neutral — the company
+               runs Copilot, but nothing in this deck depends on which
+               provider, and no slide names one. Chapter 2 goes on to take the
+               word apart (model + harness + skills + tools), so the title
+               poses a noun the deck later defines rather than assuming it. -->
+          <span class="eyebrow">Same licence. Different results.</span>
+          <!-- Noun first, so the accent lands on the qualifier rather than the
+               subject. Two hand-broken lines: the previous phrasing needed
+               three at hero scale, which crowded the block. -->
           <h1 class="h-set">
-            <span class="h-line"><span>GETTING MORE</span></span>
-            <span class="h-line"><span class="accent">FROM AI.</span></span>
+            <span class="h-line"><span>CODING AGENTS,</span></span>
+            <span class="h-line"><span class="accent">AT THEIR BEST.</span></span>
           </h1>
-          <p>Token optimization &amp; the skills that compound it.</p>
+          <!-- Atil's own wording. Four beats, and they are the four factors in
+               order — how it works (ch2), what it costs (ch3), less waste (ch4,
+               "the principles that cut waste"), consistent (ch5, "the process
+               that repeats"). The roadmap slide is this line drawn. It must
+               stay on ONE line; don't pad it back into a sentence. -->
+          <p class="hero-sub">How it works, what it costs, less waste, consistent.</p>
           <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
           <aside class="notes">
             Ninety seconds, standing still. You are already paying for AI, and
             the bill is going up — so this is not a talk about whether to use
             it. It's about getting more back from what you are already buying.
+
+            Lean on the eyebrow: everyone in this room has the same licence.
+            The results are not the same. That gap is the whole talk, and it
+            is not a procurement problem.
+
+            Nothing here depends on which provider — we happen to run Copilot,
+            but no slide names one, and everything shown works the same way
+            whatever is behind it. Say that once, here, so nobody spends the
+            next forty minutes wondering.
+
             Two promises up front: nothing here is a demo of a product you
             can't have, and every number on screen is one we can source. Then
             straight into the objection on the next slide, in their own words.
@@ -261,21 +290,40 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              instead, so the wash keeps its impact — map #29, resolving #20's
              fog about the wash's own "2–3× in the real talk" ceiling.
 
-             The divider copy below is PROVISIONAL: the bridge grilling (#34)
-             owns the final wording and #37 applies it.
+             All the copy in this chapter is LOCKED — the wash and the roadmap
+             by #34, the stop-point slide by #33, the lottery's headline by
+             #34. The wash carries the objection bare, with no concession
+             sub-line: printing the concession would fire #33's "You can't buy
+             your way to spec." two slides early, on furniture. The chapter
+             runs objection → ceiling → the turn → the route → the promise.
              ══════════════════════════════════════════════════════════════════ -->
 
         <!-- 1a ─────────────────── CHAPTER divider (triggers chapter-wash) -->
         <section class="chapter" data-section="01 — Why optimize" data-chapter>
           <span class="chapter-no">CHAPTER 01</span>
-          <h2>Can&rsquo;t we just<br />throw money at it?</h2>
+          <h2>Can&rsquo;t we just throw<br />money at problems?</h2>
+          <!-- Atil, 2026-08-02: this REVERSES #34, which rejected a wash
+               sub-line on the grounds that a concession would fire #33's
+               "You can't buy your way to spec." two slides early. The line
+               below avoids that trap by staying a QUESTION in the room's own
+               voice — it concedes the models are good without conceding what
+               that buys, so slide 3 still lands its answer unspent. Both
+               lines are theirs; the deck answers neither until slide 3. -->
+          <p class="chapter-sub">The models are good now. <br />Isn&rsquo;t that enough?</p>
           <aside class="notes">
-            Say it in their voice, not yours — this is the objection the room is
-            already holding, and naming it out loud first is what buys you the
-            next forty minutes. Then concede the honest half: yes, you can throw
-            money at it, and it works more often than it used to. This chapter
-            is about what that actually buys you, and where it stops buying
-            anything at all.
+            Say both lines in their voice, not yours — this is the objection
+            the room is already holding, and naming it out loud first is what
+            buys you the next forty minutes.
+
+            The second line is the real one. Concede it hard and mean it: the
+            models ARE good now, better than last year, and for a lot of work
+            they are genuinely enough. Don't argue with it here — you have no
+            evidence on screen yet and you'd just sound defensive.
+
+            What you're setting up is the missing half: whether a good model
+            on its own gets you there, or whether it still takes someone who
+            knows how to work it. That's the question this whole talk answers,
+            and the next three slides answer it with data rather than opinion.
           </aside>
         </section>
 
@@ -293,30 +341,121 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="bench-legend" data-bench-legend></div>
           </div>
           <div class="bench-plot">
-            <svg data-bench-svg viewBox="0 0 900 570" role="img"
+            <svg data-bench-svg viewBox="0 0 1000 570" role="img"
               aria-label="DeepSWE v1.1 results: pass rate against average cost per task, one curve per model across reasoning-effort levels."
             ></svg>
             <div class="bench-tip" data-bench-tip hidden></div>
           </div>
           <p class="bench-note">
             113 tasks · one line per model across reasoning-effort levels · source:
-            <span class="mono">deepswe.datacurve.ai/blog/deepswe-v1-1</span>
+            <span class="mono">deepswe.datacurve.ai/blog/deepswe-v1-1</span><br />
+            The best score anywhere on the board is 72.7% &mdash; no model, at any
+            effort, at any price, clears it.
           </p>
           <aside class="notes">
             The live leaderboard, rebuilt inside the deck — same data, our palette.
             Hover any point for cost, output tokens and steps; click a family chip to
             isolate it; the toggle swaps the scatter for the ranked bars with error
-            bars. Point to the bottom-left quadrant: cheap and good is now a real
-            option, and the expensive models are not the top of the board.
+            bars.
+
+            This chart proves two things, and this slide only carries one of
+            them. First — the one you make here — THERE IS A CEILING: 72.7% is
+            the best anything does, so even spending everything you are not at
+            100%. That means there is still room to improve, still a human in
+            the loop, and still a process to engineer so you reach that ceiling
+            as often, as consistently and by as short a path as possible.
+            Second — marginal effort stops paying, so WHERE YOU STOP is the
+            decision — belongs to the next slide. Don't spend it here; the next
+            slide walks one of these curves and turns it over.
+
+            One piece of context worth saying aloud, flagged as context: today's
+            models turn sloppier questions into better outputs than any prior
+            generation, so you genuinely can throw money at more problems than
+            you could a year ago. THE CHART DOES NOT PROVE THAT — it is a
+            comparison across years and this is a single snapshot. Say it as
+            your own observation, not as something on screen.
           </aside>
         </section>
 
-        <!-- 1c ─── GAP: the determinism slide, replacing the old "we are
-             engineers" slide. Shape decided by grilling #33, built by #37.
-             #33 also owns the tension recorded on map #29: the bench note
-             above argues diminishing returns, while this chapter's line is
-             "we can throw money at more problems than ever, but not all" —
-             two different claims sitting on consecutive slides. -->
+        <!-- 1c ─── THE STOP-POINT: money → method (#33, built by #37).
+             Replaces the old "we are engineers" slide and is the chapter's
+             argumentative hinge. Deliberately NOT a new widget: it is the
+             previous slide reduced to one curve, one marker and one number,
+             so it reads as a callback rather than a fourth demand on the
+             room's attention.
+
+             The chart's two proofs are split one per slide — the bench keeps
+             THE CEILING, this slide takes THE STOP-POINT — so neither slide
+             argues the other's point. The word "determinism" never appears on
+             screen; the room's own phrase is "the repeatable, optimum way to
+             spec". Forwards, the negative headline makes the roadmap arrive
+             as the answer to a question money just failed. -->
+        <section class="stop" data-section="01 — Why optimize" data-stop>
+          <span class="eyebrow">The turn &middot; press &rarr; to spend more</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>You can&rsquo;t buy your way to spec.</span></span>
+          </h2>
+          <p class="tk-body">
+            Past a point, more effort buys nothing &mdash; and no amount buys the
+            same answer twice.
+          </p>
+          <div class="stop-plot">
+            <svg data-stop-svg viewBox="0 0 900 468" role="img"
+              aria-label="One model's spend curve from the previous chart. Each step of reasoning effort costs more per task; the score climbs steeply at first, then flattens, and the last and most expensive step scores slightly lower than the one before it."
+            ></svg>
+            <p class="stop-read" data-stop-read aria-live="polite"></p>
+          </div>
+          <!-- Atil, 2026-08-02: "A better way is …", not #33's "What you want
+               is …", and promoted OUT of the small-type caveat slot. It is the
+               line the whole slide exists to deliver, and at caveat size it
+               was reading as a footnote to the chart rather than the answer to
+               the headline. -->
+          <p class="stop-turn" data-stop-turn>
+            A better way is the <b>repeatable</b>, <b>optimum way</b> to spec.
+          </p>
+          <!-- Four walk fragments (one per step along the curve) + a fifth that
+               greys the curve and lands the turn. Nothing here is counted: the
+               step is DERIVED from how many fragments reveal has made visible,
+               which is what makes → and ← replay identically and re-entry from
+               either direction land on the right frame (#26's rule). -->
+          <span class="fragment stop-step" aria-hidden="true"></span>
+          <span class="fragment stop-step" aria-hidden="true"></span>
+          <span class="fragment stop-step" aria-hidden="true"></span>
+          <span class="fragment stop-step" aria-hidden="true"></span>
+          <span class="fragment stop-step" aria-hidden="true"></span>
+          <aside class="notes">
+            This is the pivot of the whole talk: from money to method. Same
+            data as the slide before, one model lifted out of it — so you are
+            not asking the room to learn anything new, you are asking them to
+            look again.
+
+            Walk it with →. Each press is one step up in reasoning effort, and
+            the number beside the marker is the MARGINAL spend — what that step
+            cost you on top of the last one, not the running total. First step:
+            about €2 more buys nearly six points. Good deal. Keep going and
+            each step costs more and buys less. The last step spends 61% more
+            than the one before it — €7.62 more per task — and scores 0.2
+            points LOWER. Let the line turn over on screen before you say
+            anything; the dip is real data, not a diagram.
+
+            Then land the phrase: what you actually want is the repeatable,
+            optimum way to spec. Three words doing three jobs — REPEATABLE, the
+            same way twice; OPTIMUM, where you stop spending; TO SPEC, your
+            target, not the top of the board.
+
+            This is a REFRAME, not an argument against spending. "Optimum" is a
+            spending instruction. The room has just approved a budget; don't
+            tell them not to spend it, tell them where it stops working.
+
+            The headline is a question money cannot answer, and the next slide
+            answers it — "Four things decide what you get back." Hand straight
+            over.
+
+            Guard against the lottery two slides from now: this slide STATES
+            repeatability, the lottery SHOWS the spread. This one is about the
+            lever; that one is about the result.
+          </aside>
+        </section>
 
         <!-- 1d ─────────────────── THE ROADMAP (all four factors, equal) -->
         <RoadmapDivider
@@ -324,37 +463,60 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           heading="Four things decide what you get back."
         >
           <aside class="notes">
+            This answers the question the slide before just asked. Money
+            couldn't buy you spec; these four can — so arrive on this slide as
+            a reply, not as a new topic.
+
             The map for the rest of the talk. You will see these same four, in
             these same positions, every time we enter a chapter — one of them
             lit. Never explain that device; just walk it, and by the third
-            chapter the room is reading it without being told. Labels are
-            provisional until #34 settles them. Don't sell any single factor
-            here — the promise on the next slide hangs off all four together.
+            chapter the room is reading it without being told.
+
+            The gloss lines under each label appear ONLY here — the dividers
+            stay bare so their later appearances read as recognition. This is
+            also the one and only time "Tokenomics" gets defined on screen, so
+            let it land: what it costs. Don't sell any single factor here — the
+            promise on the next slide hangs off all four together, and its
+            headline finishes this one's sentence.
           </aside>
         </RoadmapDivider>
 
         <!-- 8b ─────────────────── RELIABILITY SCATTER (result quality × spend) -->
         <section class="lottery" data-section="01 — Why optimize" data-lottery>
           <span class="eyebrow">The promise &middot; press &rarr; to level up</span>
+          <!-- The headline finishes the roadmap's own sentence — "Four things
+               decide what you get back." → "This is what you get back." — so
+               the two slides fuse into one beat and the promise is attributed
+               to all four factors without naming them again (#34). The old
+               headline is kept, demoted into the deck's standing one-sentence
+               slot, which this slide used to skip. It stays up through BOTH
+               states of the collapse: that is what makes it read as a promise
+               rather than a caption on the scatter. -->
           <h2 class="h-set">
-            <span class="h-line"><span>Your results don&rsquo;t have to be a lottery</span></span>
+            <span class="h-line"><span>This is what you get back.</span></span>
           </h2>
+          <p class="tk-body">Your results don&rsquo;t have to be a lottery.</p>
           <div class="lottery-plot">
             <svg data-lottery-svg viewBox="0 0 980 600" role="img"
               aria-label="Result quality against tokens spent. A regular user's outputs are scattered across the whole field — some ship, most miss, several overshoot the budget. After the training, the same attempts converge into a tight cluster in the ship-ready, on-budget corner: consistent quality at a consistent, minimal spend."
             ></svg>
           </div>
-          <p class="lottery-cap">
-            <span data-lottery-stat class="stat">On&nbsp;target &mdash; ship-ready &amp; on&nbsp;budget:
-              <b class="stat-n">3</b> of 18</span>
-            <span class="lottery-sub" data-lottery-sub>Random prompts in, random results out. More tokens roughly buys more quality &mdash; but the spread is huge and much of the spend is wasted.</span>
-          </p>
+          <!-- The caption block (the on-target stat and the before/after
+               sub-copy) was REMOVED at Atil's call, 2026-08-02. The scatter
+               makes the argument on its own, and the lower-left text was
+               competing with it. Both numbers and both readings now live in
+               the presenter note — the deck's standing rule that notes carry
+               what the slide can't. `setLottery` still drives the collapse;
+               it just has no text left to update. -->
           <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
           <aside class="notes">
             The promise of the whole talk, made up front — this is chapter 1's
             last slide, not the deck's pay-off, so state it as something you
             are going to earn over the next four chapters rather than something
-            just demonstrated. On entry the field is a wide scatter with a real
+            just demonstrated. The headline finishes the sentence the roadmap
+            started, so run the two together: four things decide what you get
+            back — and THIS is what you get back. The chapter opened on their
+            objection and closes positive, on a promise. On entry the field is a wide scatter with a real
             trend: more tokens roughly buys more quality (bottom-left up to
             top-right), but the spread is enormous and it touches all four
             quadrants — cheap misses, dear misses, lucky wins, expensive wins.
@@ -367,8 +529,35 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             honest. Attribute it to all four factors together, never to best
             practices alone — the four you just saw on the roadmap are what
             move this cloud, and each chapter from here moves it a little more.
-            On-target goes 3-of-18 to 16-of-18. Press &larr; to replay the
-            scatter. (Provisional framing: #34 owns the final wording.)
+            Each cloud carries its own fitted trend line — dashed, so it reads
+            as a fit rather than as another attempt — and the pair is worth
+            pointing at explicitly. Both slope the same way: more tokens
+            really does buy more quality, in both worlds, so you are never
+            claiming the relationship disappears.
+
+            Narrate POSITION and SPAN, never slope. The after line is short,
+            high and inside the box; the before line is long, low and ends
+            outside it. Same relationship, compressed into the left quarter of
+            the spend axis and lifted into ship-ready. If someone asks: the
+            after line is actually slightly STEEPER, which is fine and is not
+            the point — a steep short line that starts high is exactly what
+            "you get there sooner" looks like.
+
+            The lines are fitted to the body of each cloud, not to every dot:
+            before's three odd attempts (the lucky win, the dear miss, the bad
+            miss) and after's two remaining misses are left out of the fit but
+            deliberately left on screen. If asked, say so plainly — they are
+            the honest tail, and a trend line dragged around by three outliers
+            would tell you less.
+
+            Nothing else on this slide is labelled, so the two readings are
+            yours to give. BEFORE: random prompts in, random results out — more
+            tokens roughly buys more quality, but the spread is huge and much
+            of the spend is wasted; only 3 of 18 attempts land ship-ready and
+            on budget. AFTER: the same attempts, after all four factors — top
+            quality at a fraction of the tokens, spend pulled left, spread
+            tightened. 16 of 18. You aim, you don't gamble. Press &larr; to
+            replay the scatter.
           </aside>
         </section>
 
@@ -507,10 +696,18 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         <RoadmapDivider section="03 — Tokenomics" chapter={3}>
           <aside class="notes">
             We've just seen what the machine is. Now what it costs — and the
-            unit is smaller and stranger than most people expect. Five slides,
-            and they land in two halves: what you're actually buying (the unit,
-            its price, and the dial you can turn), then where the units
-            actually go (what's in the window, and what one task does to it).
+            unit is smaller and stranger than most people expect.
+
+            "Tokenomics" is the one label on the roadmap you never gloss again
+            after chapter 1; if the room needs it, say "what it costs" and move
+            on. Don't define it here — the roadmap already did that once, which
+            is exactly once.
+
+            Two spoken beats carry this chapter's halves — they used to be
+            divider slides of their own and are now yours to say, not the
+            deck's to print: "What you're actually buying" — the unit, its
+            price, and the dial you can turn. Then "Where the tokens go" —
+            what's in the window, and what one task does to it.
           </aside>
         </RoadmapDivider>
 
@@ -1345,6 +1542,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         fmtEur,
         fmtAic,
         fmtInt,
+        USD_PER_EUR,
       } from "../../../lib/asml-ai/rates";
       import {
         tokenize,
@@ -1535,6 +1733,55 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         });
         bb.textContent = "monthly budget";
         svg.append(bb);
+        // ── Fitted trend lines, one per state ────────────────────────────
+        // Ordinary least squares over each cloud, computed here rather than
+        // hard-coded so the lines cannot drift if the point sets are ever
+        // retuned. Both slopes are NEGATIVE in SVG space (y grows downward),
+        // i.e. both clouds really do trend "more tokens → better results".
+        //
+        // OUTLIERS ARE EXCLUDED FROM THE FIT (Atil, 2026-08-02) — the last
+        // three "before" points and the last two "after" points. That is not
+        // arbitrary trimming: those points are the deliberately odd ones the
+        // set was built with — before's lucky win, dear miss and bad miss
+        // (the "touches all four quadrants" tail), and after's two attempts
+        // that still miss. They stay ON SCREEN, because the honest picture
+        // includes them; they are just kept out of the line so the fit
+        // describes the body of the distribution rather than being dragged by
+        // its tail. Both counts are tied to the tail's length, so anything
+        // appended to these arrays lands INSIDE the fit unless this changes.
+        //
+        // Each line spans only its own fitted points' x-range, so it reads as
+        // a fit of those points rather than a prediction beyond them.
+        const FIT_DROP = { before: 3, after: 2 };
+        const fit = (pts: number[][]) => {
+          const n = pts.length;
+          const mx = pts.reduce((s, p) => s + p[0], 0) / n;
+          const my = pts.reduce((s, p) => s + p[1], 0) / n;
+          let num = 0, den = 0;
+          for (const [x, y] of pts) {
+            num += (x - mx) * (y - my);
+            den += (x - mx) * (x - mx);
+          }
+          const slope = den === 0 ? 0 : num / den;
+          const xs = pts.map((p) => p[0]);
+          const x1 = Math.min(...xs), x2 = Math.max(...xs);
+          return {
+            x1, x2,
+            y1: my + slope * (x1 - mx),
+            y2: my + slope * (x2 - mx),
+          };
+        };
+        for (const [pts, drop, cls] of [
+          [LOT.before, FIT_DROP.before, "lot-fit lot-fit-before"],
+          [LOT.after, FIT_DROP.after, "lot-fit lot-fit-after"],
+        ] as const) {
+          const body = (pts as number[][]).slice(0, pts.length - drop);
+          const f = fit(body);
+          svg.append(mk("line", {
+            x1: f.x1, y1: f.y1, x2: f.x2, y2: f.y2, class: cls,
+          }));
+        }
+
         // dotted traces for the chosen few — drawn first so they sit BEHIND
         // the dots; they fade in as the attempts travel (.go).
         LOT.TRACE.forEach((i) => {
@@ -1557,17 +1804,14 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         });
         svg.dataset.built = "1";
       }
+      // The slide is now purely the scatter: its caption block was removed
+      // (Atil, 2026-08-02) and the 3-of-18 / 16-of-18 figures moved into the
+      // presenter note, so there is no on-screen text to swap — only the
+      // class that moves the cloud.
       function setLottery(slide: HTMLElement, collapsed: boolean) {
         const svg = slide.querySelector<SVGSVGElement>("[data-lottery-svg]");
-        const stat = slide.querySelector<HTMLElement>("[data-lottery-stat] .stat-n");
-        const sub = slide.querySelector<HTMLElement>("[data-lottery-sub]");
         if (!svg) return;
         svg.classList.toggle("go", collapsed);
-        if (stat) stat.textContent = collapsed ? "16" : "3";
-        if (sub)
-          sub.textContent = collapsed
-            ? "The same attempts, after all four factors → top quality at a fraction of the tokens, spend pulled left, spread tightened. You aim, not gamble."
-            : "Random prompts in, random results out. More tokens roughly buys more quality — but the spread is huge and much of the spend is wasted.";
       }
 
       // ── "The one number" count-up ─────────────────────────────────
@@ -1793,14 +2037,25 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         g.addEventListener("mouseleave", hideTip);
       }
 
-      // Cost runs RIGHT-to-LEFT: $0 at the right edge, so "cheap and good" is
-      // the top-right corner and every curve reads as "what more money buys".
-      const CX = (c: number) => 840 - c * 28.9192;
+      // Cost runs LEFT-to-RIGHT: $0 at the left edge, spend increasing
+      // rightward — the conventional reading, and the same direction as the
+      // stop-point slide that follows (Atil, 2026-08-02). The chart used to
+      // run the other way, which put two consecutive slides on opposite cost
+      // axes. "Cheap and good" is now the top-LEFT corner.
+      // The px-per-dollar scale is UNCHANGED from the original (28.9192), and
+      // the labels are mirrored along with the points — together those two
+      // facts preserve the 15-callout collision solve exactly, because a
+      // reflection cannot introduce a label-label overlap that wasn't already
+      // there. All the flip needed was somewhere for the now-leftward labels
+      // to go: hence the 175px left margin, and the wider viewBox below that
+      // pays for it. The SVG scales to the slide, so a wider canvas just
+      // renders slightly smaller rather than clipping.
+      const CX = (c: number) => 175 + c * 28.9192;
       const CY = (s: number) => 511 - s * 5.8875;
 
       function drawCurves() {
         if (!benchSvg) return;
-        const T = 40, B = 511, L = CX(28.5), R = 855;
+        const T = 40, B = 511, L = 115, R = 980;
         for (let s = 0; s <= 80; s += 10) {
           benchSvg.append(el("line", { x1: L, x2: R, y1: CY(s), y2: CY(s), class: "grid" }));
           const t = el("text", { x: L - 10, y: CY(s) + 4, class: "tick end" });
@@ -1814,12 +2069,33 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           benchSvg.append(t);
         }
         benchSvg.append(el("line", { x1: L, x2: R, y1: B, y2: B, class: "axis" }));
+
+        // THE CEILING (#33). One of the chart's two proofs — the other, the
+        // stop-point, belongs to the next slide, so nothing here draws it.
+        // 72.7 is gpt-5.6-sol's top point, i.e. what the scatter actually
+        // plots; MODELS' `rate: 73` is the rounded leaderboard row the ranked
+        // bars use. Same fact, two precisions — draw against the plot's own.
+        const CEIL = 72.7;
+        benchSvg.append(
+          el("line", { x1: L, x2: R, y1: CY(CEIL), y2: CY(CEIL), class: "ceiling" }),
+        );
+        // Right-anchored: since the flip, the top-LEFT band belongs to the
+        // "most efficient" pointer, and two annotations in one corner read as
+        // clutter. The expensive end of the ceiling is also the more damning
+        // place to say it.
+        const ceilLbl = el("text", { x: R - 8, y: CY(CEIL) - 12, class: "ceiling-lbl end" });
+        ceilLbl.textContent = "nothing clears this";
+        benchSvg.append(ceilLbl);
         const xl = el("text", { x: (L + R) / 2, y: B + 44, class: "axis-label mid" });
         xl.textContent = "avg cost per task";
         const head = el("text", { x: L, y: 22, class: "plot-title" });
         head.textContent = "DeepSWE score";
-        const eff = el("text", { x: R - 6, y: 52, class: "efficient end" });
-        eff.textContent = "most efficient ↗";
+        // Cheap AND good is now the top-LEFT corner, so the pointer flips with
+        // the axis. It is also promoted out of the whispered italic it used to
+        // be: it names the quadrant the whole slide is asking the room to look
+        // at, and at 12px muted grey nobody ever did.
+        const eff = el("text", { x: L + 10, y: 50, class: "efficient" });
+        eff.textContent = "↖ most efficient";
         benchSvg.append(xl, head, eff);
 
         for (const cv of CURVES) {
@@ -1846,21 +2122,30 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           });
           const [lc, ls] = cv.pts[cv.at];
           const x = CX(lc), y = CY(ls);
+          // The dx/lx/anchor triplet in CURVES is a collision solve done
+          // against the ORIGINAL right-to-left axis. The plot is mirrored, so
+          // the labels mirror with it — negate the horizontal offsets, swap
+          // the anchor — and all 15 callouts keep exactly the spacing they
+          // were tuned for. Vertical offsets are untouched. Do not "fix" this
+          // by leaving the offsets as authored: that puts every label on the
+          // wrong side of its own curve.
+          const dx = -cv.dx, lx = -cv.lx;
+          const anchor = cv.anchor === "end" ? "start" : "end";
           g.append(
             el("line", {
-              x1: x, y1: y, x2: x + cv.lx, y2: y + cv.ly,
+              x1: x, y1: y, x2: x + lx, y2: y + cv.ly,
               stroke: color, "stroke-width": 1, opacity: 0.35,
             }),
           );
           const name = el("text", {
-            x: x + cv.dx, y: y + cv.dy, "text-anchor": cv.anchor,
+            x: x + dx, y: y + cv.dy, "text-anchor": anchor,
             fill: color, class: "curve-label",
           });
           name.textContent = cv.name;
           g.append(name);
           if (cv.eff) {
             const e2 = el("text", {
-              x: x + cv.dx, y: y + cv.dy + 11, "text-anchor": cv.anchor,
+              x: x + dx, y: y + cv.dy + 11, "text-anchor": anchor,
               fill: color, class: "curve-eff",
             });
             e2.textContent = cv.eff;
@@ -1920,7 +2205,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // Each view owns its coordinate space; the SVG scales to the slide.
         benchSvg.setAttribute(
           "viewBox",
-          benchView === "scatter" ? "0 0 900 570" : "0 0 1180 470",
+          benchView === "scatter" ? "0 0 1000 570" : "0 0 1180 470",
         );
         if (benchView === "scatter") drawCurves();
         else drawBars();
@@ -1958,6 +2243,167 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           }),
         );
       drawBench();
+
+      /* ══════════ CHAPTER 01 — the stop-point (#33) ═══════════════════════
+         The bench chart reduced to one line and one number. It reads off the
+         SAME `CURVES` array as the slide before it, deliberately: there is no
+         second dataset to keep in sync, and if the chart's numbers ever move,
+         this slide moves with them.
+
+         The whole argument is MARGINAL, not cumulative — "this step cost you
+         €X more and bought you Y" — because cumulative spend is the claim the
+         previous slide already made. The last step is the slide: 61% more
+         money, 0.2 points less.
+
+         Step is DERIVED from reveal's visible fragment count (#26), never
+         counted locally, so → and ← are symmetric and entering backwards from
+         the roadmap lands on the final frame rather than replaying. */
+      const STOP_CURVE = CURVES.find((c) => c.name === "claude-fable-5")!;
+      const STOP = {
+        VB: { w: 900, h: 468 },
+        X0: 120, XN: 840, Y0: 408, YN: 52,
+        // The plot is framed on this curve alone, so the shape of ONE model's
+        // diminishing return fills the slide; the bench chart's shared scale
+        // would squash it into the top-right corner. The y-range is tight on
+        // purpose — the whole slide turns on a 0.2-point drop, and on the
+        // previous slide's 0–80% axis that drop is under three pixels. The
+        // axis is labelled and starts at a non-zero score, which is honest
+        // here because the slide compares steps of one curve, not models.
+        cMin: 0, cMax: 24, sMin: 58, sMax: 71,
+      };
+      const stopEur = (usd: number) => usd / USD_PER_EUR;
+      const SX = (c: number) =>
+        STOP.X0 + ((c - STOP.cMin) / (STOP.cMax - STOP.cMin)) * (STOP.XN - STOP.X0);
+      const SY = (s: number) =>
+        STOP.Y0 - ((s - STOP.sMin) / (STOP.sMax - STOP.sMin)) * (STOP.Y0 - STOP.YN);
+
+      function buildStop(slide: HTMLElement) {
+        const svg = slide.querySelector<SVGSVGElement>("[data-stop-svg]");
+        if (!svg || svg.dataset.built) return;
+        const pts = STOP_CURVE.pts;
+
+        // Axis furniture, deliberately thin: two labelled ends per axis, no
+        // grid. The slide is a shape, not a chart to read values off.
+        for (const c of [0, 5, 10, 15, 20]) {
+          const t = el("text", { x: SX(c), y: STOP.Y0 + 24, class: "tick mid" });
+          t.textContent = "€" + Math.round(stopEur(c));
+          svg.append(t);
+        }
+        for (const s of [60, 62, 64, 66, 68, 70]) {
+          svg.append(
+            el("line", { x1: STOP.X0, x2: STOP.XN, y1: SY(s), y2: SY(s), class: "grid" }),
+          );
+          const t = el("text", { x: STOP.X0 - 12, y: SY(s) + 5, class: "tick end" });
+          t.textContent = s + "%";
+          svg.append(t);
+        }
+        svg.append(
+          el("line", {
+            x1: STOP.X0, x2: STOP.XN, y1: STOP.Y0, y2: STOP.Y0, class: "axis",
+          }),
+        );
+        const xl = el("text", {
+          x: (STOP.X0 + STOP.XN) / 2, y: STOP.Y0 + 48, class: "axis-label mid",
+        });
+        xl.textContent = "cost per task";
+        const head = el("text", { x: STOP.X0, y: 30, class: "plot-title" });
+        head.textContent = "claude-fable-5 — one model, five levels of effort";
+        svg.append(xl, head);
+
+        // The path is drawn once and revealed by dash-offset, so the line
+        // GROWS to the marker instead of redrawing on every step.
+        const d = pts.map(([c, s], i) => `${i ? "L" : "M"} ${SX(c)} ${SY(s)}`).join(" ");
+        const path = el("path", {
+          d, fill: "none", class: "stop-line",
+          "stroke-linecap": "round", "stroke-linejoin": "round",
+        }) as SVGPathElement;
+        svg.append(path);
+        const len = path.getTotalLength();
+        path.style.setProperty("--len", String(len));
+
+        // Per-segment lengths, so the reveal stops exactly on each point.
+        const cum = [0];
+        for (let i = 1; i < pts.length; i++) {
+          const [pc, ps] = pts[i - 1];
+          const [c, s] = pts[i];
+          cum.push(cum[i - 1] + Math.hypot(SX(c) - SX(pc), SY(s) - SY(ps)));
+        }
+        svg.dataset.cum = cum.join(",");
+        svg.dataset.len = String(len);
+
+        pts.forEach(([c, s], i) => {
+          const dot = el("circle", {
+            cx: SX(c), cy: SY(s), r: 5, class: "stop-dot", "data-stop-dot": i,
+          });
+          svg.append(dot);
+        });
+        svg.append(el("circle", { cx: SX(pts[0][0]), cy: SY(pts[0][1]), r: 9, class: "stop-marker", "data-stop-marker": "" }));
+        svg.dataset.built = "1";
+      }
+
+      /** step 0–4 = which point the marker sits on; `landed` greys the curve. */
+      function paintStop(slide: HTMLElement, step: number, landed: boolean) {
+        const svg = slide.querySelector<SVGSVGElement>("[data-stop-svg]");
+        const read = slide.querySelector<HTMLElement>("[data-stop-read]");
+        if (!svg) return;
+        const pts = STOP_CURVE.pts;
+        const i = Math.max(0, Math.min(pts.length - 1, step));
+        const cum = (svg.dataset.cum ?? "0").split(",").map(Number);
+        const len = Number(svg.dataset.len ?? "0");
+
+        const path = svg.querySelector<SVGPathElement>(".stop-line");
+        if (path) path.style.strokeDashoffset = String(len - cum[i]);
+
+        const marker = svg.querySelector<SVGCircleElement>("[data-stop-marker]");
+        if (marker) {
+          marker.setAttribute("cx", String(SX(pts[i][0])));
+          marker.setAttribute("cy", String(SY(pts[i][1])));
+        }
+        svg.querySelectorAll<SVGCircleElement>("[data-stop-dot]").forEach((d) => {
+          d.classList.toggle("is-on", Number(d.dataset.stopDot) <= i);
+        });
+        // The turn-over is the point of the slide, so the last step is marked
+        // as a loss in the deck's own accent rather than left to the eye.
+        svg.classList.toggle("is-down", i === pts.length - 1);
+        svg.classList.toggle("is-landed", landed);
+
+        if (read) {
+          if (i === 0) {
+            read.innerHTML =
+              `<span class="k">lowest effort</span>` +
+              `<span class="v">${fmtEur(stopEur(pts[0][0]))} per task &middot; ${pts[0][1]}%</span>`;
+            read.classList.remove("is-loss");
+          } else {
+            const dC = stopEur(pts[i][0]) - stopEur(pts[i - 1][0]);
+            const dS = pts[i][1] - pts[i - 1][1];
+            const pct = Math.round((pts[i][0] / pts[i - 1][0] - 1) * 100);
+            const loss = dS < 0;
+            read.innerHTML =
+              `<span class="k">+${fmtEur(dC)} per task <i>(${pct}% more)</i></span>` +
+              `<span class="v">${dS > 0 ? "+" : "&minus;"}${Math.abs(dS).toFixed(1)} points</span>`;
+            read.classList.toggle("is-loss", loss);
+          }
+        }
+      }
+
+      /** Derive the frame from reveal's fragment state — never from a counter. */
+      function syncStop(slide: HTMLElement) {
+        const shown = slide.querySelectorAll(".stop-step.visible").length;
+        // 5 fragments: the first four walk points 1–4, the fifth lands the
+        // turn without moving the marker.
+        paintStop(slide, Math.min(shown, STOP_CURVE.pts.length - 1), shown >= 5);
+        slide.classList.toggle("has-landed", shown >= 5);
+      }
+
+      // Sanity net: this slide's entire argument is that the LAST step costs
+      // more and scores less. If the chart's data is ever re-transcribed and
+      // that stops being true, the copy is wrong and the slide must be redone.
+      if (import.meta.env.DEV) {
+        const p = STOP_CURVE.pts;
+        const last = p[p.length - 1], prev = p[p.length - 2];
+        if (!(last[0] > prev[0] && last[1] < prev[1]))
+          console.warn("#33's stop-point slide: the curve no longer turns over");
+      }
 
       // ── Chapter wash on entering a chapter divider ────────────────
       function runWash() {
@@ -2525,6 +2971,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
         if (slide.hasAttribute("data-terminal")) playTerminal(slide);
+        // Chapter 1's stop-point reads its frame off the fragments, so it
+        // replays from the cheapest point forwards and lands on the turn-over
+        // when you walk back into it from the roadmap.
+        if (slide.hasAttribute("data-stop")) {
+          buildStop(slide);
+          syncStop(slide);
+        }
         if (slide.hasAttribute("data-lottery")) {
           buildLottery(slide);
           // Match the visual to reveal's fragment state. Entering forward the
@@ -2562,6 +3015,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (f?.hasAttribute("data-lottery-collapse"))
           setLottery(f.closest("section") as HTMLElement, shown);
         const section = f?.closest("section") as HTMLElement | null;
+        if (section?.hasAttribute("data-stop")) syncStop(section);
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
       }
