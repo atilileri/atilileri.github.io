@@ -654,6 +654,23 @@
   stroke: #00327d40;
   stroke-width: 1;
 }
+/* The ceiling rule at 72.7% (#33) — muted ink, dashed, deliberately quieter
+   than any curve. It is furniture that states a fact, not a series. */
+.bench-plot .ceiling {
+  stroke: #00327d59;
+  stroke-width: 1.5;
+  stroke-dasharray: 7 6;
+}
+.bench-plot .ceiling-lbl {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  fill: #00327d99;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
 .bench-plot .tick,
 .bench-plot .axis-label,
 .bench-plot .plot-title,
@@ -800,6 +817,171 @@
 }
 .bench-note .mono {
   color: var(--signal);
+}
+
+/* ══════════════ Chapter 1 — the stop-point (#33) ══════════════════════════
+   The bench chart reduced to one line and one number: rhetorically loud,
+   visually quiet, because it is a CALLBACK and not a fourth widget. It reuses
+   the bench plot's own tick/axis/grid classes on purpose — same furniture,
+   same room, one curve. The only new marks are the marker, the marginal
+   readout, and the grey-out that hands the slide to the copy. */
+.reveal section.stop {
+  justify-content: flex-start;
+}
+.stop-plot {
+  position: relative;
+  width: 100%;
+  max-width: 58rem;
+  margin: clamp(0.4rem, 1.5vh, 1.2rem) 0 0;
+}
+.stop-plot svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+/* The bench plot's furniture classes are scoped to .bench-plot; re-point the
+   same rules at this slide rather than restating the values. */
+.stop-plot .grid {
+  stroke: #0066cc1f;
+  stroke-width: 1;
+}
+.stop-plot .axis {
+  stroke: #00327d40;
+  stroke-width: 1;
+}
+.stop-plot .tick,
+.stop-plot .axis-label,
+.stop-plot .plot-title {
+  font-family: var(--font-mono);
+  fill: var(--bench-ink);
+}
+.stop-plot .tick {
+  font-size: 15px;
+  opacity: 0.75;
+}
+.stop-plot .axis-label {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.stop-plot .plot-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--navy);
+}
+.stop-plot .end {
+  text-anchor: end;
+}
+.stop-plot .mid {
+  text-anchor: middle;
+}
+
+/* The line grows to the marker by dash-offset — it is drawn once, so the
+   curve's shape is fixed from the first frame and only its reveal moves. */
+.stop-line {
+  stroke: var(--signal);
+  stroke-width: 3;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  transition:
+    stroke-dashoffset var(--dur) var(--ease),
+    stroke var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+.stop-dot {
+  fill: var(--signal);
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease),
+    fill var(--dur) var(--ease);
+}
+.stop-dot.is-on {
+  opacity: 1;
+}
+.stop-marker {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 3;
+  transition:
+    cx var(--dur) var(--ease),
+    cy var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+/* The turn-over: the last step is the argument, so it is inked, not implied. */
+[data-stop-svg].is-down .stop-line {
+  stroke: var(--orange);
+}
+[data-stop-svg].is-down .stop-dot.is-on {
+  fill: var(--orange);
+}
+/* Landed — the curve steps back and the copy takes the slide. */
+[data-stop-svg].is-landed .stop-line,
+[data-stop-svg].is-landed .stop-dot {
+  opacity: 0.28;
+}
+[data-stop-svg].is-landed .stop-marker {
+  opacity: 0.35;
+}
+
+/* The marginal number, beside the plot rather than inside it — it changes
+   every step, and an SVG label would fight the curve for the same space. */
+.reveal .stop-read {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.stop-read .k {
+  font-size: clamp(0.62rem, 0.85vw, 0.8rem);
+  letter-spacing: 0.04em;
+  color: #00327d99;
+}
+.stop-read .k i {
+  font-style: normal;
+  opacity: 0.7;
+}
+.stop-read .v {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.2vw, 1.8rem);
+  line-height: 1.1;
+  color: var(--navy);
+}
+.stop-read.is-loss .v {
+  color: var(--orange);
+}
+
+/* The turn phrase is the slide's last beat — it holds its space from the
+   first frame so nothing reflows, and inks when the curve greys out. */
+.reveal .stop-turn {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.reveal section.stop.has-landed .stop-turn {
+  opacity: 1;
+  transform: none;
+  /* It stays small type — #33 locked it into the caveat slot — but this is
+     the line the slide exists to deliver, so on landing it takes full ink
+     rather than the caveat's usual grey. */
+  color: var(--ink);
+}
+.reveal .stop-turn b {
+  font-weight: 700;
+  color: var(--navy);
+}
+/* The five step fragments are pure state carriers — reveal's own .fragment
+   opacity would otherwise leave five invisible boxes in the flow. */
+.reveal section.stop .stop-step {
+  display: none;
 }
 
 /* ─────────────── Mental model: the four layers (nested rings) ──
@@ -1224,6 +1406,26 @@
 .reveal section.roadmap .roadmap-factor.on::before {
   background: var(--orange);
 }
+/* The gloss line — chapter 1's roadmap only (#34). The component renders it
+   nowhere else, so this rule can never fire on a divider; it is scoped to
+   `.is-all` anyway, because the row's geometry is the callback and the
+   dividers must keep their exact height. */
+.reveal section.roadmap.is-all .roadmap-factor .k {
+  display: block;
+}
+.reveal section.roadmap.is-all .roadmap-factor .g {
+  display: block;
+  margin-top: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.82vw, 0.78rem);
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  /* Glosses 3 and 4 run to two lines at most widths while 1 and 2 stay on
+     one. That is #34's deliberate asymmetry — the row is top-aligned
+     (`align-items: flex-start`), so the labels stay on one baseline and the
+     ragged bottom is the intended shape. */
+  color: #1b1b1b8c;
+}
 
 /* ══════════════════════════ Build-list treatments (slide 10 + alts A–E) ══
    One content set — "what a reference deck needs" — laid out five ways, so a
@@ -1468,8 +1670,16 @@
 .lottery-plot svg {
   width: 100%;
   height: 100%;
-  max-height: 58vh;
+  /* Was 58vh. The slide gained a one-sentence line under the headline (#34),
+     which this scatter has to pay for — at 58vh the caption ran off the
+     bottom edge at 16:9. */
+  max-height: 50vh;
   overflow: visible;
+}
+/* The promise sentence sits tight under the headline: it is the headline's
+   second half, not a paragraph, and the scatter needs the height. */
+.reveal section.lottery .tk-body {
+  margin: 0.2rem 0 0.3rem;
 }
 /* the target box — signal-blue, quiet until the dots arrive */
 .lot-zone {
