@@ -1756,6 +1756,32 @@
   font: 600 15px var(--font-mono);
   letter-spacing: 0.02em;
 }
+/* Fitted trend line, one per state, cross-faded with the dots. Each is keyed
+   to its cloud's own colour — grey for the scattered "before", orange for the
+   converged "after" — so the line is read as belonging to those points rather
+   than as a second annotation. Both are deliberately quieter than the dots:
+   the fit supports the cloud, it doesn't replace it. */
+.lot-fit {
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: opacity var(--dur) var(--ease);
+}
+.lot-fit-before {
+  stroke: var(--ink);
+  opacity: 0.42;
+}
+.lot-fit-after {
+  stroke: var(--orange);
+  opacity: 0;
+}
+/* Swap on the same beat the cloud moves. What the two fits actually show,
+   measured: slope goes -0.182 → -0.163 (barely flatter, don't oversell it),
+   but the line sits MUCH higher and spans half the x-range — 710px of spend
+   down to 355px. So the argument the fits carry is "same trend, reached
+   sooner and higher", not "the trend went away". */
+.lottery-plot svg.go .lot-fit-before { opacity: 0; }
+.lottery-plot svg.go .lot-fit-after { opacity: 0.9; }
+
 /* trace of a chosen attempt's path — dotted, behind the dots, fades in
    as the distribution shifts */
 .lot-trace {

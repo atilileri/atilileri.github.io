@@ -529,8 +529,17 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             honest. Attribute it to all four factors together, never to best
             practices alone — the four you just saw on the roadmap are what
             move this cloud, and each chapter from here moves it a little more.
-            Nothing on this slide is labelled, so the two readings are yours
-            to give. BEFORE: random prompts in, random results out — more
+            Each cloud carries its own fitted trend line, and the pair is
+            worth pointing at explicitly. Both slope the same way — more
+            tokens really does buy more quality, in both worlds, so you are
+            not claiming the relationship disappears. What changes is where
+            the line SITS and how far it has to run: after the four factors it
+            starts higher and covers half the spend. Same trend, reached
+            sooner and higher. Don't say the trend flattens — it barely does,
+            and someone will check.
+
+            Nothing else on this slide is labelled, so the two readings are
+            yours to give. BEFORE: random prompts in, random results out — more
             tokens roughly buys more quality, but the spread is huge and much
             of the spend is wasted; only 3 of 18 attempts land ship-ready and
             on budget. AFTER: the same attempts, after all four factors — top
@@ -1712,6 +1721,45 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         });
         bb.textContent = "monthly budget";
         svg.append(bb);
+        // ── Fitted trend lines, one per state ────────────────────────────
+        // Ordinary least squares over each cloud, computed here rather than
+        // hard-coded so the lines cannot drift if the point sets are ever
+        // retuned. Both slopes are NEGATIVE in SVG space (y grows downward),
+        // i.e. both clouds really do trend "more tokens → better results" —
+        // that is the honest reading the presenter note already gives, and
+        // the whole point is that the AFTER line is FLATTER and higher: you
+        // stop paying for quality with tokens.
+        //
+        // Each line spans only its own cloud's x-range, so it reads as a fit
+        // of those points rather than a prediction beyond them.
+        const fit = (pts: number[][]) => {
+          const n = pts.length;
+          const mx = pts.reduce((s, p) => s + p[0], 0) / n;
+          const my = pts.reduce((s, p) => s + p[1], 0) / n;
+          let num = 0, den = 0;
+          for (const [x, y] of pts) {
+            num += (x - mx) * (y - my);
+            den += (x - mx) * (x - mx);
+          }
+          const slope = den === 0 ? 0 : num / den;
+          const xs = pts.map((p) => p[0]);
+          const x1 = Math.min(...xs), x2 = Math.max(...xs);
+          return {
+            x1, x2,
+            y1: my + slope * (x1 - mx),
+            y2: my + slope * (x2 - mx),
+          };
+        };
+        for (const [pts, cls] of [
+          [LOT.before, "lot-fit lot-fit-before"],
+          [LOT.after, "lot-fit lot-fit-after"],
+        ] as const) {
+          const f = fit(pts as number[][]);
+          svg.append(mk("line", {
+            x1: f.x1, y1: f.y1, x2: f.x2, y2: f.y2, class: cls,
+          }));
+        }
+
         // dotted traces for the chosen few — drawn first so they sit BEHIND
         // the dots; they fade in as the attempts travel (.go).
         LOT.TRACE.forEach((i) => {
