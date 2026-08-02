@@ -380,6 +380,14 @@
   text-transform: uppercase;
   color: #00327d99;
   margin-top: 2rem;
+  /* Uppercased mono at 0.14em tracking runs far wider than the 40ch the base
+     `p` rule assumes, so the byline was breaking mid-credit. */
+  max-width: none;
+}
+/* The sub-line is one sentence framing the deck; 40ch broke it over three
+   lines under a three-line title. */
+.reveal section.hero p {
+  max-width: 52ch;
 }
 
 /* TWO-COLUMN split (nice-to-have) */
@@ -715,10 +723,21 @@
   font-weight: 700;
   fill: var(--navy);
 }
+/* Promoted from a 12px muted italic (Atil, 2026-08-02). It labels the
+   quadrant the slide exists to point at — cheap AND good, now top-left — so
+   it carries the deck's accent and the weight of a real annotation. */
 .bench-plot .efficient {
-  font-size: 12px;
-  font-style: italic;
-  opacity: 0.7;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  fill: var(--orange);
+  opacity: 1;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 /* Direct labels sit over the crowd — a surface halo keeps them legible. */
 .bench-plot .curve-label,
@@ -831,8 +850,11 @@
 .stop-plot {
   position: relative;
   width: 100%;
-  max-width: 58rem;
-  margin: clamp(0.4rem, 1.5vh, 1.2rem) 0 0;
+  /* Width sets the height here (the SVG keeps its aspect), so this is the
+     dial that buys room for the turn phrase below. At 58rem the phrase ran
+     into the chrome strip once it was promoted to statement scale. */
+  max-width: 49rem;
+  margin: clamp(0.3rem, 1.2vh, 0.9rem) 0 0;
 }
 .stop-plot svg {
   width: 100%;
@@ -957,9 +979,17 @@
   color: var(--orange);
 }
 
-/* The turn phrase is the slide's last beat — it holds its space from the
-   first frame so nothing reflows, and inks when the curve greys out. */
+/* The turn phrase is the slide's last beat, and the answer to its headline —
+   so it is set at statement scale, not caveat scale. It holds its space from
+   the first frame so nothing reflows, and inks when the curve greys out. */
 .reveal .stop-turn {
+  margin: clamp(0.6rem, 2vh, 1.4rem) 0 0;
+  max-width: 34ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.7vw, 2.25rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--navy);
   opacity: 0;
   transform: translateY(10px);
   transition:
@@ -969,14 +999,11 @@
 .reveal section.stop.has-landed .stop-turn {
   opacity: 1;
   transform: none;
-  /* It stays small type — #33 locked it into the caveat slot — but this is
-     the line the slide exists to deliver, so on landing it takes full ink
-     rather than the caveat's usual grey. */
-  color: var(--ink);
 }
+/* The phrase inside the phrase — the three words doing the work. */
 .reveal .stop-turn b {
   font-weight: 700;
-  color: var(--navy);
+  color: var(--orange);
 }
 /* The five step fragments are pure state carriers — reveal's own .fragment
    opacity would otherwise leave five invisible boxes in the flow. */
@@ -1331,6 +1358,19 @@
   letter-spacing: 0.2em;
   color: var(--orange);
 }
+/* The wash's second question. Big enough to be read as part of the objection
+   rather than as a caption on it, but clearly subordinate to the headline —
+   it is the quieter half of the same voice. */
+.reveal section.chapter .chapter-sub {
+  margin: clamp(1.2rem, 3vh, 2.2rem) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.6vw, 2.4rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+  opacity: 0.62;
+  max-width: 26ch;
+}
 
 /* ══════════════════════ ROADMAP SPINE — the deck's navigation device ══
    One component, two jobs (src/components/deck/RoadmapDivider.astro):
@@ -1670,16 +1710,16 @@
 .lottery-plot svg {
   width: 100%;
   height: 100%;
-  /* Was 58vh. The slide gained a one-sentence line under the headline (#34),
-     which this scatter has to pay for — at 58vh the caption ran off the
-     bottom edge at 16:9. */
-  max-height: 50vh;
+  /* Back up from the 50vh it was briefly squeezed to: the slide gained a
+     sentence under the headline (#34) but then lost the whole caption block,
+     so the scatter is the only thing below the copy and can have the room. */
+  max-height: 62vh;
   overflow: visible;
 }
 /* The promise sentence sits tight under the headline: it is the headline's
-   second half, not a paragraph, and the scatter needs the height. */
+   second half, not a paragraph. */
 .reveal section.lottery .tk-body {
-  margin: 0.2rem 0 0.3rem;
+  margin: 0.2rem 0 0.4rem;
 }
 /* the target box — signal-blue, quiet until the dots arrive */
 .lot-zone {
@@ -1737,28 +1777,10 @@
   fill: var(--orange);
   fill-opacity: 1;
 }
-.lottery-cap {
-  margin-top: 0.6rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.4rem 1.4rem;
-}
-.lottery-cap .stat {
-  font: 600 clamp(1rem, 1.7vw, 1.4rem) var(--font-display);
-  color: var(--signal);
-  white-space: nowrap;
-}
-.lottery-cap .stat-n {
-  color: var(--orange);
-  font-variant-numeric: tabular-nums;
-}
-.lottery-sub {
-  color: var(--ink);
-  opacity: 0.72;
-  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
-  max-width: 62ch;
-}
+/* `.lottery-cap` / `.lottery-sub` / `.stat` lived here until 2026-08-02, when
+   the caption block came off the slide (Atil's call) and its two figures moved
+   into the presenter note. Removed rather than left dark — nothing renders
+   them any more. */
 .lottery-trigger { display: none; }
 
 /* ══════════════════════════ CHAPTER A — tokens, credits, the cost dial ══

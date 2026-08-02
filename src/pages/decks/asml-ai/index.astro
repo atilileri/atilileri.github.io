@@ -230,17 +230,45 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       <div class="slides">
         <!-- 1 ───────────────────────────── HERO (eyebrow + big headline) -->
         <section class="hero" data-section="Opening">
-          <span class="eyebrow">Getting the Most from AI</span>
+          <!-- Eyebrow, title and sub-line each do a DIFFERENT job (Atil,
+               2026-08-02): the old eyebrow "Getting the Most from AI" was a
+               paraphrase of the old title "GETTING MORE FROM AI." and said
+               nothing twice. Now: the eyebrow is the provocation, the title
+               the promise, the sub-line the contents.
+
+               "Coding agents" is deliberately vendor-neutral — the company
+               runs Copilot, but nothing in this deck depends on which
+               provider, and no slide names one. Chapter 2 goes on to take the
+               word apart (model + harness + skills + tools), so the title
+               poses a noun the deck later defines rather than assuming it. -->
+          <span class="eyebrow">Same licence. Different results.</span>
+          <!-- Three explicit lines, not two: at hero scale "GETTING THE BEST
+               OUT OF" wraps on its own and strands "OUT OF" as a one-word
+               line. Breaking it by hand balances the block. -->
           <h1 class="h-set">
-            <span class="h-line"><span>GETTING MORE</span></span>
-            <span class="h-line"><span class="accent">FROM AI.</span></span>
+            <span class="h-line"><span>GETTING THE</span></span>
+            <span class="h-line"><span>BEST OUT OF</span></span>
+            <span class="h-line"><span class="accent">CODING AGENTS.</span></span>
           </h1>
-          <p>Token optimization &amp; the skills that compound it.</p>
+          <p>
+            How it works, what it costs, and the way of working that makes
+            results repeatable.
+          </p>
           <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
           <aside class="notes">
             Ninety seconds, standing still. You are already paying for AI, and
             the bill is going up — so this is not a talk about whether to use
             it. It's about getting more back from what you are already buying.
+
+            Lean on the eyebrow: everyone in this room has the same licence.
+            The results are not the same. That gap is the whole talk, and it
+            is not a procurement problem.
+
+            Nothing here depends on which provider — we happen to run Copilot,
+            but no slide names one, and everything shown works the same way
+            whatever is behind it. Say that once, here, so nobody spends the
+            next forty minutes wondering.
+
             Two promises up front: nothing here is a demo of a product you
             can't have, and every number on screen is one we can source. Then
             straight into the objection on the next slide, in their own words.
@@ -272,14 +300,29 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         <!-- 1a ─────────────────── CHAPTER divider (triggers chapter-wash) -->
         <section class="chapter" data-section="01 — Why optimize" data-chapter>
           <span class="chapter-no">CHAPTER 01</span>
-          <h2>Can&rsquo;t we just<br />throw money at it?</h2>
+          <h2>Can&rsquo;t we just throw<br />money at problems?</h2>
+          <!-- Atil, 2026-08-02: this REVERSES #34, which rejected a wash
+               sub-line on the grounds that a concession would fire #33's
+               "You can't buy your way to spec." two slides early. The line
+               below avoids that trap by staying a QUESTION in the room's own
+               voice — it concedes the models are good without conceding what
+               that buys, so slide 3 still lands its answer unspent. Both
+               lines are theirs; the deck answers neither until slide 3. -->
+          <p class="chapter-sub">The models are good now. Isn&rsquo;t that enough?</p>
           <aside class="notes">
-            Say it in their voice, not yours — this is the objection the room is
-            already holding, and naming it out loud first is what buys you the
-            next forty minutes. Then concede the honest half: yes, you can throw
-            money at it, and it works more often than it used to. This chapter
-            is about what that actually buys you, and where it stops buying
-            anything at all.
+            Say both lines in their voice, not yours — this is the objection
+            the room is already holding, and naming it out loud first is what
+            buys you the next forty minutes.
+
+            The second line is the real one. Concede it hard and mean it: the
+            models ARE good now, better than last year, and for a lot of work
+            they are genuinely enough. Don't argue with it here — you have no
+            evidence on screen yet and you'd just sound defensive.
+
+            What you're setting up is the missing half: whether a good model
+            on its own gets you there, or whether it still takes someone who
+            knows how to work it. That's the question this whole talk answers,
+            and the next three slides answer it with data rather than opinion.
           </aside>
         </section>
 
@@ -297,7 +340,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="bench-legend" data-bench-legend></div>
           </div>
           <div class="bench-plot">
-            <svg data-bench-svg viewBox="0 0 900 570" role="img"
+            <svg data-bench-svg viewBox="0 0 1000 570" role="img"
               aria-label="DeepSWE v1.1 results: pass rate against average cost per task, one curve per model across reasoning-effort levels."
             ></svg>
             <div class="bench-tip" data-bench-tip hidden></div>
@@ -361,8 +404,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             ></svg>
             <p class="stop-read" data-stop-read aria-live="polite"></p>
           </div>
-          <p class="tk-caveat stop-turn" data-stop-turn>
-            What you want is the <b>repeatable, optimum way to spec</b>.
+          <!-- Atil, 2026-08-02: "A better way is …", not #33's "What you want
+               is …", and promoted OUT of the small-type caveat slot. It is the
+               line the whole slide exists to deliver, and at caveat size it
+               was reading as a footnote to the chart rather than the answer to
+               the headline. -->
+          <p class="stop-turn" data-stop-turn>
+            A better way is the <b>repeatable, optimum way to spec</b>.
           </p>
           <!-- Four walk fragments (one per step along the curve) + a fifth that
                greys the curve and lands the turn. Nothing here is counted: the
@@ -452,11 +500,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               aria-label="Result quality against tokens spent. A regular user's outputs are scattered across the whole field — some ship, most miss, several overshoot the budget. After the training, the same attempts converge into a tight cluster in the ship-ready, on-budget corner: consistent quality at a consistent, minimal spend."
             ></svg>
           </div>
-          <p class="lottery-cap">
-            <span data-lottery-stat class="stat">On&nbsp;target &mdash; ship-ready &amp; on&nbsp;budget:
-              <b class="stat-n">3</b> of 18</span>
-            <span class="lottery-sub" data-lottery-sub>Random prompts in, random results out. More tokens roughly buys more quality &mdash; but the spread is huge and much of the spend is wasted.</span>
-          </p>
+          <!-- The caption block (the on-target stat and the before/after
+               sub-copy) was REMOVED at Atil's call, 2026-08-02. The scatter
+               makes the argument on its own, and the lower-left text was
+               competing with it. Both numbers and both readings now live in
+               the presenter note — the deck's standing rule that notes carry
+               what the slide can't. `setLottery` still drives the collapse;
+               it just has no text left to update. -->
           <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
           <aside class="notes">
             The promise of the whole talk, made up front — this is chapter 1's
@@ -478,8 +528,14 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             honest. Attribute it to all four factors together, never to best
             practices alone — the four you just saw on the roadmap are what
             move this cloud, and each chapter from here moves it a little more.
-            On-target goes 3-of-18 to 16-of-18. Press &larr; to replay the
-            scatter.
+            Nothing on this slide is labelled, so the two readings are yours
+            to give. BEFORE: random prompts in, random results out — more
+            tokens roughly buys more quality, but the spread is huge and much
+            of the spend is wasted; only 3 of 18 attempts land ship-ready and
+            on budget. AFTER: the same attempts, after all four factors — top
+            quality at a fraction of the tokens, spend pulled left, spread
+            tightened. 16 of 18. You aim, you don't gamble. Press &larr; to
+            replay the scatter.
           </aside>
         </section>
 
@@ -1677,17 +1733,14 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         });
         svg.dataset.built = "1";
       }
+      // The slide is now purely the scatter: its caption block was removed
+      // (Atil, 2026-08-02) and the 3-of-18 / 16-of-18 figures moved into the
+      // presenter note, so there is no on-screen text to swap — only the
+      // class that moves the cloud.
       function setLottery(slide: HTMLElement, collapsed: boolean) {
         const svg = slide.querySelector<SVGSVGElement>("[data-lottery-svg]");
-        const stat = slide.querySelector<HTMLElement>("[data-lottery-stat] .stat-n");
-        const sub = slide.querySelector<HTMLElement>("[data-lottery-sub]");
         if (!svg) return;
         svg.classList.toggle("go", collapsed);
-        if (stat) stat.textContent = collapsed ? "16" : "3";
-        if (sub)
-          sub.textContent = collapsed
-            ? "The same attempts, after all four factors → top quality at a fraction of the tokens, spend pulled left, spread tightened. You aim, not gamble."
-            : "Random prompts in, random results out. More tokens roughly buys more quality — but the spread is huge and much of the spend is wasted.";
       }
 
       // ── "The one number" count-up ─────────────────────────────────
@@ -1913,14 +1966,25 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         g.addEventListener("mouseleave", hideTip);
       }
 
-      // Cost runs RIGHT-to-LEFT: $0 at the right edge, so "cheap and good" is
-      // the top-right corner and every curve reads as "what more money buys".
-      const CX = (c: number) => 840 - c * 28.9192;
+      // Cost runs LEFT-to-RIGHT: $0 at the left edge, spend increasing
+      // rightward — the conventional reading, and the same direction as the
+      // stop-point slide that follows (Atil, 2026-08-02). The chart used to
+      // run the other way, which put two consecutive slides on opposite cost
+      // axes. "Cheap and good" is now the top-LEFT corner.
+      // The px-per-dollar scale is UNCHANGED from the original (28.9192), and
+      // the labels are mirrored along with the points — together those two
+      // facts preserve the 15-callout collision solve exactly, because a
+      // reflection cannot introduce a label-label overlap that wasn't already
+      // there. All the flip needed was somewhere for the now-leftward labels
+      // to go: hence the 175px left margin, and the wider viewBox below that
+      // pays for it. The SVG scales to the slide, so a wider canvas just
+      // renders slightly smaller rather than clipping.
+      const CX = (c: number) => 175 + c * 28.9192;
       const CY = (s: number) => 511 - s * 5.8875;
 
       function drawCurves() {
         if (!benchSvg) return;
-        const T = 40, B = 511, L = CX(28.5), R = 855;
+        const T = 40, B = 511, L = 115, R = 980;
         for (let s = 0; s <= 80; s += 10) {
           benchSvg.append(el("line", { x1: L, x2: R, y1: CY(s), y2: CY(s), class: "grid" }));
           const t = el("text", { x: L - 10, y: CY(s) + 4, class: "tick end" });
@@ -1944,15 +2008,23 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         benchSvg.append(
           el("line", { x1: L, x2: R, y1: CY(CEIL), y2: CY(CEIL), class: "ceiling" }),
         );
-        const ceilLbl = el("text", { x: L + 10, y: CY(CEIL) - 10, class: "ceiling-lbl" });
+        // Right-anchored: since the flip, the top-LEFT band belongs to the
+        // "most efficient" pointer, and two annotations in one corner read as
+        // clutter. The expensive end of the ceiling is also the more damning
+        // place to say it.
+        const ceilLbl = el("text", { x: R - 8, y: CY(CEIL) - 12, class: "ceiling-lbl end" });
         ceilLbl.textContent = "nothing clears this";
         benchSvg.append(ceilLbl);
         const xl = el("text", { x: (L + R) / 2, y: B + 44, class: "axis-label mid" });
         xl.textContent = "avg cost per task";
         const head = el("text", { x: L, y: 22, class: "plot-title" });
         head.textContent = "DeepSWE score";
-        const eff = el("text", { x: R - 6, y: 52, class: "efficient end" });
-        eff.textContent = "most efficient ↗";
+        // Cheap AND good is now the top-LEFT corner, so the pointer flips with
+        // the axis. It is also promoted out of the whispered italic it used to
+        // be: it names the quadrant the whole slide is asking the room to look
+        // at, and at 12px muted grey nobody ever did.
+        const eff = el("text", { x: L + 10, y: 50, class: "efficient" });
+        eff.textContent = "↖ most efficient";
         benchSvg.append(xl, head, eff);
 
         for (const cv of CURVES) {
@@ -1979,21 +2051,30 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           });
           const [lc, ls] = cv.pts[cv.at];
           const x = CX(lc), y = CY(ls);
+          // The dx/lx/anchor triplet in CURVES is a collision solve done
+          // against the ORIGINAL right-to-left axis. The plot is mirrored, so
+          // the labels mirror with it — negate the horizontal offsets, swap
+          // the anchor — and all 15 callouts keep exactly the spacing they
+          // were tuned for. Vertical offsets are untouched. Do not "fix" this
+          // by leaving the offsets as authored: that puts every label on the
+          // wrong side of its own curve.
+          const dx = -cv.dx, lx = -cv.lx;
+          const anchor = cv.anchor === "end" ? "start" : "end";
           g.append(
             el("line", {
-              x1: x, y1: y, x2: x + cv.lx, y2: y + cv.ly,
+              x1: x, y1: y, x2: x + lx, y2: y + cv.ly,
               stroke: color, "stroke-width": 1, opacity: 0.35,
             }),
           );
           const name = el("text", {
-            x: x + cv.dx, y: y + cv.dy, "text-anchor": cv.anchor,
+            x: x + dx, y: y + cv.dy, "text-anchor": anchor,
             fill: color, class: "curve-label",
           });
           name.textContent = cv.name;
           g.append(name);
           if (cv.eff) {
             const e2 = el("text", {
-              x: x + cv.dx, y: y + cv.dy + 11, "text-anchor": cv.anchor,
+              x: x + dx, y: y + cv.dy + 11, "text-anchor": anchor,
               fill: color, class: "curve-eff",
             });
             e2.textContent = cv.eff;
@@ -2053,7 +2134,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // Each view owns its coordinate space; the SVG scales to the slide.
         benchSvg.setAttribute(
           "viewBox",
-          benchView === "scatter" ? "0 0 900 570" : "0 0 1180 470",
+          benchView === "scatter" ? "0 0 1000 570" : "0 0 1180 470",
         );
         if (benchView === "scatter") drawCurves();
         else drawBars();
