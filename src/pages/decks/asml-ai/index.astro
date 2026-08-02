@@ -238,100 +238,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 2 ───────────────────── CHAPTER divider (triggers chapter-wash) -->
-        <section class="chapter" data-section="01 — The cost" data-chapter>
-          <span class="chapter-no">CHAPTER 01</span>
-          <h2>The cost of<br />thinking out loud.</h2>
-          <aside class="notes">
-            A chapter wash (signal-blue panel sweeping the screen) divides sections.
-            One of the three cinematic devices; use it 2–3× in the real talk.
-          </aside>
-        </section>
-
-        <!-- 3 ───────────────────── SCROLL-DRIVEN NARRATIVE (in-slide overflow) -->
-        <section class="scrolly" data-section="01 — The cost" data-scrolly>
-          <span class="eyebrow">Scroll-driven narrative</span>
-          <div class="scroll-hint">&darr; scroll inside this slide</div>
-          <div class="scroll-frame" data-scroll-frame>
-            <div class="scroll-step" data-scroll-step>
-              <h3>Every token has a price.</h3>
-              <p>
-                At scale, the gap between a lean prompt and a bloated one is a
-                budget line — not a rounding error.
-              </p>
-            </div>
-            <div class="scroll-step" data-scroll-step>
-              <h3>Context is not free real estate.</h3>
-              <p>
-                Filling the window degrades attention long before it errors. More
-                context is not more signal.
-              </p>
-            </div>
-            <div class="scroll-step" data-scroll-step>
-              <h3>Structure beats volume.</h3>
-              <p>
-                Prioritized, deduplicated, budgeted — the same answer for a
-                fraction of the cost.
-              </p>
-            </div>
-            <div class="scroll-step finale" data-scroll-step>
-              <h3>So we optimize on purpose.</h3>
-            </div>
-          </div>
-          <aside class="notes">
-            A long downward-scrolling section presented as ONE slide. The active
-            step brightens as it enters; the rest dim. Scroll is occasional here —
-            reveal owns the between-slide nav.
-          </aside>
-        </section>
-
-        <!-- 4 ───────────────────── CINEMATIC: "the one number" -->
-        <section class="one-number" data-section="01 — The cost" data-one-number>
-          <span class="eyebrow">The punchline, in one figure</span>
-          <div class="fig">
-            <span data-count-to="8" data-count-suffix="">0</span><span class="unit"
-              >&times;</span
-            >
-          </div>
-          <div class="caption">cheaper — same task, optimized on purpose</div>
-          <aside class="notes">
-            Cinematic device #2: an oversized figure fills the viewport and counts
-            into place, orange unit tick. Save it for the number that matters.
-          </aside>
-        </section>
-
-        <!-- 5 ───────────────────── ANIMATED DATA-VIZ (hand-rolled CSS, no lib) -->
-        <section class="viz" data-section="01 — The cost" data-viz>
-          <span class="eyebrow">Animated data-viz</span>
-          <h2 class="h-set"><span class="h-line"><span>Cost per 1M tokens</span></span></h2>
-          <div class="bars" data-bars>
-            <div class="bar-row">
-              <span class="bar-label">Naive dump</span>
-              <div class="bar-track"><div class="bar-fill" data-w="100">$15.00</div></div>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">+ dedupe</span>
-              <div class="bar-track"><div class="bar-fill" data-w="64">$9.60</div></div>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">+ budget</span>
-              <div class="bar-track"><div class="bar-fill" data-w="38">$5.70</div></div>
-            </div>
-            <div class="bar-row hot">
-              <span class="bar-label">+ caching</span>
-              <div class="bar-track"><div class="bar-fill" data-w="12">$1.80</div></div>
-            </div>
-          </div>
-          <p class="viz fragment rise">
-            Same task, <em class="hot">8&times; cheaper</em>. Bars grow on slide
-            enter — and replay every time you return.
-          </p>
-          <aside class="notes">
-            Bars are hand-rolled CSS/SVG — no charting library, so the deck palette
-            reaches inside the chart. Deterministic replay: re-enter and they re-grow.
-          </aside>
-        </section>
-
         <!-- 5b ──────────────────── INTERACTIVE BENCHMARK CHART (DeepSWE v1.1) -->
         <section class="bench" data-section="01 — The cost" data-bench>
           <span class="eyebrow">Interactive · hover a model, click a family</span>
@@ -436,80 +342,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             "you build a reusable skill library on a codebase that's actually
             true," not "the agent teaches itself" — self-authoring skills is
             still aspirational (Anthropic). See docs/research for sourcing.
-          </aside>
-        </section>
-
-        <!-- 6 ───────────────────── CODE DEMO + VERTICAL SUB-SLIDE stack -->
-        <section data-section="02 — How">
-          <section class="code" data-section="02 — How">
-            <span class="eyebrow">Code demo · stepped focus</span>
-            <h2 class="h-set"><span class="h-line"><span>Budgeted assembly</span></span></h2>
-            <pre><code class="language-typescript" data-trim data-line-numbers="2|3-4|6-11|13">{promptCode}</code></pre>
-            <aside class="notes">
-              Press &rarr; to step the focus: signature → the ranking → the budget
-              loop → the return. Then press &darr; to drop into the helper it leans on.
-            </aside>
-          </section>
-          <section class="code" data-section="02 — How">
-            <span class="eyebrow">Sub-slide · vertical stack</span>
-            <h2 class="h-set"><span class="h-line"><span>The estimate underneath</span></span></h2>
-            <pre><code class="language-typescript" data-trim data-line-numbers="4|5">{helperCode}</code></pre>
-            <aside class="notes">
-              Vertical sub-slides let one topic go deep without cluttering the main
-              line — the bottom-right arrows go 4-directional when a stack exists.
-            </aside>
-          </section>
-        </section>
-
-        <!-- 7 ───────────────────── LIVE TOKENIZER WIDGET (vanilla TS island) -->
-        <section data-section="02 — How" data-tokenizer>
-          <span class="eyebrow">Live · type &amp; watch the token bill</span>
-          <h2 class="h-set"><span class="h-line"><span>The token counter</span></span></h2>
-          <div class="tokenizer">
-            <textarea class="tok-input" spellcheck="false" data-tok-input
-              >Rewrite this paragraph to be shorter while keeping every fact intact.</textarea
-            >
-            <div class="tok-stats">
-              <div class="tok-stat">
-                <span class="n" data-tok-chars>0</span><span class="l">chars</span>
-              </div>
-              <div class="tok-stat">
-                <span class="n" data-tok-words>0</span><span class="l">words</span>
-              </div>
-              <div class="tok-stat hot">
-                <span class="n" data-tok-tokens>0</span><span class="l">&asymp; tokens</span>
-              </div>
-              <div class="tok-stat">
-                <span class="n" data-tok-cost>$0</span><span class="l">est. in-cost</span>
-              </div>
-            </div>
-            <p class="tok-note">
-              Client-side estimate (&asymp; chars &divide; 4). A shipping deck swaps
-              in a real BPE tokenizer.
-            </p>
-          </div>
-          <aside class="notes">
-            Genuinely live and client-side — as live as a static host allows.
-            Typing here never leaves the browser.
-          </aside>
-        </section>
-
-        <!-- 8 ───────────────────── TERMINAL / CLI REPLAY (deterministic) -->
-        <section data-section="02 — How" data-terminal>
-          <span class="eyebrow">Pre-recorded · replays on demand</span>
-          <h2 class="h-set"><span class="h-line"><span>A skills session, captured</span></span></h2>
-          <div class="terminal">
-            <div class="term-bar">
-              <i></i><i></i><i></i><span class="term-title">claude-code — zsh</span>
-            </div>
-            <pre class="term-body" data-term-body></pre>
-          </div>
-          <p class="term-note">
-            Deterministic replay — no server, plays every time the slide opens.
-          </p>
-          <aside class="notes">
-            A captured skills session, replayed. Nothing runs live; the transcript
-            is baked in, so it is reliable in any venue.
           </aside>
         </section>
 
@@ -1039,8 +871,185 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
+        <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER 99 — dummy attic. Everything past the main line, parked
+             here but still in the bundle: the chapter divider, the scroll-driven
+             narrative, the one-number cinematic, the animated cost bars, the
+             stepped code demo (+ sub-slide), the live token counter, the
+             recorded terminal session, then the two-column split, the 3-deep
+             sub-slide stack, the fragment-reveal slide and its five alternates,
+             and finally the colour flood + outro, which still close the deck.
+             ═════════════════════════════════════════════════════════════ -->
+        <!-- 2 ───────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <section class="chapter" data-section="99 — Attic" data-chapter>
+          <span class="chapter-no">CHAPTER 99</span>
+          <h2>The cost of<br />thinking out loud.</h2>
+          <aside class="notes">
+            A chapter wash (signal-blue panel sweeping the screen) divides sections.
+            One of the three cinematic devices; use it 2–3× in the real talk.
+          </aside>
+        </section>
+
+        <!-- 3 ───────────────────── SCROLL-DRIVEN NARRATIVE (in-slide overflow) -->
+        <section class="scrolly" data-section="99 — Attic" data-scrolly>
+          <span class="eyebrow">Scroll-driven narrative</span>
+          <div class="scroll-hint">&darr; scroll inside this slide</div>
+          <div class="scroll-frame" data-scroll-frame>
+            <div class="scroll-step" data-scroll-step>
+              <h3>Every token has a price.</h3>
+              <p>
+                At scale, the gap between a lean prompt and a bloated one is a
+                budget line — not a rounding error.
+              </p>
+            </div>
+            <div class="scroll-step" data-scroll-step>
+              <h3>Context is not free real estate.</h3>
+              <p>
+                Filling the window degrades attention long before it errors. More
+                context is not more signal.
+              </p>
+            </div>
+            <div class="scroll-step" data-scroll-step>
+              <h3>Structure beats volume.</h3>
+              <p>
+                Prioritized, deduplicated, budgeted — the same answer for a
+                fraction of the cost.
+              </p>
+            </div>
+            <div class="scroll-step finale" data-scroll-step>
+              <h3>So we optimize on purpose.</h3>
+            </div>
+          </div>
+          <aside class="notes">
+            A long downward-scrolling section presented as ONE slide. The active
+            step brightens as it enters; the rest dim. Scroll is occasional here —
+            reveal owns the between-slide nav.
+          </aside>
+        </section>
+
+        <!-- 4 ───────────────────── CINEMATIC: "the one number" -->
+        <section class="one-number" data-section="99 — Attic" data-one-number>
+          <span class="eyebrow">The punchline, in one figure</span>
+          <div class="fig">
+            <span data-count-to="8" data-count-suffix="">0</span><span class="unit"
+              >&times;</span
+            >
+          </div>
+          <div class="caption">cheaper — same task, optimized on purpose</div>
+          <aside class="notes">
+            Cinematic device #2: an oversized figure fills the viewport and counts
+            into place, orange unit tick. Save it for the number that matters.
+          </aside>
+        </section>
+
+        <!-- 5 ───────────────────── ANIMATED DATA-VIZ (hand-rolled CSS, no lib) -->
+        <section class="viz" data-section="99 — Attic" data-viz>
+          <span class="eyebrow">Animated data-viz</span>
+          <h2 class="h-set"><span class="h-line"><span>Cost per 1M tokens</span></span></h2>
+          <div class="bars" data-bars>
+            <div class="bar-row">
+              <span class="bar-label">Naive dump</span>
+              <div class="bar-track"><div class="bar-fill" data-w="100">$15.00</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">+ dedupe</span>
+              <div class="bar-track"><div class="bar-fill" data-w="64">$9.60</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">+ budget</span>
+              <div class="bar-track"><div class="bar-fill" data-w="38">$5.70</div></div>
+            </div>
+            <div class="bar-row hot">
+              <span class="bar-label">+ caching</span>
+              <div class="bar-track"><div class="bar-fill" data-w="12">$1.80</div></div>
+            </div>
+          </div>
+          <p class="viz fragment rise">
+            Same task, <em class="hot">8&times; cheaper</em>. Bars grow on slide
+            enter — and replay every time you return.
+          </p>
+          <aside class="notes">
+            Bars are hand-rolled CSS/SVG — no charting library, so the deck palette
+            reaches inside the chart. Deterministic replay: re-enter and they re-grow.
+          </aside>
+        </section>
+
+        <!-- 6 ───────────────────── CODE DEMO + VERTICAL SUB-SLIDE stack -->
+        <section data-section="99 — Attic">
+          <section class="code" data-section="99 — Attic">
+            <span class="eyebrow">Code demo · stepped focus</span>
+            <h2 class="h-set"><span class="h-line"><span>Budgeted assembly</span></span></h2>
+            <pre><code class="language-typescript" data-trim data-line-numbers="2|3-4|6-11|13">{promptCode}</code></pre>
+            <aside class="notes">
+              Press &rarr; to step the focus: signature → the ranking → the budget
+              loop → the return. Then press &darr; to drop into the helper it leans on.
+            </aside>
+          </section>
+          <section class="code" data-section="99 — Attic">
+            <span class="eyebrow">Sub-slide · vertical stack</span>
+            <h2 class="h-set"><span class="h-line"><span>The estimate underneath</span></span></h2>
+            <pre><code class="language-typescript" data-trim data-line-numbers="4|5">{helperCode}</code></pre>
+            <aside class="notes">
+              Vertical sub-slides let one topic go deep without cluttering the main
+              line — the bottom-right arrows go 4-directional when a stack exists.
+            </aside>
+          </section>
+        </section>
+
+        <!-- 7 ───────────────────── LIVE TOKENIZER WIDGET (vanilla TS island) -->
+        <section data-section="99 — Attic" data-tokenizer>
+          <span class="eyebrow">Live · type &amp; watch the token bill</span>
+          <h2 class="h-set"><span class="h-line"><span>The token counter</span></span></h2>
+          <div class="tokenizer">
+            <textarea class="tok-input" spellcheck="false" data-tok-input
+              >Rewrite this paragraph to be shorter while keeping every fact intact.</textarea
+            >
+            <div class="tok-stats">
+              <div class="tok-stat">
+                <span class="n" data-tok-chars>0</span><span class="l">chars</span>
+              </div>
+              <div class="tok-stat">
+                <span class="n" data-tok-words>0</span><span class="l">words</span>
+              </div>
+              <div class="tok-stat hot">
+                <span class="n" data-tok-tokens>0</span><span class="l">&asymp; tokens</span>
+              </div>
+              <div class="tok-stat">
+                <span class="n" data-tok-cost>$0</span><span class="l">est. in-cost</span>
+              </div>
+            </div>
+            <p class="tok-note">
+              Client-side estimate (&asymp; chars &divide; 4). A shipping deck swaps
+              in a real BPE tokenizer.
+            </p>
+          </div>
+          <aside class="notes">
+            Genuinely live and client-side — as live as a static host allows.
+            Typing here never leaves the browser.
+          </aside>
+        </section>
+
+        <!-- 8 ───────────────────── TERMINAL / CLI REPLAY (deterministic) -->
+        <section data-section="99 — Attic" data-terminal>
+          <span class="eyebrow">Pre-recorded · replays on demand</span>
+          <h2 class="h-set"><span class="h-line"><span>A skills session, captured</span></span></h2>
+          <div class="terminal">
+            <div class="term-bar">
+              <i></i><i></i><i></i><span class="term-title">claude-code — zsh</span>
+            </div>
+            <pre class="term-body" data-term-body></pre>
+          </div>
+          <p class="term-note">
+            Deterministic replay — no server, plays every time the slide opens.
+          </p>
+          <aside class="notes">
+            A captured skills session, replayed. Nothing runs live; the transcript
+            is baked in, so it is reliable in any venue.
+          </aside>
+        </section>
+
         <!-- 9 ───────────────────── TWO-COLUMN SPLIT (nice-to-have) -->
-        <section data-section="03 — The compound">
+        <section data-section="99 — Attic">
           <span class="eyebrow">Two-column layout</span>
           <h2 class="h-set"><span class="h-line"><span>Two levers, one system</span></span></h2>
           <div class="split">
@@ -1067,8 +1076,8 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         <!-- 9b ──────────────────── VERTICAL SUB-SLIDE STACK (3 deep) -->
         <!-- A dedicated stack: press ↓ to drill from the overview down through
              three levels. Bottom-right arrows go 4-directional inside a stack. -->
-        <section data-section="03 — The compound">
-          <section class="stack" data-stack data-section="03 — The compound">
+        <section data-section="99 — Attic">
+          <section class="stack" data-stack data-section="99 — Attic">
             <span class="eyebrow">Vertical sub-slides · press &darr;</span>
             <h2 class="h-set"><span class="h-line"><span>Compounding, three levels deep</span></span></h2>
             <p>
@@ -1081,7 +1090,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               stays clean; the depth lives underneath. Press ↓ to demo it live.
             </aside>
           </section>
-          <section class="stack" data-stack data-section="03 — The compound">
+          <section class="stack" data-stack data-section="99 — Attic">
             <span class="eyebrow">Level 1 · prompt</span>
             <h2 class="h-set"><span class="h-line"><span>Optimize the prompt</span></span></h2>
             <p>
@@ -1091,7 +1100,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="stack-depth"><span></span><span class="on"></span><span></span></div>
             <aside class="notes">Level one: the single-prompt economics.</aside>
           </section>
-          <section class="stack" data-stack data-section="03 — The compound">
+          <section class="stack" data-stack data-section="99 — Attic">
             <span class="eyebrow">Level 2 · session</span>
             <h2 class="h-set"><span class="h-line"><span>Optimize the session</span></span></h2>
             <p>
@@ -1104,7 +1113,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 10 ──────────────────── FRAGMENT / PROGRESSIVE REVEAL -->
-        <section data-section="03 — The compound" data-frags>
+        <section data-section="99 — Attic" data-frags>
           <span class="eyebrow">Fragment reveal</span>
           <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
           <ul class="build">
@@ -1122,7 +1131,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 10a ─────────────── ALT A: numbered editorial rows (hairline grid) -->
-        <section class="alt-rows" data-section="03 — The compound" data-frags>
+        <section class="alt-rows" data-section="99 — Attic" data-frags>
           <span class="eyebrow">Alt A · Numbered rows</span>
           <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
           <ol class="rows">
@@ -1140,7 +1149,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 10b ─────────────── ALT B: card grid (floating cards, 3 × 2) -->
-        <section class="alt-cards" data-section="03 — The compound" data-frags>
+        <section class="alt-cards" data-section="99 — Attic" data-frags>
           <span class="eyebrow">Alt B · Card grid</span>
           <h2 class="h-set"><span class="h-line"><span>What a reference deck needs</span></span></h2>
           <div class="cardgrid">
@@ -1158,7 +1167,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 10c ─────────────── ALT C: big-type spotlight stack -->
-        <section class="alt-stack" data-section="03 — The compound" data-frags>
+        <section class="alt-stack" data-section="99 — Attic" data-frags>
           <span class="eyebrow">Alt C · Big-type stack</span>
           <ul class="stack">
             <li class="fragment rise">Hero slides</li>
@@ -1175,7 +1184,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 10d ─────────────── ALT D: split — anchored headline / right column -->
-        <section class="alt-split" data-section="03 — The compound" data-frags>
+        <section class="alt-split" data-section="99 — Attic" data-frags>
           <div class="split-left">
             <span class="eyebrow">Alt D · Split</span>
             <h2 class="h-set">
@@ -1200,7 +1209,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 10e ─────────────── ALT E: colour bands (full-bleed, fills on reveal) -->
-        <section class="alt-bands" data-section="03 — The compound" data-frags>
+        <section class="alt-bands" data-section="99 — Attic" data-frags>
           <span class="eyebrow">Alt E · Colour bands</span>
           <div class="bands">
             <div class="fragment rise band"><span class="n">01</span><span class="t">Static, high-impact hero slides</span></div>
