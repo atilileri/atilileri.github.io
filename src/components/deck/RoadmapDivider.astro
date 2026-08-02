@@ -1,0 +1,62 @@
+---
+/**
+ * RoadmapDivider.astro — the ASML AI deck's navigation spine (wayfinder #30).
+ *
+ * One component, two jobs, driven by whether `chapter` is set:
+ *
+ *   - `chapter` given (2–5): a DIVIDER. Same four factors, same positions, the
+ *     one you are entering lit and the rest dim. This replaces the full
+ *     `.chapter` wash for chapters 2–5 — the wash is now reserved for chapters
+ *     1 and 6 only, so it keeps its impact (map #29, resolving #20's fog).
+ *   - `chapter` omitted: chapter 1's ROADMAP slide — all four at equal weight.
+ *     It is the roadmap, not a divider; every later divider is a callback to it.
+ *
+ * The bridge is never explained, only walked: the room learns the shape once,
+ * then recognises it four times.
+ *
+ * Labels come from src/lib/asml-ai/roadmap.ts and are edited THERE.
+ * Chapters 4 and 5 have no slides yet (out of scope on map #29) — their
+ * instances are one `<RoadmapDivider chapter={4} … />` away.
+ *
+ * Notes go in as the default slot, so each instance keeps its own
+ * <aside class="notes">.
+ */
+import { FACTORS } from "../../lib/asml-ai/roadmap";
+
+interface Props {
+  /** Value for `data-section` — the on-screen section indicator. */
+  section: string;
+  /** 2–5 lights that chapter's factor. Omit for chapter 1's roadmap slide. */
+  chapter?: number;
+  /** Overrides the headline (defaults to the lit factor's own label). */
+  heading?: string;
+  /** Kicker above the headline. Defaults to `CHAPTER 0n` when `chapter` is set. */
+  eyebrow?: string;
+}
+
+const { section, chapter, heading, eyebrow } = Astro.props;
+const lit = FACTORS.find((f) => f.chapter === chapter);
+const kicker =
+  eyebrow ?? (chapter ? `CHAPTER ${String(chapter).padStart(2, "0")}` : "THE ROUTE");
+---
+
+<section
+  class:list={["roadmap", !chapter && "is-all"]}
+  data-section={section}
+  data-roadmap
+>
+  <span class="chapter-no">{kicker}</span>
+  <h2 class="h-set">
+    <span class="h-line"><span>{heading ?? lit?.label}</span></span>
+  </h2>
+  <ol class="roadmap-spine">
+    {
+      FACTORS.map((f) => (
+        <li class:list={["roadmap-factor", chapter === f.chapter && "on"]}>
+          <span class="k">{f.label}</span>
+        </li>
+      ))
+    }
+  </ol>
+  <slot />
+</section>

@@ -1,6 +1,6 @@
 /**
  * The agent-loop slide's step script and number model (deck /decks/asml-ai,
- * chapter 04, slide 8). Settled by wayfinder prototype #26 (variant C, "the
+ * chapter 3). Settled by wayfinder prototype #26 (variant C, "the
  * ledger") and built by #28 — the figures below are locked, not illustrative
  * defaults to tune.
  *
