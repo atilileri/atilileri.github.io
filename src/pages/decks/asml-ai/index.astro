@@ -38,10 +38,17 @@ export function estimateTokens(text: string): number {
   // A shipping deck would swap in a real BPE tokenizer here.
   return Math.ceil(text.length / 4);
 }`;
-// Chapter 04 "Where the tokens go" — the agent loop's step script and number
+// Chapter 3, second half ("Where the tokens go" — the deck's former chapter
+// 04, folded in by #30). The agent loop's step script and number
 // model live in src/lib so the markup below and the controller at the bottom
 // read the SAME table. See the file header for what is locked and why.
 import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
+
+// The deck's navigation spine (#29/#30): chapter 1's roadmap slide and the
+// dividers entering chapters 2–5 are the SAME component, so the four factors
+// can never drift apart. Their labels live in src/lib/asml-ai/roadmap.ts —
+// edit them there, not in the markup below.
+import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 
 /**
  * Slide 7 — the context primitives. Eight blocks in three groups, copy taken
@@ -231,15 +238,49 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           <p>Token optimization &amp; the skills that compound it.</p>
           <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
           <aside class="notes">
-            Welcome. This deck is the reference capability gallery — every kind of
-            slide we can build, exercised once. Real decks are designed against it.
-            Press S any time for these inline notes; P opens the separate presenter
-            window.
+            Ninety seconds, standing still. You are already paying for AI, and
+            the bill is going up — so this is not a talk about whether to use
+            it. It's about getting more back from what you are already buying.
+            Two promises up front: nothing here is a demo of a product you
+            can't have, and every number on screen is one we can source. Then
+            straight into the objection on the next slide, in their own words.
+            Press S any time for these inline notes; P opens the separate
+            presenter window.
+          </aside>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER 01 — "Can't we just throw money at it?" (wayfinder #29).
+             Five slides: the objection as a wash divider → the DeepSWE bench
+             chart → the determinism slide → the four-factor roadmap → the
+             lottery, moved here as a PROMISE rather than the pay-off it used
+             to be at the end of the deck.
+
+             This is one of only TWO full `.chapter` washes left in the deck
+             (chapter 1 and chapter 6). Chapters 2–5 get the roadmap divider
+             instead, so the wash keeps its impact — map #29, resolving #20's
+             fog about the wash's own "2–3× in the real talk" ceiling.
+
+             The divider copy below is PROVISIONAL: the bridge grilling (#34)
+             owns the final wording and #37 applies it.
+             ══════════════════════════════════════════════════════════════════ -->
+
+        <!-- 1a ─────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <section class="chapter" data-section="01 — Why optimize" data-chapter>
+          <span class="chapter-no">CHAPTER 01</span>
+          <h2>Can&rsquo;t we just<br />throw money at it?</h2>
+          <aside class="notes">
+            Say it in their voice, not yours — this is the objection the room is
+            already holding, and naming it out loud first is what buys you the
+            next forty minutes. Then concede the honest half: yes, you can throw
+            money at it, and it works more often than it used to. This chapter
+            is about what that actually buys you, and where it stops buying
+            anything at all.
           </aside>
         </section>
 
         <!-- 5b ──────────────────── INTERACTIVE BENCHMARK CHART (DeepSWE v1.1) -->
-        <section class="bench" data-section="01 — The cost" data-bench>
+        <section class="bench" data-section="01 — Why optimize" data-bench>
           <span class="eyebrow">Interactive · hover a model, click a family</span>
           <h2 class="h-set">
             <span class="h-line"><span>DeepSWE v1.1 &mdash; capability vs. cost</span></span>
@@ -270,8 +311,90 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
+        <!-- 1c ─── GAP: the determinism slide, replacing the old "we are
+             engineers" slide. Shape decided by grilling #33, built by #37.
+             #33 also owns the tension recorded on map #29: the bench note
+             above argues diminishing returns, while this chapter's line is
+             "we can throw money at more problems than ever, but not all" —
+             two different claims sitting on consecutive slides. -->
+
+        <!-- 1d ─────────────────── THE ROADMAP (all four factors, equal) -->
+        <RoadmapDivider
+          section="01 — Why optimize"
+          heading="Four things decide what you get back."
+        >
+          <aside class="notes">
+            The map for the rest of the talk. You will see these same four, in
+            these same positions, every time we enter a chapter — one of them
+            lit. Never explain that device; just walk it, and by the third
+            chapter the room is reading it without being told. Labels are
+            provisional until #34 settles them. Don't sell any single factor
+            here — the promise on the next slide hangs off all four together.
+          </aside>
+        </RoadmapDivider>
+
+        <!-- 8b ─────────────────── RELIABILITY SCATTER (result quality × spend) -->
+        <section class="lottery" data-section="01 — Why optimize" data-lottery>
+          <span class="eyebrow">The promise &middot; press &rarr; to level up</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Your results don&rsquo;t have to be a lottery</span></span>
+          </h2>
+          <div class="lottery-plot">
+            <svg data-lottery-svg viewBox="0 0 980 600" role="img"
+              aria-label="Result quality against tokens spent. A regular user's outputs are scattered across the whole field — some ship, most miss, several overshoot the budget. After the training, the same attempts converge into a tight cluster in the ship-ready, on-budget corner: consistent quality at a consistent, minimal spend."
+            ></svg>
+          </div>
+          <p class="lottery-cap">
+            <span data-lottery-stat class="stat">On&nbsp;target &mdash; ship-ready &amp; on&nbsp;budget:
+              <b class="stat-n">3</b> of 18</span>
+            <span class="lottery-sub" data-lottery-sub>Random prompts in, random results out. More tokens roughly buys more quality &mdash; but the spread is huge and much of the spend is wasted.</span>
+          </p>
+          <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
+          <aside class="notes">
+            The promise of the whole talk, made up front — this is chapter 1's
+            last slide, not the deck's pay-off, so state it as something you
+            are going to earn over the next four chapters rather than something
+            just demonstrated. On entry the field is a wide scatter with a real
+            trend: more tokens roughly buys more quality (bottom-left up to
+            top-right), but the spread is enormous and it touches all four
+            quadrants — cheap misses, dear misses, lucky wins, expensive wins.
+            Narrate the lottery here before advancing: the correlation is real,
+            yet the outcome is a gamble and much of the spend is wasted. Press
+            &rarr; and the SAME attempts shift — a distribution moving, not a
+            collapse, and not two archetypes. The whole cloud slides up and to
+            the left: top quality now reached at a fraction of the tokens,
+            spend pulled left, spread tightened. A couple still miss; that's
+            honest. Attribute it to all four factors together, never to best
+            practices alone — the four you just saw on the roadmap are what
+            move this cloud, and each chapter from here moves it a little more.
+            On-target goes 3-of-18 to 16-of-18. Press &larr; to replay the
+            scatter. (Provisional framing: #34 owns the final wording.)
+          </aside>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER 02 — "Under the hood" (wayfinder #29). Four slides:
+             roadmap divider → the rings (moved here from the front of the
+             deck) → the stochastic slide → the Agent & MCP slide, which
+             explains both nouns in the rings' own vocabulary.
+
+             No wash: chapters 2–5 open on the roadmap instead. See
+             src/components/deck/RoadmapDivider.astro; labels live in
+             src/lib/asml-ai/roadmap.ts and are edited there, not here.
+             ══════════════════════════════════════════════════════════════════ -->
+
+        <!-- 2a ─────────────────── ROADMAP divider ("Under the hood" lit) -->
+        <RoadmapDivider section="02 — Under the hood" chapter={2}>
+          <aside class="notes">
+            Second time the room sees these four, so one is lit — say nothing
+            about the device itself. We promised four things decide what you
+            get back; this is the first of them, and the only one that is about
+            the machine rather than about how you work.
+          </aside>
+        </RoadmapDivider>
+
         <!-- 5c ──────────────────── MENTAL MODEL: the four layers (rings) -->
-        <section class="layers" data-section="02 — How" data-layers>
+        <section class="layers" data-section="02 — Under the hood" data-layers>
           <span class="eyebrow">The mental model · after Matt Pocock</span>
           <h2 class="h-set">
             <span class="h-line"><span>The model is only the engine</span></span>
@@ -345,40 +468,58 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER A — "What you're actually buying" (wayfinder #20 / #27).
-             Four slides: divider → live tokenizer + embedding space → credits
-             → the cost dial. (#23's arc also had a static "Everything you type
-             breaks into tokens" slide before the tokenizer; Atil cut it — the
-             live widget makes the same point with the room's own words.)
-             Copy is verbatim from #23's resolution
-             (with #24's amendment to the cloud caption); rates come from #21
-             via src/lib/asml-ai/rates.ts; the two widgets ship the interactions
-             settled by the #24 and #25 prototypes.
+        <!-- 2c ─── GAP: the stochastic slide — one prompt, five answers, then
+             the mechanism (every token sampled from a distribution). Outputs
+             are pre-scripted; nothing is called. Prototyped by #35, built by
+             #38. It is the lottery slide's mechanism at a lower altitude — the
+             two are one argument at two scales. -->
 
-             The "03" here deliberately collides with the lottery block's
-             "03 — The compound": editing existing slides is out of scope, so
-             the duplicate stands as a loud renumbering TODO, visible in the
-             on-screen section indicator.
+        <!-- 2d ─── GAP: Agent & MCP — explain both, briefly, in the rings'
+             own vocabulary, in support of the slide above. Mechanic decided by
+             grilling #36 (blocked on research #40), built by #38.
+
+             #36 also owns the rewrite of the ENVIRONMENT ring's definition on
+             the rings slide, which #40 found too narrow ("your codebase" gets
+             falsified the moment this slide says Slack or Sentry). Deliberately
+             NOT fixed here: two sessions writing that wording independently is
+             how the deck ends up with two Environment definitions. -->
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER 03 — "Tokenomics" (wayfinder #20 / #27 / #28, merged by
+             #29). Six slides behind ONE divider: the deck's former chapter A
+             ("What you're actually buying" — live tokenizer → credits → the
+             cost dial) and its former chapter 04 ("Where the tokens go" —
+             context primitives → the agent loop) are now a single chapter.
+
+             The five content slides moved as a block: markup, widgets, order,
+             copy and rates are untouched. The only edit was folding their two
+             dividers into the one below. Copy is verbatim from #23's
+             resolution (with #24's amendment to the cloud caption); rates come
+             from #21 via src/lib/asml-ai/rates.ts; the loop's layout and
+             numbers are #26's variant C. Integrate, don't re-decide.
+
+             The deliberate "03 — Tokens" / "03 — The compound" data-section
+             collision that #23 left as a loud TODO is retired: this ticket was
+             the renumbering pass it was waiting for.
              ══════════════════════════════════════════════════════════════════ -->
 
-        <!-- A1 ─────────────────── CHAPTER divider (triggers chapter-wash) -->
-        <section class="chapter" data-section="03 — Tokens" data-chapter>
-          <span class="chapter-no">CHAPTER 03</span>
-          <h2>What you&rsquo;re<br />actually buying.</h2>
+        <!-- 3a ─────────────────── ROADMAP divider ("Tokenomics" lit) -->
+        <RoadmapDivider section="03 — Tokenomics" chapter={3}>
           <aside class="notes">
-            We've talked about what this costs you. Now we're going to look at
-            what you're actually paying for — and it's a smaller, stranger unit
-            than most people expect.
+            We've just seen what the machine is. Now what it costs — and the
+            unit is smaller and stranger than most people expect. Five slides,
+            and they land in two halves: what you're actually buying (the unit,
+            its price, and the dial you can turn), then where the units
+            actually go (what's in the window, and what one task does to it).
           </aside>
-        </section>
+        </RoadmapDivider>
 
         <!-- A3 ─────────────────── LIVE TOKENIZER + 3D EMBEDDING SPACE -->
         <!-- Two panels, not a vertical stack (#23): the payoff IS the
              adjacency — your typing becomes numbers, the numbers become
              positions. The cloud is a pure hash scatter (#24); it must never
              be described as "what's inside the model". -->
-        <section data-section="03 — Tokens" data-token-live>
+        <section data-section="03 — Tokenomics" data-token-live>
           <span class="eyebrow">The vocabulary &middot; live, type anything</span>
           <h2 class="h-set">
             <span class="h-line"><span>Everything you type</span></span>
@@ -425,7 +566,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- A4 ─────────────────── TOKENS ARE THE UNIT, CREDITS THE PRICE -->
-        <section data-section="03 — Tokens" data-credits>
+        <section data-section="03 — Tokenomics" data-credits>
           <span class="eyebrow">The price &middot; static</span>
           <h2 class="h-set">
             <span class="h-line"><span>Tokens are the unit.</span></span>
@@ -451,7 +592,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
                  example is a realistic prompt rather than slide 3's sentence:
                  fifteen tokens costs €0.0000347, which reads as "free" and is
                  exactly the figure #24 kept euros away from. The attached
-                 report also quietly sets up chapter B's "you send the whole
+                 report also quietly sets up the primitives slide's "you send the whole
                  thing". Figures are filled from src/lib/asml-ai/rates.ts. -->
             <div class="credits-right">
               <ol class="bill-ladder">
@@ -501,7 +642,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         <!-- Three dials, four models (#23/#25). Anthropic's fourth rate — cache
              writes at 1.25x input — is deliberately off-screen; the presenter
              note carries it. Do not add a fourth dial. -->
-        <section data-section="03 — Tokens" data-cost-dial>
+        <section data-section="03 — Tokenomics" data-cost-dial>
           <span class="eyebrow">The bill &middot; interactive, drag the dials</span>
           <h2 class="h-set">
             <span class="h-line"><span>Three numbers</span></span>
@@ -587,32 +728,8 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             CHAPTER 04 — "Where the tokens go." (wayfinder #20, built by #28)
-             Three slides: divider → context primitives → the agent loop, which
-             bridges straight into the reliability scatter below. Copy is
-             verbatim from #23's resolution; the loop's layout and numbers are
-             #26's variant C. Integrate, don't re-decide.
-
-             NOTE the deliberate "03" collision: this block is 04, while the
-             scatter below stays "03 — The compound". Renumbering the deck's
-             existing chapters is out of scope on the map — the duplicate is a
-             loud TODO sitting exactly where the renumbering pass has to happen.
-             ══════════════════════════════════════════════════════════════ -->
-
-        <!-- 8c ─────────────────── CHAPTER divider (triggers chapter-wash) -->
-        <section class="chapter" data-section="04 — Context" data-chapter>
-          <span class="chapter-no">CHAPTER 04</span>
-          <h2>Where the<br />tokens go.</h2>
-          <aside class="notes">
-            Chapter A priced the unit; this one shows where the units actually
-            go. Two slides: what is in the window, then what a single task does
-            to it.
-          </aside>
-        </section>
-
         <!-- 8d ─────────────────── CONTEXT PRIMITIVES (click a block) -->
-        <section class="primitives" data-section="04 — Context" data-primitives>
+        <section class="primitives" data-section="03 — Tokenomics" data-primitives>
           <span class="eyebrow">The anatomy &middot; interactive, click a block</span>
           <h2 class="h-set">
             <span class="h-line"><span>Every turn, you send</span></span>
@@ -712,7 +829,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- 8e ─────────────────── AGENT LOOP IN ACTION (the ledger, #26 var. C) -->
-        <section class="agentloop" data-section="04 — Context" data-agentloop>
+        <section class="agentloop" data-section="03 — Tokenomics" data-agentloop>
           <span class="eyebrow">The loop &middot; stepped, press &rarr; to advance</span>
           <h2 class="h-set">
             <span class="h-line"><span>The whole context,</span></span>
@@ -834,40 +951,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             on GPT-5.4 while the cost dial defaults to Gemini &mdash; deliberate:
             Anthropic bills cache writes at 1.25&times; input, which would
             overstate the saving on screen here. No model was called.
-          </aside>
-        </section>
-
-        <!-- 8b ─────────────────── RELIABILITY SCATTER (result quality × spend) -->
-        <section class="lottery" data-section="03 — The compound" data-lottery>
-          <span class="eyebrow">Animated · press &rarr; to level up</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>Your results don&rsquo;t have to be a lottery</span></span>
-          </h2>
-          <div class="lottery-plot">
-            <svg data-lottery-svg viewBox="0 0 980 600" role="img"
-              aria-label="Result quality against tokens spent. A regular user's outputs are scattered across the whole field — some ship, most miss, several overshoot the budget. After the training, the same attempts converge into a tight cluster in the ship-ready, on-budget corner: consistent quality at a consistent, minimal spend."
-            ></svg>
-          </div>
-          <p class="lottery-cap">
-            <span data-lottery-stat class="stat">On&nbsp;target &mdash; ship-ready &amp; on&nbsp;budget:
-              <b class="stat-n">3</b> of 18</span>
-            <span class="lottery-sub" data-lottery-sub>Random prompts in, random results out. More tokens roughly buys more quality &mdash; but the spread is huge and much of the spend is wasted.</span>
-          </p>
-          <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
-          <aside class="notes">
-            The pay-off of the whole talk, in one motion. On entry the field is a
-            wide scatter with a real trend: more tokens roughly buys more quality
-            (bottom-left up to top-right), but the spread is enormous and it touches
-            all four quadrants — cheap misses, dear misses, lucky wins, expensive
-            wins. Narrate the lottery here before advancing: the correlation is real,
-            yet the outcome is a gamble and much of the spend is wasted. Press &rarr;
-            and the SAME attempts shift — this is a distribution moving, not a
-            collapse, and not two archetypes: it's you, after the best practices. The
-            whole cloud slides up and to the left — top quality now reached at a
-            fraction of the tokens, spend pulled left, spread tightened. A couple
-            still miss; that's honest. Land it: you stop paying for quality you can
-            now get cheaply, and you hit the mark far more often. On-target goes
-            3-of-18 to 16-of-18. Press &larr; to replay the scatter.
           </aside>
         </section>
 
@@ -1019,8 +1102,8 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               </div>
             </div>
             <p class="tok-note">
-              Client-side estimate (&asymp; chars &divide; 4). A shipping deck swaps
-              in a real BPE tokenizer.
+              Client-side estimate (&asymp; chars &divide; 4). The counting is
+              live; the vocabulary is a sketch, not a real BPE tokenizer.
             </p>
           </div>
           <aside class="notes">
@@ -1483,7 +1566,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (stat) stat.textContent = collapsed ? "16" : "3";
         if (sub)
           sub.textContent = collapsed
-            ? "Better practice in → top quality at a fraction of the tokens, spend pulled to the left, spread tightened. You aim, not gamble."
+            ? "The same attempts, after all four factors → top quality at a fraction of the tokens, spend pulled left, spread tightened. You aim, not gamble."
             : "Random prompts in, random results out. More tokens roughly buys more quality — but the spread is huge and much of the spend is wasted.";
       }
 
@@ -2314,7 +2397,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         renderDial();
       }
 
-      /* ══════════════ CHAPTER 04 — context primitives (slide 7) ══════════
+      /* ══════════ CHAPTER 03 (2nd half) — context primitives ══════════════
          Fragment index selects the block: -1 is the summary panel, 0-7 pick a
          block. That makes the clicker's → walk the eight blocks with no custom
          binding, and clicking a block simply navigates to its fragment — so
@@ -2357,7 +2440,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           ?.addEventListener("click", () => selectPrimitive(slide, -1));
       });
 
-      /* ══════════════ CHAPTER 04 — the agent loop (slide 8) ══════════════
+      /* ══════════ CHAPTER 03 (2nd half) — the agent loop ═════════════════
          Variant C, the ledger (#26): twelve rows always on screen, the context
          window as a strata gutter, a credit odometer over the three token bars.
          12 step fragments + a 13th for the bridge; the step is DERIVED from
@@ -2452,11 +2535,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const frag = slide.querySelector<HTMLElement>("[data-lottery-collapse]");
           setLottery(slide, !!frag?.classList.contains("visible"));
         }
-        // Chapter A. The cloud's rAF loop only runs while its slide is live.
+        // Chapter 3. The cloud's rAF loop only runs while its slide is live.
         if (slide.hasAttribute("data-token-live")) startCloud();
         else stopCloud();
         if (slide.hasAttribute("data-cost-dial")) resetDial();
-        // Chapter 04's two islands read reveal's fragment state on entry, so
+        // Chapter 3's two islands read reveal's fragment state on entry, so
         // they replay from step 0 forwards and from the last step backwards.
         if (slide.hasAttribute("data-primitives")) syncPrimitives(slide);
         if (slide.hasAttribute("data-agentloop")) syncLoop(slide);
@@ -2472,7 +2555,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
 
       // The reliability scatter collapses on a fragment, replays on step-back.
-      // Chapter 04's islands re-derive their whole state from the fragments on
+      // Chapter 3's islands re-derive their whole state from the fragments on
       // every change, in both directions.
       function onFragment(e: any, shown: boolean) {
         const f = e.fragment as HTMLElement;

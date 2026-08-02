@@ -1,7 +1,7 @@
 /**
  * Rates and money formatting for the ASML AI deck's literacy chapters.
  *
- * Shared by every widget in chapters A and B so the deck can never disagree
+ * Shared by every widget in chapter 3 so the deck can never disagree
  * with itself about what a token costs. Nothing else in the deck knows a rate.
  *
  * Sourcing (wayfinder #21, verified against GitHub's published pricing):
