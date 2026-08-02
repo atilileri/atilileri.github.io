@@ -1712,7 +1712,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       //    the slide is judged in its real neighbourhood (rings before it,
       //    the Agent/MCP gap after).
       const protoParams = new URLSearchParams(window.location.search);
-      const protoVariant = (protoParams.get("variant") ?? "A").toUpperCase();
+      const protoVariant = (protoParams.get("variant") ?? "B").toUpperCase();
       document
         .querySelectorAll<HTMLElement>("[data-stoch]")
         .forEach((s) => {
@@ -3218,14 +3218,52 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         s.textContent = "";
         STOCH.ANSWERS.forEach((a, i) => {
           const bad = isBad(a.kind);
-          const card = ph("div", "card stoch-fade" + (bad ? " bad" : ""));
-          // Which lane it lands in once the sort happens.
-          card.style.setProperty("--lane", bad ? "2 / 3" : "1 / 2");
+          const card = ph("div", "card" + (bad ? " bad" : ""));
+          card.dataset.bad = bad ? "1" : "";
           card.append(ph("span", "tag", STOCH.KINDS[a.kind].tag));
           card.append(ph("p", undefined, a.text));
           card.append(ph("span", "tell", a.tell));
-          s.append(phDelay(card, i));
+          card.style.transitionDelay = i * 80 + "ms";
+          s.append(card);
         });
+      }
+
+      /** B's whole argument is the MOVE, so it cannot be a grid-column swap —
+       *  that is a hard cut. Measure the cards once they are laid out, then
+       *  write both positions as CSS vars and let one transform transition
+       *  carry them: a centred pile that splits into two stacked lanes.
+       *
+       *  Heights are read AFTER layout (rAF), so this must run on slide entry
+       *  and not at import time. Positions are in px against the container's
+       *  own box, which is fixed by reveal's 1600x900 canvas. */
+      function layoutStochSort(slide: HTMLElement) {
+        const s = slide.querySelector<HTMLElement>("[data-stoch-sorted]");
+        if (!s) return;
+        const cards = [...s.querySelectorAll<HTMLElement>(".card")];
+        if (!cards.length) return;
+        const gap = 10;
+        const half = s.clientWidth / 2 + 11; // lane width + the CSS gutter
+        let pile = 0;
+        const lane = [0, 0];
+        cards.forEach((c) => {
+          const h = c.offsetHeight;
+          // Pile: one centred column, in rank order.
+          c.style.setProperty("--x0", half / 2 + "px");
+          c.style.setProperty("--y0", pile + "px");
+          pile += h + gap;
+          // Sorted: grounded left, hallucinated right, each packed from the
+          // top so neither lane carries a hole where the other has a card.
+          const l = c.dataset.bad ? 1 : 0;
+          c.style.setProperty("--x1", (l ? half : 0) + "px");
+          c.style.setProperty("--y1", lane[l] + "px");
+          lane[l] += h + gap;
+        });
+        // The container is absolutely populated, so it carries its own height
+        // — and the two states are different heights, so the block below
+        // (the beat line) rises as the lanes pack. That rise is part of the
+        // move; leaving one tall box would read as a hole.
+        s.style.setProperty("--h0", pile - gap + "px");
+        s.style.setProperty("--h1", Math.max(lane[0], lane[1]) - gap + "px");
       }
 
       /** C — the draw. One bar = the whole distribution, keyed underneath. */
@@ -3279,6 +3317,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (v === "B") buildStochSort(slide);
         if (v === "C") buildStochDraw(slide);
         slide.dataset.built = "1";
+        // B measures itself, so it has to happen after the browser has laid
+        // the cards out — one frame later, not in the same tick.
+        if (v === "B") requestAnimationFrame(() => layoutStochSort(slide));
       }
 
       /** Derive the frame from reveal's fragment state — never from a counter. */
@@ -3297,7 +3338,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           B: "the sort",
           C: "the draw",
         };
-        const keys = ["A", "B", "C"];
+        const keys = ["A", "B", "C"]; // B is the default — Atil picked it
         const go = (patch: Record<string, string | null>) => {
           const p = new URLSearchParams(window.location.search);
           for (const [k, val] of Object.entries(patch)) {

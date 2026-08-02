@@ -89,7 +89,9 @@ export const RANK = [1, 0.82, 0.63, 0.47, 0.34];
 
 export const COPY = {
   eyebrow: "Under the hood · press → for five answers",
-  headline: "Same question. Five answers. Three are wrong.",
+  // Atil's call (2026-08-02): WITHHOLD the punch. The headline names the
+  // setup only; the orange landing on fragment 2 is the reveal.
+  headline: "Same question. Five answers.",
   body: "Not a bug and not a bad day — the wrong ones came out of the same draw as the right ones.",
   labelBeat: "Three of five, in two nameable ways.",
   honesty: "Pre-recorded runs — no model was called.",
