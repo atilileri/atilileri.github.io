@@ -786,6 +786,15 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               <path class="edge" data-fork-edge="4" d="M310,210 L214,284" />
               <polygon class="head" data-fork-head="4" points="0,-4 8,0 0,4"
                 transform="translate(214,284) rotate(142)" />
+              <!-- The route out, tagged on the arrow the way No/Yes tag the
+                   arrows in — so the diagram carries the fix, not just the
+                   diagnosis. Set clear of the edges, hard-right / hard-left. -->
+              <g class="g" data-fork-edge-lbl="3">
+                <text class="route" x="110" y="248" data-fork-route-1></text>
+              </g>
+              <g class="g" data-fork-edge-lbl="4">
+                <text class="route" x="310" y="248" data-fork-route-2></text>
+              </g>
               <g class="g" data-fork-end>
                 <rect class="node end" x="140" y="290" width="140" height="42" rx="2" />
                 <text class="end-t" x="210" y="312" data-fork-fixed></text>
@@ -3360,13 +3369,21 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         box.dataset.branch = b.key;
         const k = halEl("span", "k");
         k.append(halEl("span", undefined, b.name));
-        k.append(halEl("span", "a", "— you answered " + b.answer));
+        // The CONDITION, not the answer: "information out of the context"
+        // says what was true, which is what the room has to match their own
+        // case against. No/Yes stays on the diagram, where the fork is.
+        k.append(halEl("span", "a", "— " + b.state));
         box.append(k);
-        box.append(halEl("p", "cause", b.cause));
+        // `Backticks` in the cause mark the one term set apart from the prose.
+        const cause = halEl("p", "cause");
+        b.cause.split("`").forEach((part, i) => {
+          cause.append(i % 2 ? halEl("em", "term", part) : document.createTextNode(part));
+        });
+        box.append(cause);
         const fix = halEl("p", "fix");
         fix.append(halEl("span", undefined, b.fix));
         box.append(fix);
-        box.append(halEl("span", "fwd", b.forward));
+        if (b.forward) box.append(halEl("span", "fwd", b.forward));
         return box;
       }
 
@@ -3388,8 +3405,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const cut = HAL.HINGE.lastIndexOf(" ", HAL.HINGE.length / 2 + 6);
           set("[data-fork-hinge-1]", HAL.HINGE.slice(0, cut));
           set("[data-fork-hinge-2]", HAL.HINGE.slice(cut + 1));
-          set("[data-fork-name-1]", HAL.BRANCHES[0].name.toUpperCase());
-          set("[data-fork-name-2]", HAL.BRANCHES[1].name.toUpperCase());
+          // The nodes keep the BARE names — "hallucinations" is understood
+          // from the root node three rows above and would not fit anyway.
+          set("[data-fork-name-1]", HAL.BRANCHES[0].key.toUpperCase());
+          set("[data-fork-name-2]", HAL.BRANCHES[1].key.toUpperCase());
+          set("[data-fork-route-1]", HAL.BRANCHES[0].edge);
+          set("[data-fork-route-2]", HAL.BRANCHES[1].edge);
           set("[data-fork-fixed]", HAL.COPY.fixed);
           // Dash-length per edge, measured — hand-computed lengths drift the
           // moment a coordinate moves.
@@ -3458,7 +3479,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               .forEach((n) => n.classList.toggle("is-drawn", when));
           on('[data-fork-edge="1"], [data-fork-head="1"], [data-fork-yn="1"], [data-fork-node="1"]', shown >= 1);
           on('[data-fork-edge="2"], [data-fork-head="2"], [data-fork-yn="2"], [data-fork-node="2"]', shown >= 2);
-          on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-end]', shown >= 3);
+          on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge-lbl="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-edge-lbl="4"], [data-fork-end]', shown >= 3);
         }
 
         if (v === "B") {
