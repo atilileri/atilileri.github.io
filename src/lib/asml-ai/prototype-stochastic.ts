@@ -95,7 +95,10 @@ export const COPY = {
   // setup only; the orange landing on fragment 2 is the reveal.
   headline: "Same question. Five answers.",
   body: "Not a bug and not a bad day — the wrong ones came out of the same draw as the right ones.",
-  labelBeat: "Three of five, in two nameable ways.",
+  // Atil, 2026-08-03: name the CAUSE, not the count — the three orange cards
+  // already say "three of five". This is the line the Best Practices chapter
+  // later pays off ("stay in the smart zone", "keep the cache stable").
+  labelBeat: "Polluted context or degraded attention is all it takes.",
   // DECIDED (Atil, 2026-08-03): this does NOT go on screen. It stays a
   // presenter line, as everywhere else in the deck — on screen it reads as a
   // disclaimer and invites the doubt it answers, and a label on this slide
