@@ -3225,7 +3225,17 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const bad = isBad(a.kind);
           const card = ph("div", "card" + (bad ? " bad" : ""));
           card.dataset.bad = bad ? "1" : "";
-          card.append(ph("span", "tag", STOCH.KINDS[a.kind].tag));
+          // Rank bar BEFORE the tag, so every bar starts at the same left
+          // edge and the lengths are comparable at a glance. The bar is live
+          // from the first fragment — the ranking is not a label, it is what
+          // the pile is ordered by; only the tag waits for the reveal.
+          const rank = ph("div", "rank");
+          const bar = ph("span", "bar" + (bad ? " bad" : ""));
+          const fill = ph("i");
+          fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
+          bar.append(fill);
+          rank.append(bar, ph("span", "tag", STOCH.KINDS[a.kind].tag));
+          card.append(rank);
           card.append(ph("p", undefined, a.text));
           card.append(ph("span", "tell", a.tell));
           card.style.transitionDelay = i * 80 + "ms";

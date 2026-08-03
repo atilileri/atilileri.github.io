@@ -84,8 +84,13 @@ export const ANSWERS: {
 ];
 
 /** Rank bar lengths, most → least. Proportions only, never labelled with a
- *  number: the claim is "the wrong ones are not rare", not "exactly 16%". */
-export const RANK = [1, 0.82, 0.63, 0.47, 0.34];
+ *  number: the claim is "the wrong ones are not rare", not "exactly 16%".
+ *
+ *  Spread widened 2026-08-03 (Atil): adjacent steps of ~0.2 read as different
+ *  lengths from the back of the room; the old 0.82/0.63/0.47 steps did not.
+ *  The three hallucinations still carry ~42% of the total, which is what
+ *  variant C's single bar is arguing with. */
+export const RANK = [1, 0.8, 0.6, 0.42, 0.26];
 
 export const COPY = {
   eyebrow: "Under the hood · press → for five answers",
