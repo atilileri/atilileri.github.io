@@ -17,6 +17,9 @@
 // reveal.js base + our fresh light theme (import order = cascade order).
 import "reveal.js/dist/reveal.css";
 import "./theme-asml.css";
+// PROTOTYPE (#41) — chapter 2's hallucination-diagnosis slide, three variants.
+// Throwaway; dies with the branch `prototype/hallucination-diagnosis`.
+import "./prototype-halluc.css";
 
 const promptCode = `// Token-aware prompt assembly
 export function assemblePrompt(sections: Section[], budget: number) {
@@ -718,6 +721,164 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             these are five recorded answers, not a live call from a meeting
             room. It is deliberately not printed on the slide — on screen it
             reads as a disclaimer and invites the doubt it answers.
+          </aside>
+        </section>
+
+        <!-- ┌────────────────────────────────────────────────────────────┐
+             │ PROTOTYPE (#41) — THREE VARIANTS, NOT SLIDES.              │
+             │ Chapter 2's FIFTH slide: the hallucination diagnosis,      │
+             │ switchable with ?variant=A|B|C and the floating bar. Only  │
+             │ ONE survives into the DOM (pruned before reveal counts     │
+             │ slides), so the deck walks at its real length and the      │
+             │ slide is judged in its real neighbourhood — the fold of    │
+             │ #35 before it, the Agent/MCP gap after.                    │
+             │                                                            │
+             │ Copy lives in src/lib/asml-ai/prototype-halluc.ts and is   │
+             │ shared by all three, so they can only disagree about       │
+             │ presentation. THREE fragments in every variant, meaning    │
+             │ the same thing in each: 1 factuality lands · 2 faithful-   │
+             │ ness lands · 3 both fixes + the beat.                      │
+             └────────────────────────────────────────────────────────────┘ -->
+
+        <!-- ── VARIANT A ── the fork ───────────────────────────────────────
+             Pocock's decision tree, but as a split slide: the tree carries
+             only the STRUCTURE (question → No/Yes → two names → one Fixed),
+             every sentence lives on the right. Keeps the reference's one
+             genuinely good idea — both branches converging on a single
+             `Fixed.` node, which is what makes it read as a procedure. -->
+        <section
+          class="halluc halluc-a"
+          data-section="02 — Under the hood"
+          data-halluc
+          data-halluc-variant="A"
+        >
+          <span class="eyebrow" data-halluc-eyebrow></span>
+          <h2 class="h-set">
+            <span class="h-line"><span data-halluc-headline></span></span>
+          </h2>
+          <div class="halluc-grid">
+            <svg class="fork" viewBox="0 0 420 350" role="img" data-halluc-fork
+              aria-label="A decision tree: a hallucination, then the question 'was the information in its context?', branching No to factuality and Yes to faithfulness, both converging on Fixed."
+            >
+              <rect class="node" x="125" y="10" width="170" height="38" rx="2" />
+              <text x="210" y="30">Hallucination</text>
+              <text class="yn" x="210" y="76" data-fork-hinge-1></text>
+              <text class="yn" x="210" y="94" data-fork-hinge-2></text>
+              <path class="edge" data-fork-edge="1" d="M210,112 L120,158" />
+              <polygon class="head" data-fork-head="1" points="0,-4 8,0 0,4"
+                transform="translate(120,158) rotate(152)" />
+              <path class="edge" data-fork-edge="2" d="M210,112 L300,158" />
+              <polygon class="head" data-fork-head="2" points="0,-4 8,0 0,4"
+                transform="translate(300,158) rotate(28)" />
+              <g class="g" data-fork-yn="1"><text class="yn" x="140" y="126">No</text></g>
+              <g class="g" data-fork-yn="2"><text class="yn" x="282" y="126">Yes</text></g>
+              <g class="g" data-fork-node="1">
+                <rect class="node lit" x="16" y="166" width="188" height="40" rx="2" />
+                <text class="name" x="110" y="187" data-fork-name-1></text>
+              </g>
+              <g class="g" data-fork-node="2">
+                <rect class="node lit" x="216" y="166" width="188" height="40" rx="2" />
+                <text class="name" x="310" y="187" data-fork-name-2></text>
+              </g>
+              <path class="edge" data-fork-edge="3" d="M110,210 L206,284" />
+              <polygon class="head" data-fork-head="3" points="0,-4 8,0 0,4"
+                transform="translate(206,284) rotate(38)" />
+              <path class="edge" data-fork-edge="4" d="M310,210 L214,284" />
+              <polygon class="head" data-fork-head="4" points="0,-4 8,0 0,4"
+                transform="translate(214,284) rotate(142)" />
+              <g class="g" data-fork-end>
+                <rect class="node end" x="140" y="290" width="140" height="42" rx="2" />
+                <text class="end-t" x="210" y="312" data-fork-fixed></text>
+              </g>
+            </svg>
+            <div class="halluc-branches" data-halluc-branches></div>
+          </div>
+          <p class="halluc-beat" data-halluc-beat></p>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <aside class="notes">
+            PROTOTYPE variant A — the fork. The tree draws itself one branch at
+            a time; the sentences arrive on the right beside it. Both branches
+            land on one `Fixed.`, which is the reference's best idea and the
+            reason this variant exists.
+          </aside>
+        </section>
+
+        <!-- ── VARIANT B ── the window ─────────────────────────────────────
+             ONE object, and both failures happen ON it. The fact that was
+             never passed in sits OUTSIDE the box; the box then fills and its
+             far end dims. The motion is the argument, and it hands the
+             context window forward to chapter 3 as an object already seen.
+             This is the only variant that SHOWS the dumb zone. -->
+        <section
+          class="halluc halluc-b"
+          data-section="02 — Under the hood"
+          data-halluc
+          data-halluc-variant="B"
+        >
+          <span class="eyebrow" data-halluc-eyebrow></span>
+          <h2 class="h-set">
+            <span class="h-line"><span data-halluc-headline></span></span>
+          </h2>
+          <p class="halluc-hinge" data-halluc-hinge></p>
+          <div class="halluc-grid">
+            <div class="win-stage" data-halluc-stage>
+              <span class="win-title" data-halluc-win-title></span>
+              <div class="win-chip-track">
+                <span class="win-outside" data-halluc-outside></span>
+                <span class="win-chip" data-halluc-chip></span>
+              </div>
+              <div class="win" data-halluc-win>
+                <div class="win-fill" data-halluc-fill></div>
+                <div class="win-dumb"></div>
+                <span class="win-dumb-lbl" data-halluc-dumb></span>
+              </div>
+            </div>
+            <div class="halluc-branches" data-halluc-branches></div>
+          </div>
+          <p class="halluc-beat" data-halluc-beat></p>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <aside class="notes">
+            PROTOTYPE variant B — the window. Frame 1: the fact is outside the
+            box. Frame 2: the box fills and the far end goes dark — the dumb
+            zone, drawn rather than asserted. Frame 3: both fixes at once —
+            the fact travels in, the fill is cut back, the dark clears.
+          </aside>
+        </section>
+
+        <!-- ── VARIANT C ── the diptych ────────────────────────────────────
+             No tree and no convergence. The slide splits down the middle,
+             one panel per failure, the hinge printed along the seam. Static,
+             symmetric, densest type — the control against A's and B's
+             motion, and the only variant that shows the two failures as
+             PEERS rather than as branches of one procedure. -->
+        <section
+          class="halluc halluc-c"
+          data-section="02 — Under the hood"
+          data-halluc
+          data-halluc-variant="C"
+        >
+          <span class="eyebrow" data-halluc-eyebrow></span>
+          <h2 class="h-set">
+            <span class="h-line"><span data-halluc-headline></span></span>
+          </h2>
+          <div class="halluc-grid">
+            <div class="panel" data-halluc-panel="0"></div>
+            <div class="seam"><span data-halluc-hinge></span></div>
+            <div class="panel" data-halluc-panel="1"></div>
+          </div>
+          <p class="halluc-beat" data-halluc-beat></p>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <aside class="notes">
+            PROTOTYPE variant C — the diptych. Two panels, each with a static
+            miniature of the window: empty on the left (the fact never
+            arrived), packed on the right (too full to hold onto). The hinge
+            runs along the seam, so the two panels read as its two answers.
           </aside>
         </section>
 
@@ -1615,6 +1776,19 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+      // PROTOTYPE (#41) — the diagnosis slide's copy, read by all three
+      // variants so they can only disagree about presentation.
+      import * as HAL from "../../../lib/asml-ai/prototype-halluc";
+
+      // ══ PROTOTYPE (#41) — variant pruning, BEFORE reveal counts slides ══
+      //    Three variants sit in the DOM; exactly one survives, so the deck
+      //    walks at its real length and the slide is judged in its real
+      //    neighbourhood (the #35 fold before it, the Agent/MCP gap after).
+      const protoParams = new URLSearchParams(window.location.search);
+      const protoVariant = (protoParams.get("variant") ?? "A").toUpperCase();
+      document.querySelectorAll<HTMLElement>("[data-halluc]").forEach((s) => {
+        if (s.dataset.hallucVariant !== protoVariant) s.remove();
+      });
 
       const deck = new Reveal({
         hash: true,
@@ -3158,6 +3332,148 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         );
       }
 
+      // ══════════════════════════════════════════════════════════════════════
+      //  PROTOTYPE (#41) — chapter 2's hallucination-diagnosis slide, three
+      //  variants. Throwaway. Every variant reads the same copy table and
+      //  derives its frame from reveal's fragment state (#26's rule), never
+      //  from a counter, so → and ← replay identically and re-entry from
+      //  either direction lands on the right frame.
+      //
+      //  THREE fragments, and they mean the same thing in each variant:
+      //    1  factuality lands (its name and its one sentence of cause)
+      //    2  faithfulness lands
+      //    3  both fixes + the beat — the slide's only convergence
+      // ══════════════════════════════════════════════════════════════════════
+
+      function halEl(tag: string, cls?: string, txt?: string) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (txt != null) n.textContent = txt;
+        return n;
+      }
+
+      /** One branch block: name + answer, one sentence of cause, one of fix,
+       *  and the small-type pointer at the chapter that owns the fix. Shared
+       *  by variants A and B; C builds panels instead. */
+      function halBranch(b: (typeof HAL.BRANCHES)[number]) {
+        const box = halEl("div", "halluc-branch");
+        box.dataset.branch = b.key;
+        const k = halEl("span", "k");
+        k.append(halEl("span", undefined, b.name));
+        k.append(halEl("span", "a", "— you answered " + b.answer));
+        box.append(k);
+        box.append(halEl("p", "cause", b.cause));
+        const fix = halEl("p", "fix");
+        fix.append(halEl("span", undefined, b.fix));
+        box.append(fix);
+        box.append(halEl("span", "fwd", b.forward));
+        return box;
+      }
+
+      function buildHalluc(slide: HTMLElement) {
+        if (slide.dataset.built === "1") return;
+        const v = slide.dataset.hallucVariant;
+        const set = (sel: string, txt: string) => {
+          const n = slide.querySelector<HTMLElement>(sel);
+          if (n) n.textContent = txt;
+        };
+        set("[data-halluc-eyebrow]", HAL.COPY.eyebrow);
+        set("[data-halluc-headline]", HAL.COPY.headline);
+        set("[data-halluc-beat]", HAL.COPY.beat);
+        set("[data-halluc-hinge]", HAL.HINGE);
+
+        if (v === "A") {
+          // The hinge is set in the SVG on two lines — it is the longest
+          // string on the diagram and one line would set the viewBox width.
+          const cut = HAL.HINGE.lastIndexOf(" ", HAL.HINGE.length / 2 + 6);
+          set("[data-fork-hinge-1]", HAL.HINGE.slice(0, cut));
+          set("[data-fork-hinge-2]", HAL.HINGE.slice(cut + 1));
+          set("[data-fork-name-1]", HAL.BRANCHES[0].name.toUpperCase());
+          set("[data-fork-name-2]", HAL.BRANCHES[1].name.toUpperCase());
+          set("[data-fork-fixed]", HAL.COPY.fixed);
+          // Dash-length per edge, measured — hand-computed lengths drift the
+          // moment a coordinate moves.
+          slide.querySelectorAll<SVGPathElement>(".fork .edge").forEach((p) => {
+            p.style.setProperty("--len", p.getTotalLength() + "px");
+          });
+        }
+
+        if (v === "B") {
+          set("[data-halluc-win-title]", HAL.COPY.window.title);
+          set("[data-halluc-chip]", HAL.COPY.window.chip);
+          set("[data-halluc-outside]", HAL.COPY.window.outside);
+          set("[data-halluc-dumb]", HAL.COPY.window.dumb);
+        }
+
+        const wrap = slide.querySelector<HTMLElement>("[data-halluc-branches]");
+        if (wrap) {
+          wrap.textContent = "";
+          HAL.BRANCHES.forEach((b) => wrap.append(halBranch(b)));
+        }
+
+        // Variant C's panels: the answer at display scale, the name, a static
+        // miniature of the window, then the same two sentences.
+        slide
+          .querySelectorAll<HTMLElement>("[data-halluc-panel]")
+          .forEach((p, i) => {
+            const b = HAL.BRANCHES[i];
+            p.textContent = "";
+            p.append(halEl("span", "yn", b.answer));
+            p.append(halEl("span", "name", b.name));
+            const glyph = halEl("span", "glyph" + (i ? " packed" : ""));
+            const fill = halEl("i");
+            fill.style.setProperty("--fill", i ? "88%" : "18%");
+            glyph.append(fill);
+            p.append(glyph);
+            p.append(halEl("p", "cause", b.cause));
+            p.append(halEl("p", "fix", b.fix));
+            p.append(halEl("span", "fwd", b.forward));
+          });
+
+        slide.dataset.built = "1";
+      }
+
+      /** Derive the frame from reveal's fragment state — never from a counter. */
+      function syncHalluc(slide: HTMLElement) {
+        const shown = slide.querySelectorAll(".halluc-step.visible").length;
+        const v = slide.dataset.hallucVariant;
+        slide.classList.toggle("is-done", shown >= 3);
+
+        // Branch blocks (A and B) and panels (C) light on the same frames.
+        const lit = (n: HTMLElement, i: number) => {
+          n.classList.toggle("is-lit", shown >= i + 1);
+          n.classList.toggle("is-fixed", shown >= 3);
+        };
+        slide
+          .querySelectorAll<HTMLElement>(".halluc-branch")
+          .forEach((n, i) => lit(n, i));
+        slide
+          .querySelectorAll<HTMLElement>("[data-halluc-panel]")
+          .forEach((n, i) => lit(n, i));
+
+        if (v === "A") {
+          const on = (sel: string, when: boolean) =>
+            slide
+              .querySelectorAll<SVGElement>(sel)
+              .forEach((n) => n.classList.toggle("is-drawn", when));
+          on('[data-fork-edge="1"], [data-fork-head="1"], [data-fork-yn="1"], [data-fork-node="1"]', shown >= 1);
+          on('[data-fork-edge="2"], [data-fork-head="2"], [data-fork-yn="2"], [data-fork-node="2"]', shown >= 2);
+          on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-end]', shown >= 3);
+        }
+
+        if (v === "B") {
+          const stage = slide.querySelector<HTMLElement>("[data-halluc-stage]");
+          const win = slide.querySelector<HTMLElement>("[data-halluc-win]");
+          const fill = slide.querySelector<HTMLElement>("[data-halluc-fill]");
+          // The window is calm until faithfulness, floods on it, and is cut
+          // back on the fix — one dimension, three states, no layout change.
+          if (fill) fill.style.setProperty("--fill", shown >= 3 ? "34%" : shown >= 2 ? "94%" : "26%");
+          win?.classList.toggle("is-degraded", shown === 2);
+          // The fact that was never in the window travels in on the fix.
+          stage?.classList.toggle("is-loaded", shown >= 3);
+        }
+      }
+
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -3182,6 +3498,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (slide.hasAttribute("data-stoch")) {
           buildStoch(slide);
           syncStoch(slide);
+        }
+        // PROTOTYPE (#41) — the diagnosis slide, same contract as above.
+        if (slide.hasAttribute("data-halluc")) {
+          buildHalluc(slide);
+          syncHalluc(slide);
         }
         if (slide.hasAttribute("data-lottery")) {
           buildLottery(slide);
@@ -3222,11 +3543,47 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stop")) syncStop(section);
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
+        if (section?.hasAttribute("data-halluc")) syncHalluc(section);
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
+
+      // ── PROTOTYPE (#41) switcher bar. DEV only: a stray merge can't ship
+      //    it, and ?variant= is inert without these three sections. ──
+      if (import.meta.env.DEV) {
+        const NAMES: Record<string, string> = {
+          A: "the fork",
+          B: "the window",
+          C: "the diptych",
+        };
+        const keys = ["A", "B", "C"];
+        const cycle = (d: number) => {
+          const p = new URLSearchParams(window.location.search);
+          p.set("variant", keys[(keys.indexOf(protoVariant) + d + 3) % 3]);
+          window.location.search = p.toString();
+        };
+        const bar = halEl("div", "proto-bar");
+        const prev = halEl("button", undefined, "‹");
+        const next = halEl("button", undefined, "›");
+        prev.onclick = () => cycle(-1);
+        next.onclick = () => cycle(1);
+        bar.append(
+          prev,
+          halEl(
+            "span",
+            "name",
+            `#41 · ${protoVariant} — ${NAMES[protoVariant] ?? "?"} · v to cycle`,
+          ),
+          next,
+        );
+        document.body.append(bar);
+        // "v" cycles. ← / → stay with the fragments, which are being judged.
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "v" || e.key === "V") cycle(1);
+        });
+      }
     </script>
   </body>
 </html>

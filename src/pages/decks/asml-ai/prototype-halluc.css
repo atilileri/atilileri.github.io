@@ -1,0 +1,560 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   PROTOTYPE — wayfinder #41. Chapter 2's FIFTH slide: the hallucination
+   diagnosis. Three variants. Throwaway: lives on the branch
+   `prototype/hallucination-diagnosis` only, and the winner gets rewritten
+   into theme-asml.css properly by the build ticket.
+
+   Loaded AFTER theme-asml.css so it can lean on the theme's tokens
+   (--navy / --signal / --orange / --hair / --ease / --dur / --stagger).
+
+   The colour rule across all three, inherited from the slide before it (#35):
+   FACTUALITY and FAITHFULNESS are both failures, so both take the ORANGE
+   accent. What is BLUE is the fix. The room reads "orange = the problem,
+   blue = the thing you do about it" without being told.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.reveal section[data-halluc] {
+  justify-content: flex-start;
+}
+
+/* The fragment carriers are invisible — every variant reads its frame off how
+   many of them reveal has made visible (#26's rule), never off a counter. */
+.reveal section[data-halluc] .halluc-step {
+  display: none;
+}
+
+/* The hinge question, shared by all three variants. It is the slide's whole
+   value, so it is set in mono like the deck's other instrument type. */
+.halluc-hinge {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin: 0.1rem 0 0;
+}
+
+/* The standing single sentence, held back to the last frame in every variant. */
+/* `.reveal p` caps body copy at 40ch, and it out-specifies a bare class —
+   the beat is the slide's full-width landing line, so it has to beat it. */
+.reveal .halluc-beat {
+  font-size: 1.12rem;
+  color: #1b1b1b99;
+  margin: 0;
+  max-width: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.reveal section[data-halluc].is-done .halluc-beat {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── The branch block: name / cause / fix / forward ────────────────────────
+   Used by variants A and C. B builds its own, tighter. One sentence each,
+   enforced by prototype-halluc.ts, not by CSS. */
+.halluc-branch {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--orange);
+  box-shadow: var(--shadow);
+  padding: 0.75rem 1.1rem 0.85rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.halluc-branch.is-lit {
+  opacity: 1;
+  transform: none;
+}
+.halluc-branch .k {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 0.35rem;
+}
+/* The answer to the hinge that lands you in this branch — No / Yes. */
+.halluc-branch .a {
+  color: #1b1b1bb0;
+  letter-spacing: 0.06em;
+}
+.halluc-branch .cause {
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+  max-width: none;
+}
+.halluc-branch .fix {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 1.02rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--signal);
+  margin: 0;
+  max-width: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.halluc-branch.is-fixed .fix {
+  opacity: 1;
+  transform: none;
+}
+.halluc-branch .fix::before {
+  content: "→";
+  color: var(--signal);
+  flex: none;
+}
+/* The pointer at the chapter that owns the fix. Small type on purpose: it is
+   a promise, not a claim (#41 — chapters 4–5 are out of this map's scope). */
+.halluc-branch .fwd {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #1b1b1b8c;
+  margin-top: 0.45rem;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-branch.is-fixed .fwd {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VARIANT A — "the fork". Pocock's own decision tree on the left, the two
+   branches' text on the right. The tree carries the STRUCTURE (question →
+   No/Yes → two names → one Fixed) and nothing else; every sentence lives on
+   the right, so the diagram never becomes a diagram-with-a-caption.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.halluc-a .halluc-grid {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  gap: 2.6rem;
+  align-items: center;
+  margin-top: 1.1rem;
+  flex: 1;
+  min-height: 0;
+}
+.halluc-a .fork {
+  width: 100%;
+  height: 100%;
+  max-height: 60vh;
+  overflow: visible;
+}
+.halluc-a .fork .edge {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 1.6;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  transition: stroke-dashoffset var(--dur) var(--ease);
+}
+.halluc-a .fork .edge.is-drawn {
+  stroke-dashoffset: 0;
+}
+.halluc-a .fork .head {
+  fill: var(--navy);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-a .fork .head.is-drawn {
+  opacity: 1;
+}
+.halluc-a .fork .node {
+  fill: var(--card);
+  stroke: var(--hair);
+  stroke-width: 1;
+}
+.halluc-a .fork .node.lit {
+  stroke: var(--orange);
+  stroke-width: 1.6;
+}
+.halluc-a .fork .node.end {
+  stroke: var(--signal);
+  stroke-width: 1.6;
+}
+.halluc-a .fork text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--navy);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.halluc-a .fork .name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  fill: var(--orange);
+}
+.halluc-a .fork .yn {
+  font-size: 12px;
+  fill: #1b1b1b8c;
+  letter-spacing: 0.1em;
+}
+.halluc-a .fork .end-t {
+  font-size: 16px;
+  font-weight: 700;
+  fill: var(--signal);
+  letter-spacing: 0.06em;
+}
+.halluc-a .fork .g {
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-a .fork .g.is-drawn {
+  opacity: 1;
+}
+.halluc-a .halluc-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+.halluc-a .halluc-branch {
+  padding: 1rem 1.4rem 1.15rem;
+}
+.halluc-a .halluc-branch .cause,
+.halluc-a .halluc-branch .fix {
+  font-size: 1.18rem;
+}
+.halluc-a .halluc-beat {
+  margin-top: 1.2rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VARIANT B — "the window". ONE object: the context window itself, and both
+   failures happen ON it. The fact that was never in it sits OUTSIDE the box
+   and slides in; then the box fills and its far end dims into the dumb zone,
+   and the fix cuts it back. The motion is the argument, and it hands the
+   context window forward to chapter 3 as an object the room has already seen.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.halluc-b .halluc-grid {
+  display: grid;
+  grid-template-columns: 1fr 38%;
+  gap: 2rem;
+  align-items: start;
+  margin-top: 0.9rem;
+  flex: 1;
+  min-height: 0;
+}
+.halluc-b .win-stage {
+  position: relative;
+  padding-top: 2.2rem;
+}
+.halluc-b .win-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #1b1b1b8c;
+}
+/* The window is a fixed-size box; nothing about it resizes, so the room reads
+   the FILL as the variable. It stops short of the stage's right edge, and
+   that strip is not slack — it is where the fact that was never passed in
+   parks, OUTSIDE the box. Without it there is nowhere for "outside" to be. */
+.halluc-b .win {
+  position: relative;
+  height: 20.5rem;
+  margin-right: 12.5rem;
+  border: 1.6px solid var(--navy);
+  background: var(--card);
+  overflow: hidden;
+}
+/* The tokens already in the window. Width is the only thing that animates. */
+.halluc-b .win-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill, 26%);
+  background: repeating-linear-gradient(
+    90deg,
+    #0066cc1f 0 9px,
+    transparent 9px 13px
+  );
+  transition: width var(--tok-dur) var(--ease);
+}
+/* The far end of a full window. Dims IN as the fill reaches it — this is the
+   only place the deck draws the dumb zone, and it is drawn, not asserted. */
+.halluc-b .win-dumb {
+  position: absolute;
+  inset: 0 0 0 42%;
+  background: linear-gradient(90deg, #1b1b1b00, #1b1b1b26 55%, #1b1b1b3d);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-b .win.is-degraded .win-dumb {
+  opacity: 1;
+}
+.halluc-b .win-dumb-lbl {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1b1b1b;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-b .win.is-degraded .win-dumb-lbl {
+  opacity: 0.75;
+}
+/* The one fact that was never passed in. Parks in the strip to the RIGHT of
+   the box, dashed and grey; on the fix it travels left, over the boundary,
+   and turns blue. Crossing the border is the whole gesture. */
+.halluc-b .win-chip {
+  position: absolute;
+  top: 1.2rem;
+  right: 0;
+  width: 11rem;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px dashed #1b1b1b59;
+  background: var(--ground);
+  color: #1b1b1b8c;
+  transform: none;
+  transition:
+    transform var(--tok-dur) var(--ease),
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+  z-index: 2;
+}
+.halluc-b .win-stage.is-loaded .win-chip {
+  /* Its own width, plus the parking gutter, plus a margin inside the box. */
+  transform: translateX(calc(-100% - 2.6rem));
+  border-style: solid;
+  border-color: var(--signal);
+  background: var(--card);
+  color: var(--signal);
+}
+/* Names the parking strip once, so the room reads the chip's starting side
+   as meaningful rather than as a stray label. Fades as the chip leaves. */
+.halluc-b .win-outside {
+  position: absolute;
+  top: -0.15rem;
+  right: 0;
+  width: 11rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1b1b1b8c;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-b .win-stage.is-loaded .win-outside {
+  opacity: 0;
+}
+/* The chip lives on the STAGE, not inside the box, so it can start outside
+   it — the box clips its own fill, which is the point. */
+.halluc-b .win-chip-track {
+  position: absolute;
+  inset: 2.2rem 0 auto 0;
+  height: 0;
+}
+.halluc-b .halluc-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.halluc-b .halluc-branch {
+  box-shadow: none;
+  padding: 0.6rem 0.9rem 0.7rem;
+}
+.halluc-b .halluc-branch .cause,
+.halluc-b .halluc-branch .fix {
+  font-size: 1.04rem;
+}
+.halluc-b .halluc-beat {
+  margin-top: 0.8rem;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VARIANT C — "the diptych". No tree and no convergence: the slide splits
+   down the middle into two full-height panels, one per failure, and the hinge
+   runs along the seam. Symmetric, static, densest type — the control against
+   A's and B's motion, and the only variant that shows the two failures as
+   PEERS rather than as branches of one procedure.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.halluc-c .halluc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0 2.1rem;
+  margin-top: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+.halluc-c .seam {
+  background: var(--hair);
+  position: relative;
+}
+/* The hinge printed ON the seam, rotated — the two panels are its two
+   answers, so it belongs between them rather than above them. */
+.halluc-c .seam span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center;
+  white-space: nowrap;
+  background: var(--ground);
+  padding: 0 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: #1b1b1b8c;
+}
+.halluc-c .panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  padding-top: 0.4rem;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.halluc-c .panel.is-lit {
+  opacity: 1;
+  transform: none;
+}
+/* The answer, at display scale. It is the biggest thing in the panel because
+   it is what the room is matching their own case against. */
+.halluc-c .panel .yn {
+  font-family: var(--font-display);
+  font-size: 4.6rem;
+  font-weight: 700;
+  line-height: 0.9;
+  color: var(--orange);
+}
+.halluc-c .panel .name {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+/* A miniature of the window, static, one per panel: empty on the left (the
+   fact never arrived), packed on the right (too full to hold onto). */
+.halluc-c .glyph {
+  height: 9.5rem;
+  border: 1.4px solid var(--navy);
+  background: var(--card);
+  position: relative;
+  overflow: hidden;
+}
+.halluc-c .glyph i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill, 20%);
+  background: repeating-linear-gradient(
+    90deg,
+    #0066cc1f 0 9px,
+    transparent 9px 13px
+  );
+}
+.halluc-c .glyph.packed::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 45%;
+  background: linear-gradient(90deg, #1b1b1b00, #1b1b1b33);
+}
+.halluc-c .panel .cause {
+  font-size: 1.22rem;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0;
+  max-width: none;
+}
+.halluc-c .panel .fix {
+  font-size: 1.22rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--signal);
+  margin: 0;
+  max-width: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.halluc-c .panel.is-fixed .fix {
+  opacity: 1;
+  transform: none;
+}
+.halluc-c .panel .fwd {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #1b1b1b8c;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.halluc-c .panel.is-fixed .fwd {
+  opacity: 1;
+}
+.halluc-c .halluc-beat {
+  margin-top: 0.9rem;
+}
+
+/* ══ The prototype switcher bar — never ships ══════════════════════════════ */
+
+.proto-bar {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #00327d;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  box-shadow: 0 12px 34px -12px #00327d99;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.proto-bar button {
+  font: inherit;
+  color: #fff;
+  background: #ffffff1f;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+.proto-bar button:hover {
+  background: #ffffff33;
+}
+.proto-bar .name {
+  padding: 0 0.5rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
