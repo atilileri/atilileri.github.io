@@ -57,18 +57,18 @@ export const ANSWERS: {
 }[] = [
   {
     kind: "legit",
-    text: "buildManifest reads .id on an item that isn't there. Guard the lookup at manifest.ts:42.",
+    text: "buildManifest reads a null id. Guard the lookup at manifest.ts:42.",
     tell: "Reads the trace. Fixes where it points.",
   },
   {
     kind: "legit",
-    text: "The caller passes an empty batch. Fix export.ts:17, not line 42.",
-    tell: "Also reads the trace — one frame further up. A different reading, not a worse one.",
+    text: "The caller passes an empty batch. Fix export.ts:17.",
+    tell: "Also reads the trace — one frame further up. Just a different reading.",
   },
   {
     kind: "faithfulness",
-    text: "The error is at manifest.ts:58, in writeManifest().",
-    tell: "The trace says 42, and it is pasted directly above.",
+    text: "The error is at manifest.ts:17, in writeManifest().",
+    tell: "The trace says 42, but model failed to capture the correct line and function.",
   },
   {
     kind: "factuality",
@@ -78,8 +78,8 @@ export const ANSWERS: {
   {
     kind: "factuality",
     funny: true,
-    text: "manifest.ts is probably corrupted. Delete it and let the framework regenerate it.",
-    tell: "Nothing regenerates it. There is no such framework behaviour — and now there is no file either.",
+    text: "manifest.ts is corrupted. Delete it and let the framework regenerate it.",
+    tell: "There is no such framework and behaviour — file is gone.",
   },
 ];
 
