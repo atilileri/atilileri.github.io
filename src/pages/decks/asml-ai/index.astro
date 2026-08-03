@@ -3225,17 +3225,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const bad = isBad(a.kind);
           const card = ph("div", "card" + (bad ? " bad" : ""));
           card.dataset.bad = bad ? "1" : "";
-          // Rank bar BEFORE the tag, so every bar starts at the same left
-          // edge and the lengths are comparable at a glance. The bar is live
-          // from the first fragment — the ranking is not a label, it is what
-          // the pile is ordered by; only the tag waits for the reveal.
-          const rank = ph("div", "rank");
-          const bar = ph("span", "bar" + (bad ? " bad" : ""));
-          const fill = ph("i");
-          fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
-          bar.append(fill);
-          rank.append(bar, ph("span", "tag", STOCH.KINDS[a.kind].tag));
-          card.append(rank);
+          card.append(ph("span", "tag", STOCH.KINDS[a.kind].tag));
           card.append(ph("p", undefined, a.text));
           card.append(ph("span", "tell", a.tell));
           card.style.transitionDelay = i * 80 + "ms";
@@ -3256,29 +3246,43 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (!s) return;
         const cards = [...s.querySelectorAll<HTMLElement>(".card")];
         if (!cards.length) return;
-        const gap = 10;
         const half = s.clientWidth / 2 + 11; // lane width + the CSS gutter
+
+        // Two measurements, because the two states are different heights: the
+        // pile is measured with the tells COLLAPSED (they don't exist yet at
+        // that fragment) and the lanes with them EXPANDED, so an opening tell
+        // can never overlap the card beneath it. `is-measuring` forces the
+        // expanded box without firing any transition.
+        const heights = (expanded: boolean) => {
+          if (expanded) slide.classList.add("is-measuring");
+          const h = cards.map((c) => c.offsetHeight);
+          slide.classList.remove("is-measuring");
+          return h;
+        };
+        const hPile = heights(false);
+        const hLane = heights(true);
+
+        // The pile is tighter than the lanes: five cards stacked have to clear
+        // the bottom edge at 900, and there is nothing between them to read.
+        const gapPile = 9;
+        const gapLane = 16;
         let pile = 0;
         const lane = [0, 0];
-        cards.forEach((c) => {
-          const h = c.offsetHeight;
-          // Pile: one centred column, in rank order.
+        cards.forEach((c, i) => {
           c.style.setProperty("--x0", half / 2 + "px");
           c.style.setProperty("--y0", pile + "px");
-          pile += h + gap;
-          // Sorted: grounded left, hallucinated right, each packed from the
-          // top so neither lane carries a hole where the other has a card.
+          pile += hPile[i] + gapPile;
+          // Grounded left, hallucinated right, each packed from the top so
+          // neither lane carries a hole where the other has a card.
           const l = c.dataset.bad ? 1 : 0;
           c.style.setProperty("--x1", (l ? half : 0) + "px");
           c.style.setProperty("--y1", lane[l] + "px");
-          lane[l] += h + gap;
+          lane[l] += hLane[i] + gapLane;
         });
         // The container is absolutely populated, so it carries its own height
-        // — and the two states are different heights, so the block below
-        // (the beat line) rises as the lanes pack. That rise is part of the
-        // move; leaving one tall box would read as a hole.
-        s.style.setProperty("--h0", pile - gap + "px");
-        s.style.setProperty("--h1", Math.max(lane[0], lane[1]) - gap + "px");
+        // — and the block below (the beat line) rises as the lanes pack.
+        s.style.setProperty("--h0", pile - gapPile + "px");
+        s.style.setProperty("--h1", Math.max(lane[0], lane[1]) - gapLane + "px");
       }
 
       /** C — the draw. One bar = the whole distribution, keyed underneath. */

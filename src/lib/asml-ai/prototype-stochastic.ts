@@ -72,25 +72,20 @@ export const ANSWERS: {
   },
   {
     kind: "factuality",
-    text: "Known bug in Node 20.11 — ESM destructuring. Upgrade to 20.12.",
+    text: "Known bug in Node 20.11. Upgrade to 20.12.",
     tell: "There is no such bug, and nothing in the context mentions Node.",
   },
   {
     kind: "factuality",
     funny: true,
-    text: "manifest.ts is corrupted. Delete it and let the framework regenerate it.",
+    text: "manifest.ts is corrupted. Delete and framework regenerates it.",
     tell: "There is no such framework and behaviour — file is gone.",
   },
 ];
 
 /** Rank bar lengths, most → least. Proportions only, never labelled with a
- *  number: the claim is "the wrong ones are not rare", not "exactly 16%".
- *
- *  Spread widened 2026-08-03 (Atil): adjacent steps of ~0.2 read as different
- *  lengths from the back of the room; the old 0.82/0.63/0.47 steps did not.
- *  The three hallucinations still carry ~42% of the total, which is what
- *  variant C's single bar is arguing with. */
-export const RANK = [1, 0.8, 0.6, 0.42, 0.26];
+ *  number: the claim is "the wrong ones are not rare", not "exactly 16%". */
+export const RANK = [1, 0.82, 0.63, 0.47, 0.34];
 
 export const COPY = {
   eyebrow: "Under the hood · press → for five answers",
