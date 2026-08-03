@@ -2795,6 +2795,243 @@
   opacity: 0;
 }
 
+/* ══════════════ Chapter 2 — the hallucination slide (#35) ═════════════════
+   One prompt with its context pasted, five answers, and a single fold that
+   sorts them into two lanes — grounded left, hallucinated right.
+
+   THE MOTION IS THE ARGUMENT, so it must not be faked with a layout swap:
+   the cards are half-width and absolutely placed from the start, and the
+   controller measures both states and writes them as CSS vars, so one
+   transform transition carries a centred pile into two packed lanes. A
+   grid-column swap here is a hard cut and kills the point of the slide.
+
+   Two frames only: the slide OPENS on the five answers (no empty frame to
+   click past) and folds once. Colour rule: grounded stays in the deck's
+   blue, hallucinated takes the orange accent, and NOTHING is coloured
+   before the fold — the room must find all five equally plausible first. */
+
+/* ── The prompt + the pasted stack trace ─────────────────────────────────── */
+
+.stoch-ask {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--signal);
+  box-shadow: var(--shadow);
+  padding: 0.7rem 1.1rem 0.8rem;
+  max-width: 60rem;
+  margin: 0.1rem 0 0;
+}
+.stoch-trace {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: #1b1b1b8c;
+  margin: 0 0 0.45rem;
+  white-space: pre;
+  max-width: none;
+}
+/* The line the faithfulness answer contradicts. Deliberately NOT coloured up
+   front — it lights only when that answer is called out, so the room isn't
+   tipped off about which of the five to distrust. */
+.stoch-trace b {
+  font-weight: 600;
+  color: #1b1b1b8c;
+  transition: color var(--dur) var(--ease);
+}
+.reveal section.stoch.is-sorted .stoch-trace b {
+  color: var(--orange);
+}
+.stoch-q {
+  font-family: var(--font-mono);
+  font-size: 1.22rem;
+  color: var(--navy);
+  font-weight: 600;
+  margin: 0;
+  max-width: none;
+}
+
+/* ── The lanes ───────────────────────────────────────────────────────────── */
+
+.stoch-lanes {
+  position: relative;
+  margin: 1.1rem 0 0;
+  max-width: 76rem;
+}
+.stoch-lane-heads {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.4rem;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+  margin: 0 0 0.5rem;
+}
+.reveal section.stoch.is-sorted .stoch-lane-heads {
+  opacity: 1;
+}
+.stoch-lane-heads span {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal);
+  border-bottom: 2px solid var(--hair);
+  padding: 0 0 0.35rem;
+}
+.stoch-lane-heads span.bad {
+  color: var(--orange);
+  border-bottom-color: #ff660040;
+}
+/* Absolutely populated, so it carries its own height — and the two states
+   are different heights, so the beat line beneath rises as the lanes pack.
+   That rise is part of the move; one tall box would read as a hole. */
+.stoch-sorted {
+  position: relative;
+  height: var(--h0);
+  transition: height var(--dur) var(--ease);
+}
+.reveal section.stoch.is-sorted .stoch-sorted {
+  height: var(--h1);
+}
+.stoch-sorted .card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(50% - 0.7rem);
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--signal);
+  padding: 0.9rem 1.1rem 0.95rem;
+  opacity: 0;
+  transform: translate(var(--x0), var(--y0));
+  transition:
+    transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+/* Opacity only for the entry stagger — it must not fight the layout
+   transform that the fold is riding on. */
+.reveal section.stoch.is-in .stoch-sorted .card {
+  opacity: 1;
+}
+.reveal section.stoch.is-sorted .stoch-sorted .card {
+  transform: translate(var(--x1), var(--y1));
+}
+.reveal .stoch-sorted .card p {
+  font-size: 1.14rem;
+  line-height: 1.55;
+  margin: 0;
+  max-width: none;
+}
+
+/* One slot above each answer holding two things that never coexist: the rank
+   bar while the five are an undifferentiated pile, and the category once
+   they are sorted. Both absolutely placed in a fixed-height row, so the
+   handover costs no reflow — which matters, because the lane positions are
+   measured once and the card heights must be identical in both states.
+
+   Note what the bar does rhetorically: on the opening frame it is the only
+   thing separating the five, and it separates them by LIKELIHOOD, not by
+   truth. That is the trap the fold springs. */
+.stoch-sorted .card .slot {
+  position: relative;
+  height: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+.stoch-sorted .card .bar {
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 5.5rem;
+  height: 9px;
+  background: #0066cc1f;
+  transition: opacity var(--dur) var(--ease);
+}
+.stoch-sorted .card .bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--r);
+  background: var(--signal);
+}
+/* The bar has done its job once the pile is sorted — it hands the slot over. */
+.reveal section.stoch.is-sorted .stoch-sorted .card .bar {
+  opacity: 0;
+}
+.stoch-sorted .card .tag {
+  position: absolute;
+  inset: 0 auto 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--signal);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal section.stoch.is-sorted .stoch-sorted .card .tag {
+  opacity: 1;
+}
+.reveal section.stoch.is-sorted .stoch-sorted .card.bad {
+  border-left-color: var(--orange);
+}
+.reveal section.stoch.is-sorted .stoch-sorted .card.bad .tag {
+  color: var(--orange);
+}
+/* The tell — the one fact that makes an answer wrong. Neutral ink on
+   purpose: the category tag above it is already carrying the accent, and at
+   orange the tell read as a second verdict rather than as a footnote. */
+.stoch-sorted .card .tell {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #1b1b1b99;
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+.reveal section.stoch.is-sorted .stoch-sorted .card .tell {
+  max-height: 6rem;
+  opacity: 1;
+  margin: 0.5rem 0 0;
+}
+/* Measurement-only: the fully expanded box, every transition off, so the
+   controller can read the lane heights without the room seeing a flicker.
+   Without this the tells open OVER the card beneath them — absolutely
+   placed cards cannot push each other. */
+.reveal section.stoch.is-measuring .stoch-sorted .card,
+.reveal section.stoch.is-measuring .stoch-sorted .card .tell {
+  transition: none;
+}
+.reveal section.stoch.is-measuring .stoch-sorted .card .tell {
+  max-height: 6rem;
+  opacity: 1;
+  margin: 0.5rem 0 0;
+}
+
+/* The line that names the cause. Same ink as the tells — it is an annotation
+   on the sort, not a verdict competing with the categories above it. */
+.reveal .stoch-beat {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1b1b1b99;
+  margin: 0.85rem 0 0;
+  max-width: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.reveal section.stoch.is-sorted .stoch-beat {
+  opacity: 1;
+  transform: none;
+}
+
 /* ─────────────────────────────────── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal .h-set .h-line > span { transform: none; }
@@ -2819,4 +3056,8 @@
   .reveal .prim-block.is-on { transform: none; }
   .al-seg, .al-row, .al-bar-fill { transition: none; }
   .reveal .agentloop .al-bridge { transition: none; }
+  /* The sort still happens — it is the argument — but instantly. */
+  .stoch-sorted, .stoch-sorted .card, .stoch-sorted .card .bar,
+  .stoch-sorted .card .tag, .stoch-sorted .card .tell,
+  .stoch-lane-heads, .reveal .stoch-beat, .stoch-trace b { transition: none; }
 }

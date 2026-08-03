@@ -657,11 +657,69 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 2c ─── GAP: the stochastic slide — one prompt, five answers, then
-             the mechanism (every token sampled from a distribution). Outputs
-             are pre-scripted; nothing is called. Prototyped by #35, built by
-             #38. It is the lottery slide's mechanism at a lower altitude — the
-             two are one argument at two scales. -->
+        <!-- 2c ──────────────── HALLUCINATION: one question, five answers ──
+             Shape decided by #35 (variant B of three, "the sort"). One prompt
+             with its context pasted, five answers the room cannot tell apart,
+             and a single fold that sorts them into two lanes — three of the
+             five are hallucinations, in two nameable types.
+
+             TWO frames: the slide OPENS on the answers, and folds once. Copy
+             and the answer table live in src/lib/asml-ai/stochastic.ts; edit
+             them there, not here. The "no model was called" fact is a SPOKEN
+             presenter line, deliberately not on screen (#35). -->
+        <section class="stoch" data-section="02 — Under the hood" data-stoch>
+          <span class="eyebrow" data-stoch-eyebrow></span>
+          <h2 class="h-set">
+            <span class="h-line"><span data-stoch-headline></span></span>
+          </h2>
+          <div class="stoch-ask">
+            <p class="stoch-trace" data-stoch-trace></p>
+            <p class="stoch-q" data-stoch-q></p>
+          </div>
+          <div class="stoch-lanes">
+            <div class="stoch-lane-heads" data-stoch-lane-heads></div>
+            <div class="stoch-sorted" data-stoch-sorted></div>
+          </div>
+          <p class="stoch-beat" data-stoch-beat></p>
+          <!-- ONE fragment: the fold. Nothing is counted — the slide reads its
+               frame off reveal's fragment state (#26's rule), so → and ← replay
+               identically and re-entry from either direction is correct. -->
+          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <aside class="notes">
+            The slide is already showing five answers when you arrive. Say
+            nothing at first and let the room read them. Each carries a rank
+            bar — and that bar is the trap: it separates the five by how
+            LIKELY they are, not by whether they are true.
+
+            Ask out loud which one they would take. They will not agree.
+
+            Then press → once. The pile splits: two answers were grounded in
+            the trace you pasted, three were hallucinated. Nobody could have
+            picked them out, and they are not the tail — the third most likely
+            answer is already wrong.
+
+            The two grounded answers disagree with each other, and that is
+            deliberate: one fixes line 42, the other fixes the caller. A
+            different reading, not a worse one. Don't let the room think there
+            was one right answer and four wrong ones.
+
+            Name the two types as you point at them. FAITHFULNESS: the answer
+            was in its context — the trace says 42 and it said 17 — and it
+            didn't follow it. FACTUALITY: the answer was never in its context;
+            it recalled a Node bug that doesn't exist, complete with a version
+            number. The last one is the same failure wearing a funnier hat.
+
+            Land on the line: polluted context or degraded attention is all it
+            takes. That is the sentence chapter 4 spends itself answering —
+            stay in the smart zone, keep the cache stable, roll back instead
+            of correcting.
+
+            SAY THIS OUT LOUD, unprompted, while the cards are still one pile:
+            these are five recorded answers, not a live call from a meeting
+            room. It is deliberately not printed on the slide — on screen it
+            reads as a disclaimer and invites the doubt it answers.
+          </aside>
+        </section>
 
         <!-- 2d ─── GAP: Agent & MCP — explain both, briefly, in the rings'
              own vocabulary, in support of the slide above. Mechanic decided by
@@ -1552,6 +1610,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         type Tok,
       } from "../../../lib/asml-ai/tokenize";
       import { frameAt, FINAL, MAX_TOKENS } from "../../../lib/asml-ai/agent-loop";
+      import * as STOCH from "../../../lib/asml-ai/stochastic";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -2960,6 +3019,145 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       if (import.meta.env.DEV && FINAL.contextTokens !== 2715)
         console.warn("agent-loop model drifted from #26's locked numbers");
 
+      // ══════════════════════════════════════════════════════════════════════
+      //  Chapter 2 — the hallucination slide (#35). Two frames: the slide
+      //  opens on five answers in one centred pile, and folds ONCE into two
+      //  lanes. The fold is a measured transform, never a layout swap — see
+      //  layoutStoch() and the note in theme-asml.css.
+      // ══════════════════════════════════════════════════════════════════════
+
+      function stochEl(tag: string, cls?: string, txt?: string) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (txt != null) n.textContent = txt;
+        return n;
+      }
+
+      function buildStoch(slide: HTMLElement) {
+        if (slide.dataset.built === "1") return;
+        const set = (sel: string, txt: string) => {
+          const n = slide.querySelector<HTMLElement>(sel);
+          if (n) n.textContent = txt;
+        };
+        set("[data-stoch-eyebrow]", STOCH.COPY.eyebrow);
+        set("[data-stoch-headline]", STOCH.COPY.headline);
+        set("[data-stoch-beat]", STOCH.COPY.beat);
+        set("[data-stoch-q]", '"' + STOCH.PROMPT + '"');
+
+        // The trace, with the frame the faithfulness answer contradicts
+        // wrapped so it can light up on the fold. It must NOT be marked up
+        // front — that would tell the room which answer to distrust.
+        const t = slide.querySelector<HTMLElement>("[data-stoch-trace]");
+        if (t) {
+          t.textContent = "";
+          STOCH.TRACE.forEach((ln, i) => {
+            if (i) t.append(document.createTextNode("\n"));
+            const hit = "manifest.ts:42";
+            if (ln.includes(hit)) {
+              const [pre, post] = ln.split(hit);
+              t.append(document.createTextNode(pre));
+              t.append(stochEl("b", undefined, hit));
+              t.append(document.createTextNode(post));
+            } else t.append(document.createTextNode(ln));
+          });
+        }
+
+        const heads = slide.querySelector<HTMLElement>("[data-stoch-lane-heads]");
+        if (heads) {
+          heads.textContent = "";
+          heads.append(stochEl("span", undefined, STOCH.COPY.lanes.legit));
+          heads.append(stochEl("span", "bad", STOCH.COPY.lanes.halluc));
+        }
+
+        const wrap = slide.querySelector<HTMLElement>("[data-stoch-sorted]");
+        if (wrap) {
+          wrap.textContent = "";
+          STOCH.ANSWERS.forEach((a, i) => {
+            const bad = a.kind !== "legit";
+            const card = stochEl("div", "card" + (bad ? " bad" : ""));
+            card.dataset.bad = bad ? "1" : "";
+            // One slot, two occupants that never coexist: the rank bar while
+            // the five are a pile, the category once they are sorted.
+            const slot = stochEl("div", "slot");
+            const bar = stochEl("span", "bar");
+            const fill = stochEl("i");
+            fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
+            bar.append(fill);
+            slot.append(bar, stochEl("span", "tag", STOCH.KINDS[a.kind]));
+            card.append(slot);
+            card.append(stochEl("p", undefined, a.text));
+            card.append(stochEl("span", "tell", a.tell));
+            card.style.transitionDelay = i * 80 + "ms";
+            wrap.append(card);
+          });
+        }
+        slide.dataset.built = "1";
+        // Measures itself, so it must run after the browser has laid the
+        // cards out — one frame later, not in this tick.
+        requestAnimationFrame(() => layoutStoch(slide));
+      }
+
+      /**
+       * The fold is the slide's whole argument, so it cannot be a grid-column
+       * swap — that is a hard cut. Every card is half-width and absolutely
+       * placed from the start; this measures both states and writes them as
+       * CSS vars, so a single transform transition carries a centred pile
+       * into two packed lanes.
+       *
+       * TWO measurements, because the states are different heights: the pile
+       * with the tells collapsed (they don't exist on that frame) and the
+       * lanes with them expanded, so an opening tell can never overlap the
+       * card beneath it. Absolutely placed cards cannot push each other.
+       */
+      function layoutStoch(slide: HTMLElement) {
+        const wrap = slide.querySelector<HTMLElement>("[data-stoch-sorted]");
+        if (!wrap) return;
+        const cards = [...wrap.querySelectorAll<HTMLElement>(".card")];
+        if (!cards.length) return;
+        const half = wrap.clientWidth / 2 + 11; // lane width + the gutter
+
+        const measure = (expanded: boolean) => {
+          if (expanded) slide.classList.add("is-measuring");
+          const h = cards.map((c) => c.offsetHeight);
+          slide.classList.remove("is-measuring");
+          return h;
+        };
+        const hPile = measure(false);
+        const hLane = measure(true);
+
+        // The pile is tighter than the lanes: five stacked cards have to
+        // clear the bottom edge at 900, and there is nothing between them to
+        // read anyway.
+        const gapPile = 9;
+        const gapLane = 16;
+        let pile = 0;
+        const lane = [0, 0];
+        cards.forEach((c, i) => {
+          c.style.setProperty("--x0", half / 2 + "px");
+          c.style.setProperty("--y0", pile + "px");
+          pile += hPile[i] + gapPile;
+          // Grounded left, hallucinated right, each packed from the top so
+          // neither lane carries a hole where the other has a card.
+          const l = c.dataset.bad ? 1 : 0;
+          c.style.setProperty("--x1", (l ? half : 0) + "px");
+          c.style.setProperty("--y1", lane[l] + "px");
+          lane[l] += hLane[i] + gapLane;
+        });
+        wrap.style.setProperty("--h0", pile - gapPile + "px");
+        wrap.style.setProperty("--h1", Math.max(lane[0], lane[1]) - gapLane + "px");
+      }
+
+      /** Derive the frame from reveal's fragment state — never from a counter. */
+      function syncStoch(slide: HTMLElement) {
+        // The answers are present from the moment the slide opens; `is-in`
+        // only arms the entry stagger and is not a frame.
+        slide.classList.add("is-in");
+        slide.classList.toggle(
+          "is-sorted",
+          slide.querySelectorAll(".stoch-step.visible").length >= 1,
+        );
+      }
+
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -2977,6 +3175,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (slide.hasAttribute("data-stop")) {
           buildStop(slide);
           syncStop(slide);
+        }
+        // Chapter 2's hallucination slide opens ON its answers and folds
+        // once; the frame comes off the fragment, so backward re-entry lands
+        // on the sorted state instead of replaying.
+        if (slide.hasAttribute("data-stoch")) {
+          buildStoch(slide);
+          syncStoch(slide);
         }
         if (slide.hasAttribute("data-lottery")) {
           buildLottery(slide);
@@ -3016,6 +3221,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           setLottery(f.closest("section") as HTMLElement, shown);
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stop")) syncStop(section);
+        if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
       }
