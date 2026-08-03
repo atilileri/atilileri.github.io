@@ -88,7 +88,9 @@ export const ANSWERS: {
 export const RANK = [1, 0.82, 0.63, 0.47, 0.34];
 
 export const COPY = {
-  eyebrow: "Under the hood · press → for five answers",
+  // The answers are on screen the moment the slide opens, so the eyebrow
+  // promises the fold, not the arrival.
+  eyebrow: "Under the hood · press → to sort them",
   // Atil's call (2026-08-02): WITHHOLD the punch. The headline names the
   // setup only; the orange landing on fragment 2 is the reveal.
   headline: "Same question. Five answers.",

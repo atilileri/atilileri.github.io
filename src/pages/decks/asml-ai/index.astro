@@ -702,25 +702,26 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           <div class="stoch-ladder" data-stoch-ladder></div>
           <p class="stoch-beat" data-stoch-beat></p>
           <div class="stoch-defs" data-stoch-defs></div>
-          <span class="fragment stoch-step" aria-hidden="true"></span>
-          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <!-- ONE fragment (Atil, 2026-08-03): the slide OPENS on the five
+               answers and folds ONCE. There is no empty opening frame and no
+               separate beat for the tells — labels and tells land together. -->
           <span class="fragment stoch-step" aria-hidden="true"></span>
           <p class="stoch-honesty" data-stoch-honesty></p>
           <aside class="notes">
             PROTOTYPE variant A — the ladder. Five ranked answers in one list.
+            TWO frames only: the slide opens on all five, uncoloured, and
+            folds once.
 
-            Press → once: the five arrive, most likely at the top, and NOTHING
-            is coloured. Let the room read them. Ask out loud which one they'd
-            take — they will not agree, and that is the point.
+            Open on it and say nothing. Let the room read the five. Ask out
+            loud which one they'd take — they will not agree, and that is the
+            point.
 
-            Press → again: the tags land and three of the five go orange, in
-            place, without moving. Nobody could have picked them out, and they
-            are not the tail of the distribution — the third most likely answer
-            is already wrong.
-
-            Press → a third time: the tells appear (the single fact that makes
-            each one wrong), the line the faithfulness answer contradicts
-            lights up in the trace above, and the two definitions land.
+            One press does everything: the tags land, three of five go orange
+            in place without moving, the tells appear, the line the
+            faithfulness answer contradicts lights up in the trace above, and
+            the two definitions arrive. Nobody could have picked them out, and
+            they are not the tail — the third most likely answer is already
+            wrong.
 
             The landing line: this is not a bug and not a bad day. The wrong
             answers came out of the same draw as the right ones. The bar order
@@ -748,22 +749,29 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="stoch-sorted" data-stoch-sorted></div>
           </div>
           <p class="stoch-beat" data-stoch-beat></p>
-          <span class="fragment stoch-step" aria-hidden="true"></span>
-          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <!-- ONE fragment (Atil, 2026-08-03): the slide OPENS on the five
+               answers and folds ONCE. There is no empty opening frame and no
+               separate beat for the tells — labels and tells land together. -->
           <span class="fragment stoch-step" aria-hidden="true"></span>
           <p class="stoch-honesty" data-stoch-honesty></p>
           <aside class="notes">
-            PROTOTYPE variant B — the sort. The five arrive as one undivided
-            pile of full-width cards, then physically split into two lanes:
-            grounded on the left, hallucinated on the right.
+            PROTOTYPE variant B — the sort. TWO frames only: the slide opens
+            on one undivided pile of five cards, and folds once into two
+            lanes — grounded on the left, hallucinated on the right.
+
+            On the opening frame each card carries a RANK BAR above its text.
+            That is the only thing distinguishing them, and it distinguishes
+            them by likelihood, not by truth — which is the trap. Let the room
+            look. The bar hands its slot to the category on the press.
 
             The motion is the argument. They were ONE pile — that pile is what
             the model gave you. The sorting is work somebody had to do, and on
             a real task nobody does it, because all five look like this.
 
-            Third press: the tells. No definitions block here — the lane heads
-            and the tags carry the taxonomy, which is the trade this variant
-            makes for the motion.
+            The single press carries everything: the split, the categories,
+            and the tells. No definitions block here — the lane heads and the
+            tags carry the taxonomy, which is the trade this variant makes for
+            the motion.
 
             Say the honesty line out loud while the cards are still one pile —
             it does NOT go on screen (decided on #35): "these are five
@@ -794,16 +802,18 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </div>
           <p class="stoch-beat" data-stoch-beat></p>
           <div class="stoch-defs" data-stoch-defs></div>
-          <span class="fragment stoch-step" aria-hidden="true"></span>
-          <span class="fragment stoch-step" aria-hidden="true"></span>
+          <!-- ONE fragment (Atil, 2026-08-03): the slide OPENS on the five
+               answers and folds ONCE. There is no empty opening frame and no
+               separate beat for the tells — labels and tells land together. -->
           <span class="fragment stoch-step" aria-hidden="true"></span>
           <p class="stoch-honesty" data-stoch-honesty></p>
           <aside class="notes">
-            PROTOTYPE variant C — the draw. One bar across the slide IS the
-            distribution: five segments, ranked most to least likely, with the
-            answers keyed underneath by number.
+            PROTOTYPE variant C — the draw. TWO frames only. One bar across
+            the slide IS the distribution: five segments, ranked most to least
+            likely, with the answers keyed underneath by number, on screen
+            from the moment the slide opens.
 
-            Second press: three of the five segments turn orange — and they are
+            One press: three of the five segments turn orange — and they are
             nearly half the bar. That picture is the argument in one frame:
             hallucination is not the tail, it is a large part of what the model
             can hand you for this exact question.
@@ -3200,11 +3210,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
           bar.append(fill);
           const txt = ph("p", "txt row stoch-fade" + (bad ? " bad" : ""), a.text);
-          const tag = ph(
-            "span",
-            "tag row stoch-fade" + (bad ? " bad" : ""),
-            STOCH.KINDS[a.kind].tag,
-          );
+          // NOT .stoch-fade: that class wins on specificity and would show
+          // the tag with the row. The tag has its own reveal — it waits for
+          // the fold, which is the whole point of the frame.
+          const tag = ph("span", "tag row" + (bad ? " bad" : ""), STOCH.KINDS[a.kind].tag);
           l.append(phDelay(bar, i), phDelay(txt, i), phDelay(tag, i));
           l.append(ph("span", "tell", a.tell));
         });
@@ -3225,7 +3234,18 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const bad = isBad(a.kind);
           const card = ph("div", "card" + (bad ? " bad" : ""));
           card.dataset.bad = bad ? "1" : "";
-          card.append(ph("span", "tag", STOCH.KINDS[a.kind].tag));
+          // One slot above the answer, holding two things that never coexist:
+          // the rank bar while the five are still an undifferentiated pile,
+          // and the category once they have been sorted. Both are absolutely
+          // placed inside a fixed-height row, so the swap costs no reflow and
+          // the card heights are identical in both states.
+          const slot = ph("div", "slot");
+          const bar = ph("span", "bar" + (bad ? " bad" : ""));
+          const fill = ph("i");
+          fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
+          bar.append(fill);
+          slot.append(bar, ph("span", "tag", STOCH.KINDS[a.kind].tag));
+          card.append(slot);
           card.append(ph("p", undefined, a.text));
           card.append(ph("span", "tell", a.tell));
           card.style.transitionDelay = i * 80 + "ms";
@@ -3344,9 +3364,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       /** Derive the frame from reveal's fragment state — never from a counter. */
       function syncStoch(slide: HTMLElement) {
         const shown = slide.querySelectorAll(".stoch-step.visible").length;
-        slide.classList.toggle("is-fanned", shown >= 1);
-        slide.classList.toggle("is-labelled", shown >= 2);
-        slide.classList.toggle("is-told", shown >= 3);
+        // The answers are present from the moment the slide opens — `is-fanned`
+        // now only arms the entry stagger, it is not a frame. The single
+        // fragment carries labels AND tells together.
+        slide.classList.add("is-fanned");
+        slide.classList.toggle("is-labelled", shown >= 1);
+        slide.classList.toggle("is-told", shown >= 1);
       }
 
       // ── The prototype switcher bar. DEV only: a stray merge can't ship it,
