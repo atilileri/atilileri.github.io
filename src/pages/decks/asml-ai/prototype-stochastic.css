@@ -467,7 +467,9 @@ section[data-stoch].is-labelled .stoch-key .k.bad .tag {
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--ink);
+  /* Same ink as the tells: the line is the same register as they are — an
+     annotation on the sort, not a verdict competing with the categories. */
+  color: #1b1b1b99;
   margin: 0.85rem 0 0;
   max-width: none;
   opacity: 0;
