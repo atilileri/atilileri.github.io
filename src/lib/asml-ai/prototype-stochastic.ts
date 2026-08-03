@@ -68,7 +68,7 @@ export const ANSWERS: {
   {
     kind: "faithfulness",
     text: "The error is at manifest.ts:17, in writeManifest().",
-    tell: "The trace says 42, but model failed to capture the correct line and function.",
+    tell: "Trace says 42, model failed to capture the correct line & function.",
   },
   {
     kind: "factuality",
