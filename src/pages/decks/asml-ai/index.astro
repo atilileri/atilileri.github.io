@@ -3374,12 +3374,15 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // case against. No/Yes stays on the diagram, where the fork is.
         k.append(halEl("span", "a", "— " + b.state));
         box.append(k);
-        // `Backticks` in the cause mark the one term set apart from the prose.
-        const cause = halEl("p", "cause");
-        b.cause.split("`").forEach((part, i) => {
-          cause.append(i % 2 ? halEl("em", "term", part) : document.createTextNode(part));
+        // A newline starts a new paragraph; `backticks` inside one mark the
+        // term set apart from the prose.
+        b.cause.split("\n").forEach((para) => {
+          const p = halEl("p", "cause");
+          para.split("`").forEach((part, i) => {
+            p.append(i % 2 ? halEl("em", "term", part) : document.createTextNode(part));
+          });
+          box.append(p);
         });
-        box.append(cause);
         const fix = halEl("p", "fix");
         fix.append(halEl("span", undefined, b.fix));
         box.append(fix);

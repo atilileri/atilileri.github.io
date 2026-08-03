@@ -103,6 +103,11 @@
   margin: 0 0 0.5rem;
   max-width: none;
 }
+/* A second cause paragraph is the named mechanism, so it sits tighter to the
+   one above it than the fix does below. */
+.halluc-branch .cause + .cause {
+  margin-top: -0.15rem;
+}
 .halluc-branch .fix {
   display: flex;
   gap: 0.5rem;

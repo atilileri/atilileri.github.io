@@ -37,7 +37,8 @@ export type Branch = {
   name: string;
   /** The condition, not the answer: what was true of the context. */
   state: string;
-  /** Why it happened. `Backticks` mark the one term to set apart. */
+  /** Why it happened. A newline starts a new paragraph; `backticks` mark the
+   *  one term set apart from the prose. */
   cause: string;
   /** What you do about it. */
   fix: string;
@@ -49,7 +50,7 @@ export type Branch = {
   edge: string;
 };
 
-export const HINGE = "Was the information in its context?";
+export const HINGE = "Was the information in the context?";
 
 export const BRANCHES: Branch[] = [
   {
@@ -68,12 +69,13 @@ export const BRANCHES: Branch[] = [
     answer: "Yes",
     name: "faithfulness hallucinations",
     state: "information in the context",
+    // Two paragraphs: the failure, then the mechanism on its own line as a
+    // named term — "Attention degradation:" reads as a definition rather
+    // than a phrase buried mid-sentence.
     cause:
-      "The agent was provided the correct information in its context, but it ignored it or wasn't faithful to it. `Attention degradation.` As the context window grows longer and fills with more tokens, the attention relationships between all the elements become strained.",
-    fix: "Reduce the number of tokens in the context window to restore the agent's focus. Stay out of the dumb zone with the techniques in Best Practices.",
-    // Empty on purpose: the fix above already names where this is taught, so
-    // a second pointer would say it twice.
-    forward: "",
+      "The agent was provided the correct information in its context, but it ignored it or wasn't faithful to it.\n`Attention degradation:` As the context window grows longer and fills with more tokens, the attention relationships between all the elements become strained.",
+    fix: "Reduce the number of tokens in the context window to restore the agent's focus.",
+    forward: "Stay out of the dumb zone with the techniques in Best Practices.",
     edge: "smart zone",
   },
 ];
