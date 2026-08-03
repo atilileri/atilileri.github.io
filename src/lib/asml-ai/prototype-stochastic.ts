@@ -94,6 +94,11 @@ export const COPY = {
   headline: "Same question. Five answers.",
   body: "Not a bug and not a bad day — the wrong ones came out of the same draw as the right ones.",
   labelBeat: "Three of five, in two nameable ways.",
+  // DECIDED (Atil, 2026-08-03): this does NOT go on screen. It stays a
+  // presenter line, as everywhere else in the deck — on screen it reads as a
+  // disclaimer and invites the doubt it answers, and a label on this slide
+  // alone is an inconsistency. Kept here only so the prototype's ?honesty=1
+  // toggle still renders something; #38 does not ship it.
   honesty: "Pre-recorded runs — no model was called.",
   lanes: { legit: "grounded in the context", halluc: "hallucinated" },
 };
