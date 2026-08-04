@@ -8,11 +8,11 @@
  * different fixes. A procedure, not a taxonomy.
  *
  * Text budget: #41 charted ONE sentence of cause and ONE of fix per branch.
- * Atil overrode that after seeing variant A — the copy below is his, taken
- * from the source verbatim, and the cause runs to three sentences on the
- * faithfulness side. Kept as given; the right column is set smaller to hold
- * it. Every variant reads this table, so they can only disagree about
- * presentation.
+ * Variant A was built with Atil's fuller copy from the source, then cut back
+ * to this on his read — the boxes carried too much text. The faithfulness
+ * cause keeps two lines because the second one is the named mechanism, not
+ * more prose. Every variant reads this table, so they can only disagree
+ * about presentation.
  *
  * Both fixes are HINTS FORWARD, not lessons — neither is taught here:
  *   faithfulness → the "dumb zone", whose mechanism is chapter 3's
@@ -30,13 +30,11 @@ export type BranchKey = "factuality" | "faithfulness";
 export type Branch = {
   key: BranchKey;
   /** The answer to the hinge question that lands you here. Lives on the fork
-   *  diagram; the right column states the CONDITION instead (`state`). */
+   *  diagram only — the right column never restates it. */
   answer: "No" | "Yes";
   /** Named on the slide before this one — repeated here as a branch, not
    *  introduced as a discovery. Spelling must match stochastic.ts KINDS. */
   name: string;
-  /** The condition, not the answer: what was true of the context. */
-  state: string;
   /** Why it happened. A newline starts a new paragraph; `backticks` mark the
    *  one term set apart from the prose. */
   cause: string;
@@ -57,9 +55,8 @@ export const BRANCHES: Branch[] = [
     key: "factuality",
     answer: "No",
     name: "factuality hallucinations",
-    state: "information out of the context",
     cause:
-      "The agent attempts to recall specific information that hasn't been explicitly passed to it, and it fails. It is trying to rely on unsourced knowledge.",
+      "It reached for specifics that were never passed to it, and relied on unsourced knowledge.",
     fix: "Put the information in front of it.",
     forward: "The Operating Model fills the gaps with the '/grilling' skill.",
     edge: "/grilling",
@@ -68,13 +65,12 @@ export const BRANCHES: Branch[] = [
     key: "faithfulness",
     answer: "Yes",
     name: "faithfulness hallucinations",
-    state: "information in the context",
     // Two paragraphs: the failure, then the mechanism on its own line as a
     // named term — "Attention degradation:" reads as a definition rather
     // than a phrase buried mid-sentence.
     cause:
-      "The agent was provided the correct information in its context, but it ignored it or wasn't faithful to it.\n`Attention degradation:` As the context window grows longer and fills with more tokens, the attention relationships between all the elements become strained.",
-    fix: "Reduce the number of tokens in the context window to restore the agent's focus.",
+      "It was given the correct information and didn't follow it.\n`Attention degradation:` as the window fills with tokens, the attention between all the elements strains.",
+    fix: "Reduce the tokens in the context window to restore its focus.",
     forward: "Stay out of the dumb zone with the techniques in Best Practices.",
     edge: "smart zone",
   },

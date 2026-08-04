@@ -220,6 +220,36 @@
   fill: #1b1b1b8c;
   letter-spacing: 0.1em;
 }
+/* Two steps means the whole tree arrives on one keypress, so the stagger is
+   what stops it landing as a flat cut: the fork, then the branch, then the
+   convergence, in reading order. The right column follows one beat behind. */
+.halluc-a .fork [data-fork-edge="2"],
+.halluc-a .fork [data-fork-head="2"],
+.halluc-a .fork [data-fork-yn="2"],
+.halluc-a .fork [data-fork-node="2"] {
+  transition-delay: var(--stagger);
+}
+.halluc-a .fork [data-fork-edge="3"],
+.halluc-a .fork [data-fork-head="3"],
+.halluc-a .fork [data-fork-edge-lbl="3"],
+.halluc-a .fork [data-fork-edge="4"],
+.halluc-a .fork [data-fork-head="4"],
+.halluc-a .fork [data-fork-edge-lbl="4"],
+.halluc-a .fork [data-fork-end] {
+  transition-delay: calc(var(--stagger) * 3);
+}
+.halluc-a .halluc-branch:nth-child(1) {
+  transition-delay: calc(var(--stagger) * 2);
+}
+.halluc-a .halluc-branch:nth-child(2) {
+  transition-delay: calc(var(--stagger) * 3);
+}
+/* The fix line inside each block lands after its own block has arrived. */
+.halluc-a .halluc-branch .fix,
+.halluc-a .halluc-branch .fwd {
+  transition-delay: calc(var(--stagger) * 5);
+}
+
 /* The route tags on the two arrows into `Fixed.` — the fix in one token,
    the mirror of the No/Yes tags on the arrows in. Blue, because on this
    slide blue is what you DO. */
@@ -255,8 +285,8 @@
    blocks without either scrolling off at 16:9. */
 .halluc-a .halluc-branch .cause,
 .halluc-a .halluc-branch .fix {
-  font-size: 1rem;
-  line-height: 1.42;
+  font-size: 1.12rem;
+  line-height: 1.45;
 }
 .halluc-a .halluc-beat {
   margin-top: 1.2rem;

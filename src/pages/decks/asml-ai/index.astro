@@ -803,14 +803,14 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="halluc-branches" data-halluc-branches></div>
           </div>
           <p class="halluc-beat" data-halluc-beat></p>
-          <span class="fragment halluc-step" aria-hidden="true"></span>
-          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <!-- ONE fragment: the slide is TWO steps (Atil). It opens on the
+               question alone and goes straight to the whole answer — no
+               branch-at-a-time walk. -->
           <span class="fragment halluc-step" aria-hidden="true"></span>
           <aside class="notes">
-            PROTOTYPE variant A — the fork. The tree draws itself one branch at
-            a time; the sentences arrive on the right beside it. Both branches
-            land on one `Fixed.`, which is the reference's best idea and the
-            reason this variant exists.
+            PROTOTYPE variant A — the fork. Two steps: the question, then the
+            whole answer at once. Both branches land on one `Fixed.`, which is
+            the reference's best idea and the reason this variant exists.
           </aside>
         </section>
 
@@ -3367,12 +3367,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       function halBranch(b: (typeof HAL.BRANCHES)[number]) {
         const box = halEl("div", "halluc-branch");
         box.dataset.branch = b.key;
+        // The name alone. The condition line that used to sit beside it said
+        // what the No/Yes on the diagram already says (Atil).
         const k = halEl("span", "k");
         k.append(halEl("span", undefined, b.name));
-        // The CONDITION, not the answer: "information out of the context"
-        // says what was true, which is what the room has to match their own
-        // case against. No/Yes stays on the diagram, where the fork is.
-        k.append(halEl("span", "a", "— " + b.state));
         box.append(k);
         // A newline starts a new paragraph; `backticks` inside one mark the
         // term set apart from the prose.
@@ -3461,12 +3459,16 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       function syncHalluc(slide: HTMLElement) {
         const shown = slide.querySelectorAll(".halluc-step.visible").length;
         const v = slide.dataset.hallucVariant;
-        slide.classList.toggle("is-done", shown >= 3);
+        // A is TWO steps and carries one fragment; B and C still walk three.
+        // `last` is the frame where everything is on screen, whichever it is.
+        const last = slide.querySelectorAll(".halluc-step").length;
+        const all = shown >= last;
+        slide.classList.toggle("is-done", all);
 
         // Branch blocks (A and B) and panels (C) light on the same frames.
         const lit = (n: HTMLElement, i: number) => {
-          n.classList.toggle("is-lit", shown >= i + 1);
-          n.classList.toggle("is-fixed", shown >= 3);
+          n.classList.toggle("is-lit", all || shown >= i + 1);
+          n.classList.toggle("is-fixed", all);
         };
         slide
           .querySelectorAll<HTMLElement>(".halluc-branch")
@@ -3480,9 +3482,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             slide
               .querySelectorAll<SVGElement>(sel)
               .forEach((n) => n.classList.toggle("is-drawn", when));
-          on('[data-fork-edge="1"], [data-fork-head="1"], [data-fork-yn="1"], [data-fork-node="1"]', shown >= 1);
-          on('[data-fork-edge="2"], [data-fork-head="2"], [data-fork-yn="2"], [data-fork-node="2"]', shown >= 2);
-          on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge-lbl="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-edge-lbl="4"], [data-fork-end]', shown >= 3);
+          // Two steps: the whole tree draws on the one fragment. The three
+          // selectors stay separate so the CSS stagger still fans them out
+          // in reading order rather than landing as one flat cut.
+          on('[data-fork-edge="1"], [data-fork-head="1"], [data-fork-yn="1"], [data-fork-node="1"]', all);
+          on('[data-fork-edge="2"], [data-fork-head="2"], [data-fork-yn="2"], [data-fork-node="2"]', all);
+          on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge-lbl="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-edge-lbl="4"], [data-fork-end]', all);
         }
 
         if (v === "B") {
@@ -3491,10 +3496,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const fill = slide.querySelector<HTMLElement>("[data-halluc-fill]");
           // The window is calm until faithfulness, floods on it, and is cut
           // back on the fix — one dimension, three states, no layout change.
-          if (fill) fill.style.setProperty("--fill", shown >= 3 ? "34%" : shown >= 2 ? "94%" : "26%");
-          win?.classList.toggle("is-degraded", shown === 2);
+          if (fill) fill.style.setProperty("--fill", all ? "34%" : shown >= 2 ? "94%" : "26%");
+          win?.classList.toggle("is-degraded", !all && shown === 2);
           // The fact that was never in the window travels in on the fix.
-          stage?.classList.toggle("is-loaded", shown >= 3);
+          stage?.classList.toggle("is-loaded", all);
         }
       }
 
