@@ -562,9 +562,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 02 — "Under the hood" (wayfinder #29). Four slides:
+             CHAPTER 02 — "Under the hood" (wayfinder #29). FIVE slides:
              roadmap divider → the rings (moved here from the front of the
-             deck) → the stochastic slide → the Agent & MCP slide, which
+             deck) → the hallucination slide → its diagnosis (#41, which is
+             why the chapter grew from four) → the Agent & MCP slide, which
              explains both nouns in the rings' own vocabulary.
 
              No wash: chapters 2–5 open on the roadmap instead. See
@@ -721,7 +722,104 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 2d ─── GAP: Agent & MCP — explain both, briefly, in the rings'
+        <!-- 2d ──────────── DIAGNOSIS: was the information in the context? ──
+             Shape decided by #41 (variant A of three, "the fork"). Pocock's
+             decision tree on the left carrying only STRUCTURE — question →
+             No/Yes → the two names → one `Fixed.` — with every sentence in
+             the right column, so it can never become a diagram with a
+             caption. The two arrows OUT are tagged with the route (/grilling,
+             smart zone), which is what makes it a procedure and not a
+             taxonomy.
+
+             ONE step, no fragments: arriving on the slide IS the interaction.
+             It replays on every entry off the deck's own `.is-live` (see
+             armHeadline), the same mechanism the rings slide uses, and runs
+             at HALF the deck's speed with no stagger. Copy lives in
+             src/lib/asml-ai/halluc.ts; edit it there, not here. -->
+        <section class="halluc" data-section="02 — Under the hood" data-halluc>
+          <span class="eyebrow" data-halluc-eyebrow></span>
+          <h2 class="h-set">
+            <span class="h-line"><span data-halluc-headline></span></span>
+          </h2>
+          <div class="halluc-grid">
+            <svg class="fork" viewBox="0 0 420 350" role="img" data-halluc-fork
+              aria-label="A decision tree: a hallucination, then the question 'was the information in the context?', branching No to factuality and Yes to faithfulness, both converging on Fixed."
+            >
+              <rect class="node" x="125" y="10" width="170" height="38" rx="2" />
+              <text x="210" y="30">Hallucination</text>
+              <text class="yn" x="210" y="76" data-fork-hinge-1></text>
+              <text class="yn" x="210" y="94" data-fork-hinge-2></text>
+              <path class="edge" data-fork-edge="1" d="M210,112 L120,158" />
+              <polygon class="head" data-fork-head="1" points="0,-4 8,0 0,4"
+                transform="translate(120,158) rotate(152)" />
+              <path class="edge" data-fork-edge="2" d="M210,112 L300,158" />
+              <polygon class="head" data-fork-head="2" points="0,-4 8,0 0,4"
+                transform="translate(300,158) rotate(28)" />
+              <g class="g" data-fork-yn="1"><text class="yn" x="140" y="126">No</text></g>
+              <g class="g" data-fork-yn="2"><text class="yn" x="282" y="126">Yes</text></g>
+              <g class="g" data-fork-node="1">
+                <rect class="node lit" x="16" y="166" width="188" height="40" rx="2" />
+                <text class="name" x="110" y="187" data-fork-name-1></text>
+              </g>
+              <g class="g" data-fork-node="2">
+                <rect class="node lit" x="216" y="166" width="188" height="40" rx="2" />
+                <text class="name" x="310" y="187" data-fork-name-2></text>
+              </g>
+              <path class="edge" data-fork-edge="3" d="M110,210 L206,284" />
+              <polygon class="head" data-fork-head="3" points="0,-4 8,0 0,4"
+                transform="translate(206,284) rotate(38)" />
+              <path class="edge" data-fork-edge="4" d="M310,210 L214,284" />
+              <polygon class="head" data-fork-head="4" points="0,-4 8,0 0,4"
+                transform="translate(214,284) rotate(142)" />
+              <!-- The route out, tagged on the arrow the way No/Yes tag the
+                   arrows in — so the diagram carries the fix, not just the
+                   diagnosis. Centred under each node, clear of both edges. -->
+              <g class="g" data-fork-edge-lbl="3">
+                <text class="route" x="110" y="248" data-fork-route-1></text>
+              </g>
+              <g class="g" data-fork-edge-lbl="4">
+                <text class="route" x="310" y="248" data-fork-route-2></text>
+              </g>
+              <g class="g" data-fork-end>
+                <rect class="node end" x="140" y="290" width="140" height="42" rx="2" />
+                <text class="end-t" x="210" y="312" data-fork-fixed></text>
+              </g>
+            </svg>
+            <div class="halluc-branches" data-halluc-branches></div>
+          </div>
+          <p class="halluc-beat" data-halluc-beat></p>
+          <aside class="notes">
+            The slide before this one left two names on screen and no way to
+            act on them. This one is the whole procedure, and it fits in one
+            question: WAS THE INFORMATION IN THE CONTEXT?
+
+            Ask it out loud before you advance — the tree answers it about a
+            second after you arrive, so the question has to be in the room
+            first.
+
+            No, it wasn't: FACTUALITY. It reached for something it was never
+            given. The fix is not a setting, it's a practice — you put the
+            information in front of it, deliberately, and the operating model
+            has a step for exactly that. Point at /grilling on the arrow and
+            promise chapter 5; don't explain it here.
+
+            Yes, it was: FAITHFULNESS. It had the answer and didn't follow it,
+            because the window filled up and attention thinned. Say "attention
+            degradation" once, plainly, and leave the mechanism to Tokenomics
+            — the next chapter shows what actually fills a window. The fix is
+            fewer tokens: clear, compact, or start fresh.
+
+            Land on the beat: both failures look identical on screen. That is
+            why the question matters — you cannot tell them apart by reading
+            the answer, only by asking what was in the context.
+
+            If someone asks whether you can prevent hallucination outright:
+            no. You manage the context window. That's the honest answer and it
+            sets up the whole of Best Practices.
+          </aside>
+        </section>
+
+        <!-- 2e ─── GAP: Agent & MCP — explain both, briefly, in the rings'
              own vocabulary, in support of the slide above. Mechanic decided by
              grilling #36 (blocked on research #40), built by #38.
 
@@ -1611,6 +1709,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       } from "../../../lib/asml-ai/tokenize";
       import { frameAt, FINAL, MAX_TOKENS } from "../../../lib/asml-ai/agent-loop";
       import * as STOCH from "../../../lib/asml-ai/stochastic";
+      import * as HAL from "../../../lib/asml-ai/halluc";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -3158,6 +3257,108 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         );
       }
 
+      // ══════════════════════════════════════════════════════════════════════
+      //  Chapter 2 — the hallucination diagnosis (#41). ONE step: the slide
+      //  has no fragments, because arriving on it IS the interaction. It is
+      //  built once, painted once, and REPLAYED by the deck's own `.is-live`
+      //  (armHeadline drops the class from every section, forces a reflow and
+      //  re-adds it to the live slide), exactly as the rings slide does.
+      //
+      //  Do not put the replay on a timer or a rAF: an earlier version did,
+      //  and it ran the animation against reveal's slide transition instead
+      //  of after it, so arrowing onto the slide landed on a finished diagram
+      //  and only a page load ever showed it move.
+      // ══════════════════════════════════════════════════════════════════════
+
+      function halEl(tag: string, cls?: string, txt?: string) {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (txt != null) n.textContent = txt;
+        return n;
+      }
+
+      /** One branch block: the name, one sentence of cause, one of fix, and
+       *  the small-type pointer at the chapter that owns the fix. */
+      function halBranch(b: (typeof HAL.BRANCHES)[number]) {
+        const box = halEl("div", "halluc-branch");
+        box.dataset.branch = b.key;
+        // The name alone. A condition line here would only repeat what the
+        // No/Yes on the diagram already says.
+        const k = halEl("span", "k");
+        k.append(halEl("span", undefined, b.name));
+        box.append(k);
+        // A newline starts a new paragraph; `backticks` inside one mark the
+        // term set apart from the prose.
+        b.cause.split("\n").forEach((para) => {
+          const p = halEl("p", "cause");
+          para.split("`").forEach((part, i) => {
+            p.append(i % 2 ? halEl("em", "term", part) : document.createTextNode(part));
+          });
+          box.append(p);
+        });
+        const fix = halEl("p", "fix");
+        fix.append(halEl("span", undefined, b.fix));
+        box.append(fix);
+        if (b.forward) box.append(halEl("span", "fwd", b.forward));
+        return box;
+      }
+
+      function buildHalluc(slide: HTMLElement) {
+        if (slide.dataset.built === "1") return;
+        const set = (sel: string, txt: string) => {
+          const n = slide.querySelector<HTMLElement>(sel);
+          if (n) n.textContent = txt;
+        };
+        set("[data-halluc-eyebrow]", HAL.COPY.eyebrow);
+        set("[data-halluc-headline]", HAL.COPY.headline);
+        set("[data-halluc-beat]", HAL.COPY.beat);
+        // The hinge is set on two lines in the SVG: it is the longest string
+        // on the diagram and one line would set the viewBox's width.
+        const cut = HAL.HINGE.lastIndexOf(" ", HAL.HINGE.length / 2 + 6);
+        set("[data-fork-hinge-1]", HAL.HINGE.slice(0, cut));
+        set("[data-fork-hinge-2]", HAL.HINGE.slice(cut + 1));
+        // The nodes keep the BARE names — "hallucinations" is understood from
+        // the root node three rows above, and would not fit anyway.
+        set("[data-fork-name-1]", HAL.BRANCHES[0].key.toUpperCase());
+        set("[data-fork-name-2]", HAL.BRANCHES[1].key.toUpperCase());
+        set("[data-fork-route-1]", HAL.BRANCHES[0].edge);
+        set("[data-fork-route-2]", HAL.BRANCHES[1].edge);
+        set("[data-fork-fixed]", HAL.COPY.fixed);
+
+        // Dash length per edge, measured — hand-computed lengths drift the
+        // moment a coordinate moves.
+        slide.querySelectorAll<SVGPathElement>(".fork .edge").forEach((p) => {
+          p.style.setProperty("--len", p.getTotalLength() + "px");
+        });
+
+        const wrap = slide.querySelector<HTMLElement>("[data-halluc-branches]");
+        if (wrap) {
+          wrap.textContent = "";
+          HAL.BRANCHES.forEach((b) => wrap.append(halBranch(b)));
+        }
+        slide.dataset.built = "1";
+
+        // Force a reflow before lighting anything, so the FIRST visit
+        // animates too: without it the cards are created and lit inside one
+        // task, the browser computes style once, and it lands straight on the
+        // final values.
+        void slide.offsetWidth;
+        paintHalluc(slide);
+      }
+
+      /** Paint the finished state once. The CSS holds it at the opening state
+       *  while the section is not `.is-live`, which is what makes every entry
+       *  replay without anything being scheduled here. */
+      function paintHalluc(slide: HTMLElement) {
+        slide.classList.add("is-done");
+        slide
+          .querySelectorAll<HTMLElement>(".halluc-branch")
+          .forEach((n) => n.classList.add("is-lit", "is-fixed"));
+        slide
+          .querySelectorAll<SVGElement>(".fork .edge, .fork .head, .fork .g")
+          .forEach((n) => n.classList.add("is-drawn"));
+      }
+
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -3183,6 +3384,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           buildStoch(slide);
           syncStoch(slide);
         }
+        // Chapter 2's diagnosis slide: built once, then replayed by the
+        // `.is-live` armHeadline already added at the top of this function.
+        if (slide.hasAttribute("data-halluc")) buildHalluc(slide);
         if (slide.hasAttribute("data-lottery")) {
           buildLottery(slide);
           // Match the visual to reveal's fragment state. Entering forward the
