@@ -252,34 +252,15 @@
   transform: translateY(6px);
 }
 
-/* One step means the whole tree arrives at once, so the stagger is what stops
-   it landing as a flat cut: the fork, then the branch, then the convergence,
-   in reading order. The right column follows one beat behind. */
-.halluc-a .fork [data-fork-edge="2"],
-.halluc-a .fork [data-fork-head="2"],
-.halluc-a .fork [data-fork-yn="2"],
-.halluc-a .fork [data-fork-node="2"] {
-  transition-delay: var(--stagger);
-}
-.halluc-a .fork [data-fork-edge="3"],
-.halluc-a .fork [data-fork-head="3"],
-.halluc-a .fork [data-fork-edge-lbl="3"],
-.halluc-a .fork [data-fork-edge="4"],
-.halluc-a .fork [data-fork-head="4"],
-.halluc-a .fork [data-fork-edge-lbl="4"],
-.halluc-a .fork [data-fork-end] {
-  transition-delay: calc(var(--stagger) * 3);
-}
-.halluc-a .halluc-branch:nth-child(1) {
-  transition-delay: calc(var(--stagger) * 2);
-}
-.halluc-a .halluc-branch:nth-child(2) {
-  transition-delay: calc(var(--stagger) * 3);
-}
-/* The fix line inside each block lands after its own block has arrived. */
-.halluc-a .halluc-branch .fix,
-.halluc-a .halluc-branch .fwd {
-  transition-delay: calc(var(--stagger) * 5);
+/* One step means the whole tree arrives at once. Atil: NO stagger — every
+   part moves together — and at HALF the deck's speed, so the slide unfolds
+   rather than snapping. That is the deck's existing `--tok-dur` (1100ms),
+   the rate chapter 3's tokenizing widgets already run at when the room is
+   meant to watch something come apart rather than register a transition.
+   Overriding --dur on the section reaches every transition below it, since
+   they are all declared in terms of it. */
+.reveal section.halluc-a {
+  --dur: var(--tok-dur);
 }
 
 /* The route tags on the two arrows into `Fixed.` — the fix in one token,

@@ -3510,9 +3510,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             slide
               .querySelectorAll<SVGElement>(sel)
               .forEach((n) => n.classList.toggle("is-drawn", when));
-          // One step: the whole tree draws at once. The three selectors stay
-          // separate so the CSS stagger still fans them out in reading order
-          // rather than landing as one flat cut.
+          // One step: the whole tree draws at once, no stagger — the CSS runs
+          // it at half the deck's speed instead. The three selectors are kept
+          // apart only because the frame-walking variants still need them.
           on('[data-fork-edge="1"], [data-fork-head="1"], [data-fork-yn="1"], [data-fork-node="1"]', all);
           on('[data-fork-edge="2"], [data-fork-head="2"], [data-fork-yn="2"], [data-fork-node="2"]', all);
           on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge-lbl="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-edge-lbl="4"], [data-fork-end]', all);
