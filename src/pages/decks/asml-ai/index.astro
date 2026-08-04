@@ -803,13 +803,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="halluc-branches" data-halluc-branches></div>
           </div>
           <p class="halluc-beat" data-halluc-beat></p>
-          <!-- ONE fragment: the slide is TWO steps (Atil). It opens on the
-               question alone and goes straight to the whole answer — no
-               branch-at-a-time walk. -->
-          <span class="fragment halluc-step" aria-hidden="true"></span>
+          <!-- NO fragments and no motion (Atil): the slide loads in its final
+               shape. syncHalluc reads zero carriers here and treats the slide
+               as already on its last frame; B and C still walk three. -->
           <aside class="notes">
-            PROTOTYPE variant A — the fork. Two steps: the question, then the
-            whole answer at once. Both branches land on one `Fixed.`, which is
+            PROTOTYPE variant A — the fork. One frame, no steps: the whole
+            diagnosis is on screen the moment you arrive, so the sequencing is
+            spoken, not clicked. Both branches land on one `Fixed.`, which is
             the reference's best idea and the reason this variant exists.
           </aside>
         </section>
@@ -3459,8 +3459,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       function syncHalluc(slide: HTMLElement) {
         const shown = slide.querySelectorAll(".halluc-step.visible").length;
         const v = slide.dataset.hallucVariant;
-        // A is TWO steps and carries one fragment; B and C still walk three.
-        // `last` is the frame where everything is on screen, whichever it is.
+        // A carries NO fragments — zero carriers means `all` is true from the
+        // moment the slide is built, which is how it loads in its final
+        // shape. B and C still walk three. `last` is the frame where
+        // everything is on screen, whichever it is.
         const last = slide.querySelectorAll(".halluc-step").length;
         const all = shown >= last;
         slide.classList.toggle("is-done", all);

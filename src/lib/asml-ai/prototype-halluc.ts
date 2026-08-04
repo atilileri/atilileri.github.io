@@ -77,7 +77,9 @@ export const BRANCHES: Branch[] = [
 ];
 
 export const COPY = {
-  eyebrow: "Under the hood · press → to diagnose",
+  // No mechanic to promise any more — the slide has no steps, so the eyebrow
+  // names what is on screen instead of what to press.
+  eyebrow: "Under the hood · one question, two failures",
   // The hinge IS the headline: the slide's whole value is that one question
   // sorts the two failures for you.
   headline: "One question tells you which.",

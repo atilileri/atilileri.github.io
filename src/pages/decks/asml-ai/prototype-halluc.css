@@ -292,6 +292,21 @@
   margin-top: 1.2rem;
 }
 
+/* No steps and NO motion (Atil): the slide loads in its final shape. The
+   classes still drive every style — they just apply instantly. This block
+   sits last in the variant so it wins over the stagger delays above, which
+   are kept because B and C read the same rules. */
+.halluc-a .fork .edge,
+.halluc-a .fork .head,
+.halluc-a .fork .g,
+.halluc-a .halluc-branch,
+.halluc-a .halluc-branch .fix,
+.halluc-a .halluc-branch .fwd,
+.reveal .halluc-a .halluc-beat {
+  transition: none;
+  transition-delay: 0s;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    VARIANT B — "the window". ONE object: the context window itself, and both
    failures happen ON it. The fact that was never in it sits OUTSIDE the box
