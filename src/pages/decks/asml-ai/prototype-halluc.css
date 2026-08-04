@@ -220,9 +220,41 @@
   fill: #1b1b1b8c;
   letter-spacing: 0.1em;
 }
-/* Two steps means the whole tree arrives on one keypress, so the stagger is
-   what stops it landing as a flat cut: the fork, then the branch, then the
-   convergence, in reading order. The right column follows one beat behind. */
+/* ── Variant A replays on ENTRY, not on load ───────────────────────────────
+   It has no fragments, so the JS paints its final state once and never
+   touches it again. What restarts the animation is the deck's own `.is-live`
+   — armHeadline strips it from every section, forces a reflow, and re-adds
+   it to the live slide on every entry. So the rule is: while this section is
+   NOT live, hold everything at its opening state. Same mechanism as the
+   rings slide (`section.layers.is-live`), and the reason it survives arrows,
+   hash jumps and the overview alike.
+
+   These have to out-specify the `.is-lit` / `.is-drawn` states below, which
+   is why each one carries `.reveal` and `:not(.is-live)`. */
+.reveal section.halluc-a:not(.is-live) .halluc-branch {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.reveal section.halluc-a:not(.is-live) .halluc-branch .fix {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.reveal section.halluc-a:not(.is-live) .halluc-branch .fwd,
+.reveal section.halluc-a:not(.is-live) .fork .head,
+.reveal section.halluc-a:not(.is-live) .fork .g {
+  opacity: 0;
+}
+.reveal section.halluc-a:not(.is-live) .fork .edge {
+  stroke-dashoffset: var(--len);
+}
+.reveal section.halluc-a:not(.is-live) .halluc-beat {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* One step means the whole tree arrives at once, so the stagger is what stops
+   it landing as a flat cut: the fork, then the branch, then the convergence,
+   in reading order. The right column follows one beat behind. */
 .halluc-a .fork [data-fork-edge="2"],
 .halluc-a .fork [data-fork-head="2"],
 .halluc-a .fork [data-fork-yn="2"],

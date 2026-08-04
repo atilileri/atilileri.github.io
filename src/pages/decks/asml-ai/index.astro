@@ -3469,14 +3469,20 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       function syncHalluc(slide: HTMLElement) {
         const last = slide.querySelectorAll(".halluc-step").length;
         if (!last) {
-          paintHalluc(slide, 0, false);
-          // TWO frames, not one: the first commits the opening state to the
-          // compositor, the second starts the transition off it. One frame
-          // gets both batched into the same style recalculation and the
-          // animation never plays.
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() => paintHalluc(slide, 0, true)),
-          );
+          // Nothing to schedule: the final state is painted once and stays,
+          // and the REPLAY is the deck's own `.is-live` (armHeadline drops it
+          // from every section, forces a reflow, and re-adds it on the live
+          // slide). The CSS holds variant A at its opening state while the
+          // section is not live, so every entry — arrow, hash or overview —
+          // restarts from baseline, the same way the rings slide does. An
+          // earlier double-rAF here ran the animation against reveal's own
+          // slide transition instead of after it, so you arrived to a
+          // finished diagram.
+          // Force a reflow first, so the FIRST visit animates too: without it
+          // the cards are created and lit inside one task, the browser only
+          // computes style once, and it lands straight on the final values.
+          void slide.offsetWidth;
+          paintHalluc(slide, 0, true);
           return;
         }
         const shown = slide.querySelectorAll(".halluc-step.visible").length;
