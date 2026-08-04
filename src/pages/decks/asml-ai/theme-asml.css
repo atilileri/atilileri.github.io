@@ -170,13 +170,21 @@
   display: inline-block;
   overflow: visible;
 }
+/* The wipe mask has to sit lower than the text box: line-height 0.98 puts
+   descenders (y, g, p) below the box, and a flush overflow:hidden shears
+   them off. Pad the mask down and pull the same amount back with a negative
+   margin so the headline's layout height is unchanged (the ::after rule and
+   ::before tick stay where they were). Translate is bumped past the extra
+   padding so no sliver of the glyphs peeks out before the wipe. */
 .reveal .h-set .h-line {
   display: block;
   overflow: hidden;
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
 .reveal .h-set .h-line > span {
   display: inline-block;
-  transform: translateY(105%);
+  transform: translateY(130%);
   transition: transform var(--dur) var(--ease);
 }
 .reveal .h-set .h-line:nth-child(2) > span {
