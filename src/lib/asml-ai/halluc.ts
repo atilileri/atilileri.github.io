@@ -74,7 +74,7 @@ export const BRANCHES: Branch[] = [
     // named term — "Attention degradation:" reads as a definition rather
     // than a phrase buried mid-sentence.
     cause:
-      "It was given the correct information and didn't follow it.\n`Attention degradation:` as the window fills with tokens, the attention between all the elements strains.",
+      "It was given the correct information and didn't follow it. `Attention degradation`",
     fix: "Reduce the tokens in the context window to restore its focus.",
     forward: "Stay out of the dumb zone with the techniques in Best Practices.",
     edge: "smart zone",

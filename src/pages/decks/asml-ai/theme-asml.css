@@ -2909,7 +2909,10 @@
   background: var(--card);
   border: 1px solid var(--hair);
   border-left: 3px solid var(--signal);
-  padding: 0.9rem 1.1rem 0.95rem;
+  /* Tight on purpose: five of these stack on the opening frame and the pile
+     has to clear 900 with the beat line under it. Loosening this padding is
+     what pushes the fifth answer off the bottom edge. */
+  padding: 0.6rem 1.1rem 0.65rem;
   opacity: 0;
   transform: translate(var(--x0), var(--y0));
   transition:
@@ -2944,7 +2947,7 @@
 .stoch-sorted .card .slot {
   position: relative;
   height: 1.05rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.35rem;
 }
 .stoch-sorted .card .bar {
   position: absolute;
