@@ -803,14 +803,15 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <div class="halluc-branches" data-halluc-branches></div>
           </div>
           <p class="halluc-beat" data-halluc-beat></p>
-          <!-- NO fragments and no motion (Atil): the slide loads in its final
-               shape. syncHalluc reads zero carriers here and treats the slide
-               as already on its last frame; B and C still walk three. -->
+          <!-- NO fragments (Atil): the slide is ONE step. Arriving on it is
+               the whole interaction — it opens on the question and animates
+               straight to its final shape. Reveal therefore counts it as a
+               single step, and → leaves for the next slide. -->
           <aside class="notes">
-            PROTOTYPE variant A — the fork. One frame, no steps: the whole
-            diagnosis is on screen the moment you arrive, so the sequencing is
-            spoken, not clicked. Both branches land on one `Fixed.`, which is
-            the reference's best idea and the reason this variant exists.
+            PROTOTYPE variant A — the fork. One step: it plays itself out on
+            arrival, so nothing here waits on a keypress. Both branches land
+            on one `Fixed.`, which is the reference's best idea and the reason
+            this variant exists.
           </aside>
         </section>
 
@@ -3455,16 +3456,35 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         slide.dataset.built = "1";
       }
 
-      /** Derive the frame from reveal's fragment state — never from a counter. */
+      /**
+       * Derive the frame from reveal's fragment state — never from a counter.
+       *
+       * Variant A carries NO fragments (Atil): it is ONE step, and arriving
+       * on the slide is the whole interaction. So it can't read a frame off
+       * reveal — instead it paints the opening state, waits for the browser
+       * to show it, and then paints the final one, which is what makes the
+       * transition run rather than the slide appearing already finished.
+       * B and C still walk their three fragments.
+       */
       function syncHalluc(slide: HTMLElement) {
-        const shown = slide.querySelectorAll(".halluc-step.visible").length;
-        const v = slide.dataset.hallucVariant;
-        // A carries NO fragments — zero carriers means `all` is true from the
-        // moment the slide is built, which is how it loads in its final
-        // shape. B and C still walk three. `last` is the frame where
-        // everything is on screen, whichever it is.
         const last = slide.querySelectorAll(".halluc-step").length;
-        const all = shown >= last;
+        if (!last) {
+          paintHalluc(slide, 0, false);
+          // TWO frames, not one: the first commits the opening state to the
+          // compositor, the second starts the transition off it. One frame
+          // gets both batched into the same style recalculation and the
+          // animation never plays.
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => paintHalluc(slide, 0, true)),
+          );
+          return;
+        }
+        const shown = slide.querySelectorAll(".halluc-step.visible").length;
+        paintHalluc(slide, shown, shown >= last);
+      }
+
+      function paintHalluc(slide: HTMLElement, shown: number, all: boolean) {
+        const v = slide.dataset.hallucVariant;
         slide.classList.toggle("is-done", all);
 
         // Branch blocks (A and B) and panels (C) light on the same frames.
@@ -3484,9 +3504,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             slide
               .querySelectorAll<SVGElement>(sel)
               .forEach((n) => n.classList.toggle("is-drawn", when));
-          // Two steps: the whole tree draws on the one fragment. The three
-          // selectors stay separate so the CSS stagger still fans them out
-          // in reading order rather than landing as one flat cut.
+          // One step: the whole tree draws at once. The three selectors stay
+          // separate so the CSS stagger still fans them out in reading order
+          // rather than landing as one flat cut.
           on('[data-fork-edge="1"], [data-fork-head="1"], [data-fork-yn="1"], [data-fork-node="1"]', all);
           on('[data-fork-edge="2"], [data-fork-head="2"], [data-fork-yn="2"], [data-fork-node="2"]', all);
           on('[data-fork-edge="3"], [data-fork-head="3"], [data-fork-edge-lbl="3"], [data-fork-edge="4"], [data-fork-head="4"], [data-fork-edge-lbl="4"], [data-fork-end]', all);

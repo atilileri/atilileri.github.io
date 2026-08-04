@@ -77,8 +77,9 @@ export const BRANCHES: Branch[] = [
 ];
 
 export const COPY = {
-  // No mechanic to promise any more — the slide has no steps, so the eyebrow
-  // names what is on screen instead of what to press.
+  // No "press →" any more: variant A has no steps to press through, and an
+  // eyebrow promising an interaction the slide doesn't have is worse than a
+  // plain one. B and C read it too, so it has to be true of all three.
   eyebrow: "Under the hood · one question, two failures",
   // The hinge IS the headline: the slide's whole value is that one question
   // sorts the two failures for you.
