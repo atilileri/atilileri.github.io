@@ -28,4 +28,4 @@ notes-private.md
 
 # Local agent worktrees (not part of the site)
 .claude/worktrees/
-private-notes.md
+privates/*
