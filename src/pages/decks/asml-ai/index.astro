@@ -1308,6 +1308,174 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         </section>
 
         <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER 04 — "Best practices" (wayfinder map #42). The principles
+             that cut waste. Two slides land here so far — the chapter's cold
+             open and its thesis — with the smart zone, the cache, roll back,
+             the guardrails, hygiene and the payoff still to come (#58 / #59).
+
+             The thesis is the chapter's SPINE, not a practice among peers
+             (#42): everything that follows is either one of these three legs
+             or a way of protecting them. Built ahead of the spine grilling
+             (#54) at Atil's direction — treat the copy below as locked and
+             integrate around it.
+             ═════════════════════════════════════════════════════════════ -->
+        <!-- 4a ─────────────────── CHAPTER divider (roadmap, factor 3 lit) -->
+        <RoadmapDivider chapter={4} section="04 — Best practices">
+          <aside class="notes">
+            Third of the four. The room has seen this shape three times now —
+            do not re-read the list, just let them recognise it and move.
+
+            One line if you want one: we have covered how it works and what it
+            costs. This is what actually cuts the waste.
+
+            No wash here — the full chapter wash belongs to chapters 1 and 6
+            only, so it keeps its impact.
+          </aside>
+        </RoadmapDivider>
+
+        <!-- 4b ─────────────────── COLD OPEN: the number, before the lecture.
+             #42/#43: the chapter opens on someone ELSE's failure, so the room
+             arrives at the three legs wanting them, rather than being taught
+             at. The count-up reuses the attic's `data-one-number` hook. -->
+        <section
+          class="one-number thesis-stat"
+          data-section="04 — Best practices"
+          data-one-number
+        >
+          <span class="eyebrow">The benchmark that scores AI coding agents</span>
+          <div class="fig">
+            <span data-count-to="4" data-count-suffix="">0</span><span class="of"
+              >in 10</span
+            >
+          </div>
+          <div class="caption">tasks too vaguely written to grade fairly</div>
+          <p class="stat-turn">
+            The agent wasn&rsquo;t the weak link. <b>The brief was.</b>
+          </p>
+          <aside class="notes">
+            Let the number land before you explain it. Silence for a beat.
+
+            THE STORY: SWE-bench is the industry-standard test for AI coding
+            agents — real GitHub issues, an agent has to fix them, and every
+            vendor quotes their score on it. Ninety-three developers sat down
+            and audited it. Nearly four in ten of the task descriptions were
+            too vague to judge fairly whether the agent had succeeded.
+
+            The point, said out loud: these are professional engineers writing
+            tasks for a benchmark they knew would be scrutinised. If four in
+            ten of THOSE are underspecified, what does a Tuesday-afternoon
+            ticket look like?
+
+            SAY IT THIS WAY: "four in ten were too vague to grade fairly."
+            DO NOT SAY: "specifying the task doubles performance." The auditors
+            removed badly-written TESTS at the same time as vague specs, so the
+            two effects are tangled and that stronger claim is not supported.
+            If someone challenges the number, concede that cheerfully — the
+            slide's argument survives it, because the claim is about the specs
+            being vague, not about what fixing them buys.
+
+            Then turn: the agent was not the weak link, the brief was. Hand
+            straight into the next slide, which is the answer — what a brief
+            actually has to carry.
+          </aside>
+        </section>
+
+        <!-- 4c ─────────────────── THE THESIS: three legs, revealed.
+             Deliberately NO mechanism on screen (#43): "constrains the search
+             space" and "changes its objective function" are falsifiable and a
+             modelling-literate ASML attendee can name the counter-evidence.
+             Plain verbs only; the caveat lives in the notes. -->
+        <section
+          class="thesis"
+          data-section="04 — Best practices"
+          data-frags
+        >
+          <span class="eyebrow">The whole chapter, in three moves</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Give it less room</span></span>
+            <span class="h-line"><span>to invent.</span></span>
+          </h2>
+          <ul class="build thesis-legs">
+            <li class="fragment rise">
+              <span class="leg">Give it a standard to meet.</span>
+              <span class="sub"
+                >What &ldquo;good&rdquo; means here &mdash; written down before
+                it starts, not after.</span
+              >
+            </li>
+            <li class="fragment rise">
+              <span class="leg">Give it the facts it lacks.</span>
+              <span class="sub"
+                >Your interfaces, your versions, your conventions. It has never
+                seen them.</span
+              >
+            </li>
+            <li class="fragment rise">
+              <span class="leg">Give it a shape to fill.</span>
+              <span class="sub"
+                >Name the form you want back, and it maps into it rather than
+                improvising one.</span
+              >
+            </li>
+          </ul>
+          <p class="thesis-turn fragment" data-thesis-turn>
+            You are not prompting. <b>You are preparing.</b>
+          </p>
+          <aside class="notes">
+            This is the chapter's spine. Everything after it is one of these
+            three, or a way of protecting them — say that once, here, and the
+            rest of the chapter reads as a list of instances rather than a bag
+            of tips.
+
+            Walk them with →, one at a time.
+
+            A STANDARD. The strongest version is not "ask for good code" but a
+            checklist it can hold itself against. There is real evidence behind
+            this: giving a model an explicit checklist to evaluate against
+            raised agreement with human judgement, and letting it revise its
+            own work against that checklist improved the result again. If you
+            quote a number, name the benchmark — the published gains are on
+            general reasoning tasks, not a clean coding experiment. That gap is
+            honest and worth admitting if asked.
+
+            THE FACTS. This is the one with hard numbers. Across 576,000
+            generations, roughly a fifth of the software packages models
+            recommended did not exist. Put the real interface in front of it
+            and invented calls on unfamiliar APIs drop sharply.
+            IMPORTANT CAVEAT, and it is counter-intuitive: this is NOT "always
+            paste in the docs." Injecting documentation for things the model
+            already knows well measurably made it WORSE. So the practice is
+            targeted, not indiscriminate — which is also why the next slide is
+            about a context budget.
+
+            A SHAPE. Agents are strong at turning one form into another — code
+            into a sequence diagram, a schema into a client, requirements into
+            tests — provided you name the target form. Giving the model an
+            explicit intermediate structure to work through measurably improves
+            translation. Do NOT claim "high fidelity" or quote a percentage:
+            the published studies use small open models and the results are
+            uneven. Claim the practice, not a superpower. This one also opens a
+            loop chapter 5 closes, where sequence diagrams get generated from
+            source straight into the docs.
+
+            LAND THE TURN: you are not prompting, you are preparing. That is
+            the sentence the chapter hangs on.
+
+            IF CHALLENGED on mechanism — "a prompt doesn't actually constrain
+            anything" — that is correct and you should say so: a prompt shifts
+            what the model is likely to produce, it does not forbid anything.
+            The slide is deliberately worded to claim only that. Nothing on
+            screen says otherwise.
+          </aside>
+        </section>
+
+        <!-- 4d ─── GAP: the smart zone (widget, #52) · the cache (#56) · roll
+             back (widget, #53) · the guardrails (#55) · hygiene (#56) · the
+             payoff (#57). Built by #58 and #59. Do not add them here without
+             their grillings — the copy above was pulled forward deliberately;
+             the rest was not. -->
+
+        <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
              here but still in the bundle: the chapter divider, the scroll-driven
              narrative, the one-number cinematic, the animated cost bars, the
