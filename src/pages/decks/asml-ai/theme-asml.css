@@ -3380,3 +3380,77 @@
     stroke-dashoffset: 0;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CHAPTER 04 — "Best practices" (wayfinder map #42)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 4b — the cold open. Reuses .one-number's oversized figure and its count-up
+   hook; only the fraction tail and the turn line are new. `.of` is NOT the
+   attic's `.unit` (superscript ×) — "in 10" has to sit on the baseline or it
+   reads as an exponent rather than a ratio. */
+.one-number.thesis-stat .fig .of {
+  font-family: var(--font-display);
+  font-size: 0.2em;
+  font-weight: 600;
+  color: var(--orange);
+  letter-spacing: 0.02em;
+  margin-left: 0.18em;
+  vertical-align: baseline;
+}
+.reveal .thesis-stat .stat-turn {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.1vw, 1.7rem);
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: clamp(1.2rem, 3vh, 2.2rem);
+  /* Wide enough that "The brief was." never breaks across lines — the turn
+     is a two-beat sentence and the second beat has to land whole. */
+  max-width: 46ch;
+  line-height: 1.25;
+}
+.reveal .thesis-stat .stat-turn b {
+  white-space: nowrap;
+}
+.reveal .thesis-stat .stat-turn b {
+  color: var(--navy);
+  font-weight: 700;
+}
+
+/* 4c — the thesis. Each leg is a headline with a quieter gloss under it, so
+   the three read as one sentence each rather than a bulleted list. Widened
+   past ul.build's 24ch because the glosses need the room. */
+.reveal ul.build.thesis-legs {
+  max-width: 46ch;
+  gap: clamp(1rem, 2.4vh, 1.8rem);
+}
+.reveal ul.build.thesis-legs > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+.reveal ul.build.thesis-legs > li .leg {
+  font-size: 1em;
+}
+.reveal ul.build.thesis-legs > li .sub {
+  font-family: var(--font-mono);
+  font-size: 0.42em;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0;
+  color: var(--ink);
+  opacity: 0.72;
+  max-width: 52ch;
+}
+.reveal .thesis-turn {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.8rem);
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: clamp(1.4rem, 3.2vh, 2.4rem);
+  letter-spacing: -0.01em;
+}
+.reveal .thesis-turn b {
+  color: var(--orange);
+  font-weight: 700;
+}
