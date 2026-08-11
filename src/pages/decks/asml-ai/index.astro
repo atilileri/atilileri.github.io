@@ -1395,31 +1395,50 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <span class="h-line"><span>Give it less room</span></span>
             <span class="h-line"><span>to invent.</span></span>
           </h2>
+          <!-- The three legs are TRAILERS for the three live applications
+               Atil runs on a second screen straight after this slide
+               (requirements audit · library migration · sequence diagrams from
+               source). Each is deliberately PRINCIPLE-PURE — none names its
+               demo — so the demo lands as recognition rather than as a thing
+               already announced. Atil's call; do not make them literal. -->
           <ul class="build thesis-legs">
             <li class="fragment rise">
-              <span class="leg">Give it a standard to meet.</span>
+              <span class="leg">Give it a yardstick.</span>
               <span class="sub"
-                >What &ldquo;good&rdquo; means here &mdash; written down before
-                it starts, not after.</span
+                >Write down what good looks like, and it can measure what you
+                already have against it.</span
               >
             </li>
             <li class="fragment rise">
-              <span class="leg">Give it the facts it lacks.</span>
+              <span class="leg">Give it both sides.</span>
               <span class="sub"
-                >Your interfaces, your versions, your conventions. It has never
-                seen them.</span
+                >The thing you have, the thing you want, and how the two
+                correspond.</span
               >
             </li>
             <li class="fragment rise">
-              <span class="leg">Give it a shape to fill.</span>
+              <span class="leg">Give it a target form.</span>
               <span class="sub"
-                >Name the form you want back, and it maps into it rather than
-                improvising one.</span
+                >Name the shape you want back and it maps what you own into
+                it.</span
               >
             </li>
           </ul>
           <p class="thesis-turn fragment" data-thesis-turn>
             You are not prompting. <b>You are preparing.</b>
+          </p>
+          <!-- The exit cue. Atil leaves the deck here for the applications on
+               another screen, so the jump has to read as staged, not as a
+               technical fault — but it must not spoil what the three are. -->
+          <p class="thesis-cue fragment">
+            Three of these, live. <span class="arw">&rarr;</span>
+          </p>
+          <!-- The return. This slide is visited TWICE: the fragments above are
+               already revealed when Atil comes back from the demos, so one →
+               lands the tie-back and the legs turn from promise into proof
+               without costing a slide. -->
+          <p class="thesis-back fragment">
+            All three worked because you <b>prepared</b> them.
           </p>
           <aside class="notes">
             This is the chapter's spine. Everything after it is one of these
@@ -1427,39 +1446,65 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             rest of the chapter reads as a list of instances rather than a bag
             of tips.
 
-            Walk them with →, one at a time.
+            Walk them with →, one at a time. Each leg is a TRAILER for one of
+            the three live applications you are about to run — do not name
+            them here. The demo should land as recognition.
 
-            A STANDARD. The strongest version is not "ask for good code" but a
-            checklist it can hold itself against. There is real evidence behind
-            this: giving a model an explicit checklist to evaluate against
-            raised agreement with human judgement, and letting it revise its
-            own work against that checklist improved the result again. If you
-            quote a number, name the benchmark — the published gains are on
-            general reasoning tasks, not a clean coding experiment. That gap is
-            honest and worth admitting if asked.
+            A YARDSTICK → the requirements audit. The strongest version is not
+            "ask for good work" but a written definition of good that it can
+            hold work against. Note the direction: this grades what you ALREADY
+            have, it is not only a rule for new work. Evidence: giving a model
+            an explicit checklist to evaluate against raised agreement with
+            human judgement, and letting it revise against that checklist
+            improved the result again. If you quote a number, name the
+            benchmark — the published gains are on general reasoning tasks,
+            not a clean coding experiment. That gap is honest; admit it if
+            asked.
 
-            THE FACTS. This is the one with hard numbers. Across 576,000
-            generations, roughly a fifth of the software packages models
-            recommended did not exist. Put the real interface in front of it
-            and invented calls on unfamiliar APIs drop sharply.
-            IMPORTANT CAVEAT, and it is counter-intuitive: this is NOT "always
-            paste in the docs." Injecting documentation for things the model
-            already knows well measurably made it WORSE. So the practice is
-            targeted, not indiscriminate — which is also why the next slide is
-            about a context budget.
+            BOTH SIDES → the library migration. This is the leg with hard
+            numbers. Across 576,000 generations, roughly a fifth of the
+            software packages models recommended did not exist. Put the real
+            interfaces in front of it and invented calls on unfamiliar APIs
+            drop sharply. The word "correspond" is doing quiet work — it is not
+            just two documents, it is how the two map onto each other.
+            IMPORTANT CAVEAT, counter-intuitive: this is NOT "always paste in
+            the docs." Injecting documentation for things the model already
+            knows well measurably made it WORSE. Targeted, not indiscriminate
+            — which is also why a later slide is about a context budget.
 
-            A SHAPE. Agents are strong at turning one form into another — code
-            into a sequence diagram, a schema into a client, requirements into
-            tests — provided you name the target form. Giving the model an
-            explicit intermediate structure to work through measurably improves
-            translation. Do NOT claim "high fidelity" or quote a percentage:
+            A TARGET FORM → the sequence diagrams. Agents are strong at turning
+            one form into another provided you name the target form; giving the
+            model an explicit structure to work through measurably improves
+            translation. Do NOT claim "high fidelity" or quote a percentage —
             the published studies use small open models and the results are
-            uneven. Claim the practice, not a superpower. This one also opens a
-            loop chapter 5 closes, where sequence diagrams get generated from
-            source straight into the docs.
+            uneven. Claim the practice, not a superpower. Save the "and we ran
+            it on the cheapest model we have" punchline for the demo itself;
+            it is a Tokenomics callback and it is wasted here.
 
             LAND THE TURN: you are not prompting, you are preparing. That is
             the sentence the chapter hangs on.
+
+            ── THE SWITCH ──
+            One more → puts "Three of these, live." on screen. That line is
+            your permission to leave the deck: say it, then move to the other
+            screen. Without it the room reads the jump as a fault. Do not list
+            the three first — the whole point is that each demo arrives as a
+            worked example of a leg they have just heard.
+
+            Run them in leg order so the mapping is felt rather than
+            explained: the requirements audit, then the migration, then the
+            diagrams.
+
+            ── COMING BACK ──
+            Return to THIS slide. Everything above is already revealed, so a
+            single → lands "All three worked because you prepared them." The
+            legs have turned from promise into proof and it cost no extra
+            slide.
+
+            Then hand into the rest of the chapter with the question the demos
+            have set up, spoken not shown: all three worked because you
+            prepared them — so what makes that preparation stop working? That
+            is the smart zone, and it is the whole back half of this chapter.
 
             IF CHALLENGED on mechanism — "a prompt doesn't actually constrain
             anything" — that is correct and you should say so: a prompt shifts

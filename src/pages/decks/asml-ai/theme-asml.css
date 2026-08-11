@@ -3454,3 +3454,42 @@
   color: var(--orange);
   font-weight: 700;
 }
+
+/* 4c — the exit cue and the return line. Both sit below the turn and are
+   deliberately quieter than it: the turn is the argument, these two are
+   stage directions made visible. `.thesis-cue` is the permission to leave the
+   deck for the live applications; `.thesis-back` is what one → lands when
+   Atil returns, flipping the three legs from promise to proof. */
+.reveal .thesis-cue {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.82rem;
+  color: var(--signal);
+  margin-top: clamp(1rem, 2.4vh, 1.8rem);
+  padding-top: clamp(0.8rem, 1.8vh, 1.3rem);
+  border-top: 1px solid rgba(0, 50, 125, 0.16);
+  max-width: 46ch;
+}
+.reveal .thesis-cue .arw {
+  color: var(--orange);
+  margin-left: 0.4em;
+}
+.reveal .thesis-back {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2vw, 1.6rem);
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: clamp(0.6rem, 1.6vh, 1.1rem);
+  letter-spacing: -0.01em;
+}
+.reveal .thesis-back b {
+  color: var(--orange);
+  font-weight: 700;
+}
+/* Once the return line is up, the exit cue has done its job — dim it so the
+   eye goes to the proof, not to a stage direction that has already fired. */
+.reveal .thesis-cue:has(~ .thesis-back.visible) {
+  opacity: 0.35;
+  transition: opacity 400ms ease;
+}
