@@ -50,6 +50,11 @@ import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
 // edit them there, not in the markup below.
 import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 
+// Chapter 4's smart-zone widget (#52). The session script and everything that
+// is a decision rather than a number live in src/lib — read that file's header
+// before changing what is on screen here.
+import * as SZ from "../../../lib/asml-ai/smart-zone";
+
 /**
  * Slide 7 — the context primitives. Eight blocks in three groups, copy taken
  * verbatim from wayfinder #23's resolution. Two things here are decisions, not
@@ -1514,11 +1519,147 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4d ─── GAP: the smart zone (widget, #52) · the cache (#56) · roll
-             back (widget, #53) · the guardrails (#55) · hygiene (#56) · the
-             payoff (#57). Built by #58 and #59. Do not add them here without
-             their grillings — the copy above was pulled forward deliberately;
-             the rest was not. -->
+        <!-- 4d ─────────────────── THE SMART ZONE (widget, #52).
+             The chapter's first widget, and the start of its second movement:
+             everything before this is preparation, everything after it is that
+             same preparation decaying (#54). The presenter's spoken turn — "and
+             then it all decays" — lands on the way in; there is no divider.
+
+             MECHANISM AND BUDGET ONLY. The escapes (/clear, /compact, fork)
+             belong to roll back, so this slide ends on the problem. Three
+             mechanics were prototyped and walked (#52); the two rejected ones
+             live on branch `prototype/smart-zone`. What is load-bearing here —
+             the linear tank, turn 5, the honest gauge — is documented in the
+             header of src/lib/asml-ai/smart-zone.ts. Read it before editing. -->
+        <section
+          class="sz"
+          data-section="04 — Best practices"
+          data-smartzone
+          data-frags
+        >
+          <span class="eyebrow">{SZ.EYEBROW}</span>
+          <h2 class="h-set">
+            {SZ.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+          <p class="sz-lede">
+            One session, one afternoon. Nothing on screen ever tells you
+            anything is wrong.
+          </p>
+
+          <div class="sz-stage">
+            <div class="sz-top">
+              <span class="sz-turn" data-sz-turn />
+              <span class="sz-gauge">
+                <i />context <b data-sz-gauge>1%</b> used
+              </span>
+            </div>
+
+            <div>
+              <!-- The session at true proportion. Prompt #1 is the orange strip
+                   at the left — it never grows; everything sent after it does. -->
+              <div class="sz-tank">
+                <span class="sz-fill" data-sz-fill>
+                  <i class="sz-mine" data-sz-mine />
+                  <i class="sz-rest" />
+                </span>
+                <i class="sz-band" data-sz-band />
+              </div>
+              <div class="sz-marks">
+                <span class="sz-mark" data-sz-mark-soft>100k</span>
+                <span class="sz-mark" data-sz-mark-hard>150k</span>
+                <span class="sz-mark far">1M &mdash; the window you paid for</span>
+              </div>
+              <div class="sz-legend">
+                <span class="mine"><i />prompt #1</span>
+                <span class="rest"><i />next prompts</span>
+              </div>
+            </div>
+
+            <!-- One block per thing sent. They arrive as themselves and end as
+                 an undifferentiated grey field — nothing was deleted, it all
+                 just became the same. -->
+            <div class="sz-blocks" data-sz-blocks />
+
+            <div class="sz-brief">
+              <span class="sz-tag">what you wrote in turn 1</span>
+              {SZ.BRIEF.map((l, i) => (
+                <span class="sz-line" data-sz-line={i}>
+                  {l}
+                </span>
+              ))}
+            </div>
+            <p class="sz-note" data-sz-note />
+          </div>
+
+          <p class="sz-rule">{SZ.BUDGET_RULE}</p>
+          <p class="sz-kicker" data-sz-kicker hidden>
+            It tells you the tank is full.<br />
+            <b>Not that the engine started misfiring at a quarter tank.</b>
+          </p>
+
+          <!-- Four steps, not three: the fourth buys turn 5, the beat where
+               nothing has gone wrong YET. Three reads as a cliff; four reads
+               as a slope, which is the only honest shape (#44). -->
+          <div class="sz-spine" data-sz-spine aria-hidden="true">
+            <span class="fragment" />
+            <span class="fragment" />
+            <span class="fragment" />
+            <span class="fragment" />
+          </div>
+
+          <aside class="notes">
+            The spoken turn comes first, before you touch the arrow: everything
+            so far has been preparation. Now watch what happens to it.
+
+            Four &rarr;: turn 1, turn 5, turn 10, turn 20. Let each one sit.
+
+            WHAT TO SAY OVER THE BLOCKS: they arrive as themselves — every turn
+            its own thing, distinguishable — and by turn 20 they are one grey
+            field. Nothing was deleted. It all just became the same to it.
+
+            TURN 5 IS DOING WORK. Nothing has gone wrong there, and saying so
+            out loud is what makes the slide honest. Never say "it's fine up to
+            100k" — that is the one version the evidence contradicts. Say
+            "budget for about 100k", which is what the line under the stage
+            says.
+
+            THE GAUGE IS NOT LYING AND IS NOT BROKEN. It is accurate at every
+            step. Copilot really does show you this now. The point is what it
+            measures: it tells you the tank is full, not that the engine
+            started misfiring at a quarter tank. That is the closing line — do
+            not spend it early.
+
+            THE NUMBER THAT SELLS IT: the brief is dying with about eighty per
+            cent of the window still free. The zones do not track the window
+            limit. A session can be deep in the dumb zone with most of the
+            window unused, which is why buying a bigger window does not fix it.
+
+            IF CHALLENGED ON 100k/150k: it is a practitioner's rule of thumb,
+            not a benchmark result, and concede that cheerfully. Then note the
+            error runs the generous way — every controlled measurement puts the
+            onset EARLIER, some as early as 32k. Nobody credible reports clean
+            quality to 100k and then a cliff.
+
+            IF ASKED "why not just use the million-token window": retrieval and
+            reasoning are different jobs. A big window is good at finding a
+            detail in a haystack; it does not hold precise constraints across a
+            long build. Shipping more window is shipping more of this.
+
+            DO NOT go anywhere near the fixes here — no /clear, no /compact, no
+            fresh sessions. This slide ends on the problem on purpose. The
+            moves are two slides away and they land harder if the room has had
+            to sit with this first.
+          </aside>
+        </section>
+
+        <!-- 4e ─── GAP: the cache (#56) · roll back (widget, #53) · the
+             guardrails (#55) · hygiene (#56) · the payoff (#57). Built by #58
+             and #59. Do not add them here without their grillings — the copy
+             above was pulled forward deliberately; the rest was not. -->
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
@@ -1923,6 +2064,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       import { frameAt, FINAL, MAX_TOKENS } from "../../../lib/asml-ai/agent-loop";
       import * as STOCH from "../../../lib/asml-ai/stochastic";
       import * as HAL from "../../../lib/asml-ai/halluc";
+      // Chapter 4's smart zone. The frontmatter import above is a separate
+      // scope — the markup and this controller read the same table by both
+      // importing it, which is what keeps them from drifting.
+      import * as SZ from "../../../lib/asml-ai/smart-zone";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -3622,6 +3767,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
         }
+        // Chapter 4's smart zone: same contract as the chapter-3 islands — the
+        // whole visual is re-derived from the fragment count, so entering from
+        // either direction lands on the right state.
+        if (slide.hasAttribute("data-smartzone")) syncSmartZone(slide);
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
@@ -3641,9 +3790,86 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
+        if (section?.hasAttribute("data-smartzone")) syncSmartZone(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
+
+      /* ══════════════════════════════════════════════════════════════════════
+       *  CHAPTER 4 — the smart zone (#52).
+       *
+       *  Four steps: the session fills, the blocks lose their colour, the
+       *  brief loses its lines, and the gauge stays green and correct. The
+       *  kicker is the fifth fragment — the line the slide ends on, never a
+       *  state of the widget.
+       *
+       *  Holds no state of its own: everything is re-derived from reveal's
+       *  fragment count, so ← and → replay correctly in both directions.
+       * ═══════════════════════════════════════════════════════════════════ */
+
+      function syncSmartZone(slide: HTMLElement) {
+        const spine = slide.querySelector("[data-sz-spine]");
+        const step = spine ? spine.querySelectorAll(".fragment.visible").length : 0;
+        const kicker = slide.querySelector<HTMLElement>("[data-sz-kicker]");
+        if (kicker) kicker.hidden = step < SZ.STATES.length;
+
+        const i = Math.min(step, SZ.STATES.length - 1);
+        const s = SZ.STATES[i];
+        const q = <T extends HTMLElement>(sel: string) => slide.querySelector<T>(sel)!;
+
+        // LINEAR against the advertised window, and it has to stay linear: a
+        // log scale made the tank read ~68% full while the gauge above it read
+        // 21%, which contradicts the slide's own argument. The band sitting
+        // close to the left edge IS the point — a session can be deep in the
+        // dumb zone with most of the window still free.
+        const pct = (n: number) => (n / SZ.WINDOW) * 100;
+
+        q("[data-sz-turn]").textContent =
+          `${s.turn} · ${s.tokens.toLocaleString("en-US")} tokens in the session`;
+        q("[data-sz-gauge]").textContent = s.gauge;
+        q<HTMLElement>("[data-sz-fill]").style.width = `${pct(s.tokens)}%`;
+
+        // Prompt #1 keeps its place at the left and never grows — but as a
+        // share of what has been sent it collapses. Floored so it stays
+        // findable; at turn 20 its true width is a fifth of a pixel.
+        const mine = q<HTMLElement>("[data-sz-mine]");
+        mine.style.width = `${(SZ.PROMPT1 / s.tokens) * 100}%`;
+        mine.style.minWidth = "4px";
+
+        const band = q<HTMLElement>("[data-sz-band]");
+        band.style.left = `${pct(SZ.SOFT)}%`;
+        band.style.width = `${pct(SZ.HARD) - pct(SZ.SOFT)}%`;
+        q<HTMLElement>("[data-sz-mark-soft]").style.left = `${pct(SZ.SOFT)}%`;
+        q<HTMLElement>("[data-sz-mark-hard]").style.left = `${pct(SZ.HARD)}%`;
+
+        // The window's contents. Each block arrives in its own colour and is
+        // mixed toward the theme's pale grey as the session grows, so by the
+        // last step they are indistinguishable from one another.
+        const mix = (hex: string, t: number) => {
+          const rgb = (h: string) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16));
+          const [r1, g1, b1] = rgb(hex);
+          const [r2, g2, b2] = rgb(SZ.PALE);
+          const c = (a: number, b: number) => Math.round(a * t + b * (1 - t));
+          return `rgb(${c(r1, r2)}, ${c(g1, g2)}, ${c(b1, b2)})`;
+        };
+        const field = q("[data-sz-blocks]");
+        field.textContent = "";
+        for (let b = 0; b < s.blocks; b++) {
+          const el = document.createElement("i");
+          el.className = "sz-block";
+          el.style.background = mix(SZ.PALETTE[b % SZ.PALETTE.length], s.vivid);
+          el.style.animationDelay = `${Math.min(b, 30) * 10}ms`;
+          field.append(el);
+        }
+
+        slide.querySelectorAll<HTMLElement>("[data-sz-line]").forEach((el, n) => {
+          el.classList.toggle("dead", n >= s.live);
+        });
+
+        const note = q("[data-sz-note]");
+        note.textContent = s.note;
+        note.classList.toggle("calm", i === 0);
+      }
     </script>
   </body>
 </html>

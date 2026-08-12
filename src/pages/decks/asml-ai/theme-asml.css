@@ -3493,3 +3493,256 @@
   opacity: 0.35;
   transition: opacity 400ms ease;
 }
+
+/* 4d — the smart zone (#52). The chapter's first widget: a session filling up
+   while the brief written in turn 1 quietly stops being obeyed, and the
+   context gauge stays green and CORRECT throughout.
+
+   Settled by prototype #52 against two rejected mechanics (an attention-
+   competition bar, a position sweep); both are on `prototype/smart-zone`.
+
+   COLOUR CONTRACT, and it is load-bearing: orange means exactly one thing on
+   this slide — YOUR prompt. That is why the 100k/150k band is a navy hatch and
+   not the usual hot accent; with prompt #1 in orange, two oranges fought over
+   40px of the same bar and neither read. Research #44 also calls it a soft
+   band rather than an alarm, so navy is the truer reading as well. */
+
+.sz-lede {
+  font-size: 1.02rem;
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 52ch;
+  /* clears the h-set's underline, which sits below the headline's box */
+  margin: 0.9rem 0 1rem;
+}
+
+.sz-stage {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.4rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* The fragment spine: invisible steps that drive the widget. None of reveal's
+   own fragment styling should be visible — the widget IS the reveal. */
+.sz-spine {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sz-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.sz-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sz-turn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* The gauge chip. Deliberately calm, deliberately accurate — see the file
+   header in src/lib/asml-ai/smart-zone.ts. Never style this as a warning. */
+.sz-gauge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--signal);
+  background: #0066cc0d;
+}
+.sz-gauge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #14a44d;
+}
+
+/* The session, at true proportion against the advertised window. */
+.sz-tank {
+  position: relative;
+  height: 40px;
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  background: #00327d08;
+  overflow: hidden;
+}
+.sz-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 1;
+  display: flex;
+  transition: width 800ms var(--ease);
+}
+.sz-mine {
+  background: var(--orange);
+  /* At turn 20 prompt #1's true width is a fifth of a pixel. It is floored in
+     the controller and given a hairline here, so the boundary stays visible
+     without the bar pretending the prompt is bigger than it is. */
+  box-shadow: 1px 0 0 #fff;
+  transition: width 800ms var(--ease);
+}
+.sz-rest {
+  flex: 1;
+  background: var(--signal);
+  opacity: 0.85;
+}
+
+/* The soft band — 100k to 150k, a band and not a line, on purpose. Sits ABOVE
+   the fill: it has to read whether the session has reached it or passed it. */
+.sz-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(
+    45deg,
+    #00327d00 0 3px,
+    #00327d59 3px 6px
+  );
+  border-left: 1px dashed var(--navy);
+  border-right: 1px dashed var(--navy);
+}
+
+.sz-marks {
+  position: relative;
+  height: 1.6em;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink);
+  opacity: 0.6;
+}
+.sz-mark {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.sz-mark.far {
+  left: 100%;
+  transform: translateX(-100%);
+  color: var(--signal);
+  opacity: 0.75;
+}
+
+.sz-legend {
+  display: flex;
+  gap: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  margin-top: 0.1rem;
+}
+.sz-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+  vertical-align: -1px;
+}
+.sz-legend .mine {
+  color: var(--orange);
+  font-weight: 600;
+}
+.sz-legend .mine i {
+  background: var(--orange);
+}
+.sz-legend .rest i {
+  background: var(--signal);
+}
+
+/* The window's contents. Colour is set per block from the controller — vivid
+   and distinguishable at turn 1, one pale grey field by turn 20. */
+.sz-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+  min-height: 24px;
+}
+.sz-block {
+  width: 18px;
+  height: 10px;
+  border-radius: 2px;
+  animation: sz-pop 320ms var(--ease) both;
+  transition: background 700ms var(--ease);
+}
+@keyframes sz-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
+/* The brief, and the lines dying out of it. */
+.sz-brief {
+  border-top: 1px solid var(--hair);
+  padding-top: 0.55rem;
+  display: grid;
+  gap: 0.22rem;
+}
+.sz-line {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--navy);
+  transition: opacity 700ms var(--ease), color 700ms var(--ease);
+}
+.sz-line::before {
+  content: "— ";
+  color: var(--signal);
+}
+.sz-line.dead {
+  opacity: 0.24;
+  text-decoration: line-through;
+  text-decoration-color: #ff660066;
+}
+.sz-note {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-height: 1.5em;
+}
+.sz-note.calm {
+  color: var(--navy);
+  font-weight: 400;
+}
+
+.sz-rule {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  opacity: 0.55;
+  margin: 0.6rem 0 0;
+}
+
+.sz-kicker {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.3vw, 1.7rem);
+  color: var(--navy);
+  line-height: 1.15;
+  margin: 0.5rem 0 0;
+}
+.sz-kicker b {
+  color: var(--orange);
+}
