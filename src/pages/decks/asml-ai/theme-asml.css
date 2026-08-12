@@ -3746,3 +3746,321 @@
 .sz-kicker b {
   color: var(--orange);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Chapter 4, slide 4 — ROLL BACK (#53). The transcript widget: one pane in the
+   shape of the chat the room already uses, with the real affordances drawn on
+   the wrong turn. Prototyped against a two-column fork and a variance field,
+   both on branch `prototype/roll-back`.
+
+   COLOUR CONTRACT, and it is load-bearing: the deck's hot accent already means
+   "your prompt" on the smart zone two screens earlier, and "the one moment"
+   everywhere else — so this slide cannot spend it. The red path is the accent
+   DEEPENED (#d93b00), which reads as the deck's own colour gone wrong, and the
+   green path is a slate green at navy's weight. Nothing else on the slide is
+   allowed to be either colour.
+
+   The wrong turns LEAVE the pane rather than greying out (rb-out). That is not
+   decoration: research #48 §3 found the vendors remove the later turns from the
+   session, and a greyed-out turn would teach the folk claim it kills. ══════ */
+
+:root {
+  --rb-red: #d93b00;
+  --rb-red-soft: #d93b0014;
+  --rb-green: #1f7a5c;
+  --rb-green-soft: #1f7a5c14;
+}
+
+/* `.reveal p` caps body copy at 40ch and out-specifies a bare class, so the
+   slide's paragraphs carry the prefix. */
+.reveal .rb-lede {
+  font-size: 1.02rem;
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 78ch;
+  margin: 0.8rem 0 0.7rem;
+}
+
+.rb-stage {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 0.8rem 1rem;
+  display: grid;
+  gap: 0.42rem;
+}
+
+/* ── one turn. One line, no code: the room reads a card in a glance and then
+      looks back at the presenter. ─────────────────────────────────────────── */
+.rb-turn {
+  display: grid;
+  grid-template-columns: 2.4rem 3.2rem 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--hair);
+  background: var(--ground);
+  font-size: 0.88rem;
+  animation: rb-in 260ms var(--ease) both;
+}
+@keyframes rb-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.rb-turn .id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.rb-turn .who {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+}
+.rb-turn .txt {
+  color: var(--ink);
+}
+.rb-turn .mark {
+  font-weight: 700;
+}
+.rb-turn.ok .mark {
+  color: var(--rb-green);
+}
+.rb-turn.bad {
+  border-color: var(--rb-red);
+  background: var(--rb-red-soft);
+}
+.rb-turn.bad .mark,
+.rb-turn.bad .id {
+  color: var(--rb-red);
+}
+.rb-turn.good {
+  border-color: var(--rb-green);
+  background: var(--rb-green-soft);
+}
+.rb-turn.good .id {
+  color: var(--rb-green);
+}
+/* removed from the session — not hidden from the screen */
+.rb-turn.gone,
+.rb-afford.gone {
+  animation: rb-out 420ms var(--ease) both;
+}
+@keyframes rb-out {
+  to {
+    opacity: 0;
+    transform: translateX(38px);
+    max-height: 0;
+    padding-block: 0;
+    margin-top: -0.4rem;
+  }
+}
+
+/* ── the rule that names T3. Without it, "Restore Checkpoint" has nothing on
+      screen to point at. It survives the restore on purpose. ──────────────── */
+.rb-ckpt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+.rb-ckpt::after {
+  content: "";
+  flex: 1;
+  border-top: 1px dashed var(--signal);
+  opacity: 0.5;
+}
+
+/* ── the fork: two real buttons, because the presenter picks ──────────────── */
+.rb-choice {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 0.15rem;
+}
+.rb-btn {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.42rem 0.9rem;
+  border-radius: 6px;
+  border: 1.5px solid var(--navy);
+  background: var(--card);
+  color: var(--navy);
+  cursor: pointer;
+  transition:
+    transform 140ms var(--ease),
+    background 140ms;
+}
+.rb-btn:hover {
+  transform: translateY(-1px);
+}
+.rb-btn.red {
+  border-color: var(--rb-red);
+  color: var(--rb-red);
+}
+.rb-btn.red:hover {
+  background: var(--rb-red-soft);
+}
+.rb-btn.green {
+  border-color: var(--rb-green);
+  color: var(--rb-green);
+}
+.rb-btn.green:hover {
+  background: var(--rb-green-soft);
+}
+.rb-btn[disabled] {
+  opacity: 0.32;
+  cursor: default;
+  transform: none;
+}
+.rb-key {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.5;
+  margin-left: 0.35rem;
+}
+.rb-reset {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--signal);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+/* ── the pane, and the affordances drawn where VS Code draws them ─────────── */
+.rb-pane {
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--hair);
+  background: var(--ground);
+  min-height: 14rem;
+  align-content: start;
+}
+.rb-afford {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding-left: 2.9rem;
+  animation: rb-in 260ms var(--ease) both;
+}
+.rb-chip {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 0.18rem 0.42rem;
+  border-radius: 4px;
+  border: 1px solid var(--hair);
+  background: var(--card);
+  color: var(--navy);
+  cursor: pointer;
+}
+/* the one move this slide teaches */
+.rb-chip.hot {
+  border-color: var(--rb-green);
+  color: var(--rb-green);
+  font-weight: 700;
+}
+.rb-chip.ghost {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* what the model re-reads every turn. TURNS, never credits — the cache slide
+   owns the money and this slide's argument is quality. */
+.rb-reads {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--navy);
+}
+.rb-reads b {
+  color: var(--rb-red);
+}
+.rb-reads.clean b {
+  color: var(--rb-green);
+}
+.rb-illus {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.55;
+}
+
+.reveal .rb-crux {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--rb-green);
+  max-width: 88ch;
+  animation: rb-in 320ms var(--ease) both;
+}
+.reveal .rb-note {
+  font-size: 1rem;
+  color: var(--ink);
+  max-width: 88ch;
+  min-height: 1.4em;
+  margin: 0;
+}
+.reveal .rb-note.red {
+  color: var(--rb-red);
+  font-weight: 600;
+}
+.reveal .rb-note.green {
+  color: var(--rb-green);
+  font-weight: 600;
+}
+.reveal .rb-threshold {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--rb-red);
+  max-width: 88ch;
+  margin: 0;
+}
+.reveal .rb-survives {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  max-width: 88ch;
+  opacity: 0.62;
+  margin: 0;
+}
+
+/* the closing beat: the four names, and where to find them */
+.rb-vocab {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1.1rem;
+  margin-top: 0.85rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--hair);
+}
+.rb-vocab .v {
+  display: grid;
+}
+.rb-vocab .n {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.rb-vocab .w {
+  font-size: 0.72rem;
+  opacity: 0.55;
+}

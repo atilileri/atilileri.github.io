@@ -55,6 +55,11 @@ import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 // before changing what is on screen here.
 import * as SZ from "../../../lib/asml-ai/smart-zone";
 
+// Chapter 4's roll-back widget (#53). Same split as the smart zone: everything
+// that is a decision rather than markup lives in src/lib — read that file's
+// header before changing what is on screen here.
+import * as RB from "../../../lib/asml-ai/roll-back";
+
 /**
  * Slide 7 — the context primitives. Eight blocks in three groups, copy taken
  * verbatim from wayfinder #23's resolution. Two things here are decisions, not
@@ -1656,10 +1661,150 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4e ─── GAP: the cache (#56) · roll back (widget, #53) · the
-             guardrails (#55) · hygiene (#56) · the payoff (#57). Built by #58
-             and #59. Do not add them here without their grillings — the copy
-             above was pulled forward deliberately; the rest was not. -->
+        <!-- 4f ─────────────────── ROLL BACK (widget, #53).
+             The chapter's second and last widget, and its most counter-intuitive
+             beat: the room's instinct — argue with it — is the expensive move.
+
+             PRESENTER-DRIVEN, unlike every other widget in this deck: the fork
+             is two real buttons and the presenter picks (c corrects, x restores,
+             r resets), so the room watches the choice being made. Three mechanics
+             were prototyped and walked (#53); the two rejected ones live on
+             branch `prototype/roll-back`. What is load-bearing here — the turns
+             LEAVING the pane, the turn counter, the better T4′, the absence of
+             any money — is documented in the header of
+             src/lib/asml-ai/roll-back.ts. Read it before editing.
+
+             NOTE ON ORDER: the cache slide (#56) belongs immediately BEFORE this
+             one per the spine (#54) and is not built yet (#58). When it lands,
+             insert it above — do not move this slide. -->
+        <section
+          class="rb"
+          data-section="04 — Best practices"
+          data-rollback
+          data-frags
+        >
+          <span class="eyebrow">{RB.EYEBROW}</span>
+          <h2 class="h-set">
+            {RB.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+          <p class="rb-lede">{RB.LEDE}</p>
+
+          <div class="rb-stage">
+            <!-- What the model re-reads every turn. A COUNT OF TURNS, never
+                 credits — the cache slide one screen earlier owns the money and
+                 this slide's argument is quality (#48 §6). -->
+            <div class="rb-reads" data-rb-reads>
+              <span data-rb-reads-txt />
+              <span class="rb-illus">re-read on every turn</span>
+            </div>
+            <div class="rb-pane" data-rb-pane />
+            <div class="rb-choice">
+              <button class="rb-btn red" data-rb-correct>
+                Correct it<span class="rb-key">c</span>
+              </button>
+              <button class="rb-btn green" data-rb-back>
+                {RB.RESTORE}<span class="rb-key">x</span>
+              </button>
+              <button class="rb-reset" data-rb-reset>reset · r</button>
+            </div>
+            <p class="rb-note" data-rb-note />
+            <p class="rb-threshold" data-rb-threshold hidden>{RB.THRESHOLD}</p>
+            <p class="rb-survives" data-rb-survives hidden>{RB.SURVIVES}</p>
+          </div>
+
+          <!-- The closing beat: the vocabulary an attendee can go and find. The
+               pane already shows the first two in situ, so this row carries
+               WHERE they are. One fragment — the ladder stays in the note, which
+               is what keeps the chapter at nine screens. -->
+          <div class="rb-vocab fragment">
+            {RB.VOCAB.map((v) => (
+              <span class="v">
+                <span class="n">{v.name}</span>
+                <span class="w">{v.where}</span>
+              </span>
+            ))}
+          </div>
+
+          <aside class="notes">
+            OPEN ON THE CONTRADICTION, NOT THE MECHANISM. Everybody in this room,
+            when the agent goes wrong, types "no, that's not what I meant."
+            Restating every requirement correctly, every turn, buys back 15–20%
+            of what was lost. The same words in one clean prompt reach about 95%.
+            Their default behaviour is already on the back foot before you touch
+            a button.
+
+            THE MECHANISM, IN ONE LINE: its own wrong answer competes with your
+            correction for attention. That is the smart zone you just showed and
+            chapter 2's faithfulness branch, arriving as a session-management
+            problem. Take both callbacks; do not explain them again.
+
+            HOW TO DRIVE IT: press c once — read the note, the correction and the
+            wrong turn are now both in the window. Press c again — the wrong turn
+            has bred, and the rule appears: two failed corrections is Anthropic's
+            published line, not our opinion. Then x — and SAY IT WHILE THE TURNS
+            SLIDE OUT: they are removed from the session, not hidden from the
+            screen. Both vendors document that in their own words. r resets if
+            you want to walk it the other way round.
+
+            THE COUNTER ABOVE THE PANE is turns, not money. If someone asks what
+            the arguing cost: almost nothing, it is a cached re-read — that is the
+            point, it is cheap and it is still the wrong move.
+
+            THE CACHE CALLBACK, SPOKEN: rolling back does not break the cache.
+            Everything above the checkpoint is byte-identical, so it still hits.
+            /clear is the expensive one — that is the 12.5× you just saw.
+
+            THE LADDER, IF ASKED "so when DO I argue?" — cheapest first: one
+            nudge, then roll back, then Fork Conversation if the session holds
+            work worth keeping, then /compact, and only then /clear. Both vendors
+            say course-correct EARLY. The boundary is one nudge versus cascading
+            errors.
+
+            WHERE IT ENDS: what it ran in the terminal stays run. Checkpoints
+            undo what the agent typed, not what it did — every vendor says so in
+            their own docs, and every one of them points at git for the rest.
+            That hands straight into guardrails.
+
+            ── MUST NOT CLAIM ──
+            "Never correct it." Contradicts VS Code's "course-correct early" and
+            Anthropic's "course-correct early and often", on the same pages this
+            slide cites. Say one nudge, then roll back.
+
+            "It can't recover." False — restating inside the conversation
+            recovers 15–20%. Say the odds get much worse.
+
+            "Arguing with it costs you money." No. Off by orders of magnitude,
+            and it duplicates the cache slide.
+
+            "39% worse when you correct it." The 39% is one instruction delivered
+            across turns versus all at once — not a measurement of correcting a
+            mistake. Do not attribute rolling back to the paper either; its own
+            recommendation is to consolidate and retry in a new conversation.
+
+            "Rolling back wipes the mistake completely." Not terminal side
+            effects, not memory files, not background subagent edits — and if the
+            session already auto-compacted, the summary containing the bad
+            assumption may survive the rollback. No vendor documents that
+            interaction. If it comes up, say so plainly.
+
+            "Your IDE does this." Only VS Code and the Copilot CLI. Nothing is
+            documented for JetBrains, Visual Studio or Copilot Chat on
+            github.com. If that is their surface: use git and start a new chat.
+
+            Anything about what happens to their MANUAL edits during a restore.
+            GitHub's own two pages contradict each other. Say: commit first and
+            you never have to care which one is right.
+          </aside>
+        </section>
+
+        <!-- 4e ─── GAP: the cache (#56) · guardrails (#55) · hygiene (#56) ·
+             the payoff (#57). Built by #58 and #59. Do not add them here without
+             their grillings — the copy above was pulled forward deliberately;
+             the rest was not. -->
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
@@ -2068,6 +2213,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       // scope — the markup and this controller read the same table by both
       // importing it, which is what keeps them from drifting.
       import * as SZ from "../../../lib/asml-ai/smart-zone";
+      import * as RB from "../../../lib/asml-ai/roll-back";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -3771,6 +3917,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // whole visual is re-derived from the fragment count, so entering from
         // either direction lands on the right state.
         if (slide.hasAttribute("data-smartzone")) syncSmartZone(slide);
+        if (slide.hasAttribute("data-rollback")) resetRollBack(slide);
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
@@ -3869,6 +4016,164 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         const note = q("[data-sz-note]");
         note.textContent = s.note;
         note.classList.toggle("calm", i === 0);
+      }
+
+      /* ═══════════════════════════════════════════════════════════════════
+       *  Chapter 4, slide 4 — roll back (#53).
+       *
+       *  The one PRESENTER-DRIVEN widget in the deck: the fork is two real
+       *  buttons, so unlike the smart zone this stage holds state of its own
+       *  rather than re-deriving it from reveal's fragment count. Entering the
+       *  slide resets it, so a revisit always starts at the fork.
+       *
+       *  What is load-bearing and must not be "tidied": the wrong turns LEAVE
+       *  the pane (they are removed from the session, not hidden — #48 §3), the
+       *  counter counts TURNS and never money, and Correct it stops after two
+       *  presses because that is Anthropic's published threshold. The decisions
+       *  behind all of it are in src/lib/asml-ai/roll-back.ts.
+       * ═══════════════════════════════════════════════════════════════════ */
+      let rbMode: "fork" | "red" | "green" = "fork";
+      let rbCorrections = 0;
+
+      function rbTurn(t: RB.Turn, cls?: string) {
+        const d = document.createElement("div");
+        d.className = `rb-turn${cls ? " " + cls : ""}`;
+        d.innerHTML =
+          `<span class="id">${t.id}</span>` +
+          `<span class="who">${t.who}</span>` +
+          `<span class="txt">${t.text}</span>` +
+          `<span class="mark">${t.mark === "ok" ? "✓" : t.mark === "bad" ? "✗" : ""}</span>`;
+        return d;
+      }
+
+      function paintRollBack(slide: HTMLElement, removing = false) {
+        const pane = slide.querySelector<HTMLElement>("[data-rb-pane]")!;
+
+        if (removing) {
+          // THE CRUX: the later turns are removed from the session, so they
+          // leave the pane. Never grey them out — that teaches the folk claim
+          // the research kills.
+          pane
+            .querySelectorAll(".rb-turn.bad, .rb-turn.pending, .rb-afford")
+            .forEach((n) => n.classList.add("gone"));
+          return;
+        }
+
+        pane.textContent = "";
+        RB.PREFIX.forEach((t) => pane.append(rbTurn(t, t.mark === "ok" ? "ok" : undefined)));
+
+        // T3 named, so "Restore Checkpoint" has something to point at. It
+        // survives the restore on purpose.
+        const ckpt = document.createElement("div");
+        ckpt.className = "rb-ckpt";
+        ckpt.textContent = RB.CHECKPOINT;
+        pane.append(ckpt);
+
+        if (rbMode === "green") {
+          const crux = document.createElement("p");
+          crux.className = "rb-crux";
+          crux.textContent = RB.CRUX;
+          pane.append(crux);
+          pane.append(rbTurn(RB.GREEN[0]), rbTurn(RB.GREEN[1], "good"));
+        } else {
+          pane.append(rbTurn(RB.MISTAKE_PROMPT, "pending"), rbTurn(RB.MISTAKE, "bad"));
+          // The affordances, drawn ON the wrong turn where VS Code draws them.
+          // Only the first is live: the slide teaches one move.
+          const row = document.createElement("div");
+          row.className = "rb-afford";
+          row.innerHTML = RB.VOCAB.map(
+            (v, i) => `<span class="rb-chip${i === 0 ? " hot" : " ghost"}">${v.name}</span>`,
+          ).join("");
+          row.querySelector<HTMLElement>(".rb-chip.hot")!.onclick = () =>
+            driveRollBack("green", slide);
+          pane.append(row);
+          for (let i = 0; i < rbCorrections; i++) {
+            pane.append(rbTurn(RB.RED[i].you, "pending"), rbTurn(RB.RED[i].agent, "bad"));
+          }
+        }
+
+        const n = pane.querySelectorAll(".rb-turn").length;
+        const reads = slide.querySelector<HTMLElement>("[data-rb-reads]")!;
+        reads.classList.toggle("clean", rbMode === "green");
+        slide.querySelector<HTMLElement>("[data-rb-reads-txt]")!.textContent =
+          RB.readsLabel(n, rbMode === "green");
+
+        const note = slide.querySelector<HTMLElement>("[data-rb-note]")!;
+        note.classList.remove("red", "green");
+        if (rbMode === "fork") note.textContent = "";
+        else if (rbMode === "red") {
+          note.classList.add("red");
+          note.textContent = RB.RED[rbCorrections - 1].note;
+        } else {
+          note.classList.add("green");
+          note.textContent = RB.GREEN_NOTE;
+        }
+
+        slide.querySelector<HTMLElement>("[data-rb-threshold]")!.hidden = !(
+          rbMode === "red" && rbCorrections >= 2
+        );
+        slide.querySelector<HTMLElement>("[data-rb-survives]")!.hidden = rbMode !== "green";
+
+        // A third correction would say "keep arguing", which the published
+        // threshold forbids — so the button retires after two.
+        slide.querySelector<HTMLButtonElement>("[data-rb-correct]")!.disabled =
+          rbMode === "green" || rbCorrections >= RB.RED.length;
+        slide.querySelector<HTMLButtonElement>("[data-rb-back]")!.disabled = rbMode === "green";
+      }
+
+      function resetRollBack(slide: HTMLElement) {
+        rbMode = "fork";
+        rbCorrections = 0;
+        paintRollBack(slide);
+      }
+
+      function driveRollBack(what: "red" | "green" | "reset", slide: HTMLElement) {
+        if (what === "reset") return resetRollBack(slide);
+        if (what === "red") {
+          if (rbMode === "green" || rbCorrections >= RB.RED.length) return;
+          rbMode = "red";
+          rbCorrections++;
+          paintRollBack(slide);
+          return;
+        }
+        if (rbMode === "green") return;
+        if (rbMode === "red") {
+          // let the turns leave before the better brief arrives — the removal
+          // is the argument, so it gets its own beat
+          paintRollBack(slide, true);
+          window.setTimeout(() => {
+            rbMode = "green";
+            paintRollBack(slide);
+          }, 420);
+          return;
+        }
+        rbMode = "green";
+        paintRollBack(slide);
+      }
+
+      {
+        const slide = document.querySelector<HTMLElement>("section[data-rollback]");
+        if (slide) {
+          slide.querySelector<HTMLElement>("[data-rb-correct]")!.onclick = () =>
+            driveRollBack("red", slide);
+          slide.querySelector<HTMLElement>("[data-rb-back]")!.onclick = () =>
+            driveRollBack("green", slide);
+          slide.querySelector<HTMLElement>("[data-rb-reset]")!.onclick = () =>
+            driveRollBack("reset", slide);
+          paintRollBack(slide);
+
+          // Keys the presenter can hit without finding the mouse. NOT `g`:
+          // reveal binds it to jump-to-slide. Also taken: b / . pause, f
+          // fullscreen, s notes, o overview.
+          window.addEventListener("keydown", (e) => {
+            if (!slide.classList.contains("present")) return;
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const k = e.key.toLowerCase();
+            if (k === "c") driveRollBack("red", slide);
+            if (k === "x") driveRollBack("green", slide);
+            if (k === "r") driveRollBack("reset", slide);
+          });
+        }
       }
     </script>
   </body>
