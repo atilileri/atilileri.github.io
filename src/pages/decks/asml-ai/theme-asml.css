@@ -4219,3 +4219,358 @@
   color: var(--orange);
   font-weight: 700;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Chapter 4, slide 4 — THE GUARDRAILS (#55). Static: one image, one closing
+   fragment, and NO numbers — deliberately the inverse of the cache slide
+   (#56), where the numbers are the image. Same architecture, opposite fill.
+
+   THE IMAGE IS "WHAT COMES BACK". Both halves are the same run of the same
+   check; the only variable is what the agent receives. So the two sides share
+   a height and a rhythm and differ only in density — a wall you cannot read
+   against one line you can act on.
+
+   COLOUR CONTRACT: the wall is GREY, not orange. It is noise, not a failure,
+   and the deck's hot accent is spent here on the single word `FAIL` inside the
+   verdict — which is a failure, correctly reported, and the one thing on this
+   slide set at reading size. ══════════════════════════════════════════════ */
+
+.reveal section.guard {
+  justify-content: flex-start;
+}
+
+/* Two equal columns for the same reason the cache slide's tags are equal: the
+   check did not change, so the frame around it may not change either. */
+.guard-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  margin: clamp(0.9rem, 3.5vh, 2rem) 0 0;
+}
+.guard-side {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  margin: 0;
+  min-height: 0;
+}
+.guard-side .gs-k {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.5;
+  padding-bottom: 0.5rem;
+}
+.guard-side.with .gs-k {
+  color: var(--signal);
+  opacity: 0.9;
+}
+.guard-side .gs-cap {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  opacity: 0.6;
+  padding-top: 0.6rem;
+}
+.guard-side.with .gs-cap {
+  color: var(--signal);
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* The wall. Set at a size the room CANNOT follow — that is the argument, not a
+   legibility bug — and clipped with a fade at the foot so it reads as "and it
+   keeps going" rather than as a block that happens to end. */
+.guard-noise {
+  font-family: var(--font-mono);
+  font-size: clamp(0.3rem, 0.52vw, 0.44rem);
+  line-height: 1.6;
+  color: var(--ink);
+  opacity: 0.55;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  padding: 0.6rem 0.7rem 0;
+  height: clamp(9rem, 32vh, 19rem);
+  overflow: hidden;
+  white-space: pre;
+  -webkit-mask-image: linear-gradient(#000 72%, #0000 100%);
+  mask-image: linear-gradient(#000 72%, #0000 100%);
+}
+.guard-noise > span {
+  display: block;
+  overflow: hidden;
+  /* the run's blank lines are real lines — without this they collapse and the
+     output loses the spacing that makes it read as a terminal */
+  min-height: 1.6em;
+}
+
+/* The verdict. Three tokens, and the room can read every one of them from the
+   back of the room — which is the entire difference between the two columns. */
+.guard-verdict {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 0.25rem;
+  height: clamp(9rem, 32vh, 19rem);
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 4px solid var(--signal);
+  box-shadow: var(--shadow);
+  padding: 1.2rem clamp(1rem, 2.5vw, 2rem);
+}
+.guard-verdict .gv {
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  letter-spacing: 0.02em;
+  color: var(--navy);
+}
+.guard-verdict .gv.hot {
+  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--orange);
+  margin-bottom: 0.3rem;
+}
+
+/* The closing beat: shared vocabulary, demoted to one fragment on purpose
+   (#55 dec. 1) — a second column would assert a parity the evidence does not
+   support. Same furniture as the cache slide's beat, one screen later. */
+.guard-beat {
+  margin-top: clamp(1rem, 3.5vh, 2.2rem);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hair);
+}
+.reveal .guard-beat {
+  font-size: clamp(1rem, 1.7vw, 1.3rem);
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.75;
+  max-width: 70ch;
+}
+.reveal .guard-beat b {
+  color: var(--navy);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Chapter 4, slide 8 — HYGIENE (#56). Static: the same brief twice, and the
+   second one arrives on a press so the loss is WATCHED rather than compared.
+
+   THE DROPPED LINE KEEPS ITS ROW. Collapsing it would turn the slide into
+   "four constraints instead of five", which is a counting exercise; leaving
+   the row empty is the actual failure — the constraint is gone and nothing on
+   screen says so. Nothing here is red, nothing is marked, and nothing is
+   annotated. That absence IS the mechanic (#56 dec. 4/5). ══════════════════ */
+
+.reveal section.hyg {
+  justify-content: flex-start;
+}
+
+.hyg-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  margin: clamp(0.9rem, 3.5vh, 2rem) 0 0;
+}
+.hyg-brief {
+  margin: 0;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  box-shadow: var(--shadow);
+  padding: clamp(1.1rem, 3vw, 2.2rem) clamp(1.2rem, 3vw, 2.4rem);
+}
+.reveal .hyg-brief ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.reveal .hyg-brief li {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 1.65vw, 1.4rem);
+  line-height: 1.8;
+  color: var(--ink);
+  padding-left: 1.2em;
+  /* the row survives its own contents leaving */
+  min-height: 1.8em;
+}
+.reveal .hyg-brief li::before {
+  content: "·";
+  position: absolute;
+  left: 0;
+  color: var(--signal);
+  opacity: 0.7;
+}
+/* No styling of the loss beyond the loss. */
+.reveal .hyg-brief li.gone::before {
+  opacity: 0.25;
+}
+.hyg-brief .hb-cap {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.5;
+  margin-top: 0.9rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--hair);
+}
+/* The second brief is the one the room is watching, so it carries the accent
+   on its caption only — "load more on top" is the cause, and it is the sole
+   hot moment on a slide whose whole point is that nothing is flagged. */
+.hyg-brief.after .hb-cap {
+  color: var(--orange);
+  opacity: 0.9;
+}
+
+.hyg-beat {
+  margin-top: clamp(1rem, 3.5vh, 2.2rem);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hair);
+}
+.reveal .hyg-beat {
+  font-size: clamp(1rem, 1.7vw, 1.3rem);
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.75;
+  max-width: 70ch;
+}
+.reveal .hyg-beat b {
+  color: var(--navy);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Chapter 4, slide 9 — THE PAYOFF (#57). Chapter 2's fork, returning stripped,
+   with this chapter's two movements written onto its two branches.
+
+   IT DOES NOT ANIMATE, and that is the point of difference from chapter 2's
+   copy of the same diagram: there, the tree draws itself because the room is
+   learning it; here it is simply THERE on arrival, because the room already
+   owns it and recognition is instant or it is nothing. That is why these rules
+   are a separate block rather than an extra selector on `.halluc .fork` —
+   sharing the selector would inherit the dash-offset animation the runtime
+   island drives, and this slide has no island. The TEXT is shared, via
+   src/lib/asml-ai/halluc.ts, which is the part that must never drift.
+
+   COLOUR CONTRACT, inherited from chapter 2 and unchanged: ORANGE names the
+   failure, BLUE is the fix. So the branch names stay orange and the chapter's
+   two verbs — which are the fixes — arrive in signal blue. ═════════════════ */
+
+.reveal section.payoff {
+  justify-content: flex-start;
+}
+
+/* ONE stage sizes both the tree and the tiers. The tiers' columns are the
+   viewBox's own percentages, so the join between a branch name and the verb
+   under it only holds while the two elements are exactly the same width — which
+   is why the height cap is applied HERE, to the stage, and never to the SVG. A
+   max-height on the SVG would letterbox the drawing inside a wider box on a
+   short viewport and slide every verb out from under its branch. */
+.payoff-stage {
+  width: min(100%, 44rem, 42vh * 420 / 216);
+  margin: clamp(0.8rem, 3vh, 1.8rem) auto 0;
+}
+.payoff .fork {
+  display: block;
+  width: 100%;
+  aspect-ratio: 420 / 216;
+  overflow: visible;
+}
+.payoff .fork .edge {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 1.6;
+}
+.payoff .fork .head {
+  fill: var(--navy);
+}
+.payoff .fork .node {
+  fill: var(--card);
+  stroke: var(--hair);
+  stroke-width: 1;
+}
+.payoff .fork .node.lit {
+  stroke: var(--orange);
+  stroke-width: 1.6;
+}
+.payoff .fork text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--navy);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.payoff .fork .name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  fill: var(--orange);
+}
+.payoff .fork .yn {
+  font-size: 12px;
+  fill: #1b1b1b8c;
+  letter-spacing: 0.1em;
+}
+
+/* The two tiers, hung directly under the branch boxes. The percentages are the
+   viewBox's own: each box spans 188 of 420 units (44.76%) with a 12-unit gap
+   (2.86%) and a 16-unit inset (3.81%). If the SVG's geometry ever moves, move
+   these with it — the join between the noun above and the verb below is the
+   entire reveal, and a few pixels of drift reads as two unrelated rows. */
+.payoff-tiers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.86%;
+  /* border-box, or the inset would be added OUTSIDE the stage's width and the
+     columns would stop lining up with the boxes above them */
+  box-sizing: border-box;
+  width: 100%;
+  padding: clamp(0.7rem, 2vh, 1.2rem) 3.81% 0;
+}
+.payoff-tiers .pt {
+  text-align: center;
+}
+.payoff-tiers .pt-verb {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2.6vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--signal);
+}
+.payoff-tiers .pt-diag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  opacity: 0.6;
+  margin-top: 0.3rem;
+}
+
+/* The beat sits in the same slot and at the same scale as chapter 2's
+   `.halluc-beat` ("Both failures look identical on screen.") — same slide
+   shape, same position, forty minutes later. The rhyme is deliberate; it is
+   not a class to be merged with that one, because this beat is a fragment and
+   chapter 2's is painted by its island. */
+.reveal .payoff-beat {
+  font-size: 1.12rem;
+  color: #1b1b1b99;
+  max-width: none;
+  margin: clamp(0.9rem, 3vh, 1.6rem) 0 0;
+}
+.reveal .payoff-beat b {
+  color: var(--navy);
+  font-weight: 700;
+}
