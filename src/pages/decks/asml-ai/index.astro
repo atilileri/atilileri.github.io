@@ -1735,45 +1735,39 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
 
             <div>
               <div class="sz-c-tank">
+                <!-- The session, at true proportion against the advertised
+                     window. Prompt #1 is the orange strip at the left — it
+                     never grows; everything sent after it does. -->
+                <span class="sz-c-fill" data-sz-c-fill>
+                  <i class="sz-c-mine" data-sz-c-mine />
+                  <i class="sz-c-rest" />
+                </span>
                 <i class="sz-c-band" data-sz-c-band />
-                <i class="sz-c-fill" data-sz-c-fill />
               </div>
               <div class="sz-c-marks" data-sz-c-marks>
                 <span class="sz-c-mark" data-sz-c-mark-soft>100k</span>
                 <span class="sz-c-mark" data-sz-c-mark-hard>150k</span>
                 <span class="sz-c-mark far">1M &mdash; the window you paid for</span>
               </div>
-            </div>
-
-            <!-- Atil's fold-in (#52): variant A's attention bar and block
-                 field, moved onto C. The bar is always exactly full and only
-                 the split moves; the blocks arrive as their own vivid things
-                 and end up indistinguishable. Prompt #1 is orange in both and
-                 never fades — "nothing was deleted" is the closing line. -->
-            <div class="sz-c-cols">
-              <div class="sz-c-brief">
-                <span class="sz-tag">what you wrote in turn 1</span>
-                {SZ.C_BRIEF.map((l, i) => (
-                  <span class="sz-c-line" data-sz-c-line={i}>
-                    {l}
-                  </span>
-                ))}
-              </div>
-
-              <div class="sz-c-att">
-                <span class="sz-tag">what the model is paying attention to</span>
-                <div class="sz-a-bar">
-                  <i class="sz-a-slice mine" data-sz-c-mine />
-                  <i class="sz-a-slice recent" data-sz-c-recent />
-                </div>
-                <div class="sz-a-legend">
-                  <span class="mine"><i />prompt #1</span>
-                  <span class="recent"><i />next prompts</span>
-                </div>
-                <div class="sz-c-window" data-sz-c-window />
+              <div class="sz-c-legend">
+                <span class="mine"><i />prompt #1</span>
+                <span class="rest"><i />next prompts</span>
               </div>
             </div>
 
+            <!-- The window's contents, one block per thing sent. They arrive
+                 as themselves and end as an undifferentiated grey field —
+                 nothing was deleted, it all just became the same. -->
+            <div class="sz-c-blocks" data-sz-c-blocks />
+
+            <div class="sz-c-brief">
+              <span class="sz-tag">what you wrote in turn 1</span>
+              {SZ.C_BRIEF.map((l, i) => (
+                <span class="sz-c-line" data-sz-c-line={i}>
+                  {l}
+                </span>
+              ))}
+            </div>
             <p class="sz-c-note" data-sz-c-note />
           </div>
 
@@ -1783,8 +1777,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <b>Not that the engine started misfiring at a quarter tank.</b>
           </p>
 
-          <!-- FOUR steps here, not three (Atil, #52): turns 1 · 5 · 10 · 20,
-               then the kicker. -->
+          <!-- Four states here, not three: Atil's call. The extra step buys
+               turn 5 — the beat where nothing has gone wrong YET — so the
+               decay reads as gradual rather than as a jump cut. -->
           <div class="sz-spine" data-sz-spine aria-hidden="true">
             <span class="fragment" />
             <span class="fragment" />
@@ -1798,26 +1793,20 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             CORRECT the whole way — that is the trap, not a mistake in the
             widget.
 
-            THE BEAT: three things move at once and they are meant to be read
-            together. The tank barely fills. The blocks arrive as their own
-            vivid, distinct things and end up an indistinguishable grey wall.
-            The brief's lines are struck through one at a time. By turn 20 the
-            room is watching the instructions die with 79% of the window
-            unused.
+            THE BEAT: the blocks arrive as themselves — every turn its own
+            colour — and end as one grey field. Say it out loud on the last
+            step: nothing was deleted, it all just became the same to it. The
+            brief's lines are struck through one at a time while the tank is
+            still nowhere near full. The room watches the instructions die with
+            79% of the window unused.
 
-            PROMPT #1 NEVER FADES — orange in the bar, orange in the blocks,
-            right to the last frame. That is the whole argument, and it is the
-            kicker's setup: nothing was deleted. It just stopped winning.
+            TURN 5 IS DOING WORK. Nothing has gone wrong there, and saying so
+            is what makes the slide honest — never "it's fine up to 100k", but
+            also never a cliff.
 
             THE BAND is #44's wording constraint made visual — a soft band, not
-            a cliff, and the decay starts BEFORE it. Never say "it's fine up to
+            a cliff, and the fade starts BEFORE it. Never say "it's fine up to
             100k"; say "budget for ~100k".
-
-            NO NUMBER ON THE BAR, deliberately. The proportions are
-            illustrative and #44 rules that this shape of figure must not be
-            presented as measurement (deep-zones.md's Table 1). The bar is a
-            picture; the only figures on screen are token counts and the
-            gauge, which are real.
 
             RISK TO WATCH FOR: this is the only variant that shows a session
             rather than a mechanism, so it is closest in shape to the roll-back
@@ -3992,14 +3981,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       function syncSmartZone(slide: HTMLElement) {
         const step = szStep(slide);
         const v = slide.dataset.szVariant;
-        // The kicker is the last fragment in every variant — never a state of
-        // the widget, always the line the slide ends on. It lands one step
-        // after the last state, so variants with different step counts (C has
-        // four, A and B have three) each end on their own last frame.
-        const states =
-          v === "A" ? SZP.A_STATES.length
-          : v === "B" ? SZP.B_STATES.length
-          : SZP.C_STATES.length;
+        // A and B run three states, C runs four. The kicker is always the
+        // fragment AFTER the last state — never a state of the widget, always
+        // the line the slide ends on.
+        const states = v === "C" ? SZP.C_STATES.length : 3;
         const kicker = slide.querySelector<HTMLElement>("[data-sz-kicker]");
         if (kicker) kicker.hidden = step < states;
         const i = Math.min(step, states - 1);
@@ -4101,6 +4086,35 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         q("[data-sz-c-gauge]")!.textContent = s.gauge;
         q<HTMLElement>("[data-sz-c-fill]")!.style.width = `${pct(s.tokens)}%`;
 
+        // Prompt #1 keeps its place at the left and never grows — but as a
+        // share of what has been sent it collapses. Floored at 4px so it stays
+        // findable; at turn 20 its true width is a fifth of a pixel.
+        const mineShare = (SZP.C_PROMPT1 / s.tokens) * 100;
+        const mine = q<HTMLElement>("[data-sz-c-mine]")!;
+        mine.style.width = `${mineShare}%`;
+        mine.style.minWidth = "4px";
+
+        // The window's contents. Each block arrives in its own colour and is
+        // mixed toward the theme's pale grey as the session grows, so by the
+        // last step they are indistinguishable from each other.
+        const mix = (hex: string, t: number) => {
+          const rgb = (h: string) =>
+            [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16));
+          const [r1, g1, b1] = rgb(hex);
+          const [r2, g2, b2] = rgb(SZP.C_PALE);
+          const c = (a: number, b: number) => Math.round(a * t + b * (1 - t));
+          return `rgb(${c(r1, r2)}, ${c(g1, g2)}, ${c(b1, b2)})`;
+        };
+        const field = q("[data-sz-c-blocks]")!;
+        field.textContent = "";
+        for (let b = 0; b < s.blocks; b++) {
+          const el = document.createElement("i");
+          el.className = "sz-c-block";
+          el.style.background = mix(SZP.C_PALETTE[b % SZP.C_PALETTE.length], s.vivid);
+          el.style.animationDelay = `${Math.min(b, 30) * 10}ms`;
+          field.append(el);
+        }
+
         const band = q<HTMLElement>("[data-sz-c-band]")!;
         band.style.left = `${pct(SZP.C_SOFT)}%`;
         band.style.width = `${pct(SZP.C_HARD) - pct(SZP.C_SOFT)}%`;
@@ -4110,30 +4124,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         slide.querySelectorAll<HTMLElement>("[data-sz-c-line]").forEach((el, n) => {
           el.classList.toggle("dead", n >= s.live);
         });
-
-        // The attention bar. Always exactly full — only the split moves.
-        const mine = s.share * 100;
-        q<HTMLElement>("[data-sz-c-mine]")!.style.width = `${mine}%`;
-        q<HTMLElement>("[data-sz-c-recent]")!.style.width = `${100 - mine}%`;
-
-        // The block field. Every block starts as its own vivid colour and is
-        // mixed toward one pale grey as the window grows — by the last step
-        // they are indistinguishable. Block 0 is prompt #1 and is exempt: it
-        // stays orange, because the slide ends on "nothing was deleted".
-        const win = q("[data-sz-c-window]")!;
-        win.textContent = "";
-        for (let b = 0; b < s.blocks; b++) {
-          const el = document.createElement("i");
-          el.className = b === 0 ? "sz-a-block mine" : "sz-a-block";
-          if (b > 0) {
-            const hue = SZP.C_BLOCK_HUES[(b - 1) % SZP.C_BLOCK_HUES.length];
-            el.style.background = `color-mix(in srgb, ${hue} ${Math.round(
-              (1 - s.fade) * 100,
-            )}%, ${SZP.C_GREY})`;
-          }
-          el.style.animationDelay = `${Math.min(b, 30) * 10}ms`;
-          win.append(el);
-        }
 
         const note = q("[data-sz-c-note]")!;
         note.textContent = s.note;

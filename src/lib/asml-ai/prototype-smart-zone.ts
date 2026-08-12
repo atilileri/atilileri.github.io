@@ -142,16 +142,34 @@ export interface CState {
   gauge: string;
   /** how many of the brief's lines are still being obeyed */
   live: number;
-  /** how many blocks are in the window — prompt #1 is always block 0 */
+  /** how many blocks are in the window by now */
   blocks: number;
-  /** share of the attention bar still held by prompt #1, 0–1. NO NUMBER GOES
-   *  ON SCREEN: the proportion is illustrative, and #44 rules that this shape
-   *  of figure must not be presented as measurement. It is a picture. */
-  share: number;
-  /** 0 = every block still its own vivid colour, 1 = all the same pale grey */
-  fade: number;
+  /** how much colour the blocks still have: 1 = vivid, 0 = pale grey */
+  vivid: number;
   note: string;
 }
+
+/** prompt #1's own size, fixed — it never grows, everything around it does */
+export const C_PROMPT1 = 1_400;
+
+/**
+ * The blocks start as themselves — every turn a different, distinguishable
+ * thing — and end as an undifferentiated grey field. That IS the argument:
+ * nothing was deleted, it all just became the same to the model. The palette
+ * deliberately leaves the ASML two-colour system for one beat; the grey it
+ * collapses into is the theme's own.
+ */
+export const C_PALETTE = [
+  "#ff6600",
+  "#0066cc",
+  "#00a3a3",
+  "#7b3fa0",
+  "#14a44d",
+  "#d81b60",
+  "#f5a300",
+  "#00327d",
+];
+export const C_PALE = "#ccd4e0";
 
 /** the brief written in turn 1 — the thing that quietly stops being obeyed */
 export const C_BRIEF = [
@@ -166,23 +184,6 @@ export const C_WINDOW = 1_000_000;
 export const C_SOFT = 100_000;
 export const C_HARD = 150_000;
 
-/** the vivid start state. Every block arrives as its own distinct thing —
- *  a file, a decision, a correction — and they all end up the same grey.
- *  Block 0 is prompt #1 and is exempt: it stays orange to the last frame,
- *  because "nothing was deleted" is the line the slide ends on. */
-export const C_BLOCK_HUES = [
-  "#0066cc",
-  "#00a3a3",
-  "#7b3fe4",
-  "#00994d",
-  "#d81b60",
-  "#0d47a1",
-  "#00897b",
-  "#5e35b1",
-];
-export const C_GREY = "#c3ccd9";
-
-/** Atil's turn schedule (#52): 1 · 5 · 10 · 20, tokens climbing to 214k. */
 export const C_STATES: CState[] = [
   {
     turn: "turn 1",
@@ -190,38 +191,34 @@ export const C_STATES: CState[] = [
     gauge: "1%",
     live: 4,
     blocks: 3,
-    share: 0.42,
-    fade: 0,
-    note: "It does exactly what you asked.",
+    vivid: 1,
+    note: "The brief is holding.",
   },
   {
     turn: "turn 5",
     tokens: 42_000,
     gauge: "4%",
-    live: 3,
-    blocks: 16,
-    share: 0.14,
-    fade: 0.42,
-    note: "It renamed a function without asking.",
+    live: 4,
+    blocks: 14,
+    vivid: 0.5,
+    note: "Still holding. Nothing has gone wrong yet.",
   },
   {
     turn: "turn 10",
     tokens: 96_000,
     gauge: "10%",
-    live: 2,
-    blocks: 38,
-    share: 0.05,
-    fade: 0.76,
-    note: "It changed the public API to make its own test pass.",
+    live: 3,
+    blocks: 30,
+    vivid: 0.2,
+    note: "It renamed a function without asking.",
   },
   {
     turn: "turn 20",
     tokens: 214_000,
     gauge: "21%",
     live: 1,
-    blocks: 76,
-    share: 0.012,
-    fade: 1,
+    blocks: 64,
+    vivid: 0,
     note: "It added a dependency, and wrote the tests last.",
   },
 ];
