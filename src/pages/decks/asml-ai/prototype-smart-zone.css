@@ -1,0 +1,488 @@
+/* PROTOTYPE (#52) — chapter 4's smart-zone widget, three variants.
+   Throwaway; dies with the branch `prototype/smart-zone`.
+
+   Everything here is namespaced `.sz-*` so it can be deleted in one pass. The
+   theme's tokens (--navy / --signal / --orange / --hair / --card) are reused
+   verbatim — a variant that needed a new colour would be failing the ASML
+   light theme, which is a finding in itself. */
+
+/* ══ shared stage furniture ═══════════════════════════════════════════════ */
+
+.sz .h-set {
+  margin-bottom: 0.6rem;
+}
+
+/* The fragment spine: invisible steps that drive the widget. Nothing about
+   reveal's own fragment styling should be visible — the widget IS the reveal. */
+.sz-spine {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sz-lede {
+  font-size: 1.02rem;
+  color: var(--ink);
+  opacity: 0.78;
+  max-width: 52ch;
+  /* clears the h-set's underline, which sits below the headline's box */
+  margin: 0.9rem 0 1rem;
+}
+
+.sz-stage {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.4rem;
+}
+
+.sz-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.sz-rule {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  opacity: 0.55;
+  margin: 0.6rem 0 0;
+}
+
+.sz-kicker {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.3vw, 1.7rem);
+  color: var(--navy);
+  line-height: 1.15;
+  margin: 0.5rem 0 0;
+}
+.sz-kicker b {
+  color: var(--orange);
+}
+
+.sz-src {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink);
+  opacity: 0.42;
+  margin: 0.6rem 0 0;
+}
+
+/* ══ VARIANT A — the competition ══════════════════════════════════════════
+   Top: the attention bar, always exactly full — that is the whole argument.
+   Bottom: the window's blocks, your instruction in orange, the rest grey. */
+
+.sz-a-stage {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.sz-a-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sz-a-turn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* The bar is ALWAYS 100% wide. Only the split moves. */
+.sz-a-bar {
+  position: relative;
+  display: flex;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #00327d0f;
+  border: 1px solid var(--hair);
+}
+.sz-a-slice {
+  height: 100%;
+  transition: width 700ms var(--ease), opacity 700ms var(--ease);
+}
+/* your instruction's share */
+.sz-a-slice.mine {
+  background: var(--orange);
+}
+/* everything else, weighted toward the newest blocks — sparser, not flatter.
+   #44: at 128k the top 4k columns still carry ~96.8% of the mass, so an even
+   grey wash would be the WRONG picture. */
+.sz-a-slice.recent {
+  background: var(--signal);
+}
+.sz-a-slice.rest {
+  background: #00327d24;
+}
+
+.sz-a-legend {
+  display: flex;
+  gap: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.sz-a-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+  vertical-align: -1px;
+}
+.sz-a-legend .mine i {
+  background: var(--orange);
+}
+.sz-a-legend .recent i {
+  background: var(--signal);
+}
+.sz-a-legend .rest i {
+  background: #00327d24;
+}
+.sz-a-legend .mine {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+/* the readout — the share as a number, because 0.9% has to be READ to land */
+.sz-a-share {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+  color: var(--orange);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* the window's contents */
+.sz-a-window {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+  min-height: 56px;
+}
+.sz-a-block {
+  width: 18px;
+  height: 10px;
+  border-radius: 2px;
+  background: #00327d1f;
+  animation: sz-pop 320ms var(--ease) both;
+}
+.sz-a-block.mine {
+  background: var(--orange);
+  box-shadow: 0 0 0 2px #ff660033;
+}
+@keyframes sz-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+
+.sz-a-verdict {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  color: var(--navy);
+  min-height: 1.6em;
+}
+.sz-a-verdict.bad {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+/* ══ VARIANT B — the wrong place ══════════════════════════════════════════
+   Left: the window as a tall column with the fact card moving through it.
+   Right: the score, judged against a fixed closed-book line. */
+
+.sz-b-stage {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.2fr);
+  gap: 2rem;
+  align-items: stretch;
+}
+
+.sz-b-col {
+  position: relative;
+  height: 256px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #00327d0d 0 7px,
+    transparent 7px 14px
+  );
+  overflow: hidden;
+}
+.sz-b-fact {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 38px;
+  border-radius: 5px;
+  background: var(--orange);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 0 0.5rem;
+  transition: top 800ms var(--ease);
+}
+.sz-b-col-tag {
+  position: absolute;
+  left: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+  opacity: 0.6;
+}
+.sz-b-col-tag.top {
+  top: 6px;
+}
+.sz-b-col-tag.bot {
+  bottom: 6px;
+}
+
+/* the scoreboard */
+.sz-b-score {
+  display: grid;
+  align-content: center;
+  gap: 0.5rem;
+}
+.sz-b-big {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.6vw, 4.2rem);
+  line-height: 1;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+  transition: color 500ms var(--ease);
+}
+.sz-b-big.below {
+  color: var(--orange);
+}
+.sz-b-big span {
+  font-size: 0.4em;
+}
+
+/* the closed-book line — drawn, not stated */
+.sz-b-track {
+  position: relative;
+  height: 104px;
+  border-left: 2px solid var(--hair);
+  margin-top: 0.6rem;
+}
+.sz-b-fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 120px;
+  background: var(--signal);
+  border-radius: 0 3px 0 0;
+  transition: height 700ms var(--ease), background 500ms var(--ease);
+}
+.sz-b-fill.below {
+  background: var(--orange);
+}
+.sz-b-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed var(--navy);
+  opacity: 0.55;
+}
+.sz-b-line span {
+  position: absolute;
+  left: 136px;
+  top: -1.35em;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--navy);
+  letter-spacing: 0.04em;
+}
+.sz-b-read {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--navy);
+  min-height: 1.5em;
+}
+.sz-b-read.bad {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+/* ══ VARIANT C — the gauge lies ═══════════════════════════════════════════
+   A session tank across the width, a calm Copilot-style gauge chip in the
+   corner, and the turn-1 brief quietly losing its lines. */
+
+.sz-c-stage {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.sz-c-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sz-c-turn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* the gauge chip — deliberately calm, deliberately correct */
+.sz-c-gauge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--signal);
+  background: #0066cc0d;
+}
+.sz-c-gauge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #14a44d;
+}
+
+/* the tank */
+.sz-c-tank {
+  position: relative;
+  height: 46px;
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  background: #00327d08;
+  overflow: hidden;
+}
+.sz-c-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 1;
+  background: var(--signal);
+  opacity: 0.85;
+  transition: width 800ms var(--ease);
+}
+/* the soft band — 100k to 150k, a band and not a line, on purpose. Sits ABOVE
+   the fill: the band is the only thing on the tank that means anything. */
+.sz-c-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(
+    45deg,
+    #ff6600cc 0 4px,
+    #ff6600 4px 8px
+  );
+  border-left: 1px solid #ff6600;
+  border-right: 1px solid #ff6600;
+}
+.sz-c-marks {
+  position: relative;
+  height: 1.6em;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink);
+  opacity: 0.6;
+}
+.sz-c-mark {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.sz-c-mark.far {
+  left: 100%;
+  transform: translateX(-100%);
+  color: var(--signal);
+  opacity: 0.75;
+}
+
+/* the brief */
+.sz-c-brief {
+  border-top: 1px solid var(--hair);
+  padding-top: 0.7rem;
+  display: grid;
+  gap: 0.3rem;
+}
+.sz-c-line {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--navy);
+  transition: opacity 700ms var(--ease), color 700ms var(--ease);
+}
+.sz-c-line::before {
+  content: "— ";
+  color: var(--signal);
+}
+.sz-c-line.dead {
+  opacity: 0.24;
+  text-decoration: line-through;
+  text-decoration-color: #ff660066;
+}
+.sz-c-note {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--orange);
+  font-weight: 600;
+  min-height: 1.5em;
+}
+.sz-c-note.calm {
+  color: var(--navy);
+  font-weight: 400;
+}
+
+/* ══ The prototype switcher bar — never ships ══════════════════════════════ */
+
+.proto-bar {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #00327d;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  box-shadow: 0 12px 34px -12px #00327d99;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.proto-bar button {
+  font: inherit;
+  color: #fff;
+  background: #ffffff1f;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+.proto-bar button:hover {
+  background: #ffffff33;
+}
+.proto-bar .name {
+  padding: 0 0.5rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}

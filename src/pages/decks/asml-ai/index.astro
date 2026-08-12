@@ -17,6 +17,10 @@
 // reveal.js base + our fresh light theme (import order = cascade order).
 import "reveal.js/dist/reveal.css";
 import "./theme-asml.css";
+// PROTOTYPE (#52) — chapter 4's smart-zone slide, three variants.
+// Throwaway; dies with the branch `prototype/smart-zone`.
+import "./prototype-smart-zone.css";
+import * as SZ from "../../../lib/asml-ai/prototype-smart-zone";
 
 const promptCode = `// Token-aware prompt assembly
 export function assemblePrompt(sections: Section[], budget: number) {
@@ -1514,11 +1518,281 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4d ─── GAP: the smart zone (widget, #52) · the cache (#56) · roll
-             back (widget, #53) · the guardrails (#55) · hygiene (#56) · the
-             payoff (#57). Built by #58 and #59. Do not add them here without
-             their grillings — the copy above was pulled forward deliberately;
-             the rest was not. -->
+        <!-- ┌──────────────────────────────────────────────────────────────┐
+             │ PROTOTYPE (#52) — THREE VARIANTS, NOT THREE SLIDES.          │
+             │                                                              │
+             │ One slide — chapter 4's smart zone — drawn three ways,       │
+             │ switchable with ?variant=A|B|C and the floating bar. Only    │
+             │ the selected one survives into the deck (pruned before       │
+             │ reveal counts slides), so it is judged in its real           │
+             │ neighbourhood: the thesis before it, the cache gap after.    │
+             │                                                              │
+             │ The FRAME is locked by the spine grilling (#54) and is       │
+             │ identical in all three — same eyebrow, same headline, same   │
+             │ job (mechanism and budget only), same ending (on the         │
+             │ problem, never the fix). They disagree only about the        │
+             │ MECHANIC. Copy and numbers live in                           │
+             │ src/lib/asml-ai/prototype-smart-zone.ts.                     │
+             │                                                              │
+             │ Every variant is fragment-driven and re-derives its whole    │
+             │ state from reveal's fragment count, so ← and → replay        │
+             │ correctly in both directions (the al-spine lesson).          │
+             └──────────────────────────────────────────────────────────────┘ -->
+
+        <!-- ── VARIANT A ── the competition ────────────────────────────────
+             Teaches the MECHANISM: attention mass sums to 1, so a longer
+             window means a smaller share for your instruction. Deliberately
+             does NOT dim everything evenly — #44 kills the flat-dilution
+             picture (attention gets sparser, not flatter), so the mass
+             visibly concentrates on the newest blocks instead. -->
+        <section
+          class="sz"
+          data-section="04 — Best practices"
+          data-sz
+          data-sz-variant="A"
+          data-frags
+        >
+          <span class="eyebrow">{SZ.EYEBROW}</span>
+          <h2 class="h-set">
+            {SZ.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+          <p class="sz-lede">
+            Everything in the window competes for the same fixed pool of
+            attention. Add context, and your instruction keeps its place
+            &mdash; but loses its share.
+          </p>
+
+          <div class="sz-stage sz-a-stage">
+            <div class="sz-a-head">
+              <span class="sz-tag" set:html={SZ.A_BAR_LABEL} />
+              <span class="sz-a-turn" data-sz-a-turn />
+            </div>
+            <div class="sz-a-bar" data-sz-a-bar>
+              <i class="sz-a-slice mine" data-sz-a-mine />
+              <i class="sz-a-slice recent" data-sz-a-recent />
+              <i class="sz-a-slice rest" data-sz-a-rest />
+            </div>
+            <div class="sz-a-legend">
+              <span class="mine"><i />your instruction</span>
+              <span class="recent"><i />the last few turns</span>
+              <span class="rest"><i />everything else</span>
+            </div>
+            <div>
+              <div class="sz-tag">attention left on your instruction</div>
+              <div class="sz-a-share" data-sz-a-share>34%</div>
+            </div>
+            <div class="sz-a-window" data-sz-a-window />
+            <p class="sz-a-verdict" data-sz-a-verdict />
+          </div>
+
+          <p class="sz-rule">{SZ.BUDGET_RULE}</p>
+          <p class="sz-kicker" data-sz-kicker hidden>
+            Nothing was deleted. <b>It just stopped winning.</b>
+          </p>
+
+          <div class="sz-spine" data-sz-spine aria-hidden="true">
+            <span class="fragment" />
+            <span class="fragment" />
+            <span class="fragment" />
+          </div>
+
+          <aside class="notes">
+            PROTOTYPE variant A — the competition. Three →: turn 1, turn 12,
+            turn 40, then the kicker. The bar never changes width; only the
+            split moves. That is the argument.
+
+            WHAT IT CLAIMS, AND WHY IT SURVIVES #44: per-decision attention
+            mass really is conserved (softmax rows sum to 1) and Anthropic uses
+            "attention budget" in its own writing. What is deliberately NOT
+            claimed: that doubling context quadruples interference (a category
+            error — O(n²) is a compute cost, competition grows linearly), and
+            that attention goes flat (it goes sparser — hence the blue slice
+            growing, not a grey wash).
+
+            RISK TO WATCH FOR: this is the most abstract of the three, and it
+            is the only one that asks the room to accept a mechanism on trust.
+          </aside>
+        </section>
+
+        <!-- ── VARIANT B ── the wrong place ────────────────────────────────
+             Teaches POSITION, which #44 promotes from consequence to co-equal
+             cause. Built on the research doc's "best empirical opener, by a
+             distance": with the answer in the wrong place the model scored
+             BELOW its own closed-book score. Three discrete positions, not a
+             curve — #44 warns against drawing a clean U on 2026 models. -->
+        <section
+          class="sz"
+          data-section="04 — Best practices"
+          data-sz
+          data-sz-variant="B"
+          data-frags
+        >
+          <span class="eyebrow">{SZ.EYEBROW}</span>
+          <h2 class="h-set">
+            {SZ.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+          <p class="sz-lede">
+            Same model. Same question. Same fact, in the window all three
+            times. Only its <b>position</b> changes.
+          </p>
+
+          <div class="sz-stage sz-b-stage">
+            <div>
+              <div class="sz-b-col" data-sz-b-col>
+                <span class="sz-b-col-tag top">start of the window</span>
+                <span class="sz-b-col-tag bot">end of the window</span>
+                <div class="sz-b-fact" data-sz-b-fact>the answer</div>
+              </div>
+              <p class="sz-src">{SZ.B_SOURCE}</p>
+            </div>
+
+            <div class="sz-b-score">
+              <span class="sz-tag" data-sz-b-label />
+              <div class="sz-b-big" data-sz-b-big>
+                0<span>%</span>
+              </div>
+              <div class="sz-b-track" data-sz-b-track>
+                <i class="sz-b-fill" data-sz-b-fill />
+                <span class="sz-b-line" data-sz-b-line>
+                  <span>told it nothing at all &mdash; 56%</span>
+                </span>
+              </div>
+              <p class="sz-b-read" data-sz-b-read />
+            </div>
+          </div>
+
+          <p class="sz-rule">{SZ.BUDGET_RULE}</p>
+          <p class="sz-kicker" data-sz-kicker hidden>
+            That shape is there in a model that has <b>never been trained.</b>
+          </p>
+
+          <div class="sz-spine" data-sz-spine aria-hidden="true">
+            <span class="fragment" />
+            <span class="fragment" />
+            <span class="fragment" />
+          </div>
+
+          <aside class="notes">
+            PROTOTYPE variant B — the wrong place. Three →: top, bottom,
+            middle. The order matters — the two good positions first, so the
+            third is a fall, not a reading.
+
+            THE BEAT: when the card lands in the middle the number drops
+            through the dashed line and turns orange. That line is the model's
+            score with NO documents at all. Handing it the answer in the wrong
+            place was worse than handing it nothing.
+
+            THE KICKER is the "not a bug" line #44 rates highest: the U-shape
+            is present at initialisation, in a network that has never been
+            trained. It is the shape of the machine.
+
+            RISK TO WATCH FOR: the numbers are 2023, one model. The small
+            print says so on purpose. It teaches position but says nothing
+            about session LENGTH, which is what the chapter actually needs.
+          </aside>
+        </section>
+
+        <!-- ── VARIANT C ── the gauge lies ─────────────────────────────────
+             Teaches the BUDGET and the INVISIBILITY. Answers the map's open
+             fog directly: #45 found Copilot now DOES show a context gauge, so
+             "you get no warning" only survives in its precise form — the
+             gauge is honest about the tank and silent about the engine. -->
+        <section
+          class="sz"
+          data-section="04 — Best practices"
+          data-sz
+          data-sz-variant="C"
+          data-frags
+        >
+          <span class="eyebrow">{SZ.EYEBROW}</span>
+          <h2 class="h-set">
+            {SZ.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+          <p class="sz-lede">
+            One session, one afternoon. Nothing on screen ever tells you
+            anything is wrong.
+          </p>
+
+          <div class="sz-stage sz-c-stage">
+            <div class="sz-c-top">
+              <span class="sz-c-turn" data-sz-c-turn />
+              <span class="sz-c-gauge">
+                <i />context <b data-sz-c-gauge>2%</b> used
+              </span>
+            </div>
+
+            <div>
+              <div class="sz-c-tank">
+                <i class="sz-c-band" data-sz-c-band />
+                <i class="sz-c-fill" data-sz-c-fill />
+              </div>
+              <div class="sz-c-marks" data-sz-c-marks>
+                <span class="sz-c-mark" data-sz-c-mark-soft>100k</span>
+                <span class="sz-c-mark" data-sz-c-mark-hard>150k</span>
+                <span class="sz-c-mark far">1M &mdash; the window you paid for</span>
+              </div>
+            </div>
+
+            <div class="sz-c-brief">
+              <span class="sz-tag">what you wrote in turn 1</span>
+              {SZ.C_BRIEF.map((l, i) => (
+                <span class="sz-c-line" data-sz-c-line={i}>
+                  {l}
+                </span>
+              ))}
+            </div>
+            <p class="sz-c-note" data-sz-c-note />
+          </div>
+
+          <p class="sz-rule">{SZ.BUDGET_RULE}</p>
+          <p class="sz-kicker" data-sz-kicker hidden>
+            It tells you the tank is full.<br />
+            <b>Not that the engine started misfiring at a quarter tank.</b>
+          </p>
+
+          <div class="sz-spine" data-sz-spine aria-hidden="true">
+            <span class="fragment" />
+            <span class="fragment" />
+            <span class="fragment" />
+          </div>
+
+          <aside class="notes">
+            PROTOTYPE variant C — the gauge lies. Three →: turn 6, turn 21,
+            turn 44, then the kicker. The gauge chip stays green and stays
+            CORRECT the whole way — that is the trap, not a mistake in the
+            widget.
+
+            THE BEAT: the brief's lines are struck through one at a time while
+            the tank is still nowhere near full. The room watches the
+            instructions die with 79% of the window unused.
+
+            THE BAND is #44's wording constraint made visual — a soft band, not
+            a cliff, and the fade starts BEFORE it. Never say "it's fine up to
+            100k"; say "budget for ~100k".
+
+            RISK TO WATCH FOR: this is the only variant that shows a session
+            rather than a mechanism, so it is closest in shape to the roll-back
+            widget one slide later. Check the two do not read as the same
+            picture twice.
+          </aside>
+        </section>
+
+        <!-- 4d ─── GAP: the cache (#56) · roll back (widget, #53) · the
+             guardrails (#55) · hygiene (#56) · the payoff (#57). Built by #58
+             and #59. Do not add them here without their grillings — the copy
+             above was pulled forward deliberately; the rest was not. -->
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
@@ -1927,6 +2201,17 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      // ══ PROTOTYPE (#52) — variant pruning, BEFORE reveal counts slides ══
+      //    Three variants sit in the DOM; exactly one survives, so the deck
+      //    walks at its real length and the slide is judged in its real
+      //    neighbourhood (the thesis before it, the chapter-4 gap after).
+      import * as SZP from "../../../lib/asml-ai/prototype-smart-zone";
+      const szParams = new URLSearchParams(window.location.search);
+      const szVariant = (szParams.get("variant") ?? "A").toUpperCase();
+      document.querySelectorAll<HTMLElement>("[data-sz]").forEach((s) => {
+        if (s.dataset.szVariant !== szVariant) s.remove();
+      });
 
       const deck = new Reveal({
         hash: true,
@@ -3622,6 +3907,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
         }
+        // PROTOTYPE (#52). Same contract as the chapter-3 islands: the whole
+        // visual is re-derived from the fragment count, so entering from
+        // either direction lands on the right state.
+        if (slide.hasAttribute("data-sz")) syncSmartZone(slide);
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
@@ -3641,9 +3930,178 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
+        if (section?.hasAttribute("data-sz")) syncSmartZone(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
+
+      /* ══════════════════════════════════════════════════════════════════════
+       *  PROTOTYPE (#52) — chapter 4's smart-zone slide, three variants.
+       *  Throwaway. All three read the same fragment count and re-derive
+       *  everything from it; none holds state of its own.
+       *
+       *  THREE fragments in every variant, and they mean the same thing in
+       *  each: step 1, step 2, then the kicker. So the presenter's hand does
+       *  the same thing whichever variant wins.
+       * ═══════════════════════════════════════════════════════════════════ */
+
+      /** how many of this slide's spine fragments are currently revealed */
+      function szStep(slide: HTMLElement): number {
+        const spine = slide.querySelector("[data-sz-spine]");
+        if (!spine) return 0;
+        return spine.querySelectorAll(".fragment.visible").length;
+      }
+
+      function syncSmartZone(slide: HTMLElement) {
+        const step = szStep(slide);
+        const v = slide.dataset.szVariant;
+        // The kicker is the last fragment in all three — never a state of the
+        // widget, always the line the slide ends on.
+        const kicker = slide.querySelector<HTMLElement>("[data-sz-kicker]");
+        if (kicker) kicker.hidden = step < 3;
+        if (v === "A") szA(slide, Math.min(step, 2));
+        if (v === "B") szB(slide, Math.min(step, 2));
+        if (v === "C") szC(slide, Math.min(step, 2));
+      }
+
+      // ── A — the competition ───────────────────────────────────────────────
+      //    The bar is always exactly full. Only the split moves: your
+      //    instruction's slice collapses while the newest turns take the mass.
+      //    Sparser, not flatter — #44's correction, drawn.
+      function szA(slide: HTMLElement, i: number) {
+        const s = SZP.A_STATES[i];
+        const q = <T extends HTMLElement>(sel: string) =>
+          slide.querySelector<T>(sel);
+
+        q("[data-sz-a-turn]")!.textContent = `${s.turn} · ${s.blocks} blocks in the window`;
+
+        const mine = s.share * 100;
+        // The recent turns take an ever-larger cut of what is left.
+        const recent = (100 - mine) * (0.28 + 0.3 * i);
+        q<HTMLElement>("[data-sz-a-mine]")!.style.width = `${mine}%`;
+        q<HTMLElement>("[data-sz-a-recent]")!.style.width = `${recent}%`;
+        q<HTMLElement>("[data-sz-a-rest]")!.style.width = `${100 - mine - recent}%`;
+
+        const share = q("[data-sz-a-share]")!;
+        share.textContent = mine >= 1 ? `${Math.round(mine)}%` : `${mine.toFixed(1)}%`;
+
+        // The window's contents, rebuilt at the new length. Block 0 is yours.
+        const win = q("[data-sz-a-window]")!;
+        win.textContent = "";
+        for (let b = 0; b < s.blocks; b++) {
+          const el = document.createElement("i");
+          el.className = b === 0 ? "sz-a-block mine" : "sz-a-block";
+          el.style.animationDelay = `${Math.min(b, 24) * 12}ms`;
+          win.append(el);
+        }
+
+        const verdict = q("[data-sz-a-verdict]")!;
+        verdict.textContent = s.verdict;
+        verdict.classList.toggle("bad", i === SZP.A_STATES.length - 1);
+      }
+
+      // ── B — the wrong place ───────────────────────────────────────────────
+      //    Top, then bottom, then middle. The fall is the point, so the two
+      //    good positions have to come first.
+      function szB(slide: HTMLElement, i: number) {
+        const s = SZP.B_STATES[i];
+        const q = <T extends HTMLElement>(sel: string) =>
+          slide.querySelector<T>(sel);
+
+        const col = q("[data-sz-b-col]")!;
+        const fact = q<HTMLElement>("[data-sz-b-fact]")!;
+        const h = col.clientHeight || 340;
+        const top = s.pos === "top" ? 10 : s.pos === "bottom" ? h - 54 : h / 2 - 22;
+        fact.style.top = `${top}px`;
+
+        q("[data-sz-b-label]")!.textContent = s.label;
+        const below = s.score < SZP.B_CLOSED_BOOK;
+
+        const big = q("[data-sz-b-big]")!;
+        big.innerHTML = `${s.score.toFixed(1)}<span>%</span>`;
+        big.classList.toggle("below", below);
+
+        // The bar and the closed-book line share one scale, so the crossing is
+        // seen rather than computed.
+        const track = q("[data-sz-b-track]")!;
+        const th = track.clientHeight || 120;
+        const scale = (n: number) => (n / 100) * th;
+        const fill = q<HTMLElement>("[data-sz-b-fill]")!;
+        fill.style.height = `${scale(s.score)}px`;
+        fill.classList.toggle("below", below);
+        q<HTMLElement>("[data-sz-b-line]")!.style.bottom = `${scale(SZP.B_CLOSED_BOOK)}px`;
+
+        const read = q("[data-sz-b-read]")!;
+        read.textContent = s.read;
+        read.classList.toggle("bad", below);
+      }
+
+      // ── C — the gauge lies ────────────────────────────────────────────────
+      //    The tank fills, the brief's lines die, and the gauge stays calm and
+      //    correct throughout. The gauge is not lying about the tank — that is
+      //    exactly why the line works.
+      function szC(slide: HTMLElement, i: number) {
+        const s = SZP.C_STATES[i];
+        const q = <T extends HTMLElement>(sel: string) =>
+          slide.querySelector<T>(sel);
+
+        // LINEAR against the advertised window, and it has to stay linear: a
+        // log scale made the tank read ~68% full while the gauge above it read
+        // 21%, which contradicts the slide's own argument. The band sitting
+        // uncomfortably close to the left edge IS the point — Pocock's line,
+        // "a session can be deep in the dumb zone with most of the window free."
+        const pct = (n: number) => (n / SZP.C_WINDOW) * 100;
+
+        q("[data-sz-c-turn]")!.textContent =
+          `${s.turn} · ${s.tokens.toLocaleString("en-US")} tokens in the session`;
+        q("[data-sz-c-gauge]")!.textContent = s.gauge;
+        q<HTMLElement>("[data-sz-c-fill]")!.style.width = `${pct(s.tokens)}%`;
+
+        const band = q<HTMLElement>("[data-sz-c-band]")!;
+        band.style.left = `${pct(SZP.C_SOFT)}%`;
+        band.style.width = `${pct(SZP.C_HARD) - pct(SZP.C_SOFT)}%`;
+        q<HTMLElement>("[data-sz-c-mark-soft]")!.style.left = `${pct(SZP.C_SOFT)}%`;
+        q<HTMLElement>("[data-sz-c-mark-hard]")!.style.left = `${pct(SZP.C_HARD)}%`;
+
+        slide.querySelectorAll<HTMLElement>("[data-sz-c-line]").forEach((el, n) => {
+          el.classList.toggle("dead", n >= s.live);
+        });
+
+        const note = q("[data-sz-c-note]")!;
+        note.textContent = s.note;
+        note.classList.toggle("calm", i === 0);
+      }
+
+      // ── the switcher bar. Never ships; dies with the branch. ──────────────
+      {
+        const keys = ["A", "B", "C"];
+        const el = (tag: string, cls?: string, txt?: string) => {
+          const n = document.createElement(tag);
+          if (cls) n.className = cls;
+          if (txt) n.textContent = txt;
+          return n;
+        };
+        const cycle = (d: number) => {
+          const p = new URLSearchParams(window.location.search);
+          p.set("variant", keys[(keys.indexOf(szVariant) + d + 3) % 3]);
+          window.location.search = p.toString();
+        };
+        const bar = el("div", "proto-bar");
+        const prev = el("button", undefined, "‹") as HTMLButtonElement;
+        const next = el("button", undefined, "›") as HTMLButtonElement;
+        prev.onclick = () => cycle(-1);
+        next.onclick = () => cycle(1);
+        bar.append(
+          prev,
+          el("span", "name", `#52 · ${szVariant} — ${SZP.NAMES[szVariant] ?? "?"} · v to cycle`),
+          next,
+        );
+        document.body.append(bar);
+        // "v" cycles. ← / → stay with the fragments, which are being judged.
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "v" || e.key === "V") cycle(1);
+        });
+      }
     </script>
   </body>
 </html>
