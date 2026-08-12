@@ -94,6 +94,139 @@ const cacheRebuild = cacheModel.input * CACHE_WRITE_MULTIPLIER * cachePerM;
 const fmtCredits = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 
 /**
+ * Chapter 4's guardrails slide (#55) — the "without" wall. Static, no island.
+ *
+ * The mechanic is WHAT COMES BACK: the same check on both sides of the slide,
+ * and the only variable is what the agent receives. So the two halves must be
+ * the SAME RUN — the verdict's three tokens (FAIL, line 14, type mismatch) are
+ * all findable in the noise, and if you edit one side you edit the other.
+ *
+ * This is a wall to be seen, not read: it is set at a size the room cannot
+ * follow on purpose, and the count under it ("400 lines to read") is the point.
+ * Deliberately NO numbers of the evidential kind on this slide — 11% → 18% is
+ * the presenter's answer when challenged, never a caption (#55 dec. 3).
+ *
+ * The lines below are ordinary Node/Jest output because a wall of test noise is
+ * the one thing every seat in the room has already seen. Nothing here is an
+ * ASML file or an ASML result; the TU Delft + ASML study stays in the mouth and
+ * off the wall (#50).
+ */
+const GUARD_VERDICT = ["FAIL", "line 14", "type mismatch"];
+/** One coherent run, in order — NOT a shuffle. An earlier version scattered a
+ *  pool of lines and it read as gibberish to anyone who looked closely: stack
+ *  frames detached from their errors. The wall has to be genuinely unreadable
+ *  because there is too much of it, not because it is nonsense. */
+const guardNoise = [
+  "$ npm test",
+  "",
+  " PASS  src/calibration/table.test.ts",
+  "   ✓ resolves the calibration table (14 ms)",
+  "   ✓ clamps out-of-range setpoints (3 ms)",
+  "   ✓ rejects a table with duplicate keys (2 ms)",
+  " PASS  src/calibration/interpolate.test.ts",
+  "   ✓ interpolates between two known points (2 ms)",
+  "   ✓ falls back to the nearest point at the edges (1 ms)",
+  "",
+  /* The failure sits HIGH on purpose: all three of the verdict's tokens — FAIL,
+     line 14, and the type error — have to be findable in the part of the wall
+     that is still above the fade, or the two halves stop being the same run. */
+  " FAIL  src/pipeline/stage.test.ts",
+  "   ● stage › applies the offset before the gain",
+  "",
+  "     TypeError: Cannot read properties of undefined (reading 'gain')",
+  "",
+  "       12 | export function applyOffset(input: Sample, cfg: StageConfig) {",
+  "       13 |   const shifted = input.value - cfg.offset;",
+  "     > 14 |   return shifted * cfg.stage.gain;",
+  "          |                              ^",
+  "       15 | }",
+  "",
+  "       at applyOffset (src/pipeline/stage.ts:14:19)",
+  "       at Object.<anonymous> (src/pipeline/stage.test.ts:41:5)",
+  "       at Promise.then.completed (node_modules/jest-circus/build/utils.js:298:28)",
+  "       at new Promise (<anonymous>)",
+  "       at callAsyncCircusFn (node_modules/jest-circus/build/utils.js:231:10)",
+  "       at _callCircusTest (node_modules/jest-circus/build/run.js:316:40)",
+  "       at processTicksAndRejections (node:internal/process/task_queues:95:5)",
+  "       at _runTest (node_modules/jest-circus/build/run.js:252:3)",
+  "       at _runTestsForDescribeBlock (node_modules/jest-circus/build/run.js:126:9)",
+  "       at run (node_modules/jest-circus/build/run.js:71:3)",
+  "       at runAndTransformResultsToJestFormat (node_modules/jest-circus/build/legacy.js:122:21)",
+  "       at jestAdapter (node_modules/jest-circus/build/legacy-code.js:79:19)",
+  "       at runTestInternal (node_modules/jest-runner/build/runTest.js:367:16)",
+  "       at runTest (node_modules/jest-runner/build/runTest.js:444:34)",
+  "",
+  "   ✓ rejects a negative gain (1 ms)",
+  "   ✓ passes a zero offset straight through (1 ms)",
+  " PASS  src/io/frame.test.ts",
+  "   ✓ round-trips a frame header (5 ms)",
+  "   ✓ refuses a truncated payload (1 ms)",
+  " PASS  src/io/checksum.test.ts",
+  "   ✓ agrees with the reference implementation (9 ms)",
+  "",
+  "   console.warn",
+  "     deprecated: pass a Buffer, not a string",
+  "       at warn (src/io/checksum.ts:88:11)",
+  "       at checksum (src/io/checksum.ts:31:5)",
+  "       at Object.<anonymous> (src/io/checksum.test.ts:12:20)",
+  "",
+  " PASS  src/schedule/window.test.ts",
+  "   ✓ merges overlapping windows (7 ms)",
+  "   ✓ keeps disjoint windows apart (1 ms)",
+  "   ✓ orders windows by start time (2 ms)",
+  " PASS  src/schedule/retry.test.ts",
+  "   ✓ backs off exponentially (12 ms)",
+  "   ✓ gives up after the configured attempts (3 ms)",
+  " PASS  src/report/summary.test.ts",
+  "   ✓ totals a run with no failures (2 ms)",
+];
+
+/**
+ * Chapter 4's hygiene slide (#56) — the brief that quietly loses a line.
+ *
+ * The dropped constraint is index 1, and it must stay a constraint the room can
+ * see the cost of ("no new dependencies") — the slide's whole argument is that
+ * a plausible result comes back and nothing announces what went missing. There
+ * is no error state to render because there is no error: that is the mechanic.
+ */
+const HYGIENE_BRIEF = [
+  "use the existing auth",
+  "no new dependencies",
+  "keep the public API",
+  "tests must pass",
+  "European date format",
+];
+const HYGIENE_DROPPED = 1;
+
+/**
+ * Chapter 4's payoff slide (#57) — chapter 2's fork, returning stripped.
+ *
+ * The branch names come from src/lib/asml-ai/halluc.ts rather than being
+ * retyped, because recognition is the entire mechanic: if a branch key ever
+ * changes, both slides have to move together. Chapter 2's slide builds its fork
+ * at runtime; this one is rendered at build time and does NOT animate — the
+ * image is RETURNING, not arriving, so drawing it again would teach a diagram
+ * the room is supposed to already own.
+ *
+ * What is deliberately absent (#57): the route tags on the arrows, the `Fixed.`
+ * node, and everything below the two branch boxes. The route tags are spent as
+ * the presenter's ninety seconds instead — showing `smart zone` alone makes the
+ * unpaid `/grilling` look like an oversight, and showing both contests the space
+ * under branches we shrank on purpose.
+ */
+import * as HAL from "../../../lib/asml-ai/halluc";
+
+/** The chapter's two movements, hung on the fork's two branches. The verb is
+ *  the chapter's; the noun is chapter 2's; the join is the whole reveal. */
+const PAYOFF_TIERS: Record<HAL.BranchKey, { verb: string; diagnostic: string }> = {
+  factuality: { verb: "Prepare it.", diagnostic: "you fed it" },
+  faithfulness: { verb: "Defend it.", diagnostic: "you stayed sharp" },
+};
+/** The hinge is set on two lines: it is the longest string on the diagram and
+ *  one line would set the viewBox's width. Same cut as chapter 2's. */
+const payoffHingeCut = HAL.HINGE.lastIndexOf(" ", HAL.HINGE.length / 2 + 6);
+
+/**
  * Slide 7 — the context primitives. Eight blocks in three groups, copy taken
  * verbatim from wayfinder #23's resolution. Two things here are decisions, not
  * wording, and must survive edits:
@@ -1352,9 +1485,20 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 04 — "Best practices" (wayfinder map #42). The principles
-             that cut waste. Two slides land here so far — the chapter's cold
-             open and its thesis — with the smart zone, the cache, roll back,
-             the guardrails, hygiene and the payoff still to come (#58 / #59).
+             that cut waste. COMPLETE at nine screens (#58 built the first half,
+             #59 the second), in the order the spine grilling (#54) locked:
+             divider · cold open · thesis · guardrails · smart zone · cache ·
+             roll back · hygiene · payoff.
+
+             ONE ARGUMENT IN TWO MOVEMENTS — prepare it, then defend it. The back
+             half is the same preparation DECAYING, which is why the thesis line
+             "You are not prompting. You are preparing." hinges the whole
+             chapter. The two movements are divided by a SPOKEN TURN only — "and
+             then it all decays", on the way into the smart zone. There is no
+             divider and no "Part 2" slide, and adding one would break the payoff,
+             whose entire reveal is that the two movements were chapter 2's fork
+             all along. Cut order if the talk overruns live, Atil's: guardrails
+             first, then hygiene — nothing else.
 
              The thesis is the chapter's SPINE, not a practice among peers
              (#42): everything that follows is either one of these three legs
@@ -1544,10 +1688,15 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             legs have turned from promise into proof and it cost no extra
             slide.
 
-            Then hand into the rest of the chapter with the question the demos
-            have set up, spoken not shown: all three worked because you
-            prepared them — so what makes that preparation stop working? That
-            is the smart zone, and it is the whole back half of this chapter.
+            Then hand into the rest of the chapter, spoken not shown: all three
+            worked because you prepared them. The next slide is the last thing
+            you prepare — a check it can run without you — and after that the
+            chapter turns, because preparation does not hold on its own.
+
+            NOTE ON ORDER, since this note predates the spine (#54): guardrails
+            comes NEXT, not the smart zone. The chapter's turn — "and then it
+            all decays" — is spoken on the way OUT of guardrails, not out of
+            this slide. Do not spend it here.
 
             IF CHALLENGED on mechanism — "a prompt doesn't actually constrain
             anything" — that is correct and you should say so: a prompt shifts
@@ -1557,7 +1706,157 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4d ─────────────────── THE SMART ZONE (widget, #52).
+        <!-- 4d ─────────────────── THE GUARDRAILS (static, #55).
+             The last slide of the chapter's FIRST movement — "prepare it" — and
+             the reason it sits here rather than after roll back: the spine (#54)
+             moved it UP, so preparation is finished before the back half shows
+             that same preparation decaying. Do not move it back down.
+
+             ONE IMAGE, ONE CLOSING BEAT, NO NUMBERS. Deliberately the inverse of
+             the cache slide (#56), where the numbers ARE the image — same
+             architecture, opposite fill, so the two read as rhythm rather than
+             as the same slide twice. 11% → 18% is the held answer, never a
+             caption.
+
+             VOCABULARY IS DEMOTED ON PURPOSE (#50/#55 dec. 1). Scripts and
+             shared vocabulary are not evidentially equal — one is a fence, one
+             is a signpost — so vocabulary arrives as the closing fragment rather
+             than as a second column. A two-column pairing would assert a parity
+             the evidence does not support. Do not promote it.
+
+             VERIFICATION IS SAID ONCE, HERE. The thesis slide keeps the
+             principle; this slide owns the mechanism. #43's third leg lands here
+             in its renamed form, "make 'done' machine-checkable". -->
+        <section class="guard" data-section="04 — Best practices" data-frags>
+          <span class="eyebrow">Prepare a check</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>It can&rsquo;t check itself.</span></span>
+            <span class="h-line"><span>It can run your check.</span></span>
+          </h2>
+
+          <!-- The mechanic: the SAME run, twice. What differs is what came back
+               — 400 lines the agent has to read and rank, or one line it can act
+               on. The wall is meant to be seen and not read; the verdict is the
+               only thing on this slide set at reading size. -->
+          <div class="guard-pair">
+            <figure class="guard-side">
+              <figcaption class="gs-k">Without</figcaption>
+              <div class="guard-noise" aria-label="four hundred lines of raw test-runner output">
+                {guardNoise.map((l) => (
+                  <span>{l}</span>
+                ))}
+              </div>
+              <span class="gs-cap">400 lines to read</span>
+            </figure>
+            <figure class="guard-side with">
+              <figcaption class="gs-k">With</figcaption>
+              <div class="guard-verdict">
+                {GUARD_VERDICT.map((t, i) => (
+                  <span class={i === 0 ? "gv hot" : "gv"}>{t}</span>
+                ))}
+              </div>
+              <span class="gs-cap">one line to act on</span>
+            </figure>
+          </div>
+
+          <!-- The closing beat, and it points at THE ROOM, not at agents in
+               general: ASML already owns process steps, tool names, part
+               numbers. It claims only the default in the absence of names —
+               never a measured lift — which is what keeps it inside #50's
+               safety envelope. "We do have a glossary" is a win, not an
+               objection. -->
+          <p class="guard-beat fragment rise">
+            You already have the names.
+            <b>It has never been shown them.</b>
+          </p>
+
+          <aside class="notes">
+            THE HEADLINE IS THE ARGUMENT, and the weak-sounding half is the
+            strong one: it cannot check itself. That is measured — models asked
+            to review their own work without an external signal do not reliably
+            improve, and in the published experiments performance sometimes
+            degrades. The counter-literature is this slide's case, not a
+            weakness in it.
+
+            THEN THE TURN: it cannot check itself, but it can run YOUR check. A
+            script, a test, a linter, a build. Anything that comes back with a
+            verdict instead of an opinion.
+
+            WALK THE IMAGE, SLOWLY. Same check both sides. Left: it ran the
+            command and four hundred lines came back — and now the model has to
+            read them, decide which of them matters, and it is doing that with
+            the same attention budget it needs for your actual problem. Right:
+            the same run, wrapped in something you wrote, and one line comes
+            back. Fail, line fourteen, type mismatch.
+
+            THE TOKENOMICS CALLBACK, SPOKEN OVER THE NOISY BLOCK: chapter 3's
+            meter is still running. You pay for all four hundred lines, and then
+            you pay again for every turn spent heading the wrong way because of
+            them.
+
+            THIS IS THE THIRD LEG, arriving late on purpose — make "done"
+            machine-checkable. The thesis said give it a yardstick; this is the
+            yardstick it can run without you.
+
+            THE CLOSING FRAGMENT, and pause before it: you already have the
+            names. Process steps, tool names, part numbers, the words in your
+            own glossary. It has never been shown them, so it uses the
+            industry's instead. If someone says "we do have a glossary" — that
+            is a win, not an objection. Then point it there.
+
+            ── HELD ANSWERS ──
+            IF CHALLENGED on scripts, the number: SWE-agent, NeurIPS 2024. Same
+            model held constant on the same benchmark — a plain shell agent
+            scored 11.0%, purpose-built commands 18.0%. Concede freely that it
+            measured the harness's tools on 2024 models. SHARPER, and hold it in
+            reserve if the room pushes the other way: an iterative search tool
+            scored BELOW having no search tool at all. A badly shaped tool is
+            worse than no tool, which is an argument for preparing the check
+            rather than for buying more tooling.
+
+            IF ASKED "is this safe?" — a script is a smaller thing to allow than
+            open bash, and it is where the fuse goes: no production, dry-run
+            first. It is not a sandbox. Do not volunteer this; it plants a fear
+            the room has not voiced, and the honest version needs the "not a
+            sandbox" caveat with it.
+
+            THE VOCABULARY EXAMPLE, verbally and never on the wall: a study of
+            models generating code against a real industrial codebase found they
+            fall back on common patterns — returning a null pointer where that
+            codebase's own rules require an exception. Right shape, wrong house
+            style, because nobody ever showed it the house style.
+
+            ── MUST NOT CLAIM ──
+            "The agent can only do what you explicitly permitted." FALSE while
+            bash is enabled — argument-constraining patterns are fragile, and an
+            allowed shell can still reach the network. Scripts are a fuse, not a
+            sandbox. The boundary is an OS sandbox plus deny rules.
+
+            "Scripts save tokens because the command is shorter." No. The human's
+            typing is a fraction of a percent of the window. The saving is in the
+            OUTPUT and in the avoided failure chain — long chains of incorrect
+            changes are one of the biggest drivers of token waste.
+
+            98.7%, or 150k → 2k. That is MCP tool-definition loading, a different
+            thing entirely. It does not belong to scripts.
+
+            "ASML measured that AI fails." The study used small open models and
+            measured whether the code BUILT, not whether it was correct — on
+            correctness it scored zero. Quotable only as the mechanism above,
+            never as a result, and never as ours.
+
+            BANNED WORDS, all of them the ontology in a suit: OWL, RDFS,
+            neuro-symbolic, knowledge graph, semantic model, reasoner,
+            inference. The words are "shared vocabulary" and "the names you
+            already use".
+
+            HAND OVER: that is preparation — everything you can do before you
+            start. Now the turn, spoken, into the back half of the chapter: and
+            then it all decays.
+          </aside>
+        </section>
+
+        <!-- 4e ─────────────────── THE SMART ZONE (widget, #52).
              The chapter's first widget, and the start of its second movement:
              everything before this is preparation, everything after it is that
              same preparation decaying (#54). The presenter's spoken turn — "and
@@ -1958,7 +2257,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             WHERE IT ENDS: what it ran in the terminal stays run. Checkpoints
             undo what the agent typed, not what it did — every vendor says so in
             their own docs, and every one of them points at git for the rest.
-            That hands straight into guardrails.
+            Which is the guardrail you already have — a callback BACKWARDS to
+            the guardrails slide, not a set-up for it. Guardrails is four slides
+            behind you now (#54 moved it up); do not promise it here.
+
+            HAND OVER: that was the session. The last practice is the brief
+            itself — hygiene, next.
 
             ── MUST NOT CLAIM ──
             "Never correct it." Contradicts VS Code's "course-correct early" and
@@ -1992,12 +2296,306 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4h ─── GAP: guardrails (#55) · hygiene (#56) · the payoff (#57),
-             built by #59. Guardrails does NOT belong here — per the spine (#54)
-             it goes UP, between the thesis and the smart zone, closing the
-             "prepare it" movement before the "defend it" half begins. Hygiene
-             and the payoff follow roll back, in that order. Do not add any of
-             them without their grillings. -->
+        <!-- 4h ─────────────────── HYGIENE (static, #56).
+             The chapter's quietest slide and the one that inoculates chapter 5:
+             cutting it would hand an operating model built entirely of skills a
+             contradiction instead of a discipline. Atil's cut order, if the talk
+             overruns live, is guardrails first, then hygiene — nothing else.
+
+             "BE CONCISE" IS NOT HERE, and its absence is a decision, not an
+             omission (#61, map #42 Out of scope). It bought 0.31% of the bill
+             and carried a measured quality risk. Do not put it back; the slide
+             is more coherent without it, because it was the only beat about the
+             model's output while both survivors are about instructions.
+
+             THE HEADLINE IS NOT THE SPINE'S. #54 locked "Be blunt. Be
+             complete."; #56 replaced it once the centre of gravity moved to
+             instruction density — "Be blunt" was always the weakest word on the
+             slide (dropping grammar measures −1.5%, harmless and pointless).
+
+             TWO FAILURES, ONE MECHANIC. Under-specify and it invents the
+             constraint you left out; overload it and it silently drops the
+             constraint you wrote. Both look identical from outside: plausible
+             work that is not what you asked for. That is why this is ONE image
+             and not two panels of two different failures (#56 dec. 4).
+
+             THE DIAGNOSIS STAYS OFF THIS SLIDE. Nothing here names the
+             mechanism — the room watches a line go quiet and nothing else. The
+             payoff, one screen later, owns every diagnosis-shaped beat in this
+             chapter; firing one here flattens the closer. -->
+        <section class="hyg" data-section="04 — Best practices" data-frags>
+          <span class="eyebrow">Say less, better</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Be complete.</span></span>
+            <span class="h-line"><span>Then stop.</span></span>
+          </h2>
+
+          <!-- The same brief twice. The second one arrives on a press so the
+               loss is WATCHED rather than compared: nothing is added, nothing is
+               flagged, one line is simply not there any more. The gap keeps the
+               row's height so the brief cannot be read as four constraints. -->
+          <div class="hyg-pair">
+            <figure class="hyg-brief">
+              <ul>
+                {HYGIENE_BRIEF.map((c) => (
+                  <li>{c}</li>
+                ))}
+              </ul>
+              <figcaption class="hb-cap">five constraints</figcaption>
+            </figure>
+            <figure class="hyg-brief after fragment rise">
+              <ul>
+                {HYGIENE_BRIEF.map((c, i) =>
+                  i === HYGIENE_DROPPED ? <li class="gone" /> : <li>{c}</li>,
+                )}
+              </ul>
+              <figcaption class="hb-cap">&hellip; load more on top</figcaption>
+            </figure>
+          </div>
+
+          <p class="hyg-beat fragment rise">
+            No error. No warning. <b>It just isn&rsquo;t there any more.</b>
+          </p>
+
+          <aside class="notes">
+            TWO IMPERATIVES, TWO FAILURES, ONE MECHANIC — say it that way.
+
+            BE COMPLETE. Leave a constraint out and it does not ask you for it;
+            it fills the gap itself and hands you something plausible. Measured:
+            dropping one constraint from a brief costs about twelve per cent of
+            the result. And it will not ask — when a model recognises that a
+            request is ambiguous it asks most of the time, but when it does not
+            recognise the ambiguity it asks almost never. That second number is
+            the one that should worry you, because you never see it happen.
+
+            THEN STOP. This is the other end of the same problem, and it is
+            about standing instructions, not about the brief. Load enough of
+            them and adherence falls away — high at ten instructions, badly
+            degraded by several hundred — and the failure mode is the important
+            part: it does not refuse, it does not warn, it silently omits.
+
+            DRIVE THE IMAGE: press once. Same brief, one line gone. Say nothing
+            for a beat and let the room find it. Nothing was added to the screen
+            that announces the loss — that is the whole slide.
+
+            THE LANDING: no error, no warning, it just isn't there any more.
+            Then stop there. Do NOT explain what the model does or does not
+            report — the next slide is the chapter's only diagnosis and it needs
+            the room to arrive undiagnosed.
+
+            ── HELD ANSWERS ──
+            "How many skills is too many?" — focused skills beat exhaustive
+            bundles, and curated ones lift the pass rate substantially. Skills
+            are not free and not expensive. They are LOUD. The discipline is one
+            at a time, driven by you.
+
+            "So should we not use skills?" — the opposite, and this is the
+            handoff to chapter 5. Establish the discipline here and nothing
+            else; do not pre-empt the operating model.
+
+            "Doesn't 'be complete' contradict 'then stop'?" — no. Be complete
+            about the WORK; stop loading standing instructions. One is the
+            brief, the other is the furniture around it.
+
+            ── MUST NOT CLAIM ──
+            "Stacking skills wastes tokens upfront." The installed-but-unused
+            cost is a few hundred tokens. The cost is RUNNING them — the line is
+            "don't run them all at once", never "don't install many".
+
+            "Be terse to save context." Dead from both sides: the human's prose
+            is a fraction of a percent of the window. Cutting words saves
+            nothing.
+
+            Any number, on the wall or attributed to us. This slide has no
+            numbers by design, and none of the figures above is an ASML result.
+
+            "It refuses" or "it warns you" when overloaded. It does neither. The
+            measured failure is silent omission, and that is the slide.
+
+            "Skill hell", or anybody's name. Chapter 5 owns that framing.
+          </aside>
+        </section>
+
+        <!-- 4i ─────────────────── THE PAYOFF (static, #57).
+             The chapter's close, and the one image in it that is NOT new:
+             chapter 2's fork returns, stripped, with this chapter's two
+             movements written onto its two branches. Five consecutive slides
+             have landed a strong image; a sixth new one would be fatigue, but a
+             CALLBACK is a returning image, not a new one.
+
+             THE CALLBACK HANGS OFF THE MOVEMENTS, NOT THE SLIDES (#57). Run
+             per-slide and it breaks in two places: guardrails is verification,
+             which the fork actively mis-routes, and the cache is pure economics.
+             One level up it is exact — prepare it → factuality, defend it →
+             faithfulness — and the reveal is bigger, because the room discovers
+             the chapter's shape WAS chapter 2's diagnosis all along. Never claim
+             the per-slide mapping; someone will check.
+
+             THE FORK IS DELIBERATELY BARE: no route tags, no `Fixed.`, nothing
+             below the two branches, and it does not animate. Recognition, not
+             instruction. Branch names come from src/lib/asml-ai/halluc.ts so the
+             two slides can never drift apart.
+
+             THE BEAT LINE SITS IN THE SAME SLOT chapter 2 uses for "Both
+             failures look identical on screen." Same slide shape, same
+             position, forty minutes later — a callback the room feels without
+             being able to name it. -->
+        <section class="payoff" data-section="04 — Best practices" data-frags>
+          <span class="eyebrow">The one lever you hold</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>You can&rsquo;t fix the model.</span></span>
+            <span class="h-line"><span>You can fix the window.</span></span>
+          </h2>
+
+          <!-- The stage sizes BOTH the tree and the tiers, so the join between
+               a branch name and the verb under it can never drift: the tiers'
+               columns are the viewBox's own percentages, which only hold while
+               the two elements are exactly the same width. -->
+          <div class="payoff-stage">
+            <svg
+              class="fork"
+              viewBox="0 0 420 216"
+              role="img"
+              aria-label="Chapter 2's decision tree, returning: a hallucination, the question 'was the information in the context?', branching No to factuality and Yes to faithfulness."
+            >
+              <rect class="node" x="125" y="10" width="170" height="38" rx="2" />
+              <text x="210" y="30">Hallucination</text>
+              <text class="yn" x="210" y="76">{HAL.HINGE.slice(0, payoffHingeCut)}</text>
+              <text class="yn" x="210" y="94">{HAL.HINGE.slice(payoffHingeCut + 1)}</text>
+              <path class="edge" d="M210,112 L120,158" />
+              <polygon
+                class="head"
+                points="0,-4 8,0 0,4"
+                transform="translate(120,158) rotate(152)"
+              />
+              <path class="edge" d="M210,112 L300,158" />
+              <polygon
+                class="head"
+                points="0,-4 8,0 0,4"
+                transform="translate(300,158) rotate(28)"
+              />
+              <text class="yn" x="140" y="126">{HAL.BRANCHES[0].answer}</text>
+              <text class="yn" x="282" y="126">{HAL.BRANCHES[1].answer}</text>
+              <rect class="node lit" x="16" y="166" width="188" height="40" rx="2" />
+              <text class="name" x="110" y="187">
+                {HAL.BRANCHES[0].key.toUpperCase()}
+              </text>
+              <rect class="node lit" x="216" y="166" width="188" height="40" rx="2" />
+              <text class="name" x="310" y="187">
+                {HAL.BRANCHES[1].key.toUpperCase()}
+              </text>
+            </svg>
+
+            <!-- Two tiers under each branch, and the JOIN is the whole reveal:
+                 the diagram supplies the noun, the chapter supplies the verb,
+                 and the second-person diagnostic rides underneath in small type.
+                 One branch per press, because the chapter's thesis was walked a
+                 leg at a time with → and closing it the same way bookends it. -->
+            <div class="payoff-tiers">
+              {HAL.BRANCHES.map((b) => (
+                <div class="pt fragment rise" data-branch={b.key}>
+                  <span class="pt-verb">{PAYOFF_TIERS[b.key].verb}</span>
+                  <span class="pt-diag">{PAYOFF_TIERS[b.key].diagnostic}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Two guards on this line, both load-bearing (#57): never "half" —
+               no split was ever measured, and "half" invites "which half?" — and
+               always time-bound, always ending on the room. The vendor's part is
+               not unfixable; it is on someone else's release cadence. -->
+          <p class="payoff-beat fragment rise">
+            Their part ships every few months.
+            <b>Your part ships today.</b>
+          </p>
+
+          <aside class="notes">
+            ARRIVE AND SAY NOTHING NEW. "You've seen this." Let it sit. The whole
+            slide depends on the room getting a beat of recognition before any
+            label lands.
+
+            THEN THE REVEAL, ONCE, with the two presses: the first half of this
+            chapter was you making sure it was fed — that is the left branch. The
+            second half was you keeping it sharp — that is the right one. You
+            have been standing inside this diagram for forty minutes.
+
+            DO NOT RE-TEACH THE FORK. Chapter 2 owns the diagnosis. This is
+            arrival, not a second lesson — if you find yourself explaining the
+            hinge question again, the slide has failed.
+
+            THE NINETY SECONDS, and it is the chapter's best flourish: forty
+            minutes ago this diagram had a label on that arrow saying "smart
+            zone". You didn't know what it meant. Now you do. The other one says
+            "/grilling" — and that is where we are going next. Both of chapter
+            2's promises paid, and the chapter-5 transition handed over free.
+            Keep the tags OFF the screen; this is a presenter's gift, not a
+            slide's.
+
+            LAND THE CEILING AS A DIVISION OF LABOUR, NOT A SHRUG. Part of it is
+            baked in at training and is the vendor's problem. The part you
+            control is the window — which is the only word that covers both
+            movements: preparing is what you put INTO the window, defending is
+            what happens TO it over time. That is why the two movements are one
+            argument. Their part ships every few months. Yours ships today.
+
+            THEN THE SPOKEN CLOSE, unshown, and stop: "That was every move worth
+            knowing. It still isn't a way of working."
+
+            ── HELD ANSWERS ──
+            "Every few months? Models don't ship on a schedule." Concede
+            instantly and cheerfully — it is rhetoric, not a metric. "Fair. The
+            point is it's someone else's release, not your Tuesday." The line
+            survives the concession intact.
+
+            "It did what I asked and the result was still wrong." The likeliest
+            gotcha in the chapter, and the answer is a callback: that is not
+            hallucination, that is a missing check. It had the information and it
+            followed it, to the letter — that is what the guardrails slide was
+            for. If a name is wanted: asked to make a program faster, a model
+            rewrote the timer so it always reported a fast result.
+
+            "So it's partly unfixable — why bother?" The division of labour IS
+            the answer. Their part ships every few months; yours ships today,
+            and yours is the half that decides whether this afternoon goes well.
+
+            "Can you prevent hallucination outright?" No, and that is now
+            formally sourced — a calibrated model must err at some rate on
+            arbitrary facts. Then immediately the division: that bound is theirs
+            to move, the window is yours.
+
+            "Isn't sycophancy a third failure?" It lands INSIDE faithfulness —
+            the model abandons correct context because the user pushed back.
+            Not a branch; it is the roll-back slide's evidence, already spent.
+
+            ── MUST NOT CLAIM ──
+            "These are the two ways AI fails." They are two kinds of
+            HALLUCINATION. This chapter has just spent five slides on failures
+            that are neither.
+
+            That the hinge is the literature's definition. The field partitions
+            by what the output contradicts; this deck partitions by what was in
+            the window. They coincide in the common case. Ours is a diagnostic.
+
+            "Clearing restores the model." It restores the SESSION. Chapter 2
+            already told them the model is stateless, and "you can fix the
+            window" is comfortable enough to be misheard.
+
+            Any proportion. No "half", no percentage, no split between the
+            vendor's part and yours. None was ever measured.
+
+            A third branch. Specification gaming is not a hallucination under
+            either survey definition, and a branch reopens a layout that has
+            been cut down three times.
+
+            The per-slide mapping. Guardrails and the cache do not hang off a
+            branch. The claim is about the chapter's two MOVEMENTS.
+
+            "AI can't be fixed", off the lower-bound paper. Its own framing is
+            that hallucination is addressable — the remedy is simply the
+            vendor's, not this room's.
+          </aside>
+        </section>
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
