@@ -4064,3 +4064,158 @@
   font-size: 0.72rem;
   opacity: 0.55;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Chapter 4, slide 5 — THE CACHE (#56). Static: two price tags, the same token
+   count on both, and one closing fragment. No widget, no island.
+
+   THE NUMBERS ARE THE IMAGE. This slide is the deliberate inverse of the
+   guardrails slide (#55), which shows one picture and keeps its numbers off the
+   wall. Same architecture, opposite fill — so the two read as rhythm rather
+   than as the same slide twice. That is why the credit figures are set at
+   display scale here and nothing else on the slide competes with them.
+
+   COLOUR CONTRACT: the hot accent belongs to the REBUILD, and only to it. The
+   re-read tag stays navy on paper — the cheap thing should look unremarkable,
+   because the argument is that staying put is the boring default. Three
+   rejected mechanics (a control panel of four knobs, a session run with a spike
+   at the switch, the usage report) are recorded in #56. ══════════════════════ */
+
+.reveal .cache-lede {
+  font-size: 1.02rem;
+  color: var(--ink);
+  opacity: 0.82;
+  max-width: 60ch;
+  /* clears the h-set's underline, which sits below the headline's box */
+  margin: 0.9rem 0 0;
+}
+.reveal .cache-lede b {
+  color: var(--signal);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* The pair. Deliberately NOT a table and NOT two cards — they are tags, hung
+   side by side across the full stage the rest of the deck uses, and the eye is
+   meant to travel left to right and stop hard on the second one.
+
+   Two equal columns, not auto width: the tags must be the same size for the
+   same reason both token counts are shown — nothing about the work changed, so
+   nothing about the tag may change either. Only the number does. */
+.cache-tags {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  margin: clamp(0.9rem, 3vh, 1.8rem) 0 0;
+}
+
+.cache-tag {
+  display: grid;
+  justify-items: start;
+  margin: 0;
+  padding-top: 0.6rem;
+  /* the tag's string: a rule the whole column hangs from */
+  border-top: 4px solid var(--navy);
+}
+
+/* Identical on both sides, and that IS the argument: same work, same tokens,
+   nothing about the task changed, twelve and a half times the money. Never
+   style one of these differently from the other. */
+.cache-tag .ct-tok {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+  opacity: 0.9;
+}
+
+.cache-tag .ct-n {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(4rem, 13vw, 11rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.cache-tag .ct-u {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy);
+  opacity: 0.7;
+  margin-top: 0.1rem;
+}
+
+/* The verb carries the whole comparison in one word — re-read vs rebuilt — so
+   it gets the mono treatment the deck reserves for terms of art. */
+.cache-tag .ct-verb {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  opacity: 0.72;
+  margin-top: 0.35rem;
+}
+
+/* The expensive side, and the slide's single hot moment. */
+.cache-tag.hot {
+  border-top-color: var(--orange);
+}
+.cache-tag.hot .ct-n {
+  color: var(--orange);
+}
+.cache-tag.hot .ct-tok {
+  color: var(--orange);
+  opacity: 0.85;
+}
+.cache-tag.hot .ct-verb {
+  color: var(--ink);
+  opacity: 0.9;
+}
+
+/* Scope line. Small on purpose: it makes the figures checkable without
+   inviting the room to read a rate card off the wall. */
+.reveal .cache-scope {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--navy);
+  opacity: 0.55;
+  /* one caption for BOTH tags — centred across the pair, so it reads as the
+     scope of the comparison rather than a footnote to the left-hand tag */
+  text-align: center;
+  max-width: none;
+  margin: 0.9rem 0 0;
+}
+
+/* The closing beat: the four settings, then the footnote that stops "context
+   size" being read as the model's window (which would undo the smart zone two
+   screens earlier). Both arrive in one fragment — the footnote is part of the
+   claim, not an afterthought to it. */
+.cache-beat {
+  margin-top: clamp(1rem, 3.5vh, 2.2rem);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hair);
+}
+.reveal .cache-beat p {
+  font-size: clamp(1rem, 1.7vw, 1.3rem);
+  font-weight: 500;
+  color: var(--navy);
+  max-width: 70ch;
+  margin: 0;
+}
+.reveal .cache-beat .cache-fn {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--ink);
+  opacity: 0.6;
+  margin-top: 0.4rem;
+}
+.cache-beat sup {
+  color: var(--orange);
+  font-weight: 700;
+}
