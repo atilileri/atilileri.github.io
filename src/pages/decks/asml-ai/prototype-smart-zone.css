@@ -417,11 +417,42 @@
 }
 
 /* the brief */
-.sz-c-brief {
+/* The brief and the attention field sit side by side: what you asked for on
+   the left, what is actually being attended to on the right. Reading across
+   the gap is the whole point of the fold-in. */
+.sz-c-cols {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.8fr) minmax(360px, 1.4fr);
+  gap: 1.8rem;
   border-top: 1px solid var(--hair);
   padding-top: 0.7rem;
+}
+
+.sz-c-brief {
   display: grid;
   gap: 0.3rem;
+  align-content: start;
+}
+
+.sz-c-att {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+/* The block field. Sized so 76 blocks still fit on three rows — the wall has
+   to read as a wall, not as a list. */
+.sz-c-window {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-content: flex-start;
+  min-height: 24px;
+}
+.sz-c-window .sz-a-block {
+  width: 15px;
+  height: 9px;
+  /* the fade is driven per-block from the controller, so it has to animate */
+  transition: background 600ms var(--ease);
 }
 .sz-c-line {
   font-family: var(--font-mono);
@@ -438,14 +469,15 @@
   text-decoration: line-through;
   text-decoration-color: #ff660066;
 }
-.sz-c-note {
+.sz .sz-c-note {
   font-family: var(--font-body);
   font-size: 1.1rem;
   color: var(--orange);
   font-weight: 600;
   min-height: 1.5em;
+  margin: 0;
 }
-.sz-c-note.calm {
+.sz .sz-c-note.calm {
   color: var(--navy);
   font-weight: 400;
 }

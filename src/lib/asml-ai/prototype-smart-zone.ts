@@ -142,6 +142,14 @@ export interface CState {
   gauge: string;
   /** how many of the brief's lines are still being obeyed */
   live: number;
+  /** how many blocks are in the window — prompt #1 is always block 0 */
+  blocks: number;
+  /** share of the attention bar still held by prompt #1, 0–1. NO NUMBER GOES
+   *  ON SCREEN: the proportion is illustrative, and #44 rules that this shape
+   *  of figure must not be presented as measurement. It is a picture. */
+  share: number;
+  /** 0 = every block still its own vivid colour, 1 = all the same pale grey */
+  fade: number;
   note: string;
 }
 
@@ -158,26 +166,62 @@ export const C_WINDOW = 1_000_000;
 export const C_SOFT = 100_000;
 export const C_HARD = 150_000;
 
+/** the vivid start state. Every block arrives as its own distinct thing —
+ *  a file, a decision, a correction — and they all end up the same grey.
+ *  Block 0 is prompt #1 and is exempt: it stays orange to the last frame,
+ *  because "nothing was deleted" is the line the slide ends on. */
+export const C_BLOCK_HUES = [
+  "#0066cc",
+  "#00a3a3",
+  "#7b3fe4",
+  "#00994d",
+  "#d81b60",
+  "#0d47a1",
+  "#00897b",
+  "#5e35b1",
+];
+export const C_GREY = "#c3ccd9";
+
+/** Atil's turn schedule (#52): 1 · 5 · 10 · 20, tokens climbing to 214k. */
 export const C_STATES: CState[] = [
   {
-    turn: "turn 6",
-    tokens: 24_000,
-    gauge: "2%",
+    turn: "turn 1",
+    tokens: 8_000,
+    gauge: "1%",
     live: 4,
-    note: "The brief is holding.",
+    blocks: 3,
+    share: 0.42,
+    fade: 0,
+    note: "It does exactly what you asked.",
   },
   {
-    turn: "turn 21",
-    tokens: 96_000,
-    gauge: "10%",
+    turn: "turn 5",
+    tokens: 42_000,
+    gauge: "4%",
     live: 3,
+    blocks: 16,
+    share: 0.14,
+    fade: 0.42,
     note: "It renamed a function without asking.",
   },
   {
-    turn: "turn 44",
+    turn: "turn 10",
+    tokens: 96_000,
+    gauge: "10%",
+    live: 2,
+    blocks: 38,
+    share: 0.05,
+    fade: 0.76,
+    note: "It changed the public API to make its own test pass.",
+  },
+  {
+    turn: "turn 20",
     tokens: 214_000,
     gauge: "21%",
     live: 1,
+    blocks: 76,
+    share: 0.012,
+    fade: 1,
     note: "It added a dependency, and wrote the tests last.",
   },
 ];
