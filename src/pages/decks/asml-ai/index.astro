@@ -61,6 +61,39 @@ import * as SZ from "../../../lib/asml-ai/smart-zone";
 import * as RB from "../../../lib/asml-ai/roll-back";
 
 /**
+ * Chapter 4's cache slide (#56). Static — no widget, no island, so there is no
+ * src/lib file: the only thing worth holding still is the arithmetic, and it is
+ * three lines.
+ *
+ * The two price tags are DERIVED from chapter 3's rate card rather than typed,
+ * so the deck can never disagree with itself — same Opus row, same AIC-per-1M
+ * figures the cost dial shows two chapters earlier.
+ *
+ * The 1.25x cache-WRITE premium is deliberately absent from rates.ts (#21/#23:
+ * off-screen everywhere in chapter 3, presenter notes only) and map #42 leaves
+ * that decision open for the chapter-3 widget. It lives here, page-local, on
+ * purpose: this slide is the ONE place in the deck where a rebuild price goes on
+ * the wall, and it goes up as a rebuild — a thing that happened to a session —
+ * never as a rate the room is asked to learn.
+ *
+ * The 12.5x-vs-10x gap the two tags open up is a deliberate trap (#56 dec. 7),
+ * not an oversight. The answer is in the presenter note; do not pre-empt it on
+ * screen with a "+25% write" annotation.
+ */
+import { MODELS, fmtInt } from "../../../lib/asml-ai/rates";
+
+const CACHE_PREFIX_TOKENS = 100_000;
+const CACHE_WRITE_MULTIPLIER = 1.25;
+const cacheModel = MODELS.find((m) => m.id === "opus")!;
+const cachePerM = CACHE_PREFIX_TOKENS / 1_000_000;
+/** re-read the cached prefix: 5 AIC */
+const cacheReRead = cacheModel.cached * cachePerM;
+/** rebuild it from scratch — fresh input, billed as a cache write: 62.5 AIC */
+const cacheRebuild = cacheModel.input * CACHE_WRITE_MULTIPLIER * cachePerM;
+/** credits read whole where they are whole; the .5 is half the point */
+const fmtCredits = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+/**
  * Slide 7 — the context primitives. Eight blocks in three groups, copy taken
  * verbatim from wayfinder #23's resolution. Two things here are decisions, not
  * wording, and must survive edits:
@@ -1661,7 +1694,165 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4f ─────────────────── ROLL BACK (widget, #53).
+        <!-- 4f ─────────────────── THE CACHE (static, #56).
+             The chapter's money slide, and the only one in the back half whose
+             numbers go on the wall — deliberately the INVERSE of the guardrails
+             slide (#55), which keeps 11%→18% off screen and shows one image.
+             Same architecture, opposite fill: here the numbers ARE the image.
+
+             THE SLIDE SELLS THE BREAK, NOT THE DISCOUNT. Chapter 3 already
+             taught the discount (the cost dial's cached bar, the ledger's
+             "nothing is forgotten, everything is re-sent"), so a discount-led
+             slide would be chapter 3 with a different chart. The break is also
+             the only thing here a seat holder controls.
+
+             THE HEADLINE IS NOT THE SPINE'S. #54 locked "Repeating yourself is
+             cheap. / Starting over isn't."; #56 replaced it, because one slide
+             later roll back says DON'T repeat yourself — the old line licensed
+             the arguing the next slide forbids. "Staying put is cheap" also
+             covers all three of GitHub's documented breakers in one verb, and
+             rolling back IS staying put.
+
+             THIS SLIDE BANKS, ROLL BACK SPENDS: #48's "rolling back doesn't
+             break the cache — /clear does" is true, surprising, and deliberately
+             NOT used here. The spine put cache first so roll back could spend it.
+
+             Both token counts are shown identically on purpose (#56 dec. 4):
+             same work, same tokens, nothing about the task changed, twelve and a
+             half times the money. Credits, never euros — €0.58 sounds like
+             nothing and the behavioural point evaporates. -->
+        <section class="cache" data-section="04 — Best practices" data-frags>
+          <span class="eyebrow">Context is expensive</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Staying put is cheap.</span></span>
+            <span class="h-line"><span>Switching isn&rsquo;t.</span></span>
+          </h2>
+          <!-- 90% stays on screen UNQUALIFIED, and it is defensible exactly as
+               phrased: this is the READ multiplier, which is what 90% is. #46
+               only warns against 90% as a *session* claim (~78% at ten turns).
+               The wording is scoped to the re-read — do not let it drift to
+               "you save 90% on your bill". -->
+          <p class="cache-lede">
+            Copilot re-reads your context at a tenth of the price.
+            <b>90% off, every turn.</b>
+          </p>
+
+          <!-- The mechanic: two price tags, same tokens, one of them hot. The
+               orange belongs to the rebuild — the moment the room is meant to
+               flinch at — and it is the slide's single hot accent. -->
+          <div class="cache-tags">
+            <figure class="cache-tag">
+              <figcaption class="ct-tok">
+                {fmtInt(CACHE_PREFIX_TOKENS)} tokens
+              </figcaption>
+              <span class="ct-n">{fmtCredits(cacheReRead)}</span>
+              <span class="ct-u">credits</span>
+              <span class="ct-verb">re-read</span>
+            </figure>
+            <figure class="cache-tag hot">
+              <figcaption class="ct-tok">
+                {fmtInt(CACHE_PREFIX_TOKENS)} tokens
+              </figcaption>
+              <span class="ct-n">{fmtCredits(cacheRebuild)}</span>
+              <span class="ct-u">credits</span>
+              <span class="ct-verb">rebuilt</span>
+            </figure>
+          </div>
+          <p class="cache-scope">
+            Claude {cacheModel.name} &middot; GitHub&rsquo;s published rates
+          </p>
+
+          <!-- The closing beat: GitHub's own nouns for the four settings. The
+               asterisk is load-bearing, not decoration — "context size" read as
+               the model's window would actively damage the smart-zone slide two
+               screens back. -->
+          <div class="cache-beat fragment rise">
+            <p>
+              Model &middot; reasoning effort &middot; context size<sup>*</sup>
+              &middot; tools &mdash; choose them before you start, then leave
+              them alone.
+            </p>
+            <p class="cache-fn">
+              * a Copilot setting, not the model&rsquo;s window
+            </p>
+          </div>
+
+          <aside class="notes">
+            Chapter 3 taught them the discount. This slide is about losing it.
+
+            THE SETUP, briefly: cached input is a tenth of the price of fresh
+            input. That is on GitHub's own rate card as a customer-facing
+            column — "cached input", 10%. It is not an API curiosity.
+
+            THE TURN: same hundred thousand tokens on both sides. Nothing about
+            the work changed. Five credits to re-read what you already sent;
+            sixty-two and a half to build it again from cold. Let them do the
+            multiplication themselves — the gap is the slide.
+
+            SAY "credits", never euros. Sixty-two and a half credits to rebuild
+            what you could have re-read for five lands as waste; fifty-eight
+            cents lands as nothing.
+
+            THEN THE FOUR SETTINGS. This is the practice: model, reasoning
+            effort, context size, tools. Choose them before you start, then
+            leave them alone. Switching any of them mid-session throws the
+            prefix away. And it cools if you walk away — every turn you take
+            resets the clock.
+
+            IF CHALLENGED, "why 12.5x and not 10x?" — this is the trap, and it
+            is deliberate. Answer: because you don't just re-read the cache, you
+            re-write it, and writing costs a quarter more than fresh input. Ten
+            times to lose it, twelve and a half to get it back.
+
+            IF ASKED "is this real for us?" — premium requests were retired in
+            June 2026; Copilot bills AI Credits per token, cached input is a
+            column on the rate card, and since the 11th of August the usage
+            report breaks cache reads and writes out per model. An admin can
+            check it against a real invoice. Credits pool at the billing entity,
+            so the saving stretches the allowance or shrinks the overage.
+
+            IF ASKED "how much does this matter at scale?" — flag it as
+            arithmetic, not a GitHub statistic: a 1,900-credit monthly
+            allowance, 57.5 credits per avoidable break, about thirty-three
+            gratuitous breaks to burn a seat-month. Assumes a 100k prefix.
+
+            IF ASKED "doesn't compacting break it too?" — yes, and say so
+            plainly. Compaction resets the prefix. It is still the right move
+            when you are deep; it just isn't free. Do not let that contradict
+            the next slide — the roll-back ladder stands.
+
+            IF THE ROOM GOES TO OUTPUT COST: the dial that matters is Thinking
+            Effort, not verbosity. Prior turns' reasoning is kept in context and
+            billed as input — about 9.5% of all input, over five times the
+            model's visible prose — so effort is worth 5.76% against 1.31% for
+            cutting all model prose. Pleasing symmetry: the same dial that
+            breaks your cache when you move it mid-session is the real
+            output-economy control. Ammunition only — it never becomes a beat.
+
+            MUST NOT SAY, all of them (#46, #56):
+            - "you save 90% on your bill" — 90% is the READ multiplier. The
+              session figure is ~78% at ten turns, ~88% at a hundred.
+            - any TTL number, in any form. GitHub says an hour for non-OpenAI
+              models but prices Anthropic's writes at the five-minute rate, and
+              no first-party source reconciles the two. Qualitative only.
+            - "batch your file edits", "reordering your files breaks the cache",
+              "put your stable content first" — folklore for a Copilot seat.
+              True of a hand-built API prompt; the harness owns prompt order.
+            - "caches live in fast GPU memory" — asserted by no vendor doc.
+            - a promised hit. Routing is by a hash of the first few hundred
+              tokens and residency is per-machine; hits are best-effort.
+            - "cached input is 10% on every model" — scope it to OpenAI,
+              Anthropic and Google. Grok is 25%, Kimi 20%, same rate card.
+            - "premium requests". The unit was retired on 1 June 2026.
+            - any latency number. Both vendors say caching cuts latency;
+              neither publishes a figure.
+
+            HAND OVER: this one was about money. The next one is about quality,
+            and it is the move nobody in this room makes.
+          </aside>
+        </section>
+
+        <!-- 4g ─────────────────── ROLL BACK (widget, #53).
              The chapter's second and last widget, and its most counter-intuitive
              beat: the room's instinct — argue with it — is the expensive move.
 
@@ -1674,9 +1865,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              any money — is documented in the header of
              src/lib/asml-ai/roll-back.ts. Read it before editing.
 
-             NOTE ON ORDER: the cache slide (#56) belongs immediately BEFORE this
-             one per the spine (#54) and is not built yet (#58). When it lands,
-             insert it above — do not move this slide. -->
+             NOTE ON ORDER: the cache slide (#56) sits immediately above per the
+             spine (#54), so "rolling back doesn't break the cache — /clear does"
+             can be spent here. Keep them adjacent and in that order. -->
         <section
           class="rb"
           data-section="04 — Best practices"
@@ -1801,10 +1992,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4e ─── GAP: the cache (#56) · guardrails (#55) · hygiene (#56) ·
-             the payoff (#57). Built by #58 and #59. Do not add them here without
-             their grillings — the copy above was pulled forward deliberately;
-             the rest was not. -->
+        <!-- 4h ─── GAP: guardrails (#55) · hygiene (#56) · the payoff (#57),
+             built by #59. Guardrails does NOT belong here — per the spine (#54)
+             it goes UP, between the thesis and the smart zone, closing the
+             "prepare it" movement before the "defend it" half begins. Hygiene
+             and the payoff follow roll back, in that order. Do not add any of
+             them without their grillings. -->
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
