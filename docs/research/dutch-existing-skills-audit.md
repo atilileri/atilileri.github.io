@@ -40,7 +40,13 @@ Declared at `.agents/skills/teach/SKILL.md:10-20`. Seven state locations, all re
 | `./assets/*` | Reusable components shared across lessons | — (rules at `SKILL.md:63-69`) |
 | `NOTES.md` | Scratchpad for user preferences | — (`SKILL.md:138-140`) |
 
-**An eighth file exists but is unreachable.** `.agents/skills/teach/GLOSSARY-FORMAT.md` specifies a root `GLOSSARY.md` and is a genuinely good document — "add a term only when the user understands it", "be opinionated", aliases-to-avoid (`GLOSSARY-FORMAT.md:29-30`). But `SKILL.md` never mentions a glossary and never links the format doc. The only reference anywhere is a passing `[[GLOSSARY.md]]` inside `LEARNING-RECORD-FORMAT.md:41`, which is itself only read once a learning record is being written. Verified by grep across the whole skill folder: three hits, none of them from `SKILL.md`. Under the skill-authoring vocabulary this is a **context pointer** that does not exist, so the material is effectively dead (`writing-for-agents/SKILL.md:12`). **For a language journey this is the single most important missing wire** — vocabulary *is* the subject, not a side artifact.
+**An eighth artifact exists, reached by a weaker wire.** `.agents/skills/teach/GLOSSARY-FORMAT.md` specifies a root `GLOSSARY.md` and is a genuinely good document — "add a term only when the user understands it", "be opinionated", aliases-to-avoid (`GLOSSARY-FORMAT.md:29-30`).
+
+Note the convention this folder uses: **each `XYZ-FORMAT.md` is the generator spec for a workspace artifact `XYZ.md`**, and each opens with the identical shape — `# X.md Format`, then a line declaring what the artifact is and where it lives (`MISSION-FORMAT.md:1-3`, `RESOURCES-FORMAT.md:1-3`, `GLOSSARY-FORMAT.md:1-3`). `GLOSSARY-FORMAT.md:3` declares `GLOSSARY.md` "the canonical language for this teaching workspace. All explainers, exercises, and learning records should adhere to its terminology." So the glossary is a **first-class workspace artifact**, on the same footing as `MISSION.md` and `RESOURCES.md`.
+
+It is reachable, and in a **stateful** skill that matters: `LEARNING-RECORD-FORMAT.md:41` cites `[[GLOSSARY.md]]` in its disqualifier list, and that format doc is read every time a learning record is written — a routine, recurring event across sessions. The wire is real.
+
+What is true is narrower: `GLOSSARY.md` is **omitted from the workspace table** at `SKILL.md:14-20` that lists the other seven locations, so a session that never writes a learning record may not discover it. That is weaker discoverability, not death. **For a language journey it is the most important artifact in the folder** — vocabulary *is* the subject, not a side artifact — so the new skill should promote it to the top-level workspace list rather than leave it to be found sideways.
 
 Frontmatter: `disable-model-invocation: true` (`SKILL.md:4`) — `teach` is user-invoked, and the interface file confirms it (`.agents/skills/teach/agents/openai.yaml:5`, `allow_implicit_invocation: false`). That part matches the map's `/<dutch-skill> …` invocation shape exactly.
 
@@ -93,7 +99,7 @@ Read on its own merits, `teach`'s durable content is:
 - **Reference documents vs lessons**: "Lessons will rarely be revisited later — reference documents will be" (`SKILL.md:126`). For a language this maps cleanly onto vocabulary and grammar sheets.
 - **Wisdom via community** (`SKILL.md:112-120`) — and this is the one place `teach` accidentally addresses the map's open *spreken/luisteren* gap: real-world practice is delegated to a community, with an opt-out to respect.
 - **`LEARNING-RECORD-FORMAT.md` entire** — the four write triggers (`:31-36`), the "coverage is not learning" disqualifier (`:40`), and supersession over deletion (`:44-46`). Nearly free to adopt.
-- **`GLOSSARY-FORMAT.md` entire** — see §1.1; adopt it *and* wire the pointer `teach` forgot.
+- **`GLOSSARY-FORMAT.md` entire** — see §1.1; adopt it *and* promote `GLOSSARY.md` into the top-level workspace list, where a language journey needs it.
 
 ---
 
@@ -183,7 +189,7 @@ Why not the other three:
 - **Wrap** — a wrapper cannot reach `teach`: `teach` is `disable-model-invocation: true` (`teach/SKILL.md:4`), and `SKILL-MECHANICS.md:10` states plainly that a user-invoked skill can be fired by nobody but the human. Even setting that aside, a wrapper would have to override `teach`'s topic-selection rule, its output format, and its workspace paths — that is not a wrap, it is a rewrite with an unreachable dependency.
 
 **Four things this audit hands to downstream tickets:**
-- The vocabulary store is undecided territory between three candidate homes (`CONTEXT.md`, a learning `GLOSSARY.md`, and an Astro content collection) — §2, `domain-modeling`.
+- The vocabulary store is undecided territory between three candidate homes (`CONTEXT.md`, a learning `GLOSSARY.md`, and an Astro content collection) — §2, `domain-modeling`. Note `GLOSSARY-FORMAT.md:29` scopes its glossary to *compressed knowledge the user already understands*, which is a **mastery record**, not the full vocabulary inventory a learner is still acquiring. The Dutch system likely needs both, and they are different artifacts.
 - Spaced repetition gets nothing from `teach` beyond the word "spacing" — §1.3(e).
 - `to-questionnaire`'s answer-stub document is a candidate shape for the mobile-answering nice-to-have — §2.
 - `teach`'s community/wisdom section is the only existing handle on the *spreken/luisteren* gap — §1.4.
