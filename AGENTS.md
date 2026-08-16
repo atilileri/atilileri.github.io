@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Answering
+
+Write all chat answers in ASD-STE100 Simplified Technical English. Code, commit messages, and file content keep their own conventions.
+
 ## Agent skills
 
 ### Issue tracker
