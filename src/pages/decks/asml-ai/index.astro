@@ -50,6 +50,15 @@ import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
 // edit them there, not in the markup below.
 import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 
+// PROTOTYPE (#91) — chapter 5's pipeline image, three comps. Throwaway; dies
+// with the branch `prototype/pipeline-image`.
+import "./prototype-pipeline.css";
+import * as PP from "../../../lib/asml-ai/prototype-pipeline";
+// Split here rather than in the markup: `s.n <= PP.SEAM_AFTER` inside a JSX
+// expression is read as a tag opening by the Astro compiler.
+const ppBefore = PP.STAGES.filter((s) => s.n <= PP.SEAM_AFTER);
+const ppAfter = PP.STAGES.filter((s) => s.n > PP.SEAM_AFTER);
+
 // Chapter 4's smart-zone widget (#52). The session script and everything that
 // is a decision rather than a number live in src/lib — read that file's header
 // before changing what is on screen here.
@@ -2597,6 +2606,249 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
+        <!-- ╔══════════════════════════════════════════════════════════════╗
+             ║ PROTOTYPE (#91) — where chapter 5's seven-stage pipeline      ║
+             ║ image lives. Three comps, switchable with ?variant=A|B|C and  ║
+             ║ the floating bar. Only one survives the prune, so the deck    ║
+             ║ walks at its real length and each comp is judged in its real  ║
+             ║ neighbourhood — chapter 4's payoff before it.                 ║
+             ║                                                               ║
+             ║ Throwaway; dies with the branch `prototype/pipeline-image`.   ║
+             ║ Stage names and commands live in                              ║
+             ║ src/lib/asml-ai/prototype-pipeline.ts — read its header for   ║
+             ║ why stage 7 carries no command.                               ║
+             ╚══════════════════════════════════════════════════════════════╝ -->
+
+        <!-- ─────────── A: one establishing screen, straight after the divider.
+             Not a seven-box row: the picture is the SEAM, and the stages are
+             what the seam runs through. #65's gifted shape — the whole
+             argument in where the dashed line sits — reused on a different
+             claim, because that ticket's own image argues ticket slicing and
+             cannot carry seven stages or their commands. -->
+        <section
+          class="pp-a"
+          data-section="05 — Operating model"
+          data-pp
+          data-pp-variant="A"
+          data-frags
+        >
+          <span class="eyebrow">The way of working, once</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Four of these seven</span></span>
+            <span class="h-line"><span>happen before the code.</span></span>
+          </h2>
+
+          <div class="pp-a-legend">
+            <span class="before">before a line of code exists</span>
+            <span class="after">after it exists</span>
+          </div>
+
+          <div class="pp-a-body">
+            <div class="pp-a-group before">
+              {
+                ppBefore.map((s) => (
+                  <div class="pp-a-stage">
+                    <span class="n">{String(s.n).padStart(2, "0")}</span>
+                    <span class="name">{s.name}</span>
+                    <span class="cmd">{s.cmd}</span>
+                    {s.also && <span class="also">{s.also.join("  ")}</span>}
+                  </div>
+                ))
+              }
+            </div>
+
+            <i class="pp-a-seam fragment"></i>
+
+            <div class="pp-a-group after">
+              {
+                ppAfter.map((s) => (
+                  <div class="pp-a-stage">
+                    <span class="n">{String(s.n).padStart(2, "0")}</span>
+                    <span class="name">{s.name}</span>
+                    <span class:list={["cmd", !s.cmd && "none"]}>
+                      {s.cmd ?? "— no command"}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+
+          <p class="pp-a-turn fragment">
+            Chapter 4 was one person preparing.
+            <b>This is the preparation, written down.</b>
+          </p>
+
+          <aside class="notes">
+            PROTOTYPE comp A — one establishing screen. Two →: the seam lands,
+            then the turn line.
+
+            WHAT IT COSTS: one screen, immediately after the divider. Every
+            later screen then carries only its own command, and the room has
+            already seen where that stage sits.
+
+            WHAT IT BUYS: the picture argues. Nobody reads seven boxes; they
+            read one dashed line four-sevenths of the way along, and the
+            headline tells them what it means. That is the only version of an
+            establishing screen that is not a checklist for five seconds.
+
+            THE SEAM IS A CLAIM, NOT A FACT — it says the chapter's weight is
+            on the left. If the spine grilling (#70) picks an argument that
+            puts the weight on the right (nothing merges unreviewed), this
+            comp's seam moves and the headline changes with it.
+
+            THE SEVENTH COMMAND IS MISSING and the screen shows the gap
+            honestly. Five commands are locked (#7), /wayfinder is installed,
+            and nothing in .claude/skills does "document back". Decide at #70
+            whether the stage keeps its name, borrows /domain-modeling, or the
+            row shows six commands and one blank.
+          </aside>
+        </section>
+
+        <!-- ─────────── B: the rail, repeated. Three mock stage screens so the
+             cost is on the wall, not described. The screens' copy is real —
+             #73's locked wall line, #67's implement beat, #64's review line —
+             so the rail is judged against type it will actually compete with. -->
+        <section
+          class="pp-b"
+          data-section="05 — Operating model"
+          data-pp
+          data-pp-variant="B"
+        >
+          <ol class="pp-rail">
+            {
+              PP.STAGES.map((s) => (
+                <li class:list={[s.n === 2 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="pp-b-screen">
+            <h2>It only invents where<br />you left a hole.</h2>
+            <p class="lede">
+              Research fills the holes the world can fill. <b>Grilling fills
+              the rest.</b>
+            </p>
+            <span class="cmd-big">/grill-with-docs</span>
+          </div>
+          <aside class="notes">
+            PROTOTYPE comp B, screen 1 of 3 — the planning stage.
+
+            READ THE RAIL, NOT THE SCREEN. The screen's copy is #73's locked
+            line and is not on trial here. What is on trial: the rail eats the
+            top ~18% of every screen, it repeats seven names the room is not
+            reading, and the headline has lost the space it had in chapter 4.
+
+            The compensation is orientation — the room never wonders where it
+            is. Judge whether that is worth paying for on all nine-ish screens.
+          </aside>
+        </section>
+
+        <section
+          class="pp-b"
+          data-section="05 — Operating model"
+          data-pp
+          data-pp-variant="B"
+        >
+          <ol class="pp-rail">
+            {
+              PP.STAGES.map((s) => (
+                <li class:list={[s.n === 5 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="pp-b-screen">
+            <h2>The bottleneck is<br />the test, not the code.</h2>
+            <p class="lede">
+              Same agent, same benchmark: <b>94% with a test a person wrote,
+              68% writing its own.</b>
+            </p>
+            <span class="cmd-big">/implement</span>
+          </div>
+          <aside class="notes">
+            PROTOTYPE comp B, screen 2 of 3 — implementation.
+
+            Same rail, one stage further along. This is the screen where the
+            rail is most expensive: the number wants the top of the screen and
+            the rail already has it.
+          </aside>
+        </section>
+
+        <section
+          class="pp-b"
+          data-section="05 — Operating model"
+          data-pp
+          data-pp-variant="B"
+        >
+          <ol class="pp-rail">
+            {
+              PP.STAGES.map((s) => (
+                <li class:list={[s.n === 6 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="pp-b-screen">
+            <h2>Same model.<br />Different context.<br />Different verdict.</h2>
+            <p class="lede">
+              It is not a gate. <b>It is a reader that finds things.</b>
+            </p>
+            <span class="cmd-big">/code-review</span>
+          </div>
+          <aside class="notes">
+            PROTOTYPE comp B, screen 3 of 3 — review.
+
+            Three screens is enough to feel the repetition. Ask yourself on
+            this one whether you have looked at the rail since screen 1. If
+            not, it is furniture, and furniture is the argument against B.
+          </aside>
+        </section>
+
+        <!-- ─────────── C: folded into the divider. The real component, factor
+             4 lit, with the stages in the slot — so the geometry is honest
+             about what the divider actually leaves for seven commands. -->
+        <RoadmapDivider chapter={5} section="05 — Operating model">
+          <div class="pp-c-wrap">
+            <span class="tag">the process that repeats</span>
+            <ol class="pp-c-stages">
+              {
+                PP.STAGES.map((s) => (
+                  <li>
+                    {s.name}
+                    <span class:list={["cmd", !s.cmd && "none"]}>
+                      {s.cmd ?? "—"}
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+          <aside class="notes">
+            PROTOTYPE comp C — folded into the divider. Costs no screen at all.
+
+            WHAT TO LOOK FOR: two seven-across rows stacked on one slide. The
+            roadmap spine is the deck's recognition device and it has been
+            asked to share the slide with a second row of the same shape. Does
+            the callback still read, or has the divider become a diagram?
+
+            AND THE TYPE SIZE: this is the honest test of whether seven
+            commands survive at divider scale. If /grill-with-docs is
+            unreadable from the back of the room here, the commands are not
+            what the divider can carry, and locked decision #7 has to be paid
+            for somewhere else.
+
+            NOTE: this is the real RoadmapDivider with real content in its
+            slot, so what you are seeing is the true geometry, not a mock.
+          </aside>
+        </RoadmapDivider>
+
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
              here but still in the bundle: the chapter divider, the scroll-driven
@@ -3009,6 +3261,27 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      // ══ PROTOTYPE (#91) — comp pruning, BEFORE reveal counts slides ══
+      //    Five slides sit in the DOM (A · B×3 · C); only the chosen comp
+      //    survives, so the deck walks at its real length and the comp is
+      //    judged where it will really sit — chapter 4's payoff before it.
+      import * as PPP from "../../../lib/asml-ai/prototype-pipeline";
+      const ppVariant = (
+        new URLSearchParams(window.location.search).get("variant") ?? "A"
+      ).toUpperCase();
+      {
+        // Comp C is the real RoadmapDivider, so it carries no data attribute
+        // of its own — it is found by the content sitting in its slot.
+        const cSlide = document
+          .querySelector<HTMLElement>(".pp-c-wrap")
+          ?.closest("section");
+        if (ppVariant === "C") cSlide?.classList.add("pp-c");
+        else cSlide?.remove();
+        document.querySelectorAll<HTMLElement>("[data-pp]").forEach((s) => {
+          if (s.dataset.ppVariant !== ppVariant) s.remove();
+        });
+      }
 
       const deck = new Reveal({
         hash: true,
@@ -4965,6 +5238,41 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             if (k === "r") driveRollBack("reset", slide);
           });
         }
+      }
+
+      // ── PROTOTYPE (#91) switcher bar. Never ships; dies with the branch. ──
+      {
+        const keys = ["A", "B", "C"];
+        const el = (tag: string, cls?: string, txt?: string) => {
+          const n = document.createElement(tag);
+          if (cls) n.className = cls;
+          if (txt) n.textContent = txt;
+          return n;
+        };
+        const cycle = (d: number) => {
+          const p = new URLSearchParams(window.location.search);
+          p.set("variant", keys[(keys.indexOf(ppVariant) + d + 3) % 3]);
+          window.location.search = p.toString();
+        };
+        const bar = el("div", "proto-bar");
+        const prev = el("button", undefined, "‹") as HTMLButtonElement;
+        const next = el("button", undefined, "›") as HTMLButtonElement;
+        prev.onclick = () => cycle(-1);
+        next.onclick = () => cycle(1);
+        bar.append(
+          prev,
+          el(
+            "span",
+            "name",
+            `#91 · ${ppVariant} — ${PPP.NAMES[ppVariant] ?? "?"} · v to cycle`,
+          ),
+          next,
+        );
+        document.body.append(bar);
+        // "v" cycles. ← / → stay with the fragments, which are being judged.
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "v" || e.key === "V") cycle(1);
+        });
       }
     </script>
   </body>

@@ -1,0 +1,299 @@
+/**
+ * PROTOTYPE (#91) — chapter 5's seven-stage pipeline image, three comps.
+ * Throwaway; dies with the branch `prototype/pipeline-image`.
+ *
+ * Everything here is scoped under `.pp-*` so it cannot collide with the
+ * theme, and nothing in theme-asml.css is edited. Tokens only — no new
+ * colours: navy / signal / orange / ground / hair, exactly as locked.
+ */
+
+/* ═════════════════════════════════════════════ A — one establishing screen ══
+   The seven stages once, argued by where the seam sits. The stages are the
+   picture; the seam is the claim. */
+.reveal section.pp-a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.reveal .pp-a-body {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(1rem, 2.4vw, 2.2rem);
+  margin-top: clamp(2rem, 6vh, 4rem);
+}
+.reveal .pp-a-group {
+  display: flex;
+  gap: clamp(0.9rem, 2vw, 1.8rem);
+}
+.reveal .pp-a-group.before {
+  flex: 4;
+}
+.reveal .pp-a-group.after {
+  flex: 3;
+}
+/* The group labels sit ABOVE their own half, so the seam reads as a boundary
+   between two named things rather than as decoration. */
+.reveal .pp-a-legend {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(1rem, 2.4vw, 2.2rem);
+}
+.reveal .pp-a-legend > span {
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.85vw, 0.82rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #1b1b1b66;
+}
+.reveal .pp-a-legend > span.before {
+  flex: 4;
+  color: var(--navy);
+}
+.reveal .pp-a-legend > span.after {
+  flex: 3;
+}
+/* The seam. A dashed rule, not a gutter — the eye has to see a line drawn
+   through the process, because that line IS the argument. */
+.reveal .pp-a-seam {
+  width: 0;
+  border-left: 2px dashed var(--orange);
+  align-self: stretch;
+  position: relative;
+  /* reveal owns the opacity (it is a fragment); the wipe is ours */
+  transform: scaleY(0.6);
+  transform-origin: top;
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.reveal .pp-a-seam.fragment.visible {
+  transform: none;
+}
+/* the seam's own caption, set vertically so it costs no horizontal room */
+.reveal .pp-a-seam b {
+  position: absolute;
+  left: 0.65rem;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: clamp(0.58rem, 0.78vw, 0.74rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  white-space: nowrap;
+}
+.reveal .pp-a-stage {
+  flex: 1;
+  border-top: 2px solid var(--hair);
+  padding-top: 0.8rem;
+}
+.reveal .pp-a-group.before .pp-a-stage {
+  border-top-color: var(--signal);
+}
+.reveal .pp-a-stage .n {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.8vw, 0.76rem);
+  color: var(--orange);
+  letter-spacing: 0.14em;
+}
+.reveal .pp-a-stage .name {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.95rem, 1.55vw, 1.5rem);
+  line-height: 1.15;
+  color: var(--navy);
+}
+.reveal .pp-a-group.after .pp-a-stage .name {
+  color: #00327dad;
+}
+.reveal .pp-a-stage .cmd {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.92vw, 0.88rem);
+  color: var(--signal);
+  white-space: nowrap;
+}
+.reveal .pp-a-stage .cmd.none {
+  color: #1b1b1b4d;
+}
+.reveal .pp-a-stage .also {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.52rem, 0.7vw, 0.68rem);
+  color: #0066cc99;
+  white-space: nowrap;
+}
+.reveal .pp-a-turn {
+  margin-top: clamp(2rem, 6vh, 3.4rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.6vw, 2.3rem);
+  color: var(--navy);
+  line-height: 1.2;
+}
+.reveal .pp-a-turn b {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════ B — a rail on every screen ══
+   The same seven, slim, at the top of every stage screen. Shown on three mock
+   screens so the cost in real estate is on the wall rather than described. */
+.reveal section.pp-b {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.reveal .pp-rail {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.4rem, 1vw, 0.9rem);
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--hair);
+  margin-bottom: clamp(1.6rem, 5vh, 3rem);
+}
+.reveal .pp-rail li {
+  flex: 1;
+  list-style: none;
+  border-top: 2px solid var(--hair);
+  padding-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.6rem, 0.92vw, 0.9rem);
+  line-height: 1.15;
+  color: #1b1b1b3d;
+  transition: color var(--dur) var(--ease);
+}
+.reveal .pp-rail li.on {
+  color: var(--navy);
+  border-top-color: var(--orange);
+}
+.reveal .pp-rail li .cmd {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.52rem, 0.72vw, 0.7rem);
+  color: var(--signal);
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .pp-rail li.on .cmd {
+  opacity: 1;
+}
+/* the mock screen under the rail — deliberately plain house furniture, so the
+   judgement is about the rail's cost and not about the mock's design */
+.reveal .pp-b-screen h2 {
+  font-size: clamp(1.8rem, 4.2vw, 3.1rem);
+  color: var(--navy);
+  line-height: 1.08;
+  margin: 0;
+}
+.reveal .pp-b-screen .lede {
+  margin-top: clamp(1.2rem, 3.5vh, 2.2rem);
+  max-width: 30ch;
+  font-size: clamp(1rem, 1.7vw, 1.5rem);
+  line-height: 1.35;
+  color: var(--ink);
+}
+.reveal .pp-b-screen .lede b {
+  color: var(--orange);
+}
+.reveal .pp-b-screen .cmd-big {
+  display: inline-block;
+  margin-top: clamp(1.4rem, 4vh, 2.4rem);
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 2vw, 1.7rem);
+  color: var(--signal);
+  border-bottom: 3px solid var(--orange);
+  padding-bottom: 0.15rem;
+}
+
+/* ═══════════════════════════════════════════════ C — folded into the divider ══
+   The roadmap divider, factor 4 lit, with the seven stages underneath it. The
+   question this comp answers is whether seven commands survive at the type
+   size the divider leaves them. */
+.reveal .pp-c-wrap {
+  margin-top: clamp(1.6rem, 5vh, 3rem);
+}
+.reveal .pp-c-wrap .tag {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.58rem, 0.78vw, 0.74rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 0.7rem;
+}
+.reveal .pp-c-stages {
+  display: flex;
+  gap: clamp(0.5rem, 1.2vw, 1.1rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.reveal .pp-c-stages li {
+  flex: 1;
+  border-top: 1px solid var(--hair);
+  padding-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.6rem, 0.95vw, 0.92rem);
+  line-height: 1.15;
+  color: #00327db3;
+}
+.reveal .pp-c-stages li .cmd {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.5rem, 0.7vw, 0.68rem);
+  color: var(--signal);
+  white-space: nowrap;
+}
+.reveal .pp-c-stages li .cmd.none {
+  color: #1b1b1b40;
+}
+/* the divider's own spine has to give the stages room, so it stops floating in
+   the middle of the slide when this comp is live */
+.reveal section.roadmap.pp-c .roadmap-spine {
+  margin-top: clamp(2.4rem, 8vh, 5rem);
+}
+
+/* ══════════════════════════════════════════════════════ the switcher bar ══
+   Never ships; dies with the branch. */
+.proto-bar {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #00327d;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  box-shadow: 0 12px 34px -12px #00327d99;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.proto-bar button {
+  font: inherit;
+  color: #fff;
+  background: #ffffff1f;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+.proto-bar button:hover {
+  background: #ffffff33;
+}
+.proto-bar .name {
+  padding: 0 0.5rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
