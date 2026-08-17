@@ -50,6 +50,11 @@ import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
 // edit them there, not in the markup below.
 import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 
+// PROTOTYPE (#71) — chapter 5, the PROCESS SUMMARY screen. Five comps.
+// Throwaway; dies with the branch `prototype/process-summary`.
+import "./prototype-process-summary.css";
+import * as PS from "../../../lib/asml-ai/prototype-process-summary";
+
 // Chapter 4's smart-zone widget (#52). The session script and everything that
 // is a decision rather than a number live in src/lib — read that file's header
 // before changing what is on screen here.
@@ -2597,6 +2602,353 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
+
+        <!-- ╔══════════════════════════════════════════════════════════════╗
+             ║ PROTOTYPE (#71) — chapter 5: THE PROCESS SUMMARY SCREEN.      ║
+             ║ Seven stops, one screen, wayfinder through document-back.     ║
+             ║ Five comps, ?variant=A|B|C|D|E plus the floating bar. Only    ║
+             ║ the chosen comp survives the prune, so the deck walks at its  ║
+             ║ real length and each comp is judged in its real neighbourhood ║
+             ║ — chapter 4's payoff immediately before it.                   ║
+             ║                                                               ║
+             ║ Throwaway; dies with the branch `prototype/process-summary`.  ║
+             ║ The claim, the seam rule, the seven-not-six rule and the      ║
+             ║ invented example all live in                                  ║
+             ║ src/lib/asml-ai/prototype-process-summary.ts — read that      ║
+             ║ header before touching anything here.                         ║
+             ║                                                               ║
+             ║ The lit stop is reveal's `.current-fragment`. That is the      ║
+             ║ whole "one command at a time" mechanic: no widget, no key.    ║
+             ╚══════════════════════════════════════════════════════════════╝ -->
+
+        <!-- ───────── A: the rail, enlarged. The summary screen IS #91's rail
+             at full size, in the same visual language, and nothing else. It
+             carries NO small rail — on this one screen the two are the same
+             object, and that is the ticket's question 2 answered by drawing
+             rather than by arguing. ───────── -->
+        <section
+          class="ps psa"
+          data-section="05 — Operating model"
+          data-ps
+          data-ps-variant="A"
+        >
+          <span class="eyebrow">{PS.COPY.A.eyebrow}</span>
+          <h2 class="h-set">
+            {
+              PS.COPY.A.head.map((l) => (
+                <span class="h-line">
+                  <span>{l}</span>
+                </span>
+              ))
+            }
+          </h2>
+          <ol class="psa-rail">
+            {
+              PS.STOPS.map((s, i) => (
+                <li
+                  class:list={[
+                    "fragment",
+                    i > PS.SEAM && "after-seam",
+                    i === PS.SEAM + 1 && "first-after",
+                  ]}
+                >
+                  <span class="ps-name">{s.name}</span>
+                  <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                    {s.cmd ?? "no command"}
+                  </span>
+                </li>
+              ))
+            }
+          </ol>
+          <aside class="notes">
+            COMP A — the rail, enlarged. Walk the row; one command at a time.
+
+            WHAT TO JUDGE: after five seconds, does the room hold a CLAIM or a
+            LIST? #91 already ruled that a seven-across row orients and does not
+            argue. If A reads as a list, that is the finding, not a failure —
+            it says the summary screen cannot simply be the rail zoomed out.
+
+            NO SMALL RAIL HERE, on purpose. The enlarged rail and the small rail
+            are one object at two sizes; carrying both would be the same picture
+            twice on one screen.
+
+            SPOKEN, NEVER PRINTED: "four of these seven happen before a line of
+            code exists." Count it off the wall.
+          </aside>
+        </section>
+
+        <!-- ───────── B: the carried example. One invented decision travels all
+             seven stops, and each stop shows what THAT decision looked like
+             there. Contract level only — ownership, staleness, who may write —
+             never what calibration is. ───────── -->
+        <section
+          class="ps psb"
+          data-section="05 — Operating model"
+          data-ps
+          data-ps-variant="B"
+        >
+          <ol class="ps-rail all">
+            {
+              PS.RAIL.map((s) => (
+                <li>
+                  {s.name}
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{PS.COPY.B.eyebrow}</span>
+          <h2 class="h-set">
+            {
+              PS.COPY.B.head.map((l) => (
+                <span class="h-line">
+                  <span>{l}</span>
+                </span>
+              ))
+            }
+          </h2>
+          <p class="ps-decision">{PS.DECISION}</p>
+          <div class="psb-row">
+            {
+              PS.STOPS.map((s, i) => (
+                <div
+                  class:list={[
+                    "psb-stop",
+                    "fragment",
+                    i > PS.SEAM && "after-seam",
+                    i === PS.SEAM + 1 && "first-after",
+                  ]}
+                >
+                  <span class="ps-name">{s.name}</span>
+                  <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                    {s.cmd ?? "no command"}
+                  </span>
+                  <span class="psb-eg">{s.example}</span>
+                </div>
+              ))
+            }
+          </div>
+          <aside class="notes">
+            COMP B — the carried example. One decision, seven stops.
+
+            WHAT TO JUDGE: against C. Does one decision travelling all seven
+            stops help the room read the claim, or does it double the reading
+            load on the screen with the least room? B and C share their
+            geometry exactly so this is the ONLY difference between them.
+
+            THE EXAMPLE IS INVENTED AND GENERIC (locked #6) and stays at
+            contract level. If the room starts arguing calibration itself, that
+            is a finding about the example, not a reason to swap it mid-walk.
+
+            SPOKEN, NEVER PRINTED: four of these happen before a line of code.
+          </aside>
+        </section>
+
+        <!-- ───────── C: no carried example. B's geometry exactly, with the
+             travelling decision removed and the generic artefact left in its
+             place. The control. ───────── -->
+        <section
+          class="ps psc"
+          data-section="05 — Operating model"
+          data-ps
+          data-ps-variant="C"
+        >
+          <ol class="ps-rail all">
+            {
+              PS.RAIL.map((s) => (
+                <li>
+                  {s.name}
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{PS.COPY.C.eyebrow}</span>
+          <h2 class="h-set">
+            {
+              PS.COPY.C.head.map((l) => (
+                <span class="h-line">
+                  <span>{l}</span>
+                </span>
+              ))
+            }
+          </h2>
+          <div class="psb-row">
+            {
+              PS.STOPS.map((s, i) => (
+                <div
+                  class:list={[
+                    "psb-stop",
+                    "fragment",
+                    i > PS.SEAM && "after-seam",
+                    i === PS.SEAM + 1 && "first-after",
+                  ]}
+                >
+                  <span class="ps-name">{s.name}</span>
+                  <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                    {s.cmd ?? "no command"}
+                  </span>
+                  <span class="psb-writes">{s.writes}</span>
+                  <span class="psb-judged">
+                    <b>judged against</b>
+                    {s.judged}
+                  </span>
+                </div>
+              ))
+            }
+          </div>
+          <aside class="notes">
+            COMP C — pure structure, no carried example. The control against B.
+
+            WHAT TO JUDGE: this is the claim with nothing concrete under it.
+            If C reads as well as B, the example is a cost with no return and
+            the screen with the least room just got some back.
+
+            HEADLINE WARNING: "No stage marks its own homework" sits close to
+            #54's "It can't check itself. It can run your check." — already on a
+            wall in chapter 4, and #70 forbids reusing it. #92 rules whether
+            this is a different sentence or the same one in disguise.
+          </aside>
+        </section>
+
+        <!-- ───────── D: the staircase. Free swing. The ARTEFACTS become the
+             primary objects and the stage names drop to captions; each tread
+             stands on what the one before it wrote, so the claim is the
+             geometry rather than a row of labels. ───────── -->
+        <section
+          class="ps psd"
+          data-section="05 — Operating model"
+          data-ps
+          data-ps-variant="D"
+        >
+          <ol class="ps-rail all">
+            {
+              PS.RAIL.map((s) => (
+                <li>
+                  {s.name}
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{PS.COPY.D.eyebrow}</span>
+          <h2 class="h-set">
+            {
+              PS.COPY.D.head.map((l) => (
+                <span class="h-line">
+                  <span>{l}</span>
+                </span>
+              ))
+            }
+          </h2>
+          <div class="psd-stair">
+            {
+              PS.STOPS.map((s, i) => (
+                <div
+                  class:list={[
+                    "psd-tread",
+                    "fragment",
+                    i > PS.SEAM && "after-seam",
+                    i === PS.SEAM + 1 && "first-after",
+                  ]}
+                  style={`--i:${i}`}
+                >
+                  <span class="ps-name">{s.name}</span>
+                  <span class="psd-artefact">{s.writes}</span>
+                  <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                    {s.cmd ?? "no command"}
+                  </span>
+                </div>
+              ))
+            }
+          </div>
+          <aside class="notes">
+            COMP D — the staircase. The artefact is the object; the stage name
+            is the caption.
+
+            WHAT TO JUDGE: does inverting the hierarchy make the claim readable
+            without a sentence? A row of stage names is a list of departments; a
+            climb of written things is an argument about what each one owes the
+            next.
+
+            The seam is a deeper step and a change of ground. No label on it.
+
+            The last tread — the record — is what the NEXT map is judged
+            against, which is the one drawing where "document back" reads alive
+            rather than unfinished. That is a FINDING for #93, not a ruling.
+          </aside>
+        </section>
+
+        <!-- ───────── E: two keys. Free swing, and no row at all. Four stops in
+             one visual key and three in another; the seam IS the change of key.
+             The room can COUNT four-before-anything-runs off the wall without a
+             word of it being printed (locked #3 keeps that line spoken).
+             ───────── -->
+        <section
+          class="ps pse"
+          data-section="05 — Operating model"
+          data-ps
+          data-ps-variant="E"
+        >
+          <ol class="ps-rail all">
+            {
+              PS.RAIL.map((s) => (
+                <li>
+                  {s.name}
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{PS.COPY.E.eyebrow}</span>
+          <h2 class="h-set">
+            {
+              PS.COPY.E.head.map((l) => (
+                <span class="h-line">
+                  <span>{l}</span>
+                </span>
+              ))
+            }
+          </h2>
+          <div class="pse-wrap">
+            <div class="pse-half pre">
+              {
+                PS.STOPS.slice(0, PS.SEAM + 1).map((s) => (
+                  <div class="pse-cell fragment">
+                    <span class="ps-name">{s.name}</span>
+                    <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                      {s.cmd ?? "no command"}
+                    </span>
+                    <span class="pse-writes">{s.writes}</span>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="pse-fold"></div>
+            <div class="pse-half post">
+              {
+                PS.STOPS.slice(PS.SEAM + 1).map((s) => (
+                  <div class="pse-cell fragment">
+                    <span class="ps-name">{s.name}</span>
+                    <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                      {s.cmd ?? "no command"}
+                    </span>
+                    <span class="pse-writes">{s.writes}</span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <aside class="notes">
+            COMP E — two keys. Paper on the left, ink on the right, and the fold
+            between them is the seam with nothing written on it.
+
+            WHAT TO JUDGE: the room can count four and three without reading a
+            number. That is locked #3 served by composition — the evidence line
+            stays SPOKEN and is never printed.
+
+            RISK TO WATCH: two keys may read as two DIFFERENT PROCESSES rather
+            than two movements of one. If it splits the pipeline in the room's
+            head, say so — that is the comp failing on its own idea.
+          </aside>
+        </section>
+
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
              here but still in the bundle: the chapter divider, the scroll-driven
@@ -3009,6 +3361,18 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      // ══ PROTOTYPE (#71) — comp pruning, BEFORE reveal counts slides ══
+      //    Five comps sit in the DOM; only the chosen one survives, so the deck
+      //    walks at its real length and the comp is judged where it will really
+      //    sit — chapter 4's payoff immediately before it.
+      import * as PSP from "../../../lib/asml-ai/prototype-process-summary";
+      const psVariant = (
+        new URLSearchParams(window.location.search).get("variant") ?? "A"
+      ).toUpperCase();
+      document.querySelectorAll<HTMLElement>("[data-ps]").forEach((s) => {
+        if (s.dataset.psVariant !== psVariant) s.remove();
+      });
 
       const deck = new Reveal({
         hash: true,
@@ -4965,6 +5329,46 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             if (k === "r") driveRollBack("reset", slide);
           });
         }
+      }
+
+      // ── PROTOTYPE (#71) switcher bar. Never ships; dies with the branch. ──
+      //    Reveal owns `n` and `p` (next/previous slide) permanently — found on
+      //    `prototype/wayfinder-map` and inherited here — so the bar takes `v`.
+      //    No comp binds a key at all: the walk is reveal fragments.
+      {
+        const keys = ["A", "B", "C", "D", "E"];
+        const el = (tag: string, cls?: string, txt?: string) => {
+          const n = document.createElement(tag);
+          if (cls) n.className = cls;
+          if (txt) n.textContent = txt;
+          return n;
+        };
+        const cycle = (d: number) => {
+          const p = new URLSearchParams(window.location.search);
+          p.set(
+            "variant",
+            keys[(keys.indexOf(psVariant) + d + keys.length) % keys.length],
+          );
+          window.location.search = p.toString();
+        };
+        const bar = el("div", "proto-bar");
+        const prev = el("button", undefined, "\u2039") as HTMLButtonElement;
+        const next = el("button", undefined, "\u203a") as HTMLButtonElement;
+        prev.onclick = () => cycle(-1);
+        next.onclick = () => cycle(1);
+        bar.append(
+          prev,
+          el(
+            "span",
+            "name",
+            `#71 \u00b7 ${psVariant} \u2014 ${PSP.NAMES[psVariant] ?? "?"} \u00b7 v to cycle`,
+          ),
+          next,
+        );
+        document.body.append(bar);
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "v" || e.key === "V") cycle(1);
+        });
       }
     </script>
   </body>

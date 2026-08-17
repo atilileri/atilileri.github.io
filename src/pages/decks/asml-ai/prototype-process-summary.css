@@ -1,0 +1,416 @@
+/**
+ * PROTOTYPE (#71) — the process summary screen. Five comps.
+ * Throwaway; dies with the branch `prototype/process-summary`.
+ *
+ * House tokens only (theme-asml.css). No new colour is introduced, so what is
+ * judged is the composition and not a palette nobody agreed to.
+ *
+ * The lit stop is reveal's `.current-fragment` — that is the whole "commands
+ * one at a time" mechanic (#91's rule, locked #7's commands). No JS, no key.
+ */
+
+/* ══════════════════════════ shared ══════════════════════════ */
+
+/* The #91 rail, copied so the branch stands alone. Comps B–E carry it.
+   Comp A does NOT — comp A IS the rail. */
+.reveal .ps-rail {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.4rem, 1vw, 0.9rem);
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--hair);
+  margin-bottom: clamp(0.8rem, 2.4vh, 1.5rem);
+}
+.reveal .ps-rail li {
+  flex: 1;
+  list-style: none;
+  border-top: 2px solid var(--hair);
+  padding-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.6rem, 0.92vw, 0.9rem);
+  line-height: 1.15;
+  color: #1b1b1b3d;
+}
+/* On the summary screen every stop is in play, so the rail is lit whole —
+   itself a small finding: the rail's "one stage lit" grammar has no meaning
+   on the one screen that is about all seven. */
+.reveal .ps-rail.all li {
+  color: var(--navy);
+  border-top-color: #00327d40;
+}
+
+.reveal .ps h2.h-set {
+  font-size: clamp(1.4rem, 2.9vw, 2.25rem);
+  margin: 0 0 clamp(0.8rem, 2.2vh, 1.4rem);
+}
+.reveal .ps .eyebrow {
+  margin-bottom: 0.15rem;
+}
+/* The carried decision, printed once. Comp B only. */
+.reveal .ps-decision {
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.86vw, 0.8rem);
+  letter-spacing: 0.02em;
+  color: var(--signal);
+  border-left: 2px solid var(--orange);
+  padding-left: 0.6rem;
+  margin: 0 0 0.8rem;
+  text-align: left;
+  max-width: none;
+}
+
+/* Every comp's stop label + command share one grammar. */
+.reveal .ps-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(0.66rem, 1vw, 0.92rem);
+  line-height: 1.1;
+  color: var(--navy);
+}
+.reveal .ps-cmd {
+  display: block;
+  margin-top: 0.22rem;
+  min-height: 1em;
+  font-family: var(--font-mono);
+  font-size: clamp(0.52rem, 0.74vw, 0.7rem);
+  color: var(--signal);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+/* ONE command at a time — only the stop the presenter is on. */
+.reveal .ps .current-fragment .ps-cmd {
+  opacity: 1;
+}
+/* `document back` has no command. The slot stays, empty and visible, so the
+   gap is present rather than hidden. #93 rules; this only draws it. */
+.reveal .ps-cmd.none {
+  color: #1b1b1b30;
+  font-style: italic;
+}
+.reveal .ps .current-fragment .ps-cmd.none {
+  opacity: 1;
+}
+
+/* ═══════════════════ A — the rail, enlarged ═══════════════════
+   No small rail above it: on this screen the enlarged rail and the small rail
+   are the same object, and drawing it twice is the contradiction. */
+.reveal .psa-rail {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.5rem, 1.1vw, 1rem);
+  margin: clamp(2.6rem, 11vh, 6.5rem) 0 0;
+  text-align: left;
+}
+.reveal .psa-rail li {
+  flex: 1;
+  list-style: none;
+  position: relative;
+  border-top: 3px solid #00327d2e;
+  padding-top: clamp(0.6rem, 1.6vh, 1rem);
+  transition:
+    border-color var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+.reveal .psa-rail li .ps-name {
+  font-size: clamp(0.88rem, 1.62vw, 1.5rem);
+  overflow-wrap: normal;
+}
+.reveal .psa-rail li .ps-cmd {
+  font-size: clamp(0.68rem, 1.1vw, 1rem);
+  margin-top: 0.6rem;
+}
+/* The seam, drawn and unlabelled: the row breaks, and the ground after it
+   changes weight. */
+.reveal .psa-rail li.after-seam {
+  border-top-style: solid;
+  border-top-color: #00327d14;
+}
+.reveal .psa-rail li.after-seam .ps-name {
+  color: #00327dad;
+}
+.reveal .psa-rail li.first-after {
+  margin-left: clamp(1.4rem, 4vw, 3.4rem);
+}
+.reveal .psa-rail li.first-after::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * clamp(0.9rem, 2.2vw, 1.8rem));
+  top: -0.9rem;
+  width: 1px;
+  height: clamp(2.6rem, 8vh, 4.6rem);
+  background: linear-gradient(180deg, #00327d59, transparent);
+}
+/* the lit stop wins over the seam's change of weight */
+.reveal .psa-rail li.current-fragment {
+  border-top-color: var(--orange);
+}
+
+/* ═════════ B and C — seven columns, the hand-off drawn ═════════
+   Same geometry on purpose: C is B with the carried example removed, so the
+   only thing that changes between them is whether one decision travels. */
+.reveal .psb-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: clamp(0.3rem, 0.7vw, 0.6rem);
+  align-items: stretch;
+  text-align: left;
+  margin-top: clamp(1.2rem, 4.5vh, 2.8rem);
+  min-height: 24vh;
+}
+.reveal .psb-stop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid #00327d24;
+  padding-top: 0.5rem;
+}
+.reveal .psb-stop.current-fragment {
+  border-top-color: var(--orange);
+}
+/* The hand-off: each stop points into the next one. This is the claim as a
+   mark — the arrow is the "judged against", not decoration. */
+.reveal .psb-stop::after {
+  content: "";
+  position: absolute;
+  right: calc(-1 * clamp(0.3rem, 0.7vw, 0.6rem) / 2 - 2px);
+  top: -6px;
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid #00327d59;
+  border-right: 1px solid #00327d59;
+  transform: rotate(45deg);
+}
+.reveal .psb-stop:last-child::after {
+  display: none;
+}
+/* Written down here. */
+.reveal .psb-writes {
+  margin-top: 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 1.35vw, 1.28rem);
+  color: var(--navy);
+  line-height: 1.15;
+}
+/* The carried example (B). Contract level only — never the physics. */
+.reveal .psb-eg {
+  margin-top: 0.4rem;
+  font-size: clamp(0.72rem, 1.1vw, 1.05rem);
+  line-height: 1.34;
+  color: #1b1b1bb0;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  padding: 0.5rem 0.6rem;
+  flex: 1;
+}
+/* What the NEXT stop is judged against (C). */
+.reveal .psb-judged {
+  margin-top: 0.4rem;
+  font-size: clamp(0.66rem, 0.98vw, 0.92rem);
+  line-height: 1.34;
+  color: #1b1b1b96;
+  flex: 1;
+}
+.reveal .psb-judged b {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.86em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #1b1b1b47;
+  margin-bottom: 0.15rem;
+}
+/* The seam: the row breaks and the ground after it changes weight. No label. */
+.reveal .psb-row .first-after {
+  margin-left: clamp(0.7rem, 2vw, 1.6rem);
+}
+.reveal .psb-row .first-after::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * clamp(0.35rem, 1vw, 0.8rem));
+  top: -10px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, #00327d66, transparent 75%);
+}
+.reveal .psb-row .after-seam {
+  border-top-width: 4px;
+}
+
+/* ═══════════════ D — the staircase ═══════════════
+   The ARTEFACT is the object; the stage name is the caption. Each tread stands
+   on what the one before it wrote, so the claim is the geometry. */
+.reveal .psd-stair {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  align-items: end;
+  text-align: left;
+  margin-top: clamp(1rem, 4vh, 2.6rem);
+  min-height: 34vh;
+}
+.reveal .psd-tread {
+  position: relative;
+  padding: 0.8rem 0.6rem 0.8rem 0.75rem;
+  border-left: 1px solid #00327d3d;
+  border-top: 2px solid var(--navy);
+  background: linear-gradient(180deg, #00327d0a, transparent 70%);
+  /* the rise: --i is the stop index, 0..6 */
+  margin-bottom: calc(var(--i) * clamp(0.9rem, 2.6vh, 1.7rem));
+  transition: background var(--dur) var(--ease);
+}
+.reveal .psd-tread.current-fragment {
+  border-top-color: var(--orange);
+  background: linear-gradient(180deg, #ff660014, transparent 70%);
+}
+.reveal .psd-artefact {
+  font-family: var(--font-display);
+  font-size: clamp(0.92rem, 1.5vw, 1.4rem);
+  line-height: 1.1;
+  color: var(--navy);
+  display: block;
+}
+.reveal .psd-tread .ps-name {
+  font-family: var(--font-mono);
+  font-size: clamp(0.52rem, 0.74vw, 0.7rem);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #1b1b1b52;
+  margin-bottom: 0.28rem;
+}
+/* The seam: one deeper step, and the ground changes. Unlabelled. */
+.reveal .psd-tread.first-after {
+  margin-left: clamp(0.6rem, 1.8vw, 1.4rem);
+  border-left-color: #00327d;
+}
+.reveal .psd-tread.after-seam {
+  background: linear-gradient(180deg, #00327d1f, #00327d08 70%);
+}
+
+/* ═══════════════ E — two keys ═══════════════
+   Not a row. Four stops in one key, three in another, and the seam IS the
+   change of key. The room counts four and three without a word being printed. */
+.reveal .pse-wrap {
+  display: grid;
+  grid-template-columns: 4fr auto 3fr;
+  gap: clamp(0.5rem, 1.4vw, 1.2rem);
+  align-items: stretch;
+  text-align: left;
+  margin-top: clamp(1.2rem, 4.5vh, 2.8rem);
+  min-height: 20vh;
+}
+.reveal .pse-half {
+  display: grid;
+  gap: clamp(0.3rem, 0.8vw, 0.7rem);
+}
+.reveal .pse-half.pre {
+  grid-template-columns: repeat(4, 1fr);
+}
+.reveal .pse-half.post {
+  grid-template-columns: repeat(3, 1fr);
+}
+/* key one: paper. What gets written before anything runs. */
+.reveal .pse-cell {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-top: 2px solid #00327d3d;
+  border-radius: 3px;
+  padding: 0.75rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  transition:
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+/* key two: ink. What runs against it. */
+.reveal .pse-half.post .pse-cell {
+  background: #00327d;
+  border-color: #00327d;
+  border-top-color: #ffffff40;
+}
+.reveal .pse-half.post .ps-name {
+  color: #ffffff;
+}
+.reveal .pse-half.post .pse-writes {
+  color: #ffffffd6;
+}
+.reveal .pse-half.post .ps-cmd {
+  color: #ffb27a;
+}
+/* the lit stop wins over both keys */
+.reveal .pse-cell.current-fragment,
+.reveal .pse-half.post .pse-cell.current-fragment {
+  border-top-color: var(--orange);
+}
+.reveal .pse-writes {
+  margin-top: 0.45rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 1.4vw, 1.32rem);
+  line-height: 1.14;
+  color: var(--navy);
+}
+/* the fold — the seam with nothing written on it */
+.reveal .pse-fold {
+  width: clamp(10px, 1.6vw, 22px);
+  position: relative;
+}
+.reveal .pse-fold::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4%;
+  bottom: -4%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, #00327d8c 18%, #00327d8c 82%, transparent);
+}
+.reveal .pse-fold::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin: -5px 0 0 -4px;
+  background: var(--ground);
+  border-right: 1px solid #00327d8c;
+  border-bottom: 1px solid #00327d8c;
+  transform: rotate(-45deg);
+}
+
+/* ═══════════════ the switcher bar. Never ships. ═══════════════ */
+.proto-bar {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #00327d;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.55rem;
+  box-shadow: 0 12px 34px -12px #00327d99;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.proto-bar button {
+  font: inherit;
+  color: #fff;
+  background: #ffffff1f;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+.proto-bar button:hover {
+  background: #ffffff33;
+}
+.proto-bar .name {
+  padding: 0 0.5rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
