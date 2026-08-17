@@ -50,6 +50,11 @@ import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
 // edit them there, not in the markup below.
 import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 
+// PROTOTYPE (#71) — chapter 5 screen 3, the planning map, four comps.
+// Throwaway; dies with the branch `prototype/wayfinder-map`.
+import "./prototype-wayfinder.css";
+import * as WF from "../../../lib/asml-ai/prototype-wayfinder";
+
 // Chapter 4's smart-zone widget (#52). The session script and everything that
 // is a decision rather than a number live in src/lib — read that file's header
 // before changing what is on screen here.
@@ -2597,6 +2602,315 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
+        <!-- ╔══════════════════════════════════════════════════════════════╗
+             ║ PROTOTYPE (#71) — chapter 5, screen 3: the planning map.      ║
+             ║ Four comps, switchable with ?variant=A|B|C|D and the floating ║
+             ║ bar. Only the chosen comp survives the prune, so the deck     ║
+             ║ walks at its real length and each comp is judged in its real  ║
+             ║ neighbourhood — chapter 4's payoff immediately before it.     ║
+             ║                                                               ║
+             ║ Throwaway; dies with the branch `prototype/wayfinder-map`.    ║
+             ║ The invented example and every comp's state live in           ║
+             ║ src/lib/asml-ai/prototype-wayfinder.ts — read its header for  ║
+             ║ why the example is generic (locked #6) and why batching is    ║
+             ║ NOT this screen's job (locked #3).                            ║
+             ╚══════════════════════════════════════════════════════════════╝ -->
+
+        <!-- ─────────── A: fog lifting. The map is dark ahead of the frontier;
+             resolving the lit questions lights the next column and the fog
+             recedes toward the destination. Argues WHY you plan this way
+             rather than WHAT a map contains. Live — n advances, r resets. -->
+        <section
+          class="wf wfa"
+          data-section="05 — Operating model"
+          data-wf
+          data-wf-variant="A"
+        >
+          <ol class="wf-rail">
+            {
+              WF.RAIL.map((s, i) => (
+                <li class:list={[i === 0 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{WF.EYEBROW}</span>
+          <h2 class="h-set">
+            {WF.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+
+          <div class="wfa-board" data-wfa-board>
+            <div class="wfa-col" data-wfa-col="0">
+              <h6>Decided</h6>
+              <div data-wfa-slot="0"></div>
+            </div>
+            <div class="wfa-col lit" data-wfa-col="1">
+              <h6>Open now</h6>
+              <div data-wfa-slot="1"></div>
+            </div>
+            <div class="wfa-col" data-wfa-col="2">
+              <h6>Not yet</h6>
+              <div data-wfa-slot="2"></div>
+              <div data-wfa-fog></div>
+            </div>
+            <div class="wfa-col wfa-dest">
+              <h6>Destination</h6>
+              <p>{WF.DESTINATION}</p>
+            </div>
+          </div>
+
+          <p class="wfa-step" data-wfa-step></p>
+          <p class="wfa-out">Out of scope: {WF.OUT[0]}</p>
+
+          <aside class="notes">
+            PROTOTYPE comp A — fog lifting. Live: press n to take the lit
+            questions, r to reset.
+
+            WHAT IT ARGUES: not what a map contains — why you chart at all. The
+            room watches three questions get taken, and two questions that were
+            unreadable become readable BECAUSE those three were taken. That is
+            the whole of wayfinding in one gesture, and it needs no vocabulary
+            to land.
+
+            WHAT IT COSTS: a third live island in the deck, after the smart zone
+            and roll back. Presenter keys, so it fails in front of the room if
+            the key does not land.
+
+            WATCH FOR: whether the blur reads as "cannot be asked yet" or just
+            as a rendering effect on a projector.
+          </aside>
+        </section>
+
+        <!-- ─────────── B: the board fills. The four quadrants as one board,
+             filling with fragments. The full vocabulary reaches the screen —
+             destination, decided, open now, out of scope. Argues WHAT a map
+             contains; the cheapest to build and the easiest to present. -->
+        <section
+          class="wf wfb"
+          data-section="05 — Operating model"
+          data-wf
+          data-wf-variant="B"
+          data-frags
+        >
+          <ol class="wf-rail">
+            {
+              WF.RAIL.map((s, i) => (
+                <li class:list={[i === 0 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{WF.EYEBROW}</span>
+          <h2 class="h-set">
+            {WF.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+
+          <div class="wfb-board">
+            <div class="wfb-q dest fragment">
+              <h6>Destination</h6>
+              <p>{WF.DESTINATION}</p>
+            </div>
+            <div class="wfb-q fragment">
+              <h6>Decided</h6>
+              <ul>
+                {
+                  WF.QUESTIONS.filter((q) => q.ring === 0).map((q) => (
+                    <li>
+                      {q.q} <span class="ans">{q.a}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+            <div class="wfb-q now fragment">
+              <h6>Open now</h6>
+              <ul>
+                {WF.QUESTIONS.filter((q) => q.ring === 1).map((q) => <li>{q.q}</li>)}
+                {
+                  WF.QUESTIONS.filter((q) => q.ring === 2).map((q) => (
+                    <li class="blocked">{q.q}</li>
+                  ))
+                }
+              </ul>
+            </div>
+            <div class="wfb-q fragment">
+              <h6>Not yet specified</h6>
+              <ul>{WF.FOG.map((f) => <li>{f}</li>)}</ul>
+            </div>
+            <div class="wfb-q out fragment">
+              <h6>Out of scope</h6>
+              <ul>{WF.OUT.map((o) => <li>{o}</li>)}</ul>
+            </div>
+          </div>
+
+          <aside class="notes">
+            PROTOTYPE comp B — the board fills. Five →, one per quadrant,
+            destination first.
+
+            WHAT IT ARGUES: what a map IS. Every word of the vocabulary is on
+            the wall, so the presenter never has to define anything, and the
+            room can photograph one screen and rebuild the artefact.
+
+            WHAT IT COSTS: it is an inventory. Nothing on it moves, so it says
+            planning is a document rather than a way of working, and it is the
+            closest of the four to a project-management artefact — which #70
+            said this screen must not be.
+
+            WATCH FOR: five quadrants of small type under a rail. This is the
+            comp most at risk of being a text wall.
+          </aside>
+        </section>
+
+        <!-- ─────────── C: it does not fit. The headline drawn literally —
+             one conversation carrying everything, beside the same decisions
+             held one at a time. Static, two fragments, no island. -->
+        <section
+          class="wf wfc"
+          data-section="05 — Operating model"
+          data-wf
+          data-wf-variant="C"
+          data-frags
+        >
+          <ol class="wf-rail">
+            {
+              WF.RAIL.map((s, i) => (
+                <li class:list={[i === 0 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{WF.EYEBROW}</span>
+          <h2 class="h-set">
+            {WF.HEADLINE.map((l) => (
+              <span class="h-line">
+                <span>{l}</span>
+              </span>
+            ))}
+          </h2>
+
+          <div class="wfc-board">
+            <div class="wfc-side">
+              <h6>One sitting</h6>
+              <div class="wfc-window">
+                <p class="line me">Where does the data live?</p>
+                <p class="line">One store, with a read cache at each site.</p>
+                <p class="line me">Who owns how long we keep it?</p>
+                <p class="line">The site. Eighteen months is typical…</p>
+                <p class="line me">And when the link drops? Also which systems read it today?</p>
+                <p class="line">The site keeps running on its cache. Nine systems read it…</p>
+                <p class="line me">Who signs off a change to the shape? And how do we cut over? And the old archive?</p>
+                <p class="line">The data owner. For the cutover, dual write, then move the readers…</p>
+                <p class="line me">Wait — go back to the nine systems.</p>
+              </div>
+              <p class="wfc-spill">seven decisions · one window · one person's attention</p>
+            </div>
+            <div class="wfc-side right">
+              <h6>Charted first</h6>
+              <ul class="wfc-chain">
+                {
+                  WF.QUESTIONS.map((q) => (
+                    <li
+                      class:list={[
+                        q.ring === 0 ? "done" : q.ring === 1 ? "now" : "later",
+                      ]}
+                    >
+                      <span class="tag">
+                        {q.ring === 0 ? "taken" : q.ring === 1 ? "takeable" : "waits"}
+                      </span>
+                      <span>{q.ring === 0 ? q.a : q.q}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+            <p class="wfc-turn fragment">
+              Same seven decisions. <b>The map is the order you take them in.</b>
+            </p>
+          </div>
+
+          <aside class="notes">
+            PROTOTYPE comp C — it does not fit. One → for the turn line.
+
+            WHAT IT ARGUES: the locked headline, drawn. The left pane is what
+            everyone in the room actually does today, and it is uncomfortable
+            to look at — the questions pile into one window until nothing is
+            being decided, it is all being answered.
+
+            WHAT IT COSTS: nothing moves, and it spends half the screen on the
+            wrong way of working. It also risks reading as a two-column
+            before/after, which the deck has already used.
+
+            WATCH FOR: whether the left pane is recognised in under two seconds.
+            If the room has to read it, the comp has failed.
+          </aside>
+        </section>
+
+        <!-- ─────────── D: confirm or overrule. The three takeable questions
+             as cards, each already carrying the answer the agent recommends.
+             Human-in-the-loop is the picture, not a label. Live — y confirms,
+             n overrules, r resets. -->
+        <section
+          class="wf wfd"
+          data-section="05 — Operating model"
+          data-wf
+          data-wf-variant="D"
+        >
+          <ol class="wf-rail">
+            {
+              WF.RAIL.map((s, i) => (
+                <li class:list={[i === 0 && "on"]}>
+                  {s.name}
+                  <span class="cmd">{s.cmd}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <span class="eyebrow">{WF.EYEBROW}</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>It does the asking.</span></span>
+            <span class="h-line"><span>You do the deciding.</span></span>
+          </h2>
+
+          <div class="wfd-board" data-wfd-board></div>
+          <p class="wfd-keys">
+            <b>y</b> agree <b>x</b> overrule <b>r</b> reset
+          </p>
+          <p class="wfd-closing" data-wfd-closing></p>
+
+          <aside class="notes">
+            PROTOTYPE comp D — confirm or overrule. Live: y agrees with the
+            recommendation, x overrules it, r resets.
+
+            WHAT IT ARGUES: that this stage is human-in-the-loop, by making the
+            human's move the only thing on the screen. Every question arrives
+            with a recommended answer, so the job is confirm-or-overrule — and
+            the second card is the one to overrule live, because the
+            recommendation is wrong and only a person in this room would know
+            it.
+
+            WHAT IT COSTS: a third live island, and it is the comp closest to
+            screen 4 (the questions). If both screens show questions being put,
+            one of them is redundant. Decide that before building.
+
+            WATCH FOR: does overruling card 2 land as the point of the whole
+            chapter, or as a gimmick.
+          </aside>
+        </section>
+
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 99 — dummy attic. Everything past the main line, parked
              here but still in the bundle: the chapter divider, the scroll-driven
@@ -3009,6 +3323,18 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
       import RevealZoom from "reveal.js/plugin/zoom/zoom.esm.js";
+
+      // ══ PROTOTYPE (#71) — comp pruning, BEFORE reveal counts slides ══
+      //    Four comps sit in the DOM; only the chosen one survives, so the
+      //    deck walks at its real length and the comp is judged where it will
+      //    really sit — chapter 4's payoff immediately before it.
+      import * as WFP from "../../../lib/asml-ai/prototype-wayfinder";
+      const wfVariant = (
+        new URLSearchParams(window.location.search).get("variant") ?? "A"
+      ).toUpperCase();
+      document.querySelectorAll<HTMLElement>("[data-wf]").forEach((s) => {
+        if (s.dataset.wfVariant !== wfVariant) s.remove();
+      });
 
       const deck = new Reveal({
         hash: true,
@@ -4965,6 +5291,154 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             if (k === "r") driveRollBack("reset", slide);
           });
         }
+      }
+
+      // ══ PROTOTYPE (#71) — comp A, fog lifting. Throwaway with the branch. ══
+      {
+        const slide = document.querySelector<HTMLElement>("section[data-wf-variant='A']");
+        if (slide) {
+          const ring = (n: number) => WFP.QUESTIONS.filter((q) => q.ring === n);
+          const card = (q: (typeof WFP.QUESTIONS)[number], cls: string) =>
+            `<div class="wf-card ${cls}"><span class="q">${q.q}</span>${
+              cls === "done" ? `<span class="a">${q.a}</span>` : ""
+            }</div>`;
+          const STEPS = [
+            "Three of these can be asked now. Two cannot — they wait on the answers. <b>press m</b>",
+            "Those three are decided, so two more became askable. <b>press m</b>",
+            "Nothing left to decide. Now it can be built.",
+          ];
+          let step = 0;
+          const paint = () => {
+            const board = slide.querySelector<HTMLElement>("[data-wfa-board]")!;
+            const slot = (i: number) =>
+              slide.querySelector<HTMLElement>(`[data-wfa-slot='${i}']`)!;
+            const done = [...ring(0)];
+            let open: typeof WFP.QUESTIONS = [];
+            let later: typeof WFP.QUESTIONS = [];
+            if (step === 0) {
+              open = ring(1);
+              later = ring(2);
+            } else if (step === 1) {
+              done.push(...ring(1));
+              open = ring(2);
+            } else {
+              done.push(...ring(1), ...ring(2));
+            }
+            slot(0).innerHTML = done.map((q) => card(q, "done")).join("");
+            slot(1).innerHTML = open.map((q) => card(q, "open")).join("");
+            slot(2).innerHTML = later.map((q) => card(q, "fogged")).join("");
+            // The fog patch: written down, in scope, not sharp enough to ask —
+            // and it graduates into a real question once the frontier reaches it.
+            const fog = slide.querySelector<HTMLElement>("[data-wfa-fog]")!;
+            fog.innerHTML =
+              step === 0
+                ? WFP.FOG.map((f) => `<p class="wfa-fogpatch">${f}</p>`).join("")
+                : step === 1
+                  ? `<p class="wfa-fogpatch graduated">${WFP.FOG[0]}?</p>` +
+                    `<p class="wfa-fogpatch">${WFP.FOG[1]}</p>`
+                  : "";
+            board.querySelectorAll(".wfa-col").forEach((c) => c.classList.remove("lit"));
+            // The frontier is always the middle column — what moves is which
+            // questions are standing in it.
+            if (step < 2) board.querySelector("[data-wfa-col='1']")?.classList.add("lit");
+            board.classList.toggle("clear", step === 2);
+            slide.querySelector<HTMLElement>("[data-wfa-step]")!.innerHTML = STEPS[step];
+          };
+          paint();
+          window.addEventListener("keydown", (e) => {
+            if (!slide.classList.contains("present")) return;
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const k = e.key.toLowerCase();
+            // NOT "n": reveal binds it to next-slide. Also taken: p, b, ., f,
+            // s, o, g. "m" is free, and it is the map.
+            if (k === "m") step = Math.min(2, step + 1);
+            else if (k === "r") step = 0;
+            else return;
+            paint();
+          });
+        }
+      }
+
+      // ══ PROTOTYPE (#71) — comp D, confirm or overrule. Dies with branch. ══
+      {
+        const slide = document.querySelector<HTMLElement>("section[data-wf-variant='D']");
+        if (slide) {
+          const open = WFP.QUESTIONS.filter((q) => q.ring === 1);
+          let cursor = 0;
+          const ruled: (null | "yes" | "no")[] = [null, null, null];
+          const paint = () => {
+            slide.querySelector<HTMLElement>("[data-wfd-board]")!.innerHTML = open
+              .map((q, i) => {
+                const v = ruled[i];
+                const cls = v ? "ruled" : i === cursor ? "active" : "";
+                const answer = v === "no" ? q.a : q.proposed;
+                return `<div class="wfd-card ${cls}">
+                  <span class="n">question ${i + 1} of ${open.length}</span>
+                  <span class="q">${q.q}</span>
+                  <span class="proposed"><span>${
+                    v === "no" ? "your answer" : "it recommends"
+                  }</span>${answer}</span>
+                  <span class="verdict ${v === "yes" ? "yes" : v === "no" ? "no" : ""}">${
+                    v === "yes" ? "agreed" : v === "no" ? "overruled" : "&nbsp;"
+                  }</span>
+                </div>`;
+              })
+              .join("");
+            const all = ruled.every(Boolean);
+            slide.querySelector<HTMLElement>("[data-wfd-closing]")!.innerHTML = all
+              ? ruled.includes("no")
+                ? "Three questions. One of them only you could answer."
+                : "Three questions, three answers — and you saw every one of them."
+              : "";
+          };
+          paint();
+          window.addEventListener("keydown", (e) => {
+            if (!slide.classList.contains("present")) return;
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const k = e.key.toLowerCase();
+            if (k === "r") {
+              cursor = 0;
+              ruled.fill(null);
+              // NOT "n" for overrule: reveal binds it to next-slide.
+            } else if ((k === "y" || k === "x") && cursor < open.length) {
+              ruled[cursor] = k === "y" ? "yes" : "no";
+              cursor = Math.min(open.length, cursor + 1);
+            } else return;
+            paint();
+          });
+        }
+      }
+
+      // ── PROTOTYPE (#71) switcher bar. Never ships; dies with the branch. ──
+      {
+        const keys = ["A", "B", "C", "D"];
+        const el = (tag: string, cls?: string, txt?: string) => {
+          const n = document.createElement(tag);
+          if (cls) n.className = cls;
+          if (txt) n.textContent = txt;
+          return n;
+        };
+        const cycle = (d: number) => {
+          const p = new URLSearchParams(window.location.search);
+          p.set("variant", keys[(keys.indexOf(wfVariant) + d + keys.length) % keys.length]);
+          window.location.search = p.toString();
+        };
+        const bar = el("div", "proto-bar");
+        const prev = el("button", undefined, "‹") as HTMLButtonElement;
+        const next = el("button", undefined, "›") as HTMLButtonElement;
+        prev.onclick = () => cycle(-1);
+        next.onclick = () => cycle(1);
+        bar.append(
+          prev,
+          el("span", "name", `#71 · ${wfVariant} — ${WFP.NAMES[wfVariant] ?? "?"} · v to cycle`),
+          next,
+        );
+        document.body.append(bar);
+        // "v" cycles. Comp A takes m/r, comp D takes y/x/r. Neither uses n or
+        // p — reveal owns those for next/previous slide.
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "v" || e.key === "V") cycle(1);
+        });
       }
     </script>
   </body>
