@@ -2677,6 +2677,69 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
+
+        <!-- ───────── F: the rail, with what it owes. Atil's call after walking
+             A–E: comp A's enlarged rail, plus comp C's detail line under each
+             stop, with the "JUDGED AGAINST" label dropped — the plain words
+             carry it. A stays in the set as the control: A is the rail and
+             NOTHING else, which is what answers the ticket's question 2. F is
+             the same rail made to argue. No small rail here either. ───────── -->
+        <section
+          class="ps psf"
+          data-section="05 — Operating model"
+          data-ps
+          data-ps-variant="F"
+        >
+          <span class="eyebrow">{PS.COPY.F.eyebrow}</span>
+          <h2 class="h-set">
+            {
+              PS.COPY.F.head.map((l) => (
+                <span class="h-line">
+                  <span>{l}</span>
+                </span>
+              ))
+            }
+          </h2>
+          <ol class="psa-rail">
+            {
+              PS.STOPS.map((s, i) => (
+                <li
+                  class:list={[
+                    "fragment",
+                    i > PS.SEAM && "after-seam",
+                    i === PS.SEAM + 1 && "first-after",
+                  ]}
+                >
+                  <span class="ps-name">{s.name}</span>
+                  <span class:list={["ps-cmd", !s.cmd && "none"]}>
+                    {s.cmd ?? "no command"}
+                  </span>
+                  <span class="psa-detail">{s.judged}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <aside class="notes">
+            COMP F — the rail, with what it owes. A plus C's detail line.
+
+            WHAT TO JUDGE: A alone was seven words and a headline nothing on the
+            wall supported. Here the detail lines ARE what the headline claims,
+            so the same copy should now be read off the picture instead of
+            explained by the presenter.
+
+            THE LABEL IS GONE ON PURPOSE. C printed "JUDGED AGAINST" seven
+            times; the words carry it without the label, and seven repeats of
+            the same three characters is a texture, not information.
+
+            A IS STILL IN THE SET. It is the control that answers "is the
+            summary screen simply the rail at full size" — F cannot answer that
+            question, because F is no longer only the rail.
+
+            SPOKEN, NEVER PRINTED: "four of these seven happen before a line of
+            code exists." Count it off the wall.
+          </aside>
+        </section>
+
         <!-- ───────── B: the carried example. One invented decision travels all
              seven stops, and each stop shows what THAT decision looked like
              there. Contract level only — ownership, staleness, who may write —
@@ -5336,7 +5399,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       //    `prototype/wayfinder-map` and inherited here — so the bar takes `v`.
       //    No comp binds a key at all: the walk is reveal fragments.
       {
-        const keys = ["A", "B", "C", "D", "E"];
+        const keys = ["A", "F", "B", "C", "D", "E"];
         const el = (tag: string, cls?: string, txt?: string) => {
           const n = document.createElement(tag);
           if (cls) n.className = cls;

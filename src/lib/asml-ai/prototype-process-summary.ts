@@ -21,6 +21,14 @@
  *                              treads climbing left to right, each standing on
  *                              what the one before it wrote. The claim as
  *                              geometry rather than as a row of labels.
+ *   F  the rail, with what it owes  Atil's call after walking A–E: comp A's
+ *                              enlarged rail, plus C's detail line under each
+ *                              stop — the plain words, with the "JUDGED
+ *                              AGAINST" label dropped. A keeps its place as
+ *                              the control: A is the rail and NOTHING else,
+ *                              which is what answers the ticket's question 2.
+ *                              F is the rail made to argue.
+ *
  *   E  two keys                free swing. No row at all — the seven stops are
  *                              composed in two visual keys, four and three, and
  *                              the seam IS the change of key. The room can count
@@ -163,6 +171,11 @@ export const COPY: Record<string, { eyebrow: string; head: [string, string]; not
     eyebrow: "Written down, then handed on",
     head: ["Every step stands on", "what the one before it wrote."],
   },
+  F: {
+    eyebrow: "The whole thing, once",
+    head: ["Every stop writes down", "what the next one is judged against."],
+    note: "Deliberately A's copy, unchanged, so the only difference between A and F is the detail line. A's headline was a sentence with no picture under it; in F the detail lines ARE the picture, so the same words stop being a caption and start being read off the wall.",
+  },
   E: {
     eyebrow: "Two halves, one pipeline",
     head: ["How it gets judged is settled", "before the work is done."],
@@ -176,6 +189,7 @@ export const NAMES: Record<string, string> = {
   C: "no carried example",
   D: "the staircase",
   E: "two keys",
+  F: "the rail, with what it owes",
 };
 
 /**

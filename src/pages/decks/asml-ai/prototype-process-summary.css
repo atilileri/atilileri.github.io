@@ -146,6 +146,29 @@
   border-top-color: var(--orange);
 }
 
+/* ═══ F — the rail, with what it owes ═══
+   A's enlarged rail, plus C's detail line under each stop. The "JUDGED
+   AGAINST" label is dropped on purpose: the words already say it, and a
+   seven-times-repeated label is a wall of the same three characters. */
+.reveal .psf .psa-rail {
+  margin-top: clamp(1.8rem, 7vh, 4.2rem);
+}
+/* Two lines of room for every stop name, so `Document back` wrapping does not
+   drop its detail line below the other six. All seven share a baseline. */
+.reveal .psf .ps-name {
+  min-height: 2.2em;
+}
+.reveal .psa-detail {
+  display: block;
+  margin-top: clamp(0.5rem, 1.4vh, 0.9rem);
+  font-size: clamp(0.7rem, 1.05vw, 0.98rem);
+  line-height: 1.34;
+  color: #1b1b1b96;
+}
+.reveal .psa-rail li.after-seam .psa-detail {
+  color: #1b1b1b73;
+}
+
 /* ═════════ B and C — seven columns, the hand-off drawn ═════════
    Same geometry on purpose: C is B with the carried example removed, so the
    only thing that changes between them is whether one decision travels. */
