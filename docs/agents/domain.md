@@ -30,9 +30,12 @@ Multi-context repo (presence of `CONTEXT-MAP.md` at the root) — **this repo**:
 ├── CONTEXT-MAP.md                     ← the index; read it first
 ├── docs/
 │   ├── adr/                           ← system-wide decisions
+│   ├── asml-ai/
+│   │   ├── CONTEXT.md                 ← context-specific glossary
+│   │   └── adr/                       ← context-specific decisions
 │   └── dutch/
-│       ├── CONTEXT.md                 ← context-specific glossary
-│       └── adr/                       ← context-specific decisions
+│       ├── CONTEXT.md
+│       └── adr/
 └── src/
 ```
 
@@ -44,7 +47,7 @@ than guessing a path.
 A decision is context-scoped when only that context's vocabulary is needed to
 understand it; put those in `docs/<context>/adr/`. Anything that binds two contexts,
 or the site as a whole, belongs in the root `docs/adr/`. Both directories are created
-lazily — neither exists until a decision actually earns one.
+lazily — none exists until a decision actually earns one.
 
 ## Use the glossary's vocabulary
 
