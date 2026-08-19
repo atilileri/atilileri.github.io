@@ -1,9 +1,5 @@
 # AGENTS.md
 
-## Answering
-
-Write all chat answers in ASD-STE100 Simplified Technical English. Code, commit messages, and file content keep their own conventions. When you refer to tickets, give context a bit, explain what you refer to. I might not be aware of their content, especially research results.
-
 ## Agent skills
 
 ### Issue tracker
