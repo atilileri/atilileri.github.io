@@ -12,4 +12,4 @@ Default canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `read
 
 ### Domain docs
 
-Single-context (`CONTEXT.md` + `docs/adr/` at repo root). See `docs/agents/domain.md`.
+Multi-context. `CONTEXT-MAP.md` at the repo root is the index — read it first; it points at one `CONTEXT.md` per context, each under `docs/<context>/`. ADRs are scoped the same way: `docs/adr/` for decisions that bind the whole site, `docs/<context>/adr/` for ones only that context's vocabulary explains. All of these are created lazily. See `docs/agents/domain.md`.
