@@ -21,7 +21,7 @@
  *                              treads climbing left to right, each standing on
  *                              what the one before it wrote. The claim as
  *                              geometry rather than as a row of labels.
- *   F  the rail, with what it owes  Atil's call after walking A–E: comp A's
+ *   F  the rail, with what it owes  ★ LOCKED (Atil, at the walk). Comp A's
  *                              enlarged rail, plus C's detail line under each
  *                              stop — the plain words, with the "JUDGED
  *                              AGAINST" label dropped. A keeps its place as
@@ -34,6 +34,15 @@
  *                              the seam IS the change of key. The room can count
  *                              four-before-anything-runs off the wall without a
  *                              word of it being printed (locked #3).
+ *
+ * ══ THE ANSWER ══
+ *
+ * COMP F WINS and is locked. The summary screen is the rail at full size WITH
+ * the detail line under each stop — what the next stop is judged against, in
+ * plain words, with no "JUDGED AGAINST" label. It carries NO small rail: on
+ * this one screen the enlarged rail and the small rail are the same object.
+ * F is the default here so opening the branch shows the decision; A–E stay
+ * reachable by ?variant= as the primary source behind it.
  *
  * ══ WHAT IS LOCKED HERE — do not relitigate in the build ══
  *

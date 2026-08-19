@@ -3430,8 +3430,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       //    walks at its real length and the comp is judged where it will really
       //    sit — chapter 4's payoff immediately before it.
       import * as PSP from "../../../lib/asml-ai/prototype-process-summary";
+      // F is the LOCKED comp (Atil, at the walk). It is the default so that
+      // opening this branch shows the decision; A–E stay reachable by
+      // ?variant= as the primary source behind it.
       const psVariant = (
-        new URLSearchParams(window.location.search).get("variant") ?? "A"
+        new URLSearchParams(window.location.search).get("variant") ?? "F"
       ).toUpperCase();
       document.querySelectorAll<HTMLElement>("[data-ps]").forEach((s) => {
         if (s.dataset.psVariant !== psVariant) s.remove();
