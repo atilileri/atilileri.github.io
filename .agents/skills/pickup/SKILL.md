@@ -1,5 +1,5 @@
 ---
-name: resume
+name: pickup
 description: The connection dropped mid-work — pick it back up with zero gaps.
 disable-model-invocation: true
 ---

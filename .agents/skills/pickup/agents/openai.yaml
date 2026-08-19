@@ -1,5 +1,5 @@
 interface:
-  display_name: "Resume"
+  display_name: "Pickup"
   short_description: "The connection dropped — pick the work back up with zero gaps"
 policy:
   allow_implicit_invocation: false
