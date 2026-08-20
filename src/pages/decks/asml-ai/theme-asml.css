@@ -4734,15 +4734,16 @@
 }
 /* The seam, drawn and unlabelled: the row breaks, and the ground after it
    changes weight. Four Stops before a line of code exists, three after — a
-   count the presenter speaks and the wall never prints (#92). */
+   count the presenter speaks and the wall never prints (#92).
+
+   THE WEIGHT GOES UP AFTER THE SEAM, NEVER DOWN (Atil, 2026-08-20). The three
+   Stops after it first carried faded type and a fainter rule, and the wall
+   read them as Dim — as if the process ran out of confidence at the moment
+   code appears. Type and detail lines now match the four before the seam
+   exactly, and the whole difference sits in the RULE: light before, solid
+   navy after. Do not restore a difference made of opacity. */
 .reveal .ch5-sum-rail > li.after-seam {
-  border-top-color: #00327d14;
-}
-.reveal .ch5-sum-rail > li.after-seam .ch5-stop-name {
-  color: #00327dad;
-}
-.reveal .ch5-sum-rail > li.after-seam .ch5-judged {
-  color: #1b1b1b73;
+  border-top-color: var(--navy);
 }
 .reveal .ch5-sum-rail > li.first-after {
   margin-left: clamp(1.4rem, 4vw, 3.4rem);
