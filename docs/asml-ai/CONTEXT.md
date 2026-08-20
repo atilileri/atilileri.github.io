@@ -14,7 +14,7 @@ _Avoid_: Presentation, slideshow, talk
 _Example_: The Deck runs at `/decks/asml-ai`. The Dutch journey is not part of it.
 
 **Chapter**:
-A numbered part of the Deck, opened by a Divider. Chapters 1 to 4 are built, chapter 5 is in progress, chapter 6 is the planned outro, and chapter 99 is the Attic.
+A numbered part of the Deck, opened by a Divider. Chapters 1 to 4 are built, chapter 5 has its skeleton and five Slides still to fill, chapter 6 is the planned outro, and chapter 99 is the Attic.
 _Avoid_: Section — that word belongs to the markup, not to us. Also part, act.
 _Example_: We rehearse chapter 4 tonight.
 
@@ -134,7 +134,7 @@ _Avoid_: Spine, step rail, rail — a Rail is something the room sees, and this 
 _Example_: The Fragment row drives the Widget, so the clicker needs no extra key.
 
 **Rail**:
-Chapter 5's on-screen pipeline component: the seven Stops, with the current Stop or Span lit. Reserved by [#103](https://github.com/atilileri/atilileri.github.io/issues/103), drawn from prototype [#91](https://github.com/atilileri/atilileri.github.io/issues/91). The room sees a Rail. It never sees a Fragment row.
+Chapter 5's on-screen pipeline component: the seven Stops, with the current Stop or Span lit. Built by [#103](https://github.com/atilileri/atilileri.github.io/issues/103) as [`PipelineRail.astro`](../../src/components/deck/PipelineRail.astro), drawn from prototype [#91](https://github.com/atilileri/atilileri.github.io/issues/91); the Stops themselves live in [`pipeline.ts`](../../src/lib/asml-ai/pipeline.ts). The room sees a Rail. It never sees a Fragment row.
 _Example_: The Rail draws the seven Stops across the foot of the Slide.
 
 **Stop**:

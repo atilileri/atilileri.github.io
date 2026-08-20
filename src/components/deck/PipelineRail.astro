@@ -1,0 +1,75 @@
+---
+/**
+ * PipelineRail.astro — chapter 5's Rail (wayfinder #91 comp B, built by #103).
+ *
+ * The seven Stops as a slim row across the top of every Slide in chapter 5's
+ * vertical stack. The Stop the Slide is about is Lit; the other six are Dim and
+ * stay readable, because the room has to see the whole pipeline and where it
+ * sits inside it. A Rail ORIENTS; it never argues (#91). Only the summary Slide
+ * argues, and it carries no Rail — there the enlarged Rail IS the picture (#71).
+ *
+ * THE TAX, ACCEPTED ONCE SO THE BUILD DOES NOT REDISCOVER IT (#91): the Rail
+ * eats roughly the top 18% of every Slide it appears on, and the Headline loses
+ * the room it had in chapter 4.
+ *
+ * TWO THINGS THIS COMPONENT MUST DO THAT THE PROTOTYPE DID NOT:
+ *
+ *   1. LIGHT A SPAN, not only a single Stop. `slices` carries `to-spec` and
+ *      `to-tickets` together (#101). Pass an array to `lit` and both light.
+ *   2. ADVANCE DOWN AS WELL AS ACROSS (#92). Nothing to code — the Slide going
+ *      down passes the next Stop — but it is why the Rail says *where you are
+ *      in the pipeline* and never *how far through the deck you are*.
+ *
+ * NO `stack-depth` DOTS ANYWHERE NEAR IT (#92). The attic prototypes a depth
+ * strip; two position indicators at the same screen edge is a text wall in
+ * chrome. The Rail already says which Stop you are on and how many remain.
+ *
+ * COMMANDS. A Lit Stop prints its commands and a Dim one prints only its name
+ * (#91). By default they arrive with the Slide; pass `cmdFragments` and each
+ * command instead arrives on its own Fragment, which is what #101's `questions`
+ * Slide needs — a command lands as its hole fills, rather than three at once.
+ * `Reconcile` prints nothing and keeps its space (#93).
+ */
+import { STOPS } from "../../lib/asml-ai/pipeline";
+
+interface Props {
+  /** Stop id, or two neighbouring ids for a Span. */
+  lit: string | string[];
+  /**
+   * Fragment index per command of the Lit Stops, flattened in Rail order. Omit
+   * to print every Lit command on arrival.
+   */
+  cmdFragments?: number[];
+}
+
+const { lit, cmdFragments } = Astro.props;
+const on = Array.isArray(lit) ? lit : [lit];
+
+// Flattened Lit commands, so `cmdFragments[i]` pairs with the i-th of them and
+// the caller never has to count past its own Slide's Stops.
+let cmdSeen = -1;
+---
+
+<ol class="ch5-rail" aria-label="The operating model — seven stops">
+  {
+    STOPS.map((s) => (
+      <li class:list={["ch5-stop", on.includes(s.id) && "lit"]}>
+        <span class="ch5-stop-name">{s.name}</span>
+        {/* The slot is held open for every Stop, so a Rail with a blank
+            `Reconcile` keeps the same baseline as one without it (#93). */}
+        <span class="ch5-cmds">
+          {
+            s.cmds.map((c) => {
+              const idx = on.includes(s.id) ? cmdFragments?.[++cmdSeen] : undefined;
+              return idx === undefined ? (
+                <span class="ch5-cmd">{c}</span>
+              ) : (
+                <span class="ch5-cmd fragment" data-fragment-index={idx}>{c}</span>
+              );
+            })
+          }
+        </span>
+      </li>
+    ))
+  }
+</ol>

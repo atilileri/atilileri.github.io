@@ -50,6 +50,13 @@ import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
 // edit them there, not in the markup below.
 import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 
+// Chapter 5's Rail and its summary Slide (#103). The seven Stops, their
+// commands and their detail lines live in src/lib/asml-ai/pipeline.ts — edit
+// them there, not in the markup below, so the small Rail and the enlarged one
+// can never disagree.
+import PipelineRail from "../../../components/deck/PipelineRail.astro";
+import ProcessSummary from "../../../components/deck/ProcessSummary.astro";
+
 // Chapter 4's smart-zone widget (#52). The session script and everything that
 // is a decision rather than a number live in src/lib — read that file's header
 // before changing what is on screen here.
@@ -2594,6 +2601,413 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             "AI can't be fixed", off the lower-bound paper. Its own framing is
             that hallucination is addressable — the remedy is simply the
             vendor's, not this room's.
+          </aside>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             CHAPTER 05 — THE OPERATING MODEL. The chapter runs on TWO ROUTES,
+             not on one route with optional depth (#92), and the route is chosen
+             from who is in the room before the deck opens:
+
+               divider → cold open ─────────────→ summary → payoff
+                            │  ↓ (technical only)      ↑
+                            ├─ wayfinder               │
+                            ├─ questions               │
+                            ├─ slices                  │  → exits here from
+                            ├─ implement               │    ANY depth
+                            ├─ review                  │
+                            └─ Reconcile ──────────────┘
+
+             EXECUTIVE ROUTE: four Slides, `→ → → →`. TECHNICAL ROUTE: `↓`×6
+             through the stack, then one `→` onto the summary, which is a recap
+             rather than an establishing Slide.
+
+             ⚠ ALL SIX OR NONE (#92). `→` from halfway down lands on the summary
+             with the pipeline half shown, which is a broken pipeline in front
+             of a technical room. The vertical axis is an audience decision, NOT
+             a live time-management tool: if the technical route overruns, the
+             time comes from somewhere else in the deck.
+
+             ⚠ THE STACK HANGS UNDER THE COLD OPEN. Not under the divider (the
+             room would reach `wayfinder` before hearing the argument) and not
+             under the summary (the presenter would pass through the recap on
+             the way down, then climb back for it). It works because reveal's
+             DEFAULT navigationMode sends `→` from any sub-slide to the next
+             horizontal Slide — so `navigationMode` is load-bearing by its
+             absence. Do not set it.
+
+             ⚠ `←` FROM THE PAYOFF DOES NOT RETURN TO THE SUMMARY. Reveal
+             remembers the vertical index and drops the presenter back into the
+             stack at whatever depth they left. It surprises them once.
+
+             THE THESIS HAS NO SLIDE (#92). "You can't tell if it worked. That's
+             what the process is for." is SPOKEN at the end of the cold open,
+             before the presenter moves in either direction, so it lands
+             identically on both routes. The cold open already does the thesis's
+             job with evidence instead of assertion.
+
+             Five of the six Slides in the stack are SHELLS: locked Eyebrow,
+             locked Headline, correct Rail state, and nothing else yet. Their
+             pictures, body text and Presenter notes are locked in #98, #101 and
+             #102 and are a separate build. `Reconcile` is built in full (#93).
+             ═════════════════════════════════════════════════════════════ -->
+        <!-- 5a ─────────────────── CHAPTER divider (roadmap, factor 4 lit) -->
+        <RoadmapDivider chapter={5} section="05 — Operating model">
+          <aside class="notes">
+            Last of the four, and the fourth time the room has seen this shape.
+            Do not re-read the list.
+
+            THE SPOKEN LINE ON THE CLICK IN, locked in #54 and already paid for
+            by chapter 4's close: "Everything you just learned has a name in
+            it."
+
+            No wash here — the full chapter wash belongs to chapters 1 and 6
+            only.
+          </aside>
+        </RoadmapDivider>
+
+        <!-- 5b ─────────────────── COLD OPEN, and the STACK PARENT.
+             Three beats (#70, Atil's option (c) — the fullest of three): the
+             gap, "they had no process", and METR's own sentence about what
+             would have changed the result. No Rail: the Rail APPEARING on
+             descent is the visual signal that the room has left the argument
+             and entered the process (#92). -->
+        <section data-section="05 — Operating model">
+          <section class="ch5-cold" data-section="05 — Operating model" data-frags>
+            <span class="eyebrow">The only trial that measured it</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>They estimated 20% faster.</span></span>
+              <span class="h-line"><span>They were measured 19% slower.</span></span>
+            </h2>
+            <ul class="build">
+              <li class="fragment rise">
+                Over 80% of engineers say AI made them more productive.
+              </li>
+              <li class="fragment rise signal">They had no process.</li>
+              <li class="fragment rise">
+                &ldquo;better prompting/agent scaffolding, or domain-specific
+                finetuning, could yield positive speedup.&rdquo;
+                <span class="src">&mdash; METR</span>
+              </li>
+            </ul>
+            <aside class="notes">
+              LET THE TWO NUMBERS LAND BEFORE THE BEATS. The inversion is 39
+              points and it is the whole cold open.
+
+              THE STUDY: 16 experienced developers, 246 real tasks, in repos
+              they had worked on for an average of five years. Randomised.
+              They forecast +24%, they estimated +20% afterwards, and they were
+              measured 19% SLOWER. The belief line is DORA 2025.
+
+              BEAT 2, AND IT IS THE TURN: they had no process. Cursor Pro and
+              Claude 3.5/3.7 Sonnet, ad hoc — no spec, no slicing, no test-first
+              rule, no review discipline. They accepted fewer than 44% of the
+              generations they were shown, and only 44% had ever used Cursor
+              before.
+
+              BEAT 3 IS METR'S OWN SENTENCE, not our reading of it. Quote it as
+              theirs.
+
+              ── THE THESIS, SPOKEN HERE AND NOWHERE ELSE (#92) ──
+              End on it, before you move in either direction: "You can't tell if
+              it worked. That's what the process is for." It is the chapter's
+              one argument and it is never printed anywhere in the deck.
+
+              ⚠ THEN CHOOSE YOUR ROUTE. Executive room: press → and never
+              mention the stack. Technical room: press ↓ and walk all six.
+
+              ── WHY THEY WERE SLOWER, held for the question ──
+              METR tested 20 possible causes and judged five as likely: over-
+              optimism about AI usefulness; high developer familiarity with the
+              repositories; large and complex repositories; low AI reliability;
+              implicit repository context. Two of those five are this chapter —
+              implicit repository context is the hole the model fills by
+              inventing, and over-optimism is the gap itself.
+
+              ⚠ ONE OF THE FIVE IS UNCOMFORTABLE IN THIS ROOM AND MUST NOT BE
+              HIDDEN: high familiarity with the repository means the slowdown
+              was worst for experts on a mature codebase, which describes the
+              audience. It is also the honest set-up for chapter 6.
+
+              ── MUST NOT CLAIM ──
+              "The process fixes the 19%." Nobody measured that.
+
+              That the process touches all five factors. It does not touch low
+              AI reliability, and it does not touch large complex repositories.
+
+              "AI makes you slower." METR labels the result historical — early
+              2025 tools, 16 subjects. The safe words are "the only trial that
+              measured it". This is not an anti-AI chapter.
+
+              ── VOICE ──
+              Second person throughout the chapter, with exactly one "we", and
+              #70 put it on this Slide as a spoken line: "This is not a rollout.
+              This is what we do." A real team runs this today, so it is a
+              statement the room can check rather than a proposal. No headcount,
+              no team name, no duration — a number invites "only that many?"
+            </aside>
+          </section>
+
+          <!-- ↓1 ─────────────── WAYFINDER · SHELL, filled by #98.
+               Comp E, "the map with its grammar", driven by fragments. The
+               Headline moved from #70's "in one conversation" to "in one agent
+               session" (Atil, in #98): conversation reads as MEETING, and agent
+               session names the actual limit that makes a map necessary. -->
+          <section class="ch5-slide" data-section="05 — Operating model">
+            <PipelineRail lit="wayfinder" />
+            <span class="eyebrow">Chart it before you take it</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>A big decision doesn&rsquo;t fit</span></span>
+              <span class="h-line"><span>in one agent session.</span></span>
+            </h2>
+            <aside class="notes">
+              SHELL — the picture, the body text and this Slide's real notes are
+              locked in #98 (comp E) and are not built yet. Do not present the
+              technical route until they are.
+
+              The room's takeaway sentence, from #98: "Plan a huge chunk of work
+              — more than one agent session can hold."
+
+              Owed by #104: the clause "Most work starts at the next stop." The
+              skill calls /wayfinder an on-ramp, not the head of the flow.
+            </aside>
+          </section>
+
+          <!-- ↓2 ─────────────── QUESTIONS · SHELL, filled by #101.
+               ONE Stop with three commands — the Span moved to `slices` (#101,
+               overriding #70 and #92). Five fragments: an outline with three
+               visible holes, and a hole fills as each command arrives. -->
+          <section class="ch5-slide" data-section="05 — Operating model">
+            <PipelineRail lit="questions" />
+            <span class="eyebrow">Fill the holes first</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>It only invents where</span></span>
+              <span class="h-line"><span>you left a hole.</span></span>
+            </h2>
+            <aside class="notes">
+              SHELL — the filling picture, the three body lines and the closing
+              line are locked in #101 and are not built yet.
+
+              ⚠ The Headline IS sentence one of #73's locked wall line, so the
+              body prints sentences two and three ONLY. Printing all three says
+              it twice.
+
+              ⚠ The Rail prints each command ON ITS OWN FRAGMENT here, as its
+              hole fills — pass `cmdFragments` when the picture lands.
+            </aside>
+          </section>
+
+          <!-- ↓3 ─────────────── SLICES · SHELL, filled by #101.
+               The chapter's only SPAN: `to-spec` and `to-tickets` light
+               together, because to-spec slices the map's decisions and
+               to-tickets slices the spec into tracer bullets. Both cut, and the
+               eyebrow is already "Cut it small". The picture is an hourglass:
+               many → one → many. -->
+          <section class="ch5-slide" data-section="05 — Operating model">
+            <PipelineRail lit={["to-spec", "to-tickets"]} />
+            <span class="eyebrow">Cut it small</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>Going faster isn&rsquo;t the risk.</span></span>
+              <span class="h-line"><span>Going faster in one lump is.</span></span>
+            </h2>
+            <aside class="notes">
+              SHELL — the hourglass, the two body lines and the closing line are
+              locked in #101 and are not built yet. It is the fullest Slide in
+              the chapter and it runs about two minutes.
+
+              ⚠ THE SEAM IS SPOKEN AFTER THIS SLIDE, technical route only, and
+              it is #54's line: "It can't check itself. It can run your check."
+              Never as a Headline — it is already on a wall.
+
+              ⚠ The word "vertical" appears nowhere. Nothing measures vertical
+              against horizontal; the claim is definitional and the picture
+              carries it.
+            </aside>
+          </section>
+
+          <!-- ↓4 ─────────────── IMPLEMENT · SHELL, filled by #102.
+               ⚠ The mechanic is RED → GREEN ONLY (#102, amending map #63's
+               locked decision 8): tdd/SKILL.md says outright that refactoring
+               is not part of the loop and belongs to the review stage. Refactor
+               is the hand-off into `review`, which makes movement 2 one motion
+               across two Slides. Do not restore the third beat. -->
+          <section class="ch5-slide" data-section="05 — Operating model">
+            <PipelineRail lit="implement" />
+            <span class="eyebrow">Write the test first</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>The bottleneck isn&rsquo;t the code.</span></span>
+              <span class="h-line"><span>It&rsquo;s the test.</span></span>
+            </h2>
+            <aside class="notes">
+              SHELL — the failing-test picture, the body text and "Code only, no
+              explanation" are locked in #102 and are not built yet.
+
+              Owed by #104: /to-spec's seams point — the spec names the test
+              boundaries before any code exists, which is what stops the
+              implementing agent inventing its own interfaces.
+
+              ⚠ Do not reprint or paraphrase the seam line; treat "seam" as
+              already known by the time the room arrives here (#101).
+            </aside>
+          </section>
+
+          <!-- ↓5 ─────────────── REVIEW · SHELL, filled by #102.
+               Sub-agents are the mechanic and the independence is the beat: two
+               of them read one diff and neither wrote it. The fan ends on the
+               human, which is what sets the closing line up. -->
+          <section class="ch5-slide" data-section="05 — Operating model">
+            <PipelineRail lit="review" />
+            <span class="eyebrow">Hand it to a stranger</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>Same model. Different context.</span></span>
+              <span class="h-line"><span>Different verdict.</span></span>
+            </h2>
+            <aside class="notes">
+              SHELL — the two-Sub-agent fan, the body text and this Slide's real
+              notes are locked in #102 and are not built yet.
+
+              ⚠ "So we use a different model" stays FALSE and unsaid. The
+              Headline's first line — Same model — already does that work.
+            </aside>
+          </section>
+
+          <!-- ↓6 ─────────────── RECONCILE · BUILT IN FULL (#93).
+               The Stop is TWO jobs, which is why it is not called "document
+               back": generate the sequence diagram from the implementation and
+               merge it into the existing requirement, AND check the code
+               against the requirement for mismatch. The second is a check, not
+               a document.
+
+               ⚠ THE GREYED "NOT BUILT YET" IS LOAD-BEARING. Five Stops describe
+               what the team does today; this one describes what it will do.
+               Without a visible marker the wall asserts a practice that does
+               not exist, and a technical room asking "can I run that?" gets a
+               no. Future tense in the body lines was rejected as longer and
+               weaker; presenter-only was rejected because a forgotten sentence
+               leaves a false wall. -->
+          <section class="ch5-slide" data-section="05 — Operating model">
+            <PipelineRail lit="reconcile" />
+            <span class="eyebrow">Write it back</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>The code is what found out.</span></span>
+              <span class="h-line"><span>Send it back.</span></span>
+            </h2>
+            <p class="ch5-body">
+              Generate the diagram from the code, and write it into the
+              requirement.
+            </p>
+            <p class="ch5-body">
+              Find where the code and the requirement disagree &mdash; because
+              the design changed while you were building it.
+            </p>
+            <span class="ch5-notbuilt">Not built yet</span>
+            <aside class="notes">
+              THE ONE STOP WITH NO COMMAND, and the wall says so. Own it: this
+              is what the process asks for next, and the two skills it needs are
+              a separate piece of work.
+
+              TECHNICAL ROUTE ONLY. An executive room never enters the stack, so
+              "not built yet" costs it nothing — but that room does meet the
+              name and the blank command slot on the summary Slide, where
+              nothing says it is unbuilt. Carry a sentence for it there.
+
+              ── NOTES ONLY, NEVER ON THE WALL ──
+              The diagram is merged into the existing requirement in POLARION.
+              Skill 2 ASKS THE USER before it updates a requirement — a confirm
+              step, not an autonomous rewrite.
+
+              ON RECORD FOR WHOEVER REBUILDS THIS SLIDE ONCE THE SKILLS EXIST:
+              "A sequence diagram costs about 25 credits on Haiku — that is the
+              whole run, not one prompt." The trailing clause is the entire
+              defence: 25 credits of pure input would be 250,000 tokens against
+              a 200k window, so the figure can only describe an agent loop.
+              Haiku is enabled in our tenant, so the room can reproduce it.
+
+              ── HELD ANSWERS ──
+              "Why would a generated diagram need checking?" Because a model
+              asked to describe semantically altered code hallucinates at a rate
+              that climbs from 17% to 97% in the published measurement.
+
+              "Does this touch our toolchain?" A PlantUML diagram is opaque text
+              to Polarion, so a generated diagram naming REQ-1234 creates no
+              link and no trace, and nothing notices if REQ-1234 does not exist.
+              The verifier parses the diagram and resolves every identifier
+              against the Polarion API. That check is a script, not a model —
+              chapter 4's guardrail pattern exactly.
+            </aside>
+          </section>
+        </section>
+
+        <!-- 5c ─────────────────── THE SUMMARY: the one Slide both routes pass
+             through. #71's comp F, its copy locked by #92. The component holds
+             everything that is a decision rather than markup — read its header
+             before changing what is on the wall. -->
+        <ProcessSummary section="05 — Operating model">
+          <aside class="notes">
+            EXECUTIVE ROOM: this Slide is the chapter. Walk the seven stops, one
+            command at a time. Say "four of these seven happen before a line of
+            code exists" and let the room count it off the wall. Do not go down.
+
+            TECHNICAL ROOM: you have already walked the six. This is the recap —
+            read the lines under the stops, not the names. ⚠ Do NOT say the
+            count here: to a room that has just spent nine minutes in the stack
+            it lands as pedantic rather than as a reveal.
+
+            EITHER WAY: all six or none. A half-descent shows a broken pipeline.
+
+            THE SEVEN FRAGMENTS ARE ALWAYS WALKED, on both routes — as the
+            promise on the executive route, as the recap on the technical one.
+            ⚠ Reveal remembers fragment state, so if you skip the row and come
+            back later you land on a half-lit Slide.
+
+            ⚠ THE SEVENTH STOP IS UNBUILT AND THE WALL DOES NOT SAY SO. An
+            executive room sees the name Reconcile and a blank command slot.
+            Say it plainly: "That last one is where we are going next — the two
+            skills for it aren't written yet."
+
+            THE SEAM IS DRAWN, NEVER LABELLED. The row breaks after To tickets
+            and the ground changes weight. It is the same seam chapter 4 had:
+            prepare it, then defend it.
+
+            HELD FOR THE EXECUTIVE ROOM, if the throughput question comes: DORA
+            2025 finds AI adoption raises throughput AND delivery instability,
+            and names small batches as the countermeasure.
+
+            IF YOU HAVE ALREADY SAID IT at the end of the cold open, do not
+            repeat the thesis here.
+          </aside>
+        </ProcessSummary>
+
+        <!-- 5d ─────────────────── THE PAYOFF. It calls back to this chapter's
+             own cold open, and it is the structural floor every route lands on
+             — a bail-out from any depth arrives at the summary and then here.
+             No Rail. -->
+        <section class="payoff ch5-payoff" data-section="05 — Operating model">
+          <span class="eyebrow">Back to the gap</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>You still can&rsquo;t tell.</span></span>
+            <span class="h-line"><span>Now you don&rsquo;t have to.</span></span>
+          </h2>
+          <aside class="notes">
+            ARRIVE AND SAY NOTHING NEW. The room met the gap forty seconds into
+            this chapter; this is the same gap, answered. The developers in the
+            trial could not tell whether AI had helped them, and neither can
+            you. The process is what tells you instead.
+
+            ── THE SPOKEN HAND-OFF INTO CHAPTER 6, and its cost ──
+            "Notice what your job became. You didn't stop working — you moved to
+            the front of it. Every one of those checks is yours. That is a
+            better job. It is also a heavier one, and that is where we finish."
+
+            ⚠ THE PROMOTION NEVER GOES ON THIS WALL. Chapter 6 opens by calling
+            it exhausting, so chapter 5 must never claim it — the cost is handed
+            over deliberately, and chapter 6 has nothing to undercut.
+
+            ⚠ MUST NOT CLAIM: "AI frees engineers for higher-value work."
+
+            ⚠ ← FROM HERE does not return to the summary. Reveal drops you back
+            into the stack at whatever depth you left it. Use ↑ or the summary's
+            own index if you need the recap again.
           </aside>
         </section>
 

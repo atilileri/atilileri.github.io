@@ -1,0 +1,88 @@
+---
+/**
+ * ProcessSummary.astro — chapter 5's summary Slide (wayfinder #71 comp F,
+ * copy locked by #92, built by #103).
+ *
+ * The one Slide both routes pass through. On the executive route it IS the
+ * chapter; on the technical route it is the recap the room reaches after
+ * walking all six Stops (#92).
+ *
+ * WHAT IT IS: the Rail at full size, plus one plain line under each Stop
+ * saying what the next Stop is judged against. That detail line is the whole
+ * difference between comp A and comp F — A was seven names and a Headline the
+ * wall did not support, and #91 had already ruled that a seven-across row
+ * ORIENTS rather than ARGUES. The lines are what make this one argue.
+ *
+ * ══ LOCKED — do not relitigate ══
+ *
+ * NO SMALL RAIL. On this Slide the enlarged Rail and the small Rail are the
+ * same object at two sizes, and drawing it twice is the contradiction #71 was
+ * asked to answer.
+ *
+ * THE SEAM IS A MARK, NEVER A LABEL. The row breaks after `to-tickets` and the
+ * ground after it changes weight. No words on it.
+ *
+ * THE COUNT IS SPOKEN AND NEVER PRINTED: "four of these seven happen before a
+ * line of code exists", on the executive route only (#92). The room counts it
+ * off the wall.
+ *
+ * ONE COMMAND AT A TIME, on seven Fragments, driven by reveal rather than by a
+ * widget — the Lit Stop is `.current-fragment` and only it prints its command.
+ * It costs nothing from the chapter's widget budget and binds no key; reveal
+ * owns `n` and `p` permanently (#71).
+ *
+ * TWO LINES OF ROOM FOR EVERY STOP NAME (#71), or a wrapping name drops its
+ * detail line below the other six. `Reconcile` is one short word, so the
+ * constraint is now slack rather than tight (#93) — keep it anyway.
+ *
+ * THE FRAGMENTS ARE ALWAYS WALKED, on both routes. One behaviour, so the
+ * presenter never has to remember which route they are in (#92).
+ */
+import { STOPS, SEAM } from "../../lib/asml-ai/pipeline";
+
+interface Props {
+  /** Value for `data-section` — the on-screen section indicator. */
+  section: string;
+}
+
+const { section } = Astro.props;
+---
+
+<section class="ch5-sum" data-section={section} data-frags>
+  {/* The eyebrow is chapter 5's own gloss from roadmap.ts, word for word.
+      Chapter 1's Roadmap promised "the process that repeats" thirty minutes
+      earlier and the room has not seen it since; this is where it is paid off.
+      Accepted knowingly (#92): the one place in the deck where a gloss is
+      re-used, and no other chapter has a Slide that IS its own gloss. */}
+  <span class="eyebrow">The process that repeats</span>
+  {/* The verb is SETS, not writes (#92). The written-down-ness is carried by
+      the detail lines and by the presenter, deliberately not by the Headline —
+      do not quietly restore it. */}
+  <h2 class="h-set">
+    <span class="h-line"><span>Every stop sets</span></span>
+    <span class="h-line"><span>the bar for the next</span></span>
+  </h2>
+  <ol class="ch5-sum-rail" aria-label="The operating model — seven stops">
+    {
+      STOPS.map((s, i) => (
+        <li
+          class:list={[
+            "ch5-stop",
+            "fragment",
+            i > SEAM && "after-seam",
+            i === SEAM + 1 && "first-after",
+          ]}
+        >
+          <span class="ch5-stop-name">{s.name}</span>
+          <span class="ch5-cmds">
+            {s.cmds.map((c) => (
+              <span class="ch5-cmd">{c}</span>
+            ))}
+          </span>
+          <span class="ch5-judged">{s.judged}</span>
+        </li>
+      ))
+    }
+  </ol>
+  <slot />
+</section>
