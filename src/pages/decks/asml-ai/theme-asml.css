@@ -4702,13 +4702,21 @@
   font-size: clamp(0.68rem, 1.1vw, 1rem);
   margin-top: 0.6rem;
 }
-/* One command at a time: only the Stop the presenter is standing on prints
-   its own. Reveal's `.current-fragment` is the whole mechanic — no widget, no
-   key binding (#71). */
+/* The commands ARRIVE one at a time and then STAY (Atil, 2026-08-20 — this
+   overrides #71's and #92's "only the lit Stop prints its command" for the
+   summary Slide only). Reveal's `.visible` is the mechanic — still no widget
+   and no key binding. By the seventh press the room holds the whole row, which
+   is what an executive route needs from the one Slide it gets: the commands
+   are the evidence that these are installed things a person types (locked
+   decision #7 on map #63), and evidence that has already scrolled away cannot
+   be counted. The Lit mark still moves one Stop at a time, so the row says
+   where the presenter IS as well as where they have BEEN.
+
+   ⚠ The small Rail is unchanged: there a Dim Stop shows its name only. */
 .reveal .ch5-sum-rail .ch5-cmd {
   opacity: 0;
 }
-.reveal .ch5-sum-rail .current-fragment .ch5-cmd {
+.reveal .ch5-sum-rail .fragment.visible .ch5-cmd {
   opacity: 1;
 }
 /* The claim, per Stop. No "JUDGED AGAINST" label — the words carry it, and
