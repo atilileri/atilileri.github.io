@@ -147,6 +147,11 @@ Two neighbouring Stops lit together, because one Slide carries both. The Rail li
 _Avoid_: Range, group
 _Example_: One Slide carries grill and research, so the Rail lights that Span.
 
+**Sub-agent**:
+A second agent session that the first one starts, holding none of the first session's context. Chapter 5's review Slide prints the word, because the independence is the mechanic: two Sub-agents read one diff and neither of them wrote it. The tooling owns the spelling (Claude Code's `Agent` tool), so keep the hyphen and never rename it.
+_Avoid_: Child agent, worker, reviewer bot. Also "fresh context" on the wall — that is the Headline's phrase and the spoken word for the same idea ([#102](https://github.com/atilileri/atilileri.github.io/issues/102)).
+_Example_: The review Slide draws two Sub-agents, labelled Standards and Spec.
+
 **Move**:
 One row of the agent-loop ledger. The loop has twelve Moves and four billing events, and that asymmetry is the point of the Slide. Several Moves make one Turn.
 _Avoid_: Step, turn
