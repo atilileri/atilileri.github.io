@@ -1,5 +1,6 @@
 /**
- * The deck's navigation spine — the four key factors, in chapter order.
+ * The deck's four Factors, in chapter order — drawn by the Roadmap and by
+ * every Roadmap divider.
  *
  * THIS IS THE ONE PLACE THE FACTOR LABELS LIVE (wayfinder #29 / #30). The
  * roadmap divider renders them on chapter 1's roadmap slide and again as the
@@ -7,7 +8,7 @@
  * appearance at once. The labels below are LOCKED by the bridge grilling
  * (#34) and applied by #37: three are the incumbents verbatim, and #4 dropped
  * its "AI" — same meaning, one word shorter four-across, and it stops the
- * spine saying "AI" when every item on it is about AI.
+ * roadmap saying "AI" when every item on it is about AI.
  *
  * The factors map 1:1 onto chapters 2, 3, 4 and 5. Chapter 1 is the intro
  * (where all four appear at equal weight) and chapter 6 the outro; those two

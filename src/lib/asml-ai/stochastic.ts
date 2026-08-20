@@ -19,7 +19,7 @@
  *
  * Everything here is PRE-RECORDED and hand-authored. Per map #29 the deck
  * makes no live AI API calls, ever — the presenter says so out loud rather
- * than the slide printing it (see COPY.honesty's absence: #35 ruled against
+ * than the slide printing it (see TEXT.honesty's absence: #35 ruled against
  * an on-screen label).
  */
 
@@ -89,7 +89,7 @@ export const ANSWERS: { kind: Kind; text: string; tell: string }[] = [
  *  per-answer probability would be wrong in a chapter that cannot afford it. */
 export const RANK = [1, 0.82, 0.63, 0.47, 0.34];
 
-export const COPY = {
+export const TEXT = {
   // The answers are on screen the moment the slide opens, so the eyebrow
   // promises the fold, not the arrival.
   eyebrow: "Under the hood · press → to sort them",
@@ -99,6 +99,6 @@ export const COPY = {
   headline: "Same question. Five answers.",
   // Names the CAUSE, not the count: the three orange cards already say
   // "three of five". This is the line chapter 4 pays off.
-  beat: "Polluted context or degraded attention is all it takes.",
+  closeLine: "Polluted context or degraded attention is all it takes.",
   lanes: { legit: "grounded in the context", halluc: "hallucinated" },
 };

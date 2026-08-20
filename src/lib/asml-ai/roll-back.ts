@@ -9,7 +9,7 @@
  * WHAT THIS SLIDE IS FOR, per the spine grilling (#54): the room's default move
  * when an agent goes wrong is to argue with it, and that is the expensive one.
  * The slide contradicts what everyone in the room actually does — which is why
- * it is a full screen and not a bullet in a cluster.
+ * it is a full slide and not a bullet in a cluster.
  *
  * THE ARGUMENT IT MAKES: the wrong turn does not leave when you correct it. It
  * stays in the window, and now your correction is in there arguing with it. The
@@ -27,11 +27,11 @@
  * over the headline the first time this was walked. Also taken: b / . pause,
  * f fullscreen, s notes, o overview.
  *
- * ── FIVE THINGS HERE ARE DECISIONS, NOT COPY. Do not tune them away ──
+ * ── FIVE THINGS HERE ARE DECISIONS, NOT TEXT. Do not tune them away ──
  *
  * 1. NO MONEY ANYWHERE ON THIS SLIDE. Research #48 §6: the wrong turn re-read
  *    at the cached rate costs cents, so a euro figure is off by orders of
- *    magnitude AND duplicates the cache slide's job one screen earlier. The
+ *    magnitude AND duplicates the cache slide's job one slide earlier. The
  *    argument for rolling back is QUALITY. The counter above the pane is a
  *    count of TURNS, never credits. The one economic fact that belongs here is
  *    the reverse — rolling back keeps the cached prefix, `/clear` throws it away
@@ -58,7 +58,7 @@
 export const EYEBROW = "Go back rather than argue";
 export const HEADLINE = ["Don't react.", "Prepare again."];
 
-export const LEDE =
+export const OPEN_LINE =
   "Your session, and the two buttons that are already in it. Everything in this pane is read again, every single turn.";
 
 /** the rule that names T3 — see decision 5 */
@@ -106,7 +106,7 @@ export const MISTAKE: Turn = {
 
 /** The red path. Each correction is reasonable in isolation — that is the
  *  point. The wrong turn is still in the window, and now so is the argument
- *  about it. Two steps only: a third would say "keep arguing", which
+ *  about it. Two fragments only: a third would say "keep arguing", which
  *  Anthropic's published threshold forbids. */
 export const RED: { you: Turn; agent: Turn; note: string }[] = [
   {
@@ -139,7 +139,7 @@ export const THRESHOLD =
 export const RESTORE = "Restore Checkpoint";
 
 /** what the restore says as the wrong turns leave — the crux, in the vendors'
- *  own register: removed from the session, not hidden from the screen */
+ *  own register: removed from the session, not hidden from the slide */
 export const CRUX = "T4 and everything after it: removed from the session.";
 
 /** The green path: same checkpoint, better brief. T4′ adds the retry ceiling
@@ -166,12 +166,12 @@ export const readsLabel = (n: number, clean: boolean) =>
     ? `it reads ${n} turns — the wrong one is not one of them`
     : `it reads all ${n} turns again, the wrong one included`;
 
-/* ══ THE CLOSING BEAT ══════════════════════════════════════════════════════
+/* ══ THE CLOSING LINE ══════════════════════════════════════════════════════
  * The four names, in the audience's own vocabulary, so an attendee can read a
  * label off the wall and find it in their editor on Monday. Atil's call on the
- * prototype ticket: on screen, one fragment. The full escape ladder (nudge →
+ * prototype ticket: on the slide, one fragment. The full escape ladder (nudge →
  * roll back → fork → compact → clear) stays in the presenter note, which is
- * what keeps the chapter at nine screens.
+ * what keeps the chapter at nine slides.
  *
  * All four are verbatim first-party (#48 §2). `/prune` does not exist — the
  * word is `/compact` (#45) — and no Cursor / Windsurf vocabulary appears here.

@@ -81,8 +81,8 @@ export const BRANCHES: Branch[] = [
   },
 ];
 
-export const COPY = {
-  // No "press →": the slide has no steps to press through — it plays itself
+export const TEXT = {
+  // No "press →": the slide has no fragments to press through — it plays itself
   // out on arrival — and an eyebrow promising an interaction the slide does
   // not have is worse than a plain one.
   eyebrow: "Under the hood · one question, two failures",
@@ -90,6 +90,6 @@ export const COPY = {
   // sorts the two failures for you.
   headline: "One question tells you which.",
   // The deck's standing single sentence.
-  beat: "Both failures look identical on screen. They do not have the same fix.",
+  closeLine: "Both failures look identical on screen. They do not have the same fix.",
   fixed: "Fixed.",
 };

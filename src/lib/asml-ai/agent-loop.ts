@@ -1,5 +1,5 @@
 /**
- * The agent-loop slide's step script and number model (deck /decks/asml-ai,
+ * The agent-loop slide's move script and number model (deck /decks/asml-ai,
  * chapter 3). Settled by wayfinder prototype #26 (variant C, "the
  * ledger") and built by #28 — the figures below are locked, not illustrative
  * defaults to tune.
@@ -12,9 +12,9 @@
  * only the delta since the last call bills at full input price. Tool results
  * are produced locally and cost nothing until the next call re-sends them.
  *
- * TWELVE steps, FOUR billing events. The bars sit still while the agent
+ * TWELVE moves, FOUR billing events. The bars sit still while the agent
  * reasons and while a tool returns, then jump when a request goes out. That
- * asymmetry is the teaching — do NOT "fix" it by billing every step.
+ * asymmetry is the teaching — do NOT "fix" it by billing every move.
  *
  * Model is GPT-5.4, deliberately not an Anthropic one: #23 keeps Anthropic's
  * 1.25× cache-WRITE rate off-screen, which is invisible on the cost dial but
@@ -36,21 +36,21 @@ export const AUTO_DISCOUNT = 0.1;
 
 export type Role = "system" | "user" | "assistant" | "tool";
 
-export type Step = {
+export type Move = {
   role: Role;
   /** Ledger text. Contains inline markup (<code>, <b>) — trusted, authored here. */
   text: string;
-  /** Context blocks this step appends to the window. */
+  /** Context blocks this move appends to the window. */
   block: { label: string; tokens: number; kind: BlockKind }[];
   /** A model call fires here: the whole window is billed, fresh vs cached. */
   call?: boolean;
-  /** Output tokens billed at this step. */
+  /** Output tokens billed at this move. */
   out?: number;
 };
 
 export type BlockKind = "harness" | "tools" | "user" | "assistant" | "tool";
 
-export const SCRIPT: Step[] = [
+export const SCRIPT: Move[] = [
   {
     role: "system",
     text: "Harness bundle and two tool schemas are loaded before anything is said.",
@@ -127,11 +127,11 @@ export const SCRIPT: Step[] = [
   },
 ];
 
-/** 12 — the fragment spine adds one more for the bridge. */
-export const STEP_COUNT = SCRIPT.length;
+/** 12 — the fragment row adds one more for the bridge. */
+export const MOVE_COUNT = SCRIPT.length;
 
 export type Frame = {
-  step: number;
+  move: number;
   /** Every block in the window, in the order it landed. */
   blocks: { label: string; tokens: number; kind: BlockKind; sentAt: number }[];
   contextTokens: number;
@@ -144,7 +144,7 @@ export type Frame = {
   callIndex: number;
 };
 
-/** Replay the script from step 0 up to `upTo` inclusive. Pure — no state kept
+/** Replay the script from move 0 up to `upTo` inclusive. Pure — no state kept
  *  between calls, which is what lets the slide replay from reveal's fragment
  *  state instead of a counter it would have to keep in sync. */
 export function frameAt(upTo: number): Frame {
@@ -155,7 +155,7 @@ export function frameAt(upTo: number): Frame {
   let bc = 0;
   let bo = 0;
   let calls = 0;
-  for (let i = 0; i <= upTo && i < STEP_COUNT; i++) {
+  for (let i = 0; i <= upTo && i < MOVE_COUNT; i++) {
     const s = SCRIPT[i];
     if (s.call) {
       bi += ctx - sentCtx;
@@ -174,7 +174,7 @@ export function frameAt(upTo: number): Frame {
   const creditsNoCache =
     (((bi + bc) * RATE.input + bo * RATE.output) / 1e6) * (1 - AUTO_DISCOUNT);
   return {
-    step: upTo,
+    move: upTo,
     blocks,
     contextTokens: ctx,
     billedInput: bi,
@@ -188,7 +188,7 @@ export function frameAt(upTo: number): Frame {
 
 /** The end of the run: 2,715-token window; 2,696 / 7,675 / 194 billed;
  *  1.04 AIC against 2.60 cold — the cache doing 60% of the work. */
-export const FINAL = frameAt(STEP_COUNT - 1);
+export const FINAL = frameAt(MOVE_COUNT - 1);
 
 /** Bars are scaled against the largest count the run reaches, so the three
  *  are comparable to each other rather than each self-normalised. */

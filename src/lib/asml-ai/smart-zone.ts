@@ -8,7 +8,7 @@
  *
  * WHAT THIS SLIDE IS FOR, per the spine grilling (#54): mechanism and budget
  * ONLY. The escapes — /clear, /compact, fork, roll back — belong to the roll
- * back slide two screens later, so this one ends on the PROBLEM. That is what
+ * back slide two slides later, so this one ends on the PROBLEM. That is what
  * makes the room want the rest of the chapter.
  *
  * THE ARGUMENT IT MAKES, in one line: your preparation does not survive the
@@ -24,9 +24,9 @@
  *    can be deep in the dumb zone with most of the window still free.
  * 2. Turn 5 exists to say nothing has gone wrong YET. Research #44's wording
  *    constraint is that the honest claim is "budget for ~100k", never "it's
- *    fine up to 100k" — the one version the evidence contradicts. A three-step
+ *    fine up to 100k" — the one version the evidence contradicts. A three-state
  *    version of this slide reads as a cliff. Four reads as a slope.
- * 3. The gauge chip is CORRECT at every step. It is not a mistake in the
+ * 3. The gauge chip is CORRECT at every turn. It is not a mistake in the
  *    widget and must never be drawn as a warning. Research #45 found Copilot
  *    now genuinely ships a context gauge, so the only defensible form of "you
  *    get no warning" is the one this slide stages: it is honest about the tank
@@ -70,7 +70,7 @@ export const HARD = 150_000;
  * The blocks arrive as themselves — every turn its own colour — and end as an
  * undifferentiated grey field. That IS the argument: nothing was deleted, it
  * all just became the same to the model. This palette is the one place in the
- * deck that leaves the two-colour system, deliberately and for one beat; the
+ * deck that leaves the two-colour system, deliberately and for one moment; the
  * grey it collapses into is the theme's own.
  */
 export const PALETTE = [

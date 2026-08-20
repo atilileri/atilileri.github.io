@@ -18,7 +18,7 @@ _Avoid_: Section — that word belongs to the markup, not to us. Also part, act.
 
 **Spine**:
 A Chapter's locked, ordered list of Slides. The grilling that locks one is a "spine grilling" ([#54](https://github.com/atilileri/atilileri.github.io/issues/54), [#70](https://github.com/atilileri/atilileri.github.io/issues/70)).
-_Avoid_: Never use Spine for the Roadmap, and never for a Step rail. Both meanings existed before this glossary and both are wrong.
+_Avoid_: Never use Spine for the Roadmap, and never for a Fragment row. Both meanings existed before this glossary and both are wrong.
 
 **Movement**:
 A run of consecutive Slides inside one Chapter that carries one half of its argument. Chapter 4 has two — "prepare it", then "defend it". A Movement is bigger than a Slide and smaller than a Chapter.
@@ -82,7 +82,7 @@ The last line on a Slide — the sentence the Slide exists to deliver.
 _Avoid_: Beat — it meant three different things before this glossary: this one, a spoken pause, and a Factor.
 
 **Presenter note**:
-The `<aside class="notes">` on a Slide. It carries what the Slide must not print — sourcing, caveats, and the answer to a challenge from the room.
+The `<aside class="notes">` on a Slide. It carries what the Slide must not print — sourcing, caveats, and the answer to a challenge from the room. Presenter notes are governed by this glossary like everything else: they are written to be spoken, not written in a private vocabulary.
 _Avoid_: Speaker note
 
 **Fragment**:
@@ -95,9 +95,12 @@ _Avoid_: Step, animation, reveal, click, build
 An interactive thing on a Slide that the room can watch change. A Slide either has one or is static.
 _Avoid_: Island — that is Astro's word for a build concern. See Third-party contracts.
 
-**Step rail**:
-The hidden row of Fragments that drives a Widget forward, so the clicker's arrow keys work with no custom key binding. Reveal's Fragment state is the single source of truth for where a Widget is.
-_Avoid_: Spine
+**Fragment row**:
+The hidden row of Fragments that drives a Widget forward, so the clicker's arrow keys work with no custom key binding. Reveal's Fragment state is the single source of truth for where a Widget is. It is invisible — the room never sees it.
+_Avoid_: Spine, step rail, rail — a Rail is something the room sees, and this is not.
+
+**Rail**:
+Chapter 5's on-screen pipeline component: the seven stages, with the current stop or span lit. Reserved by [#103](https://github.com/atilileri/atilileri.github.io/issues/103), drawn from prototype [#91](https://github.com/atilileri/atilileri.github.io/issues/91). The room sees a Rail. It never sees a Fragment row.
 
 **Move**:
 One row of the agent-loop ledger. The loop has twelve Moves and four billing events, and that asymmetry is the point of the Slide. Several Moves make one Turn.
@@ -137,6 +140,7 @@ These words are not ours. A library or the platform owns each one, and its spell
 ## Not governed by this glossary
 
 - **Words the Deck quotes from ASML's world.** The guardrails Slide says "Process steps, tool names, part numbers". That is ASML's word for ASML's work, not our metalanguage. Do not "fix" it.
-- **Ordinary English in Presenter notes.** "Silence for a beat" is a stage direction, not the term Beat. Presenter notes are spoken, so they use spoken English.
-- **On-screen Text locked by an earlier issue.** Where locked Text uses a word this glossary retired, the Text wins until its own issue is reopened. The room has no glossary. Two known cases: the agent-loop Slide prints "Twelve steps, four model calls", and the keyboard legend prints "move" as an ordinary verb for navigating.
+- **The word "screen" for the glass in the room.** A Presenter note that says "every number on screen is one we can source" is correct: it means the display, not a Slide. Say "on screen" for the glass and "on the Slide" for the unit of the Deck.
+- **On-screen Text locked by an earlier issue.** Where locked Text uses a word this glossary retired, the Text wins until its own issue is reopened. The room has no glossary. One known case: the keyboard legend prints "move" as an ordinary verb for navigating, which is not the noun Move.
+- **The Attic.** Chapter 99 keeps showcase leftovers as they were. Its Text and its class names are not maintained to this glossary.
 - **Closed issue titles.** History stays as written.
