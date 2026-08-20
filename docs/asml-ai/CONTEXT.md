@@ -89,6 +89,14 @@ _Avoid_: Speaker note
 One arrow press inside a Slide. A Slide with four Fragments takes five presses to leave. Reveal.js owns this word and its `class="fragment"`; we adopt it rather than compete with it. See Third-party contracts.
 _Avoid_: Step, animation, reveal, click, build
 
+**Lit**:
+The state of one member of a drawn set — a Factor on a Roadmap divider, a Stop on the Rail, a node on a fork — while the Slide is talking about it. Its peers are Dim. Lit says **where you are in the set**, never **which member matters most**. More than one member can be Lit at once; on the Rail that is a Span. The code already spells it this way (`.lit`, `.is-lit`).
+_Avoid_: Active, selected, on. Also current and highlighted — reveal.js owns both, for `.current-fragment` and for the code plugin. See Third-party contracts.
+
+**Dim**:
+The state of every member of a drawn set that is not Lit. A Dim member stays readable on purpose, because the room has to see the whole set and where it sits inside it. ⚠ Dim is not off and it is not *less important*: [#71](https://github.com/atilileri/atilileri.github.io/issues/71) found that with Text under every Stop, dimming a run of them can read as a ranking rather than as position. A thing that is not on the wall at all is not Dim — it is an unrevealed Fragment. Printing something **greyed** is a third thing again: it marks an absence the room should notice, like *Not built yet* ([#93](https://github.com/atilileri/atilileri.github.io/issues/93)), and it can happen to a Lit member.
+_Avoid_: Greyed, disabled, inactive, off
+
 ## Widgets and their units
 
 **Widget**:
@@ -100,7 +108,15 @@ The hidden row of Fragments that drives a Widget forward, so the clicker's arrow
 _Avoid_: Spine, step rail, rail — a Rail is something the room sees, and this is not.
 
 **Rail**:
-Chapter 5's on-screen pipeline component: the seven stages, with the current stop or span lit. Reserved by [#103](https://github.com/atilileri/atilileri.github.io/issues/103), drawn from prototype [#91](https://github.com/atilileri/atilileri.github.io/issues/91). The room sees a Rail. It never sees a Fragment row.
+Chapter 5's on-screen pipeline component: the seven Stops, with the current Stop or Span lit. Reserved by [#103](https://github.com/atilileri/atilileri.github.io/issues/103), drawn from prototype [#91](https://github.com/atilileri/atilileri.github.io/issues/91). The room sees a Rail. It never sees a Fragment row.
+
+**Stop**:
+One of the seven parts of the operating model chapter 5 describes: wayfinder, grill/research/prototype, to-spec, to-tickets, implement, review, Reconcile. A Stop is the practice itself and the mark the Rail draws for it — one thing, seen twice. Six Slides carry the seven Stops, so one Slide lights a Span ([#101](https://github.com/atilileri/atilileri.github.io/issues/101)).
+_Avoid_: Stage — the code already uses `-stage` class names for the box a Widget draws into (`.sz-stage`, `.al-stage`), which is a layout concern and not this word. Also step, phase, beat.
+
+**Span**:
+Two neighbouring Stops lit together, because one Slide carries both. The Rail lights a Span exactly as it lights a Stop, and prints every command inside it.
+_Avoid_: Range, group
 
 **Move**:
 One row of the agent-loop ledger. The loop has twelve Moves and four billing events, and that asymmetry is the point of the Slide. Several Moves make one Turn.
