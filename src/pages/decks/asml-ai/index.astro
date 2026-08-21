@@ -56,6 +56,10 @@ import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 // can never disagree.
 import PipelineRail from "../../../components/deck/PipelineRail.astro";
 import ProcessSummary from "../../../components/deck/ProcessSummary.astro";
+// The `wayfinder` Stop's picture (#98 comp E, built by #105). Its nine tickets
+// and four steps live in src/lib/asml-ai/wayfinder-map.ts; the island near the
+// bottom of this file paints the board from them.
+import WayfinderMap from "../../../components/deck/WayfinderMap.astro";
 
 // Chapter 4's smart-zone widget (#52). The session script and everything that
 // is a decision rather than a number live in src/lib — read that file's header
@@ -2748,28 +2752,79 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             </aside>
           </section>
 
-          <!-- ↓1 ─────────────── WAYFINDER · SHELL, filled by #98.
-               Comp E, "the map with its grammar", driven by fragments. The
-               Headline moved from #70's "in one conversation" to "in one agent
-               session" (Atil, in #98): conversation reads as MEETING, and agent
-               session names the actual limit that makes a map necessary. -->
-          <section class="ch5-slide" data-section="05 — Operating model">
+          <!-- ↓1 ─────────────── WAYFINDER · comp E, "the map with its
+               grammar" (#98), driven by fragments. The Headline moved from
+               #70's "in one conversation" to "in one agent session" (Atil, in
+               #98): conversation reads as MEETING, and agent session names the
+               actual limit that makes a map necessary.
+
+               ⚠ THE BOUNDARY WITH THE NEXT SLIDE (#98): this Slide owns WHICH
+               questions can be asked and in what order. `questions` owns HOW
+               you ask the ones you can. A question may appear on this wall,
+               never a question being ANSWERED — answering is grilling, and
+               batching belongs to `questions` (locked decision #3). -->
+          <section
+            class="ch5-slide ch5-wf"
+            data-section="05 — Operating model"
+            data-wayfinder
+            data-frags
+          >
             <PipelineRail lit="wayfinder" />
             <span class="eyebrow">Chart it before you take it</span>
             <h2 class="h-set">
               <span class="h-line"><span>A big decision doesn&rsquo;t fit</span></span>
               <span class="h-line"><span>in one agent session.</span></span>
             </h2>
+            <WayfinderMap />
             <aside class="notes">
-              SHELL — the picture, the body text and this Slide's real notes are
-              locked in #98 (comp E) and are not built yet. Do not present the
-              technical route until they are.
+              THE ROOM'S TAKEAWAY SENTENCE, and say it early: "Plan a huge chunk
+              of work — more than one agent session can hold." That limit is the
+              whole reason the map exists.
 
-              The room's takeaway sentence, from #98: "Plan a huge chunk of work
-              — more than one agent session can hold."
+              ⚠ MOST WORK STARTS AT THE NEXT STOP (#104). The skill calls
+              /wayfinder an ON-RAMP, not the head of the flow. A one-ticket
+              change does not get a map; this is what you reach for when the
+              thing is too big to hold.
 
-              Owed by #104: the clause "Most work starts at the next stop." The
-              skill calls /wayfinder an on-ramp, not the head of the flow.
+              ── WALK THE FOUR STEPS ──
+              STEP 0. Nine questions, one map. Read the TYPES off the wall —
+              grilling, research, prototype, task. That is the beat: a map is
+              not a to-do list, it is questions, each with a method attached.
+              Three are takeable now; the rest wait on them.
+
+              STEP 1. Three close. The answers arrive already made — do not
+              narrate how they were reached, that is the next Slide's job. Point
+              at #8: a grilling produced a question nobody had at charting, and
+              it is a prototype ticket. That is what grilling actually does.
+
+              STEP 2. #6 and #7 leave Blocked, saying which ticket freed them.
+              Then the fog: "Not yet specified is not a question yet. The
+              frontier reaches it, and it becomes one." #9 graduates.
+
+              STEP 3. The board empties, the map goes orange, /to-spec lights.
+              "Nothing left to decide." The map is a finished SET OF DECISIONS
+              handed to the next stop — not a project plan.
+
+              ── OUT OF SCOPE STAYS ON THE WALL THROUGHOUT ──
+              Two things are ruled past the destination and never graduate. A
+              map is bounded, and the boundary is written down where everyone
+              can see it. "What the archive costs to keep" starts as fog and is
+              ruled out rather than answered — fog leaves two ways.
+
+              ── THE EXAMPLE IS INVENTED (locked decision #6) ──
+              Never this deck's own map. If asked whether we run this: yes, and
+              leave it there.
+
+              ── MUST NOT CLAIM ──
+              That the map is generated. A person and an agent chart it
+              together, and every ticket is claimed before any work starts.
+
+              That blocking dispatches anything automatically. It records the
+              order in the tracker. ⚠ The blocking PICTURE is this Slide's and
+              is never drawn twice — `slices` only speaks it (#101).
+
+              ── HELD FOR "how long does charting take?" ──
+              One session. The map is cheap; the tickets under it are the work.
             </aside>
           </section>
 
@@ -2777,23 +2832,106 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
                ONE Stop with three commands — the Span moved to `slices` (#101,
                overriding #70 and #92). Five fragments: an outline with three
                visible holes, and a hole fills as each command arrives. -->
-          <section class="ch5-slide" data-section="05 — Operating model">
-            <PipelineRail lit="questions" />
+          <section
+            class="ch5-slide ch5-fill"
+            data-section="05 — Operating model"
+            data-ch5-step
+            data-frags
+          >
+            {/* Each command arrives as ITS OWN hole fills, never three at once.
+                #71's controlled finding is the reason: seven names read as
+                seven names, and it is the obligation that makes a row argue. */}
+            <PipelineRail lit="questions" cmdFragments={[1, 2, 3]} />
             <span class="eyebrow">Fill the holes first</span>
             <h2 class="h-set">
               <span class="h-line"><span>It only invents where</span></span>
               <span class="h-line"><span>you left a hole.</span></span>
             </h2>
+
+            <div class="ch5-two">
+              {/* The claim is a FILLING MOTION, so the picture fills. Three
+                  visible holes in an outline, one closing per command. The
+                  holes are numbered for CSS only; the wall never numbers them
+                  and never labels which command filled which. */}
+              <div
+                class="ch5-doc"
+                role="img"
+                aria-label="An outline with three visible holes in it. One hole fills as each of research, grilling and prototype is named."
+              >
+                <span class="dk">outline</span>
+                <span class="ln"></span>
+                <span class="ln s"></span>
+                <span class="hole" data-hole="1"></span>
+                <span class="ln"></span>
+                <span class="hole" data-hole="2"></span>
+                <span class="ln s"></span>
+                <span class="ln"></span>
+                <span class="hole" data-hole="3"></span>
+                <span class="ln s"></span>
+              </div>
+
+              <div class="ch5-lines">
+                <p class="ch5-body fragment rise" data-fragment-index="1">
+                  Research fills the holes the world can fill.
+                </p>
+                <p class="ch5-body fragment rise" data-fragment-index="2">
+                  Grilling fills the rest.
+                </p>
+                <p class="ch5-body fragment rise" data-fragment-index="3">
+                  Some holes neither of you can fill. Build one and look at it.
+                </p>
+                <p class="ch5-close fragment rise" data-fragment-index="4">
+                  The prototype&rsquo;s answer lands in <code>main</code>. Its
+                  code does not.
+                </p>
+              </div>
+            </div>
+
+            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="4" aria-hidden="true"></span>
+
             <aside class="notes">
-              SHELL — the filling picture, the three body lines and the closing
-              line are locked in #101 and are not built yet.
+              ⚠ THE HEADLINE IS SENTENCE ONE of #73's locked wall line, so the
+              body prints sentences TWO AND THREE only. Do not say all three
+              aloud either — you would say it twice.
 
-              ⚠ The Headline IS sentence one of #73's locked wall line, so the
-              body prints sentences two and three ONLY. Printing all three says
-              it twice.
+              ── BATCHING, SPOKEN WHILE THE HOLES FILL (locked decision #3) ──
+              The grill-in-batches short IS this Slide, folded in and never
+              played: "It does not ask one question at a time. It asks
+              everything it can ask now, then the answers open the next round.
+              This map was charted that way. So was the last chapter's spine."
 
-              ⚠ The Rail prints each command ON ITS OWN FRAGMENT here, as its
-              hole fills — pass `cmdFragments` when the picture lands.
+              ⚠ NO NUMBER (#68). Upstream says thirteen, the research document
+              says twenty, and SKILL.md carries none. Say FEWER TURNS. ⚠ Never
+              "less cognitive load".
+
+              ── WHY THREE FILLERS AND NOT FOUR SENTENCES ──
+              `prototype` earns the third hole, but its line is shaped as THE
+              EXCEPTION rather than as a fourth filler. Three fillers, three
+              commands, one claim.
+
+              ── THE FOURTH TICKET TYPE, if the room counts ──
+              "One ticket type does no asking. It goes and gets the thing the
+              question waits on." `task` has no slash command and fills no hole
+              by asking, so it is not on this wall. The room already met it on
+              the previous Slide's board.
+
+              ── THE PROTOTYPE'S CODE, if pressed ──
+              Not "throw it away" — our own installed skill parks the artifact
+              on a prototype/ branch as a primary source. The ANSWER lands in
+              main; the code does not. Those are different things.
+
+              ── WHAT GRILLING ACTUALLY PRODUCES (cut from the wall, #73/#50) ──
+              The ubiquitous language: CONTEXT.md and the ADRs. Those are
+              /domain-modeling's outputs, and this is where the room learns that
+              a shared vocabulary is a deliverable rather than a nicety.
+
+              ── RESERVE LINE, if the framing needs saying aloud (#73) ──
+              "It can't be wrong about something nobody ever specified."
+
+              ── LENGTH ── About ninety seconds. On budget.
             </aside>
           </section>
 
@@ -2803,25 +2941,147 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
                to-tickets slices the spec into tracer bullets. Both cut, and the
                eyebrow is already "Cut it small". The picture is an hourglass:
                many → one → many. -->
-          <section class="ch5-slide" data-section="05 — Operating model">
-            <PipelineRail lit={["to-spec", "to-tickets"]} />
+          <section
+            class="ch5-slide ch5-cut"
+            data-section="05 — Operating model"
+            data-ch5-step
+            data-frags
+          >
+            <PipelineRail lit={["to-spec", "to-tickets"]} cmdFragments={[1, 2]} />
             <span class="eyebrow">Cut it small</span>
             <h2 class="h-set">
               <span class="h-line"><span>Going faster isn&rsquo;t the risk.</span></span>
               <span class="h-line"><span>Going faster in one lump is.</span></span>
             </h2>
+
+            {/* THE HOURGLASS: many → one → many. ⚠ The direction matters and it
+                was corrected in #101 — both primary sources say /to-spec
+                produces ONE document ("publishes it as a single issue"), so the
+                decisions converge before anything fans out.
+
+                ⚠ IT OPENS ON THE PREVIOUS SLIDE'S LAST FRAME — the emptied
+                board's closed decisions, with /to-spec already lit. No new
+                image, which is what makes it a Callback rather than a restart:
+                the chapter's own Slides hand to each other. */}
+            <div
+              class="ch5-hourglass"
+              role="img"
+              aria-label="Nine closed decisions converge into one spec document, and the document fans out into thin tickets, each a narrow path through every layer."
+            >
+              <div class="hg-pane hg-many">
+                <span class="hgk">decisions</span>
+                <span class="hg-chip">/to-spec</span>
+                {
+                  Array.from({ length: 9 }).map(() => <span class="hg-row" />)
+                }
+              </div>
+
+              <svg class="hg-funnel" viewBox="0 0 40 200" aria-hidden="true">
+                <path d="M0,4 L40,100 M0,196 L40,100" />
+              </svg>
+
+              <div class="hg-pane hg-one">
+                <span class="hgk">spec</span>
+                <div class="hg-doc">
+                  <span class="ln"></span><span class="ln s"></span>
+                  <span class="ln"></span><span class="ln s"></span>
+                  <span class="ln"></span>
+                </div>
+              </div>
+
+              <svg class="hg-funnel" viewBox="0 0 40 200" aria-hidden="true">
+                <path d="M0,100 L40,4 M0,100 L40,196" />
+              </svg>
+
+              <div class="hg-pane hg-fan">
+                <span class="hgk">tickets</span>
+                {/* Four layer bands behind five thin tickets, each crossing all
+                    four. ⚠ The word "vertical" appears NOWHERE (#65): nothing
+                    measures vertical against horizontal, the claim is
+                    definitional, and the picture carries it architecturally. */}
+                <div class="hg-bullets">
+                  <i></i><i></i><i></i><i></i><i></i>
+                </div>
+                <span class="hg-cap">tracer bullet</span>
+                {/* The layer-cut stays small and is never named on the wall. */}
+                <div class="hg-layercut"><b></b></div>
+              </div>
+            </div>
+
+            <div class="ch5-lines wide">
+              <p class="ch5-body fragment rise" data-fragment-index="1">
+                The spec names where the tests will cut. Before the code exists.
+              </p>
+              <p class="ch5-body fragment rise" data-fragment-index="2">
+                A tracer bullet lights its own path &mdash; so you see where it
+                lands before you fire the rest.
+              </p>
+              <p class="ch5-close fragment rise" data-fragment-index="3">
+                One ticket, one fresh session. The smart zone from chapter three,
+                as a unit of work.
+              </p>
+            </div>
+
+            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+
             <aside class="notes">
-              SHELL — the hourglass, the two body lines and the closing line are
-              locked in #101 and are not built yet. It is the fullest Slide in
-              the chapter and it runs about two minutes.
+              THE FULLEST SLIDE IN THE CHAPTER. ⚠ It runs about TWO MINUTES, not
+              ninety seconds. That is recorded, not trimmed — the vertical axis
+              is not a live time-management tool (#92), so an overrun is paid
+              elsewhere in the deck and never by a partial descent.
 
-              ⚠ THE SEAM IS SPOKEN AFTER THIS SLIDE, technical route only, and
-              it is #54's line: "It can't check itself. It can run your check."
-              Never as a Headline — it is already on a wall.
+              ── TWO STOPS, ONE REASON, AND IT IS THE SPINE ──
+              Say it in the source's own five words: "The spec exists because
+              context windows end." /to-spec writes the decisions down BECAUSE
+              the window ends; /to-tickets sizes each ticket to fit INSIDE one.
+              One constraint, answered twice — and chapter 3 already taught it.
+              That is why the smart-zone line is on the wall and not in a note.
 
-              ⚠ The word "vertical" appears nowhere. Nothing measures vertical
-              against horizontal; the claim is definitional and the picture
-              carries it.
+              ── OPENING ── "That is the map from a moment ago, finished." Then
+              press: the decisions become one document.
+
+              ⚠ ONLY /to-spec GETS A "WHAT IT DOES" LINE, and the asymmetry is
+              intended: slicing is drawable and the hourglass draws it, while
+              agreeing a test boundary is not drawable at all.
+
+              ── THE TRACER BULLET ── Hunt and Thomas, The Pragmatic Programmer.
+              The analogy is about SEEING THE PATH. ⚠ Never about speed, and
+              never about firing many.
+
+              ── BLOCKING EDGES, one sentence ── "Each ticket says which tickets
+              it waits on, so the order is in the tracker, not in someone's
+              head." ⚠ NO claim about parallel agents: the skill calls the
+              graph a design pattern with MANUAL dispatch. ⚠ The blocking
+              picture belongs to the previous Slide and is never drawn twice.
+
+              ── THE SEAM IS SPOKEN AFTER THIS SLIDE, technical route only ──
+              #54's line: "It can't check itself. It can run your check." ⚠
+              Never as a Headline; it is already on a wall.
+
+              ── HELD FOR "does this run without us?" ──
+              /to-tickets quizzes you on granularity and on the edges: "Nothing
+              reaches the tracker until you approve." Both Slides in this
+              movement end with a human deciding.
+
+              ── HELD FOR "you can't slice a schema rename that way" ──
+              Correct, and say so. The skill carries a WIDE REFACTOR exception:
+              when the blast radius breaks thousands of call sites, sequence it
+              expand → migrate in batches → contract instead. ⚠ Off the wall —
+              a limit printed beside a claim weakens both.
+
+              ── MUST NOT CLAIM ──
+              Twenty agent runs per ticket. One unnamed team, no control arm,
+              and the "cascading failures" mechanism was invented by the
+              research document.
+
+              ⚠ THE WORD "VERTICAL" IS NOT SPOKEN EITHER. Say SMALLER.
+
+              ── DORA IS CUT FROM THIS SLIDE (Atil) ── The instability-and-
+              countermeasure argument was written for an executive room, and an
+              executive room never arrives here. It is held for the summary
+              Slide's note instead.
             </aside>
           </section>
 
@@ -2831,23 +3091,155 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
                is not part of the loop and belongs to the review stage. Refactor
                is the hand-off into `review`, which makes movement 2 one motion
                across two Slides. Do not restore the third beat. -->
-          <section class="ch5-slide" data-section="05 — Operating model">
-            <PipelineRail lit="implement" />
+          <section
+            class="ch5-slide ch5-imp"
+            data-section="05 — Operating model"
+            data-ch5-step
+            data-frags
+          >
+            {/* ONE Stop whose Rail slot fills TWICE — not a Span. /implement on
+                press 1, /tdd on press 2. The pair IS the skill: implement is
+                seven lines and one of them is "Use /tdd where possible, at
+                pre-agreed seams." */}
+            <PipelineRail lit="implement" cmdFragments={[1, 2]} />
             <span class="eyebrow">Write the test first</span>
             <h2 class="h-set">
               <span class="h-line"><span>The bottleneck isn&rsquo;t the code.</span></span>
               <span class="h-line"><span>It&rsquo;s the test.</span></span>
             </h2>
+
+            <div class="ch5-two imp">
+              {/* ⚠ NO LITERAL RED AND GREEN (#102). The deck is blue on white
+                  with one orange accent; a red/green bar imports two colours
+                  the theme does not own and fails for a colour-blind viewer.
+                  The bar is ORANGE failing and BLUE passing, and BOTH STATES
+                  CARRY A WORD. The presenter still says "red, green" aloud —
+                  the mechanic is the turn, not the hue. */}
+              <div
+                class="ch5-bar"
+                role="img"
+                aria-label="A test bar, failing, with the seam marked on it. The bar turns to passing once the code is written."
+              >
+                <div class="tb">
+                  <span class="tb-fill"></span>
+                  <span class="tb-seam"><i></i><em>seam</em></span>
+                </div>
+                <span class="tb-word">
+                  <b class="w-fail">failing</b><b class="w-pass">passing</b>
+                </span>
+              </div>
+
+              <div class="ch5-lines">
+                <p class="ch5-body fragment rise" data-fragment-index="1">
+                  You own the seam. The test cannot wander off it.
+                </p>
+                <p class="ch5-body fragment rise" data-fragment-index="2">
+                  Then it writes only enough code to turn the bar.
+                </p>
+
+                {/* THE CHAPTER'S ONE NUMBER. ⚠ The labels are HUMAN and AI, not
+                    "you" and "the model" — in TDFlow the tests were the
+                    repository maintainers', never the presenter's. The Slide
+                    keeps second person for its own claims and third person for
+                    the study's two arms.
+
+                    ⚠ THE POINT IS WHO WRITES THE TEST, never "tests first". A
+                    wall reading "TDD: 94.3%" says the wrong thing. */}
+                <figure class="ch5-pair fragment rise" data-fragment-index="3">
+                  <figcaption>
+                    same agent &middot; same benchmark &middot; one thing swapped
+                  </figcaption>
+                  <p class="pr">
+                    <span class="pl">tests written by a <b>human</b></span>
+                    <span class="pv hi">94.3%</span>
+                  </p>
+                  <p class="pr">
+                    <span class="pl">tests the <b>AI</b> wrote for itself</span>
+                    <span class="pv">68.0%</span>
+                  </p>
+                </figure>
+
+                <p class="ch5-close fragment rise" data-fragment-index="4">
+                  Refactoring is not this stop&rsquo;s job. It is the next
+                  one&rsquo;s.
+                </p>
+              </div>
+            </div>
+
+            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="4" aria-hidden="true"></span>
+
             <aside class="notes">
-              SHELL — the failing-test picture, the body text and "Code only, no
-              explanation" are locked in #102 and are not built yet.
+              ⚠ RED → GREEN ONLY, NO REFACTOR BEAT (#102, amending locked
+              decision #8). Our own installed tdd skill ends with "Refactoring
+              is not part of the loop. It belongs to the review stage." Upstream
+              lists five beats and refactor is not one of them.
 
-              Owed by #104: /to-spec's seams point — the spec names the test
-              boundaries before any code exists, which is what stops the
-              implementing agent inventing its own interfaces.
+              ⚠ THE LAST PRESS IS THE MOVEMENT'S HINGE. It hands refactor to the
+              next Slide, which is what makes movement 2 ONE MOTION across two
+              Slides rather than two separate claims. Do not land on it flatly.
 
-              ⚠ Do not reprint or paraphrase the seam line; treat "seam" as
-              already known by the time the room arrives here (#101).
+              ── UNDER FRAGMENT 1, spoken (#104) ──
+              "The boundary was agreed at to-spec, before any code existed. That
+              is what stops it inventing its own interfaces to test against."
+              ⚠ Never reprint or paraphrase the to-spec wall line; the word
+              "seam" is already known by the time the room arrives here.
+
+              ⚠ MUST NOT CLAIM THAT WE WRITE THE TESTS BY HAND. Neither the
+              skill nor upstream says a human writes the test — they say the
+              human CONFIRMS THE BOUNDARY: "No test is written at an unconfirmed
+              seam." The AI writes the test, at a seam agreed before any code
+              exists. The number then reads as THE CEILING, not our practice:
+              the further the test is owned from the code writer, the better it
+              lands.
+
+              ── THE COST PAIR, SPOKEN NOT PRINTED ──
+              "And it cost about four times less." ⚠ Say the RATIO. The dollars
+              stay here: $1.01 against $4.12 per instance, arXiv 2510.23761. ⚠
+              No euro conversion — this is a citation, not our rate, and putting
+              it through our own exchange rate would dress someone else's
+              measurement as our price.
+
+              ── WHAT TDFLOW IS ──
+              arXiv 2510.23761, EACL 2026. An agent system that treats "fix this
+              repository" as "make the failing test pass", split over four
+              sub-agents. Benchmark: SWE-Bench Verified — real GitHub issues
+              with the maintainers' real fixes. They ran it twice and swapped
+              ONE variable, which is what makes it strong: a differential
+              measurement, not a leaderboard number. Their own conclusion is our
+              argument — test resolution is "already at human-level", and the
+              frontier is "the accurate generation of valid reproduction tests".
+
+              ── WHY IT CANNOT WRITE ITS OWN TEST, one number, held ──
+              About 15% of generated tests PASS on the unfixed code they were
+              written to fail on. The shape of the trap: a test the model
+              derives the same way it derives the code cannot disagree with the
+              code. ⚠ It stays in the note — the wall already carries the
+              chapter's one number, and a second halves the first one's force.
+
+              ── HELD FOR "it will just game the test" ──
+              Measured, and the honest answer is "rarely, when the test is owned
+              outside the patch": TDFlow found 7 test-hacking instances in about
+              800 runs and counted them as failures.
+
+              ── HELD FOR "94.3% of SWE-Bench is not 94.3% of our work" ──
+              Correct. The PAIR is the finding; the absolute number is not
+              transferable. Say so before the room does.
+
+              ── THE MODELS ARE NOT OURS ── GPT-5 / GPT-4.1, with Claude 4
+              Sonnet for test generation. The finding is about the workflow, not
+              the vendor.
+
+              ⚠ MUST NOT CLAIM that "tests first" is what the number measures.
+              It measures WHO WROTE THE TEST.
+
+              ⚠ "Code only, no explanation" IS CUT and stays cut (#67, #102).
+              The deck has retired that instruction twice, from two chapters, on
+              evidence. Do not restore it.
+
+              ── LENGTH ── About two minutes. Over budget, and recorded.
             </aside>
           </section>
 
@@ -2855,19 +3247,138 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
                Sub-agents are the mechanic and the independence is the beat: two
                of them read one diff and neither wrote it. The fan ends on the
                human, which is what sets the closing line up. -->
-          <section class="ch5-slide" data-section="05 — Operating model">
-            <PipelineRail lit="review" />
+          <section
+            class="ch5-slide ch5-rev"
+            data-section="05 — Operating model"
+            data-ch5-step
+            data-frags
+          >
+            <PipelineRail lit="review" cmdFragments={[1]} />
             <span class="eyebrow">Hand it to a stranger</span>
             <h2 class="h-set">
               <span class="h-line"><span>Same model. Different context.</span></span>
               <span class="h-line"><span>Different verdict.</span></span>
             </h2>
-            <aside class="notes">
-              SHELL — the two-Sub-agent fan, the body text and this Slide's real
-              notes are locked in #102 and are not built yet.
 
-              ⚠ "So we use a different model" stays FALSE and unsaid. The
-              Headline's first line — Same model — already does that work.
+            {/* A FAN, NOT A TWO-PANEL CONTRAST: one diff → two Sub-agents → one
+                human. The Headline argues "same model, different context"; the
+                fan DRAWS it and ends on the human, which is what sets the
+                closing line up. A two-panel contrast is an argument, not an
+                image.
+
+                ⚠ THE WORD ON THE WALL IS "SUB-AGENT" (Atil). "Fresh context" is
+                spoken. ⚠ This Slide carries NO NUMBER at all, and that is
+                deliberate: `implement` holds the chapter's one number and this
+                Slide holds its one honesty. */}
+            <div
+              class="ch5-fan"
+              role="img"
+              aria-label="One diff forks into two sub-agents, Standards and Spec, and both report into a human who holds the merge."
+            >
+              <svg class="fn-edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <path class="e a" d="M25,50 L34,26" vector-effect="non-scaling-stroke" />
+                <path class="e a" d="M25,50 L34,74" vector-effect="non-scaling-stroke" />
+                <path class="e b" d="M71,26 L79,50" vector-effect="non-scaling-stroke" />
+                <path class="e b" d="M71,74 L79,50" vector-effect="non-scaling-stroke" />
+              </svg>
+
+              <div class="fn-diff">
+                <span class="fk">diff</span>
+                <span class="ln"></span><span class="ln s"></span><span class="ln"></span>
+              </div>
+
+              <div class="fn-arms">
+                <div class="fn-arm">
+                  <span class="fk">sub-agent</span>
+                  <b>Standards</b>
+                  <span class="cap">what the repo documents</span>
+                  <span class="cap">plus twelve code smells &mdash; Fowler, <i>Refactoring</i></span>
+                </div>
+                <div class="fn-arm">
+                  <span class="fk">sub-agent</span>
+                  <b>Spec</b>
+                  <span class="cap">the ticket it came from</span>
+                </div>
+              </div>
+
+              <div class="fn-human">
+                <span class="fk">you</span>
+                <b>merge</b>
+              </div>
+            </div>
+
+            <div class="ch5-lines wide">
+              <p class="ch5-body fragment rise" data-fragment-index="1">
+                Neither of them wrote it. That is the whole mechanic.
+              </p>
+              <p class="ch5-body fragment rise" data-fragment-index="2">
+                One asks if it is written well. One asks if it is what you asked
+                for.
+              </p>
+              <p class="ch5-close fragment rise" data-fragment-index="3">
+                It is not a gate. It is a reader that finds things. You merge.
+              </p>
+            </div>
+
+            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
+            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+
+            <aside class="notes">
+              THE MEMORABLE LINE, spoken: never let it review its own code.
+
+              ⚠ "SO WE USE A DIFFERENT MODEL" STAYS FALSE AND UNSAID. We spawn
+              same-model Sub-agents, and the one controlled cross-model
+              experiment is asymmetric and can go negative. Say FRESH CONTEXT.
+              The Headline's first line — Same model — already does that work.
+
+              ── THE CONTRAST, SPOKEN OVER FRAGMENT 1. NUMBERS NEVER PRINTED ──
+              The same model, judging the same patch, discriminates defects at
+              AUROC 0.99 from a clean context and 0.89 when the patch sat in its
+              own prior turn — and it is about five times more likely to approve
+              a prompt-injected patch it believes it wrote. Khullar et al.,
+              Self-Attribution Bias, arXiv 2603.04582.
+
+              ── UPSTREAM'S WORDS, ATTRIBUTED AS UPSTREAM'S ──
+              "Same context reviewing itself isn't review, it's confirmation
+              bias with a slash command." ⚠ The installed code-review skill says
+              NOTHING about a fresh session — those sentences exist only in
+              upstream's prose. Quote them as upstream's, never as a rule the
+              tool enforces.
+
+              ── HELD FOR "so it grades its own homework?" ──
+              And it is a fair hit. "/implement ends by reviewing its own work.
+              The two Sub-agents are fresh, but the session holding them wrote
+              the code. So we run review again, in a clean session, before
+              anything merges. That is our habit, not something the tool
+              enforces."
+
+              ── HELD FOR "against what standard?" ──
+              "It reviews against what the repo documents, plus twelve code
+              smells from Fowler's Refactoring when the repo documents nothing."
+              ⚠ NO SLIDE CLAIMS THIS REPO'S OWN STANDARD DRIVES THE REVIEW. The
+              caption says "what the repo documents", which is true of any repo.
+
+              ── WHY THE TWO AXES NEVER MERGE ── Upstream's reason, and it is a
+              good one: "a blended verdict lets the passing axis hide the
+              failing one." ⚠ Do not fuse this with the closing line's reason.
+              The axes stay separate for LEGIBILITY; the human merges for
+              ACCOUNTABILITY.
+
+              ⚠ AN LLM REVIEW IS NOT A GATE. "It is a reader that finds things"
+              (Crupi et al., IEEE TSE 2025). The skill has no gate: two reports,
+              one summary, a human merges. This is the most important honesty
+              available to us in this room — do not soften it.
+
+              ⚠ ALL NUMBERS STAY OFF THIS WALL, and thermonuclear's 1,000-line
+              threshold has no derivation at all — note-only, and never as a
+              number.
+
+              ── HELD IN RESERVE, for "can't the AI just do all of this by
+              itself?" ── Ralph / AFK. ⚠ Note-only, never on a wall (locked
+              decision #9).
+
+              ── LENGTH ── About ninety seconds. On budget.
             </aside>
           </section>
 
@@ -3419,6 +3930,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       // importing it, which is what keeps them from drifting.
       import * as SZ from "../../../lib/asml-ai/smart-zone";
       import * as RB from "../../../lib/asml-ai/roll-back";
+      // Chapter 5's `wayfinder` Slide. Same contract as the chapter-3 and
+      // chapter-4 islands: the whole board is re-derived from the fragment
+      // count, so → and ← replay the walk in both directions.
+      import * as WFM from "../../../lib/asml-ai/wayfinder-map";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -5123,6 +5638,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // either direction lands on the right state.
         if (slide.hasAttribute("data-smartzone")) syncSmartZone(slide);
         if (slide.hasAttribute("data-rollback")) resetRollBack(slide);
+        // Chapter 5's stack. Same contract again: both islands re-derive
+        // everything from the fragment count, so entering from either
+        // direction lands on the right state.
+        if (slide.hasAttribute("data-ch5-step")) syncCh5Step(slide);
+        if (slide.hasAttribute("data-wayfinder")) syncWayfinder(slide);
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
@@ -5143,6 +5663,8 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-agentloop")) syncLoop(section);
         if (section?.hasAttribute("data-smartzone")) syncSmartZone(section);
+        if (section?.hasAttribute("data-ch5-step")) syncCh5Step(section);
+        if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
@@ -5379,6 +5901,152 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             if (k === "r") driveRollBack("reset", slide);
           });
         }
+      }
+
+      /* ══════════════════════════════════════════════════════════════════════
+       *  CHAPTER 5 — the four picture Slides in the stack (#105).
+       *
+       *  `questions`, `slices`, `implement` and `review` all draw a picture
+       *  that CHANGES ON EVERY PRESS, and none of them needs data: the whole
+       *  difference is which state the CSS is in. So one function serves all
+       *  four — it counts the Slide's visible `.ch5-step` fragments and writes
+       *  the number to `data-step`, and every picture rule keys off that.
+       *
+       *  WHY INVISIBLE COUNTERS RATHER THAN FRAGMENTS ON THE PICTURE ITSELF:
+       *  a picture state is rarely "one more element appears" — the test bar
+       *  TURNS, the holes FILL, the hourglass NARROWS. Those are transitions
+       *  between states, and a state is far easier to write as one CSS rule
+       *  per step than as a pile of elements that fade over each other.
+       *
+       *  Holds no state of its own, so ← walks every picture back exactly.
+       * ═══════════════════════════════════════════════════════════════════ */
+
+      function syncCh5Step(slide: HTMLElement) {
+        slide.dataset.step = String(
+          slide.querySelectorAll(".ch5-step.visible").length,
+        );
+      }
+
+      /* ══════════════════════════════════════════════════════════════════════
+       *  CHAPTER 5 — the `wayfinder` Slide's map (#98 comp E, built by #105).
+       *
+       *  Nine tickets move between four columns across four steps. The board
+       *  is re-rendered from `wayfinder-map.ts` on every fragment change, then
+       *  FLIP puts the motion back: each ticket is measured BEFORE the repaint
+       *  and slides from where it was to where it now is, so the room watches a
+       *  ticket LEAVE Blocked rather than watching a table re-draw. A ticket
+       *  that did not exist rises in instead, which is what makes the spawn on
+       *  step 1 read as a spawn.
+       *
+       *  ⚠ REVEAL SCALES THE CANVAS, so the measured pixels are divided by
+       *  `deck.getScale()` before they drive the transform. A build that
+       *  forgets this gets drift at every viewport except 1600×900 (#98).
+       *
+       *  ⚠ HISTORY COMPRESSES, and it is not decoration: nine full cards run
+       *  off the bottom of the canvas. A ticket closed on an EARLIER step drops
+       *  to a one-line ledger row, and only the ones closing NOW show their
+       *  answer. Without this the last two steps overflow.
+       * ═══════════════════════════════════════════════════════════════════ */
+
+      function syncWayfinder(slide: HTMLElement) {
+        const board = slide.querySelector<HTMLElement>("[data-wf-board]");
+        if (!board) return;
+        const step = slide.querySelectorAll(".ch5-step.visible").length;
+        const T = WFM.TICKETS;
+        const slot = (k: string) =>
+          slide.querySelector<HTMLElement>(`[data-wf-slot='${k}']`)!;
+        const closedAt = (id: number, at: number) =>
+          (T.find((t) => t.id === id)?.closed ?? 99) <= at;
+
+        // ── Measure, so the repaint below can be un-done into a slide ──
+        const before = new Map<string, DOMRect>();
+        board
+          .querySelectorAll<HTMLElement>("[data-tid]")
+          .forEach((e) => before.set(e.dataset.tid!, e.getBoundingClientRect()));
+        const firstPaint = before.size === 0;
+
+        const card = (t: (typeof T)[number], state: string) => {
+          if (state === "done" && t.closed < step) {
+            return `<p class="wf-row ty-${t.type}" data-tid="t${t.id}"><span class="tick">closed</span><span class="id">#${t.id}</span><span class="q">${t.q}</span></p>`;
+          }
+          const blocker =
+            state === "blocked" ? `<span class="blk">waits on #${t.blockedBy}</span>` : "";
+          // A freed ticket says which ticket freed it, on the step it moves.
+          const freed =
+            state === "open" && t.blockedBy && closedAt(t.blockedBy, step)
+              ? `<span class="freed">#${t.blockedBy} closed</span>`
+              : "";
+          const born = t.born && t.from === step ? `<span class="born">${t.born}</span>` : "";
+          const ans = state === "done" ? `<span class="a">${t.a}</span>` : "";
+          return `<div class="wf-card ${state} ty-${t.type}" data-tid="t${t.id}"><span class="head"><span class="ty">${t.type}</span><span class="id">#${t.id}</span></span><span class="q">${t.q}</span>${blocker}${freed}${born}${ans}</div>`;
+        };
+
+        const cols: Record<string, string[]> = { done: [], open: [], blocked: [] };
+        for (const t of T) {
+          if (t.from > step) continue;
+          const state =
+            t.closed <= step
+              ? "done"
+              : t.blockedBy && !closedAt(t.blockedBy, step)
+                ? "blocked"
+                : "open";
+          cols[state].push(card(t, state));
+        }
+        slot("done").innerHTML = cols.done.join("");
+        slot("open").innerHTML = cols.open.join("");
+        slot("blocked").innerHTML =
+          cols.blocked.join("") || `<p class="wf-empty">nothing waiting</p>`;
+
+        // Fog: in scope, written down, not sharp enough to ask. A patch leaves
+        // the column either by graduating into a ticket or by being ruled out
+        // of scope — the second one is why this filters against OUT as well.
+        slot("fog").innerHTML = WFM.FOG.filter(
+          (f) => f.graduates < 0 || f.graduates > step,
+        )
+          .filter((f) => !WFM.OUT.some((o) => o.text === f.text && o.from <= step))
+          .map((f) => `<p class="wf-fog" data-tid="f${f.text}">${f.text}</p>`)
+          .join("");
+        slot("out").innerHTML = WFM.OUT.filter((o) => o.from <= step)
+          .map((o) => `<p class="wf-out" data-tid="o${o.text}">${o.text}</p>`)
+          .join("");
+
+        const open = cols.open.length,
+          blocked = cols.blocked.length,
+          done = cols.done.length;
+        slide.querySelector<HTMLElement>("[data-wf-tally]")!.textContent =
+          `${done + open + blocked} tickets · ${done} closed · ${blocked} blocked`;
+        // The last beat: nothing left to decide, so the map goes orange and
+        // hands itself to /to-spec.
+        const finished = open + blocked === 0;
+        slide.querySelector<HTMLElement>("[data-wf-map]")!.classList.toggle("ready", finished);
+        board.classList.toggle("clear", finished);
+        slide
+          .querySelector<HTMLElement>("[data-wf-col='open']")!
+          .classList.toggle("lit", open > 0);
+        slide.querySelector<HTMLElement>("[data-wf-step]")!.innerHTML =
+          WFM.STEPS[Math.min(step, WFM.STEPS.length - 1)];
+
+        // ── Play: every ticket travels from where it was; new ones rise in ──
+        const k = (deck as any).getScale?.() || 1;
+        board.querySelectorAll<HTMLElement>("[data-tid]").forEach((e) => {
+          const was = before.get(e.dataset.tid!);
+          if (!was) {
+            if (!firstPaint) e.classList.add("wf-in");
+            return;
+          }
+          const now = e.getBoundingClientRect();
+          const dx = (was.left - now.left) / k;
+          const dy = (was.top - now.top) / k;
+          if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+          e.style.transition = "none";
+          e.style.transform = `translate(${dx}px, ${dy}px)`;
+          e.classList.add("wf-moving");
+          requestAnimationFrame(() => {
+            e.style.transition = "transform 520ms cubic-bezier(.2,.72,.2,1)";
+            e.style.transform = "";
+            window.setTimeout(() => e.classList.remove("wf-moving"), 540);
+          });
+        });
       }
     </script>
   </body>

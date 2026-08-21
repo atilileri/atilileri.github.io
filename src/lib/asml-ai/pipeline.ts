@@ -69,7 +69,12 @@ export const STOPS: Stop[] = [
   {
     id: "questions",
     name: "Grill",
-    cmds: ["/grilling", "/research", "/prototype"],
+    // ⚠ ORDER IS THE ORDER THE `questions` SLIDE REVEALS THEM (#101's own
+    // fragment table: research fills a hole, then grilling, then prototype).
+    // The Rail prints the slot top-down, so any other order makes the commands
+    // pop in out of sequence and read as a glitch. Nothing claims `/grilling`
+    // comes first — #101's header line lists them, it does not sequence them.
+    cmds: ["/research", "/grilling", "/prototype"],
     judged: "what the spec is allowed to assume",
   },
   {

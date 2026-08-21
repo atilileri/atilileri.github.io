@@ -1,0 +1,70 @@
+---
+/**
+ * WayfinderMap.astro — the picture on chapter 5's `wayfinder` Slide.
+ * Comp E from wayfinder #98, rewritten out of prototype rules by #105.
+ *
+ * WHAT IT DRAWS: one map issue above a bracket, and the map's tickets below it
+ * in four columns — Decided · Takeable now · Blocked · Not yet specified, with
+ * Out of scope beneath the fog. The board is EMPTY MARKUP here; the island in
+ * `index.astro` fills it from `wayfinder-map.ts` on every fragment change, in
+ * both directions, so ← replays the walk backwards exactly.
+ *
+ * WHY THE STEP IS DRIVEN BY INVISIBLE FRAGMENTS. The comp first used a
+ * presenter key, because reveal owns `n` and `p` and the obvious keys were
+ * taken. Fragments cost NO key at all and make `→` and `←` behave the way they
+ * do on every other Slide in the deck (#98). The three `.ch5-step` spans are
+ * counters, not content — the island reads how many are visible.
+ *
+ * ⚠ HISTORY COMPRESSES, and the build must keep it (#98). Nine full cards run
+ * off the bottom of the canvas. A ticket closed on an EARLIER step drops to a
+ * one-line ledger row; only the ones closing NOW show their answer. The island
+ * owns that rule; this component only holds the slots it fills.
+ *
+ * THE RAIL IS NOT HERE. The Slide composes `PipelineRail` above this picture,
+ * because the Rail belongs to the Slide and this component belongs to the map.
+ */
+import { MAP } from "../../lib/asml-ai/wayfinder-map";
+---
+
+{/* The parent: one issue, holding the destination and the live tally. It goes
+    orange and lights its `/to-spec` chip on the last step, which is the beat
+    the whole Slide is built to reach. */}
+<div class="ch5-wf-map" data-wf-map>
+  <span class="k">map</span>
+  <p class="t">{MAP.title}</p>
+  <p class="d">{MAP.destination}</p>
+  <span class="tally" data-wf-tally></span>
+  <span class="spec">/to-spec</span>
+</div>
+
+{/* The bracket: everything below hangs off the map above. Parent and child
+    drawn structurally rather than stated in a caption (#98). */}
+<div class="ch5-wf-tree"><i></i><i></i><i></i><i></i></div>
+
+<div class="ch5-wf-board" data-wf-board>
+  <div class="ch5-wf-col" data-wf-col="done">
+    <h6>Decided</h6>
+    <div data-wf-slot="done"></div>
+  </div>
+  <div class="ch5-wf-col lit" data-wf-col="open">
+    <h6>Takeable now</h6>
+    <div data-wf-slot="open"></div>
+  </div>
+  <div class="ch5-wf-col" data-wf-col="blocked">
+    <h6>Blocked</h6>
+    <div data-wf-slot="blocked"></div>
+  </div>
+  <div class="ch5-wf-col" data-wf-col="fog">
+    <h6>Not yet specified</h6>
+    <div data-wf-slot="fog"></div>
+    <p class="ch5-wf-outhead">Out of scope</p>
+    <div data-wf-slot="out"></div>
+  </div>
+</div>
+
+<p class="ch5-wf-step" data-wf-step></p>
+
+{/* Counters. Reveal advances on them; the island reads their count. */}
+<span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
+<span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
+<span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>

@@ -4813,3 +4813,905 @@
   letter-spacing: 0.06em;
   color: #1b1b1b73;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CHAPTER 5 — THE FIVE SLIDES INSIDE THE STACK (#105). The Rail, the summary
+   and `Reconcile` are above; this block is the pictures that hang under the
+   Rail on `wayfinder`, `questions`, `slices`, `implement` and `review`.
+
+   ONE MECHANIC SERVES ALL FIVE. Each Slide carries invisible `.ch5-step`
+   fragments; the island writes how many are visible to `data-step`, and every
+   rule below keys off that number. So a picture is a STATE, written once per
+   step, rather than a pile of elements fading over each other — and ← walks
+   every one of them back exactly, because nothing is remembered.
+
+   COLOUR CONTRACT, unchanged: navy for structural type, signal blue for
+   commands and for a thing that has been decided, ORANGE for the one live
+   mark. ⚠ NO LITERAL RED AND GREEN anywhere in this block (#102) — the failing
+   test bar is orange and the passing one is blue, and BOTH carry a word.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* The counters are state carriers, never content. Reveal advances on them. */
+.reveal .ch5-step {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ── The shared floor: a picture beside its lines, or a picture above them ── */
+.reveal .ch5-two {
+  /* The Headline draws a rule under itself; a picture that starts at zero sits
+     ON it and reads as one object with the type. */
+  margin-top: clamp(0.9rem, 2.6vh, 1.8rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: clamp(1.2rem, 3.5vw, 3rem);
+  align-items: start;
+  text-align: left;
+}
+/* `implement` gives the picture less room than the words: the bar is one
+   gesture and the number pair beside it is what the room reads. */
+.reveal .ch5-two.imp {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.3fr);
+  align-items: center;
+}
+.reveal .ch5-lines {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.6vh, 1rem);
+}
+/* Under a full-width picture the lines run across instead of down, so the
+   Slide keeps its floor for the picture. */
+.reveal .ch5-lines.wide {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 2.5vw, 2.2rem);
+  margin-top: clamp(1rem, 3vh, 2rem);
+  text-align: left;
+}
+.reveal .ch5-lines .ch5-body {
+  margin: 0;
+}
+/* The line a Slide ENDS on. It is a claim, not a step, so it carries the
+   chapter's structural weight rather than body weight. */
+.reveal .ch5-close {
+  margin: 0;
+  max-width: 40ch;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 1.55vw, 1.35rem);
+  line-height: 1.3;
+  color: var(--navy);
+}
+.reveal .ch5-lines.wide .ch5-close {
+  max-width: none;
+}
+.reveal .ch5-close code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--signal);
+}
+
+/* ══ `questions` — the outline with three holes in it ══════════════════════
+   The claim is a FILLING MOTION, so the picture fills: three visible holes,
+   one closing per command. A hole is DASHED AND EMPTY, which is the whole
+   point — the model does not invent over a line that is already there. */
+.reveal .ch5-doc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.2vh, 0.72rem);
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--navy);
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  padding: clamp(0.9rem, 2.4vh, 1.5rem) clamp(0.9rem, 2vw, 1.4rem);
+}
+.reveal .ch5-doc .dk {
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.76vw, 0.7rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+}
+/* The outline that is already written. Two lengths, so the block reads as
+   prose rather than as a bar chart. */
+.reveal .ch5-doc .ln {
+  height: 0.4rem;
+  border-radius: 1px;
+  background: #00327d1f;
+}
+.reveal .ch5-doc .ln.s {
+  width: 62%;
+}
+/* A hole. Dashed, open, and the same height as a line so the fill lands
+   exactly where the gap was. */
+.reveal .ch5-doc .hole {
+  height: 0.4rem;
+  width: 78%;
+  border-radius: 1px;
+  border: 1px dashed #ff660073;
+  background: transparent;
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+/* Filled: the dashes go, and the fill is SIGNAL BLUE — the same blue the deck
+   uses for a thing that has been decided. */
+.reveal .ch5-fill[data-step="1"] .hole[data-hole="1"],
+.reveal .ch5-fill[data-step="2"] .hole[data-hole="1"],
+.reveal .ch5-fill[data-step="2"] .hole[data-hole="2"],
+.reveal .ch5-fill[data-step="3"] .hole,
+.reveal .ch5-fill[data-step="4"] .hole {
+  border-color: transparent;
+  background: var(--signal);
+}
+
+/* ══ `slices` — the hourglass: many → one → many ═══════════════════════════
+   ⚠ THE DIRECTION IS LOAD-BEARING (#101). Both primary sources say /to-spec
+   produces ONE document, so the decisions CONVERGE before anything fans out.
+   Drawing it the other way round would argue that the spec is where new
+   decisions get made, which is exactly what the skill says it is not. */
+.reveal .ch5-hourglass {
+  display: grid;
+  grid-template-columns: 1.15fr 0.42fr 1fr 0.42fr 1.5fr;
+  gap: clamp(0.3rem, 1vw, 0.8rem);
+  align-items: center;
+  margin-top: clamp(0.9rem, 2.6vh, 1.8rem);
+  text-align: left;
+}
+.reveal .ch5-hourglass .hg-pane {
+  position: relative;
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+/* The panes arrive with their step and then STAY: the hourglass is the whole
+   shape, and a shape you can only see one third of is not a shape. */
+.reveal .ch5-cut .hg-many,
+.reveal .ch5-cut[data-step="1"] .hg-one,
+.reveal .ch5-cut[data-step="2"] .hg-one,
+.reveal .ch5-cut[data-step="3"] .hg-one,
+.reveal .ch5-cut[data-step="2"] .hg-fan,
+.reveal .ch5-cut[data-step="3"] .hg-fan {
+  opacity: 1;
+  transform: none;
+}
+.reveal .ch5-hourglass .hgk {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.53rem, 0.74vw, 0.68rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1b1b1b55;
+  margin-bottom: 0.45rem;
+}
+/* The /to-spec chip is the previous Slide's last frame, carried over. It is
+   lit on arrival and dims once the spec exists — it has been spent. */
+.reveal .ch5-hourglass .hg-chip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.78vw, 0.72rem);
+  color: var(--orange);
+  border: 1px solid #ff660033;
+  border-radius: 2px;
+  padding: 0.05rem 0.3rem;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+.reveal .ch5-cut:not([data-step="0"]) .hg-chip {
+  color: #1b1b1b3d;
+  border-color: #1b1b1b1a;
+}
+/* The nine closed decisions, exactly as the map left them. */
+.reveal .ch5-hourglass .hg-row {
+  display: block;
+  height: 0.34rem;
+  margin-bottom: 0.3rem;
+  border-left: 2px solid var(--signal);
+  background: #00327d14;
+}
+.reveal .ch5-hourglass .hg-funnel {
+  width: 100%;
+  height: clamp(5rem, 16vh, 8.5rem);
+  overflow: visible;
+}
+.reveal .ch5-hourglass .hg-funnel path {
+  fill: none;
+  stroke: #00327d3d;
+  stroke-width: 1.4;
+}
+.reveal .ch5-hourglass .hg-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--signal);
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  padding: 0.6rem 0.7rem;
+}
+.reveal .ch5-hourglass .hg-doc .ln {
+  height: 0.32rem;
+  border-radius: 1px;
+  background: #00327d1f;
+}
+.reveal .ch5-hourglass .hg-doc .ln.s {
+  width: 64%;
+}
+/* Five thin tickets over four layer bands, each ticket crossing ALL of them.
+   The bands are the background; the tickets are the bars. ⚠ Nothing here is
+   ever labelled "vertical" — the picture carries the claim architecturally
+   and the word is not ours to use (#65). */
+.reveal .ch5-hourglass .hg-bullets {
+  position: relative;
+  display: flex;
+  justify-content: space-evenly;
+  height: clamp(4.2rem, 13vh, 7rem);
+  padding: 0 0.5rem;
+  /* The four layers, and every ticket crosses all of them. The bands have to
+     be readable or the tickets are just bars. */
+  background: repeating-linear-gradient(
+    180deg,
+    #00327d1a 0 24%,
+    transparent 24% 25%
+  );
+  border: 1px solid var(--hair);
+  border-radius: 2px;
+}
+.reveal .ch5-hourglass .hg-bullets i {
+  width: clamp(0.5rem, 1.1vw, 0.9rem);
+  background: var(--orange);
+  opacity: 0.82;
+}
+.reveal .ch5-hourglass .hg-cap {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.78vw, 0.72rem);
+  letter-spacing: 0.08em;
+  color: var(--orange);
+}
+/* The layer-cut, small and greyed. It is the thing the tracer bullet is NOT,
+   and it is never named on the wall. */
+.reveal .ch5-hourglass .hg-layercut {
+  position: relative;
+  height: clamp(2rem, 6vh, 3.2rem);
+  width: clamp(4rem, 10vw, 6rem);
+  margin-top: 0.8rem;
+  background: repeating-linear-gradient(
+    180deg,
+    #1b1b1b14 0 24%,
+    transparent 24% 25%
+  );
+  border: 1px solid #1b1b1b26;
+  border-radius: 2px;
+}
+.reveal .ch5-hourglass .hg-layercut b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 25%;
+  height: 24%;
+  background: #1b1b1b3d;
+}
+
+/* ══ `implement` — the test bar, and the chapter's one number ══════════════
+   ⚠ THE BAR IS ORANGE FAILING AND BLUE PASSING, AND BOTH STATES CARRY A WORD
+   (#102). A red/green bar imports two colours this theme does not own and
+   fails outright for a colour-blind viewer. The presenter still says "red,
+   green" aloud — the mechanic is the TURN, not the hue. */
+.reveal .ch5-bar {
+  text-align: left;
+}
+.reveal .ch5-bar .tb {
+  position: relative;
+  height: clamp(1.5rem, 4.4vh, 2.4rem);
+  border: 1px solid var(--hair);
+  border-radius: 2px;
+  background: var(--card);
+  overflow: visible;
+}
+.reveal .ch5-bar .tb-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--orange);
+  opacity: 0.9;
+  transition: background var(--dur) var(--ease);
+}
+.reveal .ch5-imp[data-step="2"] .tb-fill,
+.reveal .ch5-imp[data-step="3"] .tb-fill,
+.reveal .ch5-imp[data-step="4"] .tb-fill {
+  background: var(--signal);
+}
+/* The seam: marked ON the bar, and held. It arrives on the press that claims
+   it, because the claim and the mark are the same beat. */
+.reveal .ch5-bar .tb-seam {
+  position: absolute;
+  top: -0.45rem;
+  bottom: -0.45rem;
+  left: 62%;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .ch5-imp:not([data-step="0"]) .tb-seam {
+  opacity: 1;
+}
+.reveal .ch5-bar .tb-seam i {
+  position: absolute;
+  inset: 0;
+  width: 3px;
+  background: var(--navy);
+  /* It crosses an orange bar and then a blue one. A white halo is what keeps
+     it legible on both, and outside the bar as well. */
+  box-shadow: 0 0 0 1.5px var(--card);
+}
+.reveal .ch5-bar .tb-seam em {
+  position: absolute;
+  left: 0.35rem;
+  top: -1.15rem;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: clamp(0.55rem, 0.78vw, 0.7rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+/* Both words are in the DOM and one of them is shown, so the two states are
+   the same object at two settings rather than two elements. */
+.reveal .ch5-bar .tb-word {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.92vw, 0.85rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.reveal .ch5-bar .tb-word b {
+  font-weight: 500;
+}
+.reveal .ch5-bar .w-fail {
+  color: var(--orange);
+}
+.reveal .ch5-bar .w-pass {
+  display: none;
+  color: var(--signal);
+}
+.reveal .ch5-imp[data-step="2"] .w-fail,
+.reveal .ch5-imp[data-step="3"] .w-fail,
+.reveal .ch5-imp[data-step="4"] .w-fail {
+  display: none;
+}
+.reveal .ch5-imp[data-step="2"] .w-pass,
+.reveal .ch5-imp[data-step="3"] .w-pass,
+.reveal .ch5-imp[data-step="4"] .w-pass {
+  display: inline;
+}
+/* THE NUMBER PAIR. It is a PAIR and it is read as one: the caption above says
+   what was swapped, and the two rows say what happened. ⚠ The labels are
+   "human" and "AI" — in the study the tests were the repository maintainers',
+   never the presenter's (#102). */
+.reveal .ch5-pair {
+  margin: clamp(0.4rem, 1.4vh, 0.9rem) 0 0;
+  padding-top: clamp(0.5rem, 1.6vh, 1rem);
+  border-top: 2px solid var(--hair);
+  max-width: none;
+}
+.reveal .ch5-pair figcaption {
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.8vw, 0.74rem);
+  letter-spacing: 0.08em;
+  color: #1b1b1b73;
+  margin-bottom: 0.5rem;
+}
+.reveal .ch5-pair .pr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.3rem;
+  max-width: none;
+}
+.reveal .ch5-pair .pl {
+  font-size: clamp(0.78rem, 1.2vw, 1.05rem);
+  color: var(--ink);
+}
+.reveal .ch5-pair .pl b {
+  color: var(--navy);
+  font-weight: 700;
+}
+.reveal .ch5-pair .pv {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.3vw, 2rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #1b1b1b7a;
+  white-space: nowrap;
+}
+/* One of the two is the finding. The other is the thing it beats. */
+.reveal .ch5-pair .pv.hi {
+  color: var(--orange);
+}
+
+/* ══ `review` — the fan: one diff → two Sub-agents → one human ═════════════
+   A two-panel contrast is an argument; a fan is an image. It ends on the
+   human, which is what sets the closing line up (#102). */
+.reveal .ch5-fan {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 0.8fr;
+  align-items: center;
+  /* The gaps are where the edges are drawn. A tight gap leaves the fan with
+     nowhere to be a fan. */
+  gap: clamp(2rem, 6vw, 5rem);
+  margin-top: clamp(0.8rem, 2.6vh, 1.8rem);
+  min-height: clamp(7rem, 22vh, 12rem);
+  text-align: left;
+}
+.reveal .ch5-fan .fn-edges {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.reveal .ch5-fan .fn-edges .e {
+  fill: none;
+  stroke: #00327d3d;
+  stroke-width: 1.4;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .ch5-rev:not([data-step="0"]) .fn-edges .e.a,
+.reveal .ch5-rev[data-step="3"] .fn-edges .e.b {
+  opacity: 1;
+}
+.reveal .ch5-fan .fk {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.52rem, 0.74vw, 0.66rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1b1b1b55;
+  margin-bottom: 0.35rem;
+}
+.reveal .ch5-fan .fn-diff {
+  position: relative;
+  z-index: 1;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--navy);
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.reveal .ch5-fan .fn-diff .ln {
+  height: 0.32rem;
+  border-radius: 1px;
+  background: #00327d1f;
+}
+.reveal .ch5-fan .fn-diff .ln.s {
+  width: 58%;
+}
+.reveal .ch5-fan .fn-arms {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.8vh, 1.1rem);
+}
+/* An arm arrives empty of NAME: on press 1 the room sees two readers and the
+   wall says neither of them wrote it; on press 2 they take their labels. */
+.reveal .ch5-fan .fn-arm {
+  position: relative;
+  z-index: 1;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--signal);
+  border-radius: 3px;
+  padding: 0.5rem 0.7rem;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .ch5-rev:not([data-step="0"]) .fn-arm {
+  opacity: 1;
+}
+.reveal .ch5-fan .fn-arm b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 1.35vw, 1.2rem);
+  color: var(--navy);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .ch5-fan .fn-arm .cap {
+  display: block;
+  font-size: clamp(0.62rem, 0.92vw, 0.84rem);
+  line-height: 1.3;
+  color: #1b1b1b96;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .ch5-fan .fn-arm .cap i {
+  font-style: italic;
+}
+.reveal .ch5-rev[data-step="2"] .fn-arm b,
+.reveal .ch5-rev[data-step="3"] .fn-arm b,
+.reveal .ch5-rev[data-step="2"] .fn-arm .cap,
+.reveal .ch5-rev[data-step="3"] .fn-arm .cap {
+  opacity: 1;
+}
+/* The human holds the merge, and the mark on them is the chapter's ORANGE:
+   this is the live thing on the Slide, not the Sub-agents. */
+.reveal .ch5-fan .fn-human {
+  position: relative;
+  z-index: 1;
+  border-left: 3px solid var(--orange);
+  padding: 0.5rem 0.7rem;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.reveal .ch5-rev[data-step="3"] .fn-human {
+  opacity: 1;
+}
+.reveal .ch5-fan .fn-human b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 1.6vw, 1.4rem);
+  color: var(--orange);
+}
+
+/* ══ `wayfinder` — the map with its grammar (#98 comp E) ═══════════════════
+   The densest Slide in the chapter, and the density is the argument: four
+   ticket types, blocking drawn and then cleared, a spawn, a graduation, and a
+   boundary. A technical sub-slide may be denser than a horizontal one. */
+.reveal .ch5-wf h2.h-set {
+  font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+  margin-bottom: clamp(0.5rem, 1.6vh, 1rem);
+}
+/* The parent: one issue, holding the destination and the live tally. */
+.reveal .ch5-wf-map {
+  margin-top: clamp(0.7rem, 2vh, 1.3rem);
+  position: relative;
+  text-align: left;
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--navy);
+  background: linear-gradient(180deg, #00327d08, transparent 70%);
+  border-radius: 3px;
+  padding: 0.5rem 0.75rem 0.55rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "k t tally" "k d spec";
+  gap: 0.15rem 0.7rem;
+  align-items: baseline;
+}
+.reveal .ch5-wf-map .k {
+  grid-area: k;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--navy);
+  border: 1px solid #00327d33;
+  border-radius: 2px;
+  padding: 0.1rem 0.35rem;
+}
+.reveal .ch5-wf-map .t {
+  grid-area: t;
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-display);
+  font-size: clamp(0.9rem, 1.35vw, 1.15rem);
+  line-height: 1.15;
+  color: var(--navy);
+}
+.reveal .ch5-wf-map .d {
+  grid-area: d;
+  margin: 0;
+  max-width: none;
+  font-size: 0.76rem;
+  color: #1b1b1b7a;
+}
+.reveal .ch5-wf-map .tally {
+  grid-area: tally;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: #1b1b1b66;
+  white-space: nowrap;
+}
+/* THE LAST BEAT. Nothing left to decide, so the map goes orange and hands
+   itself on. The chip is the Slide's destination made visible. */
+.reveal .ch5-wf-map .spec {
+  grid-area: spec;
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--signal);
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 0.05rem 0.3rem;
+  opacity: 0;
+  transform: translateX(-0.4rem);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.reveal .ch5-wf-map.ready {
+  border-left-color: var(--orange);
+}
+.reveal .ch5-wf-map.ready .spec {
+  opacity: 1;
+  transform: none;
+  border-color: #ff660033;
+  color: var(--orange);
+}
+/* The bracket: parent and child drawn structurally, never captioned. */
+.reveal .ch5-wf-tree {
+  display: grid;
+  grid-template-columns: 1.05fr 1.05fr 1.05fr 0.9fr;
+  height: 0.85rem;
+  margin: 0 0 0.1rem;
+  border-bottom: 1px solid var(--hair);
+}
+.reveal .ch5-wf-tree i {
+  border-left: 1px solid var(--hair);
+  margin-left: 50%;
+}
+.reveal .ch5-wf-board {
+  display: grid;
+  grid-template-columns: 1.05fr 1.05fr 1.05fr 0.9fr;
+  gap: clamp(0.5rem, 1.2vw, 1rem);
+  align-items: start;
+  text-align: left;
+}
+.reveal .ch5-wf-col {
+  border-top: 2px solid var(--hair);
+  padding-top: 0.6rem;
+  min-height: clamp(11rem, 32vh, 17rem);
+}
+.reveal .ch5-wf-col > h6 {
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1b1b1b55;
+  margin: 0 0 0.5rem;
+}
+.reveal .ch5-wf-col.lit {
+  border-top-color: var(--orange);
+}
+.reveal .ch5-wf-col.lit > h6 {
+  color: var(--orange);
+}
+/* A ticket, with its TYPE on it. This is the beat that stops a map reading as
+   a to-do list: questions, each with a method attached (#98). */
+.reveal .wf-card {
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-left: 3px solid var(--hair);
+  border-radius: 3px;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.84rem;
+  line-height: 1.25;
+  transition:
+    opacity var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+.reveal .wf-card .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.15rem;
+}
+.reveal .wf-card .ty {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.02rem 0.28rem;
+  border-radius: 2px;
+  border: 1px solid var(--hair);
+  color: #1b1b1b8a;
+}
+.reveal .wf-card.ty-grilling .ty {
+  border-color: #ff660055;
+  color: var(--orange);
+}
+.reveal .wf-card.ty-research .ty {
+  border-color: #00327d44;
+  color: var(--navy);
+}
+.reveal .wf-card.ty-prototype .ty {
+  border-color: #1b1b1b33;
+  color: var(--ink);
+}
+/* `task` is the one type that DOES rather than decides, so its badge is the
+   one drawn with a broken rule. */
+.reveal .wf-card.ty-task .ty {
+  border-style: dashed;
+}
+.reveal .wf-card .id {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: #1b1b1b45;
+}
+.reveal .wf-card .q {
+  display: block;
+  color: var(--ink);
+}
+.reveal .wf-card .a {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--signal);
+}
+.reveal .wf-card .blk,
+.reveal .wf-card .freed,
+.reveal .wf-card .born {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+}
+.reveal .wf-card .blk {
+  color: #1b1b1b66;
+}
+.reveal .wf-card .freed,
+.reveal .wf-card .born {
+  color: var(--orange);
+}
+.reveal .wf-card.open {
+  border-left-color: var(--orange);
+  box-shadow: var(--shadow);
+}
+.reveal .wf-card.done {
+  border-left-color: var(--signal);
+  opacity: 0.72;
+}
+.reveal .wf-card.blocked {
+  opacity: 0.5;
+  border-left-style: dashed;
+}
+.reveal .wf-card.blocked .q {
+  color: #1b1b1b99;
+}
+.reveal .wf-empty {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #1b1b1b3d;
+  margin: 0;
+  max-width: none;
+}
+/* ⚠ HISTORY COMPRESSES, and the build must keep it (#98): nine full cards run
+   off the bottom of the canvas. A decision closed on an EARLIER step keeps its
+   type colour and its number but drops to one line. */
+.reveal .wf-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  max-width: none;
+  margin: 0 0 0.2rem;
+  padding-left: 0.15rem;
+  border-left: 2px solid var(--signal);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #1b1b1b70;
+}
+.reveal .wf-row .tick {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+  opacity: 0.75;
+}
+.reveal .wf-row.ty-grilling {
+  border-left-color: var(--orange);
+}
+.reveal .wf-row.ty-research {
+  border-left-color: var(--navy);
+}
+.reveal .wf-row.ty-task {
+  border-left-style: dashed;
+}
+.reveal .wf-row .id {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: #1b1b1b40;
+}
+/* Fog: the area is written down, the question is not sharp enough to ask. It
+   is blurred because that is honestly what it is — in scope, and unreadable. */
+.reveal .wf-fog {
+  max-width: none;
+  font-size: 0.78rem;
+  color: #1b1b1b66;
+  font-style: italic;
+  filter: blur(2.5px);
+  opacity: 0.55;
+  margin: 0 0 0.35rem;
+}
+/* Ruled past the destination. It never graduates, and it stays on the wall
+   throughout — a map is bounded, and the boundary is written down. */
+.reveal .wf-out {
+  max-width: none;
+  margin: 0 0 0.25rem;
+  font-size: 0.74rem;
+  color: #1b1b1b55;
+  text-decoration: line-through;
+  text-decoration-color: #1b1b1b33;
+}
+.reveal .ch5-wf-outhead {
+  margin: 0.9rem 0 0.3rem;
+  max-width: none;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1b1b1b3d;
+}
+.reveal .ch5-wf-step {
+  max-width: none;
+  margin-top: clamp(0.5rem, 1.8vh, 1rem);
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.88vw, 0.8rem);
+  color: #1b1b1b66;
+  text-align: left;
+}
+.reveal .ch5-wf-step b {
+  color: var(--orange);
+}
+/* ── Motion. A ticket that changes column SLIDES there, so the room watches it
+      leave Blocked rather than watching a table re-draw; a ticket that did not
+      exist rises in, which is what makes the spawn read as a spawn. ── */
+.reveal .wf-moving {
+  position: relative;
+  z-index: 5;
+  will-change: transform;
+}
+@keyframes wf-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.9rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal .wf-in {
+  animation: wf-in 420ms cubic-bezier(0.2, 0.72, 0.2, 1) both;
+}
+/* The spawn and the graduation are the two beats worth a flash. */
+.reveal .wf-card.wf-in .born {
+  animation: wf-flash 1.6s ease-out 320ms 1;
+}
+@keyframes wf-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal .wf-in,
+  .reveal .wf-card.wf-in .born {
+    animation: none;
+  }
+}
