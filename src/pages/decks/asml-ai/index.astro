@@ -2613,18 +2613,18 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              not on one route with optional depth (#92), and the route is chosen
              from who is in the room before the deck opens:
 
-               divider → cold open ─────────────→ summary → payoff
-                            │  ↓ (technical only)      ↑
-                            ├─ wayfinder               │
-                            ├─ questions               │
-                            ├─ slices                  │  → exits here from
-                            ├─ implement               │    ANY depth
-                            ├─ review                  │
-                            └─ Reconcile ──────────────┘
+               divider ─────────────────────────→ summary → payoff
+                  │  ↓ (technical only)              ↑
+                  ├─ wayfinder                       │
+                  ├─ questions                       │
+                  ├─ slices                          │  → exits here from
+                  ├─ implement                       │    ANY depth
+                  ├─ review                          │
+                  └─ Reconcile ──────────────────────┘
 
-             EXECUTIVE ROUTE: four Slides, `→ → → →`. TECHNICAL ROUTE: `↓`×6
-             through the stack, then one `→` onto the summary, which is a recap
-             rather than an establishing Slide.
+             EXECUTIVE ROUTE: three Slides, `→ → →` — divider, summary,
+             payoff. TECHNICAL ROUTE: `↓`×6 through the stack, then one `→` onto
+             the summary, which is a recap rather than an establishing Slide.
 
              ⚠ ALL SIX OR NONE (#92). `→` from halfway down lands on the summary
              with the pipeline half shown, which is a broken pipeline in front
@@ -2632,10 +2632,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              a live time-management tool: if the technical route overruns, the
              time comes from somewhere else in the deck.
 
-             ⚠ THE STACK HANGS UNDER THE COLD OPEN. Not under the divider (the
-             room would reach `wayfinder` before hearing the argument) and not
-             under the summary (the presenter would pass through the recap on
-             the way down, then climb back for it). It works because reveal's
+             ⚠ THE STACK HANGS UNDER THE CHAPTER DIVIDER (Atil, 2026-08-23).
+             It used to hang under a cold-open Slide, which is now cut; the
+             argument that Slide carried is SPOKEN from the divider instead.
+             Not under the summary — the presenter would pass through the recap
+             on the way down, then climb back for it. It works because reveal's
              DEFAULT navigationMode sends `→` from any sub-slide to the next
              horizontal Slide — so `navigationMode` is load-bearing by its
              absence. Do not set it.
@@ -2645,80 +2646,70 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              stack at whatever depth they left. It surprises them once.
 
              THE THESIS HAS NO SLIDE (#92). "You can't tell if it worked. That's
-             what the process is for." is SPOKEN at the end of the cold open,
-             before the presenter moves in either direction, so it lands
-             identically on both routes. The cold open already does the thesis's
-             job with evidence instead of assertion.
+             what the process is for." is SPOKEN from the divider, before the
+             presenter moves in either direction, so it lands identically on
+             both routes. ⚠ It used to arrive after a Slide of evidence; with
+             the cold open cut it now arrives as an assertion, and the METR
+             study sits in the divider's notes as the presenter's backing.
 
-             Five of the six Slides in the stack are SHELLS: locked Eyebrow,
-             locked Headline, correct Rail state, and nothing else yet. Their
-             pictures, body text and Presenter notes are locked in #98, #101 and
-             #102 and are a separate build. `Reconcile` is built in full (#93).
+             All six Slides in the stack are built (#105).
              ═════════════════════════════════════════════════════════════ -->
-        <!-- 5a ─────────────────── CHAPTER divider (roadmap, factor 4 lit) -->
-        <RoadmapDivider chapter={5} section="05 — Operating model">
-          <aside class="notes">
-            Last of the four, and the fourth time the room has seen this shape.
-            Do not re-read the list.
+        <!-- 5a ─────────────────── THE CHAPTER DIVIDER, and it is now the
+             STACK PARENT (Atil, 2026-08-23). The vertical stack hangs off the
+             chapter header itself: `→` from here is the executive route
+             straight to the summary, `↓` is the technical route into the six
+             Stops.
 
-            THE SPOKEN LINE ON THE CLICK IN, locked in #54 and already paid for
-            by chapter 4's close: "Everything you just learned has a name in
-            it."
+             ⚠ THE COLD OPEN IS CUT — the METR Slide "The only trial that
+             measured it" is gone from the wall (Atil, same call). Everything
+             it carried that the presenter still needs is in the notes below,
+             because this Slide is now where the chapter opens. Three things
+             changed with it, and they are consequences rather than decisions:
 
-            No wash here — the full chapter wash belongs to chapters 1 and 6
-            only.
-          </aside>
-        </RoadmapDivider>
-
-        <!-- 5b ─────────────────── COLD OPEN, and the STACK PARENT.
-             Three beats (#70, Atil's option (c) — the fullest of three): the
-             gap, "they had no process", and METR's own sentence about what
-             would have changed the result. No Rail: the Rail APPEARING on
-             descent is the visual signal that the room has left the argument
-             and entered the process (#92). -->
+               1. THE ROOM NO LONGER MEETS THE GAP ON A WALL. The chapter's
+                  argument arrives spoken, from the presenter, not measured
+                  from a study on screen.
+               2. THE PAYOFF'S CALLBACK NOW HAS NOTHING TO CALL BACK TO. "You
+                  still can't tell. / Now you don't have to." answered the cold
+                  open's two numbers; it now has to answer a spoken opening.
+                  Its own note says so.
+               3. THE EXECUTIVE ROUTE IS TWO SLIDES: this one and the summary,
+                  then the payoff.
+             -->
         <section data-section="05 — Operating model">
-          <section class="ch5-cold" data-section="05 — Operating model" data-frags>
-            <span class="eyebrow">The only trial that measured it</span>
-            <h2 class="h-set">
-              <span class="h-line"><span>They estimated 20% faster.</span></span>
-              <span class="h-line"><span>They were measured 19% slower.</span></span>
-            </h2>
-            <ul class="build">
-              <li class="fragment rise">
-                Over 80% of engineers say AI made them more productive.
-              </li>
-              <li class="fragment rise signal">They had no process.</li>
-              <li class="fragment rise">
-                &ldquo;better prompting/agent scaffolding, or domain-specific
-                finetuning, could yield positive speedup.&rdquo;
-                <span class="src">&mdash; METR</span>
-              </li>
-            </ul>
+          <RoadmapDivider chapter={5} section="05 — Operating model">
             <aside class="notes">
-              LET THE TWO NUMBERS LAND BEFORE THE BEATS. The inversion is 39
-              points and it is the whole cold open.
+              Last of the four, and the fourth time the room has seen this
+              shape. Do not re-read the list.
 
-              THE STUDY: 16 experienced developers, 246 real tasks, in repos
-              they had worked on for an average of five years. Randomised.
-              They forecast +24%, they estimated +20% afterwards, and they were
-              measured 19% SLOWER. The belief line is DORA 2025.
+              THE SPOKEN LINE ON THE CLICK IN, locked in #54 and already paid
+              for by chapter 4's close: "Everything you just learned has a name
+              in it."
 
-              BEAT 2, AND IT IS THE TURN: they had no process. Cursor Pro and
-              Claude 3.5/3.7 Sonnet, ad hoc — no spec, no slicing, no test-first
-              rule, no review discipline. They accepted fewer than 44% of the
-              generations they were shown, and only 44% had ever used Cursor
-              before.
-
-              BEAT 3 IS METR'S OWN SENTENCE, not our reading of it. Quote it as
-              theirs.
-
-              ── THE THESIS, SPOKEN HERE AND NOWHERE ELSE (#92) ──
-              End on it, before you move in either direction: "You can't tell if
-              it worked. That's what the process is for." It is the chapter's
-              one argument and it is never printed anywhere in the deck.
+              No wash here — the full chapter wash belongs to chapters 1 and 6
+              only.
 
               ⚠ THEN CHOOSE YOUR ROUTE. Executive room: press → and never
               mention the stack. Technical room: press ↓ and walk all six.
+
+              ══ THE CHAPTER'S OPENING, NOW SPOKEN (the cold-open Slide is cut)
+              ══
+
+              ── THE THESIS, SPOKEN HERE AND NOWHERE ELSE (#92) ──
+              "You can't tell if it worked. That's what the process is for." It
+              is the chapter's one argument and it is never printed anywhere in
+              the deck.
+
+              ── THE EVIDENCE UNDER IT, if you want to open with it ──
+              METR: 16 experienced developers, 246 real tasks, in repos they
+              had worked on for an average of five years. Randomised. They
+              forecast +24%, they estimated +20% afterwards, and they were
+              measured 19% SLOWER. Over 80% of engineers say AI made them more
+              productive (DORA 2025). ⚠ THE TURN: they had no process. Cursor
+              Pro and Claude 3.5/3.7 Sonnet, ad hoc — no spec, no slicing, no
+              test-first rule, no review discipline. METR's own sentence:
+              "better prompting/agent scaffolding, or domain-specific
+              finetuning, could yield positive speedup."
 
               ── WHY THEY WERE SLOWER, held for the question ──
               METR tested 20 possible causes and judged five as likely: over-
@@ -2745,12 +2736,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
 
               ── VOICE ──
               Second person throughout the chapter, with exactly one "we", and
-              #70 put it on this Slide as a spoken line: "This is not a rollout.
-              This is what we do." A real team runs this today, so it is a
-              statement the room can check rather than a proposal. No headcount,
-              no team name, no duration — a number invites "only that many?"
+              #70 puts it on the chapter's first screen — which is now this
+              one: "This is not a rollout. This is what we do." A real team
+              runs this today, so it is a statement the room can check rather
+              than a proposal. No headcount, no team name, no duration — a
+              number invites "only that many?"
             </aside>
-          </section>
+          </RoadmapDivider>
 
           <!-- ↓1 ─────────────── WAYFINDER · comp E, "the map with its
                grammar" (#98), driven by fragments. The Headline moved from
@@ -2875,14 +2867,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
                   Research fills the holes the world can fill.
                 </p>
                 <p class="ch5-body fragment rise" data-fragment-index="2">
-                  Grilling fills the rest.
+                  Grilling fills the holes you can fill.
                 </p>
                 <p class="ch5-body fragment rise" data-fragment-index="3">
                   Some holes neither of you can fill. Build one and look at it.
-                </p>
-                <p class="ch5-close fragment rise" data-fragment-index="4">
-                  The prototype&rsquo;s answer lands in <code>main</code>. Its
-                  code does not.
                 </p>
               </div>
             </div>
@@ -2890,7 +2878,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="4" aria-hidden="true"></span>
 
             <aside class="notes">
               ⚠ THE HEADLINE IS SENTENCE ONE of #73's locked wall line, so the
@@ -2918,10 +2905,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               by asking, so it is not on this wall. The room already met it on
               the previous Slide's board.
 
-              ── THE PROTOTYPE'S CODE, if pressed ──
+              ── THE PROTOTYPE'S CODE (Atil took this OFF the wall) ──
+              Say it: "The prototype's answer lands in main. Its code does not."
               Not "throw it away" — our own installed skill parks the artifact
-              on a prototype/ branch as a primary source. The ANSWER lands in
-              main; the code does not. Those are different things.
+              on a prototype/ branch as a primary source. The answer and the
+              code are different things, and only one of them ships.
 
               ── WHAT GRILLING ACTUALLY PRODUCES (cut from the wall, #73/#50) ──
               The ubiquitous language: CONTEXT.md and the ADRs. Those are
@@ -2951,7 +2939,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <span class="eyebrow">Cut it small</span>
             <h2 class="h-set">
               <span class="h-line"><span>Going faster isn&rsquo;t the risk.</span></span>
-              <span class="h-line"><span>Going faster in one lump is.</span></span>
+              <span class="h-line"><span>Going faster in one go is.</span></span>
             </h2>
 
             {/* THE HOURGLASS: many → one → many. ⚠ The direction matters and it
@@ -3484,15 +3472,16 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             2025 finds AI adoption raises throughput AND delivery instability,
             and names small batches as the countermeasure.
 
-            IF YOU HAVE ALREADY SAID IT at the end of the cold open, do not
-            repeat the thesis here.
+            IF YOU HAVE ALREADY SAID IT at the divider, do not repeat the
+            thesis here.
           </aside>
         </ProcessSummary>
 
-        <!-- 5d ─────────────────── THE PAYOFF. It calls back to this chapter's
-             own cold open, and it is the structural floor every route lands on
-             — a bail-out from any depth arrives at the summary and then here.
-             No Rail. -->
+        <!-- 5d ─────────────────── THE PAYOFF. It calls back to the gap the
+             presenter OPENS the chapter with — spoken from the divider, since
+             the cold-open Slide is cut — and it is the structural floor every
+             route lands on: a bail-out from any depth arrives at the summary
+             and then here. No Rail. -->
         <section class="payoff ch5-payoff" data-section="05 — Operating model">
           <span class="eyebrow">Back to the gap</span>
           <h2 class="h-set">
@@ -3500,10 +3489,16 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <span class="h-line"><span>Now you don&rsquo;t have to.</span></span>
           </h2>
           <aside class="notes">
-            ARRIVE AND SAY NOTHING NEW. The room met the gap forty seconds into
-            this chapter; this is the same gap, answered. The developers in the
-            trial could not tell whether AI had helped them, and neither can
-            you. The process is what tells you instead.
+            ARRIVE AND SAY NOTHING NEW. This is the chapter's opening gap,
+            answered. The developers in the trial could not tell whether AI had
+            helped them, and neither can you. The process is what tells you
+            instead.
+
+            ⚠ THE CALLBACK IS NOW TO SOMETHING YOU SAID, NOT TO A WALL (Atil
+            cut the cold-open Slide, 2026-08-23). The room never saw the two
+            numbers, so this line only lands if you opened the chapter with the
+            gap from the divider's notes. If you skipped it there, skip the
+            callback here and read the line straight.
 
             ── THE SPOKEN HAND-OFF INTO CHAPTER 6, and its cost ──
             "Notice what your job became. You didn't stop working — you moved to
