@@ -1,0 +1,40 @@
+---
+/**
+ * Chapter 3's input-billing ladder: one prompt, one stage per row, with the
+ * operator riding on the arrow between two stages.
+ *
+ * It appears TWICE — as the second fragment of the vocabulary slide's right
+ * panel (where the room has just watched the same prompt become 1,240 tokens)
+ * and as the right column of the credits slide (where the rates are on the
+ * wall next to it). It is a component so the two can never drift apart.
+ *
+ * Text lives here; every figure is written in by the deck's controller from
+ * src/lib/asml-ai/rates.ts, into EVERY copy on the page.
+ */
+---
+
+<ol class="bill-ladder">
+  <li class="st">
+    <span class="lab">your prompt</span>
+    <span class="quote"
+      >&ldquo;Summarise last week&rsquo;s throughput report and flag anything
+      unusual.&rdquo;</span
+    >
+    <span class="sub">+ the 4-page report you attached</span>
+  </li>
+  <li class="op"><i>counted &mdash; roughly chars &divide; 4</i></li>
+  <li class="st">
+    <b class="n" data-bill-tokens>0</b>
+    <span class="lab">input tokens</span>
+  </li>
+  <li class="op"><i data-bill-rate></i></li>
+  <li class="st">
+    <b class="n" data-bill-aic>0</b>
+    <span class="lab">AI credits</span>
+  </li>
+  <li class="op"><i>1 AIC = 1 US cent, &divide; 1.08</i></li>
+  <li class="st last">
+    <b class="n" data-bill-eur>&euro;0.00</b>
+    <span class="lab">what it cost</span>
+  </li>
+</ol>

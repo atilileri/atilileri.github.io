@@ -64,7 +64,13 @@ export function eurSigDecimals(v: number, sig = 2): number {
 export const fmtEur = (v: number, decimals = eurDecimals(v)) =>
   "€" + v.toFixed(decimals);
 
-/** AIC reads finer below 10, where the counter is doing the teaching. */
-export const fmtAic = (n: number) => (n < 10 ? n.toFixed(2) : n.toFixed(1));
+/**
+ * AIC as a whole number, for the bill table — at a real session's scale the
+ * figures run 40 to 360 and a decimal there is noise. The one guard: a live
+ * amount that rounds to zero prints "<1" instead, so the column can never tell
+ * the room that work is free while the euro column beside it disagrees.
+ */
+export const fmtAicWhole = (n: number) =>
+  n > 0 && n < 0.5 ? "<1" : Math.round(n).toLocaleString("en-US");
 
 export const fmtInt = (n: number) => Math.round(n).toLocaleString("en-US");

@@ -1,13 +1,13 @@
 /**
- * Chapter 2, slide 3 — the hallucination slide. One prompt, five answers, and
- * three of them are wrong.
+ * Chapter 2, slide 3 — the hallucination slide. One prompt, four answers, and
+ * two of them are wrong.
  *
  * Shape decided by wayfinder #35 (variant B, "the sort", won a three-variant
  * prototype; the losers live on branch `prototype/stochastic-slide` and are
  * described on the ticket so nobody rebuilds them). The argument:
  *
- *   The room is shown five answers to one question and cannot tell them
- *   apart. Then they sort into two lanes and three of the five turn out to
+ *   The room is shown four answers to one question and cannot tell them
+ *   apart. Then they sort into two lanes and two of the four turn out to
  *   be hallucinations. **Hallucination is inherent** — the wrong answers came
  *   out of the same draw as the right ones, not from a broken mode.
  *
@@ -45,15 +45,18 @@ export const KINDS: Record<Kind, string> = {
 /**
  * Ordered most likely → least likely.
  *
- * Two of the five are grounded and are **genuinely different readings of the
+ * Two of the four are grounded and are **genuinely different readings of the
  * same trace** — a different reading, not a worse one. That matters: without
- * it the slide argues "one right answer, four wrong", which is a different
+ * it the slide argues "one right answer, three wrong", which is a different
  * and weaker claim.
  *
  * `tell` is the single fact that makes an answer wrong, and it lands with the
- * sort. The last answer is the funny one; it is tagged `factuality` like the
- * Node bug rather than given a third label — one mechanism producing both a
- * credible fabrication and an absurd one is the stronger point (#35).
+ * sort.
+ *
+ * A fifth answer — "manifest.ts is corrupted, delete it and the framework
+ * regenerates it" — was CUT at Atil's call, 2026-08-23. It was the absurd
+ * one, tagged `factuality` beside the Node bug. Don't add it back without
+ * re-checking the counts in this file and in the presenter notes.
  */
 export const ANSWERS: { kind: Kind; text: string; tell: string }[] = [
   {
@@ -76,29 +79,30 @@ export const ANSWERS: { kind: Kind; text: string; tell: string }[] = [
     text: "Known bug in Node 20.11. Upgrade to 20.12.",
     tell: "There is no such bug, and nothing in the context mentions Node.",
   },
-  {
-    kind: "factuality",
-    text: "manifest.ts is corrupted. Delete and framework regenerates it.",
-    tell: "There is no such framework and behaviour — file is gone.",
-  },
 ];
 
 /** Rank bar lengths, most → least. Proportions only, and never labelled with
  *  a number: the claim is "the wrong ones are not rare", not "exactly 16%".
  *  A real model samples per *token*, not per whole answer, so a printed
  *  per-answer probability would be wrong in a chapter that cannot afford it. */
-export const RANK = [1, 0.82, 0.63, 0.47, 0.34];
+export const RANK = [1, 0.82, 0.63, 0.47];
 
 export const TEXT = {
   // The answers are on screen the moment the slide opens, so the eyebrow
   // promises the fold, not the arrival.
   eyebrow: "Under the hood · press → to sort them",
-  // WITHHOLDS the punch (#35): the headline names the setup only, and the
-  // orange landing on the fold is the reveal. "…Three are wrong." was built
-  // and rejected — it tells the room what to look for.
-  headline: "Same question. Five answers.",
-  // Names the CAUSE, not the count: the three orange cards already say
-  // "three of five". This is the line chapter 4 pays off.
+  // The headline names the SUBJECT, the dek names the setup (Atil,
+  // 2026-08-23). #35's withhold rule still holds where it matters: neither
+  // line says how many of the four are wrong, so the fold keeps the punch.
+  // "…Three are wrong." was built and rejected — it tells the room what to
+  // look for.
+  headline: "Hallucination",
+  // Sits under the headline as ONE line. It sets the count up (four) without
+  // sorting it, which is the job the old headline used to do alone. The
+  // number must match ANSWERS.length.
+  dek: "One query. Four possible outcomes.",
+  // Names the CAUSE, not the count: the two orange cards already say
+  // "two of four". This is the line chapter 4 pays off.
   closeLine: "Polluted context or degraded attention is all it takes.",
   lanes: { legit: "grounded in the context", halluc: "hallucinated" },
 };

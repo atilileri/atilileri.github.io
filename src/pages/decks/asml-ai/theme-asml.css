@@ -100,7 +100,6 @@
 .reveal section[data-terminal],
 .reveal section[data-tokenizer],
 .reveal section[data-token-live],
-.reveal section[data-credits],
 .reveal section[data-cost-dial] {
   justify-content: flex-start;
 }
@@ -1160,9 +1159,15 @@
   font-weight: 600;
   color: var(--navy);
 }
-/* "Agent" is not one of the rings — it's the word for the running whole.
-   A hairline-left callout under the list marks it as a different kind of thing. */
-.layers-agent {
+/* "Agent" and "Tools & MCP" are not rings — one is the word for the running
+   whole, the other is the seam the harness reaches the environment through.
+   Two identical hairline-left callouts under the list mark them as a different
+   kind of thing, and the pair is the slide's closing move (#36). */
+.layers-agent,
+.layers-tools {
+  /* The grid centres row 1 (diagram against the list); the two callouts share
+     row 2 and must read as a pair, so they top-align against each other. */
+  align-self: start;
   margin: clamp(0.9rem, 2.2vh, 1.5rem) 0 0;
   padding-left: 0.9rem;
   border-left: 3px solid var(--signal);
@@ -1171,21 +1176,17 @@
   max-width: 36ch;
   color: #00327dcc;
 }
-.layers-agent .k {
+.layers-agent .k,
+.layers-tools .k {
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--navy);
 }
-.layers-agent em {
+.layers-agent em,
+.layers-tools em {
   font-style: normal;
   font-weight: 600;
   color: var(--signal);
-}
-.layers-take {
-  margin: clamp(0.9rem, 2.2vh, 1.5rem) 0 0;
-  max-width: 38ch;
-  font-size: clamp(0.95rem, 1.35vw, 1.15rem);
-  line-height: 1.45;
 }
 
 /* ─────────────────────── Code demo with stepped focus ── */
@@ -1379,6 +1380,32 @@
   color: var(--navy);
   opacity: 0.62;
   max-width: 26ch;
+}
+
+/* The chapter-01 divider carries four questions, not one line — the room's
+   own asks, read aloud before the deck answers any of them. Same type as a
+   single sub-line, one step smaller so four items still fit the wash. */
+.reveal section.chapter .chapter-sub-list {
+  list-style: none;
+  padding: 0;
+  max-width: 34ch;
+  font-size: clamp(1.05rem, 1.9vw, 1.7rem);
+  line-height: 1.45;
+}
+
+.reveal section.chapter .chapter-sub-list li {
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+}
+
+.reveal section.chapter .chapter-sub-list li + li {
+  margin-top: 0.45em;
+}
+
+.reveal section.chapter .chapter-sub-list li::before {
+  content: "\2014";
+  color: var(--orange, currentColor);
+  padding-right: 0.5em;
 }
 
 /* ══════════════════════ ROADMAP SPINE — the deck's navigation device ══
@@ -1709,6 +1736,154 @@
   .layers-diagram svg { max-width: 20rem; }
 }
 
+/* ──────────────────────────── Chapter 6 · the mental load (slide 6b) ── */
+/* One working day, drawn twice: two bars, a caption each, and a legend under
+   them. The whole argument is DENSITY, so the slide is deliberately painted in
+   ink only — no orange. The scatter one press later uses orange for the
+   converged, good state, and two closing slides must not disagree about what
+   the accent means. */
+.reveal section.load {
+  display: flex;
+  flex-direction: column;
+}
+.reveal section.load .tk-body {
+  margin: 0.2rem 0 0;
+}
+/* The picture takes the whole space under the headline and centres in it, the
+   way the scatter's plot does. Left top-aligned it stranded the two bars in the
+   upper third of a 900px canvas with half the slide empty under them. */
+.load-rows {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2.6rem;
+  /* Canvas px, not vh — reveal scales a fixed 1600x900 canvas, so px here are
+     stable and vh is not (see the scatter's plot cap for the same reasoning).
+     Reveal sizes a section to its content, so `flex: 1` alone had nothing to
+     grow into and the picture stranded itself under the headline. */
+  min-height: 380px;
+  margin: 2.4rem 0 0;
+}
+/* ⚠ ALL THREE COLUMNS ARE FIXED-OR-FLUID IDENTICALLY ON BOTH ROWS, and the
+   caption column must stay a fixed width. With `auto` there, each row sized its
+   third column to its own caption, the two bars came out different lengths, and
+   the slide's entire argument — same day, same width, different density — read
+   as "the new day is shorter". */
+.load-row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) 21rem;
+  align-items: center;
+  gap: 1.6rem;
+}
+.load-k {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: clamp(0.7rem, 0.9vw, 0.82rem);
+  font-weight: 600;
+  color: var(--signal);
+}
+.load-bar {
+  display: flex;
+  height: 6rem;
+  border-radius: 3px;
+  overflow: hidden;
+  /* Without an edge a dotted segment has no boundary, and the top bar stops
+     reading as one continuous day. */
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+/* `--w` is a WEIGHT, never a measurement — see the slide's own comment. */
+.load-seg {
+  flex: var(--w, 1) 1 0;
+}
+/* The two states of a day. Solid navy — the deck's structural colour — is the
+   demanding work. Tactical programming is DOTTED, not filled: a texture reads
+   as lighter than any fill of the same colour, so the top bar looks interrupted
+   from the back of a room while the bottom bar looks like a wall. That contrast
+   is the slide's whole argument, so keep it this wide.
+   ⚠ NO ORANGE. The scatter one press later uses orange for its converged, good
+   state, and the deck's last two slides must not disagree about the accent. */
+.load-seg.s,
+.load-sw.s {
+  background: var(--navy);
+}
+/* ⚠ THE DOT GRID BELONGS TO THE BAR, NOT TO THE SEGMENTS. Tiled per segment it
+   restarted at every boundary, and since the segment widths are weights the
+   grid landed at a different sub-pixel offset in each one — dots clipped at one
+   edge and floated at the other. Drawn once on the bar it is a single grid, and
+   the solid segments simply cover the part of it they sit on. */
+.load-seg.t {
+  background: transparent;
+}
+/* `background-repeat: space` is what makes the margins exact: it lays down only
+   WHOLE tiles and shares the leftover space out between them, so no dot is ever
+   cut and the distance to all four borders is equal. Do not swap it back to the
+   default `repeat`, which clips whatever does not fit. */
+.load-bar,
+.load-sw.t {
+  background-image: radial-gradient(#00327d99 1.4px, transparent 1.6px);
+  background-repeat: space;
+}
+.load-bar {
+  background-size: 12px 12px;
+}
+/* The legend chip is 1.1rem across, so it needs its own tighter grid — the
+   bar's 12px tile would fit barely one dot inside it. */
+.load-sw.t {
+  background-color: transparent;
+  background-size: 5px 5px;
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.load-cap {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.5vw, 1.4rem);
+  color: var(--ink);
+  opacity: 0.78;
+  white-space: nowrap;
+}
+/* The legend is the only place either term is named on the wall, so it sits
+   under the picture it labels rather than beside the headline. */
+.load-legend {
+  display: flex;
+  gap: 2.6rem;
+  list-style: none;
+  margin: 2.4rem 0 0;
+  padding: 0;
+}
+.load-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  opacity: 0.72;
+}
+.load-sw {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 2px;
+  flex: none;
+}
+
+@media (max-width: 900px) {
+  /* The caption drops under its own bar; the bar keeps the full width, because
+     an interrupted bar squeezed to half a screen stops reading as interrupted. */
+  .load-row {
+    grid-template-columns: 4rem minmax(0, 1fr);
+  }
+  .load-cap {
+    grid-column: 2;
+    white-space: normal;
+  }
+  .load-legend {
+    gap: 1.4rem;
+  }
+}
+
 /* ──────────────────────── Reliability scatter (result quality × spend) ── */
 .reveal section.lottery { display: flex; flex-direction: column; }
 .lottery-plot {
@@ -1895,28 +2070,70 @@
   gap: 0.5rem;
   height: 100%;
 }
-.tk-input {
+/* The prompt panel: a transcript of one AI session, not an input. Both
+   prompts live in the same grid cell so the fragment swaps them in place and
+   nothing below moves. */
+.tk-session {
+  display: grid;
+  background: var(--card);
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  padding: 0.85rem 1rem;
+}
+.tk-msg {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+.reveal .tk-msg-who {
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 0.7vw, 0.66rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1b1b1b66;
+}
+.reveal .tk-msg-text {
   font-family: var(--font-body);
   font-size: clamp(0.85rem, 1.15vw, 1.05rem);
   line-height: 1.5;
   color: var(--navy);
-  background: var(--card);
-  border: 1px solid var(--hair);
-  border-radius: 4px;
-  padding: 0.85rem 1rem;
-  height: 5.4em;
-  resize: none;
-  outline: none;
-  box-shadow: var(--shadow);
+  margin: 0;
+  max-width: none;
 }
-.tk-input:focus {
-  border-color: var(--signal);
+/* The attachment chip, styled the way a chat client shows a real file. */
+.tk-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.45rem;
+  border: 1px solid #0066cc33;
+  border-radius: 999px;
+  background: #0066cc0f;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.8vw, 0.76rem);
+  line-height: 1;
+  color: var(--navy);
+}
+.tk-file svg {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--signal);
+  flex: none;
+}
+.tk-file b {
+  font-weight: 500;
+}
+.tk-file em {
+  font-style: normal;
+  color: #1b1b1b73;
 }
 .tk-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  transition: gap var(--tok-dur) var(--ease);
   align-content: flex-start;
   overflow: hidden;
   flex: 1;
@@ -1933,14 +2150,6 @@
   border: 1px solid #0066cc2e;
   font-family: var(--font-mono);
   line-height: 1.1;
-  /* Transitions, not an animation: they only fire when `.intro` is removed
-     on slide entry, so typing re-renders chips silently. An animation would
-     replay on every keystroke, because every keystroke rebuilds the nodes. */
-  transition:
-    background var(--tok-dur) var(--ease),
-    border-color var(--tok-dur) var(--ease),
-    padding var(--tok-dur) var(--ease);
-  transition-delay: calc(var(--i, 0) * 44ms);
 }
 .tk-chip .t {
   font-size: clamp(0.72rem, 0.95vw, 0.92rem);
@@ -1952,15 +2161,8 @@
   color: var(--signal);
   opacity: 0.75;
   letter-spacing: 0.04em;
-  /* max-width, not display, so the ID collapses its *width* too: a hidden ID
-     still holds the chip as wide as "155340", which is what stopped the
-     pre-break row reading as a sentence. */
   max-width: 12ch;
   overflow: hidden;
-  transition:
-    opacity var(--tok-dur) var(--ease),
-    max-width var(--tok-dur) var(--ease);
-  transition-delay: calc(var(--i, 0) * 44ms);
 }
 /* A leading space rides with its token — a real space while the row still
    reads as prose, a visible dot once the tokens have separated. */
@@ -1970,24 +2172,6 @@
   opacity: 0.55;
 }
 
-/* The pre-break state, held for a beat on slide entry: flush, unboxed, no
-   IDs yet — the same sentence the room just saw, before it comes apart. */
-.tk-chips.intro {
-  gap: 0;
-  transition: gap var(--tok-dur) var(--ease);
-}
-.tk-chips.intro .tk-chip {
-  background: transparent;
-  border-color: transparent;
-  padding: 0.2rem 0 0.16rem;
-}
-.tk-chips.intro .tk-chip .id {
-  opacity: 0;
-  max-width: 0;
-}
-.tk-chips.intro .tk-chip[data-sp] .t::before {
-  content: " ";
-}
 .tk-meter {
   display: flex;
   align-items: flex-start;
@@ -2004,119 +2188,142 @@
   color: var(--orange);
   font-weight: 700;
 }
-/* One model per row — a price list, not a run-on sentence. Euros carry the
-   rate (a stable number the room can hold); AIC carries the live text. */
-.tk-price {
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-.tk-price th {
-  font-weight: 400;
-  font-size: 0.82em;
-  color: #1b1b1b66;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: right;
-  padding: 0 0 0.25rem 0.9rem;
-}
-.tk-price th:first-child {
-  text-align: left;
-  padding-left: 0;
-}
-.tk-price td {
-  padding: 0.1rem 0 0.1rem 0.9rem;
-  text-align: right;
-  white-space: nowrap;
-}
-.tk-price td:first-child {
-  text-align: left;
-  padding-left: 0;
-  color: var(--navy);
-}
-.tk-price .eur {
-  color: var(--orange);
-  font-weight: 700;
-}
-.tk-price .aic {
-  color: #1b1b1b8c;
-}
-.tk-cloud {
+/* ── The right panel: one word, traced to the end ───────────────────────
+   Static by design (Atil, 2026-08-23): the rotating cloud read as decoration,
+   and its hash placement could not show why a position means anything. Both
+   variants share one grid cell, so the fragment swaps them without moving the
+   rows. */
+/* No card here (Atil, 2026-08-23): the right panel is set on the slide
+   ground, exactly like the credits slide's ladder, so the two read as the same
+   object seen twice. The white card is the LEFT panel's job — it is a
+   transcript of a session, and it is the only thing on the slide that is. */
+.tk-lookup {
+  display: grid;
   flex: 1;
-  /* The cloud needs real height or the box projects into a letterbox and
-     stops reading as a volume; the panel is wider than it is tall either way. */
-  min-height: 26rem;
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--hair);
-  border-radius: 4px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
+  align-content: start;
 }
-
-/* ── A4: the credit rate table ──────────────────────────────────────────
-   The room meets all four models and all three token kinds here, once, so
-   the cost dial can spend the rates without stopping to introduce them.
-   Deliberately unaccented: the "output is the expensive half" discovery
-   belongs to the dial, so nothing on this table narrates it. */
-.credit-rates {
-  border-collapse: collapse;
+/* The ladder is the same component the credits slide ends on; here it shares
+   the lookup's cell, so the fragment turns meaning into money in place. */
+.tk-bill {
+  grid-area: 1 / 1;
+  align-self: start;
+}
+.tk-look {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-self: start;
+}
+.tk-look-row {
+  display: grid;
+  grid-template-columns: 10.5rem 1fr;
+  align-items: baseline;
+  gap: 0.2rem 1rem;
+}
+.reveal .tk-look-row .k {
   font-family: var(--font-mono);
-  font-size: clamp(0.8rem, 1.15vw, 1.05rem);
-  font-variant-numeric: tabular-nums;
-  margin: 0.2rem 0 0.4rem;
-}
-.credit-rates th {
-  font-weight: 400;
-  font-size: 0.76em;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #1b1b1b66;
-  text-align: right;
-  padding: 0 0 0.5rem 2.2rem;
-  border-bottom: 1px solid var(--hair);
-}
-.credit-rates th:first-child {
-  text-align: left;
-  padding-left: 0;
-}
-.credit-rates td {
-  padding: 0.42rem 0 0.42rem 2.2rem;
-  text-align: right;
-  color: var(--navy);
-  white-space: nowrap;
-}
-.credit-rates td:first-child {
-  text-align: left;
-  padding-left: 0;
-}
-.credit-rates tr:first-of-type td {
-  padding-top: 0.7rem;
-}
-.credit-rates .unit td {
-  padding: 0.55rem 0 0;
-  text-align: right;
-  font-size: 0.72em;
+  font-size: clamp(0.58rem, 0.74vw, 0.7rem);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #1b1b1b66;
 }
-
-/* ── A4: the input-billing ladder ───────────────────────────────────────
-   One stage per row down the right column, with the operator riding on the
-   arrow between two stages. Chosen over a receipt, a horizontal flow and an
-   annotated equation: it has room for a label per stage, and it is the only
-   one that could later reveal a stage at a time on →. */
-.credits-cols {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: start;
-  margin-top: 0.4rem;
-}
-.credits-right {
+.reveal .tk-look-row .v {
   font-family: var(--font-mono);
+  color: var(--navy);
+  font-size: clamp(0.9rem, 1.35vw, 1.25rem);
+}
+/* The note explains its row, so it lives under the value, not under the key. */
+.reveal .tk-look-row .note {
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: clamp(0.58rem, 0.74vw, 0.7rem);
+  letter-spacing: 0.03em;
+  color: #1b1b1b73;
+}
+.tk-look-word {
+  font-weight: 700;
+}
+.tk-look-id {
+  color: var(--signal) !important;
+  letter-spacing: 0.06em;
+}
+/* The vector is the one place a real screenful of numbers is implied; the
+   ellipsis carries the other 1,530. */
+.tk-look-vec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(0.72rem, 1vw, 0.95rem) !important;
+  color: #1b1b1b !important;
+}
+.tk-look-vec b {
+  font-weight: 400;
+}
+.tk-look-vec i {
+  font-style: normal;
+  color: #1b1b1b59;
+}
+/* The step between rows: a rule with the operation written on it, so the panel
+   reads as one movement downward rather than three stacked facts. */
+.tk-look-arrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.58rem, 0.74vw, 0.7rem);
+  letter-spacing: 0.03em;
+  color: #1b1b1b73;
+}
+.tk-look-arrow::before {
+  content: "\2193";
+  color: var(--signal);
+  font-size: 1.1em;
+}
+.tk-look-near {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tk-look-near b {
+  font-weight: 500;
+  padding: 0.18rem 0.5rem;
+  border-radius: 3px;
+  background: #ff6b0014;
+  border: 1px solid #ff6b0038;
+  color: var(--navy);
+  font-size: clamp(0.72rem, 1vw, 0.95rem);
 }
 
+/* The closing line: input was one kind of three. Same rule-and-rise treatment
+   as chapter 4's guardrails line, because it does the same job — one sentence
+   under the evidence that hands the room to the next slide. */
+.tk-close-line {
+  margin-top: clamp(0.8rem, 2.5vh, 1.6rem);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hair);
+}
+.reveal .tk-close-line {
+  font-size: clamp(0.95rem, 1.55vw, 1.2rem);
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.75;
+  max-width: 78ch;
+}
+.reveal .tk-close-line b {
+  color: var(--navy);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* ── The input-billing ladder ───────────────────────────────────────────
+   One stage per row, with the operator riding on the arrow between two
+   stages. Chosen over a receipt, a horizontal flow and an annotated equation:
+   it has room for a label per stage, and it is the only one that could later
+   reveal a stage at a time on →. Lives on the vocabulary slide; the credits
+   slide that once carried the second copy is gone. */
 .bill-ladder {
   list-style: none;
   margin: 0;
@@ -2175,175 +2382,210 @@
   letter-spacing: 0.04em;
 }
 
-/* ── A5: the cost dial ──────────────────────────────────────────────────
-   Three knobs, and the equation IS the rate table: each rate appears once,
-   as the second factor of its own term. No separate table on this slide. */
-.dial-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: clamp(1.6rem, 4vw, 3rem);
-  align-items: center;
-  margin-top: 0.4rem;
+/* ── A5: the bill table ─────────────────────────────────────────────────
+   One grid, two axes. A rate changes as you go DOWN a column; a token count
+   is shared by every model, so each knob is one cell spanning all four rows.
+   The formula rides in the table's own header row, which is what aligns each
+   term over the two columns it names — never re-align it by hand.
+   Two number families sit side by side and mean different things, so they are
+   kept apart twice: by sub-head (AIC/1M vs TOKENS) and by weight/colour. */
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  table-layout: fixed;
 }
-.dial-knobs {
-  display: flex;
-  gap: clamp(0.8rem, 2vw, 1.6rem);
+.bill-table td,
+.bill-table th {
+  padding: 0.34rem 0.5rem;
+  text-align: right;
+  white-space: nowrap;
 }
-.knob {
+
+/* the formula row ───────────────────────────────────────────── */
+.bt-formula th {
+  font-weight: 400;
   text-align: center;
-  flex: 1;
-  max-width: 9.5rem;
+  padding-bottom: 0.9rem;
+  font-size: clamp(0.7rem, 1.02vw, 0.92rem);
+  color: #9aa3b0;
+}
+.bt-formula th span {
+  display: inline-block;
+  padding: 0.26rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.bt-formula i {
+  font-style: normal;
+  opacity: 0.45;
+}
+/* The operators hang off the left edge of their term so the term itself stays
+   centred over its two columns. */
+.bt-formula em {
+  font-style: normal;
+  color: #c3cad4;
+  margin-right: 0.3em;
+}
+.bt-formula .bt-f-sum span {
+  color: var(--signal);
+}
+.bt-formula th.lit span {
+  background: #0066cc14;
+  color: var(--signal);
+}
+
+/* group + column heads ──────────────────────────────────────── */
+.bt-groups th {
+  font-weight: 400;
+  text-align: center;
+  font-size: clamp(0.72rem, 1.05vw, 0.9rem);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--navy);
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 0.3rem;
+}
+.bt-heads th {
+  font-weight: 400;
+  font-size: clamp(0.6rem, 0.85vw, 0.74rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #1b1b1b66;
+  padding: 0.55rem 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--hair);
+  white-space: normal;
+}
+.bt-heads th:first-child {
+  text-align: left;
+}
+/* The token sub-head is the one that stops a reader mixing 250 with 20,000. */
+.bt-heads .bt-h-tok {
+  text-align: center;
+  color: var(--orange);
+}
+
+/* body rows ─────────────────────────────────────────────────── */
+.bill-table tbody tr {
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+.bill-table tbody td {
+  padding-top: 1.05rem;
+  padding-bottom: 1.05rem;
+  color: var(--navy);
+  font-size: clamp(1rem, 1.5vw, 1.32rem);
+  transition: color var(--dur) var(--ease);
+}
+.bt-model {
+  text-align: left !important;
+  letter-spacing: 0.01em;
+}
+.bt-rate {
+  color: var(--navy);
+}
+.bt-aic {
+  font-weight: 500;
+}
+.bt-eur {
+  color: var(--orange);
+  font-weight: 500;
+}
+.bt-mult {
+  color: #9aa3b0;
+}
+/* Holding the room on one model greys the rest. Emphasis only — every figure
+   on screen is already correct for every row. */
+.bill-table.has-lit tbody td {
+  color: #b9c1cc;
+}
+.bill-table.has-lit tbody tr.is-lit td {
+  color: var(--navy);
+}
+/* The held row trades its accent: the euro goes navy with the rest of the row,
+   and the multiplier takes the orange — because the multiplier is the reason
+   the presenter held this row in the first place. */
+.bill-table.has-lit tbody tr.is-lit .bt-mult {
+  color: var(--orange);
+}
+.bill-table tbody tr.is-lit {
+  background: #0066cc0a;
+}
+
+/* the knob cells ────────────────────────────────────────────── */
+/* One cell per group, spanning every model row: the token count really is the
+   same for all four, and the span says so without a caption. */
+.bt-knob {
+  vertical-align: middle;
+  text-align: center !important;
+  border-left: 1px solid var(--hair);
+  border-right: 1px solid var(--hair);
+  background: #f7f9fc;
+}
+.bk {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
   cursor: ns-resize;
   user-select: none;
   touch-action: none;
+  padding: 0.2rem 0;
 }
-.knob:focus {
-  outline: none;
+.bk-track {
+  position: relative;
+  width: 18px;
+  height: clamp(120px, 19vh, 186px);
+  border-radius: 9px;
+  background: #e3e8f0;
+  overflow: hidden;
 }
-.knob:focus .k-track {
-  stroke: #ff660033;
+/* The fill height IS the token count — three tracks side by side compare the
+   mix at a glance, before anyone reads a number. */
+.bk-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--signal);
+  border-radius: 9px;
+  transition: background var(--dur) var(--ease);
 }
-.knob:focus .k-lab {
-  color: var(--orange);
+.bk[data-hot] .bk-fill {
+  background: var(--orange);
 }
-.knob svg {
-  width: 100%;
-  display: block;
-}
-.k-track {
-  fill: none;
-  stroke: #e3e8f0;
-  stroke-width: 9;
-}
-.k-fill {
-  fill: none;
-  stroke: var(--signal);
-  stroke-width: 9;
-  stroke-linecap: round;
-  transform: rotate(135deg);
-  transform-origin: 50% 50%;
-  stroke-dasharray: 251;
-}
-.knob[data-hot] .k-fill {
-  stroke: var(--orange);
-}
-.k-ptr {
-  stroke: var(--navy);
-  stroke-width: 4;
-  stroke-linecap: round;
-  transform-origin: 50% 50%;
-}
-.k-val {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+.bk-val {
+  font-size: clamp(0.82rem, 1.15vw, 1.02rem);
+  font-weight: 500;
   color: var(--navy);
   font-variant-numeric: tabular-nums;
-  margin-top: 0.35rem;
 }
-.k-lab {
-  font-family: var(--font-mono);
-  font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+.bk[data-hot] .bk-val {
+  color: var(--orange);
+}
+.bk-lab {
+  font-size: clamp(0.55rem, 0.76vw, 0.66rem);
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: #8a8a8a;
 }
-.dial-eq {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.1vw, 0.95rem);
-  color: #9aa3b0;
-}
-.dial-eq .t {
-  padding: 0.28rem 0.5rem;
-  border-radius: 4px;
-  transition:
-    background var(--dur) var(--ease),
-    color var(--dur) var(--ease);
-}
-.dial-eq .t b {
-  color: var(--navy);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-.dial-eq .t i {
-  font-style: normal;
-  opacity: 0.45;
-}
-.dial-eq .t.lit {
-  background: #0066cc14;
-}
-.dial-eq .t.lit b {
-  color: var(--signal);
-}
-.dial-total {
-  margin: 0.9rem 0 1.1rem;
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-.dial-total .tot-n {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(3rem, 7vw, 5.4rem);
-  color: var(--navy);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.dial-total .tot-u {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--signal);
+
+/* footer + hint ─────────────────────────────────────────────── */
+.bill-table tfoot td {
+  padding-top: 0.9rem;
+  font-size: clamp(0.6rem, 0.8vw, 0.72rem);
   letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1b1b1b66;
 }
-.dial-total .tot-eur {
-  font-family: var(--font-mono);
-  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
-  color: var(--orange);
-  font-variant-numeric: tabular-nums;
-  margin-left: 0.6rem;
-}
-.dial-models {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.dial-models button {
-  font-family: var(--font-mono);
-  font-size: clamp(0.66rem, 0.95vw, 0.78rem);
-  letter-spacing: 0.04em;
-  padding: 0.5rem 0.85rem;
-  border: 1px solid var(--hair);
-  border-radius: 4px;
-  background: var(--card);
-  color: var(--navy);
-  cursor: pointer;
-  transition:
-    background var(--dur) var(--ease),
-    color var(--dur) var(--ease);
-}
-.dial-models button[aria-pressed="true"] {
-  background: var(--signal);
-  color: #fff;
-  border-color: var(--signal);
-}
-/* The multiplier rides inside the button in the model's own colour, dimmed —
-   it's an annotation on the name, not a second label competing with it. */
-.dial-models .m-mult {
-  opacity: 0.55;
-  font-variant-numeric: tabular-nums;
-  margin-left: 0.15em;
-}
-.dial-models button[aria-pressed="true"] .m-mult {
-  opacity: 0.75;
-}
-.reveal .dial-hint {
+.reveal .bill-hint {
   margin: 0.9rem 0 0;
   font-family: var(--font-mono);
-  font-size: clamp(0.6rem, 0.8vw, 0.72rem);
+  font-size: clamp(0.62rem, 0.82vw, 0.74rem);
   color: #9aa3b0;
   max-width: none;
 }
@@ -2818,6 +3060,30 @@
    blue, hallucinated takes the orange accent, and NOTHING is coloured
    before the fold — the room must find all five equally plausible first. */
 
+/* ── Dek: one line under the headline ────────────────────────────────────── */
+/* The headline is one word now, so this line carries the setup. Mono at the
+   trace's weight, so it reads as a caption on the exhibit below and never
+   competes with the close line, which is display type. It rises with the
+   slide (.is-live), one beat behind the headline wipe. */
+.reveal .stoch-dek {
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 1.25vw, 1.15rem);
+  font-weight: 600;
+  color: #1b1b1b99;
+  max-width: none;
+  white-space: nowrap;
+  margin: 0.75rem 0 0.35rem;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur) var(--ease) 0.3s,
+    transform var(--dur) var(--ease) 0.3s;
+}
+.reveal section.stoch.is-live .stoch-dek {
+  opacity: 1;
+  transform: none;
+}
+
 /* ── The prompt + the pasted stack trace ─────────────────────────────────── */
 
 .stoch-ask {
@@ -3061,8 +3327,7 @@
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }
   .lot-dot, .lot-zone, .lot-trace { transition: none; }
-  .tk-chips, .tk-chip, .tk-chip .id { transition: none; }
-  .dial-eq .t, .dial-models button { transition: none; }
+  .bt-formula th span, .bill-table tbody tr, .bill-table tbody td, .bk-fill { transition: none; }
   .prim-card.is-on { animation: none; }
   .reveal .prim-block.is-on { transform: none; }
   .al-seg, .al-row, .al-bar-fill { transition: none; }
@@ -3071,6 +3336,7 @@
   .stoch-sorted, .stoch-sorted .card, .stoch-sorted .card .bar,
   .stoch-sorted .card .tag, .stoch-sorted .card .tell,
   .stoch-lane-heads, .reveal .stoch-close-line, .stoch-trace b { transition: none; }
+  .reveal .stoch-dek { opacity: 1; transform: none; transition: none; }
 }
 
 /* ─────────────────── Chapter 2: the hallucination diagnosis (#41) ──
@@ -5688,5 +5954,51 @@
   .reveal .wf-in,
   .reveal .wf-card.wf-in .born {
     animation: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+ *  LASER POINTER — "l" toggles it, like PowerPoint's Ctrl+L.
+ *
+ *  The dot is one fixed element that follows the mouse. The real cursor goes
+ *  away while the laser is on, so the presenter sees one red spot and nothing
+ *  else. `pointer-events: none` keeps every widget on the Slide clickable.
+ * ═════════════════════════════════════════════════════════════════════════ */
+.laser-dot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #fff 0%,
+    #ff2d2d 26%,
+    #d40000 56%,
+    rgba(212, 0, 0, 0) 72%
+  );
+  box-shadow:
+    0 0 10px 4px rgba(255, 32, 32, 0.55),
+    0 0 26px 10px rgba(255, 32, 32, 0.28);
+  transition: opacity 120ms linear;
+}
+html.laser-on .laser-dot[data-seen] {
+  opacity: 1;
+}
+/* Hide the arrow so only the dot reads on the wall or the projector. */
+html.laser-on,
+html.laser-on body,
+html.laser-on .reveal,
+html.laser-on .reveal * {
+  cursor: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .laser-dot {
+    transition: none;
   }
 }
