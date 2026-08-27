@@ -42,7 +42,12 @@ export function estimateTokens(text: string): number {
 // 04, folded in by #30). The agent loop's move script and number
 // model live in src/lib so the markup below and the controller at the bottom
 // read the SAME table. See the file header for what is locked and why.
-import { SCRIPT, FINAL } from "../../../lib/asml-ai/agent-loop";
+import {
+  STRATA,
+  LINES,
+  TURNS,
+  BASELINE,
+} from "../../../lib/asml-ai/session";
 
 // The deck's Roadmap (#29/#30): chapter 1's roadmap slide and the
 // dividers entering chapters 2–5 are the SAME component, so the four factors
@@ -226,29 +231,11 @@ const primitives = primitiveGroups.flatMap((g) =>
   g.blocks.map((b) => ({ ...b, group: g.group })),
 );
 
-// Slide 8 — pre-rendered ledger rows and context strata. The geometry is
-// deterministic (it comes straight out of the model), so it is server-rendered
-// and the controller only toggles visibility and repaints the numbers.
-const loopRows = SCRIPT.map((s, i) => ({
-  move: i,
-  role: s.role,
-  text: s.text,
-  billed: !!s.call,
-  cost: s.call
-    ? `call ${SCRIPT.slice(0, i + 1).filter((x) => x.call).length}`
-    : s.out
-      ? `+${s.out} out`
-      : "free",
-}));
-// Heights are a true proportion of the final 2,715-token window — no
-// compression. That is what makes the harness bundle read as 68% of it.
-const loopStrata = SCRIPT.flatMap((s, i) =>
-  s.block.map((b) => ({
-    ...b,
-    move: i,
-    heightPct: (b.tokens / FINAL.contextTokens) * 100,
-  })),
-);
+// Slide 8 — the session. The blocks and the transcript are server-rendered;
+// their HEIGHTS are not, because they are solved against the frame the
+// projector actually gives us (see segSizer in lib/asml-ai/session.ts).
+const baselineBlocks = BASELINE.length;
+
 ---
 
 <!doctype html>
@@ -276,7 +263,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
     </div>
     <div class="deck-legend">
       <kbd>&larr;</kbd><kbd>&rarr;</kbd> move ·
-      <kbd>&darr;</kbd> sub-slide ·
+      <kbd>&uarr;</kbd><kbd>&darr;</kbd> deep dive ·
       <kbd>ESC</kbd> overview ·
       <kbd>s</kbd>/<kbd>n</kbd> notes ·
       <kbd>p</kbd> presenter ·
@@ -993,229 +980,240 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- A3b ────────────────── AGENT LOOP IN ACTION (the ledger, #26 var. C)
-             MOVED here from the end of the chapter (Atil, 2026-08-23). It now
-             follows the vocabulary slide directly, because that slide closes on
-             "input is one of three kinds" and this is the screen where all
-             three run at once. The price slides (credits, the dial) come after
-             it: the room meets the credit on the vocabulary slide's ladder,
-             and gets the rate table once it has seen what a session spends. -->
-        <section class="agentloop" data-section="03 — Tokenomics" data-agentloop>
-          <span class="eyebrow">The loop &middot; stepped, press &rarr; to advance</span>
+        <!-- A5 ─────────────────── THE BILL TABLE (rates × knobs, one grid)
+             The chapter's money slide, and it now follows the vocabulary
+             slide directly: that slide closes on "three kinds, at three
+             prices" and this table's three column pairs carry those three
+             names. Do not put a slide between the two. -->
+        <!-- One table, two axes (#23/#25). A rate changes as you go DOWN a
+             column; a token count is shared by every model, so each knob is a
+             single cell spanning all four rows — the span is the teaching.
+             Four models, three knobs: do not add a fifth row or a fourth knob.
+             Anthropic's fourth rate — cache writes at 1.25x input — stays
+             off-screen; the presenter note carries it. -->
+        <section data-section="03 — Tokenomics" data-cost-dial>
+          <span class="eyebrow">The bill &middot; interactive, drag the tracks</span>
           <h2 class="h-set">
-            <span class="h-line"><span>The whole context,</span></span>
-            <span class="h-line"><span>every single turn.</span></span>
+            <span class="h-line"><span>Three numbers</span></span>
+            <span class="h-line"><span>make the bill.</span></span>
           </h2>
-          <p class="al-open-line">
-            The agent thinks, calls a tool, reads the result, thinks again
-            &mdash; re-sending the whole window each time.
+
+          <!-- The formula rides INSIDE the table as its first header row, so
+               each term is aligned over the two columns it names by the grid
+               itself rather than by a guessed margin. Moving a knob lights its
+               term — the only thing on the slide that answers "which one did I
+               just move". Rows and figures come from the controller; the rates
+               live in src/lib/asml-ai/rates.ts and nowhere else. -->
+          <table class="bill-table" data-bill-table>
+            <thead>
+              <tr class="bt-formula">
+                <td></td>
+                <th colspan="2" data-term="input">
+                  <span>input rate <i>&times;</i> input tokens</span>
+                </th>
+                <th colspan="2" data-term="cached">
+                  <span><em>+</em> cached rate <i>&times;</i> cached tokens</span>
+                </th>
+                <th colspan="2" data-term="output">
+                  <span><em>+</em> output rate <i>&times;</i> output tokens</span>
+                </th>
+                <th colspan="3" class="bt-f-sum"><span><em>=</em> the bill</span></th>
+              </tr>
+              <tr class="bt-groups">
+                <td></td>
+                <th colspan="2">input</th>
+                <th colspan="2">cached</th>
+                <th colspan="2">output</th>
+                <td colspan="3"></td>
+              </tr>
+              <tr class="bt-heads">
+                <th>model</th>
+                <th>aic / 1m</th>
+                <th class="bt-h-tok">tokens</th>
+                <th>aic / 1m</th>
+                <th class="bt-h-tok">tokens</th>
+                <th>aic / 1m</th>
+                <th class="bt-h-tok">tokens</th>
+                <th>aic</th>
+                <th>&euro;</th>
+                <th>vs cheapest</th>
+              </tr>
+            </thead>
+            <tbody data-bill-rows></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="10">
+                  AI credits per 1M tokens &middot; rates as of July 2026
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <p class="bill-hint">
+            drag a track up or down &nbsp;&middot;&nbsp; click a model to hold
+            the room on it
           </p>
-
-          <div class="al-stage">
-            <!-- The context window itself, as a strata gutter at true
-                 proportion — the harness bundle really is 68% of it. -->
-            <div class="al-column" data-al-column>
-              {
-                loopStrata.map((b, i) => (
-                  <span
-                    class={`al-seg ${b.kind}`}
-                    data-al-seg={i}
-                    data-al-seg-move={b.move}
-                    style={`--h:${b.heightPct}%`}
-                    title={`${b.label} — ${b.tokens.toLocaleString("en-US")} tokens`}
-                  />
-                ))
-              }
-            </div>
-
-            <!-- The ledger: all twelve moves stay on screen at once. -->
-            <div class="al-rows">
-              {
-                loopRows.map((r) => (
-                  <div
-                    class={`al-row ${r.role}${r.billed ? " billed" : ""}`}
-                    data-al-row={r.move}
-                  >
-                    <span class="no">{String(r.move + 1).padStart(2, "0")}</span>
-                    <span class={`al-role ${r.role}`}>{r.role}</span>
-                    <span class="txt" set:html={r.text} />
-                    <span class="cost">{r.cost}</span>
-                  </div>
-                ))
-              }
-            </div>
-
-            <div class="al-panel">
-              <div class="al-odo">
-                <span class="al-tag">running cost</span>
-                <div class="big" data-al-eur>&euro;0.0000</div>
-                <span class="al-tag">
-                  <span data-al-aic>0.00</span> AIC &middot;
-                  <span data-al-calls>0</span> model calls
-                </span>
-                <p class="al-ghost" data-al-ghost></p>
-              </div>
-              <div class="al-spark">
-                <div class="al-bar-label al-window-size">
-                  <span class="al-tag">context window</span>
-                  <span class="al-tag al-num"><span data-al-ctx>0</span> tokens</span>
-                </div>
-                <div class="al-bar-row">
-                  <div class="al-bar-label">
-                    <span class="al-tag">input</span>
-                    <span class="al-tag al-num" data-al-input>0</span>
-                  </div>
-                  <div class="al-bar-track"><i class="al-bar-fill input" data-al-bar-input></i></div>
-                </div>
-                <div class="al-bar-row">
-                  <div class="al-bar-label">
-                    <span class="al-tag">cached</span>
-                    <span class="al-tag al-num" data-al-cached>0</span>
-                  </div>
-                  <div class="al-bar-track"><i class="al-bar-fill cached" data-al-bar-cached></i></div>
-                </div>
-                <div class="al-bar-row">
-                  <div class="al-bar-label">
-                    <span class="al-tag">output</span>
-                    <span class="al-tag al-num" data-al-output>0</span>
-                  </div>
-                  <div class="al-bar-track"><i class="al-bar-fill output" data-al-bar-output></i></div>
-                </div>
-              </div>
-              <p class="al-ghost">
-                Gutter = the context window. Every band is re-sent on the next
-                call.
-              </p>
-            </div>
-          </div>
-
-          <p class="al-caveat">
-            Illustrative numbers. Actual caching depends on provider and model
-            cache boundaries, which change. GPT-5.4 rates, as of July 2026.
-          </p>
-
-          <!-- 12 fragments, one per move, + a 13th for the bridge. No custom binding: →
-               advances, ← steps back, and re-entry from either direction
-               replays correctly because reveal's fragment state is the only
-               state there is — the same lesson the scatter slide records. -->
-          <div class="al-frag-row" data-al-frag-row aria-hidden="true">
-            {loopRows.map(() => <span class="fragment" />)}
-            <span class="fragment" data-al-bridge-frag></span>
-          </div>
-
-          <p class="al-bridge" data-al-bridge>
-            So how you work<br />decides what this costs.
-          </p>
-
           <aside class="notes">
-            Twelve moves, four model calls &mdash; the bars sit still while the
-            agent reasons and while a tool comes back, then jump when a request
-            goes out. Tool results are free until the next call re-sends them.
-            Watch the cached bar pass the window three times over: nothing is
-            forgotten, everything is re-sent. A cache miss re-bills the entire
-            context at full input price; model-hopping mid-task is the usual
-            cause, and caches expire after inactivity &mdash; 24 hours on
-            OpenAI, about an hour on most others. Changing reasoning effort,
-            context size or the enabled tool set mid-session kills it too. The
-            routing saving is real but GitHub never quantifies it, so the only
-            discounts claimed here are the two documented 10%s. This slide runs
-            on GPT-5.4 while the cost dial defaults to Gemini &mdash; deliberate:
-            Anthropic bills cache writes at 1.25&times; input, which would
-            overstate the saving on screen here. No model was called.
+            One table, two axes. The rate changes as you go down; the token
+            count is the same for every model, which is why each track spans all
+            four rows. Read one row across and you have the whole bill — three
+            multiplications and a sum. Start on Flash, then click Opus:
+            thirty-seven cents against three euros thirty, for exactly the same
+            work. The other thing worth pointing at is the cached column — it is
+            the biggest pile of tokens on screen and the cheapest rate, a tenth
+            of fresh input. That is the lever this whole talk is about, and
+            chapter four is how you pull it. Two things stay off this screen:
+            Anthropic also bills cache *writes* at 1.25 times input — 375 for
+            Sonnet, 625 for Opus — so the two Claude rows are slightly
+            optimistic, and the euro figure is our own conversion at 1.08
+            dollars to the euro. The credit is the number GitHub actually bills.
+            Leave the cached column open as you go: it is the biggest pile of
+            tokens on this table, and nobody typed it. The next slide is where
+            it comes from.
           </aside>
         </section>
 
-        <!-- A5 ─────────────────── THE BILL, AND WHAT YOU PAY FOR (v-stack)
-             A vertical pair, because the second slide answers the question
-             the first one raises: the bill is mostly input tokens, so where
-             do input tokens come from? ↓ walks it, → skips it — the exec
-             route can leave the anatomy on the floor without losing the
-             money. Both children carry their own data-section; the wrapper
-             carries one too, for the chapter label's parent fallback. -->
+        <!-- A5b ─────────── THE SESSION, AND WHAT IS IN IT (v-stack)
+             A vertical pair, because the second slide opens the pile the first
+             one builds: the session shows the whole history going up the wire
+             every turn, the anatomy names the blocks inside it. ↓ walks it, →
+             skips it — the exec route keeps the three turns and can leave the
+             block-by-block anatomy on the floor. Both children carry their own
+             data-section; the wrapper carries one too, for the chapter label's
+             parent fallback. -->
         <section data-section="03 — Tokenomics">
-          <!-- A5 ─────────────────── THE BILL TABLE (rates × knobs, one grid) -->
-          <!-- One table, two axes (#23/#25). A rate changes as you go DOWN a
-               column; a token count is shared by every model, so each knob is a
-               single cell spanning all four rows — the span is the teaching.
-               Four models, three knobs: do not add a fifth row or a fourth knob.
-               Anthropic's fourth rate — cache writes at 1.25x input — stays
-               off-screen; the presenter note carries it. -->
-          <section data-section="03 — Tokenomics" data-cost-dial>
-            <span class="eyebrow">The bill &middot; interactive, drag the tracks</span>
+          <!-- A3b ───────────── THE SESSION — the whole context, every turn
+               This WAS the agent-loop ledger (#26 variant C, twelve moves and a
+               credit odometer). Reworked to teach MEMORY, not billing — see
+               docs/asml-ai/adr/0001-session-slide-teaches-memory.md.
+
+               It follows the bill (Atil, 2026-08-27), and it used to sit before
+               it. The vocabulary slide now hands its three token kinds straight
+               to the three column pairs of the bill table, with nothing in
+               between. The bill then leaves one question open — cached is the
+               biggest pile on the screen, so where does it come from — and this
+               slide answers it in three turns. Nothing here may print a cost: the
+               money was spent one slide ago. -->
+          <section class="session" data-section="03 — Tokenomics" data-session>
+            <span class="eyebrow"
+              >The session &middot; stepped, press &rarr; to advance</span
+            >
             <h2 class="h-set">
-              <span class="h-line"><span>Three numbers</span></span>
-              <span class="h-line"><span>make the bill.</span></span>
+              <span class="h-line"><span>Everything,</span></span>
+              <span class="h-line"><span>every turn.</span></span>
             </h2>
-
-            <!-- The formula rides INSIDE the table as its first header row, so
-                 each term is aligned over the two columns it names by the grid
-                 itself rather than by a guessed margin. Moving a knob lights its
-                 term — the only thing on the slide that answers "which one did I
-                 just move". Rows and figures come from the controller; the rates
-                 live in src/lib/asml-ai/rates.ts and nowhere else. -->
-            <table class="bill-table" data-bill-table>
-              <thead>
-                <tr class="bt-formula">
-                  <td></td>
-                  <th colspan="2" data-term="input">
-                    <span>input rate <i>&times;</i> input tokens</span>
-                  </th>
-                  <th colspan="2" data-term="cached">
-                    <span><em>+</em> cached rate <i>&times;</i> cached tokens</span>
-                  </th>
-                  <th colspan="2" data-term="output">
-                    <span><em>+</em> output rate <i>&times;</i> output tokens</span>
-                  </th>
-                  <th colspan="3" class="bt-f-sum"><span><em>=</em> the bill</span></th>
-                </tr>
-                <tr class="bt-groups">
-                  <td></td>
-                  <th colspan="2">input</th>
-                  <th colspan="2">cached</th>
-                  <th colspan="2">output</th>
-                  <td colspan="3"></td>
-                </tr>
-                <tr class="bt-heads">
-                  <th>model</th>
-                  <th>aic / 1m</th>
-                  <th class="bt-h-tok">tokens</th>
-                  <th>aic / 1m</th>
-                  <th class="bt-h-tok">tokens</th>
-                  <th>aic / 1m</th>
-                  <th class="bt-h-tok">tokens</th>
-                  <th>aic</th>
-                  <th>&euro;</th>
-                  <th>vs cheapest</th>
-                </tr>
-              </thead>
-              <tbody data-bill-rows></tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="10">
-                    AI credits per 1M tokens &middot; rates as of July 2026
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-
-            <p class="bill-hint">
-              drag a track up or down &nbsp;&middot;&nbsp; click a model to hold
-              the room on it
+            <p class="se-open-line">
+              The chat has no memory. The transcript <b>is</b> the memory &mdash;
+              so every turn sends all of it again.
             </p>
+
+            <div class="se-stage">
+              <!-- The bar. NOT a capacity: the bottom edge fades out, because the
+                   window's real edge sits far below the frame. Do not close it,
+                   and do not let the last turn reach the foot. -->
+              <div class="se-barwrap">
+                <div class="se-bracket" data-se-bracket>
+                  <span class="se-bracket-label">sent this turn</span>
+                </div>
+                <div class="se-column" data-se-column>
+                  {
+                    STRATA.map((b, i) => (
+                      <span
+                        class={`se-seg ${b.kind}${b.turn < 0 ? " base is-on" : ""}`}
+                        data-se-seg={i}
+                        data-se-seg-turn={b.turn}
+                        data-se-seg-kind={b.kind}
+                        data-se-seg-tokens={b.tokens}
+                        title={`${b.label} — ${b.tokens.toLocaleString("en-US")} tokens`}
+                      >
+                        <em class="se-seg-label">{b.label}</em>
+                      </span>
+                    ))
+                  }
+                  <!-- Silent: it marks where the harness stops and the
+                       conversation starts. Its caption moved into the
+                       transcript's opening line, where there is room to read it.
+                       The controller places it, because the baseline's height is
+                       solved against the frame like every other block. -->
+                  <span class="se-hairline" data-se-hairline data-se-baseline={baselineBlocks}></span>
+                </div>
+              </div>
+
+              <!-- The transcript — it has to LOOK like a chat, because the belief
+                   this slide corrects is a chat belief. -->
+              <div class="se-rows">
+                {
+                  LINES.map((l) => (
+                    <div class={`se-row ${l.role}`} data-se-row={l.turn}>
+                      <span class={`se-role ${l.role}`}>{l.role}</span>
+                      <span class="txt">
+                        <span set:html={l.text} />
+                        {/* A real attachment, not the words "[pastes the
+                            document]" — same chip as the vocabulary slide, so
+                            the room recognises it from twenty minutes ago. */}
+                        {l.file && (
+                          <span class="se-file">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path
+                                d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            <b>{l.file.name}</b>
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+
+            <p class="se-caveat">
+              Illustrative session. Token counts are approximate
+              (&asymp; chars &divide; 4).
+            </p>
+
+            <!-- Three fragments, one per turn. No bridge fragment and no
+                 closing line: the slide ends on the last turn and the presenter
+                 hands over by voice. The turn is DERIVED from reveal's fragment state, never
+                 counted, which is what makes stepping back replay correctly. -->
+            <div class="se-frag-row" data-se-frag-row aria-hidden="true">
+              {TURNS.map(() => <span class="fragment" />)}
+            </div>
+
             <aside class="notes">
-              One table, two axes. The rate changes as you go down; the token
-              count is the same for every model, which is why each track spans all
-              four rows. Read one row across and you have the whole bill — three
-              multiplications and a sum. Start on Flash, then click Opus:
-              thirty-seven cents against three euros thirty, for exactly the same
-              work. The other thing worth pointing at is the cached column — it is
-              the biggest pile of tokens on screen and the cheapest rate, a tenth
-              of fresh input. That is the lever this whole talk is about, and
-              chapter four is how you pull it. Two things stay off this screen:
-              Anthropic also bills cache *writes* at 1.25 times input — 375 for
-              Sonnet, 625 for Opus — so the two Claude rows are slightly
-              optimistic, and the euro figure is our own conversion at 1.08
-              dollars to the euro. The credit is the number GitHub actually bills.
+              The room believes it sends one sentence at a time. Start there, and
+              say it out loud: "when you type a follow-up, what goes to the model?"
+              The bar is already part full before you press anything &mdash; that
+              is the harness and your project instructions, and it is why the
+              opening line says "before you say a word". Read the two greys top
+              down: the dark one is the vendor's frame, the light one is your own
+              repo's rules, and you pay for both on every turn whether you lean
+              on them or not.
+
+              Press once: the ask lands with the spec clipped to it, and the
+              orange block is the biggest thing on the bar. Say the number out
+              loud &mdash; twelve thousand tokens, forty pages &mdash; because
+              the bar floors the small blocks so their labels fit, and it draws
+              the document smaller than it really is. Press twice is the beat of
+              the slide: four words typed, forty pages re-sent. Say the count as
+              the bracket sweeps: "second time. Third time." Press three times
+              and the model hands back a second attachment &mdash; the mail is
+              orange too, and it stays in the window like everything else.
+              Nothing above the line is forgotten, and nothing above the line is
+              free.
+
+              The frame is not a capacity. If anyone reads it as "we are nearly
+              full", correct it: the real window is many times this frame, which
+              is why the bottom edge fades out. What matters is the slope, not the
+              ceiling. Then hand over: that is how much one session sends, and the
+              next slide opens the pile and names what is inside it. No model
+              was called.
             </aside>
           </section>
 
@@ -1223,14 +1221,8 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           <section class="primitives" data-section="03 — Tokenomics" data-primitives>
             <span class="eyebrow">The anatomy &middot; interactive, click a block</span>
             <h2 class="h-set">
-              <span class="h-line"><span>Every turn, you send</span></span>
-              <span class="h-line"><span>the whole thing.</span></span>
+              <span class="h-line"><span>Data blocks in a session</span></span>
             </h2>
-            <p class="prim-open-line">
-              The model has no memory &mdash; each turn re-sends everything it
-              needs to know.
-            </p>
-
             <div class="prim-stage">
               <div class="prim-window">
                 {
@@ -3982,7 +3974,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         USD_PER_EUR,
       } from "../../../lib/asml-ai/rates";
       import { tokenize } from "../../../lib/asml-ai/tokenize";
-      import { frameAt, FINAL, MAX_TOKENS } from "../../../lib/asml-ai/agent-loop";
+      import {
+        segSizer,
+        TURN_COUNT,
+        TOTAL_TOKENS,
+      } from "../../../lib/asml-ai/session";
       import * as STOCH from "../../../lib/asml-ai/stochastic";
       import * as HAL from "../../../lib/asml-ai/halluc";
       // Chapter 4's smart zone. The frontmatter import above is a separate
@@ -5348,79 +5344,98 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           ?.addEventListener("click", () => selectPrimitive(slide, -1));
       });
 
-      /* ══════════ CHAPTER 03 (2nd half) — the agent loop ═════════════════
-         Variant C, the ledger (#26): twelve rows always on screen, the context
-         window as a strata gutter, a credit odometer over the three token bars.
-         12 fragments, one per move, + a 13th for the bridge; the move is DERIVED from
-         reveal's fragment state, never counted, which is what makes stepping
-         back and re-entering replay correctly. ─────────────────────────── */
+      /* ══════════ CHAPTER 03 (2nd half) — the session ═══════════════════
+         Three turns, three presses. The bar starts PRE-FILLED with the harness
+         baseline and grows downward; a bracket beside it spans everything sent
+         on this turn, which is everything above the fill line.
 
-      function paintLoop(slide: HTMLElement, move: number, bridge: boolean) {
-        // move -1 (no fragments yet) is a genuinely empty window, so the first
-        // → lands the harness bundle and the tool schemas — 2,460 tokens on the
-        // clock before anyone has said a word. The prototype clamped to move 0
-        // here, which made the first click do nothing visible.
-        const f = frameAt(move);
+         The turn is DERIVED from reveal's fragment state, never counted — that
+         is what makes stepping back and re-entering replay correctly. There is
+         NO other state: the sweep that once ran over the bar on a forward press
+         is gone (Atil, 2026-08-27), and with it the last-painted-turn bookkeep
+         it needed. The bracket carries the re-send on its own.
+         ────────────────────────────────────────────────────────────────────── */
 
-        slide.querySelectorAll<HTMLElement>("[data-al-row]").forEach((row) => {
-          row.classList.toggle("is-on", Number(row.dataset.alRow) <= f.move);
+      function paintSession(slide: HTMLElement, turn: number) {
+        slide.querySelectorAll<HTMLElement>("[data-se-row]").forEach((row) => {
+          row.classList.toggle("is-on", Number(row.dataset.seRow) <= turn);
         });
 
-        slide.querySelectorAll<HTMLElement>("[data-al-seg]").forEach((seg, i) => {
-          // The gutter stays colour-keyed by role for the whole run — it is the
-          // window, not the bill. What is cached and what is fresh is the bars'
-          // job; tinting the gutter too flattened it to one colour by move 12.
-          seg.classList.toggle("is-on", !!f.blocks[i]);
+        const col = slide.querySelector<HTMLElement>("[data-se-column]");
+        if (!col) return;
+
+        // Heights are solved against THIS frame, in pixels, so the pixel floor
+        // under the small blocks is part of the sum rather than an error added
+        // on top of it — and the floor itself shrinks on a short frame, so the
+        // document never collapses to the height of a one-line turn. See
+        // segSizer() in lib/asml-ai/session.ts.
+        const sizeOf = segSizer(col.clientHeight);
+        let fill = 0;
+        col.querySelectorAll<HTMLElement>("[data-se-seg]").forEach((seg) => {
+          // Baseline segments carry .base and are never switched off — the
+          // session is part full before anyone types, which is half the lesson.
+          const on =
+            seg.classList.contains("base") ||
+            Number(seg.dataset.seSegTurn) <= turn;
+          const h = sizeOf(
+            Number(seg.dataset.seSegTokens),
+            seg.dataset.seSegKind as any,
+          );
+          seg.classList.toggle("is-on", on);
+          seg.style.height = on ? `${h}px` : "0px";
+          if (on) fill += h;
         });
 
-        const q = (sel: string) => slide.querySelector<HTMLElement>(sel);
-        const bar = (
-          k: "input" | "cached" | "output",
-          v: number,
-        ) => {
-          const n = q(`[data-al-${k}]`);
-          if (n) n.textContent = v.toLocaleString("en-US");
-          const fill = q(`[data-al-bar-${k}]`);
-          if (fill) fill.style.width = `${(v / MAX_TOKENS) * 100}%`;
-        };
-        bar("input", f.billedInput);
-        bar("cached", f.billedCached);
-        bar("output", f.billedOutput);
+        // Both of these are the SAME sum the loop just made, so the bracket
+        // cannot drift from the fill and the hairline cannot drift from the
+        // top of the conversation — no reading of a layout mid-transition.
+        const hair = slide.querySelector<HTMLElement>("[data-se-hairline]");
+        if (hair) {
+          const segs = [...col.querySelectorAll<HTMLElement>("[data-se-seg]")];
+          const base = segs
+            .slice(0, Number(hair.dataset.seBaseline))
+            .reduce(
+              (n, sg) =>
+                n + sizeOf(Number(sg.dataset.seSegTokens), sg.dataset.seSegKind as any),
+              0,
+            );
+          hair.style.top = `${Math.round(base)}px`;
+        }
 
-        // Euro is the currency a delegate reads; AIC stays on screen because it
-        // is what the allowance and the admin console are denominated in.
-        // Widths are pinned to the largest value the run reaches (€0.0096 →
-        // 4 dp, €0.024 → 3 dp) so no digit appears mid-run.
-        const eurNode = q("[data-al-eur]");
-        if (eurNode) eurNode.textContent = fmtEur(eurOfAic(f.credits), 4);
-        const aicNode = q("[data-al-aic]");
-        if (aicNode) aicNode.textContent = f.credits.toFixed(2);
-        const ctxNode = q("[data-al-ctx]");
-        if (ctxNode) ctxNode.textContent = f.contextTokens.toLocaleString("en-US");
-        const callsNode = q("[data-al-calls]");
-        if (callsNode) callsNode.textContent = String(f.callIndex);
-        const ghost = q("[data-al-ghost]");
-        if (ghost)
-          ghost.textContent = f.billedCached
-            ? `Cold cache: ${fmtEur(eurOfAic(f.creditsNoCache), 3)} · ${f.creditsNoCache.toFixed(2)} AIC — the cache is doing ${Math.round((1 - f.credits / f.creditsNoCache) * 100)}% of the work.`
-            : "";
-
-        slide.classList.toggle("bridge-on", bridge);
+        const bracket = slide.querySelector<HTMLElement>("[data-se-bracket]");
+        if (bracket) {
+          // At rest (turn -1) no Turn has happened, so the bracket is absent —
+          // the bar is pre-filled, but nothing has been SENT yet.
+          bracket.classList.toggle("is-on", turn >= 0);
+          bracket.style.height = `${Math.round(fill)}px`;
+        }
       }
 
-      function syncLoop(slide: HTMLElement) {
+      function syncSession(slide: HTMLElement) {
         const shown = slide.querySelectorAll(
-          "[data-al-frag-row] .fragment.visible:not([data-al-bridge-frag])",
+          "[data-se-frag-row] .fragment.visible",
         ).length;
-        const bridge = !!slide
-          .querySelector("[data-al-bridge-frag]")
-          ?.classList.contains("visible");
-        paintLoop(slide, shown - 1, bridge);
+        paintSession(slide, shown - 1);
       }
 
-      // Sanity net for the two figures the slide's whole argument rests on.
-      if (import.meta.env.DEV && FINAL.contextTokens !== 2715)
-        console.warn("agent-loop model drifted from #26's locked numbers");
+      // The bracket is a pixel height, so a resized window (or a projector at a
+      // different aspect) has to re-measure it, not just rescale it.
+      let sessionResize = 0;
+      window.addEventListener("resize", () => {
+        window.clearTimeout(sessionResize);
+        sessionResize = window.setTimeout(() => {
+          document
+            .querySelectorAll<HTMLElement>("[data-session]")
+            .forEach(syncSession);
+        }, 150);
+      });
+
+      // Sanity net for the figure the slide's whole argument rests on: the
+      // pasted document has to stay the great majority of what is on screen.
+      if (import.meta.env.DEV && TOTAL_TOKENS !== 16425)
+        console.warn("session model drifted — re-check the document's share");
+      if (import.meta.env.DEV && TURN_COUNT !== 3)
+        console.warn("session turn count drifted from the slide three presses");
 
       // ══════════════════════════════════════════════════════════════════════
       //  Chapter 2 — the hallucination slide (#35). Two frames: the slide
@@ -5705,7 +5720,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // Chapter 3's two islands read reveal's fragment state on entry, so
         // they replay from fragment 0 forwards and from the last fragment backwards.
         if (slide.hasAttribute("data-primitives")) syncPrimitives(slide);
-        if (slide.hasAttribute("data-agentloop")) syncLoop(slide);
+        if (slide.hasAttribute("data-session")) syncSession(slide);
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
@@ -5737,7 +5752,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-token-live")) renderLive();
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
-        if (section?.hasAttribute("data-agentloop")) syncLoop(section);
+        if (section?.hasAttribute("data-session")) syncSession(section);
         if (section?.hasAttribute("data-smartzone")) syncSmartZone(section);
         if (section?.hasAttribute("data-ch5-step")) syncCh5Step(section);
         if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);

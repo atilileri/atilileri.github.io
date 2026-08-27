@@ -152,14 +152,9 @@ A second agent session that the first one starts, holding none of the first sess
 _Avoid_: Child agent, worker, reviewer bot. Also "fresh context" on the wall — that is the Headline's phrase and the spoken word for the same idea ([#102](https://github.com/atilileri/atilileri.github.io/issues/102)).
 _Example_: The review Slide draws two Sub-agents, labelled Standards and Spec.
 
-**Move**:
-One row of the agent-loop ledger. The loop has twelve Moves and four billing events, and that asymmetry is the point of the Slide. Several Moves make one Turn.
-_Avoid_: Step, turn
-_Example_: Move 7 calls the search tool and bills nothing.
-
 **Turn**:
-One exchange in a session — what the user said and what the agent answered. The unit the smart-zone and roll-back Widgets count in. Bigger than a Move.
-_Avoid_: Move, round, message
+One exchange in a session — what the user said and what the agent answered. The smallest unit the Deck counts in: one press of the session Slide, and the unit the smart-zone and roll-back Widgets count in. The noun **Move** was retired with the agent-loop ledger ([ADR 0001](adr/0001-session-slide-teaches-memory.md)); nothing sits below a Turn.
+_Avoid_: Move, step, round, message
 _Example_: The roll-back Widget goes back three Turns.
 
 **Level**:
@@ -197,6 +192,6 @@ These words are not ours. A library or the platform owns each one, and its spell
 
 - **Words the Deck quotes from ASML's world.** The guardrails Slide says "Process steps, tool names, part numbers". That is ASML's word for ASML's work, not our metalanguage. Do not "fix" it.
 - **The word "screen" for the glass in the room.** A Presenter note that says "every number on screen is one we can source" is correct: it means the display, not a Slide. Say "on screen" for the glass and "on the Slide" for the unit of the Deck.
-- **On-screen Text locked by an earlier issue.** Where locked Text uses a word this glossary retired, the Text wins until its own issue is reopened. The room has no glossary. One known case: the keyboard legend prints "move" as an ordinary verb for navigating, which is not the noun Move.
+- **On-screen Text locked by an earlier issue.** Where locked Text uses a word this glossary retired, the Text wins until its own issue is reopened. The room has no glossary. Two known cases, both of the retired noun Move: the keyboard legend prints "move" as an ordinary verb for navigating, and chapter 4's roll-back Slide calls a user's choice "the wrong move". Both are the ordinary English word, and neither is the glossary noun.
 - **The Attic.** Chapter 99 keeps showcase leftovers as they were. Its Text and its class names are not maintained to this glossary.
 - **Closed issue titles.** History stays as written.
