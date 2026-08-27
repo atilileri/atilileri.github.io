@@ -3861,8 +3861,9 @@
 
    THE CARD FILLS THE FRAME (Atil, 2026-08-26). Five short lines centred in a
    16:9 slide left the bottom third empty, so the columns STRETCH: the grid
-   takes the height the headline leaves, and each list spreads its rows with
-   space-between. Type and gaps are sized for that, not for a compact block. */
+   takes the height the headline leaves, each list spreads its rows with
+   space-between, and the hairline runs the full height. Type and gaps are
+   sized for that, not for a compact block. */
 /* The one line of deck prose on the card. Set in the body face, not mono, so
    it never reads as a sixth sentence to copy — the mono rule below is what
    marks a quotation. */
@@ -3886,16 +3887,16 @@
   flex-direction: column;
   min-width: 0;
 }
-/* NO HAIRLINE BETWEEN THE COLUMNS (Atil, 2026-08-27). The gap and the orange
-   rule on every sentence already separate the two columns, and the line only
-   competed with them. The indent stays, so the right column keeps its place. */
+/* The one hairline on the slide. Same weight as the fix column's rule two
+   slides back, so the two cards read as a pair. */
 .reveal .qfix .qfix-col + .qfix-col {
+  border-left: 3px solid var(--hair);
   padding-left: clamp(1.2rem, 2.6vw, 2.2rem);
 }
 /* The rows CENTRE in the stretched column (Atil, 2026-08-26), they do not
    spread to the edges: the block then sits low under the headline, in the
    middle of the frame, and the two-row column reads level with the
-   three-row one. */
+   three-row one. The hairline still runs the full height. */
 .reveal .qfix ul.qfix-list {
   list-style: none;
   margin: 0;
@@ -3923,7 +3924,8 @@
 }
 /* "use at discretion" — pushed to the foot of its column so it sits on the
    same baseline as the right column's last sentence. Held off the list by
-   space alone: the card carries no hairline. */
+   space alone; a second hairline would compete with the one that splits the
+   columns. */
 .reveal .qfix .qfix-note {
   margin: clamp(1.6rem, 4vh, 3rem) 0 0;
   padding-left: clamp(0.9rem, 1.2vw, 1.4rem);
@@ -3942,6 +3944,7 @@
     flex: 0 1 auto;
   }
   .reveal .qfix .qfix-col + .qfix-col {
+    border-left: 0;
     padding-left: 0;
   }
   .reveal .qfix ul.qfix-list {
