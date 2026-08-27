@@ -90,7 +90,7 @@ export const RANK = [1, 0.82, 0.63, 0.47];
 export const TEXT = {
   // The answers are on screen the moment the slide opens, so the eyebrow
   // promises the fold, not the arrival.
-  eyebrow: "Under the hood · press → to sort them",
+  eyebrow: "Terminology · press → to sort them",
   // The headline names the SUBJECT, the dek names the setup (Atil,
   // 2026-08-23). #35's withhold rule still holds where it matters: neither
   // line says how many of the four are wrong, so the fold keeps the punch.

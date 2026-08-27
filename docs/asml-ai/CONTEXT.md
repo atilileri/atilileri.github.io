@@ -52,7 +52,7 @@ _Avoid_: Spine, route, agenda
 _Example_: Reword the Tokenomics gloss on the Roadmap.
 
 **Factor**:
-One of the four things the Deck is about: Under the hood, Tokenomics, Best practices, Operating model. Each Factor owns one Chapter, 2 to 5. The labels live in one place, [`roadmap.ts`](../../src/lib/asml-ai/roadmap.ts).
+One of the four things the Deck is about: Terminology, Tokenomics, Best practices, Operating model. Each Factor owns one Chapter, 2 to 5. The labels live in one place, [`roadmap.ts`](../../src/lib/asml-ai/roadmap.ts).
 _Avoid_: Beat, pillar, theme
 _Example_: Chapter 5 owns the Operating model Factor.
 

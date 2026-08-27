@@ -76,6 +76,12 @@ import * as SZ from "../../../lib/asml-ai/smart-zone";
 // that is a decision rather than markup lives in src/lib — read that file's
 // header before changing what is on screen here.
 import * as RB from "../../../lib/asml-ai/roll-back";
+// Chapter 2's two islands. Their eyebrow and headline are painted by the
+// controller at the bottom of this file, but the headline is ALSO rendered
+// server-side below: the roadmap divider builds its contents list from the
+// real <h2> of each slide, and an empty one would leave a hole in the list.
+import * as STOCH_TEXT from "../../../lib/asml-ai/stochastic";
+import * as HAL_TEXT from "../../../lib/asml-ai/halluc";
 
 import TurnCard from "../../../components/deck/TurnCard.astro";
 
@@ -439,7 +445,7 @@ const baselineBlocks = BASELINE.length;
         </RoadmapDivider>
 
         <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 02 — "Under the hood" (wayfinder #29). FOUR slides:
+             CHAPTER 02 — "Terminology" (wayfinder #29). FOUR slides:
              roadmap divider → the rings (moved here from the front of the
              deck) → the hallucination slide → its diagnosis (#41).
 
@@ -452,8 +458,8 @@ const baselineBlocks = BASELINE.length;
              src/lib/asml-ai/roadmap.ts and are edited there, not here.
              ══════════════════════════════════════════════════════════════════ -->
 
-        <!-- 2a ─────────────────── ROADMAP divider ("Under the hood" lit) -->
-        <RoadmapDivider section="02 — Under the hood" chapter={2}>
+        <!-- 2a ─────────────────── ROADMAP divider ("Terminology" lit) -->
+        <RoadmapDivider section="02 — Terminology" chapter={2}>
           <aside class="notes">
             Second time the room sees these four, so one is lit — say nothing
             about the device itself. We promised four things decide what you
@@ -463,7 +469,7 @@ const baselineBlocks = BASELINE.length;
         </RoadmapDivider>
 
         <!-- 5c ──────────────────── MENTAL MODEL: the four layers (rings) -->
-        <section class="layers" data-section="02 — Under the hood" data-layers>
+        <section class="layers" data-section="02 — Terminology" data-layers>
           <span class="eyebrow">The mental model</span>
           <h2 class="h-set">
             <span class="h-line"><span>The model is only the engine</span></span>
@@ -604,10 +610,10 @@ const baselineBlocks = BASELINE.length;
              and the answer table live in src/lib/asml-ai/stochastic.ts; edit
              them there, not here. The "no model was called" fact is a SPOKEN
              presenter line, deliberately not on screen (#35). -->
-        <section class="stoch" data-section="02 — Under the hood" data-stoch>
+        <section class="stoch" data-section="02 — Terminology" data-stoch>
           <span class="eyebrow" data-stoch-eyebrow></span>
           <h2 class="h-set">
-            <span class="h-line"><span data-stoch-headline></span></span>
+            <span class="h-line"><span data-stoch-headline>{STOCH_TEXT.TEXT.headline}</span></span>
           </h2>
           <!-- One line under the headline: the headline names the subject,
                this names the setup. Keep it to one line — it is a dek, not a
@@ -676,10 +682,10 @@ const baselineBlocks = BASELINE.length;
              armHeadline), the same mechanism the rings slide uses, and runs
              at HALF the deck's speed with no stagger. Text lives in
              src/lib/asml-ai/halluc.ts; edit it there, not here. -->
-        <section class="halluc" data-section="02 — Under the hood" data-halluc>
+        <section class="halluc" data-section="02 — Terminology" data-halluc>
           <span class="eyebrow" data-halluc-eyebrow></span>
           <h2 class="h-set">
-            <span class="h-line"><span data-halluc-headline></span></span>
+            <span class="h-line"><span data-halluc-headline>{HAL_TEXT.TEXT.headline}</span></span>
           </h2>
           <div class="halluc-grid">
             <svg class="fork" viewBox="0 0 420 350" role="img" data-halluc-fork

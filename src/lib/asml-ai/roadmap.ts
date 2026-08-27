@@ -37,7 +37,7 @@ export type Factor = {
 };
 
 export const FACTORS: Factor[] = [
-  { chapter: 2, label: "Under the hood", gloss: "how it works" },
+  { chapter: 2, label: "Terminology", gloss: "what's under the hood" },
   { chapter: 3, label: "Tokenomics", gloss: "what it costs" },
   { chapter: 4, label: "Best practices", gloss: "the principles that cut waste" },
   { chapter: 5, label: "Operating model", gloss: "the process that repeats" },

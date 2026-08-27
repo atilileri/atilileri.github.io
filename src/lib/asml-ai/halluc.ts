@@ -85,7 +85,7 @@ export const TEXT = {
   // No "press →": the slide has no fragments to press through — it plays itself
   // out on arrival — and an eyebrow promising an interaction the slide does
   // not have is worse than a plain one.
-  eyebrow: "Under the hood · one question, two failures",
+  eyebrow: "Terminology · one question, two failures",
   // The hinge IS the headline: the slide's whole value is that one question
   // sorts the two failures for you.
   headline: "One question tells you which.",

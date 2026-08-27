@@ -1447,6 +1447,50 @@
   color: #1b1b1b8c;
 }
 
+/* The chapter's contents, on the dividers only (chapters 2–5). The component
+   leaves the list empty and its script fills it from the real slides, so the
+   titles here can never disagree with the headlines the room is about to see.
+   One narrow column, mono, quiet: it is a contents page, not a second
+   headline, and it must stay subordinate to the lit factor above it. The
+   width is capped so the list reads as a block under the lit factor rather
+   than as text spread under all four. It fades in after the factor row, so
+   the callback still lands first. */
+.reveal section.roadmap .roadmap-slides {
+  list-style: none;
+  counter-reset: rms;
+  margin: clamp(2rem, 5vh, 3.4rem) 0 0;
+  padding: 0;
+  max-width: min(62ch, 46%);
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.92vw, 0.86rem);
+  line-height: 1.5;
+  color: #1b1b1b99;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+  transition-delay: calc(260ms + 4 * var(--stagger));
+}
+.reveal section.roadmap.is-live .roadmap-slides {
+  opacity: 1;
+  transform: none;
+}
+.reveal section.roadmap .roadmap-slides li {
+  margin: 0 0 0.5rem;
+  padding-left: 2.1rem;
+  text-indent: -2.1rem;
+}
+.reveal section.roadmap .roadmap-slides li::before {
+  counter-increment: rms;
+  content: counter(rms, decimal-leading-zero);
+  display: inline-block;
+  width: 2.1rem;
+  text-indent: 0;
+  color: var(--orange);
+  letter-spacing: 0.08em;
+}
+
 /* ══════════════════════════ Build-list treatments (slide 10 + alts A–E) ══
    One content set — "what a reference deck needs" — laid out five ways, so a
    real deck can pick the density that suits its copy. All share the .fragment
@@ -3291,6 +3335,11 @@
     transition: none;
   }
   .reveal section.roadmap .roadmap-factor::before { transition: none; }
+  .reveal section.roadmap .roadmap-slides {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
   .term-cursor { animation: none; }
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }

@@ -62,5 +62,69 @@ const kicker =
       ))
     }
   </ol>
+  {
+    /* The chapter's contents, filled in by the script below from the real
+       slides. Empty in the HTML on purpose: nothing here is typed twice, so
+       a slide headline edited in the deck changes this list too. Dividers
+       only — chapter 1's roadmap opens no chapter and gets no list. */
+    chapter && <ol class="roadmap-slides" data-roadmap-slides />
+  }
   <slot />
 </section>
+
+<script>
+  /**
+   * Fills every Roadmap divider's contents list from the slides themselves.
+   *
+   * The deck marks each slide with `data-section`, and a divider carries the
+   * same `data-section` as the slides it opens. So the list is a lookup, not
+   * a second copy of the titles: rename a slide's <h2> and the divider that
+   * opens it says the new name on the next build.
+   *
+   * Runs once for the whole deck — Astro hoists this script and includes it a
+   * single time, however many dividers the page holds.
+   */
+  const clean = (t: string) => t.replace(/\s+/g, " ").trim();
+
+  /**
+   * A slide's title: its first <h2>, at whatever depth the slide's layout put
+   * it, but never a heading that belongs to a slide nested inside this one.
+   */
+  function titleOf(slide: Element): string {
+    const h = [...slide.querySelectorAll("h2")].find(
+      (n) => n.closest("section") === slide,
+    );
+    return h ? clean(h.textContent ?? "") : "";
+  }
+
+  /**
+   * Titles of every slide in one section, in deck order. Vertical stacks
+   * wrap their slides in a section that carries the same `data-section`, so
+   * a section holding another section is a container, not a slide.
+   */
+  function titlesOf(section: string): string[] {
+    const all = document.querySelectorAll<HTMLElement>(
+      ".reveal .slides section[data-section]",
+    );
+    const out: string[] = [];
+    all.forEach((s) => {
+      if (s.dataset.section !== section) return; // another chapter
+      if (s.hasAttribute("data-roadmap")) return; // the divider itself
+      if (s.querySelector(":scope > section")) return; // a vertical stack
+      const t = titleOf(s);
+      if (t) out.push(t);
+    });
+    return out;
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-roadmap-slides]").forEach((list) => {
+    const divider = list.closest<HTMLElement>("[data-roadmap]");
+    const section = divider?.dataset.section;
+    if (!section) return;
+    for (const t of titlesOf(section)) {
+      const li = document.createElement("li");
+      li.textContent = t;
+      list.append(li);
+    }
+  });
+</script>
