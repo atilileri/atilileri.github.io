@@ -2853,12 +2853,22 @@
   flex: none;
   height: 0;
   opacity: 0;
-  transition:
-    height var(--dur) var(--ease),
-    opacity var(--dur) var(--ease);
+  /* ⚠ A BLOCK THAT HAS NOT LANDED IS NOT PAINTED, AND NOTHING HERE FADES
+     (Atil, 2026-08-27). Both rules answer one defect: the bar read soft in
+     every state except the last one. A transition on opacity is a compositor
+     animation, so Chrome gave each growing block its own layer; the next
+     block — transparent, zero height, and overlapping them — took a layer for
+     that overlap and KEPT it after the press. Chrome rasterises a layer on
+     its own, and reveal's scale() then resamples it. The last state was sharp
+     because no block was left to promote. `visibility` keeps an unlanded
+     block out of the paint, and the height alone shows a block arrive — a
+     block is invisible at zero height, so the fade bought nothing. */
+  visibility: hidden;
+  transition: height var(--dur) var(--ease);
 }
 .se-seg.is-on {
   opacity: 1;
+  visibility: visible;
 }
 /* THE TWO GREYS, and they are grey on purpose: nothing above the hairline was
    said by anybody, so nothing above it takes a voice colour. Dark is the

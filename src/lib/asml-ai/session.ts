@@ -237,6 +237,9 @@ export function segSizer(frameH: number) {
     k = (lo + hi) / 2;
   }
 
+  // WHOLE PIXELS. Every block edge, every label and the hairline sit on a
+  // device pixel, so nothing in the bar is antialiased against a half pixel
+  // once reveal scales the slide.
   return (tokens: number, kind: BlockKind) =>
-    Math.max(k * tokens, floorOf(kind));
+    Math.round(Math.max(k * tokens, floorOf(kind)));
 }
