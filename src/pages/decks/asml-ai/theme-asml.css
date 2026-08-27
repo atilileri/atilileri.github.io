@@ -3619,8 +3619,8 @@
    ══════════════════════════════════════════════════════════════════════════ */
 
 /* 4c — the number (was the cold open; it now follows the thesis). Reuses .one-number's oversized figure and its count-up
-   hook; only the fraction tail and the turn line are new. `.of` is NOT the
-   attic's `.unit` (superscript ×) — "in 10" has to sit on the baseline or it
+   hook; only the fraction tail and the turn line are new. `.of` is NOT
+   `.unit` (superscript ×) — "in 10" has to sit on the baseline or it
    reads as an exponent rather than a ratio. */
 .one-number.thesis-stat .fig .of {
   font-family: var(--font-display);

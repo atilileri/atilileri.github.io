@@ -14,7 +14,7 @@ _Avoid_: Presentation, slideshow, talk
 _Example_: The Deck runs at `/decks/asml-ai`. The Dutch journey is not part of it.
 
 **Chapter**:
-A numbered part of the Deck, opened by a Divider. Chapters 1 to 4 are built, chapter 5 has its skeleton and five Slides still to fill, chapter 6 is the planned outro, and chapter 99 is the Attic.
+A numbered part of the Deck, opened by a Divider. Chapters 1 to 4 are built, chapter 5 has its skeleton and five Slides still to fill, and chapter 6 is the planned outro.
 _Avoid_: Section — that word belongs to the markup, not to us. Also part, act.
 _Example_: We rehearse chapter 4 tonight.
 
@@ -55,10 +55,6 @@ _Example_: Reword the Tokenomics gloss on the Roadmap.
 One of the four things the Deck is about: Under the hood, Tokenomics, Best practices, Operating model. Each Factor owns one Chapter, 2 to 5. The labels live in one place, [`roadmap.ts`](../../src/lib/asml-ai/roadmap.ts).
 _Avoid_: Beat, pillar, theme
 _Example_: Chapter 5 owns the Operating model Factor.
-
-**Attic**:
-Chapter 99. Slides parked out of the running order — showcase leftovers kept for reference. Never presented.
-_Example_: Park the old cost Slide in the Attic.
 
 **Chrome**:
 The persistent bar around the Deck: the chapter name, the slide counter, and the keyboard legend. It is not part of any Slide.
@@ -185,7 +181,7 @@ These words are not ours. A library or the platform owns each one, and its spell
 - **`island`** — Astro. A component that ships client-side JavaScript. Describes the build, never what the room sees. Say Widget for that.
 - **`section`** — HTML, and reveal.js's element for a slide. Say Slide when you mean the unit. The `data-section` attribute is misnamed for this reason and is flagged for review.
 - **`notes`** — reveal.js's presenter-notes plugin, and the `<aside class="notes">` it reads.
-- **`sub-slide`** and **vertical stack** — reveal.js. Slides stacked under one another, reached with the down arrow. The Attic holds the only one.
+- **`sub-slide`** and **vertical stack** — reveal.js. Slides stacked under one another, reached with the down arrow.
 - **`data-*`** — HTML. Every hook the controller selects on.
 
 ## Not governed by this glossary
@@ -193,5 +189,4 @@ These words are not ours. A library or the platform owns each one, and its spell
 - **Words the Deck quotes from ASML's world.** The guardrails Slide says "Process steps, tool names, part numbers". That is ASML's word for ASML's work, not our metalanguage. Do not "fix" it.
 - **The word "screen" for the glass in the room.** A Presenter note that says "every number on screen is one we can source" is correct: it means the display, not a Slide. Say "on screen" for the glass and "on the Slide" for the unit of the Deck.
 - **On-screen Text locked by an earlier issue.** Where locked Text uses a word this glossary retired, the Text wins until its own issue is reopened. The room has no glossary. Two known cases, both of the retired noun Move: the keyboard legend prints "move" as an ordinary verb for navigating, and chapter 4's roll-back Slide calls a user's choice "the wrong move". Both are the ordinary English word, and neither is the glossary noun.
-- **The Attic.** Chapter 99 keeps showcase leftovers as they were. Its Text and its class names are not maintained to this glossary.
 - **Closed issue titles.** History stays as written.
