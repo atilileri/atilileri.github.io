@@ -468,134 +468,367 @@ const baselineBlocks = BASELINE.length;
           </aside>
         </RoadmapDivider>
 
-        <!-- 5c ──────────────────── MENTAL MODEL: the four layers (rings) -->
-        <section class="layers" data-section="02 — Terminology" data-layers>
-          <span class="eyebrow">The mental model</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>Layers of the Agent</span></span>
-          </h2>
-          <div class="layers-grid">
-            <div class="layers-diagram">
-              <svg viewBox="0 0 460 460" role="img"
-                aria-label="Three composable layers acting in an environment: the model at the centre, wrapped by the harness, wrapped by the skills you add, all of it running inside the environment. Together, in a loop, they are the agent."
-              >
-                <circle class="ring env" cx="230" cy="230" r="205" />
-                <circle class="ring skills" cx="230" cy="230" r="150" />
-                <circle class="ring harness" cx="230" cy="230" r="100" />
-                <circle class="ring model" cx="230" cy="230" r="50" />
-                <text class="lbl env" x="230" y="43" text-anchor="middle">ENVIRONMENT</text>
-                <text class="lbl skills" x="230" y="97" text-anchor="middle">SKILLS</text>
-                <text class="lbl harness" x="230" y="147" text-anchor="middle">HARNESS</text>
-                <text class="lbl model" x="230" y="236" text-anchor="middle">MODEL</text>
-              </svg>
+        <!-- 5c ─────── MENTAL MODEL, AND THE TWO DEEP DIVES UNDER IT (v-stack)
+             The rings first; below them the two slides that open the pile the
+             rings describe — the session shows the whole history going up the
+             wire every turn, the anatomy names the blocks inside it. ↓ walks
+             the pair, → skips it: the exec route can leave both on the floor
+             and still get the mental model. Both children carry their own
+             data-section, and the wrapper carries one too, for the chapter
+             label's parent fallback. -->
+        <section data-section="02 — Terminology">
+          <!-- 5c ──────────────────── MENTAL MODEL: the four layers (rings) -->
+          <section class="layers" data-section="02 — Terminology" data-layers>
+            <span class="eyebrow">The mental model</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>Layers of the Agent</span></span>
+            </h2>
+            <div class="layers-grid">
+              <div class="layers-diagram">
+                <svg viewBox="0 0 460 460" role="img"
+                  aria-label="Three composable layers acting in an environment: the model at the centre, wrapped by the harness, wrapped by the skills you add, all of it running inside the environment. Together, in a loop, they are the agent."
+                >
+                  <circle class="ring env" cx="230" cy="230" r="205" />
+                  <circle class="ring skills" cx="230" cy="230" r="150" />
+                  <circle class="ring harness" cx="230" cy="230" r="100" />
+                  <circle class="ring model" cx="230" cy="230" r="50" />
+                  <text class="lbl env" x="230" y="43" text-anchor="middle">ENVIRONMENT</text>
+                  <text class="lbl skills" x="230" y="97" text-anchor="middle">SKILLS</text>
+                  <text class="lbl harness" x="230" y="147" text-anchor="middle">HARNESS</text>
+                  <text class="lbl model" x="230" y="236" text-anchor="middle">MODEL</text>
+                </svg>
+              </div>
+              <ol class="layers-defs">
+                <li class="model">
+                  <span class="k">Model</span>
+                  <p>Large Language Model — Opus, GPT</p>
+                </li>
+                <li class="harness">
+                  <span class="k">Harness</span>
+                  <p>Vendor specific wrapper that drives it — Copilot, Claude Code, ChatGPT.</p>
+                </li>
+                <li class="skills">
+                  <span class="k">Skills</span>
+                  <p>Reusable prompts, scripts for Agents</p>
+                </li>
+                <li class="env">
+                  <span class="k">Environment</span>
+                  <p>Your codebase — the source of truth. Results are only as good as this.</p>
+                </li>
+              </ol>
+              <p class="layers-agent">
+                <span class="k">Agent:</span> Model + Harness + Skills in a loop, 
+                trying to solve your problem, acting in the environment. <br />
+                <em>Effort level:</em> how hard Agent tries to solve. <br />
+                Higher effort = more tokens / time / cost.
+              </p>
+              <!-- SECOND CALLOUT, sibling to Agent (#36). The slide now reads
+                   "four parts, and two things that are not parts", and the two
+                   callouts are the two nouns the cut Agent/MCP slide was going
+                   to carry. It REPLACES the old closing line ("the model and
+                   the harness are given…"), which is now spoken only — Atil's
+                   call, knowing chapter 2 then ends with no written
+                   instruction. The line is in the note; put it back here if the
+                   room ever leaves chapter 2 without the point.
+
+                   ⚠ "MCP is an API gateway" was rejected for the wall: MCP has
+                   no central point (one client per server) and enforces no
+                   policy. "A standard, controlled way to plug those tools in"
+                   is the surviving intent. Do not restore "gateway". -->
+              <p class="layers-tools">
+                <span class="k">MCP</span> is an interface to outer world. How
+                we connect to <em>Polarion</em> and <em>Jira</em>.
+              </p>
             </div>
-            <ol class="layers-defs">
-              <li class="model">
-                <span class="k">Model</span>
-                <p>Large Language Model — Opus, GPT</p>
-              </li>
-              <li class="harness">
-                <span class="k">Harness</span>
-                <p>Vendor specific wrapper that drives it — Copilot, Claude Code, ChatGPT.</p>
-              </li>
-              <li class="skills">
-                <span class="k">Skills</span>
-                <p>Reusable prompts, scripts for Agents</p>
-              </li>
-              <li class="env">
-                <span class="k">Environment</span>
-                <p>Your codebase — the source of truth. Results are only as good as this.</p>
-              </li>
-            </ol>
-            <p class="layers-agent">
-              <span class="k">Agent:</span> Model + Harness + Skills in a loop, 
-              trying to solve your problem, acting in the environment. <br />
-              <em>Effort level:</em> how hard Agent tries to solve. <br />
-              Higher effort = more tokens / time / cost.
+            <aside class="notes">
+              After Matt Pocock's model / harness / agent / environment framing —
+              but adjusted for a coding room, and the adjustment is the point.
+              Work outward from the centre: the model is the engine (given — you
+              pick one, you don't build it); the harness is the wrapper that
+              drives it, and here it's also given — we're on a Copilot
+              subscription, so don't dwell on it; skills are the reusable
+              instruction packages you install on top, and they're already
+              working well — no change needed, just keep building them; the
+              environment is the codebase itself, and it's the one lever with
+              the most headroom: the more accurate and well-structured it is,
+              the better every skill performs on top of it. Note the swap out
+              loud: in every primary definition — Anthropic, OpenAI, Pocock's own
+              words — "agent" isn't a component, it's the NAME for these running
+              together in a loop. Pocock even defines the harness as "everything
+              that turns the model into an agent" — so agent is the output, not
+              an ingredient. And phrase the compounding as "you build a reusable
+              skill library on a codebase that's actually true," not "the agent
+              teaches itself" — self-authoring skills is still aspirational
+              (Anthropic). See docs/research for sourcing.
+
+              ⚠ SAY THE LANDING LINE. It is no longer on the wall (#36 replaced
+              it with the Tools &amp; MCP callout), so this slide leaves the room
+              with no written instruction unless you speak it: "model and harness
+              are given; what you control — and what's worth your attention — are
+              the skills you write and the environment they read from." This is
+              the on-screen reply chapter 1's objection no longer gets, and it is
+              the seed of chapters 4 and 5. Do not skip it.
+
+              ── TOOLS &amp; MCP, the second callout (#36) ──
+              The deflation, if you want it and only spoken: a tool is a script
+              with a defined interface — a name, a description, and a JSON Schema
+              for its inputs (MCP spec). Nothing more exotic than that. Pocock's
+              line keeps it off the Skills ring: "a tool is what the agent calls;
+              a skill is instructions it reads."
+
+              Polarion and Jira ARE wired up through MCP here today — that is why
+              they are on the wall. Say so if asked; do not oversell it into a
+              programme.
+
+              HELD ANSWER — "the Environment ring says my codebase, but you just
+              said Polarion." Correct, and deliberate: the ring says codebase
+              because that is where your leverage is. MCP widens what the loop can
+              reach; it does not move the leverage. (Knowingly left as-is by Atil
+              on #36 — do not "fix" the ring's wording without reopening it.)
+
+              HELD ANSWER — "isn't MCP just an API gateway?" No, and that is why
+              the word is not on screen. There is no central point (the host opens
+              one client per server) and the protocol enforces no policy, no rate
+              limit and no central audit. "MCP gateway" is a separate product
+              category people sell precisely because MCP alone does not do it.
+              What IS true: the server holds the credential and the model never
+              sees it.
+
+              COST, spoken not shown — chapter 3 bills this properly. Tool
+              definitions sit in the context window on every request, whether you
+              call them or not; roughly 55,000 tokens across a five-server setup.
+              Say "as deployed today, by default", never "inherently" —
+              defer_loading exists and most clients simply don't use it.
+
+              SPEC CHURN, if someone quotes a 2025 article: MCP changed a lot by
+              2026 — Sampling and Logging deprecated, sessions gone, the protocol
+              now stateless request/response. Don't argue the details, just say
+              the 2025 write-ups are a version behind.
+            </aside>
+          </section>
+
+          <!-- A3b ───────────── THE SESSION — the whole context, every turn
+               This WAS the agent-loop ledger (#26 variant C, twelve moves and a
+               credit odometer). Reworked to teach MEMORY, not billing — see
+               docs/asml-ai/adr/0001-session-slide-teaches-memory.md.
+
+               It sits UNDER the mental model (Atil, 2026-08-27), as the first
+               of two deep dives on ↓. The rings name the layers; this slide
+               shows what the layers actually send, turn after turn. It is a
+               detour off the main route, so → skips it. Nothing here may print
+               a cost: chapter 3 bills the session, and this slide must not
+               spend that money early. -->
+          <section class="session" data-section="02 — Terminology" data-session>
+            <span class="eyebrow"
+              >The session &middot; stepped, press &rarr; to advance</span
+            >
+            <h2 class="h-set">
+              <span class="h-line"><span>Everything,</span></span>
+              <span class="h-line"><span>every turn.</span></span>
+            </h2>
+            <p class="se-open-line">
+              The chat has no memory. The transcript <b>is</b> the memory &mdash;
+              so every turn sends all of it again.
             </p>
-            <!-- SECOND CALLOUT, sibling to Agent (#36). The slide now reads
-                 "four parts, and two things that are not parts", and the two
-                 callouts are the two nouns the cut Agent/MCP slide was going
-                 to carry. It REPLACES the old closing line ("the model and
-                 the harness are given…"), which is now spoken only — Atil's
-                 call, knowing chapter 2 then ends with no written
-                 instruction. The line is in the note; put it back here if the
-                 room ever leaves chapter 2 without the point.
 
-                 ⚠ "MCP is an API gateway" was rejected for the wall: MCP has
-                 no central point (one client per server) and enforces no
-                 policy. "A standard, controlled way to plug those tools in"
-                 is the surviving intent. Do not restore "gateway". -->
-            <p class="layers-tools">
-              <span class="k">MCP</span> is an interface to outer world. How
-              we connect to <em>Polarion</em> and <em>Jira</em>.
-            </p>
-          </div>
-          <aside class="notes">
-            After Matt Pocock's model / harness / agent / environment framing —
-            but adjusted for a coding room, and the adjustment is the point.
-            Work outward from the centre: the model is the engine (given — you
-            pick one, you don't build it); the harness is the wrapper that
-            drives it, and here it's also given — we're on a Copilot
-            subscription, so don't dwell on it; skills are the reusable
-            instruction packages you install on top, and they're already
-            working well — no change needed, just keep building them; the
-            environment is the codebase itself, and it's the one lever with
-            the most headroom: the more accurate and well-structured it is,
-            the better every skill performs on top of it. Note the swap out
-            loud: in every primary definition — Anthropic, OpenAI, Pocock's own
-            words — "agent" isn't a component, it's the NAME for these running
-            together in a loop. Pocock even defines the harness as "everything
-            that turns the model into an agent" — so agent is the output, not
-            an ingredient. And phrase the compounding as "you build a reusable
-            skill library on a codebase that's actually true," not "the agent
-            teaches itself" — self-authoring skills is still aspirational
-            (Anthropic). See docs/research for sourcing.
+            <div class="se-stage">
+              <!-- The bar. NOT a capacity: the bottom edge fades out, because the
+                   window's real edge sits far below the frame. Do not close it,
+                   and do not let the last turn reach the foot. -->
+              <div class="se-barwrap">
+                <div class="se-bracket" data-se-bracket>
+                  <span class="se-bracket-label">sent this turn</span>
+                </div>
+                <div class="se-column" data-se-column>
+                  {
+                    STRATA.map((b, i) => (
+                      <span
+                        class={`se-seg ${b.kind}${b.turn < 0 ? " base is-on" : ""}`}
+                        data-se-seg={i}
+                        data-se-seg-turn={b.turn}
+                        data-se-seg-kind={b.kind}
+                        data-se-seg-tokens={b.tokens}
+                        title={`${b.label} — ${b.tokens.toLocaleString("en-US")} tokens`}
+                      >
+                        <em class="se-seg-label">{b.label}</em>
+                      </span>
+                    ))
+                  }
+                  <!-- Silent: it marks where the harness stops and the
+                       conversation starts. Its caption moved into the
+                       transcript's opening line, where there is room to read it.
+                       The controller places it, because the baseline's height is
+                       solved against the frame like every other block. -->
+                  <span class="se-hairline" data-se-hairline data-se-baseline={baselineBlocks}></span>
+                </div>
+              </div>
 
-            ⚠ SAY THE LANDING LINE. It is no longer on the wall (#36 replaced
-            it with the Tools &amp; MCP callout), so this slide leaves the room
-            with no written instruction unless you speak it: "model and harness
-            are given; what you control — and what's worth your attention — are
-            the skills you write and the environment they read from." This is
-            the on-screen reply chapter 1's objection no longer gets, and it is
-            the seed of chapters 4 and 5. Do not skip it.
+              <!-- The transcript — it has to LOOK like a chat, because the belief
+                   this slide corrects is a chat belief. -->
+              <div class="se-rows">
+                {
+                  LINES.map((l) => (
+                    <div class={`se-row ${l.role}`} data-se-row={l.turn}>
+                      <span class={`se-role ${l.role}`}>{l.role}</span>
+                      <span class="txt">
+                        <span set:html={l.text} />
+                        {/* A real attachment, not the words "[pastes the
+                            document]" — same chip as the vocabulary slide, so
+                            the room recognises it from twenty minutes ago. */}
+                        {l.file && (
+                          <span class="se-file">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path
+                                d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            <b>{l.file.name}</b>
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
 
-            ── TOOLS &amp; MCP, the second callout (#36) ──
-            The deflation, if you want it and only spoken: a tool is a script
-            with a defined interface — a name, a description, and a JSON Schema
-            for its inputs (MCP spec). Nothing more exotic than that. Pocock's
-            line keeps it off the Skills ring: "a tool is what the agent calls;
-            a skill is instructions it reads."
+            <!-- Three fragments, one per turn. No bridge fragment and no
+                 closing line: the slide ends on the last turn and the presenter
+                 hands over by voice. The turn is DERIVED from reveal's fragment state, never
+                 counted, which is what makes stepping back replay correctly. -->
+            <div class="se-frag-row" data-se-frag-row aria-hidden="true">
+              {TURNS.map(() => <span class="fragment" />)}
+            </div>
 
-            Polarion and Jira ARE wired up through MCP here today — that is why
-            they are on the wall. Say so if asked; do not oversell it into a
-            programme.
+            <aside class="notes">
+              The room believes it sends one sentence at a time. Start there, and
+              say it out loud: "when you type a follow-up, what goes to the model?"
+              The bar is already part full before you press anything &mdash; that
+              is the harness and your project instructions, and it is why the
+              opening line says "before you say a word". Read the two greys top
+              down: the dark one is the vendor's frame, the light one is your own
+              repo's rules, and you pay for both on every turn whether you lean
+              on them or not.
 
-            HELD ANSWER — "the Environment ring says my codebase, but you just
-            said Polarion." Correct, and deliberate: the ring says codebase
-            because that is where your leverage is. MCP widens what the loop can
-            reach; it does not move the leverage. (Knowingly left as-is by Atil
-            on #36 — do not "fix" the ring's wording without reopening it.)
+              Press once: the ask lands with the spec clipped to it, and the
+              orange block is the biggest thing on the bar. Say the number out
+              loud &mdash; twelve thousand tokens, forty pages &mdash; because
+              the bar floors the small blocks so their labels fit, and it draws
+              the document smaller than it really is. Press twice is the beat of
+              the slide: four words typed, forty pages re-sent. Say the count as
+              the bracket sweeps: "second time. Third time." Press three times
+              and the model hands back a second attachment &mdash; the mail is
+              orange too, and it stays in the window like everything else.
+              Nothing above the line is forgotten, and nothing above the line is
+              free.
 
-            HELD ANSWER — "isn't MCP just an API gateway?" No, and that is why
-            the word is not on screen. There is no central point (the host opens
-            one client per server) and the protocol enforces no policy, no rate
-            limit and no central audit. "MCP gateway" is a separate product
-            category people sell precisely because MCP alone does not do it.
-            What IS true: the server holds the credential and the model never
-            sees it.
+              The frame is not a capacity. If anyone reads it as "we are nearly
+              full", correct it: the real window is many times this frame, which
+              is why the bottom edge fades out. What matters is the slope, not the
+              ceiling. Then hand over: that is how much one session sends, and the
+              next slide opens the pile and names what is inside it. No model
+              was called.
+            </aside>
+          </section>
 
-            COST, spoken not shown — chapter 3 bills this properly. Tool
-            definitions sit in the context window on every request, whether you
-            call them or not; roughly 55,000 tokens across a five-server setup.
-            Say "as deployed today, by default", never "inherently" —
-            defer_loading exists and most clients simply don't use it.
+          <!-- 8d ─────────────────── CONTEXT PRIMITIVES (click a block) -->
+          <section class="primitives" data-section="02 — Terminology" data-primitives>
+            <span class="eyebrow">The anatomy &middot; interactive, click a block</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>Data blocks in a session</span></span>
+            </h2>
+            <div class="prim-stage">
+              <div class="prim-window">
+                {
+                  primitiveGroups.map((g) => (
+                    <div class="prim-group" style={`flex:${g.blocks.length}`}>
+                      <span class="prim-group-label">{g.group}</span>
+                      {g.blocks.map((b) => (
+                        <button
+                          type="button"
+                          class="prim-block"
+                          data-prim-block={primitives.findIndex(
+                            (p) => p.label === b.label,
+                          )}
+                          aria-controls="prim-panel"
+                          aria-pressed="false"
+                        >
+                          <span class="lbl">{b.label}</span>
+                          {b.sub && <span class="sub">{b.sub}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  ))
+                }
+              </div>
 
-            SPEC CHURN, if someone quotes a 2025 article: MCP changed a lot by
-            2026 — Sampling and Logging deprecated, sessions gone, the protocol
-            now stateless request/response. Don't argue the details, just say
-            the 2025 write-ups are a version behind.
-          </aside>
+              <div class="prim-panel" id="prim-panel" data-prim-panel aria-live="polite">
+                <!-- Summary: what the three regions ARE. Shown on entry, and
+                     returned to by the clear affordance. -->
+                <article class="prim-card is-on" data-prim-card="summary">
+                  <span class="al-tag">The context window</span>
+                  <h3>Every block here is sent again, in full, every turn.</h3>
+                  {
+                    primitiveGroups.map((g) => (
+                      <p class="prim-region">
+                        <b>{g.group}</b> {g.note}
+                      </p>
+                    ))
+                  }
+                  <p class="prim-hint">
+                    Press <kbd>&rarr;</kbd> to walk the blocks, or click one.
+                  </p>
+                </article>
+
+                {
+                  primitives.map((p, i) => (
+                    <article class="prim-card" data-prim-card={i}>
+                      <span class="al-tag">{p.group}</span>
+                      <h3>
+                        {p.label}
+                        {p.sub && <em> ({p.sub})</em>}
+                      </h3>
+                      <dl class="prim-facts">
+                        <dt>Contains</dt>
+                        <dd set:html={p.contains} />
+                        <dt>Why it exists</dt>
+                        <dd set:html={p.why} />
+                        <dt>Token cost</dt>
+                        <dd class="cost" set:html={p.cost} />
+                      </dl>
+                    </article>
+                  ))
+                }
+
+                <button type="button" class="prim-clear" data-prim-clear>
+                  &larr; clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Fragment row: one invisible fragment per block, so the clicker's
+                 → walks them with no custom key binding and reveal's fragment
+                 state stays the single source of truth. Clicking a block just
+                 navigates to that fragment, which is why click and clicker can
+                 never disagree. -->
+            <div class="prim-frag-row" data-prim-frag-row aria-hidden="true">
+              {primitives.map(() => <span class="fragment" />)}
+            </div>
+
+            <aside class="notes">
+              Open Tools first &mdash; &ldquo;paid every turn, whether you use them
+              or not&rdquo; is the most surprising line here for an executive. The
+              Skills block is the bridge planted early: consistent instead of a
+              lottery, and paid on every turn it stays loaded. Costs here are
+              deliberately qualitative &mdash; nobody publishes the size of a
+              harness bundle or a skill, so any number would be invented.
+            </aside>
+          </section>
         </section>
 
         <!-- 2c ──────────────── HALLUCINATION: one question, four answers ──
@@ -1059,243 +1292,10 @@ const baselineBlocks = BASELINE.length;
             optimistic, and the euro figure is our own conversion at 1.08
             dollars to the euro. The credit is the number GitHub actually bills.
             Leave the cached column open as you go: it is the biggest pile of
-            tokens on this table, and nobody typed it. The next slide is where
-            it comes from.
+            tokens on this table, and nobody typed it. Where it comes from is the
+            session slide under the mental model, back in chapter 2 — call back
+            to it in one line, don't replay it.
           </aside>
-        </section>
-
-        <!-- A5b ─────────── THE SESSION, AND WHAT IS IN IT (v-stack)
-             A vertical pair, because the second slide opens the pile the first
-             one builds: the session shows the whole history going up the wire
-             every turn, the anatomy names the blocks inside it. ↓ walks it, →
-             skips it — the exec route keeps the three turns and can leave the
-             block-by-block anatomy on the floor. Both children carry their own
-             data-section; the wrapper carries one too, for the chapter label's
-             parent fallback. -->
-        <section data-section="03 — Tokenomics">
-          <!-- A3b ───────────── THE SESSION — the whole context, every turn
-               This WAS the agent-loop ledger (#26 variant C, twelve moves and a
-               credit odometer). Reworked to teach MEMORY, not billing — see
-               docs/asml-ai/adr/0001-session-slide-teaches-memory.md.
-
-               It follows the bill (Atil, 2026-08-27), and it used to sit before
-               it. The vocabulary slide now hands its three token kinds straight
-               to the three column pairs of the bill table, with nothing in
-               between. The bill then leaves one question open — cached is the
-               biggest pile on the screen, so where does it come from — and this
-               slide answers it in three turns. Nothing here may print a cost: the
-               money was spent one slide ago. -->
-          <section class="session" data-section="03 — Tokenomics" data-session>
-            <span class="eyebrow"
-              >The session &middot; stepped, press &rarr; to advance</span
-            >
-            <h2 class="h-set">
-              <span class="h-line"><span>Everything,</span></span>
-              <span class="h-line"><span>every turn.</span></span>
-            </h2>
-            <p class="se-open-line">
-              The chat has no memory. The transcript <b>is</b> the memory &mdash;
-              so every turn sends all of it again.
-            </p>
-
-            <div class="se-stage">
-              <!-- The bar. NOT a capacity: the bottom edge fades out, because the
-                   window's real edge sits far below the frame. Do not close it,
-                   and do not let the last turn reach the foot. -->
-              <div class="se-barwrap">
-                <div class="se-bracket" data-se-bracket>
-                  <span class="se-bracket-label">sent this turn</span>
-                </div>
-                <div class="se-column" data-se-column>
-                  {
-                    STRATA.map((b, i) => (
-                      <span
-                        class={`se-seg ${b.kind}${b.turn < 0 ? " base is-on" : ""}`}
-                        data-se-seg={i}
-                        data-se-seg-turn={b.turn}
-                        data-se-seg-kind={b.kind}
-                        data-se-seg-tokens={b.tokens}
-                        title={`${b.label} — ${b.tokens.toLocaleString("en-US")} tokens`}
-                      >
-                        <em class="se-seg-label">{b.label}</em>
-                      </span>
-                    ))
-                  }
-                  <!-- Silent: it marks where the harness stops and the
-                       conversation starts. Its caption moved into the
-                       transcript's opening line, where there is room to read it.
-                       The controller places it, because the baseline's height is
-                       solved against the frame like every other block. -->
-                  <span class="se-hairline" data-se-hairline data-se-baseline={baselineBlocks}></span>
-                </div>
-              </div>
-
-              <!-- The transcript — it has to LOOK like a chat, because the belief
-                   this slide corrects is a chat belief. -->
-              <div class="se-rows">
-                {
-                  LINES.map((l) => (
-                    <div class={`se-row ${l.role}`} data-se-row={l.turn}>
-                      <span class={`se-role ${l.role}`}>{l.role}</span>
-                      <span class="txt">
-                        <span set:html={l.text} />
-                        {/* A real attachment, not the words "[pastes the
-                            document]" — same chip as the vocabulary slide, so
-                            the room recognises it from twenty minutes ago. */}
-                        {l.file && (
-                          <span class="se-file">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                              <path
-                                d="M20.5 11.5 12 20a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.6"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                            <b>{l.file.name}</b>
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  ))
-                }
-              </div>
-            </div>
-
-            <!-- Three fragments, one per turn. No bridge fragment and no
-                 closing line: the slide ends on the last turn and the presenter
-                 hands over by voice. The turn is DERIVED from reveal's fragment state, never
-                 counted, which is what makes stepping back replay correctly. -->
-            <div class="se-frag-row" data-se-frag-row aria-hidden="true">
-              {TURNS.map(() => <span class="fragment" />)}
-            </div>
-
-            <aside class="notes">
-              The room believes it sends one sentence at a time. Start there, and
-              say it out loud: "when you type a follow-up, what goes to the model?"
-              The bar is already part full before you press anything &mdash; that
-              is the harness and your project instructions, and it is why the
-              opening line says "before you say a word". Read the two greys top
-              down: the dark one is the vendor's frame, the light one is your own
-              repo's rules, and you pay for both on every turn whether you lean
-              on them or not.
-
-              Press once: the ask lands with the spec clipped to it, and the
-              orange block is the biggest thing on the bar. Say the number out
-              loud &mdash; twelve thousand tokens, forty pages &mdash; because
-              the bar floors the small blocks so their labels fit, and it draws
-              the document smaller than it really is. Press twice is the beat of
-              the slide: four words typed, forty pages re-sent. Say the count as
-              the bracket sweeps: "second time. Third time." Press three times
-              and the model hands back a second attachment &mdash; the mail is
-              orange too, and it stays in the window like everything else.
-              Nothing above the line is forgotten, and nothing above the line is
-              free.
-
-              The frame is not a capacity. If anyone reads it as "we are nearly
-              full", correct it: the real window is many times this frame, which
-              is why the bottom edge fades out. What matters is the slope, not the
-              ceiling. Then hand over: that is how much one session sends, and the
-              next slide opens the pile and names what is inside it. No model
-              was called.
-            </aside>
-          </section>
-
-          <!-- 8d ─────────────────── CONTEXT PRIMITIVES (click a block) -->
-          <section class="primitives" data-section="03 — Tokenomics" data-primitives>
-            <span class="eyebrow">The anatomy &middot; interactive, click a block</span>
-            <h2 class="h-set">
-              <span class="h-line"><span>Data blocks in a session</span></span>
-            </h2>
-            <div class="prim-stage">
-              <div class="prim-window">
-                {
-                  primitiveGroups.map((g) => (
-                    <div class="prim-group" style={`flex:${g.blocks.length}`}>
-                      <span class="prim-group-label">{g.group}</span>
-                      {g.blocks.map((b) => (
-                        <button
-                          type="button"
-                          class="prim-block"
-                          data-prim-block={primitives.findIndex(
-                            (p) => p.label === b.label,
-                          )}
-                          aria-controls="prim-panel"
-                          aria-pressed="false"
-                        >
-                          <span class="lbl">{b.label}</span>
-                          {b.sub && <span class="sub">{b.sub}</span>}
-                        </button>
-                      ))}
-                    </div>
-                  ))
-                }
-              </div>
-
-              <div class="prim-panel" id="prim-panel" data-prim-panel aria-live="polite">
-                <!-- Summary: what the three regions ARE. Shown on entry, and
-                     returned to by the clear affordance. -->
-                <article class="prim-card is-on" data-prim-card="summary">
-                  <span class="al-tag">The context window</span>
-                  <h3>Every block here is sent again, in full, every turn.</h3>
-                  {
-                    primitiveGroups.map((g) => (
-                      <p class="prim-region">
-                        <b>{g.group}</b> {g.note}
-                      </p>
-                    ))
-                  }
-                  <p class="prim-hint">
-                    Press <kbd>&rarr;</kbd> to walk the blocks, or click one.
-                  </p>
-                </article>
-
-                {
-                  primitives.map((p, i) => (
-                    <article class="prim-card" data-prim-card={i}>
-                      <span class="al-tag">{p.group}</span>
-                      <h3>
-                        {p.label}
-                        {p.sub && <em> ({p.sub})</em>}
-                      </h3>
-                      <dl class="prim-facts">
-                        <dt>Contains</dt>
-                        <dd set:html={p.contains} />
-                        <dt>Why it exists</dt>
-                        <dd set:html={p.why} />
-                        <dt>Token cost</dt>
-                        <dd class="cost" set:html={p.cost} />
-                      </dl>
-                    </article>
-                  ))
-                }
-
-                <button type="button" class="prim-clear" data-prim-clear>
-                  &larr; clear
-                </button>
-              </div>
-            </div>
-
-            <!-- Fragment row: one invisible fragment per block, so the clicker's
-                 → walks them with no custom key binding and reveal's fragment
-                 state stays the single source of truth. Clicking a block just
-                 navigates to that fragment, which is why click and clicker can
-                 never disagree. -->
-            <div class="prim-frag-row" data-prim-frag-row aria-hidden="true">
-              {primitives.map(() => <span class="fragment" />)}
-            </div>
-
-            <aside class="notes">
-              Open Tools first &mdash; &ldquo;paid every turn, whether you use them
-              or not&rdquo; is the most surprising line here for an executive. The
-              Skills block is the bridge planted early: consistent instead of a
-              lottery, and paid on every turn it stays loaded. Costs here are
-              deliberately qualitative &mdash; nobody publishes the size of a
-              harness bundle or a skill, so any number would be invented.
-            </aside>
-          </section>
         </section>
 
         <!-- 5b ──────────────────── INTERACTIVE BENCHMARK CHART (DeepSWE v1.1)
@@ -1305,10 +1305,14 @@ const baselineBlocks = BASELINE.length;
              paying — rather than as chapter 1's opening argument. Chapter 1
              keeps the objections, the roadmap and the lottery. -->
         <section class="bench" data-section="03 — Tokenomics" data-bench>
-          <span class="eyebrow">Interactive · hover a model, click a family</span>
+          <span class="eyebrow">capability vs. cost · hover a model, click a family</span>
           <h2 class="h-set">
-            <span class="h-line"><span>DeepSWE v1.1 &mdash; capability vs. cost</span></span>
+            <span class="h-line"><span>DeepSWE v1.1</span></span>
           </h2>
+          <p class="bench-what">
+            Same 113 tickets, same tools, same step budget for every model.
+            Hidden tests decide pass or fail per ticket.
+          </p>
           <div class="bench-bar">
             <div class="bench-legend" data-bench-legend></div>
           </div>
@@ -1319,7 +1323,7 @@ const baselineBlocks = BASELINE.length;
             <div class="bench-tip" data-bench-tip hidden></div>
           </div>
           <p class="bench-note">
-            113 tasks · one line per model, one point per reasoning-effort level · source:
+            One line per model, one point per reasoning-effort level · source:
             <a
               class="mono"
               href="https://deepswe.datacurve.ai/blog/deepswe-v1-1"
@@ -1402,7 +1406,7 @@ const baselineBlocks = BASELINE.length;
         <section class="stop" data-section="03 — Tokenomics" data-stop>
           <span class="eyebrow">The turn &middot; where spending stops paying</span>
           <h2 class="h-set">
-            <span class="h-line"><span>You can&rsquo;t buy your way to Done.</span></span>
+            <span class="h-line"><span>Diminishing Returns</span></span>
           </h2>
           <p class="tk-body">Past a point, more effort buys nothing.</p>
           <div class="stop-plot">
@@ -1492,15 +1496,18 @@ const baselineBlocks = BASELINE.length;
              This slide used to carry the three legs of the thesis, revealed
              one at a time (#42/#43). Atil replaced its body on 2026-08-26: he
              hands the room to a colleague here, and the colleague talks over
-             the applications he actually built. The EYEBROW and the HEADLINE
-             are unchanged — the slide is still "In Action · Applications" and
-             still opens chapter 4.
+             the applications he actually built. The slide is
+             "Practices in action · Applications" and still opens chapter 4.
 
              The three legs are not gone, they are dissolved: every bullet
              below is one of them, or a way of keeping one alive after the
              first run. The leg wording, its evidence and its caveats survive
              in the notes, because a challenge from the floor still lands on
              the mechanism.
+
+             THE GLOSS LINE UNDER EACH LEG IS CUT (Atil, 2026-08-27): the card
+             now carries the leg and its applications only. The gloss wording
+             is gone from the slide — speak it, do not restore it.
 
              THE MAPPING (do not lose it in a later edit):
              • yardstick      → Seg doc quality checker, SanityAI
@@ -1519,41 +1526,25 @@ const baselineBlocks = BASELINE.length;
              card while the presenter talks, the same contract as the
              quick-fixes slide. Do not restore the build. -->
         <section class="handover" data-section="04 — Best practices">
-          <span class="eyebrow">In Action</span>
+          <span class="eyebrow">Practices in action</span>
           <h2 class="h-set">
             <span class="h-line"><span>Applications</span></span>
           </h2>
           <div class="ho-grid">
             <div class="ho-item">
               <span class="leg">Write down what good looks like.</span>
-              <span class="sub"
-                >Name the criteria first. Then it can grade the document you
-                already have.</span
-              >
               <span class="apps">Seg doc quality checker &middot; SanityAI</span>
             </div>
             <div class="ho-item">
               <span class="leg">Show both sides.</span>
-              <span class="sub"
-                >How it is, how you want it to be, and the real interfaces
-                between the two.</span
-              >
               <span class="apps">PR reviewer &middot; Dependency graph builder</span>
             </div>
             <div class="ho-item">
               <span class="leg">One worked example beats a page of rules.</span>
-              <span class="sub"
-                >Your example is the ground truth. It carries your style and
-                your intent for free.</span
-              >
               <span class="apps">AI4TWISTDoc &middot; Dependency graph builder</span>
             </div>
             <div class="ho-item">
               <span class="leg">Best of the work is translation.</span>
-              <span class="sub"
-                >Name the target form and it maps what you own into that form.
-                The model is already good at this.</span
-              >
               <span class="apps"
                 >Stick diagrams &amp; PlantUML &middot; PPT generator &middot;
                 AI4TWISTDoc</span
@@ -1561,10 +1552,6 @@ const baselineBlocks = BASELINE.length;
             </div>
             <div class="ho-item">
               <span class="leg">Fix once, repeat as ground truth.</span>
-              <span class="sub"
-                >Keep the fix. The second time it is a skill you run, not a
-                prompt you write again.</span
-              >
               <span class="apps"
                 >Polarion linking checker &middot; Dependency graph builder
                 &middot; SanityAI</span
@@ -1651,199 +1638,208 @@ const baselineBlocks = BASELINE.length;
             zone. Do not spend it here.
           </aside>
         </section>
-        <!-- 4c ─────────────────── THE NUMBER: someone else's brief, audited.
-             #42/#43. It used to open the chapter; it now follows the three
-             legs (Atil, 2026-08-25), so it reads as EVIDENCE for the claim the
-             room has just heard rather than as a cold open. The count-up
-             reuses the `data-one-number` hook. -->
-        <section
-          class="one-number thesis-stat"
-          data-section="04 — Best practices"
-          data-one-number
-        >
-          <div class="stat-main">
-          <span class="eyebrow">The benchmark that scores AI coding agents says</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>Vague in, vague out</span></span>
-          </h2>
-          <div class="fig">
-            <span data-count-to="4" data-count-suffix="">0</span><span class="of"
-              >in 10</span
-            >
-          </div>
-          <div class="caption">tasks too vaguely written to grade fairly</div>
-          <p class="stat-turn">
-            The agent wasn&rsquo;t the weak link. <b>The prompt was.</b>
-          </p>
-          <!-- The credit for the number (#43). 93 developers, 1,699 SWE-bench
-               samples, 38.3% flagged as underspecified. It is set small on
-               purpose: the room reads the figure, a technical attendee reads
-               the source. Research: docs/research/constraining-search-space.md
-               §4, which also records why the stronger causal claim is unsafe. -->
-          <p class="stat-src">
-            93 developers &middot; 1,699 SWE-bench samples &middot; 38.3% underspecified &middot; source:
-            <a
-              class="mono"
-              href="https://openai.com/index/introducing-swe-bench-verified/"
-              target="_blank"
-              rel="noreferrer noopener"
-              >OpenAI: Introducing SWE-bench Verified</a
-            >
-          </p>
-          </div>
+        <!-- 4c STACK ────────── VERTICAL: the five quick fixes on top,
+             the benchmark number below it as a sub-slide (Atil,
+             2026-08-27). Down goes to the evidence; right carries on to
+             the smart zone from either slide. -->
+        <section data-section="04 — Best practices">
+          <!-- 4c2 ────────────────── FIVE QUICK FIXES (static, Atil 2026-08-26).
+               The last slide of the chapter's FIRST movement, and the one the
+               room photographs. Five sentences Atil actually uses, printed
+               verbatim in mono: two that shape the answer, three that attack it.
 
-          <!-- THE FIX COLUMN (Atil, 2026-08-25). The number states the problem;
-               this column answers "so what do I do on Tuesday". Each item is
-               one ticket-level move, phrased as an instruction. The last row
-               is the escape hatch: hand the half-written brief to /grilling and
-               let it find the holes for you — a callback to chapter 2's routes.
-               NO fragments, by Atil's call: the column stands complete from the
-               moment the slide opens. The room reads the list while the
-               presenter talks the number, and → leaves the slide. -->
-          <div class="stat-fix">
-            <span class="fix-head">For a better prompt</span>
-            <ol class="fix-list">
-              <li>Write current and wanted</li>
-              <li>
-                Name the acceptance check <span class="fix-sub">test, command, rule</span>
-              </li>
-              <li>Give the entry point</li>
-              <li>State the scope boundary</li>
-              <li>Say what &ldquo;done&rdquo; looks like</li>
-            </ol>
-            <p class="fix-or">
-              &hellip; and/or hand it to <span class="mono cmd">/grilling</span>
+               NO GLOSS AND NO COLUMN HEADINGS on the wall (Atil's call, grilled
+               2026-08-26). The sentences are the artefact; the presenter names
+               the split and speaks the glosses, which live in the notes below.
+               Static, like the fix column it follows — no fragments.
+
+               THE CHAPTER'S TURN MOVES HERE from the benchmark slide, so
+               movement one ends on words the room can steal.
+
+               NO SOURCE LINE, deliberately: the chapter spent its number one
+               slide ago, this slide is craft, and the eyebrow says so. Overlaps
+               with the cache slide's subagent habit and 4c's /grilling hatch are
+               KNOWN and left standing — Atil's call. -->
+          <section class="qfix" data-section="04 — Best practices">
+            <span class="eyebrow">Sentences that make an impact</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>Five quick fixes</span></span>
+            </h2>
+            <p class="qfix-lede">
+              Paste these into your prompt for cheaper, better answers.
             </p>
-          </div>
-
-          <aside class="notes">
-            Let the number land before you explain it. Silence for a moment.
-
-            THE STORY: SWE-bench is the industry-standard test for AI coding
-            agents — real GitHub issues, an agent has to fix them, and every
-            vendor quotes their score on it. Ninety-three developers sat down
-            and audited it. Nearly four in ten of the task descriptions were
-            too vague to judge fairly whether the agent had succeeded.
-
-            The point, said out loud: these are professional engineers writing
-            tasks for a benchmark they knew would be scrutinised. If four in
-            ten of THOSE are underspecified, what does a Tuesday-afternoon
-            ticket look like?
-
-            SAY IT THIS WAY: "four in ten were too vague to grade fairly."
-            DO NOT SAY: "specifying the task doubles performance." The auditors
-            removed badly-written TESTS at the same time as vague specs, so the
-            two effects are tangled and that stronger claim is not supported.
-            If someone challenges the number, concede that cheerfully — the
-            slide's argument survives it, because the claim is about the specs
-            being vague, not about what fixing them buys.
-
-            Then turn: the agent was not the weak link, the brief was. The
-            three legs are already behind you, so this closes the chapter's
-            first movement.
-
-            THE FIX COLUMN (right, added 2026-08-25). It is on screen from the
-            start, so let the room read it while you talk. Do NOT read the five
-            lines out — walk the number first, then point at the column and say
-            it is the same three legs at ticket size. Items 2 and 5 ARE the
-            yardstick leg and the target-form leg; name that link out loud.
-
-            The last row is the escape hatch: if you cannot write the brief,
-            hand the half-written one to /grilling and let it find the holes.
-            Callback to chapter 2's routes; one sentence, do not demo it.
-
-            The fix column writes the ticket; the slide after it steers the
-            answer. Say that link out loud — the room is about to read a second
-            list of imperatives and has to hear the difference.
-
-            The chapter's turn is NOT yours any more (Atil, 2026-08-26). "And
-            then it all decays" now hands out of the quick-fixes slide. Go
-            straight there.
-          </aside>
-        </section>
-
-        <!-- 4c2 ────────────────── FIVE QUICK FIXES (static, Atil 2026-08-26).
-             The last slide of the chapter's FIRST movement, and the one the
-             room photographs. Five sentences Atil actually uses, printed
-             verbatim in mono: two that shape the answer, three that attack it.
-
-             NO GLOSS AND NO COLUMN HEADINGS on the wall (Atil's call, grilled
-             2026-08-26). The sentences are the artefact; the presenter names
-             the split and speaks the glosses, which live in the notes below.
-             Static, like the fix column it follows — no fragments.
-
-             THE CHAPTER'S TURN MOVES HERE from the benchmark slide, so
-             movement one ends on words the room can steal.
-
-             NO SOURCE LINE, deliberately: the chapter spent its number one
-             slide ago, this slide is craft, and the eyebrow says so. Overlaps
-             with the cache slide's subagent habit and 4c's /grilling hatch are
-             KNOWN and left standing — Atil's call. -->
-        <section class="qfix" data-section="04 — Best practices">
-          <span class="eyebrow">Sentences that make an impact</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>Five quick fixes</span></span>
-          </h2>
-          <div class="qfix-cols">
-            <!-- SHAPE THE ANSWER — Atil's order, unchanged. -->
-            <div class="qfix-col">
-              <ul class="qfix-list">
-                <li>
-                  Be extremely concise. Sacrifice grammar for the sake of
-                  concision.
-                </li>
-                <li>Code only, no explanation.</li>
-              </ul>
-              <!-- The cost of this column, admitted on the wall rather than
-                   left to the presenter: concision buys speed with caveats. -->
-              <p class="qfix-note">use at discretion</p>
+            <div class="qfix-cols">
+              <!-- SHAPE THE ANSWER — Atil's order, unchanged. -->
+              <div class="qfix-col">
+                <ul class="qfix-list">
+                  <li>
+                    Be extremely concise. Sacrifice grammar for the sake of
+                    concision.
+                  </li>
+                  <li>Code only, no explanation.</li>
+                </ul>
+                <!-- The cost of this column, admitted on the wall rather than
+                     left to the presenter: concision buys speed with caveats. -->
+                <p class="qfix-note">use at discretion</p>
+              </div>
+              <!-- ATTACK THE ANSWER — cheapest move first, biggest last, so the
+                   presenter's last word is the review board. -->
+              <div class="qfix-col">
+                <ul class="qfix-list">
+                  <li>
+                    Ask whenever in doubt. Let me clarify. Challenge your
+                    assumptions.
+                  </li>
+                  <li>Identify logical fallacies.</li>
+                  <li>Run adversarial reviews via parallel subagents.</li>
+                </ul>
+              </div>
             </div>
-            <!-- ATTACK THE ANSWER — cheapest move first, biggest last, so the
-                 presenter's last word is the review board. -->
-            <div class="qfix-col">
-              <ul class="qfix-list">
-                <li>
-                  Ask whenever in doubt. Let me clarify. Challenge your
-                  assumptions.
-                </li>
-                <li>Identify logical fallacies.</li>
-                <li>Run adversarial reviews via multiple subagents.</li>
-              </ul>
+
+            <aside class="notes">
+              NOTHING ON THE WALL NAMES THE SPLIT, so your voice carries it. Say
+              it before any line: the left column shapes what comes back, the
+              right column attacks it.
+
+              The card is static. Let the room read and photograph it while you
+              talk.
+
+              THE GLOSSES — spoken, never shown. One per line, in this order:
+              • Be extremely concise — you get the answer, not the essay.
+              • Code only — the diff is the answer.
+              • Ask whenever in doubt — it surfaces a wrong guess before it
+                builds on one.
+              • Identify logical fallacies — it reads your argument as an
+                opponent would.
+              • Adversarial reviews — a review board, not a reviewer.
+
+              The right column climbs. End on the review board; it is the biggest
+              move on the slide.
+
+              "USE AT DISCRETION" is your answer to the challenge that is coming.
+              These two sentences shape an answer you can already judge. Use them
+              when you know the shape you want, not when you are still learning
+              the problem.
+
+              IF ASKED where these come from: they are the ones I use, not a
+              study. That is why the slide carries no source — the number the
+              chapter needed is one slide back.
+
+              HAND INTO THE SMART ZONE with the chapter's turn: you prepared it
+              well, and then it all decays.
+            </aside>
+          </section>
+
+          <!-- 4c ─────────────────── THE NUMBER: someone else's brief, audited.
+               #42/#43. It used to open the chapter; it now follows the three
+               legs (Atil, 2026-08-25), so it reads as EVIDENCE for the claim the
+               room has just heard rather than as a cold open. The count-up
+               reuses the `data-one-number` hook. -->
+          <section
+            class="one-number thesis-stat"
+            data-section="04 — Best practices"
+            data-one-number
+          >
+            <div class="stat-main">
+            <span class="eyebrow">The benchmark that scores AI coding agents says</span>
+            <h2 class="h-set">
+              <span class="h-line"><span>Vague in, vague out</span></span>
+            </h2>
+            <div class="fig">
+              <span data-count-to="4" data-count-suffix="">0</span><span class="of"
+                >in 10</span
+              >
             </div>
-          </div>
+            <div class="caption">tasks too vaguely written to grade fairly</div>
+            <p class="stat-turn">
+              The agent wasn&rsquo;t the weak link. <b>The prompt was.</b>
+            </p>
+            <!-- The credit for the number (#43). 93 developers, 1,699 SWE-bench
+                 samples, 38.3% flagged as underspecified. It is set small on
+                 purpose: the room reads the figure, a technical attendee reads
+                 the source. Research: docs/research/constraining-search-space.md
+                 §4, which also records why the stronger causal claim is unsafe. -->
+            <p class="stat-src">
+              93 developers &middot; 1,699 SWE-bench samples &middot; 38.3% underspecified &middot; source:
+              <a
+                class="mono"
+                href="https://openai.com/index/introducing-swe-bench-verified/"
+                target="_blank"
+                rel="noreferrer noopener"
+                >OpenAI: Introducing SWE-bench Verified</a
+              >
+            </p>
+            </div>
 
-          <aside class="notes">
-            NOTHING ON THE WALL NAMES THE SPLIT, so your voice carries it. Say
-            it before any line: the left column shapes what comes back, the
-            right column attacks it.
+            <!-- THE FIX COLUMN (Atil, 2026-08-25). The number states the problem;
+                 this column answers "so what do I do on Tuesday". Each item is
+                 one ticket-level move, phrased as an instruction. The last row
+                 is the escape hatch: hand the half-written brief to /grilling and
+                 let it find the holes for you — a callback to chapter 2's routes.
+                 NO fragments, by Atil's call: the column stands complete from the
+                 moment the slide opens. The room reads the list while the
+                 presenter talks the number, and → leaves the slide. -->
+            <div class="stat-fix">
+              <span class="fix-head">For a better prompt</span>
+              <ol class="fix-list">
+                <li>Write current and wanted</li>
+                <li>
+                  Name the acceptance check <span class="fix-sub">test, command, rule</span>
+                </li>
+                <li>Give the entry point</li>
+                <li>State the scope boundary</li>
+                <li>Say what &ldquo;done&rdquo; looks like</li>
+              </ol>
+              <p class="fix-or">
+                &hellip; and/or hand it to <span class="mono cmd">/grilling</span>
+              </p>
+            </div>
 
-            The card is static. Let the room read and photograph it while you
-            talk.
+            <aside class="notes">
+              Let the number land before you explain it. Silence for a moment.
 
-            THE GLOSSES — spoken, never shown. One per line, in this order:
-            • Be extremely concise — you get the answer, not the essay.
-            • Code only — the diff is the answer.
-            • Ask whenever in doubt — it surfaces a wrong guess before it
-              builds on one.
-            • Identify logical fallacies — it reads your argument as an
-              opponent would.
-            • Adversarial reviews — a review board, not a reviewer.
+              THE STORY: SWE-bench is the industry-standard test for AI coding
+              agents — real GitHub issues, an agent has to fix them, and every
+              vendor quotes their score on it. Ninety-three developers sat down
+              and audited it. Nearly four in ten of the task descriptions were
+              too vague to judge fairly whether the agent had succeeded.
 
-            The right column climbs. End on the review board; it is the biggest
-            move on the slide.
+              The point, said out loud: these are professional engineers writing
+              tasks for a benchmark they knew would be scrutinised. If four in
+              ten of THOSE are underspecified, what does a Tuesday-afternoon
+              ticket look like?
 
-            "USE AT DISCRETION" is your answer to the challenge that is coming.
-            These two sentences shape an answer you can already judge. Use them
-            when you know the shape you want, not when you are still learning
-            the problem.
+              SAY IT THIS WAY: "four in ten were too vague to grade fairly."
+              DO NOT SAY: "specifying the task doubles performance." The auditors
+              removed badly-written TESTS at the same time as vague specs, so the
+              two effects are tangled and that stronger claim is not supported.
+              If someone challenges the number, concede that cheerfully — the
+              slide's argument survives it, because the claim is about the specs
+              being vague, not about what fixing them buys.
 
-            IF ASKED where these come from: they are the ones I use, not a
-            study. That is why the slide carries no source — the number the
-            chapter needed is one slide back.
+              Then turn: the agent was not the weak link, the brief was. The
+              three legs are already behind you, so this closes the chapter's
+              first movement.
 
-            HAND INTO THE SMART ZONE with the chapter's turn: you prepared it
-            well, and then it all decays.
-          </aside>
+              THE FIX COLUMN (right, added 2026-08-25). It is on screen from the
+              start, so let the room read it while you talk. Do NOT read the five
+              lines out — walk the number first, then point at the column and say
+              it is the same three legs at ticket size. Items 2 and 5 ARE the
+              yardstick leg and the target-form leg; name that link out loud.
+
+              The last row is the escape hatch: if you cannot write the brief,
+              hand the half-written one to /grilling and let it find the holes.
+              Callback to chapter 2's routes; one sentence, do not demo it.
+
+              The fix column writes the ticket; the slide after it steers the
+              answer. Say that link out loud — the room is about to read a second
+              list of imperatives and has to hear the difference.
+
+              The chapter's turn is NOT yours any more (Atil, 2026-08-26). "And
+              then it all decays" now hands out of the quick-fixes slide. Go
+              straight there.
+            </aside>
+          </section>
         </section>
 
         <!-- 4d ─────────────────── THE SMART ZONE (widget, #52).
@@ -4567,35 +4563,36 @@ const baselineBlocks = BASELINE.length;
         svg.append(el("path", { d: dOf(last - 1, last), fill: "none", class: "stop-line is-down",
           "stroke-linecap": "round", "stroke-linejoin": "round" }));
 
-        // One label per point: the level's own name, then what that level cost
-        // on top of the one before it. Level 0 has no "before", so it carries
-        // its absolute price and score instead — the baseline the rest is read
-        // against. Every label sits DOWN AND RIGHT of its point, the one
-        // quarter the curve never enters: it climbs left-to-right, so the
-        // space under the next segment is always empty. The last one turns
-        // back to the left, because there is no wall to its right.
+        // One label per point: what that level cost on top of the one before
+        // it. Level 0 has no "before", so it carries its absolute price and
+        // score instead — the baseline the rest is read against. The level's
+        // NAME is not on the wall (low/medium/high…): the room reads the
+        // shape and the prices, and the presenter says the names. Every label
+        // sits DOWN AND RIGHT of its point, the one quarter the curve never
+        // enters: it climbs left-to-right, so the space under the next
+        // segment is always empty. The last one turns back to the left,
+        // because there is no wall to its right.
         pts.forEach((pt, i) => {
           const down = i === last;
           // The last label hangs off the RIGHT WALL rather than off its own
           // point: the curve is flat by then, so a label under the point would
-          // sit on the one before it. Pushed right and lifted, it clears that
-          // block and still reads as the last point's own line.
+          // sit on the one before it. Anchored right, it clears the block
+          // before it and still reads as the last point's own line.
           const x = down ? STOP.XN : SX(pt.cost) + 18;
-          // The cheapest point sits low, close to the cost axis, so its label
-          // rides beside the dot instead of under it — a full block lower and
-          // it crowds the tick row.
-          const y = SY(pt.rate) + (down ? 96 : i === 0 ? 12 : 36);
+          // Every number sits one short drop under its own dot — the name
+          // line used to push it further away, and the last label further
+          // still. The cheapest point sits low, close to the cost axis, so
+          // its label rides beside the dot instead of under it.
+          const y = SY(pt.rate) + (down ? 34 : i === 0 ? 26 : 34);
           const g = el("text", {
             x, y, class: "stop-label" + (down ? " is-down" : ""),
             "text-anchor": down ? "end" : "start",
           });
-          const name = el("tspan", { x, class: "eff" });
-          name.textContent = pt.eff.toLowerCase();
-          const val = el("tspan", { x, dy: 28, class: "delta" });
+          const val = el("tspan", { x, class: "delta" });
           val.textContent = i
             ? `+${fmtEur(stopStep(i).eur)} → ${stopPtsLabel(stopStep(i).pts)}`
             : `${fmtEur(stopEur(pt.cost))} · ${pt.rate}%`;
-          g.append(name, val);
+          g.append(val);
           // The turn is the slide: the last level gets the sentence the other
           // four don't need, so nobody has to do the arithmetic on the wall.
           if (down) {

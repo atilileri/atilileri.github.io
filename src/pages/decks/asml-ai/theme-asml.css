@@ -822,13 +822,24 @@
 .bench-tip .k b {
   color: var(--ink);
 }
+/* The method line: what the benchmark DOES, said before any number. It sits
+   under the title and above the chart, in the body font and ink colour, so
+   the room reads the rules first. The mono `.bench-note` below the plot
+   stays metadata. */
+.reveal .bench-what {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  max-width: 54rem;
+  color: var(--ink);
+  margin: 0.5rem 0 0.2rem;
+}
 .reveal .bench-note {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   line-height: 1.4;
   max-width: 54rem;
   color: #00327d99;
-  margin-top: 0.7rem;
+  margin-top: 0.4rem;
 }
 .bench-note .mono {
   color: var(--signal);
@@ -932,18 +943,13 @@
   stroke: var(--orange);
   stroke-width: 3;
 }
-/* One label per level: its name, then what it cost ON TOP of the level before
-   it. This is the walk the fragments used to perform, printed instead — the
-   room reads all five prices at once and finds the turn itself. */
+/* One label per level: what it cost ON TOP of the level before it. This is
+   the walk the fragments used to perform, printed instead — the room reads
+   all five prices at once and finds the turn itself. The level names are
+   spoken, not printed, so the numbers sit close to their own points. */
 .stop-label {
   font-family: var(--font-mono);
   fill: var(--bench-ink);
-}
-.stop-label .eff {
-  font-size: 17px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0.62;
 }
 .stop-label .delta {
   font-family: var(--font-display);
@@ -957,7 +963,6 @@
   opacity: 0.72;
 }
 .stop-label.is-down .delta,
-.stop-label.is-down .eff,
 .stop-label.is-down .why {
   fill: var(--orange);
   opacity: 1;
@@ -1373,13 +1378,21 @@
   font-size: var(--fs-slide-h);
   color: var(--navy);
 }
+/* One column track shared by the factor row and the contents list below it,
+   so a chapter's slide titles sit under that chapter's own factor (#30). The
+   component writes `--rm-lit` (1–4) on the divider; the list reads it. */
+.reveal section.roadmap {
+  --rm-gap: clamp(1.2rem, 3vw, 3rem);
+  --rm-cols: repeat(4, minmax(0, 1fr));
+}
 .reveal section.roadmap .roadmap-factors {
   list-style: none;
   margin: clamp(4rem, 14vh, 9rem) 0 0;
   padding: 0;
-  display: flex;
-  gap: clamp(1.2rem, 3vw, 3rem);
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: var(--rm-cols);
+  gap: var(--rm-gap);
+  align-items: start;
 }
 .reveal section.roadmap .roadmap-factor {
   flex: 1;
@@ -1442,7 +1455,7 @@
   letter-spacing: 0.03em;
   /* Glosses 3 and 4 run to two lines at most widths while 1 and 2 stay on
      one. That is #34's deliberate asymmetry — the row is top-aligned
-     (`align-items: flex-start`), so the labels stay on one baseline and the
+     (`align-items: start`), so the labels stay on one baseline and the
      ragged bottom is the intended shape. */
   color: #1b1b1b8c;
 }
@@ -1450,17 +1463,19 @@
 /* The chapter's contents, on the dividers only (chapters 2–5). The component
    leaves the list empty and its script fills it from the real slides, so the
    titles here can never disagree with the headlines the room is about to see.
-   One narrow column, mono, quiet: it is a contents page, not a second
-   headline, and it must stay subordinate to the lit factor above it. The
-   width is capped so the list reads as a block under the lit factor rather
-   than as text spread under all four. It fades in after the factor row, so
-   the callback still lands first. */
+   Mono, quiet, narrow: it is a contents page, not a second headline, and it
+   must stay subordinate to the lit factor above it. The list shares the
+   factor row's column track and starts in the lit factor's own column, so
+   the room reads the titles under the chapter they belong to. It fades in
+   after the factor row, so the callback still lands first. */
 .reveal section.roadmap .roadmap-slides {
   list-style: none;
   counter-reset: rms;
   margin: clamp(2rem, 5vh, 3.4rem) 0 0;
   padding: 0;
-  max-width: min(62ch, 46%);
+  display: grid;
+  grid-template-columns: var(--rm-cols);
+  gap: 0 var(--rm-gap);
   font-family: var(--font-mono);
   font-size: clamp(0.66rem, 0.92vw, 0.86rem);
   line-height: 1.5;
@@ -1476,7 +1491,11 @@
   opacity: 1;
   transform: none;
 }
+/* Every item starts in the lit factor's column and runs to the right edge,
+   capped so an early chapter's list stays a column and not a paragraph. */
 .reveal section.roadmap .roadmap-slides li {
+  grid-column: var(--rm-lit, 1) / -1;
+  max-width: 62ch;
   margin: 0 0 0.5rem;
   padding-left: 2.1rem;
   text-indent: -2.1rem;
@@ -3842,9 +3861,16 @@
 
    THE CARD FILLS THE FRAME (Atil, 2026-08-26). Five short lines centred in a
    16:9 slide left the bottom third empty, so the columns STRETCH: the grid
-   takes the height the headline leaves, each list spreads its rows with
-   space-between, and the hairline runs the full height. Type and gaps are
-   sized for that, not for a compact block. */
+   takes the height the headline leaves, and each list spreads its rows with
+   space-between. Type and gaps are sized for that, not for a compact block. */
+/* The one line of deck prose on the card. Set in the body face, not mono, so
+   it never reads as a sixth sentence to copy — the mono rule below is what
+   marks a quotation. */
+.reveal .qfix .qfix-lede {
+  max-width: 54ch;
+  margin: 0.2rem 0 0;
+  color: var(--ink);
+}
 .reveal section.qfix .qfix-cols {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -3860,16 +3886,16 @@
   flex-direction: column;
   min-width: 0;
 }
-/* The one hairline on the slide. Same weight as the fix column's rule two
-   slides back, so the two cards read as a pair. */
+/* NO HAIRLINE BETWEEN THE COLUMNS (Atil, 2026-08-27). The gap and the orange
+   rule on every sentence already separate the two columns, and the line only
+   competed with them. The indent stays, so the right column keeps its place. */
 .reveal .qfix .qfix-col + .qfix-col {
-  border-left: 3px solid var(--hair);
   padding-left: clamp(1.2rem, 2.6vw, 2.2rem);
 }
 /* The rows CENTRE in the stretched column (Atil, 2026-08-26), they do not
    spread to the edges: the block then sits low under the headline, in the
    middle of the frame, and the two-row column reads level with the
-   three-row one. The hairline still runs the full height. */
+   three-row one. */
 .reveal .qfix ul.qfix-list {
   list-style: none;
   margin: 0;
@@ -3897,8 +3923,7 @@
 }
 /* "use at discretion" — pushed to the foot of its column so it sits on the
    same baseline as the right column's last sentence. Held off the list by
-   space alone; a second hairline would compete with the one that splits the
-   columns. */
+   space alone: the card carries no hairline. */
 .reveal .qfix .qfix-note {
   margin: clamp(1.6rem, 4vh, 3rem) 0 0;
   padding-left: clamp(0.9rem, 1.2vw, 1.4rem);
@@ -3917,7 +3942,6 @@
     flex: 0 1 auto;
   }
   .reveal .qfix .qfix-col + .qfix-col {
-    border-left: 0;
     padding-left: 0;
   }
   .reveal .qfix ul.qfix-list {
@@ -3926,10 +3950,11 @@
   }
 }
 
-/* 4b — the handover card, the body of the "In Action" slide. Five practices in two columns, each one a headline,
-   a quieter gloss, and the applications it belongs to. The applications line is
-   mono and orange: it is the only hot accent on the slide, and it is what the
-   room photographs.
+/* 4b — the handover card, the body of the "Practices in action" slide. Five
+   practices in two columns, each one a headline and the applications it belongs
+   to (the gloss line was cut, Atil 2026-08-27). The applications line is mono
+   and orange: it is the only hot accent on the slide, and it is what the room
+   photographs.
 
    The card is STATIC by contract (Atil, 2026-08-26) — same as the quick-fixes
    slide — so nothing here carries a fragment class.
@@ -3963,15 +3988,6 @@
   font-size: clamp(0.95rem, 1.5vw, 1.35rem);
   line-height: 1.2;
   color: var(--navy);
-}
-.reveal .handover .ho-item .sub {
-  font-family: var(--font-mono);
-  font-size: clamp(0.7rem, 0.92vw, 0.86rem);
-  font-weight: 400;
-  line-height: 1.45;
-  color: var(--ink);
-  opacity: 0.72;
-  max-width: 46ch;
 }
 .reveal .handover .ho-item .apps {
   margin-top: 0.15em;

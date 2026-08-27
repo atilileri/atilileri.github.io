@@ -47,6 +47,7 @@ const kicker =
   class:list={["roadmap", !chapter && "is-all"]}
   data-section={section}
   data-roadmap
+  style={lit ? `--rm-lit: ${FACTORS.indexOf(lit) + 1};` : undefined}
 >
   <span class="chapter-no">{kicker}</span>
   <h2 class="h-set">
@@ -98,21 +99,40 @@ const kicker =
   }
 
   /**
-   * Titles of every slide in one section, in deck order. Vertical stacks
-   * wrap their slides in a section that carries the same `data-section`, so
-   * a section holding another section is a container, not a slide.
+   * Titles of one section's MAIN slides, in deck order.
+   *
+   * Main means horizontal: one title per press of →. A vertical stack sits at
+   * one horizontal position, so the stack gives one title — the title of its
+   * first slide. The slides below it are deep dives, and the list drops them:
+   * the divider says where the chapter goes, not everything it holds.
+   *
+   * ONE EXCEPTION, and chapter 5 is it. When the divider itself opens the
+   * stack, the slides under the divider are not deep dives under a main
+   * slide — they are the chapter's own route, walked with ↓. That stack
+   * gives every one of its titles.
    */
   function titlesOf(section: string): string[] {
-    const all = document.querySelectorAll<HTMLElement>(
-      ".reveal .slides section[data-section]",
-    );
+    const tops = document.querySelectorAll<HTMLElement>(".reveal .slides > section");
     const out: string[] = [];
-    all.forEach((s) => {
-      if (s.dataset.section !== section) return; // another chapter
-      if (s.hasAttribute("data-roadmap")) return; // the divider itself
-      if (s.querySelector(":scope > section")) return; // a vertical stack
-      const t = titleOf(s);
+
+    const push = (slide: HTMLElement) => {
+      if (slide.hasAttribute("data-roadmap")) return; // the divider itself
+      const t = titleOf(slide);
       if (t) out.push(t);
+    };
+
+    tops.forEach((top) => {
+      const kids = [...top.querySelectorAll<HTMLElement>(":scope > section")];
+      if (!kids.length) {
+        if (top.dataset.section === section) push(top);
+        return;
+      }
+      const opensHere =
+        kids[0].hasAttribute("data-roadmap") && kids[0].dataset.section === section;
+      const wanted = opensHere ? kids : kids.slice(0, 1);
+      for (const k of wanted) {
+        if ((k.dataset.section ?? top.dataset.section) === section) push(k);
+      }
     });
     return out;
   }
