@@ -1671,13 +1671,16 @@ const baselineBlocks = BASELINE.length;
             <div class="qfix-cols">
               <!-- SHAPE THE ANSWER — Atil's order, unchanged. -->
               <div class="qfix-col">
-                <ul class="qfix-list">
-                  <li>
-                    Be extremely concise. Sacrifice grammar for the sake of
-                    concision.
-                  </li>
-                  <li>Code only, no explanation.</li>
-                </ul>
+                <div class="qfix-body">
+                  <p class="qfix-head">drives cost &darr;</p>
+                  <ul class="qfix-list">
+                    <li>
+                      Be extremely concise. Sacrifice grammar for the sake of
+                      concision.
+                    </li>
+                    <li>Code only, no explanation.</li>
+                  </ul>
+                </div>
                 <!-- The cost of this column, admitted on the wall rather than
                      left to the presenter: concision buys speed with caveats. -->
                 <p class="qfix-note">use at discretion</p>
@@ -1685,21 +1688,24 @@ const baselineBlocks = BASELINE.length;
               <!-- ATTACK THE ANSWER — cheapest move first, biggest last, so the
                    presenter's last word is the review board. -->
               <div class="qfix-col">
-                <ul class="qfix-list">
-                  <li>
-                    Ask whenever in doubt. Let me clarify. Challenge your
-                    assumptions.
-                  </li>
-                  <li>Identify logical fallacies.</li>
-                  <li>Run adversarial reviews via parallel subagents.</li>
-                </ul>
+                <div class="qfix-body">
+                  <p class="qfix-head">ensures quality</p>
+                  <ul class="qfix-list">
+                    <li>
+                      Ask whenever in doubt. Let me clarify. Challenge your
+                      assumptions.
+                    </li>
+                    <li>Identify logical fallacies.</li>
+                    <li>Run adversarial reviews via parallel subagents.</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
             <aside class="notes">
-              NOTHING ON THE WALL NAMES THE SPLIT, so your voice carries it. Say
-              it before any line: the left column shapes what comes back, the
-              right column attacks it.
+              THE WALL NAMES THE SPLIT (Atil, 2026-08-27) — a small header
+              over each column. Read them once, then say what they mean: the
+              left column shapes what comes back, the right column attacks it.
 
               The card is static. Let the room read and photograph it while you
               talk.
@@ -1876,7 +1882,7 @@ const baselineBlocks = BASELINE.length;
                slide — so the room reads it as a thing they can run, not as an
                aside in brackets (Atil, 2026-08-25). -->
           <p class="sz-open-line">
-            Keep the session short, and keep the task small.<br />
+            Keep the session short (&lt;100k tokens), and keep the task small.<br />
             Cut the work into slices that each finish inside the zone &mdash;
             <span class="mono cmd">/to-tickets</span> writes them for you.
           </p>

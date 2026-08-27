@@ -3886,29 +3886,63 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* Biased BELOW centre (Atil, 2026-08-26): the padding pushes the centred
+     block down, so it sits clear of the headline and low in the frame
+     without ever touching the bottom edge the way flex-end would. It sits on
+     the COLUMN, so the hairline on the body starts under it. */
+  padding-top: clamp(2rem, 9vh, 7rem);
 }
-/* The one hairline on the slide. Same weight as the fix column's rule two
-   slides back, so the two cards read as a pair. */
+/* The gutter the hairline sits in. */
 .reveal .qfix .qfix-col + .qfix-col {
-  border-left: 3px solid var(--hair);
   padding-left: clamp(1.2rem, 2.6vw, 2.2rem);
+}
+/* The one hairline on the slide. It STARTS AT THE CONTENT (Atil, 2026-08-27),
+   not at the top of the frame: it rides the body block, so the space the
+   headline leaves is empty rather than split by a long tail of rule. */
+.reveal .qfix .qfix-col + .qfix-col .qfix-body {
+  border-left: 3px solid var(--hair);
+  /* Pulled OUT INTO THE GUTTER (Atil, 2026-08-27) and the same distance given
+     back as padding: the rule moves left, the sentences do not move at all.
+     At the column edge it crowded the orange rules of the quotations. */
+  margin-left: calc(-1 * clamp(0.9rem, 1.8vw, 1.6rem));
+  padding-left: clamp(0.9rem, 1.8vw, 1.6rem);
 }
 /* The rows CENTRE in the stretched column (Atil, 2026-08-26), they do not
    spread to the edges: the block then sits low under the headline, in the
    middle of the frame, and the two-row column reads level with the
-   three-row one. The hairline still runs the full height. */
+   three-row one.
+
+   Header plus list travel together as one block, so the header stays on the
+   sentences it names. The block takes the height the headline leaves and
+   centres in it; "use at discretion" then sits at the foot of the column. */
+.reveal .qfix .qfix-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* The category over each column (Atil, 2026-08-27). Mono and small, aligned
+   to the text edge of the sentences below it, not to their orange rule — the
+   header labels the column, it is not a sixth quotation. Weight and a darker
+   ink separate it from "use at discretion" at the other end. */
+.reveal .qfix .qfix-head {
+  margin: 0 0 clamp(1rem, 2.6vh, 1.8rem);
+  padding-left: clamp(0.9rem, 1.2vw, 1.4rem);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #00327dcc;
+  max-width: none;
+}
 .reveal .qfix ul.qfix-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  /* Biased BELOW centre (Atil, 2026-08-26): the padding pushes the centred
-     block down, so it sits clear of the headline and low in the frame
-     without ever touching the bottom edge the way flex-end would. */
-  padding-top: clamp(2rem, 9vh, 7rem);
   gap: clamp(1.4rem, 3.8vh, 2.8rem);
 }
 /* Each quoted sentence. The orange rule marks it as a quotation and costs no
@@ -3947,9 +3981,11 @@
     border-left: 0;
     padding-left: 0;
   }
-  .reveal .qfix ul.qfix-list {
-    flex: 0 1 auto;
+  .reveal .qfix .qfix-col {
     padding-top: 0;
+  }
+  .reveal .qfix .qfix-body {
+    flex: 0 1 auto;
   }
 }
 
