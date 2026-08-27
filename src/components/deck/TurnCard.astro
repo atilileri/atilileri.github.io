@@ -1,0 +1,25 @@
+---
+/**
+ * One turn card in chapter 4's roll-back tree (#53).
+ *
+ * It is a component, not a helper in the page's frontmatter, because Astro
+ * frontmatter is TypeScript and cannot hold JSX — and the tree draws the same
+ * card in four places (the trunk, each world's stem, and both cases of world
+ * A). One file keeps them from drifting.
+ *
+ * The turns themselves, and every decision behind their wording, live in
+ * src/lib/asml-ai/roll-back.ts.
+ */
+import type { Turn } from "../../lib/asml-ai/roll-back";
+
+const { turn } = Astro.props as { turn: Turn };
+const mark = turn.mark === "ok" ? "✓" : turn.mark === "bad" ? "✗" : "";
+---
+
+<div class:list={["rb-turn", turn.mark]}>
+  <span class="id">{turn.id}</span>
+  <span class="who">{turn.who}</span>
+  <span class="txt">{turn.text}</span>
+  <span class="mark">{mark}</span>
+  {turn.badge && <span class="badge">{turn.badge}</span>}
+</div>

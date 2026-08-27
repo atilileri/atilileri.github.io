@@ -72,25 +72,20 @@ import * as SZ from "../../../lib/asml-ai/smart-zone";
 // header before changing what is on screen here.
 import * as RB from "../../../lib/asml-ai/roll-back";
 
+import TurnCard from "../../../components/deck/TurnCard.astro";
+
 /**
- * Chapter 4's cache slide (#56). Static — no widget, no island, so there is no
- * src/lib file: the only thing worth holding still is the arithmetic, and it is
- * three lines.
+ * Chapter 4's cache slide (#56). Static — no widget, no island, and since
+ * 2026-08-26 no numbers of its own either: the two price tags (100k re-read at
+ * 5 credits against a 100k rebuild at 62.5) came off the wall on Atil's call,
+ * and with them the derived constants that used to sit here.
  *
- * The two price tags are DERIVED from chapter 3's rate card rather than typed,
- * so the deck can never disagree with itself — same Opus row, same AIC-per-1M
- * figures the cost dial shows two chapters earlier.
- *
- * The 1.25x cache-WRITE premium is deliberately absent from rates.ts (#21/#23:
- * off-screen everywhere in chapter 3, presenter notes only) and map #42 leaves
- * that decision open for the chapter-3 widget. It lives here, page-local, on
- * purpose: this slide is the ONE place in the deck where a rebuild price goes on
- * the wall, and it goes up as a rebuild — a thing that happened to a session —
- * never as a rate the room is asked to learn.
- *
- * The 12.5x-vs-10x gap the two tags open up is a deliberate trap (#56 dec. 7),
- * not an oversight. The answer is in the presenter note; do not pre-empt it on
- * screen with a "+25% write" annotation.
+ * If the tags ever return, rebuild them from chapter 3's rate card rather than
+ * typing the figures, so the deck can never disagree with itself: the Opus row
+ * of MODELS, a 100k prefix, and a 1.25x cache-WRITE premium that is deliberately
+ * absent from rates.ts (#21/#23: off-screen everywhere in chapter 3, presenter
+ * notes only). The 12.5x-vs-10x gap the tags opened is a deliberate trap
+ * (#56 dec. 7); the answer stays in the presenter note either way.
  */
 import { MODELS, fmtInt } from "../../../lib/asml-ai/rates";
 import { hash32, tokenize } from "../../../lib/asml-ai/tokenize";
@@ -126,150 +121,6 @@ const embedWord = (word: string, near: string[]) => ({
 });
 /** The word is `budget`, because it is in the prompt the room is reading. */
 const EMBED_A = embedWord("budget", ["cost", "spend", "invoice"]);
-
-const CACHE_PREFIX_TOKENS = 100_000;
-const CACHE_WRITE_MULTIPLIER = 1.25;
-const cacheModel = MODELS.find((m) => m.id === "opus")!;
-const cachePerM = CACHE_PREFIX_TOKENS / 1_000_000;
-/** re-read the cached prefix: 5 AIC */
-const cacheReRead = cacheModel.cached * cachePerM;
-/** rebuild it from scratch — fresh input, billed as a cache write: 62.5 AIC */
-const cacheRebuild = cacheModel.input * CACHE_WRITE_MULTIPLIER * cachePerM;
-/** credits read whole where they are whole; the .5 is half the point */
-const fmtCredits = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
-
-/**
- * Chapter 4's guardrails slide (#55) — the "without" wall. Static, no island.
- *
- * The mechanic is WHAT COMES BACK: the same check on both sides of the slide,
- * and the only variable is what the agent receives. So the two halves must be
- * the SAME RUN — the verdict's three tokens (FAIL, line 14, type mismatch) are
- * all findable in the noise, and if you edit one side you edit the other.
- *
- * This is a wall to be seen, not read: it is set at a size the room cannot
- * follow on purpose, and the count under it ("400 lines to read") is the point.
- * Deliberately NO numbers of the evidential kind on this slide — 11% → 18% is
- * the presenter's answer when challenged, never a caption (#55 dec. 3).
- *
- * The lines below are ordinary Node/Jest output because a wall of test noise is
- * the one thing every seat in the room has already seen. Nothing here is an
- * ASML file or an ASML result; the TU Delft + ASML study stays in the mouth and
- * off the wall (#50).
- */
-const GUARD_VERDICT = ["FAIL", "line 14", "type mismatch"];
-/** One coherent run, in order — NOT a shuffle. An earlier version scattered a
- *  pool of lines and it read as gibberish to anyone who looked closely: stack
- *  frames detached from their errors. The wall has to be genuinely unreadable
- *  because there is too much of it, not because it is nonsense. */
-const guardNoise = [
-  "$ npm test",
-  "",
-  " PASS  src/calibration/table.test.ts",
-  "   ✓ resolves the calibration table (14 ms)",
-  "   ✓ clamps out-of-range setpoints (3 ms)",
-  "   ✓ rejects a table with duplicate keys (2 ms)",
-  " PASS  src/calibration/interpolate.test.ts",
-  "   ✓ interpolates between two known points (2 ms)",
-  "   ✓ falls back to the nearest point at the edges (1 ms)",
-  "",
-  /* The failure sits HIGH on purpose: all three of the verdict's tokens — FAIL,
-     line 14, and the type error — have to be findable in the part of the wall
-     that is still above the fade, or the two halves stop being the same run. */
-  " FAIL  src/pipeline/stage.test.ts",
-  "   ● stage › applies the offset before the gain",
-  "",
-  "     TypeError: Cannot read properties of undefined (reading 'gain')",
-  "",
-  "       12 | export function applyOffset(input: Sample, cfg: StageConfig) {",
-  "       13 |   const shifted = input.value - cfg.offset;",
-  "     > 14 |   return shifted * cfg.stage.gain;",
-  "          |                              ^",
-  "       15 | }",
-  "",
-  "       at applyOffset (src/pipeline/stage.ts:14:19)",
-  "       at Object.<anonymous> (src/pipeline/stage.test.ts:41:5)",
-  "       at Promise.then.completed (node_modules/jest-circus/build/utils.js:298:28)",
-  "       at new Promise (<anonymous>)",
-  "       at callAsyncCircusFn (node_modules/jest-circus/build/utils.js:231:10)",
-  "       at _callCircusTest (node_modules/jest-circus/build/run.js:316:40)",
-  "       at processTicksAndRejections (node:internal/process/task_queues:95:5)",
-  "       at _runTest (node_modules/jest-circus/build/run.js:252:3)",
-  "       at _runTestsForDescribeBlock (node_modules/jest-circus/build/run.js:126:9)",
-  "       at run (node_modules/jest-circus/build/run.js:71:3)",
-  "       at runAndTransformResultsToJestFormat (node_modules/jest-circus/build/legacy.js:122:21)",
-  "       at jestAdapter (node_modules/jest-circus/build/legacy-code.js:79:19)",
-  "       at runTestInternal (node_modules/jest-runner/build/runTest.js:367:16)",
-  "       at runTest (node_modules/jest-runner/build/runTest.js:444:34)",
-  "",
-  "   ✓ rejects a negative gain (1 ms)",
-  "   ✓ passes a zero offset straight through (1 ms)",
-  " PASS  src/io/frame.test.ts",
-  "   ✓ round-trips a frame header (5 ms)",
-  "   ✓ refuses a truncated payload (1 ms)",
-  " PASS  src/io/checksum.test.ts",
-  "   ✓ agrees with the reference implementation (9 ms)",
-  "",
-  "   console.warn",
-  "     deprecated: pass a Buffer, not a string",
-  "       at warn (src/io/checksum.ts:88:11)",
-  "       at checksum (src/io/checksum.ts:31:5)",
-  "       at Object.<anonymous> (src/io/checksum.test.ts:12:20)",
-  "",
-  " PASS  src/schedule/window.test.ts",
-  "   ✓ merges overlapping windows (7 ms)",
-  "   ✓ keeps disjoint windows apart (1 ms)",
-  "   ✓ orders windows by start time (2 ms)",
-  " PASS  src/schedule/retry.test.ts",
-  "   ✓ backs off exponentially (12 ms)",
-  "   ✓ gives up after the configured attempts (3 ms)",
-  " PASS  src/report/summary.test.ts",
-  "   ✓ totals a run with no failures (2 ms)",
-];
-
-/**
- * Chapter 4's hygiene slide (#56) — the brief that quietly loses a line.
- *
- * The dropped constraint is index 1, and it must stay a constraint the room can
- * see the cost of ("no new dependencies") — the slide's whole argument is that
- * a plausible result comes back and nothing announces what went missing. There
- * is no error state to render because there is no error: that is the mechanic.
- */
-const HYGIENE_BRIEF = [
-  "use the existing auth",
-  "no new dependencies",
-  "keep the public API",
-  "tests must pass",
-  "European date format",
-];
-const HYGIENE_DROPPED = 1;
-
-/**
- * Chapter 4's payoff slide (#57) — chapter 2's fork, returning stripped.
- *
- * The branch names come from src/lib/asml-ai/halluc.ts rather than being
- * retyped, because recognition is the entire mechanic: if a branch key ever
- * changes, both slides have to move together. Chapter 2's slide builds its fork
- * at runtime; this one is rendered at build time and does NOT animate — the
- * image is RETURNING, not arriving, so drawing it again would teach a diagram
- * the room is supposed to already own.
- *
- * What is deliberately absent (#57): the route tags on the arrows, the `Fixed.`
- * node, and everything below the two branch boxes. The route tags are spent as
- * the presenter's ninety seconds instead — showing `smart zone` alone makes the
- * unpaid `/grilling` look like an oversight, and showing both contests the space
- * under branches we shrank on purpose.
- */
-import * as HAL from "../../../lib/asml-ai/halluc";
-
-/** The chapter's two movements, hung on the fork's two branches. The verb is
- *  the chapter's; the noun is chapter 2's; the join is the whole reveal. */
-const PAYOFF_TIERS: Record<HAL.BranchKey, { verb: string; diagnostic: string }> = {
-  factuality: { verb: "Prepare it.", diagnostic: "you fed it" },
-  faithfulness: { verb: "Defend it.", diagnostic: "you stayed sharp" },
-};
-/** The hinge is set on two lines: it is the longest string on the diagram and
- *  one line would set the viewBox's width. Same cut as chapter 2's. */
-const payoffHingeCut = HAL.HINGE.lastIndexOf(" ", HAL.HINGE.length / 2 + 6);
 
 /**
  * Slide 7 — the context primitives. Eight blocks in three groups, text taken
@@ -989,8 +840,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              prompt becomes numbers on the left, and one of those numbers is
              looked up on the right. Both panels are static. Nothing is typed
              into this slide and nothing rotates on it (Atil, 2026-08-23): the
-             left panel is a transcript, and one fragment swaps the plain
-             sentence for the prompt slide A4 bills, on both sides at once. -->
+             left panel is a transcript, and ONE fragment does the whole slide
+             — it swaps the plain sentence for the prompt slide A4 bills, turns
+             the right panel into the ladder, and lands the closing line. -->
         <section data-section="03 — Tokenomics" data-token-live>
           <span class="eyebrow">The vocabulary &middot; one prompt, then a real one</span>
           <h2 class="h-set">
@@ -1109,9 +961,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           <!-- The closing line, and it is the hand-off: everything the room has
                just watched — the chips, the counter, the ladder — priced ONE
                kind of token. The next slide runs all three at once, and its
-               three bars carry these three names. Third step, so it lands
-               after the ladder. -->
-          <p class="tk-close-line fragment rise" data-fragment-index="1">
+               three bars carry these three names. Same fragment index as the
+               swap (Atil, 2026-08-26): the slide has ONE step, and that step
+               lands the prompt, the ladder and this line together. -->
+          <p class="tk-close-line fragment rise" data-fragment-index="0">
             That was input alone. Tokens come in three kinds, at three prices:
             <b>what you send, what is remembered, and what comes back.</b>
           </p>
@@ -1134,9 +987,9 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             an AI credit. Don't work the ladder here — you are showing the room
             that the number has a price at all; the credits slide, two on from
             here, is where the rates sit beside the same ladder and it gets read
-            properly. Step once more for the closing line, and hand straight
-            over: input is one kind of three, and the next slide is a session
-            spending all three at once.
+            properly. The closing line arrives on that same step, so hand
+            straight over: input is one kind of three, and the next slide is a
+            session spending all three at once.
           </aside>
         </section>
 
@@ -1621,20 +1474,21 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
 
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 04 — "Best practices" (wayfinder map #42). The principles
-             that cut waste. COMPLETE at nine screens (#58 built the first half,
-             #59 the second), in the order the spine grilling (#54) locked:
-             divider · cold open · thesis · guardrails · smart zone · cache ·
-             roll back · hygiene · payoff.
+             that cut waste. SEVEN screens (2026-08-26): divider · thesis ·
+             benchmark · quick fixes · smart zone · roll back · cache. Atil cut
+             three, then added the quick-fixes card.
+             The guardrails slide, the hygiene slide and the payoff are gone;
+             #54's nine-slide spine and #57's fork callback are history, not the
+             build. Do not restore one of them from an older note alone.
 
              ONE ARGUMENT IN TWO MOVEMENTS — prepare it, then defend it. The back
              half is the same preparation DECAYING, which is why the thesis line
              "You are not prompting. You are preparing." hinges the whole
              chapter. The two movements are divided by a SPOKEN TURN only — "and
              then it all decays", on the way into the smart zone. There is no
-             divider and no "Part 2" slide, and adding one would break the payoff,
-             whose entire reveal is that the two movements were chapter 2's fork
-             all along. Cut order if the talk overruns live, Atil's: guardrails
-             first, then hygiene — nothing else.
+             divider and no "Part 2" slide. The payoff that used to close the
+             chapter on chapter 2's fork is cut, so the two movements now stay a
+             spoken frame only — say the turn, never promise a reveal.
 
              The thesis is the chapter's SPINE, not a practice among peers
              (#42): everything that follows is either one of these three legs
@@ -1656,120 +1510,169 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </RoadmapDivider>
 
-        <!-- 4b ─────────────────── THE THESIS: three legs, revealed.
-             Deliberately NO mechanism on screen (#43): "constrains the search
-             space" and "changes its objective function" are falsifiable and a
-             modelling-literate ASML attendee can name the counter-evidence.
-             Plain verbs only; the caveat lives in the notes. -->
-        <section class="thesis" data-section="04 — Best practices">
-          <span class="eyebrow">The whole chapter, in three moves</span>
+        <!-- 4b ─────────────────── IN ACTION: the handover card.
+             This slide used to carry the three legs of the thesis, revealed
+             one at a time (#42/#43). Atil replaced its body on 2026-08-26: he
+             hands the room to a colleague here, and the colleague talks over
+             the applications he actually built. The EYEBROW and the HEADLINE
+             are unchanged — the slide is still "In Action · Applications" and
+             still opens chapter 4.
+
+             The three legs are not gone, they are dissolved: every bullet
+             below is one of them, or a way of keeping one alive after the
+             first run. The leg wording, its evidence and its caveats survive
+             in the notes, because a challenge from the floor still lands on
+             the mechanism.
+
+             THE MAPPING (do not lose it in a later edit):
+             • yardstick      → Seg doc quality checker, SanityAI
+             • both sides     → PR reviewer, dependency graph builder
+             • ground truth   → AI4TWISTDoc, dependency graph builder
+             • target form    → stick diagrams & PlantUML, PPT generator,
+                                AI4TWISTDoc
+             • fix once       → Polarion linking checker, dependency graph
+                                builder, SanityAI
+             Small-scale agentic development is the one item with no home on
+             the wall: Atil cut its bullet. It is a spoken point only — see the
+             notes. If you cut another bullet, re-home its applications rather
+             than dropping them.
+
+             STATIC, no fragments (Atil): the room reads and photographs the
+             card while the presenter talks, the same contract as the
+             quick-fixes slide. Do not restore the build. -->
+        <section class="handover" data-section="04 — Best practices">
+          <span class="eyebrow">In Action</span>
           <h2 class="h-set">
             <span class="h-line"><span>Applications</span></span>
           </h2>
-          <!-- The three legs are TRAILERS for the three live applications
-               Atil runs on a second screen straight after this slide
-               (requirements audit · library migration · sequence diagrams from
-               source). Each is deliberately PRINCIPLE-PURE — none names its
-               demo — so the demo lands as recognition rather than as a thing
-               already announced. Atil's call; do not make them literal. -->
-          <ul class="build thesis-legs">
-            <li>
-              <span class="leg">Give it a yardstick.</span>
+          <div class="ho-grid">
+            <div class="ho-item">
+              <span class="leg">Write down what good looks like.</span>
               <span class="sub"
-                >Write down what good looks like, and it can measure what you
-                already have against it.</span
+                >Name the criteria first. Then it can grade the document you
+                already have.</span
               >
-            </li>
-            <li>
-              <span class="leg">Give it both sides.</span>
+              <span class="apps">Seg doc quality checker &middot; SanityAI</span>
+            </div>
+            <div class="ho-item">
+              <span class="leg">Show both sides.</span>
               <span class="sub"
-                >The thing you have, the thing you want, and how the two
-                correspond.</span
+                >How it is, how you want it to be, and the real interfaces
+                between the two.</span
               >
-            </li>
-            <li>
-              <span class="leg">Give it a target form.</span>
+              <span class="apps">PR reviewer &middot; Dependency graph builder</span>
+            </div>
+            <div class="ho-item">
+              <span class="leg">One worked example beats a page of rules.</span>
               <span class="sub"
-                >Name the shape you want back and it maps what you own into
-                it.</span
+                >Your example is the ground truth. It carries your style and
+                your intent for free.</span
               >
-            </li>
-          </ul>
+              <span class="apps">AI4TWISTDoc &middot; Dependency graph builder</span>
+            </div>
+            <div class="ho-item">
+              <span class="leg">Best of the work is translation.</span>
+              <span class="sub"
+                >Name the target form and it maps what you own into that form.
+                The model is already good at this.</span
+              >
+              <span class="apps"
+                >Stick diagrams &amp; PlantUML &middot; PPT generator &middot;
+                AI4TWISTDoc</span
+              >
+            </div>
+            <div class="ho-item">
+              <span class="leg">Fix once, repeat as ground truth.</span>
+              <span class="sub"
+                >Keep the fix. The second time it is a skill you run, not a
+                prompt you write again.</span
+              >
+              <span class="apps"
+                >Polarion linking checker &middot; Dependency graph builder
+                &middot; SanityAI</span
+              >
+            </div>
+          </div>
+
           <aside class="notes">
-            This is the chapter's spine. Everything after it is one of these
-            three, or a way of protecting them — say that once, here, and the
-            rest of the chapter reads as a list of instances rather than a bag
-            of tips.
+            THIS IS THE SEAM. Atil hands the room over here. Say the handover
+            out loud — "here is someone who ran these eight times" — otherwise
+            the room reads the change of voice as a fault.
 
-            Walk them with →, one at a time. Each leg is a TRAILER for one of
-            the three live applications you are about to run — do not name
-            them here. The demo should land as recognition.
+            The card is static. Let them read and photograph it while you talk.
+            Do not read the five lines aloud; pick the two or three that match
+            the applications you want to show.
 
-            A YARDSTICK → the requirements audit. The strongest version is not
-            "ask for good work" but a written definition of good that it can
-            hold work against. Note the direction: this grades what you ALREADY
-            have, it is not only a rule for new work. Evidence: giving a model
-            an explicit checklist to evaluate against raised agreement with
-            human judgement, and letting it revise against that checklist
-            improved the result again. If you quote a number, name the
-            benchmark — the published gains are on general reasoning tasks,
-            not a clean coding experiment. That gap is honest; admit it if
-            asked.
+            ONE SENTENCE HOLDS THE WHOLE CHAPTER: you are not prompting, you
+            are preparing. Say it here. Nothing on screen carries it, and the
+            rest of the chapter hangs on it.
 
-            BOTH SIDES → the library migration. This is the leg with hard
-            numbers. Across 576,000 generations, roughly a fifth of the
-            software packages models recommended did not exist. Put the real
-            interfaces in front of it and invented calls on unfamiliar APIs
-            drop sharply. The word "correspond" is doing quiet work — it is not
-            just two documents, it is how the two map onto each other.
-            IMPORTANT CAVEAT, counter-intuitive: this is NOT "always paste in
-            the docs." Injecting documentation for things the model already
-            knows well measurably made it WORSE. Targeted, not indiscriminate
-            — which is also why a later slide is about a context budget.
+            THE GLOSSES — spoken, one per line, only for the ones you use:
+            • A YARDSTICK — the quality checker gets the qualifying criteria
+              and the characteristics of a good requirement. It grades what
+              exists; it is not only a rule for new work.
+            • BOTH SIDES — the PR reviewer gets how it is, how you want it, and
+              two libraries that are already there. Making it work on those two
+              is the test, and the job itself is a translation.
+            • GROUND TRUTH — AI4TWISTDoc is translation into a form the model
+              already knows. You show it one example done properly, and that
+              example carries your style and your intent.
+            • A TARGET FORM — the stick diagrams are the quick win. PlantUML
+              complements them, because it is another named target form.
+            • FIX ONCE — the Polarion linking checker and the graph builder
+              are the same lesson: do not delete the work and re-prompt it next
+              time. The fix itself becomes the ground truth for the next run.
 
-            A TARGET FORM → the sequence diagrams. Agents are strong at turning
-            one form into another provided you name the target form; giving the
-            model an explicit structure to work through measurably improves
-            translation. Do NOT claim "high fidelity" or quote a percentage —
-            the published studies use small open models and the results are
-            uneven. Claim the practice, not a superpower. Save the "and we ran
-            it on the cheapest model we have" punchline for the demo itself;
-            it is a Tokenomics callback and it is wasted here.
+            TWO POINTS THAT ARE SPOKEN ONLY, because no bullet carries them:
+            start with agentic work small enough to check by hand; and both
+            checkers can become deterministic tools, because the criteria from
+            the first bullet are what make that possible.
 
-            LAND THE TURN, SPOKEN NOT SHOWN (Atil, 2026-08-25): you are not
-            prompting, you are preparing. That is the sentence the chapter
-            hangs on, and nothing on screen carries it any more.
+            SANITYAI SITS IN THREE PLACES on purpose: it improves prompts with
+            evidence, and it turns repeated tasks into skills. That is the
+            whole chapter in one application — use it as the closing example if
+            you only have time for one.
 
-            ── THE SWITCH ──
-            Say "three of these, live", then move to the other screen. That
-            line is your permission to leave the deck; without it the room
-            reads the jump as a fault. Do not list the three first — the whole
-            point is that each demo arrives as a worked example of a leg they
-            have just heard.
+            THE PPT GENERATOR is Microsoft 365 Copilot, not a build. Name that
+            plainly if it comes up; the point is the target form, not the tool.
 
-            Run them in leg order so the mapping is felt rather than
-            explained: the requirements audit, then the migration, then the
-            diagrams.
+            IF ASKED "which one do I start with" — the quick wins: stick
+            diagrams and the linking checker. Both pay back in a day and both
+            teach the same habit.
 
-            ── COMING BACK ──
-            Return to THIS slide, then say the tie-back out loud: all three
-            worked because you prepared them. The legs turn from promise into
-            proof and it costs no extra slide.
-
-            NOTE ON ORDER (Atil, 2026-08-25): this slide now OPENS the chapter,
-            and the benchmark number comes next. Hand into it as evidence for
-            what you have just claimed — someone else's brief, audited. The
-            chapter's turn — "and then it all decays" — belongs to the smart
-            zone, not to this slide. Do not spend it here.
+            ── THE EVIDENCE, kept from the three-leg version (#43) ──
+            Quote a number only if you are challenged, and name its benchmark.
+            • YARDSTICK: giving a model an explicit checklist to evaluate
+              against raised agreement with human judgement, and letting it
+              revise against that checklist improved the result again. The
+              published gains are on general reasoning tasks, not a clean
+              coding experiment. Admit that gap if asked.
+            • BOTH SIDES: across 576,000 generations, roughly a fifth of the
+              software packages models recommended did not exist. Real
+              interfaces in front of it cut invented calls sharply. CAVEAT, and
+              it is counter-intuitive: this is NOT "always paste in the docs" —
+              injecting documentation for things the model already knows well
+              measurably made it WORSE. Targeted, not indiscriminate, which is
+              also why a later slide is about a context budget.
+            • TARGET FORM: giving the model an explicit structure to work
+              through measurably improves translation. Do NOT claim "high
+              fidelity" or quote a percentage — the published studies use small
+              open models and the results are uneven. Claim the practice, not a
+              superpower.
+            Research: docs/research/constraining-search-space.md.
 
             IF CHALLENGED on mechanism — "a prompt doesn't actually constrain
             anything" — that is correct and you should say so: a prompt shifts
             what the model is likely to produce, it does not forbid anything.
-            The slide is deliberately worded to claim only that. Nothing on
-            screen says otherwise.
+            The slide is deliberately worded to claim only that.
+
+            NOTE ON ORDER (Atil, 2026-08-25): this slide OPENS the chapter, and
+            the benchmark number comes next. Hand into it as evidence for what
+            the room has just heard — someone else's brief, audited. The
+            chapter's turn — "and then it all decays" — belongs to the smart
+            zone. Do not spend it here.
           </aside>
         </section>
-
         <!-- 4c ─────────────────── THE NUMBER: someone else's brief, audited.
              #42/#43. It used to open the chapter; it now follows the three
              legs (Atil, 2026-08-25), so it reads as EVIDENCE for the claim the
@@ -1871,7 +1774,96 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             hand the half-written one to /grilling and let it find the holes.
             Callback to chapter 2's routes; one sentence, do not demo it.
 
-            Hand into the smart zone with the spoken turn — you prepared it
+            The fix column writes the ticket; the slide after it steers the
+            answer. Say that link out loud — the room is about to read a second
+            list of imperatives and has to hear the difference.
+
+            The chapter's turn is NOT yours any more (Atil, 2026-08-26). "And
+            then it all decays" now hands out of the quick-fixes slide. Go
+            straight there.
+          </aside>
+        </section>
+
+        <!-- 4c2 ────────────────── FIVE QUICK FIXES (static, Atil 2026-08-26).
+             The last slide of the chapter's FIRST movement, and the one the
+             room photographs. Five sentences Atil actually uses, printed
+             verbatim in mono: two that shape the answer, three that attack it.
+
+             NO GLOSS AND NO COLUMN HEADINGS on the wall (Atil's call, grilled
+             2026-08-26). The sentences are the artefact; the presenter names
+             the split and speaks the glosses, which live in the notes below.
+             Static, like the fix column it follows — no fragments.
+
+             THE CHAPTER'S TURN MOVES HERE from the benchmark slide, so
+             movement one ends on words the room can steal.
+
+             NO SOURCE LINE, deliberately: the chapter spent its number one
+             slide ago, this slide is craft, and the eyebrow says so. Overlaps
+             with the cache slide's subagent habit and 4c's /grilling hatch are
+             KNOWN and left standing — Atil's call. -->
+        <section class="qfix" data-section="04 — Best practices">
+          <span class="eyebrow">Sentences that make an impact</span>
+          <h2 class="h-set">
+            <span class="h-line"><span>Five quick fixes</span></span>
+          </h2>
+          <div class="qfix-cols">
+            <!-- SHAPE THE ANSWER — Atil's order, unchanged. -->
+            <div class="qfix-col">
+              <ul class="qfix-list">
+                <li>
+                  Be extremely concise. Sacrifice grammar for the sake of
+                  concision.
+                </li>
+                <li>Code only, no explanation.</li>
+              </ul>
+              <!-- The cost of this column, admitted on the wall rather than
+                   left to the presenter: concision buys speed with caveats. -->
+              <p class="qfix-note">use at discretion</p>
+            </div>
+            <!-- ATTACK THE ANSWER — cheapest move first, biggest last, so the
+                 presenter's last word is the review board. -->
+            <div class="qfix-col">
+              <ul class="qfix-list">
+                <li>
+                  Ask whenever in doubt. Let me clarify. Challenge your
+                  assumptions.
+                </li>
+                <li>Identify logical fallacies.</li>
+                <li>Run adversarial reviews via multiple subagents.</li>
+              </ul>
+            </div>
+          </div>
+
+          <aside class="notes">
+            NOTHING ON THE WALL NAMES THE SPLIT, so your voice carries it. Say
+            it before any line: the left column shapes what comes back, the
+            right column attacks it.
+
+            The card is static. Let the room read and photograph it while you
+            talk.
+
+            THE GLOSSES — spoken, never shown. One per line, in this order:
+            • Be extremely concise — you get the answer, not the essay.
+            • Code only — the diff is the answer.
+            • Ask whenever in doubt — it surfaces a wrong guess before it
+              builds on one.
+            • Identify logical fallacies — it reads your argument as an
+              opponent would.
+            • Adversarial reviews — a review board, not a reviewer.
+
+            The right column climbs. End on the review board; it is the biggest
+            move on the slide.
+
+            "USE AT DISCRETION" is your answer to the challenge that is coming.
+            These two sentences shape an answer you can already judge. Use them
+            when you know the shape you want, not when you are still learning
+            the problem.
+
+            IF ASKED where these come from: they are the ones I use, not a
+            study. That is why the slide carries no source — the number the
+            chapter needed is one slide back.
+
+            HAND INTO THE SMART ZONE with the chapter's turn: you prepared it
             well, and then it all decays.
           </aside>
         </section>
@@ -2069,30 +2061,35 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4e ─────────────────── ROLL BACK (widget, #53).
-             The chapter's second and last widget, and its most counter-intuitive
-             turn: the room's instinct — argue with it — is the expensive move.
+        <!-- 4e ─────────────────── ROLL BACK (tree, #53).
+             The chapter's most counter-intuitive turn: the room's instinct —
+             argue with it — is the expensive move.
 
-             PRESENTER-DRIVEN, unlike every other widget in this deck: the fork
-             is two real buttons and the presenter picks (c corrects, x restores,
-             r resets), so the room watches the choice being made. Three mechanics
-             were prototyped and walked (#53); the two rejected ones live on
-             branch `prototype/roll-back`. What is load-bearing here — the turns
-             LEAVING the pane, the turn counter, the better T4′, the absence of
-             any money — is documented in the header of
-             src/lib/asml-ai/roll-back.ts. Read it before editing.
+             ⚠ REBUILT 2026-08-26 (Atil, grilling session). This was a
+             presenter-driven transcript pane with two buttons (c / x / r). It is
+             now ONE SESSION TREE and three right-arrow presses. Everything that
+             is a decision rather than markup — why the session is a report and
+             not code, why case 1 runs two corrections, why case 3 ends the
+             opposite way to case 2 — is in the header of
+             src/lib/asml-ai/roll-back.ts. Read it before editing, and do not
+             restore the pane, the buttons, the turn counter or the vocabulary
+             row: each was cut for a reason recorded there.
+
+             THE SHAPE: one trunk, two alternative worlds off the SAME
+             checkpoint. World A (left) is a wrong turn, and it splits again into
+             the wrong repair and the right one. World B (right) is parallel
+             work, and it forks. Case 2 and case 3 are not ranked against each
+             other — they answer different questions.
+
+             TWO PRESSES: all of world A, then world B. No keys and no state,
+             so entering from either direction is always right.
 
              NOTE ON ORDER (Atil, 2026-08-25): this slide follows the smart zone
              directly and the cache slide (#56) now comes AFTER it, not before.
              The reversal costs one line: "rolling back doesn't break the cache
              — /clear does" can no longer be spent here, because the room has
              not met the 12.5× yet. The cache slide spends it instead. -->
-        <section
-          class="rb"
-          data-section="04 — Best practices"
-          data-rollback
-          data-frags
-        >
+        <section class="rb" data-section="04 — Best practices" data-frags>
           <span class="eyebrow">{RB.EYEBROW}</span>
           <h2 class="h-set">
             {RB.HEADLINE.map((l) => (
@@ -2101,42 +2098,87 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               </span>
             ))}
           </h2>
+
+          <!-- the one line of prose, and it OPENS: the room reads the
+               instruction, then watches three trees obey it. -->
           <p class="rb-open-line">{RB.OPEN_LINE}</p>
 
-          <div class="rb-stage">
-            <!-- What the model re-reads every turn. A COUNT OF TURNS, never
-                 credits — the cache slide, two slides later, owns the money and
-                 this slide's argument is quality (#48 §6). -->
-            <div class="rb-reads" data-rb-reads>
-              <span data-rb-reads-txt />
-              <span class="rb-illus">re-read on every turn</span>
+          <div class="rbt">
+            <!-- the trunk. T2 is named, so every move below has something on
+                 screen to point back at. -->
+            <div class="rbt-trunk">
+              {RB.TRUNK.map((t) => <TurnCard turn={t} />)}
+              <div class="rb-ckpt">{RB.CHECKPOINT}</div>
             </div>
-            <div class="rb-pane" data-rb-pane />
-            <div class="rb-choice">
-              <button class="rb-btn red" data-rb-correct>
-                Correct it<span class="rb-key">c</span>
-              </button>
-              <button class="rb-btn green" data-rb-back>
-                {RB.RESTORE}<span class="rb-key">x</span>
-              </button>
-              <button class="rb-reset" data-rb-reset>reset · r</button>
-            </div>
-            <p class="rb-note" data-rb-note />
-            <p class="rb-threshold" data-rb-threshold hidden>{RB.THRESHOLD}</p>
-            <p class="rb-survives" data-rb-survives hidden>{RB.SURVIVES}</p>
-          </div>
 
-          <!-- The closing line: the vocabulary an attendee can go and find. The
-               pane already shows the first two in situ, so this row carries
-               WHERE they are. One fragment — the ladder stays in the note, which
-               is what keeps the chapter at nine screens. -->
-          <div class="rb-vocab fragment">
-            {RB.VOCAB.map((v) => (
-              <span class="v">
-                <span class="n">{v.name}</span>
-                <span class="w">{v.where}</span>
-              </span>
-            ))}
+            <!-- WORLD A — one turn goes wrong. Press 1 opens ALL of it: the
+                 room's instinct and the repair arrive together, side by side,
+                 and the presenter walks them left to right by voice rather
+                 than by key (Atil, 2026-08-26).
+
+                 THE TWO STEMS SHARE ROW 1 OF THE GRID (Atil, 2026-08-26), so
+                 T4′ starts on the same line as T4 and the room compares the two
+                 briefs without moving its eyes. That is also why the stems are
+                 grid CHILDREN rather than a wrapper above the split: only a
+                 shared row can hold the divider under them at one height. -->
+            <div class="rbt-world a fragment" data-fragment-index="0">
+              <span class="rbt-world-hd">{RB.WORLD_A.label}</span>
+
+              <div class="rbt-cases">
+                <div class="rbt-stem red">
+                  {RB.WORLD_A.turns.map((t) => <TurnCard turn={t} />)}
+                </div>
+                <!-- the rewritten brief, level with the wrong one -->
+                <div class="rbt-stem green">
+                  {RB.CASE_BACK.turns.map((t) => <TurnCard turn={t} />)}
+                </div>
+
+                <div class="rbt-case red">
+                  <span class="rbt-move">{RB.CASE_CORRECT.move}</span>
+                  <span class="rbt-where">{RB.CASE_CORRECT.where}</span>
+                  <p class="rbt-effect">{RB.CASE_CORRECT.effect}</p>
+                  <div class="rbt-turns">
+                    {RB.CASE_CORRECT.turns.map((t) => <TurnCard turn={t} />)}
+                  </div>
+                  <p class="rbt-note">{RB.CASE_CORRECT.note}</p>
+                </div>
+
+                <div class="rbt-case green">
+                  <span class="rbt-move">{RB.CASE_BACK.move}</span>
+                  <span class="rbt-where">{RB.CASE_BACK.where}</span>
+                  <!-- THE CRUX: removed from the session, not hidden from the
+                       screen. The column above simply starts at T4′. -->
+                  <p class="rbt-effect cut">{RB.CASE_BACK.effect}</p>
+                  <p class="rbt-note">{RB.CASE_BACK.note}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- WORLD B — same checkpoint, parallel work. The one case where
+                 NOTHING is removed: a fork copies the trunk and keeps the old
+                 session alive. Three stubs, not three transcripts — the lesson
+                 is isolation, not content. -->
+            <div class="rbt-world b fragment" data-fragment-index="1">
+              <span class="rbt-world-hd">{RB.WORLD_B.label}</span>
+              <div class="rbt-stem">{RB.WORLD_B.turns.map((t) => <TurnCard turn={t} />)}</div>
+
+              <div class="rbt-cases one">
+                <div class="rbt-case fork">
+                  <span class="rbt-move">{RB.CASE_FORK.move}</span>
+                  <span class="rbt-where">{RB.CASE_FORK.where}</span>
+                  <p class="rbt-effect keep">{RB.CASE_FORK.effect}</p>
+                  <div class="rbt-forks">
+                    {RB.FORK_BRANCHES.map((b) => (
+                      <span class="rbt-fork">
+                        <span class="n">{b}</span>
+                        <span class="m">✓</span>
+                      </span>
+                    ))}
+                  </div>
+                  <p class="rbt-note">{RB.CASE_FORK.note}</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <aside class="notes">
@@ -2152,44 +2194,53 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             chapter 2's faithfulness branch, arriving as a session-management
             problem. Take both callbacks; do not explain them again.
 
-            HOW TO DRIVE IT: press c once — read the note, the correction and the
-            wrong turn are now both in the window. Press c again — the wrong turn
-            has bred, and the rule appears: two failed corrections is Anthropic's
-            published line, not our opinion. Then x — and SAY IT WHILE THE TURNS
-            SLIDE OUT: they are removed from the session, not hidden from the
-            screen. Both vendors document that in their own words. r resets if
-            you want to walk it the other way round.
+            HOW TO DRIVE IT — two presses, and say the trunk first: one
+            session, two turns, and T2 is the last state you were happy with.
+            PRESS 1 opens all of world A, and you walk it LEFT TO RIGHT. Left:
+            it gets one turn wrong, and here is what everybody does — correct
+            it, twice. Nothing left the window; your two corrections and its two
+            wrong answers are all still in there. Right, same line, same
+            checkpoint: T4 is GONE — removed from the session, not hidden from
+            the screen, and both vendors document that in their own words. The
+            new prompt is not the old one repeated: it carries the two things
+            the first brief never said. The two briefs sit on one line so the
+            room can read them against each other; give it that second.
+            PRESS 2, world B: same checkpoint again, different problem. Three
+            audiences, three forks, nothing removed at all. Case 2 rewrites the
+            story; case 3 walks several stories at once. They are not competing.
 
-            THE COUNTER ABOVE THE PANE is turns, not money. If someone asks what
-            the arguing cost: almost nothing, it is a cached re-read — that is the
-            point, it is cheap and it is still the wrong move.
-
-            DO NOT SPEND THE CACHE CALLBACK HERE (Atil, 2026-08-25). "Rolling
-            back does not break the cache, /clear does" needs the 12.5×, and
-            the cache slide is still two slides away. If someone asks about the
-            money now, answer in one sentence — rolling back re-reads what is
-            already cached — and promise the number. The cache slide lands it.
-
-            THE LADDER, IF ASKED "so when DO I argue?" — cheapest first: one
-            nudge, then roll back, then Fork Conversation if the session holds
-            work worth keeping, then /compact, and only then /clear. Both vendors
-            say course-correct EARLY. The boundary is one nudge versus cascading
-            errors.
+            THE PUBLISHED THRESHOLD, SPOKEN NOT SHOWN: two failed corrections is
+            Anthropic's own line — that is where they say stop. It is not our
+            opinion, and it is why case 1 stops at two.
 
             WHERE IT ENDS: what it ran in the terminal stays run. Checkpoints
             undo what the agent typed, not what it did — every vendor says so in
             their own docs, and every one of them points at git for the rest.
-            Which is the guardrail you already have — a callback BACKWARDS to
-            the guardrails slide, not a set-up for it. Guardrails is four slides
-            behind you now (#54 moved it up); do not promise it here.
+            Which is the guardrail you already have — a callback BACKWARDS to the
+            guardrails slide, not a set-up for it. Do not promise it here.
 
-            HAND OVER: that was the session. The last practice is the brief
-            itself — hygiene, next.
+            NO MONEY ON THIS SLIDE. If someone asks what the arguing cost:
+            almost nothing, it is a cached re-read — that is the point, it is
+            cheap and it is still the wrong move. "Rolling back does not break
+            the cache, /clear does" needs the 12.5×, and the cache slide is next.
+            Promise the number; let that slide land it.
+
+            THE LADDER, IF ASKED "so when DO I argue?" — cheapest first: one
+            nudge, then edit or restore, then Fork Conversation if the session
+            holds work worth keeping, then /compact, and only then /clear. Both
+            vendors say course-correct EARLY. The boundary is one nudge versus
+            cascading errors.
+
+            WHERE THE MOVES LIVE, IF ASKED: Restore Checkpoint on hover of a
+            request, Edit a previous request by clicking the bubble, Fork
+            Conversation from the session menu, and /undo — Esc Esc — in the CLI.
+
+            HAND OVER: that was the session. The money is next.
 
             ── MUST NOT CLAIM ──
             "Never correct it." Contradicts VS Code's "course-correct early" and
             Anthropic's "course-correct early and often", on the same pages this
-            slide cites. Say one nudge, then roll back.
+            slide cites. Say one nudge, then go back.
 
             "It can't recover." False — restating inside the conversation
             recovers 15–20%. Say the odds get much worse.
@@ -2201,6 +2252,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             across turns versus all at once — not a measurement of correcting a
             mistake. Do not attribute rolling back to the paper either; its own
             recommendation is to consolidate and retry in a new conversation.
+
+            "Forking removes the mistake." It does not remove anything. A fork
+            COPIES the trunk and leaves the old session alive — that is the whole
+            difference between case 2 and case 3, and it is on the slide.
 
             "Rolling back wipes the mistake completely." Not terminal side
             effects, not memory files, not background subagent edits — and if the
@@ -2218,199 +2273,10 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
           </aside>
         </section>
 
-        <!-- 4f ─────────────────── THE PAYOFF (static, #57).
-             ⚠ IT NO LONGER CLOSES THE CHAPTER (Atil, 2026-08-25). It now lands
-             straight after roll back, and three slides follow it — the cache,
-             hygiene, and the check. Read it as the ARRIVAL of the two
-             movements, not as the last thing the room sees.
-
-             The one image in it that is NOT new:
-             chapter 2's fork returns, stripped, with this chapter's two
-             movements written onto its two branches. Five consecutive slides
-             have landed a strong image; a sixth new one would be fatigue, but a
-             CALLBACK is a returning image, not a new one.
-
-             THE CALLBACK HANGS OFF THE MOVEMENTS, NOT THE SLIDES (#57). Run
-             per-slide and it breaks in two places: guardrails is verification,
-             which the fork actively mis-routes, and the cache is pure economics.
-             One level up it is exact — prepare it → factuality, defend it →
-             faithfulness — and the reveal is bigger, because the room discovers
-             the chapter's shape WAS chapter 2's diagnosis all along. Never claim
-             the per-slide mapping; someone will check.
-
-             THE FORK IS DELIBERATELY BARE: no route tags, no `Fixed.`, nothing
-             below the two branches, and it does not animate. Recognition, not
-             instruction. Branch names come from src/lib/asml-ai/halluc.ts so the
-             two slides can never drift apart.
-
-             THE CLOSING LINE SITS IN THE SAME SLOT chapter 2 uses for "Both
-             failures look identical on screen." Same slide shape, same
-             position, forty minutes later — a callback the room feels without
-             being able to name it. -->
-        <section class="payoff" data-section="04 — Best practices" data-frags>
-          <span class="eyebrow">The one lever you hold</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>You can&rsquo;t fix the model.</span></span>
-            <span class="h-line"><span>You can fix the window.</span></span>
-          </h2>
-
-          <!-- The stage sizes BOTH the tree and the tiers, so the join between
-               a branch name and the verb under it can never drift: the tiers'
-               columns are the viewBox's own percentages, which only hold while
-               the two elements are exactly the same width. -->
-          <div class="payoff-stage">
-            <svg
-              class="fork"
-              viewBox="0 0 420 216"
-              role="img"
-              aria-label="Chapter 2's decision tree, returning: a hallucination, the question 'was the information in the context?', branching No to factuality and Yes to faithfulness."
-            >
-              <rect class="node" x="125" y="10" width="170" height="38" rx="2" />
-              <text x="210" y="30">Hallucination</text>
-              <text class="yn" x="210" y="76">{HAL.HINGE.slice(0, payoffHingeCut)}</text>
-              <text class="yn" x="210" y="94">{HAL.HINGE.slice(payoffHingeCut + 1)}</text>
-              <path class="edge" d="M210,112 L120,158" />
-              <polygon
-                class="head"
-                points="0,-4 8,0 0,4"
-                transform="translate(120,158) rotate(152)"
-              />
-              <path class="edge" d="M210,112 L300,158" />
-              <polygon
-                class="head"
-                points="0,-4 8,0 0,4"
-                transform="translate(300,158) rotate(28)"
-              />
-              <text class="yn" x="140" y="126">{HAL.BRANCHES[0].answer}</text>
-              <text class="yn" x="282" y="126">{HAL.BRANCHES[1].answer}</text>
-              <rect class="node lit" x="16" y="166" width="188" height="40" rx="2" />
-              <text class="name" x="110" y="187">
-                {HAL.BRANCHES[0].key.toUpperCase()}
-              </text>
-              <rect class="node lit" x="216" y="166" width="188" height="40" rx="2" />
-              <text class="name" x="310" y="187">
-                {HAL.BRANCHES[1].key.toUpperCase()}
-              </text>
-            </svg>
-
-            <!-- Two tiers under each branch, and the JOIN is the whole reveal:
-                 the diagram supplies the noun, the chapter supplies the verb,
-                 and the second-person diagnostic rides underneath in small type.
-                 One branch per press, because the chapter's thesis was walked a
-                 leg at a time with → and closing it the same way bookends it. -->
-            <div class="payoff-tiers">
-              {HAL.BRANCHES.map((b) => (
-                <div class="pt fragment rise" data-branch={b.key}>
-                  <span class="pt-verb">{PAYOFF_TIERS[b.key].verb}</span>
-                  <span class="pt-diag">{PAYOFF_TIERS[b.key].diagnostic}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <!-- Two guards on this line, both load-bearing (#57): never "half" —
-               no split was ever measured, and "half" invites "which half?" — and
-               always time-bound, always ending on the room. The vendor's part is
-               not unfixable; it is on someone else's release cadence. -->
-          <p class="payoff-close-line fragment rise">
-            Their part ships every few months.
-            <b>Your part ships today.</b>
-          </p>
-
-          <aside class="notes">
-            ARRIVE AND SAY NOTHING NEW. "You've seen this." Let it sit. The whole
-            slide depends on the room getting a moment of recognition before any
-            label lands.
-
-            THEN THE REVEAL, ONCE, with the two presses: the first half of this
-            chapter was you making sure it was fed — that is the left branch. The
-            second half was you keeping it sharp — that is the right one. You
-            have been standing inside this diagram for forty minutes.
-
-            DO NOT RE-TEACH THE FORK. Chapter 2 owns the diagnosis. This is
-            arrival, not a second lesson — if you find yourself explaining the
-            hinge question again, the slide has failed.
-
-            THE NINETY SECONDS, and it is the chapter's best flourish: forty
-            minutes ago this diagram had a label on that arrow saying "smart
-            zone". You didn't know what it meant. Now you do. The other one says
-            "/grilling" — and that is where chapter 5 goes. Both of chapter 2's
-            promises paid. Keep the tags OFF the screen; this is a presenter's
-            gift, not a slide's. Do not hand into chapter 5 here: three slides
-            still follow, and the chapter's own last slide owns the hand-over.
-
-            LAND THE CEILING AS A DIVISION OF LABOUR, NOT A SHRUG. Part of it is
-            baked in at training and is the vendor's problem. The part you
-            control is the window — which is the only word that covers both
-            movements: preparing is what you put INTO the window, defending is
-            what happens TO it over time. That is why the two movements are one
-            argument. Their part ships every few months. Yours ships today.
-
-            THE SPOKEN LINE, unshown: "That was every move worth knowing. It
-            still isn't a way of working." ⚠ It used to close the chapter and
-            it no longer can — hold it for the last slide, the check, which is
-            where the room now leaves chapter 4.
-
-            ── HELD ANSWERS ──
-            "Every few months? Models don't ship on a schedule." Concede
-            instantly and cheerfully — it is rhetoric, not a metric. "Fair. The
-            point is it's someone else's release, not your Tuesday." The line
-            survives the concession intact.
-
-            "It did what I asked and the result was still wrong." The likeliest
-            gotcha in the chapter, and the answer is a callback: that is not
-            hallucination, that is a missing check. It had the information and it
-            followed it, to the letter — that is what the guardrails slide was
-            for. If a name is wanted: asked to make a program faster, a model
-            rewrote the timer so it always reported a fast result.
-
-            "So it's partly unfixable — why bother?" The division of labour IS
-            the answer. Their part ships every few months; yours ships today,
-            and yours is the half that decides whether this afternoon goes well.
-
-            "Can you prevent hallucination outright?" No, and that is now
-            formally sourced — a calibrated model must err at some rate on
-            arbitrary facts. Then immediately the division: that bound is theirs
-            to move, the window is yours.
-
-            "Isn't sycophancy a third failure?" It lands INSIDE faithfulness —
-            the model abandons correct context because the user pushed back.
-            Not a branch; it is the roll-back slide's evidence, already spent.
-
-            ── MUST NOT CLAIM ──
-            "These are the two ways AI fails." They are two kinds of
-            HALLUCINATION. This chapter has just spent five slides on failures
-            that are neither.
-
-            That the hinge is the literature's definition. The field partitions
-            by what the output contradicts; this deck partitions by what was in
-            the window. They coincide in the common case. Ours is a diagnostic.
-
-            "Clearing restores the model." It restores the SESSION. Chapter 2
-            already told them the model is stateless, and "you can fix the
-            window" is comfortable enough to be misheard.
-
-            Any proportion. No "half", no percentage, no split between the
-            vendor's part and yours. None was ever measured.
-
-            A third branch. Specification gaming is not a hallucination under
-            either survey definition, and a branch reopens a layout that has
-            been cut down three times.
-
-            The per-slide mapping. Guardrails and the cache do not hang off a
-            branch. The claim is about the chapter's two MOVEMENTS.
-
-            "AI can't be fixed", off the lower-bound paper. Its own framing is
-            that hallucination is addressable — the remedy is simply the
-            vendor's, not this room's.
-          </aside>
-        </section>
-
-        <!-- 4g ─────────────────── THE CACHE (static, #56).
-             The chapter's money slide, and the only one in the back half whose
-             numbers go on the wall — deliberately the INVERSE of the guardrails
-             slide (#55), which keeps 11%→18% off screen and shows one image.
-             Same architecture, opposite fill: here the numbers ARE the image.
+        <!-- 4f ─────────────────── THE CACHE (static, #56).
+             The chapter's money slide, and now its LAST slide (Atil,
+             2026-08-26): the numbers on the wall are the image, and the room
+             leaves chapter 4 on an amount of money it controls.
 
              THE SLIDE SELLS THE BREAK, NOT THE DISCOUNT. Chapter 3 already
              taught the discount (the cost dial's cached bar, the ledger's
@@ -2431,11 +2297,16 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
              this slide lands it, on the way out: the room has just watched
              turns leave a session, and here is what that costs. Say it once.
 
-             Both token counts are shown identically on purpose (#56 dec. 4):
-             same work, same tokens, nothing about the task changed, twelve and a
-             half times the money. Credits, never euros — €0.58 sounds like
+             THE TWO PRICE TAGS ARE CUT (Atil, 2026-08-26). The 100k re-read
+             (5 credits) against the 100k rebuild (62.5) used to own the middle
+             of the slide, with the rate-card scope line under it. Both are
+             gone, and the slide is now words only: the discount, the rule, the
+             seven habits, all of it on screen at once. The 12.5× is still
+             the point — the speaker says it, the wall no longer shows it. If
+             it ever comes back, the numbers and the colour contract are in #56
+             and in the notes below. Credits, never euros — €0.58 sounds like
              nothing and the behavioural point evaporates. -->
-        <section class="cache" data-section="04 — Best practices" data-frags>
+        <section class="cache" data-section="04 — Best practices">
           <span class="eyebrow">Context is expensive</span>
           <h2 class="h-set">
             <span class="h-line"><span>Make use of discounts</span></span>
@@ -2461,44 +2332,13 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             <b>another 10% off</b> the request.
           </p>
 
-          <!-- The mechanic: two price tags, same tokens, one of them hot. The
-               orange belongs to the rebuild — the moment the room is meant to
-               flinch at — and it is the slide's single hot accent. -->
-          <div class="cache-tags">
-            <figure class="cache-tag">
-              <figcaption class="ct-tok">
-                {fmtInt(CACHE_PREFIX_TOKENS)} tokens
-              </figcaption>
-              <span class="ct-n">{fmtCredits(cacheReRead)}</span>
-              <span class="ct-u">credits</span>
-              <span class="ct-verb">re-read</span>
-            </figure>
-            <figure class="cache-tag hot">
-              <figcaption class="ct-tok">
-                {fmtInt(CACHE_PREFIX_TOKENS)} tokens
-              </figcaption>
-              <span class="ct-n">{fmtCredits(cacheRebuild)}</span>
-              <span class="ct-u">credits</span>
-              <span class="ct-verb">rebuilt</span>
-            </figure>
-          </div>
-          <!-- The scope line answers the arithmetic the tags provoke: 5 against
-               62.5 is 8%, not the 90% the open line promises, because the
-               rebuild pays the write premium on top of fresh input. The clause
-               is the only place on the slide where that is said, and it is
-               deliberately quiet — the room hears it from the speaker, the
-               photograph carries it. No third figure: the two tags still own
-               every number on the wall. -->
-          <p class="cache-scope">
-            Claude {cacheModel.name} &middot; GitHub&rsquo;s published rates
-            &middot; a rebuild pays fresh input +25% to write the cache
-          </p>
-
-          <!-- The closing line: GitHub's own nouns for the four settings. The
-               asterisk is load-bearing, not decoration — "context size" read as
-               the model's window would actively damage the smart-zone slide two
-               screens back. -->
-          <div class="cache-close-line fragment rise" data-fragment-index="0">
+          <!-- The closing line: GitHub's own nouns for the four settings. With
+               the price tags gone this is the slide's centre of gravity — it
+               gets the room it used to give up to the figures. The asterisk is
+               load-bearing, not decoration — "context size" read as the model's
+               window would actively damage the smart-zone slide two screens
+               back. -->
+          <div class="cache-close-line">
             <p>
               Model &middot; reasoning effort &middot; context size<sup>*</sup>
               &middot; tools &mdash; choose them before you start, then leave
@@ -2511,16 +2351,19 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
 
           <!-- The bottom half: seven habits, each one line, each one the same
                shape — do this, because the cache. They are the close line's
-               rule applied, not a new claim; nothing here carries a number,
-               because the two tags above already own every figure on the
-               slide. Read them out only if the room asks; the wall is the
-               handout.
+               rule applied, not a new claim; NOTHING HERE CARRIES A NUMBER, and
+               that survives the loss of the tags — the slide's only figures are
+               the 90% and the 10% at the top, and a figure down here would
+               compete with them. Read the habits out only if the room asks; the
+               wall is the handout.
 
-               SAME FRAGMENT INDEX AS THE CLOSE LINE (Atil, 2026-08-25). The
-               rule and its seven applications land together — the slide is two
-               clicks: the tags, then everything below the hairline. Do not
-               give this list an index of its own. -->
-          <ul class="cache-habits fragment rise" data-fragment-index="0">
+               NO FRAGMENTS ON THIS SLIDE (Atil, 2026-08-26). The whole slide
+               lands on arrival: the discount, the rule, the seven habits, one
+               view. It used to be two clicks, with the rule and the list
+               sharing one index; the reveal bought nothing once the price tags
+               left and the stage went quiet. Do not give this list — or the
+               close line — a fragment of its own. -->
+          <ul class="cache-habits">
             <li>
               <b>Leave the model on Auto.</b> Small jobs go to cheap models,
               hard prompts still escalate.
@@ -2558,10 +2401,12 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             input. That is on GitHub's own rate card as a customer-facing
             column — "cached input", 10%. It is not an API curiosity.
 
-            THE TURN: same hundred thousand tokens on both sides. Nothing about
-            the work changed. Five credits to re-read what you already sent;
-            sixty-two and a half to build it again from cold. Let them do the
-            multiplication themselves — the gap is the slide.
+            THE TURN, AND IT IS SPOKEN NOW — the wall no longer carries the
+            two price tags (Atil, 2026-08-26), so this is yours to say: same
+            hundred thousand tokens on both sides, nothing about the work
+            changed. Five credits to re-read what you already sent; sixty-two
+            and a half to build it again from cold. Twelve and a half times.
+            Say the two figures slowly and let the room do the multiplication.
 
             SAY "credits", never euros. Sixty-two and a half credits to rebuild
             what you could have re-read for five lands as waste; fifty-eight
@@ -2573,10 +2418,11 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             prefix away. And it cools if you walk away — every turn you take
             resets the clock.
 
-            THE SECOND CLICK BRINGS BOTH the four settings and the seven
-            habits. Do not read all seven. Say the list is the
-            handout, then speak two of them: Auto, and one chat per task. The
-            rest are there for the photograph the room takes of the slide.
+            THE WHOLE SLIDE IS UP FROM THE FIRST SECOND — no clicks. Work down
+            it: the discount, the four settings, then the habits. Do not read
+            all seven. Say the list is the handout, then speak two of them:
+            Auto, and one chat per task. The rest are there for the photograph
+            the room takes of the slide.
 
             ON AUTO: 10% off the request for letting Copilot pick the model.
             Keep it apart from the 90% above — that one is the cached-read
@@ -2606,7 +2452,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             IF ASKED "doesn't compacting break it too?" — yes, and say so
             plainly. Compaction resets the prefix. It is still the right move
             when you are deep; it just isn't free. Do not let that contradict
-            the next slide — the roll-back ladder stands.
+            the slide before this one — the roll-back ladder stands.
 
             IF THE ROOM GOES TO OUTPUT COST: the dial that matters is Thinking
             Effort, not verbosity. Prior turns' reasoning is kept in context and
@@ -2634,286 +2480,8 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
             - any latency number. Both vendors say caching cuts latency;
               neither publishes a figure.
 
-            HAND OVER: this one was about money. The next one is about quality,
-            and it is the move nobody in this room makes.
-          </aside>
-        </section>
-
-        <!-- 4h ─────────────────── HYGIENE (static, #56).
-             The chapter's quietest slide and the one that inoculates chapter 5:
-             cutting it would hand an operating model built entirely of skills a
-             contradiction instead of a discipline. Atil's cut order, if the talk
-             overruns live, is guardrails first, then hygiene — nothing else.
-
-             "BE CONCISE" IS NOT HERE, and its absence is a decision, not an
-             omission (#61, map #42 Out of scope). It bought 0.31% of the bill
-             and carried a measured quality risk. Do not put it back; the slide
-             is more coherent without it, because it was the only line about the
-             model's output while both survivors are about instructions.
-
-             THE HEADLINE IS NOT THE SPINE'S. #54 locked "Be blunt. Be
-             complete."; #56 replaced it once the centre of gravity moved to
-             instruction density — "Be blunt" was always the weakest word on the
-             slide (dropping grammar measures −1.5%, harmless and pointless).
-
-             TWO FAILURES, ONE MECHANIC. Under-specify and it invents the
-             constraint you left out; overload it and it silently drops the
-             constraint you wrote. Both look identical from outside: plausible
-             work that is not what you asked for. That is why this is ONE image
-             and not two panels of two different failures (#56 dec. 4).
-
-             THE DIAGNOSIS STAYS OFF THIS SLIDE. Nothing here names the
-             mechanism — the room watches a line go quiet and nothing else. The
-             payoff owns every diagnosis-shaped line in this chapter; it is now
-             two slides EARLIER (Atil, 2026-08-25), so firing one here repeats
-             it rather than pre-empting it. Either way, do not fire one. -->
-        <section class="hyg" data-section="04 — Best practices" data-frags>
-          <span class="eyebrow">Say less, better</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>Be complete.</span></span>
-            <span class="h-line"><span>Then stop.</span></span>
-          </h2>
-
-          <!-- The same brief twice. The second one arrives on a press so the
-               loss is WATCHED rather than compared: nothing is added, nothing is
-               flagged, one line is simply not there any more. The gap keeps the
-               row's height so the brief cannot be read as four constraints. -->
-          <div class="hyg-pair">
-            <figure class="hyg-brief">
-              <ul>
-                {HYGIENE_BRIEF.map((c) => (
-                  <li>{c}</li>
-                ))}
-              </ul>
-              <figcaption class="hb-cap">five constraints</figcaption>
-            </figure>
-            <figure class="hyg-brief after fragment rise">
-              <ul>
-                {HYGIENE_BRIEF.map((c, i) =>
-                  i === HYGIENE_DROPPED ? <li class="gone" /> : <li>{c}</li>,
-                )}
-              </ul>
-              <figcaption class="hb-cap">&hellip; load more on top</figcaption>
-            </figure>
-          </div>
-
-          <p class="hyg-close-line fragment rise">
-            No error. No warning. <b>It just isn&rsquo;t there any more.</b>
-          </p>
-
-          <aside class="notes">
-            TWO IMPERATIVES, TWO FAILURES, ONE MECHANIC — say it that way.
-
-            BE COMPLETE. Leave a constraint out and it does not ask you for it;
-            it fills the gap itself and hands you something plausible. Measured:
-            dropping one constraint from a brief costs about twelve per cent of
-            the result. And it will not ask — when a model recognises that a
-            request is ambiguous it asks most of the time, but when it does not
-            recognise the ambiguity it asks almost never. That second number is
-            the one that should worry you, because you never see it happen.
-
-            THEN STOP. This is the other end of the same problem, and it is
-            about standing instructions, not about the brief. Load enough of
-            them and adherence falls away — high at ten instructions, badly
-            degraded by several hundred — and the failure mode is the important
-            part: it does not refuse, it does not warn, it silently omits.
-
-            DRIVE THE IMAGE: press once. Same brief, one line gone. Say nothing
-            for a moment and let the room find it. Nothing was added to the screen
-            that announces the loss — that is the whole slide.
-
-            THE LANDING: no error, no warning, it just isn't there any more.
-            Then stop there. Do NOT explain what the model does or does not
-            report — the next slide is the chapter's only diagnosis and it needs
-            the room to arrive undiagnosed.
-
-            ── HELD ANSWERS ──
-            "How many skills is too many?" — focused skills beat exhaustive
-            bundles, and curated ones lift the pass rate substantially. Skills
-            are not free and not expensive. They are LOUD. The discipline is one
-            at a time, driven by you.
-
-            "So should we not use skills?" — the opposite, and this is the
-            handoff to chapter 5. Establish the discipline here and nothing
-            else; do not pre-empt the operating model.
-
-            "Doesn't 'be complete' contradict 'then stop'?" — no. Be complete
-            about the WORK; stop loading standing instructions. One is the
-            brief, the other is the furniture around it.
-
-            ── MUST NOT CLAIM ──
-            "Stacking skills wastes tokens upfront." The installed-but-unused
-            cost is a few hundred tokens. The cost is RUNNING them — the line is
-            "don't run them all at once", never "don't install many".
-
-            "Be terse to save context." Dead from both sides: the human's prose
-            is a fraction of a percent of the window. Cutting words saves
-            nothing.
-
-            Any number, on the wall or attributed to us. This slide has no
-            numbers by design, and none of the figures above is an ASML result.
-
-            "It refuses" or "it warns you" when overloaded. It does neither. The
-            measured failure is silent omission, and that is the slide.
-
-            "Skill hell", or anybody's name. Chapter 5 owns that framing.
-          </aside>
-        </section>
-
-        <!-- 4i ─────────────────── THE GUARDRAILS (static, #55).
-             ⚠ IT NOW CLOSES THE CHAPTER (Atil, 2026-08-25). The spine (#54)
-             put it at the end of the first movement, before the decay; it is
-             now the last slide of the chapter, and the room leaves chapter 4
-             on it. Read it as the answer to everything the back half showed:
-             preparation decays, so prepare a check that does not.
-
-             THE HAND-OVER LIVES HERE. The spoken close the payoff used to
-             carry — "that was every move worth knowing, it still isn't a way
-             of working" — lands on the way out of this slide, into chapter 5.
-
-             ONE IMAGE, ONE CLOSING LINE, NO NUMBERS. Deliberately the inverse of
-             the cache slide (#56), where the numbers ARE the image — same
-             architecture, opposite fill, so the two read as rhythm rather than
-             as the same slide twice. 11% → 18% is the held answer, never a
-             caption.
-
-             VOCABULARY IS DEMOTED ON PURPOSE (#50/#55 dec. 1). Scripts and
-             shared vocabulary are not evidentially equal — one is a fence, one
-             is a signpost — so vocabulary arrives as the closing fragment rather
-             than as a second column. A two-column pairing would assert a parity
-             the evidence does not support. Do not promote it.
-
-             VERIFICATION IS SAID ONCE, HERE. The thesis slide keeps the
-             principle; this slide owns the mechanism. #43's third leg lands here
-             in its renamed form, "make 'done' machine-checkable". -->
-        <section class="guard" data-section="04 — Best practices" data-frags>
-          <span class="eyebrow">Prepare a check</span>
-          <h2 class="h-set">
-            <span class="h-line"><span>It can&rsquo;t check itself.</span></span>
-            <span class="h-line"><span>It can run your check.</span></span>
-          </h2>
-
-          <!-- The mechanic: the SAME run, twice. What differs is what came back
-               — 400 lines the agent has to read and rank, or one line it can act
-               on. The wall is meant to be seen and not read; the verdict is the
-               only thing on this slide set at reading size. -->
-          <div class="guard-pair">
-            <figure class="guard-side">
-              <figcaption class="gs-k">Without</figcaption>
-              <div class="guard-noise" aria-label="four hundred lines of raw test-runner output">
-                {guardNoise.map((l) => (
-                  <span>{l}</span>
-                ))}
-              </div>
-              <span class="gs-cap">400 lines to read</span>
-            </figure>
-            <figure class="guard-side with">
-              <figcaption class="gs-k">With</figcaption>
-              <div class="guard-verdict">
-                {GUARD_VERDICT.map((t, i) => (
-                  <span class={i === 0 ? "gv hot" : "gv"}>{t}</span>
-                ))}
-              </div>
-              <span class="gs-cap">one line to act on</span>
-            </figure>
-          </div>
-
-          <!-- The closing line, and it points at THE ROOM, not at agents in
-               general: ASML already owns process steps, tool names, part
-               numbers. It claims only the default in the absence of names —
-               never a measured lift — which is what keeps it inside #50's
-               safety envelope. "We do have a glossary" is a win, not an
-               objection. -->
-          <p class="guard-close-line fragment rise">
-            You already have the names.
-            <b>It has never been shown them.</b>
-          </p>
-
-          <aside class="notes">
-            THE HEADLINE IS THE ARGUMENT, and the weak-sounding half is the
-            strong one: it cannot check itself. That is measured — models asked
-            to review their own work without an external signal do not reliably
-            improve, and in the published experiments performance sometimes
-            degrades. The counter-literature is this slide's case, not a
-            weakness in it.
-
-            THEN THE TURN: it cannot check itself, but it can run YOUR check. A
-            script, a test, a linter, a build. Anything that comes back with a
-            verdict instead of an opinion.
-
-            WALK THE IMAGE, SLOWLY. Same check both sides. Left: it ran the
-            command and four hundred lines came back — and now the model has to
-            read them, decide which of them matters, and it is doing that with
-            the same attention budget it needs for your actual problem. Right:
-            the same run, wrapped in something you wrote, and one line comes
-            back. Fail, line fourteen, type mismatch.
-
-            THE TOKENOMICS CALLBACK, SPOKEN OVER THE NOISY BLOCK: chapter 3's
-            meter is still running. You pay for all four hundred lines, and then
-            you pay again for every turn spent heading the wrong way because of
-            them.
-
-            THIS IS THE THIRD LEG, arriving late on purpose — make "done"
-            machine-checkable. The thesis said give it a yardstick; this is the
-            yardstick it can run without you.
-
-            THE CLOSING FRAGMENT, and pause before it: you already have the
-            names. Process steps, tool names, part numbers, the words in your
-            own glossary. It has never been shown them, so it uses the
-            industry's instead. If someone says "we do have a glossary" — that
-            is a win, not an objection. Then point it there.
-
-            ── HELD ANSWERS ──
-            IF CHALLENGED on scripts, the number: SWE-agent, NeurIPS 2024. Same
-            model held constant on the same benchmark — a plain shell agent
-            scored 11.0%, purpose-built commands 18.0%. Concede freely that it
-            measured the harness's tools on 2024 models. SHARPER, and hold it in
-            reserve if the room pushes the other way: an iterative search tool
-            scored BELOW having no search tool at all. A badly shaped tool is
-            worse than no tool, which is an argument for preparing the check
-            rather than for buying more tooling.
-
-            IF ASKED "is this safe?" — a script is a smaller thing to allow than
-            open bash, and it is where the fuse goes: no production, dry-run
-            first. It is not a sandbox. Do not volunteer this; it plants a fear
-            the room has not voiced, and the honest version needs the "not a
-            sandbox" caveat with it.
-
-            THE VOCABULARY EXAMPLE, verbally and never on the wall: a study of
-            models generating code against a real industrial codebase found they
-            fall back on common patterns — returning a null pointer where that
-            codebase's own rules require an exception. Right shape, wrong house
-            style, because nobody ever showed it the house style.
-
-            ── MUST NOT CLAIM ──
-            "The agent can only do what you explicitly permitted." FALSE while
-            bash is enabled — argument-constraining patterns are fragile, and an
-            allowed shell can still reach the network. Scripts are a fuse, not a
-            sandbox. The boundary is an OS sandbox plus deny rules.
-
-            "Scripts save tokens because the command is shorter." No. The human's
-            typing is a fraction of a percent of the window. The saving is in the
-            OUTPUT and in the avoided failure chain — long chains of incorrect
-            changes are one of the biggest drivers of token waste.
-
-            98.7%, or 150k → 2k. That is MCP tool-definition loading, a different
-            thing entirely. It does not belong to scripts.
-
-            "ASML measured that AI fails." The study used small open models and
-            measured whether the code BUILT, not whether it was correct — on
-            correctness it scored zero. Quotable only as the mechanism above,
-            never as a result, and never as ours.
-
-            BANNED WORDS, all of them the ontology in a suit: OWL, RDFS,
-            neuro-symbolic, knowledge graph, semantic model, reasoner,
-            inference. The words are "shared vocabulary" and "the names you
-            already use".
-
-            HAND OVER INTO CHAPTER 5 (Atil, 2026-08-25). This slide used to end
-            the first movement and turn into the decay; it now ends the whole
-            chapter, so the turn it carried is spent earlier, on the way into
-            the smart zone. Close on the payoff's old line instead: that was
-            every move worth knowing. It still isn't a way of working.
+            HAND OVER, and it closes the chapter: that was every move worth
+            knowing. It still isn't a way of working.
           </aside>
         </section>
 
@@ -3740,8 +3308,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
               to Polarion, so a generated diagram naming REQ-1234 creates no
               link and no trace, and nothing notices if REQ-1234 does not exist.
               The verifier parses the diagram and resolves every identifier
-              against the Polarion API. That check is a script, not a model —
-              chapter 4's guardrail pattern exactly.
+              against the Polarion API. That check is a script, not a model.
             </aside>
           </section>
         </section>
@@ -5509,7 +5076,7 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
       // ── The input-billing ladder ──────────────────────────────────
       // Text lives in components/deck/BillLadder.astro; only the figures come
       // from here, so the ladder can never disagree with the bill table two
-      // slides later. One ladder now — the vocabulary slide's second fragment
+      // slides later. One ladder now — the vocabulary slide's only fragment
       // — but the write stays a querySelectorAll, so a second copy would fill
       // itself.
       (() => {
@@ -6147,7 +5714,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         // whole visual is re-derived from the fragment count, so entering from
         // either direction lands on the right state.
         if (slide.hasAttribute("data-smartzone")) syncSmartZone(slide);
-        if (slide.hasAttribute("data-rollback")) resetRollBack(slide);
         // Chapter 5's stack. Same contract again: both islands re-derive
         // everything from the fragment count, so entering from either
         // direction lands on the right state.
@@ -6248,164 +5814,6 @@ const loopStrata = SCRIPT.flatMap((s, i) =>
         slide.querySelectorAll<HTMLElement>("[data-sz-line]").forEach((el, n) => {
           el.classList.toggle("dead", n >= s.live);
         });
-      }
-
-      /* ═══════════════════════════════════════════════════════════════════
-       *  Chapter 4, slide 4 — roll back (#53).
-       *
-       *  The one PRESENTER-DRIVEN widget in the deck: the fork is two real
-       *  buttons, so unlike the smart zone this stage holds state of its own
-       *  rather than re-deriving it from reveal's fragment count. Entering the
-       *  slide resets it, so a revisit always starts at the fork.
-       *
-       *  What is load-bearing and must not be "tidied": the wrong turns LEAVE
-       *  the pane (they are removed from the session, not hidden — #48 §3), the
-       *  counter counts TURNS and never money, and Correct it stops after two
-       *  presses because that is Anthropic's published threshold. The decisions
-       *  behind all of it are in src/lib/asml-ai/roll-back.ts.
-       * ═══════════════════════════════════════════════════════════════════ */
-      let rbMode: "fork" | "red" | "green" = "fork";
-      let rbCorrections = 0;
-
-      function rbTurn(t: RB.Turn, cls?: string) {
-        const d = document.createElement("div");
-        d.className = `rb-turn${cls ? " " + cls : ""}`;
-        d.innerHTML =
-          `<span class="id">${t.id}</span>` +
-          `<span class="who">${t.who}</span>` +
-          `<span class="txt">${t.text}</span>` +
-          `<span class="mark">${t.mark === "ok" ? "✓" : t.mark === "bad" ? "✗" : ""}</span>`;
-        return d;
-      }
-
-      function paintRollBack(slide: HTMLElement, removing = false) {
-        const pane = slide.querySelector<HTMLElement>("[data-rb-pane]")!;
-
-        if (removing) {
-          // THE CRUX: the later turns are removed from the session, so they
-          // leave the pane. Never grey them out — that teaches the folk claim
-          // the research kills.
-          pane
-            .querySelectorAll(".rb-turn.bad, .rb-turn.pending, .rb-afford")
-            .forEach((n) => n.classList.add("gone"));
-          return;
-        }
-
-        pane.textContent = "";
-        RB.PREFIX.forEach((t) => pane.append(rbTurn(t, t.mark === "ok" ? "ok" : undefined)));
-
-        // T3 named, so "Restore Checkpoint" has something to point at. It
-        // survives the restore on purpose.
-        const ckpt = document.createElement("div");
-        ckpt.className = "rb-ckpt";
-        ckpt.textContent = RB.CHECKPOINT;
-        pane.append(ckpt);
-
-        if (rbMode === "green") {
-          const crux = document.createElement("p");
-          crux.className = "rb-crux";
-          crux.textContent = RB.CRUX;
-          pane.append(crux);
-          pane.append(rbTurn(RB.GREEN[0]), rbTurn(RB.GREEN[1], "good"));
-        } else {
-          pane.append(rbTurn(RB.MISTAKE_PROMPT, "pending"), rbTurn(RB.MISTAKE, "bad"));
-          // The affordances, drawn ON the wrong turn where VS Code draws them.
-          // Only the first is live: the slide teaches one move.
-          const row = document.createElement("div");
-          row.className = "rb-afford";
-          row.innerHTML = RB.VOCAB.map(
-            (v, i) => `<span class="rb-chip${i === 0 ? " hot" : " ghost"}">${v.name}</span>`,
-          ).join("");
-          row.querySelector<HTMLElement>(".rb-chip.hot")!.onclick = () =>
-            driveRollBack("green", slide);
-          pane.append(row);
-          for (let i = 0; i < rbCorrections; i++) {
-            pane.append(rbTurn(RB.RED[i].you, "pending"), rbTurn(RB.RED[i].agent, "bad"));
-          }
-        }
-
-        const n = pane.querySelectorAll(".rb-turn").length;
-        const reads = slide.querySelector<HTMLElement>("[data-rb-reads]")!;
-        reads.classList.toggle("clean", rbMode === "green");
-        slide.querySelector<HTMLElement>("[data-rb-reads-txt]")!.textContent =
-          RB.readsLabel(n, rbMode === "green");
-
-        const note = slide.querySelector<HTMLElement>("[data-rb-note]")!;
-        note.classList.remove("red", "green");
-        if (rbMode === "fork") note.textContent = "";
-        else if (rbMode === "red") {
-          note.classList.add("red");
-          note.textContent = RB.RED[rbCorrections - 1].note;
-        } else {
-          note.classList.add("green");
-          note.textContent = RB.GREEN_NOTE;
-        }
-
-        slide.querySelector<HTMLElement>("[data-rb-threshold]")!.hidden = !(
-          rbMode === "red" && rbCorrections >= 2
-        );
-        slide.querySelector<HTMLElement>("[data-rb-survives]")!.hidden = rbMode !== "green";
-
-        // A third correction would say "keep arguing", which the published
-        // threshold forbids — so the button retires after two.
-        slide.querySelector<HTMLButtonElement>("[data-rb-correct]")!.disabled =
-          rbMode === "green" || rbCorrections >= RB.RED.length;
-        slide.querySelector<HTMLButtonElement>("[data-rb-back]")!.disabled = rbMode === "green";
-      }
-
-      function resetRollBack(slide: HTMLElement) {
-        rbMode = "fork";
-        rbCorrections = 0;
-        paintRollBack(slide);
-      }
-
-      function driveRollBack(what: "red" | "green" | "reset", slide: HTMLElement) {
-        if (what === "reset") return resetRollBack(slide);
-        if (what === "red") {
-          if (rbMode === "green" || rbCorrections >= RB.RED.length) return;
-          rbMode = "red";
-          rbCorrections++;
-          paintRollBack(slide);
-          return;
-        }
-        if (rbMode === "green") return;
-        if (rbMode === "red") {
-          // let the turns leave before the better brief arrives — the removal
-          // is the argument, so it gets its own moment
-          paintRollBack(slide, true);
-          window.setTimeout(() => {
-            rbMode = "green";
-            paintRollBack(slide);
-          }, 420);
-          return;
-        }
-        rbMode = "green";
-        paintRollBack(slide);
-      }
-
-      {
-        const slide = document.querySelector<HTMLElement>("section[data-rollback]");
-        if (slide) {
-          slide.querySelector<HTMLElement>("[data-rb-correct]")!.onclick = () =>
-            driveRollBack("red", slide);
-          slide.querySelector<HTMLElement>("[data-rb-back]")!.onclick = () =>
-            driveRollBack("green", slide);
-          slide.querySelector<HTMLElement>("[data-rb-reset]")!.onclick = () =>
-            driveRollBack("reset", slide);
-          paintRollBack(slide);
-
-          // Keys the presenter can hit without finding the mouse. NOT `g`:
-          // reveal binds it to jump-to-slide. Also taken: b / . pause, f
-          // fullscreen, s notes, o overview.
-          window.addEventListener("keydown", (e) => {
-            if (!slide.classList.contains("present")) return;
-            if (e.metaKey || e.ctrlKey || e.altKey) return;
-            const k = e.key.toLowerCase();
-            if (k === "c") driveRollBack("red", slide);
-            if (k === "x") driveRollBack("green", slide);
-            if (k === "r") driveRollBack("reset", slide);
-          });
-        }
       }
 
       /* ══════════════════════════════════════════════════════════════════════

@@ -26,14 +26,15 @@
  * line of code exists", on the executive route only (#92). The room counts it
  * off the wall.
  *
- * THE COMMANDS ARRIVE ONE AT A TIME AND THEN STAY (Atil, 2026-08-20 —
- * overriding #71's and #92's "only the Lit Stop prints its command", for this
- * Slide only). Seven Fragments drive it, reveal rather than a widget: a Stop
- * prints its commands from the press that reveals it onward, and the Lit mark
- * keeps moving one Stop at a time. By the last press the room holds the whole
- * row, which is what the executive route needs from the one Slide it gets.
- * It costs nothing from the chapter's widget budget and binds no key; reveal
- * owns `n` and `p` permanently (#71).
+ * NO FRAGMENTS AT ALL (Atil, 2026-08-26 — overriding the seven-Fragment walk
+ * of 2026-08-20 and the one-press seam split of earlier the same day). The
+ * Slide arrives whole: seven Stops, seven detail lines, every command, in the
+ * first frame. The room reads the row across, which is what comp F was chosen
+ * for, and the presenter speaks the count off a wall that is already complete.
+ *
+ * There is no Lit mark on this Slide — nothing walks, so nothing has a current
+ * position. The Slide binds no key and spends nothing from the chapter's
+ * widget budget.
  *
  * ⚠ The small Rail did NOT change. There a Dim Stop still shows its name and
  * nothing else, because six Slides each print their own Stop's commands.
@@ -42,8 +43,8 @@
  * detail line below the other six. `Reconcile` is one short word, so the
  * constraint is now slack rather than tight (#93) — keep it anyway.
  *
- * THE FRAGMENTS ARE ALWAYS WALKED, on both routes. One behaviour, so the
- * presenter never has to remember which route they are in (#92).
+ * THE SLIDE IS IDENTICAL ON BOTH ROUTES. One behaviour, so the presenter never
+ * has to remember which route they are in (#92).
  */
 import { STOPS, SEAM } from "../../lib/asml-ai/pipeline";
 
@@ -55,7 +56,7 @@ interface Props {
 const { section } = Astro.props;
 ---
 
-<section class="ch5-sum" data-section={section} data-frags>
+<section class="ch5-sum" data-section={section}>
   {/* The eyebrow is chapter 5's own gloss from roadmap.ts, word for word.
       Chapter 1's Roadmap promised "the process that repeats" thirty minutes
       earlier and the room has not seen it since; this is where it is paid off.
@@ -74,7 +75,6 @@ const { section } = Astro.props;
         <li
           class:list={[
             "ch5-stop",
-            "fragment",
             i > SEAM && "after-seam",
             i === SEAM + 1 && "first-after",
           ]}

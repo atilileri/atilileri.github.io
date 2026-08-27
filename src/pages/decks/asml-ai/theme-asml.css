@@ -2242,24 +2242,27 @@
 }
 
 /* The closing line: input was one kind of three. Same rule-and-rise treatment
-   as chapter 4's guardrails line, because it does the same job — one sentence
+   as chapter 4's closing lines, because it does the same job — one sentence
    under the evidence that hands the room to the next slide. */
 .tk-close-line {
   margin-top: clamp(0.8rem, 2.5vh, 1.6rem);
   padding-top: 0.9rem;
   border-top: 1px solid var(--hair);
 }
+/* Dim the line with an alpha COLOUR, never with `opacity`: the fragment hides
+   itself with `opacity: 0` at the same specificity (see `.fragment.rise`), and
+   this rule sits later in the file, so an `opacity` here put the line on the
+   wall at slide entry — one click early. The alpha colour also lets the bold
+   half stay full-strength, which a parent `opacity` could never do. */
 .reveal .tk-close-line {
   font-size: clamp(0.95rem, 1.55vw, 1.2rem);
   font-weight: 500;
-  color: var(--ink);
-  opacity: 0.75;
+  color: #1b1b1bbf;
   max-width: 78ch;
 }
 .reveal .tk-close-line b {
   color: var(--navy);
   font-weight: 700;
-  opacity: 1;
 }
 
 /* ── The input-billing ladder ───────────────────────────────────────────
@@ -3763,31 +3766,160 @@
   }
 }
 
-/* 4b — the thesis. Each leg is a headline with a quieter gloss under it, so
-   the three read as one sentence each rather than a bulleted list. Widened
-   past ul.build's 24ch because the glosses need the room. */
-.reveal ul.build.thesis-legs {
-  max-width: 46ch;
-  gap: clamp(1rem, 2.4vh, 1.8rem);
+/* 4c2 — five quick fixes (Atil, 2026-08-26). Two columns and a hairline, no
+   headings: the split is spoken, not printed. The five sentences are set in
+   mono because they are quotations — the room reads them as things to copy,
+   not as deck prose. Static slide; nothing here fragments.
+
+   THE CARD FILLS THE FRAME (Atil, 2026-08-26). Five short lines centred in a
+   16:9 slide left the bottom third empty, so the columns STRETCH: the grid
+   takes the height the headline leaves, each list spreads its rows with
+   space-between, and the hairline runs the full height. Type and gaps are
+   sized for that, not for a compact block. */
+.reveal section.qfix .qfix-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.6rem, 4vw, 4.5rem);
+  align-items: stretch;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  margin-top: clamp(0.6rem, 2vh, 1.4rem);
 }
-.reveal ul.build.thesis-legs > li {
+.reveal .qfix .qfix-col {
   display: flex;
   flex-direction: column;
-  gap: 0.3em;
+  min-width: 0;
 }
-.reveal ul.build.thesis-legs > li .leg {
-  font-size: 1em;
+/* The one hairline on the slide. Same weight as the fix column's rule two
+   slides back, so the two cards read as a pair. */
+.reveal .qfix .qfix-col + .qfix-col {
+  border-left: 3px solid var(--hair);
+  padding-left: clamp(1.2rem, 2.6vw, 2.2rem);
 }
-.reveal ul.build.thesis-legs > li .sub {
+/* The rows CENTRE in the stretched column (Atil, 2026-08-26), they do not
+   spread to the edges: the block then sits low under the headline, in the
+   middle of the frame, and the two-row column reads level with the
+   three-row one. The hairline still runs the full height. */
+.reveal .qfix ul.qfix-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Biased BELOW centre (Atil, 2026-08-26): the padding pushes the centred
+     block down, so it sits clear of the headline and low in the frame
+     without ever touching the bottom edge the way flex-end would. */
+  padding-top: clamp(2rem, 9vh, 7rem);
+  gap: clamp(1.4rem, 3.8vh, 2.8rem);
+}
+/* Each quoted sentence. The orange rule marks it as a quotation and costs no
+   quote mark; it is the slide's only hot accent. */
+.reveal .qfix ul.qfix-list > li {
   font-family: var(--font-mono);
-  font-size: 0.42em;
+  font-weight: 500;
+  font-size: clamp(0.85rem, 1.35vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--navy);
+  padding-left: clamp(0.9rem, 1.2vw, 1.4rem);
+  border-left: 2px solid var(--orange);
+}
+/* "use at discretion" — pushed to the foot of its column so it sits on the
+   same baseline as the right column's last sentence. Held off the list by
+   space alone; a second hairline would compete with the one that splits the
+   columns. */
+.reveal .qfix .qfix-note {
+  margin: clamp(1.6rem, 4vh, 3rem) 0 0;
+  padding-left: clamp(0.9rem, 1.2vw, 1.4rem);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #00327d99;
+  max-width: none;
+}
+/* Narrow: the columns stack, so nothing stretches and the rows go back to a
+   plain gap — space-between over a tall single column would strand them. */
+@media (max-width: 900px) {
+  .reveal section.qfix .qfix-cols {
+    grid-template-columns: 1fr;
+    flex: 0 1 auto;
+  }
+  .reveal .qfix .qfix-col + .qfix-col {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .reveal .qfix ul.qfix-list {
+    flex: 0 1 auto;
+    padding-top: 0;
+  }
+}
+
+/* 4b — the handover card, the body of the "In Action" slide. Five practices in two columns, each one a headline,
+   a quieter gloss, and the applications it belongs to. The applications line is
+   mono and orange: it is the only hot accent on the slide, and it is what the
+   room photographs.
+
+   The card is STATIC by contract (Atil, 2026-08-26) — same as the quick-fixes
+   slide — so nothing here carries a fragment class.
+
+   FIVE cells in a two-column grid, so the last one stands alone in the left
+   column. That is deliberate: it reads as the end of the list rather than as a
+   missing sixth. */
+.reveal section.handover {
+  justify-content: flex-start;
+}
+.reveal .handover .ho-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1rem, 2.6vh, 2rem) clamp(1.6rem, 4vw, 4rem);
+  width: 100%;
+  margin-top: clamp(0.8rem, 2.6vh, 1.8rem);
+}
+.reveal .handover .ho-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  min-width: 0;
+  /* The hairline runs down the left of every cell, so the six read as one
+     card split in two rather than as two separate lists. */
+  border-left: 3px solid var(--hair);
+  padding-left: clamp(0.9rem, 1.4vw, 1.4rem);
+}
+.reveal .handover .ho-item .leg {
+  font-family: var(--font-display, inherit);
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.5vw, 1.35rem);
+  line-height: 1.2;
+  color: var(--navy);
+}
+.reveal .handover .ho-item .sub {
+  font-family: var(--font-mono);
+  font-size: clamp(0.7rem, 0.92vw, 0.86rem);
   font-weight: 400;
   line-height: 1.45;
-  letter-spacing: 0;
   color: var(--ink);
   opacity: 0.72;
-  max-width: 52ch;
+  max-width: 46ch;
 }
+.reveal .handover .ho-item .apps {
+  margin-top: 0.15em;
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 0.8vw, 0.75rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+/* Narrow: one column, and the six rows keep their hairline. */
+@media (max-width: 900px) {
+  .reveal .handover .ho-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 4d — the smart zone (#52). The chapter's first widget: a session filling up
    while the brief written in turn 1 quietly stops being obeyed, and the
    context gauge stays green and CORRECT throughout.
@@ -4088,21 +4220,31 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   Chapter 4, slide 4 — ROLL BACK (#53). The transcript widget: one pane in the
-   shape of the chat the room already uses, with the real affordances drawn on
-   the wrong turn. Prototyped against a two-column fork and a variance field,
-   both on branch `prototype/roll-back`.
+   Chapter 4, slide 4 — ROLL BACK (#53). ONE SESSION TREE: a trunk, and two
+   alternative worlds hanging off the same checkpoint.
+
+   ⚠ REBUILT 2026-08-26 (Atil, grilling session). The old transcript pane, its
+   two buttons, the affordance chips, the turn counter and the vocabulary row
+   are all gone, together with their rules. Why each one went is recorded in
+   src/lib/asml-ai/roll-back.ts. Read it before adding any of them back.
 
    COLOUR CONTRACT, and it is load-bearing: the deck's hot accent already means
    "your prompt" on the smart zone two screens earlier, and "the one moment"
-   everywhere else — so this slide cannot spend it. The red path is the accent
-   DEEPENED (#d93b00), which reads as the deck's own colour gone wrong, and the
-   green path is a slate green at navy's weight. Nothing else on the slide is
-   allowed to be either colour.
+   everywhere else — so this slide cannot spend it. Case 1 is the accent
+   DEEPENED (#d93b00), which reads as the deck's own colour gone wrong, and
+   case 2 is a slate green at navy's weight. Nothing else is allowed to be
+   either colour.
 
-   The wrong turns LEAVE the pane rather than greying out (rb-out). That is not
-   decoration: research #48 §3 found the vendors remove the later turns from the
-   session, and a greyed-out turn would teach the folk claim it kills. ══════ */
+   CASE 3 IS ON PAPER, NOT IN GREEN, and that is deliberate. Forking is not the
+   wrong move and it is not the same move as case 2 — it answers a different
+   question. Painting it green would rank the two against each other, which the
+   slide's whole argument denies. Red/green stays the pair inside world A.
+
+   THE TREE'S GEOMETRY: the trunk is centred and narrow, the two worlds sit
+   side by side beneath it, and world A splits once more into its two cases.
+   Every branch is drawn with one hairline tick, never with an SVG — the depth
+   of the tree is the picture, and a drawn connector would compete with the
+   cards for attention. ══════════════════════════════════════════════════════ */
 
 :root {
   --rb-red: #d93b00;
@@ -4111,46 +4253,232 @@
   --rb-green-soft: #1f7a5c14;
 }
 
-/* `.reveal p` caps body copy at 40ch and out-specifies a bare class, so the
-   slide's paragraphs carry the prefix. */
-.reveal .rb-open-line {
-  font-size: 1.02rem;
-  color: var(--ink);
-  opacity: 0.78;
-  max-width: 78ch;
-  margin: 0.8rem 0 0.7rem;
-}
-
-.rb-stage {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--hair);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-  padding: 0.8rem 1rem;
+/* ── the tree ─────────────────────────────────────────────────────────────
+   Two fixed columns, so the fragments cannot reflow what is already on
+   screen: reveal keeps a hidden fragment in flow, and world B's cell is
+   therefore reserved from the first press. */
+/* TWO FOR WORLD A, ONE FOR WORLD B (Atil, 2026-08-26). An even split gave the
+   fork half the wall for one short column and squeezed world A's two cases into
+   a quarter each. The tree carries THREE columns of content, so the width is
+   cut in three: world A takes two of them, world B takes one, and every column
+   on screen is about the same width. */
+.rbt {
   display: grid;
-  gap: 0.42rem;
+  grid-template-columns: 2fr 1fr;
+  column-gap: 2.2rem;
+  row-gap: 1.1rem;
+  margin-top: 0.9rem;
+  align-items: start;
 }
 
-/* ── one turn. One line, no code: the room reads a card in a glance and then
-      looks back at the presenter. ─────────────────────────────────────────── */
+/* the shared prefix, centred over both worlds — one session, one origin */
+.rbt-trunk {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: min(52ch, 100%);
+  display: grid;
+  gap: 0.28rem;
+}
+
+.rbt-world {
+  position: relative;
+  padding-top: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+/* NO DRAWN CONNECTORS (Atil, 2026-08-26). The tree used to hang off hairline
+   ticks and arms between the trunk and the worlds. They read as a diagram's
+   plumbing rather than as a session, and at slide scale they were the only
+   marks on screen nobody could name. Position alone carries the branching now:
+   the trunk is centred, the worlds sit under it, the cases sit under them. */
+.rbt-world.a {
+  grid-column: 1;
+}
+.rbt-world.b {
+  grid-column: 2;
+}
+
+/* what just happened in this world, in the room's own words */
+.rbt-world-hd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--navy);
+  opacity: 0.75;
+}
+
+/* The turns a column carries above its divider. The floor is what keeps every
+   divider in the tree on ONE line: world A's row is two cards plus a badge,
+   world B's is a single card, and without it the two worlds' rules sit at
+   different heights and the tree stops reading as one picture. */
+.rbt-stem {
+  display: grid;
+  gap: 0.24rem;
+  align-content: start;
+  min-height: 4.3rem;
+}
+/* every stem sits in a third of the tree, so its cards are set like the cards
+   in the cases below them — the trunk is the only full-width transcript. */
+.rbt-world .rbt-stem .rb-turn {
+  grid-template-columns: 1.9rem 2.8rem 1fr auto;
+  gap: 0.38rem;
+  padding: 0.21rem 0.45rem;
+  font-size: 0.78rem;
+}
+.rbt-world .rbt-stem .rb-turn .id {
+  font-size: 11px;
+}
+.rbt-world .rbt-stem .rb-turn .who {
+  font-size: 10px;
+}
+
+/* World A's split. FOUR children in two rows, not two column stacks: row 1
+   holds both stems, so T4′ starts on the same line as T4 and the divider under
+   them lands at ONE height in both columns whatever either stem does. */
+.rbt-cases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0.9rem;
+  row-gap: 0.55rem;
+  align-items: start;
+}
+.rbt-cases.one {
+  grid-template-columns: 1fr;
+}
+
+.rbt-case {
+  position: relative;
+  padding-top: 0.95rem;
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+}
+.rbt-case::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid var(--hair);
+}
+.rbt-case.red::before {
+  border-color: var(--rb-red);
+}
+.rbt-case.green::before {
+  border-color: var(--rb-green);
+}
+
+/* the vendors' own name for the move — it arrives HERE, at the split, so the
+   name explains itself instead of needing a glossary row at the foot. */
+.rbt-move {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.25;
+}
+.rbt-case.red .rbt-move {
+  color: var(--rb-red);
+}
+.rbt-case.green .rbt-move {
+  color: var(--rb-green);
+}
+.rbt-where {
+  font-size: 0.68rem;
+  opacity: 0.55;
+  margin-top: -0.2rem;
+}
+
+/* what the move does to the turns — different for every case, and case 3's is
+   the one that says NOTHING is removed. */
+.reveal .rbt-effect {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--ink);
+  max-width: 46ch;
+  margin: 0.1rem 0 0.15rem;
+  opacity: 0.9;
+}
+.reveal .rbt-effect.cut {
+  color: var(--rb-green);
+  opacity: 1;
+}
+.reveal .rbt-effect.keep {
+  color: var(--navy);
+  opacity: 1;
+}
+
+.rbt-turns {
+  display: grid;
+  gap: 0.24rem;
+}
+
+.reveal .rbt-note {
+  font-size: 0.74rem;
+  max-width: 46ch;
+  margin: 0.15rem 0 0;
+  opacity: 0.7;
+}
+.rbt-case.red .rbt-note {
+  color: var(--rb-red);
+  opacity: 0.95;
+  font-weight: 600;
+}
+.rbt-case.green .rbt-note {
+  color: var(--rb-green);
+  opacity: 0.95;
+  font-weight: 600;
+}
+
+/* the three forked sessions: a name and a tick. Stubs, not transcripts — the
+   lesson is isolation, not content. */
+.rbt-forks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+.rbt-fork {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.34rem 0.5rem;
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  background: var(--ground);
+}
+.rbt-fork .n {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--navy);
+}
+.rbt-fork .m {
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--rb-green);
+}
+
+/* ── the turn card ───────────────────────────────────────────────────────── */
 .rb-turn {
   display: grid;
-  grid-template-columns: 2.4rem 3.2rem 1fr auto;
+  grid-template-columns: 2.2rem 3rem 1fr auto;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.45rem;
   padding: 0.22rem 0.5rem;
   border-radius: 6px;
   border: 1px solid var(--hair);
   background: var(--ground);
-  font-size: 0.88rem;
-  animation: rb-in 260ms var(--ease) both;
+  font-size: 0.82rem;
 }
-@keyframes rb-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
+/* a case column is a third of the tree, so the card tightens a little */
+.rbt-case .rb-turn {
+  grid-template-columns: 1.9rem 2.8rem 1fr auto;
+  gap: 0.38rem;
+  padding: 0.21rem 0.45rem;
+  font-size: 0.78rem;
 }
 .rb-turn .id {
   font-family: var(--font-mono);
@@ -4158,12 +4486,18 @@
   font-weight: 700;
   color: var(--navy);
 }
+.rbt-case .rb-turn .id {
+  font-size: 11px;
+}
 .rb-turn .who {
   font-family: var(--font-mono);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   opacity: 0.55;
+}
+.rbt-case .rb-turn .who {
+  font-size: 10px;
 }
 .rb-turn .txt {
   color: var(--ink);
@@ -4182,34 +4516,32 @@
 .rb-turn.bad .id {
   color: var(--rb-red);
 }
-.rb-turn.good {
+.rb-turn.ok {
   border-color: var(--rb-green);
   background: var(--rb-green-soft);
 }
-.rb-turn.good .id {
+.rb-turn.ok .id {
   color: var(--rb-green);
 }
-/* removed from the session — not hidden from the screen */
-.rb-turn.gone,
-.rb-afford.gone {
-  animation: rb-out 420ms var(--ease) both;
-}
-@keyframes rb-out {
-  to {
-    opacity: 0;
-    transform: translateX(38px);
-    max-height: 0;
-    padding-block: 0;
-    margin-top: -0.4rem;
-  }
+/* only case 2's rewritten prompt carries one: the retry is a BETTER brief, not
+   the same prompt sent again (#48 §5.5). */
+.rb-turn .badge {
+  grid-column: 3 / -1;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--rb-green);
+  opacity: 0.85;
 }
 
-/* ── the rule that names T3. Without it, "Restore Checkpoint" has nothing on
-      screen to point at. It survives the restore on purpose. ──────────────── */
+/* ── the rule that names T2. Without it, "Restore Checkpoint" has nothing on
+      screen to point at. Both worlds hang off it. ─────────────────────────── */
 .rb-ckpt {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  margin-top: 0.15rem;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -4223,210 +4555,54 @@
   opacity: 0.5;
 }
 
-/* ── the fork: two real buttons, because the presenter picks ──────────────── */
-.rb-choice {
-  display: flex;
-  gap: 0.6rem;
-  align-items: center;
-  margin-top: 0.15rem;
-}
-.rb-btn {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.42rem 0.9rem;
-  border-radius: 6px;
-  border: 1.5px solid var(--navy);
-  background: var(--card);
-  color: var(--navy);
-  cursor: pointer;
-  transition:
-    transform 140ms var(--ease),
-    background 140ms;
-}
-.rb-btn:hover {
-  transform: translateY(-1px);
-}
-.rb-btn.red {
-  border-color: var(--rb-red);
-  color: var(--rb-red);
-}
-.rb-btn.red:hover {
-  background: var(--rb-red-soft);
-}
-.rb-btn.green {
-  border-color: var(--rb-green);
-  color: var(--rb-green);
-}
-.rb-btn.green:hover {
-  background: var(--rb-green-soft);
-}
-.rb-btn[disabled] {
-  opacity: 0.32;
-  cursor: default;
-  transform: none;
-}
-.rb-key {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  opacity: 0.5;
-  margin-left: 0.35rem;
-}
-.rb-reset {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--signal);
-  background: none;
-  border: 0;
-  cursor: pointer;
-  opacity: 0.7;
-}
-
-/* ── the pane, and the affordances drawn where VS Code draws them ─────────── */
-.rb-pane {
-  display: grid;
-  gap: 0.28rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 8px;
-  border: 1px solid var(--hair);
-  background: var(--ground);
-  min-height: 14rem;
-  align-content: start;
-}
-.rb-afford {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  padding-left: 2.9rem;
-  animation: rb-in 260ms var(--ease) both;
-}
-.rb-chip {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  padding: 0.18rem 0.42rem;
-  border-radius: 4px;
-  border: 1px solid var(--hair);
-  background: var(--card);
-  color: var(--navy);
-  cursor: pointer;
-}
-/* the one move this slide teaches */
-.rb-chip.hot {
-  border-color: var(--rb-green);
-  color: var(--rb-green);
-  font-weight: 700;
-}
-.rb-chip.ghost {
-  opacity: 0.45;
-  cursor: default;
-}
-
-/* what the model re-reads every turn. TURNS, never credits — the cache slide
-   owns the money and this slide's argument is quality. */
-.rb-reads {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--navy);
-}
-.rb-reads b {
-  color: var(--rb-red);
-}
-.rb-reads.clean b {
-  color: var(--rb-green);
-}
-.rb-illus {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  opacity: 0.55;
-}
-
-.reveal .rb-crux {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--rb-green);
-  max-width: 88ch;
-  animation: rb-in 320ms var(--ease) both;
-}
-.reveal .rb-note {
-  font-size: 1rem;
-  color: var(--ink);
-  max-width: 88ch;
-  min-height: 1.4em;
-  margin: 0;
-}
-.reveal .rb-note.red {
-  color: var(--rb-red);
-  font-weight: 600;
-}
-.reveal .rb-note.green {
-  color: var(--rb-green);
-  font-weight: 600;
-}
-.reveal .rb-threshold {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--rb-red);
-  max-width: 88ch;
-  margin: 0;
-}
-.reveal .rb-survives {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  max-width: 88ch;
-  opacity: 0.62;
-  margin: 0;
-}
-
-/* the closing beat: the four names, and where to find them */
-.rb-vocab {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem 1.1rem;
-  margin-top: 0.85rem;
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--hair);
-}
-.rb-vocab .v {
-  display: grid;
-}
-.rb-vocab .n {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--navy);
-}
-.rb-vocab .w {
-  font-size: 0.72rem;
-  opacity: 0.55;
+/* The slide's one line of prose. It sits between the headline and the trunk,
+   so it is an INSTRUCTION the tree then obeys — not a payoff the tree earns.
+   Set exactly like the smart zone's open line one slide earlier (Atil,
+   2026-08-26): same size, same quietened ink, same clearance under the
+   headline — two consecutive slides open the same way. `.reveal p` caps body
+   copy at 40ch and out-specifies a bare class, so it carries the prefix. */
+.reveal .rb-open-line {
+  font-size: 1.08rem;
+  color: #1b1b1bc7;
+  max-width: 58ch;
+  /* clears the h-set's underline, which sits below the headline's box */
+  margin: 0.9rem 0 1rem;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   Chapter 4, slide 5 — THE CACHE (#56). Static: two price tags, the same token
-   count on both, and one closing fragment. No widget, no island.
+   Chapter 4, slide 6 — THE CACHE (#56). Static and, since 2026-08-26, WORDS
+   ONLY. Three beats stacked down the stage: the discount, the rule, the seven
+   habits.
 
-   THE NUMBERS ARE THE IMAGE. This slide is the deliberate inverse of the
-   guardrails slide (#55), which shows one picture and keeps its numbers off the
-   wall. Same architecture, opposite fill — so the two read as rhythm rather
-   than as the same slide twice. That is why the credit figures are set at
-   display scale here and nothing else on the slide competes with them.
+   THE TWO PRICE TAGS ARE CUT (Atil). They held the middle of the slide — a
+   navy 5 against an orange 62.5, both over the same 100,000 tokens — with a
+   mono rate-card line under them. The whole `.cache-tags` / `.ct-*` /
+   `.cache-scope` block went with them; #56 keeps the mechanic and the colour
+   contract if it is ever rebuilt.
 
-   COLOUR CONTRACT: the hot accent belongs to the REBUILD, and only to it. The
-   re-read tag stays navy on paper — the cheap thing should look unremarkable,
-   because the argument is that staying put is the boring default. Three
-   rejected mechanics (a control panel of four knobs, a session run with a spike
-   at the switch, the usage report) are recorded in #56. ══════════════════════ */
+   WHAT THE FREED HEIGHT BUYS: air, not more content. Every beat that stayed is
+   larger and further from its neighbour than it was under the tags, and the
+   slide is deliberately under-filled — the room reads three things, slowly.
+   Nothing new may move in here. ══════════════════════════════════════════════ */
 
+/* The discount, and now the top of the slide rather than a caption above a
+   figure. It carries the only two numbers left (90%, 10%), so it takes the
+   step up in size the tags gave back.
+
+   ONE LINE EACH, never two (Atil, 2026-08-26). Both sentences end on their
+   figure — "90% off, every turn", "another 10% off" — and a wrap drops that
+   figure onto a line of its own, where it reads as a heading for the rule
+   below rather than the end of the sentence. Same idiom as the close line: no
+   measure cap, and the size steps down on a narrow stage instead of wrapping. */
 .reveal .cache-open-line {
-  font-size: 1.02rem;
+  font-size: clamp(0.85rem, 1.85vw, 1.6rem);
+  line-height: 1.45;
   color: var(--ink);
   opacity: 0.82;
-  max-width: 60ch;
+  max-width: none;
+  white-space: nowrap;
   /* clears the h-set's underline, which sits below the headline's box */
-  margin: 0.9rem 0 0;
+  margin: clamp(1.2rem, 4vh, 2.4rem) 0 0;
 }
 .reveal .cache-open-line b {
   color: var(--signal);
@@ -4434,119 +4610,26 @@
   opacity: 1;
 }
 
-/* The pair. Deliberately NOT a table and NOT two cards — they are tags, hung
-   side by side across the full stage the rest of the deck uses, and the eye is
-   meant to travel left to right and stop hard on the second one.
-
-   Two equal columns, not auto width: the tags must be the same size for the
-   same reason both token counts are shown — nothing about the work changed, so
-   nothing about the tag may change either. Only the number does. */
-.cache-tags {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
-  gap: clamp(1.5rem, 5vw, 4rem);
-  margin: clamp(0.9rem, 3vh, 1.8rem) 0 0;
-}
-
-.cache-tag {
-  display: grid;
-  justify-items: start;
-  margin: 0;
-  padding-top: 0.6rem;
-  /* the tag's string: a rule the whole column hangs from */
-  border-top: 4px solid var(--navy);
-}
-
-/* Identical on both sides, and that IS the argument: same work, same tokens,
-   nothing about the task changed, twelve and a half times the money. Never
-   style one of these differently from the other. */
-.cache-tag .ct-tok {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--signal);
-  opacity: 0.9;
-}
-
-.cache-tag .ct-n {
-  font-family: var(--font-display);
-  font-weight: 700;
-  /* Cut back from 13vw/11rem when the habit list took the bottom half (Atil,
-     2026-08-25). The figures stay the largest thing on the slide, which is the
-     contract; they no longer need the whole lower half to do it. */
-  font-size: clamp(3rem, 8.5vw, 7rem);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  color: var(--navy);
-  font-variant-numeric: tabular-nums;
-}
-
-.cache-tag .ct-u {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--navy);
-  opacity: 0.7;
-  margin-top: 0.1rem;
-}
-
-/* The verb carries the whole comparison in one word — re-read vs rebuilt — so
-   it gets the mono treatment the deck reserves for terms of art. */
-.cache-tag .ct-verb {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  letter-spacing: 0.06em;
-  color: var(--ink);
-  opacity: 0.72;
-  margin-top: 0.35rem;
-}
-
-/* The expensive side, and the slide's single hot moment. */
-.cache-tag.hot {
-  border-top-color: var(--orange);
-}
-.cache-tag.hot .ct-n {
-  color: var(--orange);
-}
-.cache-tag.hot .ct-tok {
-  color: var(--orange);
-  opacity: 0.85;
-}
-.cache-tag.hot .ct-verb {
-  color: var(--ink);
-  opacity: 0.9;
-}
-
-/* Scope line. Small on purpose: it makes the figures checkable without
-   inviting the room to read a rate card off the wall. */
-.reveal .cache-scope {
-  font-family: var(--font-mono);
-  letter-spacing: 0.06em;
-  color: var(--navy);
-  opacity: 0.55;
-  /* one caption for BOTH tags — centred across the pair, so it reads as the
-     scope of the comparison rather than a footnote to the left-hand tag */
-  text-align: center;
-  /* ONE line across the pair, never two: the clause about the write premium is
-     the slide's own answer to "why 12.5x and not 10x?", and it reads as part of
-     the scope only while it stays on the same line as the rate card. Keep the
-     wording short enough to hold; the size steps down on a narrow stage rather
-     than wrapping. */
-  max-width: none;
-  white-space: nowrap;
-  font-size: clamp(0.62rem, 1.05vw, 0.8rem);
-  margin: 0.9rem 0 0;
+/* The auto-model line. Second beat of the same paragraph, so it keeps the open
+   line's type — it must not read as a new claim. It holds a figure of its own
+   (10%), so the group opacity stays high enough for the orange bold to survive
+   compositing; a parent opacity dims the b along with the sentence. */
+.reveal .cache-open-line.cache-auto-line {
+  margin-top: 0.55rem;
+  opacity: 0.8;
 }
 
 /* The closing beat: the four settings, then the footnote that stops "context
    size" being read as the model's window (which would undo the smart zone two
    screens earlier). Both arrive in one fragment — the footnote is part of the
-   claim, not an afterthought to it. */
+   claim, not an afterthought to it.
+
+   This is the slide's centre of gravity now, and the hairline above it is the
+   only rule left on the stage. Keep the space above it generous: it is what
+   separates the discount from the instruction. */
 .cache-close-line {
-  margin-top: clamp(1rem, 3.5vh, 2.2rem);
-  padding-top: 0.9rem;
+  margin-top: clamp(1.8rem, 6.5vh, 3.6rem);
+  padding-top: clamp(1rem, 2.4vh, 1.7rem);
   border-top: 1px solid var(--hair);
 }
 /* ONE line, never two: the four settings read as a single instrument panel,
@@ -4554,7 +4637,7 @@
    steps down on a narrow stage rather than wrapping. The footnote below is
    exempt — it is allowed to wrap. */
 .reveal .cache-close-line p {
-  font-size: clamp(0.78rem, 1.35vw, 1.15rem);
+  font-size: clamp(0.8rem, 1.5vw, 1.32rem);
   font-weight: 500;
   color: var(--navy);
   max-width: none;
@@ -4564,46 +4647,42 @@
 /* the footnote is exempt from the nowrap above — it may wrap */
 .reveal .cache-close-line .cache-fn {
   white-space: normal;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 400;
   color: var(--ink);
   opacity: 0.6;
-  margin-top: 0.4rem;
+  margin-top: 0.55rem;
 }
 .cache-close-line sup {
   color: var(--orange);
   font-weight: 700;
 }
 
-/* The auto-model line. Second beat of the same paragraph, so it keeps the open
-   line's type — it must not read as a new claim. It holds a figure of its own
-   (10%), so the group opacity stays high enough for the orange bold to survive
-   compositing; a parent opacity dims the b along with the sentence. */
-.reveal .cache-open-line.cache-auto-line {
-  margin-top: 0.35rem;
-  opacity: 0.8;
-}
+/* The habit list: seven one-line rules, still two columns, but set on the room
+   the tags used to take — larger type, a full line of air between the rules,
+   and a wide gutter so the two columns read as two columns rather than one
+   block split. CSS columns, not grid, so the list still reads top-to-bottom
+   down the left before it moves right.
 
-/* The habit list: seven one-line rules across two columns, sized to be read
-   from the room's back row only when the speaker points at one. The bold verb
-   is the scannable part; the clause after it is the reason, and it is allowed
-   to be quieter. No numbers here — the tags above own every figure. */
+   The bold verb is the scannable part; the clause after it is the reason, and
+   it is allowed to be quieter. No numbers here — the discount at the top owns
+   every figure on the slide. */
 .reveal .cache-habits {
   list-style: none;
-  margin: clamp(0.7rem, 2.2vh, 1.2rem) 0 0;
+  margin: clamp(1.4rem, 4.5vh, 2.8rem) 0 0;
   padding: 0;
   columns: 2;
-  column-gap: clamp(1.5rem, 4vw, 3.2rem);
+  column-gap: clamp(2.5rem, 7vw, 6rem);
 }
 .reveal .cache-habits li {
   break-inside: avoid;
-  margin: 0 0 0.55rem;
-  padding-left: 0.85rem;
-  font-size: clamp(0.78rem, 1.05vw, 0.98rem);
-  line-height: 1.35;
+  margin: 0 0 clamp(0.85rem, 2.6vh, 1.5rem);
+  padding-left: 1.1rem;
+  font-size: clamp(0.82rem, 1.2vw, 1.1rem);
+  line-height: 1.5;
   color: var(--ink);
   opacity: 0.78;
-  /* the tick: the same navy hairline the tags hang from, turned on its side */
+  /* the tick: the hairline the price tags used to hang from, turned on its side */
   border-left: 2px solid var(--hair);
 }
 .reveal .cache-habits li b {
@@ -4611,361 +4690,7 @@
   font-weight: 700;
   color: var(--navy);
   opacity: 1;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   Chapter 4, slide 4 — THE GUARDRAILS (#55). Static: one image, one closing
-   fragment, and NO numbers — deliberately the inverse of the cache slide
-   (#56), where the numbers are the image. Same architecture, opposite fill.
-
-   THE IMAGE IS "WHAT COMES BACK". Both halves are the same run of the same
-   check; the only variable is what the agent receives. So the two sides share
-   a height and a rhythm and differ only in density — a wall you cannot read
-   against one line you can act on.
-
-   COLOUR CONTRACT: the wall is GREY, not orange. It is noise, not a failure,
-   and the deck's hot accent is spent here on the single word `FAIL` inside the
-   verdict — which is a failure, correctly reported, and the one thing on this
-   slide set at reading size. ══════════════════════════════════════════════ */
-
-.reveal section.guard {
-  justify-content: flex-start;
-}
-
-/* Two equal columns for the same reason the cache slide's tags are equal: the
-   check did not change, so the frame around it may not change either. */
-.guard-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: stretch;
-  gap: clamp(1.5rem, 5vw, 4rem);
-  margin: clamp(0.9rem, 3.5vh, 2rem) 0 0;
-}
-.guard-side {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  margin: 0;
-  min-height: 0;
-}
-.guard-side .gs-k {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.5;
-  padding-bottom: 0.5rem;
-}
-.guard-side.with .gs-k {
-  color: var(--signal);
-  opacity: 0.9;
-}
-.guard-side .gs-cap {
-  font-family: var(--font-mono);
-  font-size: 0.86rem;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  opacity: 0.6;
-  padding-top: 0.6rem;
-}
-.guard-side.with .gs-cap {
-  color: var(--signal);
-  opacity: 1;
-  font-weight: 600;
-}
-
-/* The wall. Set at a size the room CANNOT follow — that is the argument, not a
-   legibility bug — and clipped with a fade at the foot so it reads as "and it
-   keeps going" rather than as a block that happens to end. */
-.guard-noise {
-  font-family: var(--font-mono);
-  font-size: clamp(0.3rem, 0.52vw, 0.44rem);
-  line-height: 1.6;
-  color: var(--ink);
-  opacity: 0.55;
-  background: var(--card);
-  border: 1px solid var(--hair);
-  padding: 0.6rem 0.7rem 0;
-  height: clamp(9rem, 32vh, 19rem);
-  overflow: hidden;
-  white-space: pre;
-  -webkit-mask-image: linear-gradient(#000 72%, #0000 100%);
-  mask-image: linear-gradient(#000 72%, #0000 100%);
-}
-.guard-noise > span {
-  display: block;
-  overflow: hidden;
-  /* the run's blank lines are real lines — without this they collapse and the
-     output loses the spacing that makes it read as a terminal */
-  min-height: 1.6em;
-}
-
-/* The verdict. Three tokens, and the room can read every one of them from the
-   back of the room — which is the entire difference between the two columns. */
-.guard-verdict {
-  display: grid;
-  align-content: center;
-  justify-items: start;
-  gap: 0.25rem;
-  height: clamp(9rem, 32vh, 19rem);
-  background: var(--card);
-  border: 1px solid var(--hair);
-  border-left: 4px solid var(--signal);
-  box-shadow: var(--shadow);
-  padding: 1.2rem clamp(1rem, 2.5vw, 2rem);
-}
-.guard-verdict .gv {
-  font-family: var(--font-mono);
-  font-size: clamp(1rem, 2vw, 1.6rem);
-  letter-spacing: 0.02em;
-  color: var(--navy);
-}
-.guard-verdict .gv.hot {
-  font-size: clamp(2rem, 5.5vw, 4rem);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  color: var(--orange);
-  margin-bottom: 0.3rem;
-}
-
-/* The closing beat: shared vocabulary, demoted to one fragment on purpose
-   (#55 dec. 1) — a second column would assert a parity the evidence does not
-   support. Same furniture as the cache slide's beat, one screen later. */
-.guard-close-line {
-  margin-top: clamp(1rem, 3.5vh, 2.2rem);
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hair);
-}
-.reveal .guard-close-line {
-  font-size: clamp(1rem, 1.7vw, 1.3rem);
-  font-weight: 500;
-  color: var(--ink);
-  opacity: 0.75;
-  max-width: 70ch;
-}
-.reveal .guard-close-line b {
-  color: var(--navy);
-  font-weight: 700;
-  opacity: 1;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   Chapter 4, slide 8 — HYGIENE (#56). Static: the same brief twice, and the
-   second one arrives on a press so the loss is WATCHED rather than compared.
-
-   THE DROPPED LINE KEEPS ITS ROW. Collapsing it would turn the slide into
-   "four constraints instead of five", which is a counting exercise; leaving
-   the row empty is the actual failure — the constraint is gone and nothing on
-   screen says so. Nothing here is red, nothing is marked, and nothing is
-   annotated. That absence IS the mechanic (#56 dec. 4/5). ══════════════════ */
-
-.reveal section.hyg {
-  justify-content: flex-start;
-}
-
-.hyg-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
-  gap: clamp(1.5rem, 5vw, 4rem);
-  margin: clamp(0.9rem, 3.5vh, 2rem) 0 0;
-}
-.hyg-brief {
-  margin: 0;
-  background: var(--card);
-  border: 1px solid var(--hair);
-  box-shadow: var(--shadow);
-  padding: clamp(1.1rem, 3vw, 2.2rem) clamp(1.2rem, 3vw, 2.4rem);
-}
-.reveal .hyg-brief ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.reveal .hyg-brief li {
-  position: relative;
-  font-family: var(--font-mono);
-  font-size: clamp(0.95rem, 1.65vw, 1.4rem);
-  line-height: 1.8;
-  color: var(--ink);
-  padding-left: 1.2em;
-  /* the row survives its own contents leaving */
-  min-height: 1.8em;
-}
-.reveal .hyg-brief li::before {
-  content: "·";
-  position: absolute;
-  left: 0;
-  color: var(--signal);
-  opacity: 0.7;
-}
-/* No styling of the loss beyond the loss. */
-.reveal .hyg-brief li.gone::before {
-  opacity: 0.25;
-}
-.hyg-brief .hb-cap {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.5;
-  margin-top: 0.9rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid var(--hair);
-}
-/* The second brief is the one the room is watching, so it carries the accent
-   on its caption only — "load more on top" is the cause, and it is the sole
-   hot moment on a slide whose whole point is that nothing is flagged. */
-.hyg-brief.after .hb-cap {
-  color: var(--orange);
-  opacity: 0.9;
-}
-
-.hyg-close-line {
-  margin-top: clamp(1rem, 3.5vh, 2.2rem);
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hair);
-}
-.reveal .hyg-close-line {
-  font-size: clamp(1rem, 1.7vw, 1.3rem);
-  font-weight: 500;
-  color: var(--ink);
-  opacity: 0.75;
-  max-width: 70ch;
-}
-.reveal .hyg-close-line b {
-  color: var(--navy);
-  font-weight: 700;
-  opacity: 1;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   Chapter 4, slide 9 — THE PAYOFF (#57). Chapter 2's fork, returning stripped,
-   with this chapter's two movements written onto its two branches.
-
-   IT DOES NOT ANIMATE, and that is the point of difference from chapter 2's
-   copy of the same diagram: there, the tree draws itself because the room is
-   learning it; here it is simply THERE on arrival, because the room already
-   owns it and recognition is instant or it is nothing. That is why these rules
-   are a separate block rather than an extra selector on `.halluc .fork` —
-   sharing the selector would inherit the dash-offset animation the runtime
-   island drives, and this slide has no island. The TEXT is shared, via
-   src/lib/asml-ai/halluc.ts, which is the part that must never drift.
-
-   COLOUR CONTRACT, inherited from chapter 2 and unchanged: ORANGE names the
-   failure, BLUE is the fix. So the branch names stay orange and the chapter's
-   two verbs — which are the fixes — arrive in signal blue. ═════════════════ */
-
-.reveal section.payoff {
-  justify-content: flex-start;
-}
-
-/* ONE stage sizes both the tree and the tiers. The tiers' columns are the
-   viewBox's own percentages, so the join between a branch name and the verb
-   under it only holds while the two elements are exactly the same width — which
-   is why the height cap is applied HERE, to the stage, and never to the SVG. A
-   max-height on the SVG would letterbox the drawing inside a wider box on a
-   short viewport and slide every verb out from under its branch. */
-.payoff-stage {
-  width: min(100%, 44rem, 42vh * 420 / 216);
-  margin: clamp(0.8rem, 3vh, 1.8rem) auto 0;
-}
-.payoff .fork {
-  display: block;
-  width: 100%;
-  aspect-ratio: 420 / 216;
-  overflow: visible;
-}
-.payoff .fork .edge {
-  fill: none;
-  stroke: var(--navy);
-  stroke-width: 1.6;
-}
-.payoff .fork .head {
-  fill: var(--navy);
-}
-.payoff .fork .node {
-  fill: var(--card);
-  stroke: var(--hair);
-  stroke-width: 1;
-}
-.payoff .fork .node.lit {
-  stroke: var(--orange);
-  stroke-width: 1.6;
-}
-.payoff .fork text {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  fill: var(--navy);
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.payoff .fork .name {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  fill: var(--orange);
-}
-.payoff .fork .yn {
-  font-size: 12px;
-  fill: #1b1b1b8c;
-  letter-spacing: 0.1em;
-}
-
-/* The two tiers, hung directly under the branch boxes. The percentages are the
-   viewBox's own: each box spans 188 of 420 units (44.76%) with a 12-unit gap
-   (2.86%) and a 16-unit inset (3.81%). If the SVG's geometry ever moves, move
-   these with it — the join between the noun above and the verb below is the
-   entire reveal, and a few pixels of drift reads as two unrelated rows. */
-.payoff-tiers {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.86%;
-  /* border-box, or the inset would be added OUTSIDE the stage's width and the
-     columns would stop lining up with the boxes above them */
-  box-sizing: border-box;
-  width: 100%;
-  padding: clamp(0.7rem, 2vh, 1.2rem) 3.81% 0;
-}
-.payoff-tiers .pt {
-  text-align: center;
-}
-.payoff-tiers .pt-verb {
-  display: block;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.2rem, 2.6vw, 2rem);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  color: var(--signal);
-}
-.payoff-tiers .pt-diag {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1vw, 0.9rem);
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  opacity: 0.6;
-  margin-top: 0.3rem;
-}
-
-/* The beat sits in the same slot and at the same scale as chapter 2's
-   `.halluc-close-line` ("Both failures look identical on screen.") — same slide
-   shape, same position, forty minutes later. The rhyme is deliberate; it is
-   not a class to be merged with that one, because this beat is a fragment and
-   chapter 2's is painted by its island. */
-.reveal .payoff-close-line {
-  font-size: 1.12rem;
-  color: #1b1b1b99;
-  max-width: none;
-  margin: clamp(0.9rem, 3vh, 1.6rem) 0 0;
-}
-.reveal .payoff-close-line b {
-  color: var(--navy);
-  font-weight: 700;
+  margin-bottom: 0.15rem;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -5095,23 +4820,15 @@
   font-size: clamp(0.68rem, 1.1vw, 1rem);
   margin-top: 0.6rem;
 }
-/* The commands ARRIVE one at a time and then STAY (Atil, 2026-08-20 — this
-   overrides #71's and #92's "only the lit Stop prints its command" for the
-   summary Slide only). Reveal's `.visible` is the mechanic — still no widget
-   and no key binding. By the seventh press the room holds the whole row, which
-   is what an executive route needs from the one Slide it gets: the commands
-   are the evidence that these are installed things a person types (locked
-   decision #7 on map #63), and evidence that has already scrolled away cannot
-   be counted. The Lit mark still moves one Stop at a time, so the row says
-   where the presenter IS as well as where they have BEEN.
+/* Every command prints in the first frame (Atil, 2026-08-26 — this replaces
+   the one-at-a-time walk of 2026-08-20, and #71's and #92's "only the lit Stop
+   prints its command" stays overridden for the summary Slide only). The Slide
+   has no Fragment now, so the commands need no reveal rule at all — they are
+   simply there. They are the evidence that these are installed things a person
+   types (locked decision #7 on map #63), and the executive route gets one
+   Slide, so the evidence has to be on it from the start.
 
    ⚠ The small Rail is unchanged: there a Dim Stop shows its name only. */
-.reveal .ch5-sum-rail .ch5-cmd {
-  opacity: 0;
-}
-.reveal .ch5-sum-rail .fragment.visible .ch5-cmd {
-  opacity: 1;
-}
 /* The claim, per Stop. No "JUDGED AGAINST" label — the words carry it, and
    seven repeats of a label is a texture rather than information (#71).
 
@@ -5150,10 +4867,10 @@
   height: clamp(2.6rem, 8vh, 4.6rem);
   background: linear-gradient(180deg, #00327d59, transparent);
 }
-/* The Lit Stop wins over the seam's change of weight. */
-.reveal .ch5-sum-rail > li.current-fragment {
-  border-top-color: var(--orange);
-}
+/* NO LIT STOP HERE (Atil, 2026-08-26). The row no longer walks, so no Stop
+   holds a current position, and the orange rule that used to mark it would now
+   paint all three Stops after the seam at once. The seam keeps the row's only
+   change of weight. */
 .reveal .ch5-sum h2.h-set {
   font-size: clamp(1.4rem, 2.9vw, 2.25rem);
   margin: 0 0 clamp(0.8rem, 2.2vh, 1.4rem);
