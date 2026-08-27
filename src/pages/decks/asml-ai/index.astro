@@ -472,7 +472,7 @@ const baselineBlocks = BASELINE.length;
         <section class="layers" data-section="02 — Terminology" data-layers>
           <span class="eyebrow">The mental model</span>
           <h2 class="h-set">
-            <span class="h-line"><span>The model is only the engine</span></span>
+            <span class="h-line"><span>Layers of the Agent</span></span>
           </h2>
           <div class="layers-grid">
             <div class="layers-diagram">
@@ -492,26 +492,26 @@ const baselineBlocks = BASELINE.length;
             <ol class="layers-defs">
               <li class="model">
                 <span class="k">Model</span>
-                <p>The core intelligence engine — Opus, GPT. Given; you swap it, you don't build it.</p>
+                <p>Large Language Model — Opus, GPT</p>
               </li>
               <li class="harness">
                 <span class="k">Harness</span>
-                <p>The wrapper that drives it — Claude Code, ChatGPT, Copilot.</p>
+                <p>Vendor specific wrapper that drives it — Copilot, Claude Code, ChatGPT.</p>
               </li>
               <li class="skills">
                 <span class="k">Skills</span>
-                <p><em>Yours</em> — the reusable playbooks you write and install on top of the harness. Capture a procedure once, reuse it for free.</p>
+                <p>Reusable prompts, scripts for Agents</p>
               </li>
               <li class="env">
                 <span class="k">Environment</span>
-                <p>Your codebase — the source of truth. Skills are only as good as it is: accurate, well-structured, well-documented.</p>
+                <p>Your codebase — the source of truth. Results are only as good as this.</p>
               </li>
             </ol>
             <p class="layers-agent">
-              <span class="k">Agent</span> — not a layer. It's what these
-              <em>become</em> when you run them in a loop, acting in the
-              environment. How many loops it runs on your question depends on
-              the <em>effort level</em> you set.
+              <span class="k">Agent:</span> Model + Harness + Skills in a loop, 
+              trying to solve your problem, acting in the environment. <br />
+              <em>Effort level:</em> how hard Agent tries to solve. <br />
+              Higher effort = more tokens / time / cost.
             </p>
             <!-- SECOND CALLOUT, sibling to Agent (#36). The slide now reads
                  "four parts, and two things that are not parts", and the two
@@ -527,10 +527,8 @@ const baselineBlocks = BASELINE.length;
                  policy. "A standard, controlled way to plug those tools in"
                  is the surviving intent. Do not restore "gateway". -->
             <p class="layers-tools">
-              <span class="k">Tools &amp; MCP</span> — not a layer either. A
-              tool is what the harness hands the model so it can act. MCP is a
-              standard, controlled way to plug those tools in — which is how
-              we reach <em>Polarion</em> and <em>Jira</em>.
+              <span class="k">MCP</span> is an interface to outer world. How
+              we connect to <em>Polarion</em> and <em>Jira</em>.
             </p>
           </div>
           <aside class="notes">
@@ -836,8 +834,7 @@ const baselineBlocks = BASELINE.length;
         <section data-section="03 — Tokenomics" data-token-live>
           <span class="eyebrow">The vocabulary &middot; one prompt, then a real one</span>
           <h2 class="h-set">
-            <span class="h-line"><span>Everything you type</span></span>
-            <span class="h-line"><span>breaks into tokens.</span></span>
+            <span class="h-line"><span>Tokenizers</span></span>
           </h2>
           <p class="tk-body">
             The model never sees your words. &mdash; Every token is just an index
@@ -954,14 +951,6 @@ const baselineBlocks = BASELINE.length;
                three bars carry these three names. Same fragment index as the
                swap (Atil, 2026-08-26): the slide has ONE step, and that step
                lands the prompt, the ladder and this line together. -->
-          <p class="tk-close-line fragment rise" data-fragment-index="0">
-            That was input alone. Tokens come in three kinds, at three prices:
-            <b>what you send, what is remembered, and what comes back.</b>
-          </p>
-
-          <p class="tk-caveat">
-            Approximate tokenizer (&asymp; chars &divide; 4).
-          </p>
           <aside class="notes">
             The handoff from left to right is the point: your letters become
             numbers, and each number is only an address. Read the right panel
@@ -997,8 +986,7 @@ const baselineBlocks = BASELINE.length;
         <section data-section="03 — Tokenomics" data-cost-dial>
           <span class="eyebrow">The bill &middot; interactive, drag the tracks</span>
           <h2 class="h-set">
-            <span class="h-line"><span>Three numbers</span></span>
-            <span class="h-line"><span>make the bill.</span></span>
+            <span class="h-line"><span>Token Types</span></span>
           </h2>
 
           <!-- The formula rides INSIDE the table as its first header row, so

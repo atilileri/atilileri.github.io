@@ -61,9 +61,9 @@ export const BRANCHES: Branch[] = [
     answer: "No",
     name: "factuality hallucinations",
     cause:
-      "It reached for specifics that were never passed to it, and relied on unsourced knowledge.",
-    fix: "Put the information in front of it.",
-    forward: "The Operating Model fills the gaps with the '/grilling' skill.",
+      "It assumed specifics that were never passed to it, and relied on unsourced knowledge.",
+    fix: "Fill the gaps in solution universe.",
+    forward: "Proposed AI Operating Model fills the gaps with the '/grilling' skill.",
     edge: "/grilling",
   },
   {
@@ -74,9 +74,9 @@ export const BRANCHES: Branch[] = [
     // named term — "Attention degradation:" reads as a definition rather
     // than a phrase buried mid-sentence.
     cause:
-      "It was given the correct information and didn't follow it. `Attention degradation`",
-    fix: "Reduce the tokens in the context window to restore its focus.",
-    forward: "Stay out of the dumb zone with the techniques in Best Practices.",
+      "It was given the correct information but didn't follow it. `Attention degradation`",
+    fix: "Keep sessions shorter for model to focus.",
+    forward: "Stay in the 'Smart Zone' with the techniques in Best Practices.",
     edge: "smart zone",
   },
 ];
@@ -85,11 +85,11 @@ export const TEXT = {
   // No "press →": the slide has no fragments to press through — it plays itself
   // out on arrival — and an eyebrow promising an interaction the slide does
   // not have is worse than a plain one.
-  eyebrow: "Terminology · one question, two failures",
+  eyebrow: "Terminology · one question, two failure modes",
   // The hinge IS the headline: the slide's whole value is that one question
   // sorts the two failures for you.
-  headline: "One question tells you which.",
+  headline: "How to separate Hallucinations?",
   // The deck's standing single sentence.
-  closeLine: "Both failures look identical on screen. They do not have the same fix.",
-  fixed: "Fixed.",
+  closeLine: "Causing less errors and more repeatability.",
+  fixed: "Prevented",
 };

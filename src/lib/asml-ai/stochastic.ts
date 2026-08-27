@@ -61,23 +61,23 @@ export const KINDS: Record<Kind, string> = {
 export const ANSWERS: { kind: Kind; text: string; tell: string }[] = [
   {
     kind: "legit",
-    text: "buildManifest reads a null id. Guard the lookup at manifest.ts:42.",
+    text: "Fix manifest.ts:42.",
     tell: "Reads the trace. Fixes where it points.",
   },
   {
     kind: "legit",
-    text: "The caller passes an empty batch. Fix export.ts:17.",
+    text: "Fix export.ts:17.",
     tell: "Also reads the trace — one frame further up. Just a different reading.",
   },
   {
     kind: "faithfulness",
-    text: "The error is at manifest.ts:17, in writeManifest().",
-    tell: "Trace says 42, model failed to capture the correct line & function.",
+    text: "Fix manifest.ts:17.",
+    tell: "Model mixed up the provided context.",
   },
   {
     kind: "factuality",
-    text: "Known bug in Node 20.11. Upgrade to 20.12.",
-    tell: "There is no such bug, and nothing in the context mentions Node.",
+    text: "Upgrade KT Framework to v21.",
+    tell: "Model invented things out of thin air. No one mentioned KT Framework.",
   },
 ];
 
