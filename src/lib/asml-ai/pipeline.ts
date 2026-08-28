@@ -23,11 +23,12 @@
  * diagram into the requirement, and check the code against the requirement —
  * and the second one is a check, not a document.
  *
- * `Reconcile` HAS NO COMMAND, and its slot is TRULY BLANK (#93 Q6): space held,
- * nothing printed. Not the greyed "no command" the #71 prototype drew. Six
- * Stops print a command and one does not; the room reads the gap unaided, and
- * blank makes it deliberate rather than negative. The two skills it needs are
- * out of scope on map #63 and do not exist.
+ * `Reconcile` HAS NO COMMAND, and its slot now says `in progress` (Atil,
+ * 2026-08-28, replacing the truly blank slot of #93 Q6). The blank read as an
+ * oversight on the wall; the marker says the same thing on purpose — the two
+ * skills it needs do not exist yet, and someone is building them. It prints in
+ * the deck's own words, never as a command, so the row still shows six
+ * commands and one gap.
  *
  * THE COMMANDS ARE INSTALLED THINGS A PERSON TYPES (locked decision #7 on map
  * #63), which is why `cmds` is a list rather than a label: `questions` carries
@@ -51,10 +52,14 @@ export type Stop = {
   /** The name the Rail prints. */
   name: string;
   /** The installed commands, in the order the Slide reveals them. Empty for
-   *  `Reconcile` — the slot is held open and nothing is printed (#93). */
+   *  `Reconcile`, which prints `pending` in the same slot instead. */
   cmds: string[];
   /** What the NEXT Stop is judged against. The summary Slide's detail line. */
   judged: string;
+  /** Printed in the command slot when a Stop has no command yet: the work is
+   *  named and honestly marked unfinished (Atil, 2026-08-28). `Reconcile`
+   *  only. */
+  pending?: string;
   /** True for the last Stop before the seam (`to-tickets`). */
   seamAfter?: boolean;
 };
@@ -64,7 +69,7 @@ export const STOPS: Stop[] = [
     id: "wayfinder",
     name: "Wayfinder",
     cmds: ["/wayfinder"],
-    judged: "which question gets asked first",
+    judged: "lay a map to find your way",
   },
   {
     id: "questions",
@@ -75,38 +80,39 @@ export const STOPS: Stop[] = [
     // pop in out of sequence and read as a glitch. Nothing claims `/grilling`
     // comes first — #101's header line lists them, it does not sequence them.
     cmds: ["/research", "/grilling", "/prototype"],
-    judged: "what the spec is allowed to assume",
+    judged: "find and fill in the gaps",
   },
   {
     id: "to-spec",
     name: "To spec",
     cmds: ["/to-spec"],
-    judged: "what counts as done",
+    judged: "definition of done",
   },
   {
     id: "to-tickets",
     name: "To tickets",
     cmds: ["/to-tickets"],
-    judged: "how small a thing can be judged alone",
+    judged: "digestible, vertical slices",
     seamAfter: true,
   },
   {
     id: "implement",
     name: "Implement",
     cmds: ["/implement", "/tdd"],
-    judged: "whether the code did what was asked",
+    judged: "tested, working code",
   },
   {
     id: "review",
     name: "Review",
     cmds: ["/code-review"],
-    judged: "whether a person merges it",
+    judged: "independently verified",
   },
   {
     id: "reconcile",
     name: "Reconcile",
     cmds: [],
-    judged: "the next decision, when it comes",
+    pending: "in progress",
+    judged: "connect the loop",
   },
 ];
 

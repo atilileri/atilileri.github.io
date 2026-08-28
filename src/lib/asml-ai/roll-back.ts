@@ -55,13 +55,13 @@
  *    brainpower. Some corrected runs land and you cannot tell which. So case 1
  *    accumulates turns and never draws a score, a percentage or a downhill line.
  *    "The odds get much worse" — never "it can't recover".
- * 3. CASE 2 IS A BETTER BRIEF, NOT THE SAME PROMPT. T4′ carries the two
- *    constraints the room can see were missing from T4, and it is badged as
+ * 3. CASE 2 IS A BETTER BRIEF, NOT THE SAME PROMPT. T3′ carries the two
+ *    constraints the room can see were missing from T3, and it is badged as
  *    such. Both vendors and the paper agree the new brief has to be more
- *    COMPLETE, not just fresher — a widget that replays T4 verbatim teaches the
+ *    COMPLETE, not just fresher — a widget that replays T3 verbatim teaches the
  *    wrong move (#48 §5.5).
  * 4. EACH CASE ENDS DIFFERENTLY, AND CASE 3 ENDS THE OTHER WAY. Case 1: nothing
- *    leaves. Case 2: T4 and everything after it is REMOVED from the session —
+ *    leaves. Case 2: T3 and everything after it is REMOVED from the session —
  *    the crux (#48 §3), documented in four first-party texts. Case 3: nothing is
  *    removed either, because a fork COPIES the trunk and keeps the old session
  *    alive. Drawing all three the same way would teach a wrong fact about forks.
@@ -77,8 +77,8 @@
  *    (#45) — and no Cursor / Windsurf vocabulary appears here.
  */
 
-export const EYEBROW = "Go back rather than argue";
-export const HEADLINE = ["Don't correct", "restore / edit / fork"];
+export const EYEBROW = "Don't correct";
+export const HEADLINE = ["Restore | Edit | Fork"];
 
 /** The one line of prose on the slide (Atil's words). It OPENS — it sits under
  *  the headline and above the trunk (Atil, 2026-08-26), so the room reads the
@@ -96,7 +96,7 @@ export const OPEN_LINE = "Don't pollute the context — keep the session clean."
 export const CHECKPOINT = "last known good";
 
 export interface Turn {
-  /** T1, T4, T4′ … — the label the vendors' own UI shows */
+  /** T1, T3, T3′ … — the label the vendors' own UI shows */
   id: string;
   who: "you" | "model";
   /** one line, read in a glance. NO code and no diffs: the room must read a
@@ -140,8 +140,8 @@ export interface World {
 export const WORLD_A: World = {
   label: "the model gets one turn wrong",
   turns: [
-    { id: "T4", who: "you", text: "make it shorter" },
-    { id: "T4", who: "model", text: "cut the risk section", mark: "bad" },
+    { id: "T3", who: "you", text: "make it shorter" },
+    { id: "T3", who: "model", text: "cut the risk section", mark: "bad" },
   ],
 };
 
@@ -149,7 +149,7 @@ export const WORLD_A: World = {
 export const WORLD_B: World = {
   label: "the work splits into parallel paths",
   turns: [
-    { id: "T4", who: "you", text: "three audiences need this" },
+    { id: "T3", who: "you", text: "three audiences need this" },
   ],
 };
 
@@ -174,10 +174,10 @@ export const CASE_CORRECT: Case = {
   where: "you just type the next turn",
   effect: "Nothing leaves. Every turn stays in the window.",
   turns: [
-    { id: "T5", who: "you", text: "no — keep the risk section" },
-    { id: "T5", who: "model", text: "risks are back, now three pages", mark: "bad" },
-    { id: "T6", who: "you", text: "one page" },
-    { id: "T6", who: "model", text: "one page — the dates are gone", mark: "bad" },
+    { id: "T4", who: "you", text: "no — keep the risk section" },
+    { id: "T4", who: "model", text: "risks are back, now three pages", mark: "bad" },
+    { id: "T5", who: "you", text: "one page" },
+    { id: "T5", who: "model", text: "one page — the dates are gone", mark: "bad" },
   ],
   note: "Your corrections and its wrong answers are all in the window.",
 };
@@ -186,17 +186,17 @@ export const CASE_CORRECT: Case = {
  *  (decision 3). Both vendor names sit here because they do the same thing to
  *  the session; only the gesture differs. */
 export const CASE_BACK: Case = {
-  move: "Edit a previous request · Restore Checkpoint",
+  move: "Edit previous prompt · Restore Checkpoint",
   where: "click the bubble · hover a request",
-  effect: "T4 and everything after it: removed from the session.",
+  effect: "T3 and everything after it: removed from the session.",
   turns: [
     {
-      id: "T4′",
+      id: "T3′",
       who: "you",
       text: "one page. keep the risks and the dates.",
       badge: "same goal, better brief",
     },
-    { id: "T4′", who: "model", text: "one page, risks and dates kept", mark: "ok" },
+    { id: "T3′", who: "model", text: "one page, risks and dates kept", mark: "ok" },
   ],
   note: "Same checkpoint. A better brief. Nothing to argue with.",
 };

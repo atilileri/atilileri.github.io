@@ -1357,6 +1357,56 @@
   padding-right: 0.5em;
 }
 
+/* THE CHAPTER 06 WASH CARRIES ITS CONTENTS (Atil, 2026-08-28). Chapters 2–5
+   get their titles from the roadmap divider, and the outro used to get none —
+   so the one chapter with no factor was also the one with no wayfinding.
+
+   Same list as `.reveal section.roadmap .roadmap-slides`: mono, quiet, numbered
+   in the accent. The geometry differs on purpose. The roadmap's list rides a
+   four-column track so each title sits under its own factor; there is no factor
+   row here, so this one is a single column that starts at the headline's left
+   edge. It fades in behind the headline for the same reason — the chapter's
+   name lands first, and the contents follow it. */
+.reveal section.chapter .roadmap-slides {
+  list-style: none;
+  counter-reset: rms;
+  margin: clamp(1.6rem, 4.5vh, 2.8rem) 0 0;
+  padding: 0;
+  max-width: 34ch;
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.92vw, 0.86rem);
+  line-height: 1.5;
+  color: #1b1b1b99;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+  transition-delay: 300ms;
+}
+.reveal section.chapter.is-live .roadmap-slides {
+  opacity: 1;
+  transform: none;
+}
+.reveal section.chapter .roadmap-slides li {
+  margin: 0 0 0.5rem;
+  padding-left: 2.1rem;
+  text-indent: -2.1rem;
+}
+/* The number is the slide's ABSOLUTE number in the deck, not its place in the
+   chapter, so it matches the counter in the top right corner. The script in
+   RoadmapDivider.astro sets `counter-reset: rms <n-1>` on each item and this
+   increment lands on `n`; the list's own reset above is only the fallback. */
+.reveal section.chapter .roadmap-slides li::before {
+  counter-increment: rms;
+  content: counter(rms, decimal-leading-zero);
+  display: inline-block;
+  width: 2.1rem;
+  text-indent: 0;
+  color: var(--orange);
+  letter-spacing: 0.08em;
+}
+
 /* ══════════════════════ ROADMAP SPINE — the deck's navigation device ══
    One component, two jobs (src/components/deck/RoadmapDivider.astro):
    chapter 1's roadmap slide shows all four factors at equal weight
@@ -1500,6 +1550,10 @@
   padding-left: 2.1rem;
   text-indent: -2.1rem;
 }
+/* The number is the slide's ABSOLUTE number in the deck, not its place in the
+   chapter, so it matches the counter in the top right corner. The script in
+   RoadmapDivider.astro sets `counter-reset: rms <n-1>` on each item and this
+   increment lands on `n`; the list's own reset above is only the fallback. */
 .reveal section.roadmap .roadmap-slides li::before {
   counter-increment: rms;
   content: counter(rms, decimal-leading-zero);
@@ -1756,6 +1810,21 @@
 .reveal section.load .tk-body {
   margin: 0.2rem 0 0;
 }
+/* The rank line under the body line. Navy and a shade heavier, because it is
+   the claim the two bars then prove — not a caption on them. It stays OUT of
+   the accent: orange is the good state on the next slide, and a warning-
+   coloured line here would read as the opposite. */
+.reveal section.load .load-rank {
+  margin-top: 0.9rem;
+  color: var(--navy);
+  font-weight: 600;
+  /* ONE LINE ON THE WALL. `.reveal p` caps every paragraph at 40ch and this
+     sentence is 63 characters, so it broke after "over" and the orphan word
+     read as a second thought. The cap is released and the wrap forbidden; at
+     the 1600px canvas the line takes about 700px and has room to spare. */
+  max-width: none;
+  white-space: nowrap;
+}
 /* The picture takes the whole space under the headline and centres in it, the
    way the scatter's plot does. Left top-aligned it stranded the two bars in the
    upper third of a 900px canvas with half the slide empty under them. */
@@ -1888,6 +1957,10 @@
   }
   .load-legend {
     gap: 1.4rem;
+  }
+  /* A phone is narrower than the sentence, so it wraps again down here. */
+  .reveal section.load .load-rank {
+    white-space: normal;
   }
 }
 
@@ -3359,6 +3432,11 @@
     transform: none;
     transition: none;
   }
+  .reveal section.chapter .roadmap-slides {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
   .term-cursor { animation: none; }
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }
@@ -4063,15 +4141,32 @@
    2026-08-25). Opacity on the paragraph would fade the command chip with it —
    a child cannot climb back out of a parent's opacity — and the chip has to
    read at full strength. Same grey, one less stacking context. */
-.sz-open-line {
+/* ⚠ `.reveal` prefix required: `.reveal p` caps body copy at 40ch and it
+   out-specifies a bare class. */
+.reveal .sz-open-line {
   font-size: 1.08rem;
   color: #1b1b1bc7;
-  max-width: 58ch;
+  /* Each of the two moves is ONE LINE (Atil, 2026-08-27). No ch cap here — a
+     58ch measure wrapped both of them and the pair stopped reading as two
+     moves. */
+  max-width: none;
   /* clears the h-set's underline, which sits below the headline's box */
   margin: 0.9rem 0 1rem;
 }
+/* The command that performs the second move, set as a smaller note under it. */
+.sz-open-note {
+  display: block;
+  font-size: 0.86em;
+  margin-top: 0.25rem;
+}
+/* The two moves themselves, named. Blue, per the deck's `strong` convention —
+   ⚠ NOT orange: on this slide orange means YOUR prompt and nothing else. */
+.reveal .sz-open-line b {
+  color: var(--signal);
+  font-weight: 600;
+}
 /* The command chip: the one thing in the paragraph set at full strength. */
-.sz-open-line .cmd {
+.reveal .sz-open-line .cmd {
   font-family: var(--font-mono);
   color: var(--signal);
   font-weight: 600;
@@ -4104,19 +4199,16 @@
   pointer-events: none;
 }
 
-.sz-tag {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--signal);
-}
-
 .sz-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+}
+/* The turn counter with the brief under it. */
+.sz-head {
+  display: grid;
+  gap: 0.55rem;
 }
 .sz-turn {
   font-family: var(--font-mono);
@@ -4219,8 +4311,10 @@
     #ff66001a 100%
   );
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.2rem;
 }
 .sz-dumb b {
   font-family: var(--font-mono);
@@ -4229,6 +4323,13 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--orange);
+}
+/* WHAT THE ZONE COSTS, under its name. It is a plain sentence, not a second
+   label: lower case, no tracking, and quieter than the name above it. */
+.sz-dumb span {
+  font-size: 12px;
+  line-height: 1.1;
+  color: #1b1b1bb0;
 }
 
 .sz-marks {
@@ -4297,6 +4398,21 @@
   opacity: 0.75;
 }
 
+/* Attention: the line and the field it describes, both above the tank. */
+.sz-field {
+  display: grid;
+  gap: 0.6rem;
+}
+/* ⚠ `.reveal` prefix required: `.reveal p` caps body copy at 40ch and would
+   wrap this into three lines. It holds ONE line at every state. */
+.reveal .sz-read {
+  margin: 0;
+  max-width: none;
+  font-size: 1rem;
+  color: var(--navy);
+  transition: color 700ms var(--ease);
+}
+
 /* The window's contents. Colour is set per block from the controller — vivid
    and distinguishable at turn 1, one pale grey field by turn 20. */
 .sz-blocks {
@@ -4320,16 +4436,17 @@
   }
 }
 
-/* The brief, and the lines dying out of it. */
+/* The brief, and the lines dying out of it. It sits under the turn counter
+   now, so it carries no rule above it and no label of its own (Atil,
+   2026-08-27). The lines wrap as a row to keep the head of the stage short. */
 .sz-brief {
-  border-top: 1px solid var(--hair);
-  padding-top: 1.1rem;
-  display: grid;
-  gap: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.1rem;
 }
 .sz-line {
   font-family: var(--font-mono);
-  font-size: 17px;
+  font-size: 14px;
   color: var(--navy);
   transition: opacity 700ms var(--ease), color 700ms var(--ease);
 }
@@ -4459,7 +4576,7 @@
 }
 
 /* World A's split. FOUR children in two rows, not two column stacks: row 1
-   holds both stems, so T4′ starts on the same line as T4 and the divider under
+   holds both stems, so T3′ starts on the same line as T3 and the divider under
    them lands at ONE height in both columns whatever either stem does. */
 .rbt-cases {
   display: grid;
@@ -4809,6 +4926,15 @@
   /* the tick: the hairline the price tags used to hang from, turned on its side */
   border-left: 2px solid var(--hair);
 }
+.reveal .cache-habits li em {
+  /* the one word that carries the habit: full-strength navy, upright. The
+     line around it sits at 0.78 opacity, so weight alone does the lifting —
+     no orange here, the slide spends its hot accent above. */
+  font-style: normal;
+  font-weight: 600;
+  color: var(--navy);
+  opacity: 1;
+}
 .reveal .cache-habits li b {
   display: block;
   font-weight: 700;
@@ -4910,6 +5036,30 @@
   white-space: nowrap;
   transition: opacity var(--dur) var(--ease);
 }
+/* THE STOP WITH NO COMMAND SAYS SO (Atil, 2026-08-28, replacing the truly
+   blank slot of #93). `Reconcile` needs two skills that do not exist yet, and
+   the blank read from the back of the room as a line that failed to print.
+
+   IT IS A STATE, NOT A COMMAND. It drops the signal colour and the slash, and
+   takes the deck's muted grey plus a small ring in front of it, so the row
+   still reads as six commands and one gap — the gap is now labelled. Do not
+   give it the accent: the summary Slide has no Lit Stop, and the seam keeps
+   the row's only change of weight (#92). */
+.ch5-cmd.is-pending {
+  color: #1b1b1b7a;
+  font-style: italic;
+  white-space: nowrap;
+}
+.ch5-cmd.is-pending::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.45em;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  vertical-align: 0.05em;
+}
 
 /* ── The Rail, enlarged: the summary Slide, and it is the whole picture ── */
 .reveal .ch5-sum-rail {
@@ -4920,7 +5070,10 @@
   /* Comp F's own geometry, which is what Atil walked and locked. The row sits
      under the Headline and the floor below it stays empty on purpose: the
      seven claims are read across, and nothing competes with them. */
-  margin: clamp(1.8rem, 7vh, 4.2rem) 0 0;
+  /* Room for the glyph band, which now sits ABOVE the rule and outside the
+     row's own box (2026-08-28). The floor under the row stays empty on
+     purpose: the seven claims are read across, and nothing competes. */
+  margin: clamp(3.2rem, 9.5vh, 6rem) 0 0;
   padding: 0;
   text-align: left;
 }
@@ -4934,6 +5087,35 @@
   transition:
     border-color var(--dur) var(--ease),
     opacity var(--dur) var(--ease);
+}
+/* THE GLYPH, one per Stop, above the name (Atil, 2026-08-28). Each drawing is
+   a miniature of that Stop's own Slide picture — see StopGlyph.astro.
+
+   IT IS A MARK, NOT A CLAIM. It sits at reduced weight so the row still reads
+   name → command → claim, and it never takes the orange: this Slide has no Lit
+   Stop and the seam keeps the row's only change of weight (#92).
+
+   The height is fixed, so all seven names stay on one baseline exactly as the
+   held-open command slot keeps the seven detail lines on theirs (#71). */
+.reveal .ch5-sum-rail .ch5-glyph {
+  /* ABOVE THE RULE, CENTRED IN THE COLUMN (Atil, 2026-08-28). The glyph is
+     lifted out of the flow so it clears the Stop's own top border: the rule
+     stays the row's unbroken horizontal, and the drawings ride it. Everything
+     under the rule — name, commands, claim — keeps its left edge.
+
+     `bottom: 100%` lands on the top of the padding box, which is UNDER the
+     3px border, so the border width is added back and the gap sits on top of
+     that. Change the border weight and this offset changes with it. */
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 3px + clamp(0.35rem, 1vh, 0.7rem));
+  transform: translateX(-50%);
+  display: block;
+  width: auto;
+  height: clamp(1.6rem, 3.8vh, 2.6rem);
+  color: #00327d;
+  opacity: 0.72;
+  overflow: visible;
 }
 .reveal .ch5-sum-rail .ch5-stop-name {
   font-size: clamp(0.88rem, 1.62vw, 1.5rem);

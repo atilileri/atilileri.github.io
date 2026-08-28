@@ -3,9 +3,13 @@
  * ProcessSummary.astro — chapter 5's summary Slide (wayfinder #71 comp F,
  * copy locked by #92, built by #103).
  *
- * The one Slide both routes pass through. On the executive route it IS the
- * chapter; on the technical route it is the recap the room reaches after
- * walking all six Stops (#92).
+ * The one Slide both routes pass through, and both routes reach it FIRST.
+ * On the executive route it IS the chapter; on the technical route it is the
+ * promise the room reads before it walks the six Stops (#92).
+ *
+ * IT IS THE STACK PARENT (Atil, 2026-08-28). The six Stop Slides hang under
+ * this Slide, not under the chapter divider: `→` is the executive route on to
+ * the payoff, `↓` is the technical route into the stack.
  *
  * WHAT IT IS: the Rail at full size, plus one plain line under each Stop
  * saying what the next Stop is judged against. That detail line is the whole
@@ -36,8 +40,21 @@
  * position. The Slide binds no key and spends nothing from the chapter's
  * widget budget.
  *
- * ⚠ The small Rail did NOT change. There a Dim Stop still shows its name and
- * nothing else, because six Slides each print their own Stop's commands.
+ * A GLYPH SITS ABOVE EVERY STOP NAME (Atil, 2026-08-28). Each one is a
+ * miniature of that Stop's own Slide picture, so the technical route recognises
+ * a shape it already walked and the executive route reads seven distinct marks
+ * instead of seven words. The drawings live in `StopGlyph.astro` and carry no
+ * text — the detail line under the name is what argues.
+ *
+ * ⚠ The small Rail still shows a Dim Stop's name and nothing else, because six
+ * Slides each print their own Stop's commands. It prints the same `in progress`
+ * marker on `Reconcile`, dimmed with the commands.
+ *
+ * `Reconcile` PRINTS `in progress` WHERE THE OTHER SIX PRINT A COMMAND (Atil,
+ * 2026-08-28). This replaces the truly blank slot of #93: the room read the
+ * blank as a missing line rather than as a deliberate gap. The marker is the
+ * honest version — the two skills that Stop needs do not exist yet — and it is
+ * drawn as a state, not as a command, so the row still shows six commands.
  *
  * TWO LINES OF ROOM FOR EVERY STOP NAME (#71), or a wrapping name drops its
  * detail line below the other six. `Reconcile` is one short word, so the
@@ -47,6 +64,7 @@
  * has to remember which route they are in (#92).
  */
 import { STOPS, SEAM } from "../../lib/asml-ai/pipeline";
+import StopGlyph from "./StopGlyph.astro";
 
 interface Props {
   /** Value for `data-section` — the on-screen section indicator. */
@@ -62,12 +80,12 @@ const { section } = Astro.props;
       earlier and the room has not seen it since; this is where it is paid off.
       Accepted knowingly (#92): the one place in the deck where a gloss is
       re-used, and no other chapter has a Slide that IS its own gloss. */}
-  <span class="eyebrow">The process that repeats</span>
+  <span class="eyebrow">In a nutshell</span>
   {/* The verb is SETS, not writes (#92). The written-down-ness is carried by
       the detail lines and by the presenter, deliberately not by the Headline —
       do not quietly restore it. */}
   <h2 class="h-set">
-    <span class="h-line"><span>WoW in a nutshell</span></span>
+    <span class="h-line"><span>Proposed WoW</span></span>
   </h2>
   <ol class="ch5-sum-rail" aria-label="The operating model — seven stops">
     {
@@ -79,11 +97,17 @@ const { section } = Astro.props;
             i === SEAM + 1 && "first-after",
           ]}
         >
+          <StopGlyph id={s.id} />
           <span class="ch5-stop-name">{s.name}</span>
           <span class="ch5-cmds">
             {s.cmds.map((c) => (
               <span class="ch5-cmd">{c}</span>
             ))}
+            {/* `Reconcile` has no command, so it names its state in the same
+                slot (Atil, 2026-08-28). The blank of #93 read as an oversight
+                from the back of the room; `in progress` says the same thing on
+                purpose. It is not styled as a command — see `.is-pending`. */}
+            {s.pending && <span class="ch5-cmd is-pending">{s.pending}</span>}
           </span>
           <span class="ch5-judged">{s.judged}</span>
         </li>

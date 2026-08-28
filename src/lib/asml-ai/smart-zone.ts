@@ -57,6 +57,15 @@ export interface SmartZoneState {
   blocks: number;
   /** how much colour the blocks still have: 1 = vivid, 0 = pale grey */
   vivid: number;
+  /**
+   * one line over the blocks, saying what the model can still do at this turn.
+   *
+   * ⚠ IT IS ON THE SLIDE AGAIN (Atil, 2026-08-27), after a spell as a spoken
+   * line only. It reads the BLOCKS, not the tank: the tank is tokens, the
+   * blocks are attention. Keep it one short sentence pair — the moment the
+   * room has to read two lines here they stop watching the field change.
+   */
+  read: string;
 }
 
 /** the brief written in turn 1 — the thing that quietly stops being obeyed */
@@ -111,6 +120,7 @@ export const STATES: SmartZoneState[] = [
     live: 4,
     blocks: 3,
     vivid: 1,
+    read: "Attention is at its sharpest.",
   },
   {
     turn: "turn 10",
@@ -120,6 +130,7 @@ export const STATES: SmartZoneState[] = [
     live: 3,
     blocks: 30,
     vivid: 0.2,
+    read: "Turns blend together. A wrong answer now looks as plausible as a right one.",
   },
   {
     turn: "turn 20",
@@ -129,6 +140,7 @@ export const STATES: SmartZoneState[] = [
     live: 1,
     blocks: 64,
     vivid: 0,
+    read: "One grey field. Attention is spread over everything and sharp on nothing.",
   },
 ];
 
@@ -147,7 +159,7 @@ export const STATES: SmartZoneState[] = [
 export const CAUSES = [
   {
     name: "lost in the middle",
-    line: "Edges stay sharp. The middle goes soft.",
+    line: "Edges stay sharp. The middle goes forgotten.",
   },
   {
     name: "recency bias",

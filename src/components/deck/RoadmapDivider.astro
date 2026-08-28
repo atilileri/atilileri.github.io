@@ -67,7 +67,9 @@ const kicker =
     /* The chapter's contents, filled in by the script below from the real
        slides. Empty in the HTML on purpose: nothing here is typed twice, so
        a slide headline edited in the deck changes this list too. Dividers
-       only — chapter 1's roadmap opens no chapter and gets no list. */
+       only — chapter 1's roadmap opens no chapter and gets no list. Chapter
+       6's wash divider carries the same list, written by hand in the deck
+       because it is not this component (Atil, 2026-08-28). */
     chapter && <ol class="roadmap-slides" data-roadmap-slides />
   }
   <slot />
@@ -84,6 +86,13 @@ const kicker =
    *
    * Runs once for the whole deck — Astro hoists this script and includes it a
    * single time, however many dividers the page holds.
+   *
+   * IT IS NOT LIMITED TO THIS COMPONENT (Atil, 2026-08-28). Chapter 6's wash
+   * divider is plain markup in the deck and carries the same two hooks —
+   * `data-roadmap` on the section and an empty `[data-roadmap-slides]` list —
+   * so it gets its contents from the same lookup. Any slide with those two
+   * hooks is filled; keep the selectors below on the attributes, never on the
+   * `.roadmap` class.
    */
   const clean = (t: string) => t.replace(/\s+/g, " ").trim();
 
@@ -98,41 +107,54 @@ const kicker =
     return h ? clean(h.textContent ?? "") : "";
   }
 
+  /** One line of a divider's contents list. */
+  type Entry = {
+    /**
+     * The slide's ABSOLUTE number in the deck (Atil, 2026-08-28), not its
+     * position inside the chapter. It is the raw horizontal index, so the
+     * opening slide is 00 and the numbers here match the counter in the top
+     * right corner of the chrome exactly — the room reads a number on a
+     * divider and finds that same number on the slide it names.
+     */
+    no: number;
+    title: string;
+  };
+
   /**
-   * Titles of one section's MAIN slides, in deck order.
+   * One section's MAIN slides, in deck order, each with its absolute number.
    *
    * Main means horizontal: one title per press of →. A vertical stack sits at
    * one horizontal position, so the stack gives one title — the title of its
    * first slide. The slides below it are deep dives, and the list drops them:
    * the divider says where the chapter goes, not everything it holds.
    *
-   * ONE EXCEPTION, and chapter 5 is it. When the divider itself opens the
-   * stack, the slides under the divider are not deep dives under a main
-   * slide — they are the chapter's own route, walked with ↓. That stack
-   * gives every one of its titles.
+   * NO EXCEPTION (Atil, 2026-08-28). Chapter 5's summary is the top of a
+   * stack, and the slides under it are the technical route. The list drops
+   * them — a divider never prints the vertical route. Chapter 5's contents
+   * are therefore one line, the summary that `→` reaches.
+   *
+   * The walk covers every top-level section, not only this one's, because the
+   * absolute number counts positions the chapter does not own.
    */
-  function titlesOf(section: string): string[] {
+  function entriesOf(section: string): Entry[] {
     const tops = document.querySelectorAll<HTMLElement>(".reveal .slides > section");
-    const out: string[] = [];
+    const out: Entry[] = [];
 
-    const push = (slide: HTMLElement) => {
+    const push = (slide: HTMLElement, no: number) => {
       if (slide.hasAttribute("data-roadmap")) return; // the divider itself
       const t = titleOf(slide);
-      if (t) out.push(t);
+      if (t) out.push({ no, title: t });
     };
 
-    tops.forEach((top) => {
+    tops.forEach((top, i) => {
+      const no = i; // raw horizontal index — the chrome counter's own scheme
       const kids = [...top.querySelectorAll<HTMLElement>(":scope > section")];
       if (!kids.length) {
-        if (top.dataset.section === section) push(top);
+        if (top.dataset.section === section) push(top, no);
         return;
       }
-      const opensHere =
-        kids[0].hasAttribute("data-roadmap") && kids[0].dataset.section === section;
-      const wanted = opensHere ? kids : kids.slice(0, 1);
-      for (const k of wanted) {
-        if ((k.dataset.section ?? top.dataset.section) === section) push(k);
-      }
+      const first = kids[0];
+      if ((first.dataset.section ?? top.dataset.section) === section) push(first, no);
     });
     return out;
   }
@@ -141,9 +163,15 @@ const kicker =
     const divider = list.closest<HTMLElement>("[data-roadmap]");
     const section = divider?.dataset.section;
     if (!section) return;
-    for (const t of titlesOf(section)) {
+    for (const e of entriesOf(section)) {
       const li = document.createElement("li");
-      li.textContent = t;
+      li.textContent = e.title;
+      /* The number comes from the CSS counter `rms`, which the stylesheet
+         prints in the accent colour. Resetting the counter ON THE ITEM puts a
+         fresh counter in the item's own scope, so the ::before increment that
+         follows lands on this slide's absolute number. Per item, not per
+         list: a chapter with a gap in it still prints the truth. */
+      li.style.counterReset = `rms ${e.no - 1}`;
       list.append(li);
     }
   });

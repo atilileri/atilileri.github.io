@@ -27,7 +27,8 @@
  * (#91). By default they arrive with the Slide; pass `cmdFragments` and each
  * command instead arrives on its own Fragment, which is what #101's `questions`
  * Slide needs — a command lands as its hole fills, rather than three at once.
- * `Reconcile` prints nothing and keeps its space (#93).
+ * `Reconcile` has no command and prints its `pending` marker in the same slot
+ * (Atil, 2026-08-28, replacing the blank slot of #93).
  */
 import { STOPS } from "../../lib/asml-ai/pipeline";
 
@@ -54,8 +55,8 @@ let cmdSeen = -1;
     STOPS.map((s) => (
       <li class:list={["ch5-stop", on.includes(s.id) && "lit"]}>
         <span class="ch5-stop-name">{s.name}</span>
-        {/* The slot is held open for every Stop, so a Rail with a blank
-            `Reconcile` keeps the same baseline as one without it (#93). */}
+        {/* The slot is held open for every Stop, so every Rail keeps the same
+            baseline whichever Stop is Lit (#93). */}
         <span class="ch5-cmds">
           {
             s.cmds.map((c) => {
@@ -67,6 +68,10 @@ let cmdSeen = -1;
               );
             })
           }
+          {/* Same slot, same place in the reading order: the Stop that has no
+              command says so instead of leaving a hole. It is dimmed with the
+              commands when the Stop is not Lit. */}
+          {s.pending && <span class="ch5-cmd is-pending">{s.pending}</span>}
         </span>
       </li>
     ))

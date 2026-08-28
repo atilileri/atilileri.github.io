@@ -537,7 +537,7 @@ const baselineBlocks = BASELINE.length;
                    is the surviving intent. Do not restore "gateway". -->
               <p class="layers-tools">
                 <span class="k">MCP</span> is an interface to outer world. How
-                we connect to <em>Polarion</em> and <em>Jira</em>.
+                we communicate with <em>Polarion</em> and <em>Jira</em>.
               </p>
             </div>
             <aside class="notes">
@@ -1882,17 +1882,47 @@ const baselineBlocks = BASELINE.length;
                slide — so the room reads it as a thing they can run, not as an
                aside in brackets (Atil, 2026-08-25). -->
           <p class="sz-open-line">
-            Keep the session short (&lt;100k tokens), and keep the task small.<br />
-            Cut the work into slices that each finish inside the zone &mdash;
-            <span class="mono cmd">/to-tickets</span> writes them for you.
+            Keep the <b>session short</b> (&lt;100k tokens), and keep the
+            <b>task small</b>.<br />
+            Cut the work into slices that each finish inside the zone.
+            <span class="sz-open-note">
+              <span class="mono cmd">/to-tickets</span> does it for you.
+            </span>
           </p>
 
           <div class="sz-stage">
             <div class="sz-top">
-              <span class="sz-turn" data-sz-turn />
+              <!-- The turn counter, and under it the brief written in turn 1.
+                   The brief sits here rather than at the foot of the stage
+                   (Atil, 2026-08-27): the room reads the turn number and the
+                   lines that are still being obeyed as one thing. -->
+              <div class="sz-head">
+                <span class="sz-turn" data-sz-turn />
+                <div class="sz-brief">
+                  {SZ.BRIEF.map((l, i) => (
+                    <span class="sz-line" data-sz-line={i}>
+                      {l}
+                    </span>
+                  ))}
+                </div>
+              </div>
               <span class="sz-gauge">
                 <i />context <b data-sz-gauge>1%</b> used
               </span>
+            </div>
+
+            <!-- ATTENTION, above the tank (Atil, 2026-08-27). The blocks are
+                 what the model is holding; the tank under them is how many
+                 tokens that costs. Reading order is now attention first, budget
+                 second.
+
+                 One block per thing sent. They arrive as themselves and end as
+                 an undifferentiated grey field — nothing was deleted, it all
+                 just became the same. The line over them says what that costs
+                 at this turn; it comes from SZ.STATES[i].read. -->
+            <div class="sz-field">
+              <p class="sz-read" data-sz-read />
+              <div class="sz-blocks" data-sz-blocks />
             </div>
 
             <div>
@@ -1914,7 +1944,10 @@ const baselineBlocks = BASELINE.length;
                      room reads the zone against the fill and sees the session
                      walk into it. The label lives inside the region because a
                      mark under the axis would compete with 1M. -->
-                <i class="sz-dumb" data-sz-dumb><b>dumb zone</b></i>
+                <i class="sz-dumb" data-sz-dumb>
+                  <b>dumb zone</b>
+                  <span>(model loses focus, starts to hallucinate)</span>
+                </i>
               </div>
               <div class="sz-marks">
                 <span class="sz-mark" data-sz-mark-soft>100k</span>
@@ -1940,19 +1973,6 @@ const baselineBlocks = BASELINE.length;
               </div>
             </div>
 
-            <!-- One block per thing sent. They arrive as themselves and end as
-                 an undifferentiated grey field — nothing was deleted, it all
-                 just became the same. -->
-            <div class="sz-blocks" data-sz-blocks />
-
-            <div class="sz-brief">
-              <span class="sz-tag">what you wrote in turn 1</span>
-              {SZ.BRIEF.map((l, i) => (
-                <span class="sz-line" data-sz-line={i}>
-                  {l}
-                </span>
-              ))}
-            </div>
           </div>
 
 
@@ -1982,10 +2002,11 @@ const baselineBlocks = BASELINE.length;
             into slices that each fit. One sentence here; chapter 5 gives it a
             Stop of its own, so do not open it up.
 
-            THE PER-TURN LINE IS NOW YOURS, NOT THE SLIDE'S (Atil, 2026-08-25).
-            The widget used to print one under the stage; say it instead. Turn
-            1: the brief is holding. Turn 10: it renamed a function without
-            asking. Turn 20: it added a dependency, and wrote the tests last.
+            THE SLIDE PRINTS A PER-TURN LINE AGAIN (Atil, 2026-08-27). It sits
+            over the blocks and it reads the ATTENTION, not the budget. Do not
+            read it out. Say the brief instead: turn 1, the brief is holding;
+            turn 10, it renamed a function without asking; turn 20, it added a
+            dependency and wrote the tests last.
 
             ⚠ SAY THE SLOPE, BECAUSE THE SLIDE NO LONGER SHOWS IT. Turn 5 —
             still holding, nothing wrong yet — was cut. Without it three states
@@ -2097,7 +2118,7 @@ const baselineBlocks = BASELINE.length;
                  than by key (Atil, 2026-08-26).
 
                  THE TWO STEMS SHARE ROW 1 OF THE GRID (Atil, 2026-08-26), so
-                 T4′ starts on the same line as T4 and the room compares the two
+                 T3′ starts on the same line as T3 and the room compares the two
                  briefs without moving its eyes. That is also why the stems are
                  grid CHILDREN rather than a wrapper above the split: only a
                  shared row can hold the divider under them at one height. -->
@@ -2127,7 +2148,7 @@ const baselineBlocks = BASELINE.length;
                   <span class="rbt-move">{RB.CASE_BACK.move}</span>
                   <span class="rbt-where">{RB.CASE_BACK.where}</span>
                   <!-- THE CRUX: removed from the session, not hidden from the
-                       screen. The column above simply starts at T4′. -->
+                       screen. The column above simply starts at T3′. -->
                   <p class="rbt-effect cut">{RB.CASE_BACK.effect}</p>
                   <p class="rbt-note">{RB.CASE_BACK.note}</p>
                 </div>
@@ -2180,7 +2201,7 @@ const baselineBlocks = BASELINE.length;
             it gets one turn wrong, and here is what everybody does — correct
             it, twice. Nothing left the window; your two corrections and its two
             wrong answers are all still in there. Right, same line, same
-            checkpoint: T4 is GONE — removed from the session, not hidden from
+            checkpoint: T3 is GONE — removed from the session, not hidden from
             the screen, and both vendors document that in their own words. The
             new prompt is not the old one repeated: it carries the two things
             the first brief never said. The two briefs sit on one line so the
@@ -2289,7 +2310,7 @@ const baselineBlocks = BASELINE.length;
         <section class="cache" data-section="04 — Best practices">
           <span class="eyebrow">Context is expensive</span>
           <h2 class="h-set">
-            <span class="h-line"><span>Make use of discounts</span></span>
+            <span class="h-line"><span>Discounts</span></span>
           </h2>
           <!-- 90% stays on screen UNQUALIFIED, and it is defensible exactly as
                phrased: this is the READ multiplier, which is what 90% is. #46
@@ -2297,7 +2318,7 @@ const baselineBlocks = BASELINE.length;
                The wording is scoped to the re-read — do not let it drift to
                "you save 90% on your bill". -->
           <p class="cache-open-line">
-            Copilot re-reads your context at a tenth of the price.
+            Copilot re-reads your <b>cached</b> context at a tenth of the price.
             <b>90% off, every turn.</b>
           </p>
           <!-- Auto model selection, WITH the figure, on Atil's call
@@ -2329,7 +2350,7 @@ const baselineBlocks = BASELINE.length;
             </p>
           </div>
 
-          <!-- The bottom half: seven habits, each one line, each one the same
+          <!-- The bottom half: five habits, each one line, each one the same
                shape — do this, because the cache. They are the close line's
                rule applied, not a new claim; NOTHING HERE CARRIES A NUMBER, and
                that survives the loss of the tags — the slide's only figures are
@@ -2338,39 +2359,30 @@ const baselineBlocks = BASELINE.length;
                wall is the handout.
 
                NO FRAGMENTS ON THIS SLIDE (Atil, 2026-08-26). The whole slide
-               lands on arrival: the discount, the rule, the seven habits, one
+               lands on arrival: the discount, the rule, the five habits, one
                view. It used to be two clicks, with the rule and the list
                sharing one index; the reveal bought nothing once the price tags
                left and the stage went quiet. Do not give this list — or the
                close line — a fragment of its own. -->
           <ul class="cache-habits">
             <li>
-              <b>Leave the model on Auto.</b> Small jobs go to cheap models,
-              hard prompts still escalate.
+              <b>Leave the model on Auto.</b> Small jobs go to <em>cheap</em>
+              models, hard prompts still escalate.
             </li>
             <li>
               <b>Do not switch model or effort mid-session.</b> The switch
-              invalidates your cache.
+              <em>invalidates</em> your cache.
             </li>
             <li>
               <b>Keep your instruction file steady.</b> One character changes
-              the prefix, and the context rebuilds.
+              the prefix, and the cache is <em>invalidated</em>.
             </li>
             <li>
-              <b>Keep always-on files short.</b> Every token in them is billed
-              on every turn.
-            </li>
-            <li>
-              <b>New task, new chat.</b> Old turns are re-read beside the new
-              ones.
-            </li>
-            <li>
-              <b>Turn off tools you do not use.</b> Each MCP tool adds its
-              description to every payload.
+              <b>New task, new chat.</b> Don't re-read old turns. Better <em>focus</em>.
             </li>
             <li>
               <b>Give narrow jobs to subagents.</b> They run on small models,
-              outside your context.
+              <em>outside</em> your context.
             </li>
           </ul>
 
@@ -2470,37 +2482,38 @@ const baselineBlocks = BASELINE.length;
              not on one route with optional depth (#92), and the route is chosen
              from who is in the room before the deck opens:
 
-               divider ─────────────────────────→ summary → payoff
-                  │  ↓ (technical only)              ↑
-                  ├─ wayfinder                       │
-                  ├─ questions                       │
-                  ├─ slices                          │  → exits here from
-                  ├─ implement                       │    ANY depth
-                  ├─ review                          │
-                  └─ Reconcile ──────────────────────┘
+               divider → summary ("Proposed WoW") ──────────────→ payoff
+                              │  ↓ (technical only)                ↑
+                              ├─ wayfinder                         │
+                              ├─ questions                         │
+                              ├─ slices                            │  → exits
+                              ├─ implement                         │    here
+                              ├─ review                            │    from ANY
+                              └─ Reconcile ────────────────────────┘    depth
 
              EXECUTIVE ROUTE: three Slides, `→ → →` — divider, summary,
-             payoff. TECHNICAL ROUTE: `↓`×6 through the stack, then one `→` onto
-             the summary, which is a recap rather than an establishing Slide.
+             payoff, and the stack is never opened. TECHNICAL ROUTE: `→` onto
+             the summary, then `↓`×6 through the stack under it, then `→` on
+             to the payoff from wherever they stand.
 
-             ⚠ ALL SIX OR NONE (#92). `→` from halfway down lands on the summary
-             with the pipeline half shown, which is a broken pipeline in front
-             of a technical room. The vertical axis is an audience decision, NOT
-             a live time-management tool: if the technical route overruns, the
-             time comes from somewhere else in the deck.
+             ⚠ THE STACK HANGS UNDER THE SUMMARY (Atil, 2026-08-28), not under
+             the chapter divider where it hung before. The summary is the
+             chapter's promise on the way in: the room reads all seven Stops
+             first, then the technical route walks six of them one wall at a
+             time. So the summary now ESTABLISHES on both routes — it is no
+             longer a recap the technical room reaches at the end. It works
+             because reveal's DEFAULT navigationMode sends `→` from any
+             sub-slide to the next horizontal Slide — so `navigationMode` is
+             load-bearing by its absence. Do not set it.
 
-             ⚠ THE STACK HANGS UNDER THE CHAPTER DIVIDER (Atil, 2026-08-23).
-             It used to hang under a cold-open Slide, which is now cut; the
-             argument that Slide carried is SPOKEN from the divider instead.
-             Not under the summary — the presenter would pass through the recap
-             on the way down, then climb back for it. It works because reveal's
-             DEFAULT navigationMode sends `→` from any sub-slide to the next
-             horizontal Slide — so `navigationMode` is load-bearing by its
-             absence. Do not set it.
+             ⚠ ALL SIX OR NONE (#92). `→` from halfway down leaves the pipeline
+             half walked. The vertical axis is an audience decision, NOT a live
+             time-management tool: if the technical route overruns, the time
+             comes from somewhere else in the deck.
 
-             ⚠ `←` FROM THE PAYOFF DOES NOT RETURN TO THE SUMMARY. Reveal
-             remembers the vertical index and drops the presenter back into the
-             stack at whatever depth they left. It surprises them once.
+             ⚠ `←` FROM THE PAYOFF DOES NOT RETURN TO THE SUMMARY ITSELF.
+             Reveal remembers the vertical index and drops the presenter back
+             into the stack at whatever depth they left. It surprises them once.
 
              THE THESIS HAS NO SLIDE (#92). "You can't tell if it worked. That's
              what the process is for." is SPOKEN from the divider, before the
@@ -2511,11 +2524,10 @@ const baselineBlocks = BASELINE.length;
 
              All six Slides in the stack are built (#105).
              ═════════════════════════════════════════════════════════════ -->
-        <!-- 5a ─────────────────── THE CHAPTER DIVIDER, and it is now the
-             STACK PARENT (Atil, 2026-08-23). The vertical stack hangs off the
-             chapter header itself: `→` from here is the executive route
-             straight to the summary, `↓` is the technical route into the six
-             Stops.
+        <!-- 5a ─────────────────── THE CHAPTER DIVIDER. It is a plain
+             horizontal Slide again (Atil, 2026-08-28): the stack moved off it
+             and now hangs under the summary. `→` from here reaches the
+             summary on both routes, and the route is chosen there, not here.
 
              ⚠ THE COLD OPEN IS CUT — the METR Slide "The only trial that
              measured it" is gone from the wall (Atil, same call). Everything
@@ -2533,73 +2545,119 @@ const baselineBlocks = BASELINE.length;
                3. THE EXECUTIVE ROUTE IS TWO SLIDES: this one and the summary,
                   then the payoff.
              -->
-        <section data-section="05 — Operating model">
-          <RoadmapDivider chapter={5} section="05 — Operating model">
+        <RoadmapDivider chapter={5} section="05 — AI Operating Model">
+          <aside class="notes">
+            Last of the four, and the fourth time the room has seen this
+            shape. Do not re-read the list.
+
+            THE SPOKEN LINE ON THE CLICK IN, locked in #54 and already paid
+            for by chapter 4's close: "Everything you just learned has a name
+            in it."
+
+            No wash here — the full chapter wash belongs to chapters 1 and 6
+            only.
+
+            ⚠ THEN CHOOSE YOUR ROUTE. Executive room: press → and never
+            mention the stack. Technical room: press ↓ and walk all six.
+
+            ══ THE CHAPTER'S OPENING, NOW SPOKEN (the cold-open Slide is cut)
+            ══
+
+            ── THE THESIS, SPOKEN HERE AND NOWHERE ELSE (#92) ──
+            "You can't tell if it worked. That's what the process is for." It
+            is the chapter's one argument and it is never printed anywhere in
+            the deck.
+
+            ── THE EVIDENCE UNDER IT, if you want to open with it ──
+            METR: 16 experienced developers, 246 real tasks, in repos they
+            had worked on for an average of five years. Randomised. They
+            forecast +24%, they estimated +20% afterwards, and they were
+            measured 19% SLOWER. Over 80% of engineers say AI made them more
+            productive (DORA 2025). ⚠ THE TURN: they had no process. Cursor
+            Pro and Claude 3.5/3.7 Sonnet, ad hoc — no spec, no slicing, no
+            test-first rule, no review discipline. METR's own sentence:
+            "better prompting/agent scaffolding, or domain-specific
+            finetuning, could yield positive speedup."
+
+            ── WHY THEY WERE SLOWER, held for the question ──
+            METR tested 20 possible causes and judged five as likely: over-
+            optimism about AI usefulness; high developer familiarity with the
+            repositories; large and complex repositories; low AI reliability;
+            implicit repository context. Two of those five are this chapter —
+            implicit repository context is the hole the model fills by
+            inventing, and over-optimism is the gap itself.
+
+            ⚠ ONE OF THE FIVE IS UNCOMFORTABLE IN THIS ROOM AND MUST NOT BE
+            HIDDEN: high familiarity with the repository means the slowdown
+            was worst for experts on a mature codebase, which describes the
+            audience. It is also the honest set-up for chapter 6.
+
+            ── MUST NOT CLAIM ──
+            "The process fixes the 19%." Nobody measured that.
+
+            That the process touches all five factors. It does not touch low
+            AI reliability, and it does not touch large complex repositories.
+
+            "AI makes you slower." METR labels the result historical — early
+            2025 tools, 16 subjects. The safe words are "the only trial that
+            measured it". This is not an anti-AI chapter.
+
+            ── VOICE ──
+            Second person throughout the chapter, with exactly one "we", and
+            #70 puts it on the chapter's first screen — which is now this
+            one: "This is not a rollout. This is what we do." A real team
+            runs this today, so it is a statement the room can check rather
+            than a proposal. No headcount, no team name, no duration — a
+            number invites "only that many?"
+          </aside>
+        </RoadmapDivider>
+
+        <!-- 5c ─────────────────── THE SUMMARY, AND IT IS NOW THE STACK
+             PARENT (Atil, 2026-08-28). #71's comp F, its copy locked by #92.
+             Both routes pass through it, and both routes meet it FIRST: `→`
+             from here is the executive route on to the payoff, `↓` is the
+             technical route into the six Stops. The component holds everything
+             that is a decision rather than markup — read its header before
+             changing what is on the wall. -->
+        <section data-section="05 — AI Operating Model">
+          <ProcessSummary section="05 — AI Operating Model">
             <aside class="notes">
-              Last of the four, and the fourth time the room has seen this
-              shape. Do not re-read the list.
+              BOTH ROOMS MEET THIS SLIDE FIRST. Walk the seven stops, one
+              command at a time. Say "four of these seven happen before a line of
+              code exists" and let the room count it off the wall.
 
-              THE SPOKEN LINE ON THE CLICK IN, locked in #54 and already paid
-              for by chapter 4's close: "Everything you just learned has a name
-              in it."
+              EXECUTIVE ROOM: this Slide is the chapter. Press → and never
+              mention the stack.
 
-              No wash here — the full chapter wash belongs to chapters 1 and 6
-              only.
+              TECHNICAL ROOM: this Slide is the promise. Press ↓ and walk the
+              six Stops under it, one wall at a time. The room already knows the
+              shape, so each Stop is a detail on a picture it has seen.
 
-              ⚠ THEN CHOOSE YOUR ROUTE. Executive room: press → and never
-              mention the stack. Technical room: press ↓ and walk all six.
+              EITHER WAY: all six or none. A half-descent shows a broken pipeline.
 
-              ══ THE CHAPTER'S OPENING, NOW SPOKEN (the cold-open Slide is cut)
-              ══
+              THE SEVEN FRAGMENTS ARE ALWAYS WALKED, on both routes — as the
+              promise on the executive route, as the recap on the technical one.
+              ⚠ Reveal remembers fragment state, so if you skip the row and come
+              back later you land on a half-lit Slide.
 
-              ── THE THESIS, SPOKEN HERE AND NOWHERE ELSE (#92) ──
-              "You can't tell if it worked. That's what the process is for." It
-              is the chapter's one argument and it is never printed anywhere in
-              the deck.
+              ⚠ THE SEVENTH STOP IS UNBUILT AND THE WALL DOES NOT SAY SO. An
+              executive room sees the name Reconcile and a blank command slot.
+              Say it plainly: "That last one is where we are going next — the two
+              skills for it aren't written yet."
 
-              ── THE EVIDENCE UNDER IT, if you want to open with it ──
-              METR: 16 experienced developers, 246 real tasks, in repos they
-              had worked on for an average of five years. Randomised. They
-              forecast +24%, they estimated +20% afterwards, and they were
-              measured 19% SLOWER. Over 80% of engineers say AI made them more
-              productive (DORA 2025). ⚠ THE TURN: they had no process. Cursor
-              Pro and Claude 3.5/3.7 Sonnet, ad hoc — no spec, no slicing, no
-              test-first rule, no review discipline. METR's own sentence:
-              "better prompting/agent scaffolding, or domain-specific
-              finetuning, could yield positive speedup."
+              THE SEAM IS DRAWN, NEVER LABELLED. The row breaks after To tickets
+              and the ground changes weight. It is the same seam chapter 4 had:
+              prepare it, then defend it.
 
-              ── WHY THEY WERE SLOWER, held for the question ──
-              METR tested 20 possible causes and judged five as likely: over-
-              optimism about AI usefulness; high developer familiarity with the
-              repositories; large and complex repositories; low AI reliability;
-              implicit repository context. Two of those five are this chapter —
-              implicit repository context is the hole the model fills by
-              inventing, and over-optimism is the gap itself.
+              HELD FOR THE EXECUTIVE ROOM, if the throughput question comes: DORA
+              2025 finds AI adoption raises throughput AND delivery instability,
+              and names small batches as the countermeasure.
 
-              ⚠ ONE OF THE FIVE IS UNCOMFORTABLE IN THIS ROOM AND MUST NOT BE
-              HIDDEN: high familiarity with the repository means the slowdown
-              was worst for experts on a mature codebase, which describes the
-              audience. It is also the honest set-up for chapter 6.
-
-              ── MUST NOT CLAIM ──
-              "The process fixes the 19%." Nobody measured that.
-
-              That the process touches all five factors. It does not touch low
-              AI reliability, and it does not touch large complex repositories.
-
-              "AI makes you slower." METR labels the result historical — early
-              2025 tools, 16 subjects. The safe words are "the only trial that
-              measured it". This is not an anti-AI chapter.
-
-              ── VOICE ──
-              Second person throughout the chapter, with exactly one "we", and
-              #70 puts it on the chapter's first screen — which is now this
-              one: "This is not a rollout. This is what we do." A real team
-              runs this today, so it is a statement the room can check rather
-              than a proposal. No headcount, no team name, no duration — a
-              number invites "only that many?"
+              IF YOU HAVE ALREADY SAID IT at the divider, do not repeat the
+              thesis here.
             </aside>
-          </RoadmapDivider>
+          </ProcessSummary>
+
 
           <!-- ↓1 ─────────────── WAYFINDER · comp E, "the map with its
                grammar" (#98), driven by fragments. The Headline moved from
@@ -2614,7 +2672,7 @@ const baselineBlocks = BASELINE.length;
                batching belongs to `questions` (locked decision #3). -->
           <section
             class="ch5-slide ch5-wf"
-            data-section="05 — Operating model"
+            data-section="05 — AI Operating Model"
             data-wayfinder
             data-frags
           >
@@ -2683,7 +2741,7 @@ const baselineBlocks = BASELINE.length;
                visible holes, and a hole fills as each command arrives. -->
           <section
             class="ch5-slide ch5-fill"
-            data-section="05 — Operating model"
+            data-section="05 — AI Operating Model"
             data-ch5-step
             data-frags
           >
@@ -2788,7 +2846,7 @@ const baselineBlocks = BASELINE.length;
                many → one → many. -->
           <section
             class="ch5-slide ch5-cut"
-            data-section="05 — Operating model"
+            data-section="05 — AI Operating Model"
             data-ch5-step
             data-frags
           >
@@ -2938,7 +2996,7 @@ const baselineBlocks = BASELINE.length;
                across two Slides. Do not restore the third beat. -->
           <section
             class="ch5-slide ch5-imp"
-            data-section="05 — Operating model"
+            data-section="05 — AI Operating Model"
             data-ch5-step
             data-frags
           >
@@ -3094,7 +3152,7 @@ const baselineBlocks = BASELINE.length;
                human, which is what sets the closing line up. -->
           <section
             class="ch5-slide ch5-rev"
-            data-section="05 — Operating model"
+            data-section="05 — AI Operating Model"
             data-ch5-step
             data-frags
           >
@@ -3241,7 +3299,7 @@ const baselineBlocks = BASELINE.length;
                no. Future tense in the body lines was rejected as longer and
                weaker; presenter-only was rejected because a forgotten sentence
                leaves a false wall. -->
-          <section class="ch5-slide" data-section="05 — Operating model">
+          <section class="ch5-slide" data-section="05 — AI Operating Model">
             <PipelineRail lit="reconcile" />
             <span class="eyebrow">Write it back</span>
             <h2 class="h-set">
@@ -3293,46 +3351,6 @@ const baselineBlocks = BASELINE.length;
           </section>
         </section>
 
-        <!-- 5c ─────────────────── THE SUMMARY: the one Slide both routes pass
-             through. #71's comp F, its copy locked by #92. The component holds
-             everything that is a decision rather than markup — read its header
-             before changing what is on the wall. -->
-        <ProcessSummary section="05 — Operating model">
-          <aside class="notes">
-            EXECUTIVE ROOM: this Slide is the chapter. Walk the seven stops, one
-            command at a time. Say "four of these seven happen before a line of
-            code exists" and let the room count it off the wall. Do not go down.
-
-            TECHNICAL ROOM: you have already walked the six. This is the recap —
-            read the lines under the stops, not the names. ⚠ Do NOT say the
-            count here: to a room that has just spent nine minutes in the stack
-            it lands as pedantic rather than as a reveal.
-
-            EITHER WAY: all six or none. A half-descent shows a broken pipeline.
-
-            THE SEVEN FRAGMENTS ARE ALWAYS WALKED, on both routes — as the
-            promise on the executive route, as the recap on the technical one.
-            ⚠ Reveal remembers fragment state, so if you skip the row and come
-            back later you land on a half-lit Slide.
-
-            ⚠ THE SEVENTH STOP IS UNBUILT AND THE WALL DOES NOT SAY SO. An
-            executive room sees the name Reconcile and a blank command slot.
-            Say it plainly: "That last one is where we are going next — the two
-            skills for it aren't written yet."
-
-            THE SEAM IS DRAWN, NEVER LABELLED. The row breaks after To tickets
-            and the ground changes weight. It is the same seam chapter 4 had:
-            prepare it, then defend it.
-
-            HELD FOR THE EXECUTIVE ROOM, if the throughput question comes: DORA
-            2025 finds AI adoption raises throughput AND delivery instability,
-            and names small batches as the countermeasure.
-
-            IF YOU HAVE ALREADY SAID IT at the divider, do not repeat the
-            thesis here.
-          </aside>
-        </ProcessSummary>
-
         <!-- ══════════════════════════════════════════════════════════════════
              CHAPTER 06 — "The new job" (Atil, 2026-08-23; grilled end to end).
              THREE slides: a bare wash divider → the mental-load slide → the
@@ -3365,14 +3383,30 @@ const baselineBlocks = BASELINE.length;
              ══════════════════════════════════════════════════════════════════ -->
 
         <!-- 6a ─────────────────── CHAPTER divider (triggers chapter-wash) -->
-        <section class="chapter" data-section="06 — The new job" data-chapter>
+        <section
+          class="chapter"
+          data-section="06 — The new job"
+          data-chapter
+          data-roadmap
+        >
           <span class="chapter-no">CHAPTER 06</span>
           <h2>Outro</h2>
+          {/* The chapter's contents, exactly as the roadmap dividers carry it
+              (Atil, 2026-08-28). `data-roadmap` + the empty list is the whole
+              contract: RoadmapDivider.astro's script fills every
+              `[data-roadmap-slides]` on the page from the real slides that
+              share this `data-section`, and it skips the divider itself. So
+              nothing here is typed twice, and this list says the same names
+              the room is about to read. */}
+          <ol class="roadmap-slides" data-roadmap-slides></ol>
           <aside class="notes">
-            A breath, and nothing more. The wash is deliberately BARE: chapter
-            1's wash carries the room's own four questions, and a second list
-            here would compete with the next slide's headline — which is the
-            line that has to land.
+            A breath, and a contents list. The wash used to be BARE, and it now
+            carries the chapter's two slide titles the way every chapter 2–5
+            divider does (Atil, 2026-08-28) — the outro is the one chapter that
+            was left without the deck's own wayfinding.
+
+            Read the two names off the wall and press on. Do not hold this
+            slide: the next headline is the line that has to land.
 
             Arrive on the hand-off you spoke at chapter 5's pay-off: the job
             moved to the front of the work, and every one of those checks is
@@ -3392,9 +3426,15 @@ const baselineBlocks = BASELINE.length;
         <section class="load" data-section="06 — The new job">
           <span class="eyebrow">The new job</span>
           <h2 class="h-set">
-            <span class="h-line"><span>AI coding is exhausting.</span></span>
+            <span class="h-line"><span>AI coding is exhausting</span></span>
           </h2>
           <p class="tk-body">The typing was the break. It is gone.</p>
+          <!-- The rank, spoken to both halves of the room. It is a PRIORITY,
+               not an ask — see the chapter warning above: no budget, no
+               headcount, no tooling spend follows from it. -->
+          <p class="tk-body load-rank">
+            Cognitive load should be cared for, prioritized over throughput.
+          </p>
           <!-- Segment widths are weights, not measurements — `--w` feeds
                `flex-grow`. They must never be narrated as a figure: there is no
                study behind them, and the slide's whole claim is the SHAPE. -->
@@ -3474,7 +3514,7 @@ const baselineBlocks = BASELINE.length;
              the eyebrow and the notes changed, because the slide's JOB changed
              from a promise made up front to the last picture of the talk. -->
         <section class="lottery" data-section="06 — The new job" data-lottery>
-          <span class="eyebrow">The goal &middot; press &rarr; to level up</span>
+          <span class="eyebrow">Before and after &middot; press &rarr; to level up</span>
           <!-- The headline USED to finish the roadmap's own sentence — "Four
                things decide what you get back." → "This is what you get back."
                — when the two slides sat one after the other in chapter 1. They
@@ -3491,7 +3531,7 @@ const baselineBlocks = BASELINE.length;
                states of the collapse. That is what keeps it a claim rather than
                a caption on the scatter. -->
           <h2 class="h-set">
-            <span class="h-line"><span>This is what you get back.</span></span>
+            <span class="h-line"><span>Goal of the optimization</span></span>
           </h2>
           <p class="tk-body">Your results don&rsquo;t have to be a lottery.</p>
           <div class="lottery-plot">
@@ -5453,6 +5493,10 @@ const baselineBlocks = BASELINE.length;
           el.style.animationDelay = `${Math.min(b, 30) * 10}ms`;
           field.append(el);
         }
+
+        // What the field above the tank now means. It reads the BLOCKS, not
+        // the tank — attention, not tokens.
+        q("[data-sz-read]").textContent = s.read;
 
         slide.querySelectorAll<HTMLElement>("[data-sz-line]").forEach((el, n) => {
           el.classList.toggle("dead", n >= s.live);
