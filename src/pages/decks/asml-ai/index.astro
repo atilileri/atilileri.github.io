@@ -257,8 +257,6 @@ const baselineBlocks = BASELINE.length;
     />
   </head>
   <body>
-    <!-- Persistent mono "instrument" chrome + keyboard legend + chapter wash.
-         Populated / driven by the controller below. -->
     <div class="deck-chrome" aria-hidden="true">
       <div class="chrome-section">
         <b>&#9632;</b> <span data-chrome-section>Getting more from AI</span>
@@ -282,8 +280,6 @@ const baselineBlocks = BASELINE.length;
     </div>
     <div class="chapter-wash" data-wash aria-hidden="true"></div>
 
-    <!-- Inline presenter-notes overlay, toggled by "s". reveal's separate
-         presenter window is on "p". -->
     <aside class="deck-notes" data-notes hidden>
       <div class="deck-notes__head">
         <span>Presenter notes</span>
@@ -296,42 +292,21 @@ const baselineBlocks = BASELINE.length;
 
     <div class="reveal">
       <div class="slides">
-        <!-- 1 ───────────────────────────── HERO (eyebrow + big headline) -->
-        <section class="hero" data-section="Opening">
-          <!-- Eyebrow, title and sub-line each do a DIFFERENT job: the eyebrow is
-               the provocation, the title the promise, the sub-line the contents.
 
-               "Coding agents" is deliberately vendor-neutral — no slide names a
-               provider. Chapter 2 goes on to take the word apart (model + harness
-               + skills + tools), so the title poses a noun the deck later defines
-               rather than assuming it. -->
+        <!-- ═══════════════ OPENING · 1 slide ═══════════════ -->
+        <!-- OPENING — .hero -->
+        <section class="hero" data-section="Opening">
           <span class="eyebrow">Same licence. Different results.</span>
-          <!-- Noun first, so the accent lands on the qualifier rather than the
-               subject. Two hand-broken lines. -->
           <h1 class="h-set">
             <span class="h-line"><span>How to better use</span></span>
             <span class="h-line"><span class="accent">COPILOT</span></span>
           </h1>
-          <!-- Atil's own wording. Four parts, and they are the four factors in
-               order — how it works (ch2), what it costs (ch3), less waste (ch4),
-               consistent (ch5). The roadmap slide is this line drawn. It must
-               stay on ONE line; don't pad it into a sentence. -->
           <p class="hero-sub">How it works, what it costs, consistently better outcome.</p>
           <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 01 — "Can't we just throw money at it?"
-             TWO slides: the objection as a wash divider → the four-factor
-             roadmap. The chapter voices the objection, answers it with the
-             route, and stops there.
-
-             This is one of only TWO full `.chapter` washes in the deck (chapter
-             1 and chapter 6). Chapters 2–5 get the roadmap divider instead, so
-             the wash keeps its impact.
-             ══════════════════════════════════════════════════════════════════ -->
-
-        <!-- 1a ─────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <!-- ═══════════════ CHAPTER 01 · 2 slides ═══════════════ -->
+        <!-- 1.1 — .chapter -->
         <section class="chapter" data-section="01 — Why optimize" data-chapter>
           <span class="chapter-no">CHAPTER 01</span>
           <h2>How can we optimize<br />Copilot usage?</h2>
@@ -340,36 +315,21 @@ const baselineBlocks = BASELINE.length;
           </ul>
         </section>
 
-        <!-- 1d ─────────────────── THE ROADMAP (all four factors, equal) -->
+        <!-- 1.2 — RoadmapDivider -->
         <RoadmapDivider
           section="01 — Why optimize"
           heading="Chapters"
         >
         </RoadmapDivider>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 02 — "Terminology". FOUR slides: roadmap divider → the
-             rings → the hallucination slide → its diagnosis.
-
-             No wash: chapters 2–5 open on the roadmap instead. See
-             src/components/deck/RoadmapDivider.astro; labels live in
-             src/lib/asml-ai/roadmap.ts and are edited there, not here.
-             ══════════════════════════════════════════════════════════════════ -->
-
-        <!-- 2a ─────────────────── ROADMAP divider ("Terminology" lit) -->
+        <!-- ═══════════════ CHAPTER 02 · 4 slides ═══════════════ -->
+        <!-- 2.1 — RoadmapDivider -->
         <RoadmapDivider section="02 — Terminology" chapter={2}>
         </RoadmapDivider>
 
-        <!-- 5c ─────── MENTAL MODEL, AND THE TWO DEEP DIVES UNDER IT (v-stack)
-             The rings first; below them the two slides that open the pile the
-             rings describe — the session shows the whole history going up the
-             wire every turn, the anatomy names the blocks inside it. ↓ walks
-             the pair, → skips it: the exec route can leave both on the floor
-             and still get the mental model. Both children carry their own
-             data-section, and the wrapper carries one too, for the chapter
-             label's parent fallback. -->
+        <!-- 2.2 — vertical stack, 3 sub-slides -->
         <section data-section="02 — Terminology">
-          <!-- 5c ──────────────────── MENTAL MODEL: the four layers (rings) -->
+          <!-- 2.2.1 — .layers -->
           <section class="layers" data-section="02 — Terminology" data-layers>
             <span class="eyebrow">The mental model</span>
             <h2 class="h-set">
@@ -414,12 +374,6 @@ const baselineBlocks = BASELINE.length;
                 <em>Effort level:</em> how hard Agent tries to solve. <br />
                 Higher effort = more tokens / time / cost.
               </p>
-              <!-- SECOND CALLOUT, sibling to Agent. The slide reads "four parts,
-                   and two things that are not parts".
-
-                   ⚠ MCP is not an API gateway: it has no central point (one client
-                   per server) and enforces no policy. "An interface to the outer
-                   world" is the intent — keep the wording on that side. -->
               <p class="layers-tools">
                 <span class="k">MCP</span> is an interface to outer world. How
                 we communicate with <em>Polarion</em> and <em>Jira</em>.
@@ -427,12 +381,7 @@ const baselineBlocks = BASELINE.length;
             </div>
           </section>
 
-          <!-- A3b ───────────── THE SESSION — the whole context, every turn
-               It sits UNDER the mental model, as the first of two deep dives on
-               ↓. The rings name the layers; this slide shows what the layers
-               actually send, turn after turn. It is a detour off the main route,
-               so → skips it. Nothing here may print a cost: chapter 3 bills the
-               session, and this slide must not spend that money early. -->
+          <!-- 2.2.2 — .session -->
           <section class="session" data-section="02 — Terminology" data-session>
             <span class="eyebrow"
               >The session &middot; stepped, press &rarr; to advance</span
@@ -447,9 +396,6 @@ const baselineBlocks = BASELINE.length;
             </p>
 
             <div class="se-stage">
-              <!-- The bar. NOT a capacity: the bottom edge fades out, because the
-                   window's real edge sits far below the frame. Do not close it,
-                   and do not let the last turn reach the foot. -->
               <div class="se-barwrap">
                 <div class="se-bracket" data-se-bracket>
                   <span class="se-bracket-label">sent this turn</span>
@@ -469,17 +415,10 @@ const baselineBlocks = BASELINE.length;
                       </span>
                     ))
                   }
-                  <!-- Silent: it marks where the harness stops and the conversation
-                       starts. Its caption is in the transcript's opening line, where
-                       there is room to read it. The controller places it, because the
-                       baseline's height is solved against the frame like every other
-                       block. -->
                   <span class="se-hairline" data-se-hairline data-se-baseline={baselineBlocks}></span>
                 </div>
               </div>
 
-              <!-- The transcript — it has to LOOK like a chat, because the belief
-                   this slide corrects is a chat belief. -->
               <div class="se-rows">
                 {
                   LINES.map((l) => (
@@ -487,9 +426,6 @@ const baselineBlocks = BASELINE.length;
                       <span class={`se-role ${l.role}`}>{l.role}</span>
                       <span class="txt">
                         <span set:html={l.text} />
-                        {/* A real attachment, not the words "[pastes the
-                            document]" — same chip as the vocabulary slide, so
-                            the room recognises it from twenty minutes ago. */}
                         {l.file && (
                           <span class="se-file">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -512,16 +448,12 @@ const baselineBlocks = BASELINE.length;
               </div>
             </div>
 
-            <!-- Three fragments, one per turn. No bridge fragment and no
-                 closing line: the slide ends on the last turn and the presenter
-                 hands over by voice. The turn is DERIVED from reveal's fragment state, never
-                 counted, which is what makes stepping back replay correctly. -->
             <div class="se-frag-row" data-se-frag-row aria-hidden="true">
               {TURNS.map(() => <span class="fragment" />)}
             </div>
           </section>
 
-          <!-- 8d ─────────────────── CONTEXT PRIMITIVES (click a block) -->
+          <!-- 2.2.3 — .primitives -->
           <section class="primitives" data-section="02 — Terminology" data-primitives>
             <span class="eyebrow">The anatomy &middot; interactive, click a block</span>
             <h2 class="h-set">
@@ -553,8 +485,6 @@ const baselineBlocks = BASELINE.length;
               </div>
 
               <div class="prim-panel" id="prim-panel" data-prim-panel aria-live="polite">
-                <!-- Summary: what the three regions ARE. Shown on entry, and
-                     returned to by the clear affordance. -->
                 <article class="prim-card is-on" data-prim-card="summary">
                   <span class="al-tag">The context window</span>
                   <h3>Every block here is sent again, in full, every turn.</h3>
@@ -596,33 +526,18 @@ const baselineBlocks = BASELINE.length;
               </div>
             </div>
 
-            <!-- Fragment row: one invisible fragment per block, so the clicker's
-                 → walks them with no custom key binding and reveal's fragment
-                 state stays the single source of truth. Clicking a block just
-                 navigates to that fragment, which is why click and clicker can
-                 never disagree. -->
             <div class="prim-frag-row" data-prim-frag-row aria-hidden="true">
               {primitives.map(() => <span class="fragment" />)}
             </div>
           </section>
         </section>
 
-        <!-- 2c ──────────────── HALLUCINATION: one question, four answers ──
-             One prompt with its context pasted, four answers the room cannot
-             tell apart, and a single fold that sorts them into two lanes — two
-             of the four are hallucinations, in two nameable types.
-
-             TWO frames: the slide OPENS on the answers, and folds once. Text
-             and the answer table live in src/lib/asml-ai/stochastic.ts; edit
-             them there, not here. -->
+        <!-- 2.3 — .stoch -->
         <section class="stoch" data-section="02 — Terminology" data-stoch>
           <span class="eyebrow" data-stoch-eyebrow></span>
           <h2 class="h-set">
             <span class="h-line"><span data-stoch-headline>{STOCH_TEXT.TEXT.headline}</span></span>
           </h2>
-          <!-- One line under the headline: the headline names the subject,
-               this names the setup. Keep it to one line — it is a dek, not a
-               sentence, and it must not grow into the argument. -->
           <p class="stoch-dek" data-stoch-dek></p>
           <div class="stoch-ask">
             <p class="stoch-trace" data-stoch-trace></p>
@@ -633,25 +548,10 @@ const baselineBlocks = BASELINE.length;
             <div class="stoch-sorted" data-stoch-sorted></div>
           </div>
           <p class="stoch-close-line" data-stoch-close-line></p>
-          <!-- ONE fragment: the fold. Nothing is counted — the slide reads its
-               frame off reveal's fragment state, so → and ← replay identically
-               and re-entry from either direction is correct. -->
           <span class="fragment stoch-fold" aria-hidden="true"></span>
         </section>
 
-        <!-- 2d ──────────── DIAGNOSIS: was the information in the context? ──
-             The decision tree on the left carries only STRUCTURE — question →
-             No/Yes → the two names → one `Fixed.` — with every sentence in
-             the right column, so it can never become a diagram with a
-             caption. The two arrows OUT are tagged with the route (/grilling,
-             smart zone), which is what makes it a procedure and not a
-             taxonomy.
-
-             NO fragments at all: arriving on the slide IS the interaction.
-             It replays on every entry off the deck's own `.is-live` (see
-             armHeadline), the same mechanism the rings slide uses, and runs
-             at HALF the deck's speed with no stagger. Text lives in
-             src/lib/asml-ai/halluc.ts; edit it there, not here. -->
+        <!-- 2.4 — .halluc -->
         <section class="halluc" data-section="02 — Terminology" data-halluc>
           <span class="eyebrow" data-halluc-eyebrow></span>
           <h2 class="h-set">
@@ -687,9 +587,6 @@ const baselineBlocks = BASELINE.length;
               <path class="edge" data-fork-edge="4" d="M310,210 L214,284" />
               <polygon class="head" data-fork-head="4" points="0,-4 8,0 0,4"
                 transform="translate(214,284) rotate(142)" />
-              <!-- The route out, tagged on the arrow the way No/Yes tag the
-                   arrows in — so the diagram carries the fix, not just the
-                   diagnosis. Centred under each node, clear of both edges. -->
               <g class="g" data-fork-edge-lbl="3">
                 <text class="route" x="110" y="248" data-fork-route-1></text>
               </g>
@@ -706,27 +603,12 @@ const baselineBlocks = BASELINE.length;
           <p class="halluc-close-line" data-halluc-close-line></p>
         </section>
 
-
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 03 — "Tokenomics". FIVE screens behind ONE divider: the
-             vocabulary slide (tokenizer + what an id points at) → the bill
-             table → the benchmark chart → the stop-point.
-
-             Rates come from src/lib/asml-ai/rates.ts and are edited there.
-             ══════════════════════════════════════════════════════════════════ -->
-
-        <!-- 3a ─────────────────── ROADMAP divider ("Tokenomics" lit) -->
+        <!-- ═══════════════ CHAPTER 03 · 5 slides ═══════════════ -->
+        <!-- 3.1 — RoadmapDivider -->
         <RoadmapDivider section="03 — Tokenomics" chapter={3}>
         </RoadmapDivider>
 
-        <!-- A3 ─────────────────── TOKENIZER + WHAT AN ID POINTS AT -->
-        <!-- Two panels, never stacked: the payoff IS the adjacency — the
-             prompt becomes numbers on the left, and one of those numbers is
-             looked up on the right. Both panels are static. Nothing is typed
-             into this slide and nothing rotates on it: the left panel is a
-             transcript, and ONE fragment does the whole slide — it swaps the
-             plain sentence for the prompt slide A4 bills, turns the right
-             panel into the ladder, and lands the closing line. -->
+        <!-- 3.2 — [data-token-live] -->
         <section data-section="03 — Tokenomics" data-token-live>
           <span class="eyebrow">The vocabulary &middot; one prompt, then a real one</span>
           <h2 class="h-set">
@@ -739,10 +621,6 @@ const baselineBlocks = BASELINE.length;
 
           <div class="tk-embed">
             <div class="tk-embed-left">
-              <!-- Two prompts in one grid cell, swapped by a single fragment:
-                   a plain sentence first, then the prompt the *next* slide
-                   bills, attachment and all. The panel is a transcript, not an
-                   input — the room reads it, nobody types into it. -->
               <div class="tk-session">
                 <div
                   class="tk-msg fragment fade-out"
@@ -787,13 +665,6 @@ const baselineBlocks = BASELINE.length;
               </div>
               <div class="tk-chips" data-tk-chips></div>
             </div>
-            <!-- Fragment 1: one word traced to the end — token, address, the
-                 numbers at that address, the words nearest to them. Fragment 2
-                 drops the word and shows what the prompt on the left COSTS,
-                 using the very same ladder the credits slide ends on. Same
-                 fragment index as the left panel, so one key press moves both
-                 sides: the prompt gains its attachment and the panel turns from
-                 meaning to money. -->
             <div class="tk-embed-right">
               <div class="tk-lookup">
                 <div class="tk-look fragment fade-out" data-fragment-index="0">
@@ -834,42 +705,21 @@ const baselineBlocks = BASELINE.length;
                   <BillLadder />
                 </div>
               </div>
-              <!-- The lookup's caption only; the ladder speaks for itself. -->
               <p class="tk-cap fragment fade-out" data-fragment-index="0">
                 Meaning is distance. Nothing else in there carries it.
               </p>
             </div>
           </div>
 
-          <!-- The closing line, and it is the hand-off: everything the room has
-               just watched — the chips, the counter, the ladder — priced ONE
-               kind of token. The next slide runs all three at once, and its
-               three bars carry these three names. Same fragment index as the
-               swap: the slide has ONE step, and that step lands the prompt, the
-               ladder and this line together. -->
         </section>
 
-        <!-- A5 ─────────────────── THE BILL TABLE (rates × knobs, one grid)
-             The chapter's money slide, and it follows the vocabulary slide
-             directly: that slide closes on "three kinds, at three prices" and
-             this table's three column pairs carry those three names. Do not
-             put a slide between the two. -->
-        <!-- One table, two axes. A rate changes as you go DOWN a column; a
-             token count is shared by every model, so each knob is a single
-             cell spanning all four rows — the span is the teaching. Four
-             models, three knobs: do not add a fifth row or a fourth knob. -->
+        <!-- 3.3 — [data-cost-dial] -->
         <section data-section="03 — Tokenomics" data-cost-dial>
           <span class="eyebrow">The bill &middot; interactive, drag the tracks</span>
           <h2 class="h-set">
             <span class="h-line"><span>Token Types</span></span>
           </h2>
 
-          <!-- The formula rides INSIDE the table as its first header row, so
-               each term is aligned over the two columns it names by the grid
-               itself rather than by a guessed margin. Moving a knob lights its
-               term — the only thing on the slide that answers "which one did I
-               just move". Rows and figures come from the controller; the rates
-               live in src/lib/asml-ai/rates.ts and nowhere else. -->
           <table class="bill-table" data-bill-table>
             <thead>
               <tr class="bt-formula">
@@ -921,10 +771,7 @@ const baselineBlocks = BASELINE.length;
           </p>
         </section>
 
-        <!-- 5b ──────────────────── INTERACTIVE BENCHMARK CHART (DeepSWE v1.1)
-             With the stop-point that follows it, the pair is the DeepSWE
-             evidence, and it reads as tokenomics' own conclusion — the
-             ceiling, then the point where spending stops paying. -->
+        <!-- 3.4 — .bench -->
         <section class="bench" data-section="03 — Tokenomics" data-bench>
           <span class="eyebrow">capability vs. cost · hover a model, click a family</span>
           <h2 class="h-set">
@@ -957,25 +804,7 @@ const baselineBlocks = BASELINE.length;
           </p>
         </section>
 
-        <!-- 1c ─── THE STOP-POINT: money → method.
-             With the benchmark, it CLOSES chapter 3 and hands into best
-             practices, so the hinge from money to method lands where the room
-             has just spent five slides on money. Deliberately NOT a new
-             widget: it is the previous slide reduced to one curve, five
-             labelled levels and one number, so it reads as a callback rather
-             than a fourth demand on the room's attention.
-
-             NO BUILD. The slide lands whole: the curve and every level's
-             marginal price are on screen the moment you arrive. The chart is
-             the slide's only content and is sized to fill it.
-
-             THE TURN PHRASE IS SPOKEN, NOT PRINTED. The headline says Done,
-             not spec — the room's word for the thing money cannot buy.
-
-             The chart's two proofs are split one per slide — the bench keeps
-             THE CEILING, this slide takes THE STOP-POINT — so neither slide
-             argues the other's point. The word "determinism" never appears on
-             screen. -->
+        <!-- 3.5 — .stop -->
         <section class="stop" data-section="03 — Tokenomics" data-stop>
           <span class="eyebrow">The turn &middot; where spending stops paying</span>
           <h2 class="h-set">
@@ -989,40 +818,12 @@ const baselineBlocks = BASELINE.length;
           </div>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 04 — "Best practices". The principles that cut waste.
-             SIX screens: divider · the handover card · the quick fixes (with
-             the benchmark number under them) · smart zone · roll back · cache.
-
-             ONE ARGUMENT IN TWO MOVEMENTS — prepare it, then defend it. The
-             back half is the same preparation DECAYING. The two movements are
-             divided by a SPOKEN TURN only — "and then it all decays", on the
-             way into the smart zone. There is no divider and no "Part 2"
-             slide.
-             ═════════════════════════════════════════════════════════════ -->
-        <!-- 4a ─────────────────── CHAPTER divider (roadmap, factor 3 lit) -->
+        <!-- ═══════════════ CHAPTER 04 · 6 slides ═══════════════ -->
+        <!-- 4.1 — RoadmapDivider -->
         <RoadmapDivider chapter={4} section="04 — Best practices">
         </RoadmapDivider>
 
-        <!-- 4b ─────────────────── IN ACTION: the handover card.
-             The slide is "Practices in action · Applications" and it opens
-             chapter 4. Atil hands the room to a colleague here, and the
-             colleague talks over the applications he actually built.
-
-             THE MAPPING (do not lose it in a later edit):
-             • yardstick      → Seg doc quality checker, SanityAI
-             • both sides     → PR reviewer, dependency graph builder
-             • ground truth   → AI4TWISTDoc, dependency graph builder
-             • target form    → stick diagrams & PlantUML, PPT generator,
-                                AI4TWISTDoc
-             • fix once       → Polarion linking checker, dependency graph
-                                builder, SanityAI
-             If you cut a bullet, re-home its applications rather than
-             dropping them.
-
-             STATIC, no fragments: the room reads and photographs the card
-             while the presenter talks, the same contract as the quick-fixes
-             slide. -->
+        <!-- 4.2 — .handover -->
         <section class="handover" data-section="04 — Best practices">
           <span class="eyebrow">Practices in action</span>
           <h2 class="h-set">
@@ -1057,25 +858,9 @@ const baselineBlocks = BASELINE.length;
             </div>
           </div>
         </section>
-        <!-- 4c STACK ────────── VERTICAL: the five quick fixes on top, the
-             benchmark number below it as a sub-slide. Down goes to the
-             evidence; right carries on to the smart zone from either
-             slide. -->
+        <!-- 4.3 — vertical stack, 2 sub-slides -->
         <section data-section="04 — Best practices">
-          <!-- 4c2 ────────────────── FIVE QUICK FIXES (static).
-               The last slide of the chapter's FIRST movement, and the one the
-               room photographs. Five sentences Atil actually uses, printed
-               verbatim in mono: two that shape the answer, three that attack it.
-
-               NO GLOSS AND NO COLUMN HEADINGS on the wall. The sentences are the
-               artefact; the presenter names the split and speaks the glosses.
-               Static, like the fix column it follows — no fragments.
-
-               THE CHAPTER'S TURN IS HERE, so movement one ends on words the room
-               can steal.
-
-               NO SOURCE LINE, deliberately: the chapter spent its number one
-               slide ago, this slide is craft, and the eyebrow says so. -->
+          <!-- 4.3.1 — .qfix -->
           <section class="qfix" data-section="04 — Best practices">
             <span class="eyebrow">Sentences that make an impact</span>
             <h2 class="h-set">
@@ -1085,7 +870,6 @@ const baselineBlocks = BASELINE.length;
               Paste these into your prompt for cheaper, better answers.
             </p>
             <div class="qfix-cols">
-              <!-- SHAPE THE ANSWER — Atil's order. -->
               <div class="qfix-col">
                 <div class="qfix-body">
                   <p class="qfix-head">drives cost &darr;</p>
@@ -1097,12 +881,8 @@ const baselineBlocks = BASELINE.length;
                     <li>Code only, no explanation.</li>
                   </ul>
                 </div>
-                <!-- The cost of this column, admitted on the wall rather than
-                     left to the presenter: concision buys speed with caveats. -->
                 <p class="qfix-note">use at discretion</p>
               </div>
-              <!-- ATTACK THE ANSWER — cheapest move first, biggest last, so the
-                   presenter's last word is the review board. -->
               <div class="qfix-col">
                 <div class="qfix-body">
                   <p class="qfix-head">ensures quality</p>
@@ -1119,10 +899,7 @@ const baselineBlocks = BASELINE.length;
             </div>
           </section>
 
-          <!-- 4c ─────────────────── THE NUMBER: someone else's brief, audited.
-               It reads as EVIDENCE for the claim the room has just heard rather
-               than as a cold open. The count-up reuses the `data-one-number`
-               hook. -->
+          <!-- 4.3.2 — .thesis-stat -->
           <section
             class="one-number thesis-stat"
             data-section="04 — Best practices"
@@ -1142,10 +919,6 @@ const baselineBlocks = BASELINE.length;
             <p class="stat-turn">
               The agent wasn&rsquo;t the weak link. <b>The prompt was.</b>
             </p>
-            <!-- The credit for the number. 93 developers, 1,699 SWE-bench
-                 samples, 38.3% flagged as underspecified. It is set small on
-                 purpose: the room reads the figure, a technical attendee reads
-                 the source. -->
             <p class="stat-src">
               93 developers &middot; 1,699 SWE-bench samples &middot; 38.3% underspecified &middot; source:
               <a
@@ -1158,14 +931,6 @@ const baselineBlocks = BASELINE.length;
             </p>
             </div>
 
-            <!-- THE FIX COLUMN. The number states the problem; this column answers
-                 "so what do I do on Tuesday". Each item is one ticket-level move,
-                 phrased as an instruction. The last row is the escape hatch: hand
-                 the half-written brief to /grilling and let it find the holes for
-                 you — a callback to chapter 2's routes. NO fragments: the column
-                 stands complete from the moment the slide opens. The room reads
-                 the list while the presenter talks the number, and → leaves the
-                 slide. -->
             <div class="stat-fix">
               <span class="fix-head">For a better prompt</span>
               <ol class="fix-list">
@@ -1184,18 +949,7 @@ const baselineBlocks = BASELINE.length;
           </section>
         </section>
 
-        <!-- 4d ─────────────────── THE SMART ZONE (widget).
-             The chapter's first widget, and the start of its second movement:
-             everything before this is preparation, everything after it is that
-             same preparation decaying. The presenter's spoken turn — "and then
-             it all decays" — lands on the way in; there is no divider. It
-             arrives off the benchmark number.
-
-             MECHANISM AND BUDGET ONLY. The escapes (/clear, /compact, fork)
-             belong to roll back, which follows it directly, so this slide ends
-             on the problem. What is load-bearing here — the linear tank, turn
-             5, the honest gauge — is documented in the header of
-             src/lib/asml-ai/smart-zone.ts. Read it before editing. -->
+        <!-- 4.4 — .sz -->
         <section
           class="sz"
           data-section="04 — Best practices"
@@ -1210,11 +964,6 @@ const baselineBlocks = BASELINE.length;
               </span>
             ))}
           </h2>
-          <!-- The two moves that keep a session inside the zone, and the
-               command that does the second one for you. `/to-tickets` is set
-               as a chip — same treatment as `/grilling` on the benchmark
-               slide — so the room reads it as a thing they can run, not as an
-               aside in brackets. -->
           <p class="sz-open-line">
             Keep the <b>session short</b> (&lt;100k tokens), and keep the
             <b>task small</b>.<br />
@@ -1226,9 +975,6 @@ const baselineBlocks = BASELINE.length;
 
           <div class="sz-stage">
             <div class="sz-top">
-              <!-- The turn counter, and under it the brief written in turn 1. The
-                   room reads the turn number and the lines that are still being
-                   obeyed as one thing. -->
               <div class="sz-head">
                 <span class="sz-turn" data-sz-turn />
                 <div class="sz-brief">
@@ -1244,38 +990,16 @@ const baselineBlocks = BASELINE.length;
               </span>
             </div>
 
-            <!-- ATTENTION, above the tank. The blocks are what the model is
-                 holding; the tank under them is how many tokens that costs.
-                 Reading order is attention first, budget second.
-
-                 One block per thing sent. They arrive as themselves and end as
-                 an undifferentiated grey field — nothing was deleted, it all
-                 just became the same. The line over them says what that costs
-                 at this turn; it comes from SZ.STATES[i].read. -->
             <div class="sz-field">
               <p class="sz-read" data-sz-read />
               <div class="sz-blocks" data-sz-blocks />
             </div>
 
             <div>
-              <!-- The session at true proportion. Turn 1 is the orange part at
-                   the left; everything sent after it is blue. The orange holds
-                   the SAME WIDTH at every press — turn 1 did not get smaller,
-                   the session got bigger — so the room watches blue grow past a
-                   fixed mark rather than watching two bars move at once. -->
               <div class="sz-tank">
                 <span class="sz-fill" data-sz-fill />
-                <!-- Turn 1, drawn OVER the fill and measured against the TANK,
-                     not against the fill. That is what holds it still: as a
-                     share of the fill its number would change on every press,
-                     and the room saw the orange animate. As a share of the tank
-                     it is one width, set once, and it never moves again. -->
                 <i class="sz-mine" data-sz-mine />
                 <i class="sz-band" data-sz-band />
-                <!-- Everything past 150k, named. It is the same tank, so the
-                     room reads the zone against the fill and sees the session
-                     walk into it. The label lives inside the region because a
-                     mark under the axis would compete with 1M. -->
                 <i class="sz-dumb" data-sz-dumb>
                   <b>dumb zone</b>
                   <span>(model loses focus, starts to hallucinate)</span>
@@ -1286,13 +1010,6 @@ const baselineBlocks = BASELINE.length;
                 <span class="sz-mark" data-sz-mark-hard>150k</span>
                 <span class="sz-mark far">1M &mdash; full context window</span>
               </div>
-              <!-- WHY the zone is dumb, named under the zone itself. The row
-                   starts at the same 150k the tint starts at — the controller
-                   sets both from SZ.HARD — so the three sit under the region
-                   they explain and nowhere else.
-
-                   ⚠ THEY ARE THREE INDEPENDENT FACTS, NOT A CHAIN. No arrows, no
-                   numbering, no "which causes". Equal chips. -->
               <div class="sz-causes">
                 <div class="sz-causes-row" data-sz-causes>
                   {SZ.CAUSES.map((c) => (
@@ -1307,41 +1024,13 @@ const baselineBlocks = BASELINE.length;
 
           </div>
 
-
-          <!-- TWO fragments for THREE states: turn 1 is already on screen when
-               the slide opens, so each press buys the next one — turn 10, then
-               turn 20.
-
-               ⚠ ONE SPAN PER STATE AFTER THE FIRST. An extra span is a press
-               that does nothing. Keep this row and SZ.STATES the same length. -->
           <div class="sz-frag-row" data-sz-frag-row aria-hidden="true">
             <span class="fragment" />
             <span class="fragment" />
           </div>
         </section>
 
-        <!-- 4e ─────────────────── ROLL BACK (tree).
-             The chapter's most counter-intuitive turn: the room's instinct —
-             argue with it — is the expensive move.
-
-             Everything that is a decision rather than markup — why the session
-             is a report and not code, why case 1 runs two corrections, why
-             case 3 ends the opposite way to case 2 — is in the header of
-             src/lib/asml-ai/roll-back.ts. Read it before editing.
-
-             THE SHAPE: one trunk, two alternative worlds off the SAME
-             checkpoint. World A (left) is a wrong turn, and it splits again into
-             the wrong repair and the right one. World B (right) is parallel
-             work, and it forks. Case 2 and case 3 are not ranked against each
-             other — they answer different questions.
-
-             TWO PRESSES: all of world A, then world B. No keys and no state,
-             so entering from either direction is always right.
-
-             ORDER: this slide follows the smart zone directly, and the cache
-             slide comes AFTER it. The cache slide is where "rolling back
-             doesn't break the cache — /clear does" is spent, because the room
-             has not met the 12.5× yet. -->
+        <!-- 4.5 — .rb -->
         <section class="rb" data-section="04 — Best practices" data-frags>
           <span class="eyebrow">{RB.EYEBROW}</span>
           <h2 class="h-set">
@@ -1352,28 +1041,14 @@ const baselineBlocks = BASELINE.length;
             ))}
           </h2>
 
-          <!-- the one line of prose, and it OPENS: the room reads the
-               instruction, then watches three trees obey it. -->
           <p class="rb-open-line">{RB.OPEN_LINE}</p>
 
           <div class="rbt">
-            <!-- the trunk. T2 is named, so every move below has something on
-                 screen to point back at. -->
             <div class="rbt-trunk">
               {RB.TRUNK.map((t) => <TurnCard turn={t} />)}
               <div class="rb-ckpt">{RB.CHECKPOINT}</div>
             </div>
 
-            <!-- WORLD A — one turn goes wrong. Press 1 opens ALL of it: the
-                 room's instinct and the repair arrive together, side by side,
-                 and the presenter walks them left to right by voice rather
-                 than by key.
-
-                 THE TWO STEMS SHARE ROW 1 OF THE GRID, so T3′ starts on the same
-                 line as T3 and the room compares the two briefs without moving
-                 its eyes. That is also why the stems are grid CHILDREN rather
-                 than a wrapper above the split: only a shared row can hold the
-                 divider under them at one height. -->
             <div class="rbt-world a fragment" data-fragment-index="0">
               <span class="rbt-world-hd">{RB.WORLD_A.label}</span>
 
@@ -1381,7 +1056,6 @@ const baselineBlocks = BASELINE.length;
                 <div class="rbt-stem red">
                   {RB.WORLD_A.turns.map((t) => <TurnCard turn={t} />)}
                 </div>
-                <!-- the rewritten brief, level with the wrong one -->
                 <div class="rbt-stem green">
                   {RB.CASE_BACK.turns.map((t) => <TurnCard turn={t} />)}
                 </div>
@@ -1399,18 +1073,12 @@ const baselineBlocks = BASELINE.length;
                 <div class="rbt-case green">
                   <span class="rbt-move">{RB.CASE_BACK.move}</span>
                   <span class="rbt-where">{RB.CASE_BACK.where}</span>
-                  <!-- THE CRUX: removed from the session, not hidden from the
-                       screen. The column above simply starts at T3′. -->
                   <p class="rbt-effect cut">{RB.CASE_BACK.effect}</p>
                   <p class="rbt-note">{RB.CASE_BACK.note}</p>
                 </div>
               </div>
             </div>
 
-            <!-- WORLD B — same checkpoint, parallel work. The one case where
-                 NOTHING is removed: a fork copies the trunk and keeps the old
-                 session alive. Three stubs, not three transcripts — the lesson
-                 is isolation, not content. -->
             <div class="rbt-world b fragment" data-fragment-index="1">
               <span class="rbt-world-hd">{RB.WORLD_B.label}</span>
               <div class="rbt-stem">{RB.WORLD_B.turns.map((t) => <TurnCard turn={t} />)}</div>
@@ -1435,55 +1103,21 @@ const baselineBlocks = BASELINE.length;
           </div>
         </section>
 
-        <!-- 4f ─────────────────── THE CACHE (static).
-             The chapter's money slide, and its LAST slide: the numbers on the
-             wall are the image, and the room leaves chapter 4 on an amount of
-             money it controls.
-
-             THE SLIDE SELLS THE BREAK, NOT THE DISCOUNT. Chapter 3 already
-             taught the discount (the cost dial's cached bar, the ledger's
-             "nothing is forgotten, everything is re-sent"), so a discount-led
-             slide would be chapter 3 with a different chart. The break is also
-             the only thing here a seat holder controls.
-
-             "Staying put is cheap" covers all three of GitHub's documented
-             breakers in one verb, and rolling back IS staying put.
-
-             THIS SLIDE SPENDS THE CALLBACK: the room has just watched turns
-             leave a session, and here is what that costs. Say it once.
-
-             The slide is words only — the discount, the rule, the five habits,
-             all of it on screen at once. The 12.5× is still the point: the
-             speaker says it, the wall does not show it. Credits, never euros —
-             €0.58 sounds like nothing and the behavioural point evaporates. -->
+        <!-- 4.6 — .cache -->
         <section class="cache" data-section="04 — Best practices">
           <span class="eyebrow">Context is expensive</span>
           <h2 class="h-set">
             <span class="h-line"><span>Discounts</span></span>
           </h2>
-          <!-- 90% stays on screen UNQUALIFIED, and it is defensible exactly as
-               phrased: this is the READ multiplier, which is what 90% is. The
-               wording is scoped to the re-read — do not let it drift to "you
-               save 90% on your bill". -->
           <p class="cache-open-line">
             Copilot re-reads your <b>cached</b> context at a tenth of the price.
             <b>90% off, every turn.</b>
           </p>
-          <!-- Auto model selection, WITH the figure. Note what this 10% is and
-               is not: it is a discount on the request, GitHub's own number for
-               letting Copilot route, and it is a different mechanic from the
-               90% above, which is the cached-read rate. The two never multiply
-               out loud. If the number has to leave the slide, the line still
-               works as "and it discounts the request as well". -->
           <p class="cache-open-line cache-auto-line">
             Let Copilot choose the model and it takes
             <b>another 10% off</b> the request.
           </p>
 
-          <!-- The closing line: GitHub's own nouns for the four settings. It is
-               the slide's centre of gravity. The asterisk is load-bearing, not
-               decoration — "context size" read as the model's window would
-               actively damage the smart-zone slide two screens back. -->
           <div class="cache-close-line">
             <p>
               Model &middot; reasoning effort &middot; context size<sup>*</sup>
@@ -1495,16 +1129,6 @@ const baselineBlocks = BASELINE.length;
             </p>
           </div>
 
-          <!-- The bottom half: five habits, each one line, each one the same
-               shape — do this, because the cache. They are the close line's
-               rule applied, not a new claim; NOTHING HERE CARRIES A NUMBER —
-               the slide's only figures are the 90% and the 10% at the top, and
-               a figure down here would compete with them. Read the habits out
-               only if the room asks; the wall is the handout.
-
-               NO FRAGMENTS ON THIS SLIDE. The whole slide lands on arrival: the
-               discount, the rule, the five habits, one view. Do not give this
-               list — or the close line — a fragment of its own. -->
           <ul class="cache-habits">
             <li>
               <b>Leave the model on Auto.</b> Small jobs go to <em>cheap</em>
@@ -1528,75 +1152,18 @@ const baselineBlocks = BASELINE.length;
           </ul>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 05 — THE OPERATING MODEL. The chapter runs on TWO ROUTES,
-             not on one route with optional depth, and the route is chosen from
-             who is in the room before the deck opens:
-
-                 divider → summary ("Proposed WoW") ──────────────→ payoff
-                             │  ↓ (technical only)                ↑
-                             ├─ wayfinder                         │
-                             ├─ questions                         │
-                             ├─ slices                            │  → exits
-                             ├─ implement                         │    here
-                             ├─ review                            │    from ANY
-                             └─ Reconcile ────────────────────────┘    depth
-
-             EXECUTIVE ROUTE: three Slides, `→ → →` — divider, summary,
-             payoff, and the stack is never opened. TECHNICAL ROUTE: `→` onto
-             the summary, then `↓`×6 through the stack under it, then `→` on
-             to the payoff from wherever they stand.
-
-             ⚠ THE STACK HANGS UNDER THE SUMMARY, not under the chapter
-             divider. The summary is the chapter's promise on the way in: the
-             room reads all seven Stops first, then the technical route walks
-             six of them one wall at a time. It works because reveal's DEFAULT
-             navigationMode sends `→` from any sub-slide to the next horizontal
-             Slide — so `navigationMode` is load-bearing by its absence. Do not
-             set it.
-
-             ⚠ ALL SIX OR NONE. `→` from halfway down leaves the pipeline half
-             walked. The vertical axis is an audience decision, NOT a live
-             time-management tool: if the technical route overruns, the time
-             comes from somewhere else in the deck.
-
-             ⚠ `←` FROM THE PAYOFF DOES NOT RETURN TO THE SUMMARY ITSELF.
-             Reveal remembers the vertical index and drops the presenter back
-             into the stack at whatever depth they left. It surprises them once.
-
-             THE THESIS HAS NO SLIDE. "You can't tell if it worked. That's
-             what the process is for." is SPOKEN from the divider, before the
-             presenter moves in either direction, so it lands identically on
-             both routes.
-             ═════════════════════════════════════════════════════════════ -->
-        <!-- 5a ─────────────────── THE CHAPTER DIVIDER. It is a plain
-             horizontal Slide: `→` from here reaches the summary on both
-             routes, and the route is chosen there, not here. The chapter's
-             argument arrives spoken, from the presenter, not measured from a
-             study on screen. The executive route is two Slides — this one and
-             the summary — then the payoff. -->
+        <!-- ═══════════════ CHAPTER 05 · 2 slides ═══════════════ -->
+        <!-- 5.1 — RoadmapDivider -->
         <RoadmapDivider chapter={5} section="05 — AI Operating Model">
         </RoadmapDivider>
 
-        <!-- 5c ─────────────────── THE SUMMARY, AND IT IS THE STACK PARENT.
-             Both routes pass through it, and both routes meet it FIRST: `→`
-             from here is the executive route on to the payoff, `↓` is the
-             technical route into the six Stops. The component holds everything
-             that is a decision rather than markup — read its header before
-             changing what is on the wall. -->
+        <!-- 5.2 — vertical stack, 7 sub-slides -->
         <section data-section="05 — AI Operating Model">
+          <!-- 5.2.1 — ProcessSummary -->
           <ProcessSummary section="05 — AI Operating Model">
           </ProcessSummary>
 
-
-          <!-- ↓1 ─────────────── WAYFINDER · the map with its grammar, driven
-               by fragments.
-
-               ⚠ THE BOUNDARY WITH THE NEXT SLIDE: this Slide owns WHICH
-               questions can be asked and in what order. `questions` owns HOW
-               you ask the ones you can. A question may appear on this wall,
-               never a question being ANSWERED — answering is grilling, and
-               batching belongs to `questions`. -->
+          <!-- 5.2.2 — .ch5-wf -->
           <section
             class="ch5-slide ch5-wf"
             data-section="05 — AI Operating Model"
@@ -1612,18 +1179,13 @@ const baselineBlocks = BASELINE.length;
             <WayfinderMap />
           </section>
 
-          <!-- ↓2 ─────────────── QUESTIONS. ONE Stop with three commands. Five
-               fragments: an outline with three visible holes, and a hole fills
-               as each command arrives. -->
+          <!-- 5.2.3 — .ch5-fill -->
           <section
             class="ch5-slide ch5-fill"
             data-section="05 — AI Operating Model"
             data-ch5-step
             data-frags
           >
-            {/* Each command arrives as ITS OWN hole fills, never three at once.
-                #71's controlled finding is the reason: seven names read as
-                seven names, and it is the obligation that makes a row argue. */}
             <PipelineRail lit="questions" cmdFragments={[1, 2, 3]} />
             <span class="eyebrow">Fill the holes first</span>
             <h2 class="h-set">
@@ -1632,10 +1194,6 @@ const baselineBlocks = BASELINE.length;
             </h2>
 
             <div class="ch5-two">
-              {/* The claim is a FILLING MOTION, so the picture fills. Three
-                  visible holes in an outline, one closing per command. The
-                  holes are numbered for CSS only; the wall never numbers them
-                  and never labels which command filled which. */}
               <div
                 class="ch5-doc"
                 role="img"
@@ -1671,11 +1229,7 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
           </section>
 
-          <!-- ↓3 ─────────────── SLICES. The chapter's only SPAN: `to-spec` and
-               `to-tickets` light together, because to-spec slices the map's
-               decisions and to-tickets slices the spec into tracer bullets.
-               Both cut, and the eyebrow is already "Cut it small". The picture
-               is an hourglass: many → one → many. -->
+          <!-- 5.2.4 — .ch5-cut -->
           <section
             class="ch5-slide ch5-cut"
             data-section="05 — AI Operating Model"
@@ -1689,15 +1243,6 @@ const baselineBlocks = BASELINE.length;
               <span class="h-line"><span>Going faster in one go is.</span></span>
             </h2>
 
-            {/* THE HOURGLASS: many → one → many. ⚠ The direction matters and it
-                was corrected in #101 — both primary sources say /to-spec
-                produces ONE document ("publishes it as a single issue"), so the
-                decisions converge before anything fans out.
-
-                ⚠ IT OPENS ON THE PREVIOUS SLIDE'S LAST FRAME — the emptied
-                board's closed decisions, with /to-spec already lit. No new
-                image, which is what makes it a Callback rather than a restart:
-                the chapter's own Slides hand to each other. */}
             <div
               class="ch5-hourglass"
               role="img"
@@ -1730,15 +1275,10 @@ const baselineBlocks = BASELINE.length;
 
               <div class="hg-pane hg-fan">
                 <span class="hgk">tickets</span>
-                {/* Four layer bands behind five thin tickets, each crossing all
-                    four. ⚠ The word "vertical" appears NOWHERE (#65): nothing
-                    measures vertical against horizontal, the claim is
-                    definitional, and the picture carries it architecturally. */}
                 <div class="hg-bullets">
                   <i></i><i></i><i></i><i></i><i></i>
                 </div>
                 <span class="hg-cap">tracer bullet</span>
-                {/* The layer-cut stays small and is never named on the wall. */}
                 <div class="hg-layercut"><b></b></div>
               </div>
             </div>
@@ -1762,21 +1302,13 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
           </section>
 
-          <!-- ↓4 ─────────────── IMPLEMENT.
-               ⚠ The mechanic is RED → GREEN ONLY: refactoring is not part of the
-               loop and belongs to the review stage. Refactor is the hand-off
-               into `review`, which makes movement 2 one motion across two
-               Slides. -->
+          <!-- 5.2.5 — .ch5-imp -->
           <section
             class="ch5-slide ch5-imp"
             data-section="05 — AI Operating Model"
             data-ch5-step
             data-frags
           >
-            {/* ONE Stop whose Rail slot fills TWICE — not a Span. /implement on
-                press 1, /tdd on press 2. The pair IS the skill: implement is
-                seven lines and one of them is "Use /tdd where possible, at
-                pre-agreed seams." */}
             <PipelineRail lit="implement" cmdFragments={[1, 2]} />
             <span class="eyebrow">Write the test first</span>
             <h2 class="h-set">
@@ -1785,12 +1317,6 @@ const baselineBlocks = BASELINE.length;
             </h2>
 
             <div class="ch5-two imp">
-              {/* ⚠ NO LITERAL RED AND GREEN (#102). The deck is blue on white
-                  with one orange accent; a red/green bar imports two colours
-                  the theme does not own and fails for a colour-blind viewer.
-                  The bar is ORANGE failing and BLUE passing, and BOTH STATES
-                  CARRY A WORD. The presenter still says "red, green" aloud —
-                  the mechanic is the turn, not the hue. */}
               <div
                 class="ch5-bar"
                 role="img"
@@ -1813,14 +1339,6 @@ const baselineBlocks = BASELINE.length;
                   Then it writes only enough code to turn the bar.
                 </p>
 
-                {/* THE CHAPTER'S ONE NUMBER. ⚠ The labels are HUMAN and AI, not
-                    "you" and "the model" — in TDFlow the tests were the
-                    repository maintainers', never the presenter's. The Slide
-                    keeps second person for its own claims and third person for
-                    the study's two arms.
-
-                    ⚠ THE POINT IS WHO WRITES THE TEST, never "tests first". A
-                    wall reading "TDD: 94.3%" says the wrong thing. */}
                 <figure class="ch5-pair fragment rise" data-fragment-index="3">
                   <figcaption>
                     same agent &middot; same benchmark &middot; one thing swapped
@@ -1848,10 +1366,7 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="4" aria-hidden="true"></span>
           </section>
 
-          <!-- ↓5 ─────────────── REVIEW. Sub-agents are the mechanic and the
-               independence is the beat: two of them read one diff and neither
-               wrote it. The fan ends on the human, which is what sets the
-               closing line up. -->
+          <!-- 5.2.6 — .ch5-rev -->
           <section
             class="ch5-slide ch5-rev"
             data-section="05 — AI Operating Model"
@@ -1865,16 +1380,6 @@ const baselineBlocks = BASELINE.length;
               <span class="h-line"><span>Different verdict.</span></span>
             </h2>
 
-            {/* A FAN, NOT A TWO-PANEL CONTRAST: one diff → two Sub-agents → one
-                human. The Headline argues "same model, different context"; the
-                fan DRAWS it and ends on the human, which is what sets the
-                closing line up. A two-panel contrast is an argument, not an
-                image.
-
-                ⚠ THE WORD ON THE WALL IS "SUB-AGENT" (Atil). "Fresh context" is
-                spoken. ⚠ This Slide carries NO NUMBER at all, and that is
-                deliberate: `implement` holds the chapter's one number and this
-                Slide holds its one honesty. */}
             <div
               class="ch5-fan"
               role="img"
@@ -1930,18 +1435,7 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
           </section>
 
-          <!-- ↓6 ─────────────── RECONCILE.
-               The Stop is TWO jobs, which is why it is not called "document
-               back": generate the sequence diagram from the implementation and
-               merge it into the existing requirement, AND check the code
-               against the requirement for mismatch. The second is a check, not
-               a document.
-
-               ⚠ THE GREYED "NOT BUILT YET" IS LOAD-BEARING. Five Stops describe
-               what the team does today; this one describes what it will do.
-               Without a visible marker the wall asserts a practice that does
-               not exist, and a technical room asking "can I run that?" gets a
-               no. -->
+          <!-- 5.2.7 — .ch5-slide -->
           <section class="ch5-slide" data-section="05 — AI Operating Model">
             <PipelineRail lit="reconcile" />
             <span class="eyebrow">Write it back</span>
@@ -1961,37 +1455,8 @@ const baselineBlocks = BASELINE.length;
           </section>
         </section>
 
-        <!-- ══════════════════════════════════════════════════════════════════
-             CHAPTER 06 — "The new job". THREE slides: a bare wash divider →
-             the mental-load slide → the reliability scatter.
-
-             This is the SECOND and last full `.chapter` wash in the deck.
-             src/lib/asml-ai/roadmap.ts already reserves it — chapter 1 is the
-             intro and chapter 6 the outro, and those two are the only slides
-             that get the full wash — so there is no roadmap divider here and
-             no fifth factor to light.
-
-             ⚠ THE CHAPTER MAKES NO ASK. It is an honest close: the cost lands,
-             then the goal lands, and the talk stops. Do NOT turn the load slide
-             into a budget request for training or headcount. An ask at the end
-             re-reads the previous five chapters as a pitch, and the room stops
-             trusting the numbers retroactively.
-
-             ⚠ MUST NOT APPEAR, on the wall or in the mouth: the source video
-             and its author, and the phrase "lead developer". The warrant for
-             this chapter is the room's own engineers, and it is spoken.
-
-             ⚠ ORANGE STAYS THE GOOD STATE. The scatter's converged cloud and
-             its fitted line are orange (theme-asml.css `.lot-dot`,
-             `.lot-fit-after`). The load slide therefore draws its two states in
-             the deck's TWO BLUES — navy for strategic thinking, a pale signal
-             tint for tactical programming — and never in the accent. Density is
-             the argument; colour only names the two states.
-
-             ⚠ AFTER 6c only the thank-you Slide follows.
-             ══════════════════════════════════════════════════════════════════ -->
-
-        <!-- 6a ─────────────────── CHAPTER divider (triggers chapter-wash) -->
+        <!-- ═══════════════ CHAPTER 06 · 3 slides ═══════════════ -->
+        <!-- 6.1 — .chapter -->
         <section
           class="chapter"
           data-section="06 — The new job"
@@ -2000,36 +1465,19 @@ const baselineBlocks = BASELINE.length;
         >
           <span class="chapter-no">CHAPTER 06</span>
           <h2>Outro</h2>
-          {/* The chapter's contents, exactly as the roadmap dividers carry it
-              (Atil, 2026-08-28). `data-roadmap` + the empty list is the whole
-              contract: RoadmapDivider.astro's script fills every
-              `[data-roadmap-slides]` on the page from the real slides that
-              share this `data-section`, and it skips the divider itself. So
-              nothing here is typed twice, and this list says the same names
-              the room is about to read. */}
           <ol class="roadmap-slides" data-roadmap-slides></ol>
         </section>
 
-        <!-- 6b ─────────────────── THE MENTAL LOAD: one working day, drawn
-             twice. Two bars and a legend, and nothing else. NO fragments: the
-             argument is the contrast, and a room reads two bars side by side
-             faster than it watches the second one arrive. No numbers anywhere,
-             so nothing on this slide needs a source. -->
+        <!-- 6.2 — .load -->
         <section class="load" data-section="06 — The new job">
           <span class="eyebrow">The new job</span>
           <h2 class="h-set">
             <span class="h-line"><span>AI coding is exhausting</span></span>
           </h2>
           <p class="tk-body">The typing was the break. It is gone.</p>
-          <!-- The rank, spoken to both halves of the room. It is a PRIORITY,
-               not an ask — see the chapter warning above: no budget, no
-               headcount, no tooling spend follows from it. -->
           <p class="tk-body load-rank">
             Cognitive load should be cared for, prioritized over throughput.
           </p>
-          <!-- Segment widths are weights, not measurements — `--w` feeds
-               `flex-grow`. They must never be narrated as a figure: there is no
-               study behind them, and the slide's whole claim is the SHAPE. -->
           <div
             class="load-rows"
             role="img"
@@ -2063,16 +1511,9 @@ const baselineBlocks = BASELINE.length;
           </ul>
         </section>
 
-        <!-- 6c ─────────────────── RELIABILITY SCATTER (result quality × spend).
-             It is the last picture of the talk. -->
+        <!-- 6.3 — .lottery -->
         <section class="lottery" data-section="06 — The new job" data-lottery>
           <span class="eyebrow">Before and after &middot; press &rarr; to level up</span>
-          <!-- The headline reads as a straight statement of the goal, which is
-               what the eyebrow frames it as.
-
-               "Your results don't have to be a lottery." stays up through BOTH
-               states of the collapse. That is what keeps it a claim rather than
-               a caption on the scatter. -->
           <h2 class="h-set">
             <span class="h-line"><span>Goal of the optimization</span></span>
           </h2>
@@ -2082,16 +1523,11 @@ const baselineBlocks = BASELINE.length;
               aria-label="Result quality against tokens spent. A regular user's outputs are scattered across the whole field — some ship, most miss, several overshoot the budget. After the training, the same attempts converge into a tight cluster in the ship-ready, on-budget corner: consistent quality at a consistent, minimal spend."
             ></svg>
           </div>
-          <!-- The scatter makes the argument on its own, so there is no caption
-               block in the lower left. `setLottery` drives the collapse; it has
-               no text to update. -->
           <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
         </section>
 
-        <!-- 7 ──────────────────── CLOSE: thank you + questions.
-             The single Slide after chapter 6. The argument ends on 6c's
-             converged cloud; this one only hands the room back. Keep it bare —
-             no summary, no fifth factor smuggled in under a heading. -->
+        <!-- ═══════════════ CLOSING · 1 slide ═══════════════ -->
+        <!-- CLOSING — .hero -->
         <section class="hero" data-section="Closing">
           <span class="eyebrow">Thank you</span>
           <h1 class="h-set">
@@ -3134,7 +2570,6 @@ const baselineBlocks = BASELINE.length;
         svg.append(el("circle", {
           cx: SX(pts[last].cost), cy: SY(pts[last].rate), r: 14, class: "stop-marker",
         }));
-
 
         svg.dataset.built = "1";
       }
