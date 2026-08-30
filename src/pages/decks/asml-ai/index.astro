@@ -322,7 +322,7 @@ const baselineBlocks = BASELINE.length;
         >
         </RoadmapDivider>
 
-        <!-- ═══════════════ CHAPTER 02 · 4 slides ═══════════════ -->
+        <!-- ═══════════════ CHAPTER 02 · 3 slides ═══════════════ -->
         <!-- 2.1 — RoadmapDivider -->
         <RoadmapDivider section="02 — Terminology" chapter={2}>
         </RoadmapDivider>
@@ -532,75 +532,78 @@ const baselineBlocks = BASELINE.length;
           </section>
         </section>
 
-        <!-- 2.3 — .stoch -->
-        <section class="stoch" data-section="02 — Terminology" data-stoch>
-          <span class="eyebrow" data-stoch-eyebrow></span>
-          <h2 class="h-set">
-            <span class="h-line"><span data-stoch-headline>{STOCH_TEXT.TEXT.headline}</span></span>
-          </h2>
-          <p class="stoch-dek" data-stoch-dek></p>
-          <div class="stoch-ask">
-            <p class="stoch-trace" data-stoch-trace></p>
-            <p class="stoch-q" data-stoch-q></p>
-          </div>
-          <div class="stoch-lanes">
-            <div class="stoch-lane-heads" data-stoch-lane-heads></div>
-            <div class="stoch-sorted" data-stoch-sorted></div>
-          </div>
-          <p class="stoch-close-line" data-stoch-close-line></p>
-          <span class="fragment stoch-fold" aria-hidden="true"></span>
-        </section>
+        <!-- 2.3 — vertical stack, 2 sub-slides -->
+        <section data-section="02 — Terminology">
+          <!-- 2.3.1 — .stoch -->
+          <section class="stoch" data-section="02 — Terminology" data-stoch>
+            <span class="eyebrow" data-stoch-eyebrow></span>
+            <h2 class="h-set">
+              <span class="h-line"><span data-stoch-headline>{STOCH_TEXT.TEXT.headline}</span></span>
+            </h2>
+            <p class="stoch-dek" data-stoch-dek></p>
+            <div class="stoch-ask">
+              <p class="stoch-trace" data-stoch-trace></p>
+              <p class="stoch-q" data-stoch-q></p>
+            </div>
+            <div class="stoch-lanes">
+              <div class="stoch-lane-heads" data-stoch-lane-heads></div>
+              <div class="stoch-sorted" data-stoch-sorted></div>
+            </div>
+            <p class="stoch-close-line" data-stoch-close-line></p>
+            <span class="fragment stoch-fold" aria-hidden="true"></span>
+          </section>
 
-        <!-- 2.4 — .halluc -->
-        <section class="halluc" data-section="02 — Terminology" data-halluc>
-          <span class="eyebrow" data-halluc-eyebrow></span>
-          <h2 class="h-set">
-            <span class="h-line"><span data-halluc-headline>{HAL_TEXT.TEXT.headline}</span></span>
-          </h2>
-          <div class="halluc-grid">
-            <svg class="fork" viewBox="0 0 420 350" role="img" data-halluc-fork
-              aria-label="A decision tree: a hallucination, then the question 'was the information in the context?', branching No to factuality and Yes to faithfulness, both converging on Fixed."
-            >
-              <rect class="node" x="125" y="10" width="170" height="38" rx="2" />
-              <text x="210" y="30">Hallucination</text>
-              <text class="yn" x="210" y="76" data-fork-hinge-1></text>
-              <text class="yn" x="210" y="94" data-fork-hinge-2></text>
-              <path class="edge" data-fork-edge="1" d="M210,112 L120,158" />
-              <polygon class="head" data-fork-head="1" points="0,-4 8,0 0,4"
-                transform="translate(120,158) rotate(152)" />
-              <path class="edge" data-fork-edge="2" d="M210,112 L300,158" />
-              <polygon class="head" data-fork-head="2" points="0,-4 8,0 0,4"
-                transform="translate(300,158) rotate(28)" />
-              <g class="g" data-fork-yn="1"><text class="yn" x="140" y="126">No</text></g>
-              <g class="g" data-fork-yn="2"><text class="yn" x="282" y="126">Yes</text></g>
-              <g class="g" data-fork-node="1">
-                <rect class="node lit" x="16" y="166" width="188" height="40" rx="2" />
-                <text class="name" x="110" y="187" data-fork-name-1></text>
-              </g>
-              <g class="g" data-fork-node="2">
-                <rect class="node lit" x="216" y="166" width="188" height="40" rx="2" />
-                <text class="name" x="310" y="187" data-fork-name-2></text>
-              </g>
-              <path class="edge" data-fork-edge="3" d="M110,210 L206,284" />
-              <polygon class="head" data-fork-head="3" points="0,-4 8,0 0,4"
-                transform="translate(206,284) rotate(38)" />
-              <path class="edge" data-fork-edge="4" d="M310,210 L214,284" />
-              <polygon class="head" data-fork-head="4" points="0,-4 8,0 0,4"
-                transform="translate(214,284) rotate(142)" />
-              <g class="g" data-fork-edge-lbl="3">
-                <text class="route" x="110" y="248" data-fork-route-1></text>
-              </g>
-              <g class="g" data-fork-edge-lbl="4">
-                <text class="route" x="310" y="248" data-fork-route-2></text>
-              </g>
-              <g class="g" data-fork-end>
-                <rect class="node end" x="140" y="290" width="140" height="42" rx="2" />
-                <text class="end-t" x="210" y="312" data-fork-fixed></text>
-              </g>
-            </svg>
-            <div class="halluc-branches" data-halluc-branches></div>
-          </div>
-          <p class="halluc-close-line" data-halluc-close-line></p>
+          <!-- 2.3.2 — .halluc -->
+          <section class="halluc" data-section="02 — Terminology" data-halluc>
+            <span class="eyebrow" data-halluc-eyebrow></span>
+            <h2 class="h-set">
+              <span class="h-line"><span data-halluc-headline>{HAL_TEXT.TEXT.headline}</span></span>
+            </h2>
+            <div class="halluc-grid">
+              <svg class="fork" viewBox="0 0 420 350" role="img" data-halluc-fork
+                aria-label="A decision tree: a hallucination, then the question 'was the information in the context?', branching No to factuality and Yes to faithfulness, both converging on Fixed."
+              >
+                <rect class="node" x="125" y="10" width="170" height="38" rx="2" />
+                <text x="210" y="30">Hallucination</text>
+                <text class="yn" x="210" y="76" data-fork-hinge-1></text>
+                <text class="yn" x="210" y="94" data-fork-hinge-2></text>
+                <path class="edge" data-fork-edge="1" d="M210,112 L120,158" />
+                <polygon class="head" data-fork-head="1" points="0,-4 8,0 0,4"
+                  transform="translate(120,158) rotate(152)" />
+                <path class="edge" data-fork-edge="2" d="M210,112 L300,158" />
+                <polygon class="head" data-fork-head="2" points="0,-4 8,0 0,4"
+                  transform="translate(300,158) rotate(28)" />
+                <g class="g" data-fork-yn="1"><text class="yn" x="140" y="126">No</text></g>
+                <g class="g" data-fork-yn="2"><text class="yn" x="282" y="126">Yes</text></g>
+                <g class="g" data-fork-node="1">
+                  <rect class="node lit" x="16" y="166" width="188" height="40" rx="2" />
+                  <text class="name" x="110" y="187" data-fork-name-1></text>
+                </g>
+                <g class="g" data-fork-node="2">
+                  <rect class="node lit" x="216" y="166" width="188" height="40" rx="2" />
+                  <text class="name" x="310" y="187" data-fork-name-2></text>
+                </g>
+                <path class="edge" data-fork-edge="3" d="M110,210 L206,284" />
+                <polygon class="head" data-fork-head="3" points="0,-4 8,0 0,4"
+                  transform="translate(206,284) rotate(38)" />
+                <path class="edge" data-fork-edge="4" d="M310,210 L214,284" />
+                <polygon class="head" data-fork-head="4" points="0,-4 8,0 0,4"
+                  transform="translate(214,284) rotate(142)" />
+                <g class="g" data-fork-edge-lbl="3">
+                  <text class="route" x="110" y="248" data-fork-route-1></text>
+                </g>
+                <g class="g" data-fork-edge-lbl="4">
+                  <text class="route" x="310" y="248" data-fork-route-2></text>
+                </g>
+                <g class="g" data-fork-end>
+                  <rect class="node end" x="140" y="290" width="140" height="42" rx="2" />
+                  <text class="end-t" x="210" y="312" data-fork-fixed></text>
+                </g>
+              </svg>
+              <div class="halluc-branches" data-halluc-branches></div>
+            </div>
+            <p class="halluc-close-line" data-halluc-close-line></p>
+          </section>
         </section>
 
         <!-- ═══════════════ CHAPTER 03 · 5 slides ═══════════════ -->
