@@ -325,26 +325,6 @@ const baselineBlocks = BASELINE.length;
                stay on ONE line; don't pad it back into a sentence. -->
           <p class="hero-sub">How it works, what it costs, consistently better outcome.</p>
           <p class="byline">Atil Ilerialkan · live from atilileri.github.io</p>
-          <aside class="notes">
-            Ninety seconds, standing still. You are already paying for AI, and
-            the bill is going up — so this is not a talk about whether to use
-            it. It's about getting more back from what you are already buying.
-
-            Lean on the eyebrow: everyone in this room has the same licence.
-            The results are not the same. That gap is the whole talk, and it
-            is not a procurement problem.
-
-            Nothing here depends on which provider — we happen to run Copilot,
-            but no slide names one, and everything shown works the same way
-            whatever is behind it. Say that once, here, so nobody spends the
-            next forty minutes wondering.
-
-            Two promises up front: nothing here is a demo of a product you
-            can't have, and every number on screen is one we can source. Then
-            straight into the objection on the next slide, in their own words.
-            Press S any time for these inline notes; P opens the separate
-            presenter window.
-          </aside>
         </section>
 
         <!-- ══════════════════════════════════════════════════════════════════
@@ -385,28 +365,6 @@ const baselineBlocks = BASELINE.length;
           <ul class="chapter-sub chapter-sub-list">
             <li>How to achieve more with same AI budget?</li>
           </ul>
-          <aside class="notes">
-            Read the four lines in their voice, not yours — these are the
-            questions the room already came in with, and naming them out loud
-            first is what buys you the next forty minutes.
-
-            Concede the first one hard and mean it: the models ARE good now,
-            better than last year, and for a lot of work they are genuinely
-            enough. Don't argue with it here — you have no evidence on screen
-            yet and you'd just sound defensive.
-
-            The credit questions are the same objection wearing a budget hat:
-            "give me more of the resource and the problem goes away." Promise
-            you will answer both, and point forward — the token chapter takes
-            them properly.
-
-            What you're setting up is the missing half: whether a good model
-            on its own gets you there, or whether it still takes someone who
-            knows how to work it. That's the question this whole talk answers,
-            and the next slide names the four things that decide the answer.
-            The DATA for it lands in chapter 3, where the benchmark and the
-            stop-point now sit — promise it here, don't show it.
-          </aside>
         </section>
 
         <!-- 1d ─────────────────── THE ROADMAP (all four factors, equal) -->
@@ -414,34 +372,6 @@ const baselineBlocks = BASELINE.length;
           section="01 — Why optimize"
           heading="Chapters"
         >
-          <aside class="notes">
-            This answers the objection the slide before just voiced. A good
-            model on its own doesn't get you there; these four do — so arrive
-            on this slide as a reply, not as a new topic.
-
-            ⚠ THE BENCHMARK AND THE STOP-POINT NO LONGER PRECEDE THIS SLIDE.
-            They close chapter 3 instead, immediately before best practices.
-            So you have NO chart behind you here: assert the four factors and
-            move, and save "you can't buy your way to spec" for the chapter-3
-            close where the curve is on screen to prove it.
-
-            The map for the rest of the talk. You will see these same four, in
-            these same positions, every time we enter a chapter — one of them
-            lit. Never explain that device; just walk it, and by the third
-            chapter the room is reading it without being told.
-
-            The gloss lines under each label appear ONLY here — the dividers
-            stay bare so their later appearances read as recognition. This is
-            also the one and only time "Tokenomics" gets defined on screen, so
-            let it land: what it costs.
-
-            ⚠ THIS SLIDE NOW CLOSES CHAPTER 01. The scatter that used to follow
-            it moved to chapter 6 (Atil, 2026-08-23), so the sentence "Four
-            things decide what you get back." is the last thing the room hears
-            here and it does NOT get answered on the next slide. Land it as the
-            route you are about to walk, then go straight into chapter 2. Do
-            not promise a pay-off; nothing on screen collects on it later.
-          </aside>
         </RoadmapDivider>
 
         <!-- ══════════════════════════════════════════════════════════════════
@@ -460,12 +390,6 @@ const baselineBlocks = BASELINE.length;
 
         <!-- 2a ─────────────────── ROADMAP divider ("Terminology" lit) -->
         <RoadmapDivider section="02 — Terminology" chapter={2}>
-          <aside class="notes">
-            Second time the room sees these four, so one is lit — say nothing
-            about the device itself. We promised four things decide what you
-            get back; this is the first of them, and the only one that is about
-            the machine rather than about how you work.
-          </aside>
         </RoadmapDivider>
 
         <!-- 5c ─────── MENTAL MODEL, AND THE TWO DEEP DIVES UNDER IT (v-stack)
@@ -540,71 +464,6 @@ const baselineBlocks = BASELINE.length;
                 we communicate with <em>Polarion</em> and <em>Jira</em>.
               </p>
             </div>
-            <aside class="notes">
-              After Matt Pocock's model / harness / agent / environment framing —
-              but adjusted for a coding room, and the adjustment is the point.
-              Work outward from the centre: the model is the engine (given — you
-              pick one, you don't build it); the harness is the wrapper that
-              drives it, and here it's also given — we're on a Copilot
-              subscription, so don't dwell on it; skills are the reusable
-              instruction packages you install on top, and they're already
-              working well — no change needed, just keep building them; the
-              environment is the codebase itself, and it's the one lever with
-              the most headroom: the more accurate and well-structured it is,
-              the better every skill performs on top of it. Note the swap out
-              loud: in every primary definition — Anthropic, OpenAI, Pocock's own
-              words — "agent" isn't a component, it's the NAME for these running
-              together in a loop. Pocock even defines the harness as "everything
-              that turns the model into an agent" — so agent is the output, not
-              an ingredient. And phrase the compounding as "you build a reusable
-              skill library on a codebase that's actually true," not "the agent
-              teaches itself" — self-authoring skills is still aspirational
-              (Anthropic). See docs/research for sourcing.
-
-              ⚠ SAY THE LANDING LINE. It is no longer on the wall (#36 replaced
-              it with the Tools &amp; MCP callout), so this slide leaves the room
-              with no written instruction unless you speak it: "model and harness
-              are given; what you control — and what's worth your attention — are
-              the skills you write and the environment they read from." This is
-              the on-screen reply chapter 1's objection no longer gets, and it is
-              the seed of chapters 4 and 5. Do not skip it.
-
-              ── TOOLS &amp; MCP, the second callout (#36) ──
-              The deflation, if you want it and only spoken: a tool is a script
-              with a defined interface — a name, a description, and a JSON Schema
-              for its inputs (MCP spec). Nothing more exotic than that. Pocock's
-              line keeps it off the Skills ring: "a tool is what the agent calls;
-              a skill is instructions it reads."
-
-              Polarion and Jira ARE wired up through MCP here today — that is why
-              they are on the wall. Say so if asked; do not oversell it into a
-              programme.
-
-              HELD ANSWER — "the Environment ring says my codebase, but you just
-              said Polarion." Correct, and deliberate: the ring says codebase
-              because that is where your leverage is. MCP widens what the loop can
-              reach; it does not move the leverage. (Knowingly left as-is by Atil
-              on #36 — do not "fix" the ring's wording without reopening it.)
-
-              HELD ANSWER — "isn't MCP just an API gateway?" No, and that is why
-              the word is not on screen. There is no central point (the host opens
-              one client per server) and the protocol enforces no policy, no rate
-              limit and no central audit. "MCP gateway" is a separate product
-              category people sell precisely because MCP alone does not do it.
-              What IS true: the server holds the credential and the model never
-              sees it.
-
-              COST, spoken not shown — chapter 3 bills this properly. Tool
-              definitions sit in the context window on every request, whether you
-              call them or not; roughly 55,000 tokens across a five-server setup.
-              Say "as deployed today, by default", never "inherently" —
-              defer_loading exists and most clients simply don't use it.
-
-              SPEC CHURN, if someone quotes a 2025 article: MCP changed a lot by
-              2026 — Sampling and Logging deprecated, sessions gone, the protocol
-              now stateless request/response. Don't argue the details, just say
-              the 2025 write-ups are a version behind.
-            </aside>
           </section>
 
           <!-- A3b ───────────── THE SESSION — the whole context, every turn
@@ -704,36 +563,6 @@ const baselineBlocks = BASELINE.length;
             <div class="se-frag-row" data-se-frag-row aria-hidden="true">
               {TURNS.map(() => <span class="fragment" />)}
             </div>
-
-            <aside class="notes">
-              The room believes it sends one sentence at a time. Start there, and
-              say it out loud: "when you type a follow-up, what goes to the model?"
-              The bar is already part full before you press anything &mdash; that
-              is the harness and your project instructions, and it is why the
-              opening line says "before you say a word". Read the two greys top
-              down: the dark one is the vendor's frame, the light one is your own
-              repo's rules, and you pay for both on every turn whether you lean
-              on them or not.
-
-              Press once: the ask lands with the spec clipped to it, and the
-              orange block is the biggest thing on the bar. Say the number out
-              loud &mdash; twelve thousand tokens, forty pages &mdash; because
-              the bar floors the small blocks so their labels fit, and it draws
-              the document smaller than it really is. Press twice is the beat of
-              the slide: four words typed, forty pages re-sent. Say the count as
-              the bracket sweeps: "second time. Third time." Press three times
-              and the model hands back a second attachment &mdash; the mail is
-              orange too, and it stays in the window like everything else.
-              Nothing above the line is forgotten, and nothing above the line is
-              free.
-
-              The frame is not a capacity. If anyone reads it as "we are nearly
-              full", correct it: the real window is many times this frame, which
-              is why the bottom edge fades out. What matters is the slope, not the
-              ceiling. Then hand over: that is how much one session sends, and the
-              next slide opens the pile and names what is inside it. No model
-              was called.
-            </aside>
           </section>
 
           <!-- 8d ─────────────────── CONTEXT PRIMITIVES (click a block) -->
@@ -819,15 +648,6 @@ const baselineBlocks = BASELINE.length;
             <div class="prim-frag-row" data-prim-frag-row aria-hidden="true">
               {primitives.map(() => <span class="fragment" />)}
             </div>
-
-            <aside class="notes">
-              Open Tools first &mdash; &ldquo;paid every turn, whether you use them
-              or not&rdquo; is the most surprising line here for an executive. The
-              Skills block is the bridge planted early: consistent instead of a
-              lottery, and paid on every turn it stays loaded. Costs here are
-              deliberately qualitative &mdash; nobody publishes the size of a
-              harness bundle or a skill, so any number would be invented.
-            </aside>
           </section>
         </section>
 
@@ -863,40 +683,6 @@ const baselineBlocks = BASELINE.length;
                frame off reveal's fragment state (#26's rule), so → and ← replay
                identically and re-entry from either direction is correct. -->
           <span class="fragment stoch-fold" aria-hidden="true"></span>
-          <aside class="notes">
-            The slide is already showing four answers when you arrive. Say
-            nothing at first and let the room read them. Each carries a rank
-            bar — and that bar is the trap: it separates the four by how
-            LIKELY they are, not by whether they are true.
-
-            Ask out loud which one they would take. They will not agree.
-
-            Then press → once. The pile splits: two answers were grounded in
-            the trace you pasted, two were hallucinated. Nobody could have
-            picked them out, and they are not the tail — the third most likely
-            answer is already wrong.
-
-            The two grounded answers disagree with each other, and that is
-            deliberate: one fixes line 42, the other fixes the caller. A
-            different reading, not a worse one. Don't let the room think there
-            was one right answer and three wrong ones.
-
-            Name the two types as you point at them. FAITHFULNESS: the answer
-            was in its context — the trace says 42 and it said 17 — and it
-            didn't follow it. FACTUALITY: the answer was never in its context;
-            it recalled a Node bug that doesn't exist, complete with a version
-            number.
-
-            Land on the line: polluted context or degraded attention is all it
-            takes. That is the sentence chapter 4 spends itself answering —
-            stay in the smart zone, keep the cache stable, roll back instead
-            of correcting.
-
-            SAY THIS OUT LOUD, unprompted, while the cards are still one pile:
-            these are four recorded answers, not a live call from a meeting
-            room. It is deliberately not printed on the slide — on screen it
-            reads as a disclaimer and invites the doubt it answers.
-          </aside>
         </section>
 
         <!-- 2d ──────────── DIAGNOSIS: was the information in the context? ──
@@ -965,35 +751,6 @@ const baselineBlocks = BASELINE.length;
             <div class="halluc-branches" data-halluc-branches></div>
           </div>
           <p class="halluc-close-line" data-halluc-close-line></p>
-          <aside class="notes">
-            The slide before this one left two names on screen and no way to
-            act on them. This one is the whole procedure, and it fits in one
-            question: WAS THE INFORMATION IN THE CONTEXT?
-
-            Ask it out loud before you advance — the tree answers it about a
-            second after you arrive, so the question has to be in the room
-            first.
-
-            No, it wasn't: FACTUALITY. It reached for something it was never
-            given. The fix is not a setting, it's a practice — you put the
-            information in front of it, deliberately, and the operating model
-            has a stage for exactly that. Point at /grilling on the arrow and
-            promise chapter 5; don't explain it here.
-
-            Yes, it was: FAITHFULNESS. It had the answer and didn't follow it,
-            because the window filled up and attention thinned. Say "attention
-            degradation" once, plainly, and leave the mechanism to Tokenomics
-            — the next chapter shows what actually fills a window. The fix is
-            fewer tokens: clear, compact, or start fresh.
-
-            Land on the closing line: both failures look identical on screen. That is
-            why the question matters — you cannot tell them apart by reading
-            the answer, only by asking what was in the context.
-
-            If someone asks whether you can prevent hallucination outright:
-            no. You manage the context window. That's the honest answer and it
-            sets up the whole of Best Practices.
-          </aside>
         </section>
 
         <!-- 2e ─── CUT. There is no Agent & MCP slide, and that is a decision
@@ -1039,21 +796,6 @@ const baselineBlocks = BASELINE.length;
 
         <!-- 3a ─────────────────── ROADMAP divider ("Tokenomics" lit) -->
         <RoadmapDivider section="03 — Tokenomics" chapter={3}>
-          <aside class="notes">
-            We've just seen what the machine is. Now what it costs — and the
-            unit is smaller and stranger than most people expect.
-
-            "Tokenomics" is the one label on the roadmap you never gloss again
-            after chapter 1; if the room needs it, say "what it costs" and move
-            on. Don't define it here — the roadmap already did that once, which
-            is exactly once.
-
-            Two spoken lines carry this chapter's two movements — they used to be
-            divider slides of their own and are now yours to say, not the
-            deck's to print: "What you're actually buying" — the unit, its
-            price, and the dial you can turn. Then "Where the tokens go" —
-            what's in the window, and what one task does to it.
-          </aside>
         </RoadmapDivider>
 
         <!-- A3 ─────────────────── TOKENIZER + WHAT AN ID POINTS AT -->
@@ -1184,25 +926,6 @@ const baselineBlocks = BASELINE.length;
                three bars carry these three names. Same fragment index as the
                swap (Atil, 2026-08-26): the slide has ONE step, and that step
                lands the prompt, the ladder and this line together. -->
-          <aside class="notes">
-            The handoff from left to right is the point: your letters become
-            numbers, and each number is only an address. Read the right panel
-            downwards — the ID buys you nothing, what sits at that address is a
-            position, and the words at neighbouring positions are the words
-            that mean nearly the same thing. That is the whole idea: the model
-            has distance, and nothing else. Nothing here calls a model, and the
-            neighbours are ours, not a lookup in a real vocabulary. Step
-            forward once and both sides change: the sentence becomes a real
-            prompt with a four-page report clipped to it, the counter jumps to
-            1,240, and the panel stops talking about meaning and prices it. A
-            question of fifteen tokens, a report of twelve hundred, a third of
-            an AI credit. Don't work the ladder here — you are showing the room
-            that the number has a price at all; the credits slide, two on from
-            here, is where the rates sit beside the same ladder and it gets read
-            properly. The closing line arrives on that same step, so hand
-            straight over: input is one kind of three, and the next slide is a
-            session spending all three at once.
-          </aside>
         </section>
 
         <!-- A5 ─────────────────── THE BILL TABLE (rates × knobs, one grid)
@@ -1277,25 +1000,6 @@ const baselineBlocks = BASELINE.length;
             drag a track up or down &nbsp;&middot;&nbsp; click a model to hold
             the room on it
           </p>
-          <aside class="notes">
-            One table, two axes. The rate changes as you go down; the token
-            count is the same for every model, which is why each track spans all
-            four rows. Read one row across and you have the whole bill — three
-            multiplications and a sum. Start on Flash, then click Opus:
-            thirty-seven cents against three euros thirty, for exactly the same
-            work. The other thing worth pointing at is the cached column — it is
-            the biggest pile of tokens on screen and the cheapest rate, a tenth
-            of fresh input. That is the lever this whole talk is about, and
-            chapter four is how you pull it. Two things stay off this screen:
-            Anthropic also bills cache *writes* at 1.25 times input — 375 for
-            Sonnet, 625 for Opus — so the two Claude rows are slightly
-            optimistic, and the euro figure is our own conversion at 1.08
-            dollars to the euro. The credit is the number GitHub actually bills.
-            Leave the cached column open as you go: it is the biggest pile of
-            tokens on this table, and nobody typed it. Where it comes from is the
-            session slide under the mental model, back in chapter 2 — call back
-            to it in one line, don't replay it.
-          </aside>
         </section>
 
         <!-- 5b ──────────────────── INTERACTIVE BENCHMARK CHART (DeepSWE v1.1)
@@ -1334,45 +1038,6 @@ const baselineBlocks = BASELINE.length;
             The best score anywhere on the board is 73.6% &mdash; no model, at any
             effort, at any price, clears it.
           </p>
-          <aside class="notes">
-            SAY WHAT THE BENCHMARK IS BEFORE ANY NUMBER. DeepSWE is an
-            independent test of coding agents, run by a company called
-            Datacurve. The 113 tasks are real software jobs — fix this bug, add
-            this feature — taken from real code bases. Each task carries a
-            hidden test that decides pass or fail, so nobody is grading style:
-            the work either runs or it does not. The tasks are original and
-            unpublished, so no model has seen the answers during training, and
-            every model gets the same tasks, the same tools and the same
-            budget of steps. The score is the share of the 113 tasks a model
-            passes. The cost is the average dollars of model usage one task
-            burns. So ONE POINT ON THIS CHART READS: this model, at this
-            effort level, closed this share of real tickets, at this price per
-            ticket. Say it in your own words in two sentences — the room only
-            needs to trust that these are real tickets and a pass is a pass.
-
-            The live leaderboard, rebuilt inside the deck — same data, our palette.
-            Every point is one reasoning-effort level of one model, named the way
-            the provider names it: low, medium, high, xhigh, max. Hover any point
-            for its effort level, score, cost, output tokens and steps; click a
-            family chip to isolate that family.
-
-            This chart proves two things, and this slide only carries one of
-            them. First — the one you make here — THERE IS A CEILING: 73.6% is
-            the best anything does, so even spending everything you are not at
-            100%. That means there is still room to improve, still a human in
-            the loop, and still a process to engineer so you reach that ceiling
-            as often, as consistently and by as short a path as possible.
-            Second — marginal effort stops paying, so WHERE YOU STOP is the
-            decision — belongs to the next slide. Don't spend it here; the next
-            slide walks one of these curves and turns it over.
-
-            One piece of context worth saying aloud, flagged as context: today's
-            models turn sloppier questions into better outputs than any prior
-            generation, so you genuinely can throw money at more problems than
-            you could a year ago. THE CHART DOES NOT PROVE THAT — it is a
-            comparison across years and this is a single snapshot. Say it as
-            your own observation, not as something on screen.
-          </aside>
         </section>
 
         <!-- 1c ─── THE STOP-POINT: money → method (#33, built by #37).
@@ -1414,44 +1079,6 @@ const baselineBlocks = BASELINE.length;
               aria-label="One model's spend curve from the previous chart. Each level of reasoning effort costs more per task; the score climbs steeply at first, then flattens, and the last and most expensive level scores slightly lower than the one before it."
             ></svg>
           </div>
-          <aside class="notes">
-            This is the pivot of the whole talk: from money to method. Same
-            data as the slide before, one model lifted out of it — so you are
-            not asking the room to learn anything new, you are asking them to
-            look again.
-
-            THE WHOLE CURVE IS ON SCREEN — there is nothing to click. Read it
-            left to right with your hand, not with the clicker. Each point is
-            one level of reasoning effort on claude-fable-5, and the number
-            under each point is the MARGINAL spend: what that level cost on top
-            of the level before it, not the running total. First step up: about
-            €2 more buys nearly six points. Good deal. Then each level costs
-            more and buys less. Land on the last point: it spends 61% more than
-            the one before it — €7.61 more per task — and scores 0.2 points
-            LOWER. The dip is real data, not a diagram; give the room three
-            seconds to find it themselves.
-
-            Then SAY the phrase — it is not on the wall, so it lands as yours:
-            what you actually want is the repeatable, optimum way to spec.
-            Three words doing three jobs — REPEATABLE, the same way twice;
-            OPTIMUM, where you stop spending; TO SPEC, your target, not the top
-            of the board.
-
-            This is a REFRAME, not an argument against spending. "Optimum" is a
-            spending instruction. The room has just approved a budget; don't
-            tell them not to spend it, tell them where it stops working.
-
-            The headline is a question money cannot answer, and BEST PRACTICES
-            is the answer — this is now the last slide before chapter 4. Hand
-            straight over: you can't buy your way to Done, so here is how you
-            work your way to it. Chapter 1's roadmap already named the four
-            factors; you are handing into the third of them.
-
-            Callback, not a set-up: the lottery closed chapter 1 an hour ago.
-            That slide SHOWED the spread; this one NAMES the lever. If the room
-            remembers the cloud, say so — "that's the spread you saw" — and
-            move.
-          </aside>
         </section>
 
         <!-- ══════════════════════════════════════════════════════════════════
@@ -1480,16 +1107,6 @@ const baselineBlocks = BASELINE.length;
              ═════════════════════════════════════════════════════════════ -->
         <!-- 4a ─────────────────── CHAPTER divider (roadmap, factor 3 lit) -->
         <RoadmapDivider chapter={4} section="04 — Best practices">
-          <aside class="notes">
-            Third of the four. The room has seen this shape three times now —
-            do not re-read the list, just let them recognise it and move.
-
-            One line if you want one: we have covered how it works and what it
-            costs. This is what actually cuts the waste.
-
-            No wash here — the full chapter wash belongs to chapters 1 and 6
-            only, so it keeps its impact.
-          </aside>
         </RoadmapDivider>
 
         <!-- 4b ─────────────────── IN ACTION: the handover card.
@@ -1558,85 +1175,6 @@ const baselineBlocks = BASELINE.length;
               >
             </div>
           </div>
-
-          <aside class="notes">
-            THIS IS THE SEAM. Atil hands the room over here. Say the handover
-            out loud — "here is someone who ran these eight times" — otherwise
-            the room reads the change of voice as a fault.
-
-            The card is static. Let them read and photograph it while you talk.
-            Do not read the five lines aloud; pick the two or three that match
-            the applications you want to show.
-
-            ONE SENTENCE HOLDS THE WHOLE CHAPTER: you are not prompting, you
-            are preparing. Say it here. Nothing on screen carries it, and the
-            rest of the chapter hangs on it.
-
-            THE GLOSSES — spoken, one per line, only for the ones you use:
-            • A YARDSTICK — the quality checker gets the qualifying criteria
-              and the characteristics of a good requirement. It grades what
-              exists; it is not only a rule for new work.
-            • BOTH SIDES — the PR reviewer gets how it is, how you want it, and
-              two libraries that are already there. Making it work on those two
-              is the test, and the job itself is a translation.
-            • GROUND TRUTH — AI4TWISTDoc is translation into a form the model
-              already knows. You show it one example done properly, and that
-              example carries your style and your intent.
-            • A TARGET FORM — the stick diagrams are the quick win. PlantUML
-              complements them, because it is another named target form.
-            • FIX ONCE — the Polarion linking checker and the graph builder
-              are the same lesson: do not delete the work and re-prompt it next
-              time. The fix itself becomes the ground truth for the next run.
-
-            TWO POINTS THAT ARE SPOKEN ONLY, because no bullet carries them:
-            start with agentic work small enough to check by hand; and both
-            checkers can become deterministic tools, because the criteria from
-            the first bullet are what make that possible.
-
-            SANITYAI SITS IN THREE PLACES on purpose: it improves prompts with
-            evidence, and it turns repeated tasks into skills. That is the
-            whole chapter in one application — use it as the closing example if
-            you only have time for one.
-
-            THE PPT GENERATOR is Microsoft 365 Copilot, not a build. Name that
-            plainly if it comes up; the point is the target form, not the tool.
-
-            IF ASKED "which one do I start with" — the quick wins: stick
-            diagrams and the linking checker. Both pay back in a day and both
-            teach the same habit.
-
-            ── THE EVIDENCE, kept from the three-leg version (#43) ──
-            Quote a number only if you are challenged, and name its benchmark.
-            • YARDSTICK: giving a model an explicit checklist to evaluate
-              against raised agreement with human judgement, and letting it
-              revise against that checklist improved the result again. The
-              published gains are on general reasoning tasks, not a clean
-              coding experiment. Admit that gap if asked.
-            • BOTH SIDES: across 576,000 generations, roughly a fifth of the
-              software packages models recommended did not exist. Real
-              interfaces in front of it cut invented calls sharply. CAVEAT, and
-              it is counter-intuitive: this is NOT "always paste in the docs" —
-              injecting documentation for things the model already knows well
-              measurably made it WORSE. Targeted, not indiscriminate, which is
-              also why a later slide is about a context budget.
-            • TARGET FORM: giving the model an explicit structure to work
-              through measurably improves translation. Do NOT claim "high
-              fidelity" or quote a percentage — the published studies use small
-              open models and the results are uneven. Claim the practice, not a
-              superpower.
-            Research: docs/research/constraining-search-space.md.
-
-            IF CHALLENGED on mechanism — "a prompt doesn't actually constrain
-            anything" — that is correct and you should say so: a prompt shifts
-            what the model is likely to produce, it does not forbid anything.
-            The slide is deliberately worded to claim only that.
-
-            NOTE ON ORDER (Atil, 2026-08-25): this slide OPENS the chapter, and
-            the benchmark number comes next. Hand into it as evidence for what
-            the room has just heard — someone else's brief, audited. The
-            chapter's turn — "and then it all decays" — belongs to the smart
-            zone. Do not spend it here.
-          </aside>
         </section>
         <!-- 4c STACK ────────── VERTICAL: the five quick fixes on top,
              the benchmark number below it as a sub-slide (Atil,
@@ -1701,39 +1239,6 @@ const baselineBlocks = BASELINE.length;
                 </div>
               </div>
             </div>
-
-            <aside class="notes">
-              THE WALL NAMES THE SPLIT (Atil, 2026-08-27) — a small header
-              over each column. Read them once, then say what they mean: the
-              left column shapes what comes back, the right column attacks it.
-
-              The card is static. Let the room read and photograph it while you
-              talk.
-
-              THE GLOSSES — spoken, never shown. One per line, in this order:
-              • Be extremely concise — you get the answer, not the essay.
-              • Code only — the diff is the answer.
-              • Ask whenever in doubt — it surfaces a wrong guess before it
-                builds on one.
-              • Identify logical fallacies — it reads your argument as an
-                opponent would.
-              • Adversarial reviews — a review board, not a reviewer.
-
-              The right column climbs. End on the review board; it is the biggest
-              move on the slide.
-
-              "USE AT DISCRETION" is your answer to the challenge that is coming.
-              These two sentences shape an answer you can already judge. Use them
-              when you know the shape you want, not when you are still learning
-              the problem.
-
-              IF ASKED where these come from: they are the ones I use, not a
-              study. That is why the slide carries no source — the number the
-              chapter needed is one slide back.
-
-              HAND INTO THE SMART ZONE with the chapter's turn: you prepared it
-              well, and then it all decays.
-            </aside>
           </section>
 
           <!-- 4c ─────────────────── THE NUMBER: someone else's brief, audited.
@@ -1800,51 +1305,6 @@ const baselineBlocks = BASELINE.length;
                 &hellip; and/or hand it to <span class="mono cmd">/grilling</span>
               </p>
             </div>
-
-            <aside class="notes">
-              Let the number land before you explain it. Silence for a moment.
-
-              THE STORY: SWE-bench is the industry-standard test for AI coding
-              agents — real GitHub issues, an agent has to fix them, and every
-              vendor quotes their score on it. Ninety-three developers sat down
-              and audited it. Nearly four in ten of the task descriptions were
-              too vague to judge fairly whether the agent had succeeded.
-
-              The point, said out loud: these are professional engineers writing
-              tasks for a benchmark they knew would be scrutinised. If four in
-              ten of THOSE are underspecified, what does a Tuesday-afternoon
-              ticket look like?
-
-              SAY IT THIS WAY: "four in ten were too vague to grade fairly."
-              DO NOT SAY: "specifying the task doubles performance." The auditors
-              removed badly-written TESTS at the same time as vague specs, so the
-              two effects are tangled and that stronger claim is not supported.
-              If someone challenges the number, concede that cheerfully — the
-              slide's argument survives it, because the claim is about the specs
-              being vague, not about what fixing them buys.
-
-              Then turn: the agent was not the weak link, the brief was. The
-              three legs are already behind you, so this closes the chapter's
-              first movement.
-
-              THE FIX COLUMN (right, added 2026-08-25). It is on screen from the
-              start, so let the room read it while you talk. Do NOT read the five
-              lines out — walk the number first, then point at the column and say
-              it is the same three legs at ticket size. Items 2 and 5 ARE the
-              yardstick leg and the target-form leg; name that link out loud.
-
-              The last row is the escape hatch: if you cannot write the brief,
-              hand the half-written one to /grilling and let it find the holes.
-              Callback to chapter 2's routes; one sentence, do not demo it.
-
-              The fix column writes the ticket; the slide after it steers the
-              answer. Say that link out loud — the room is about to read a second
-              list of imperatives and has to hear the difference.
-
-              The chapter's turn is NOT yours any more (Atil, 2026-08-26). "And
-              then it all decays" now hands out of the quick-fixes slide. Go
-              straight there.
-            </aside>
           </section>
         </section>
 
@@ -1987,79 +1447,6 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment" />
             <span class="fragment" />
           </div>
-
-          <aside class="notes">
-            The spoken turn comes first, before you touch the arrow: everything
-            so far has been preparation. Now watch what happens to it.
-
-            TWO &rarr;: turn 1 is already up, then turn 10, then turn 20. Let
-            each one sit. There is no third press.
-
-            THE OPENING LINE NAMES /to-tickets (Atil, 2026-08-25). Two moves,
-            not one: a short session, and a small task. The second is the one
-            people skip — a task that cannot finish inside the zone will walk
-            out of it however disciplined you are. /to-tickets cuts the work
-            into slices that each fit. One sentence here; chapter 5 gives it a
-            Stop of its own, so do not open it up.
-
-            THE SLIDE PRINTS A PER-TURN LINE AGAIN (Atil, 2026-08-27). It sits
-            over the blocks and it reads the ATTENTION, not the budget. Do not
-            read it out. Say the brief instead: turn 1, the brief is holding;
-            turn 10, it renamed a function without asking; turn 20, it added a
-            dependency and wrote the tests last.
-
-            ⚠ SAY THE SLOPE, BECAUSE THE SLIDE NO LONGER SHOWS IT. Turn 5 —
-            still holding, nothing wrong yet — was cut. Without it three states
-            can read as a cliff at turn 10. One sentence fixes it: this does not
-            switch on, it slides, and it starts earlier than anyone likes.
-
-            WHAT TO SAY OVER THE BLOCKS: they arrive as themselves — every turn
-            its own thing, distinguishable — and by turn 20 they are one grey
-            field. Nothing was deleted. It all just became the same to it.
-
-            THE BUDGET RULE IS YOURS TO SAY (Atil, 2026-08-25). It used to sit
-            under the stage: "budget for about 100k; past about 150k, assume you
-            are paying for it." ⚠ NEVER say "it's fine up to 100k" — that is the
-            one version the evidence contradicts.
-
-            THE GAUGE IS NOT LYING AND IS NOT BROKEN. It is accurate at every
-            turn. Copilot really does show you this now. The point is what it
-            measures: it tells you the tank is full, not that the engine
-            started misfiring at a quarter tank. ⚠ That is the closing line and
-            it is SPOKEN, not shown (Atil, 2026-08-25) — do not spend it early,
-            and do not put it back on the slide.
-
-            THE NUMBER THAT SELLS IT: the brief is dying with about eighty per
-            cent of the window still free. The zones do not track the window
-            limit. A session can be deep in the dumb zone with most of the
-            window unused, which is why buying a bigger window does not fix it.
-
-            THE THREE CAUSES, IF YOU WALK THEM: they are three separate facts
-            that arrive at the same place, NOT a chain. Say them in one breath
-            each — it reads the edges and not the middle; the newest turn wins;
-            every turn adds another plausible wrong answer. Then the line that
-            lands it: the middle-goes-soft shape is there in a model that was
-            never trained. It is the shape of the machine, not a defect in the
-            product. Sourced in #44; do not go past it into softmax, quadratic
-            scaling, or attention sinks — #44 found all three misstated in our
-            own notes.
-
-            IF CHALLENGED ON 100k/150k: it is a practitioner's rule of thumb,
-            not a benchmark result, and concede that cheerfully. Then note the
-            error runs the generous way — every controlled measurement puts the
-            onset EARLIER, some as early as 32k. Nobody credible reports clean
-            quality to 100k and then a cliff.
-
-            IF ASKED "why not just use the million-token window": retrieval and
-            reasoning are different jobs. A big window is good at finding a
-            detail in a haystack; it does not hold precise constraints across a
-            long build. Shipping more window is shipping more of this.
-
-            DO NOT go anywhere near the fixes here — no /clear, no /compact, no
-            fresh sessions. This slide ends on the problem on purpose. The
-            moves are on the very next slide and they land harder if the room
-            has had to sit with this first.
-          </aside>
         </section>
 
         <!-- 4e ─────────────────── ROLL BACK (tree, #53).
@@ -2181,97 +1568,6 @@ const baselineBlocks = BASELINE.length;
               </div>
             </div>
           </div>
-
-          <aside class="notes">
-            OPEN ON THE CONTRADICTION, NOT THE MECHANISM. Everybody in this room,
-            when the agent goes wrong, types "no, that's not what I meant."
-            Restating every requirement correctly, every turn, buys back 15–20%
-            of what was lost. The same words in one clean prompt reach about 95%.
-            Their default behaviour is already on the back foot before you touch
-            a button.
-
-            THE MECHANISM, IN ONE LINE: its own wrong answer competes with your
-            correction for attention. That is the smart zone you just showed and
-            chapter 2's faithfulness branch, arriving as a session-management
-            problem. Take both callbacks; do not explain them again.
-
-            HOW TO DRIVE IT — two presses, and say the trunk first: one
-            session, two turns, and T2 is the last state you were happy with.
-            PRESS 1 opens all of world A, and you walk it LEFT TO RIGHT. Left:
-            it gets one turn wrong, and here is what everybody does — correct
-            it, twice. Nothing left the window; your two corrections and its two
-            wrong answers are all still in there. Right, same line, same
-            checkpoint: T3 is GONE — removed from the session, not hidden from
-            the screen, and both vendors document that in their own words. The
-            new prompt is not the old one repeated: it carries the two things
-            the first brief never said. The two briefs sit on one line so the
-            room can read them against each other; give it that second.
-            PRESS 2, world B: same checkpoint again, different problem. Three
-            audiences, three forks, nothing removed at all. Case 2 rewrites the
-            story; case 3 walks several stories at once. They are not competing.
-
-            THE PUBLISHED THRESHOLD, SPOKEN NOT SHOWN: two failed corrections is
-            Anthropic's own line — that is where they say stop. It is not our
-            opinion, and it is why case 1 stops at two.
-
-            WHERE IT ENDS: what it ran in the terminal stays run. Checkpoints
-            undo what the agent typed, not what it did — every vendor says so in
-            their own docs, and every one of them points at git for the rest.
-            Which is the guardrail you already have — a callback BACKWARDS to the
-            guardrails slide, not a set-up for it. Do not promise it here.
-
-            NO MONEY ON THIS SLIDE. If someone asks what the arguing cost:
-            almost nothing, it is a cached re-read — that is the point, it is
-            cheap and it is still the wrong move. "Rolling back does not break
-            the cache, /clear does" needs the 12.5×, and the cache slide is next.
-            Promise the number; let that slide land it.
-
-            THE LADDER, IF ASKED "so when DO I argue?" — cheapest first: one
-            nudge, then edit or restore, then Fork Conversation if the session
-            holds work worth keeping, then /compact, and only then /clear. Both
-            vendors say course-correct EARLY. The boundary is one nudge versus
-            cascading errors.
-
-            WHERE THE MOVES LIVE, IF ASKED: Restore Checkpoint on hover of a
-            request, Edit a previous request by clicking the bubble, Fork
-            Conversation from the session menu, and /undo — Esc Esc — in the CLI.
-
-            HAND OVER: that was the session. The money is next.
-
-            ── MUST NOT CLAIM ──
-            "Never correct it." Contradicts VS Code's "course-correct early" and
-            Anthropic's "course-correct early and often", on the same pages this
-            slide cites. Say one nudge, then go back.
-
-            "It can't recover." False — restating inside the conversation
-            recovers 15–20%. Say the odds get much worse.
-
-            "Arguing with it costs you money." No. Off by orders of magnitude,
-            and it duplicates the cache slide.
-
-            "39% worse when you correct it." The 39% is one instruction delivered
-            across turns versus all at once — not a measurement of correcting a
-            mistake. Do not attribute rolling back to the paper either; its own
-            recommendation is to consolidate and retry in a new conversation.
-
-            "Forking removes the mistake." It does not remove anything. A fork
-            COPIES the trunk and leaves the old session alive — that is the whole
-            difference between case 2 and case 3, and it is on the slide.
-
-            "Rolling back wipes the mistake completely." Not terminal side
-            effects, not memory files, not background subagent edits — and if the
-            session already auto-compacted, the summary containing the bad
-            assumption may survive the rollback. No vendor documents that
-            interaction. If it comes up, say so plainly.
-
-            "Your IDE does this." Only VS Code and the Copilot CLI. Nothing is
-            documented for JetBrains, Visual Studio or Copilot Chat on
-            github.com. If that is their surface: use git and start a new chat.
-
-            Anything about what happens to their MANUAL edits during a restore.
-            GitHub's own two pages contradict each other. Say: commit first and
-            you never have to care which one is right.
-          </aside>
         </section>
 
         <!-- 4f ─────────────────── THE CACHE (static, #56).
@@ -2385,96 +1681,6 @@ const baselineBlocks = BASELINE.length;
               <em>outside</em> your context.
             </li>
           </ul>
-
-          <aside class="notes">
-            Chapter 3 taught them the discount. This slide is about losing it.
-
-            THE SETUP, briefly: cached input is a tenth of the price of fresh
-            input. That is on GitHub's own rate card as a customer-facing
-            column — "cached input", 10%. It is not an API curiosity.
-
-            THE TURN, AND IT IS SPOKEN NOW — the wall no longer carries the
-            two price tags (Atil, 2026-08-26), so this is yours to say: same
-            hundred thousand tokens on both sides, nothing about the work
-            changed. Five credits to re-read what you already sent; sixty-two
-            and a half to build it again from cold. Twelve and a half times.
-            Say the two figures slowly and let the room do the multiplication.
-
-            SAY "credits", never euros. Sixty-two and a half credits to rebuild
-            what you could have re-read for five lands as waste; fifty-eight
-            cents lands as nothing.
-
-            THEN THE FOUR SETTINGS. This is the practice: model, reasoning
-            effort, context size, tools. Choose them before you start, then
-            leave them alone. Switching any of them mid-session throws the
-            prefix away. And it cools if you walk away — every turn you take
-            resets the clock.
-
-            THE WHOLE SLIDE IS UP FROM THE FIRST SECOND — no clicks. Work down
-            it: the discount, the four settings, then the habits. Do not read
-            all seven. Say the list is the handout, then speak two of them:
-            Auto, and one chat per task. The rest are there for the photograph
-            the room takes of the slide.
-
-            ON AUTO: 10% off the request for letting Copilot pick the model.
-            Keep it apart from the 90% above — that one is the cached-read
-            rate, this one is a discount on the request. Never add them, never
-            multiply them, and never say "100% off" as a joke; someone will
-            write it down. If an admin asks where the 10% sits on the bill,
-            hand it to them after the session rather than arguing the billing
-            unit on stage.
-
-            IF CHALLENGED, "why 12.5x and not 10x?" — this is the trap, and it
-            is deliberate. Answer: because you don't just re-read the cache, you
-            re-write it, and writing costs a quarter more than fresh input. Ten
-            times to lose it, twelve and a half to get it back.
-
-            IF ASKED "is this real for us?" — premium requests were retired in
-            June 2026; Copilot bills AI Credits per token, cached input is a
-            column on the rate card, and since the 11th of August the usage
-            report breaks cache reads and writes out per model. An admin can
-            check it against a real invoice. Credits pool at the billing entity,
-            so the saving stretches the allowance or shrinks the overage.
-
-            IF ASKED "how much does this matter at scale?" — flag it as
-            arithmetic, not a GitHub statistic: a 1,900-credit monthly
-            allowance, 57.5 credits per avoidable break, about thirty-three
-            gratuitous breaks to burn a seat-month. Assumes a 100k prefix.
-
-            IF ASKED "doesn't compacting break it too?" — yes, and say so
-            plainly. Compaction resets the prefix. It is still the right move
-            when you are deep; it just isn't free. Do not let that contradict
-            the slide before this one — the roll-back ladder stands.
-
-            IF THE ROOM GOES TO OUTPUT COST: the dial that matters is Thinking
-            Effort, not verbosity. Prior turns' reasoning is kept in context and
-            billed as input — about 9.5% of all input, over five times the
-            model's visible prose — so effort is worth 5.76% against 1.31% for
-            cutting all model prose. Pleasing symmetry: the same dial that
-            breaks your cache when you move it mid-session is the real
-            output-economy control. Ammunition only — it never reaches the slide.
-
-            MUST NOT SAY, all of them (#46, #56):
-            - "you save 90% on your bill" — 90% is the READ multiplier. The
-              session figure is ~78% at ten turns, ~88% at a hundred.
-            - any TTL number, in any form. GitHub says an hour for non-OpenAI
-              models but prices Anthropic's writes at the five-minute rate, and
-              no first-party source reconciles the two. Qualitative only.
-            - "batch your file edits", "reordering your files breaks the cache",
-              "put your stable content first" — folklore for a Copilot seat.
-              True of a hand-built API prompt; the harness owns prompt order.
-            - "caches live in fast GPU memory" — asserted by no vendor doc.
-            - a promised hit. Routing is by a hash of the first few hundred
-              tokens and residency is per-machine; hits are best-effort.
-            - "cached input is 10% on every model" — scope it to OpenAI,
-              Anthropic and Google. Grok is 25%, Kimi 20%, same rate card.
-            - "premium requests". The unit was retired on 1 June 2026.
-            - any latency number. Both vendors say caching cuts latency;
-              neither publishes a figure.
-
-            HAND OVER, and it closes the chapter: that was every move worth
-            knowing. It still isn't a way of working.
-          </aside>
         </section>
 
         <!-- ══════════════════════════════════════════════════════════════════
@@ -2546,70 +1752,6 @@ const baselineBlocks = BASELINE.length;
                   then the payoff.
              -->
         <RoadmapDivider chapter={5} section="05 — AI Operating Model">
-          <aside class="notes">
-            Last of the four, and the fourth time the room has seen this
-            shape. Do not re-read the list.
-
-            THE SPOKEN LINE ON THE CLICK IN, locked in #54 and already paid
-            for by chapter 4's close: "Everything you just learned has a name
-            in it."
-
-            No wash here — the full chapter wash belongs to chapters 1 and 6
-            only.
-
-            ⚠ THEN CHOOSE YOUR ROUTE. Executive room: press → and never
-            mention the stack. Technical room: press ↓ and walk all six.
-
-            ══ THE CHAPTER'S OPENING, NOW SPOKEN (the cold-open Slide is cut)
-            ══
-
-            ── THE THESIS, SPOKEN HERE AND NOWHERE ELSE (#92) ──
-            "You can't tell if it worked. That's what the process is for." It
-            is the chapter's one argument and it is never printed anywhere in
-            the deck.
-
-            ── THE EVIDENCE UNDER IT, if you want to open with it ──
-            METR: 16 experienced developers, 246 real tasks, in repos they
-            had worked on for an average of five years. Randomised. They
-            forecast +24%, they estimated +20% afterwards, and they were
-            measured 19% SLOWER. Over 80% of engineers say AI made them more
-            productive (DORA 2025). ⚠ THE TURN: they had no process. Cursor
-            Pro and Claude 3.5/3.7 Sonnet, ad hoc — no spec, no slicing, no
-            test-first rule, no review discipline. METR's own sentence:
-            "better prompting/agent scaffolding, or domain-specific
-            finetuning, could yield positive speedup."
-
-            ── WHY THEY WERE SLOWER, held for the question ──
-            METR tested 20 possible causes and judged five as likely: over-
-            optimism about AI usefulness; high developer familiarity with the
-            repositories; large and complex repositories; low AI reliability;
-            implicit repository context. Two of those five are this chapter —
-            implicit repository context is the hole the model fills by
-            inventing, and over-optimism is the gap itself.
-
-            ⚠ ONE OF THE FIVE IS UNCOMFORTABLE IN THIS ROOM AND MUST NOT BE
-            HIDDEN: high familiarity with the repository means the slowdown
-            was worst for experts on a mature codebase, which describes the
-            audience. It is also the honest set-up for chapter 6.
-
-            ── MUST NOT CLAIM ──
-            "The process fixes the 19%." Nobody measured that.
-
-            That the process touches all five factors. It does not touch low
-            AI reliability, and it does not touch large complex repositories.
-
-            "AI makes you slower." METR labels the result historical — early
-            2025 tools, 16 subjects. The safe words are "the only trial that
-            measured it". This is not an anti-AI chapter.
-
-            ── VOICE ──
-            Second person throughout the chapter, with exactly one "we", and
-            #70 puts it on the chapter's first screen — which is now this
-            one: "This is not a rollout. This is what we do." A real team
-            runs this today, so it is a statement the room can check rather
-            than a proposal. No headcount, no team name, no duration — a
-            number invites "only that many?"
-          </aside>
         </RoadmapDivider>
 
         <!-- 5c ─────────────────── THE SUMMARY, AND IT IS NOW THE STACK
@@ -2621,41 +1763,6 @@ const baselineBlocks = BASELINE.length;
              changing what is on the wall. -->
         <section data-section="05 — AI Operating Model">
           <ProcessSummary section="05 — AI Operating Model">
-            <aside class="notes">
-              BOTH ROOMS MEET THIS SLIDE FIRST. Walk the seven stops, one
-              command at a time. Say "four of these seven happen before a line of
-              code exists" and let the room count it off the wall.
-
-              EXECUTIVE ROOM: this Slide is the chapter. Press → and never
-              mention the stack.
-
-              TECHNICAL ROOM: this Slide is the promise. Press ↓ and walk the
-              six Stops under it, one wall at a time. The room already knows the
-              shape, so each Stop is a detail on a picture it has seen.
-
-              EITHER WAY: all six or none. A half-descent shows a broken pipeline.
-
-              THE SEVEN FRAGMENTS ARE ALWAYS WALKED, on both routes — as the
-              promise on the executive route, as the recap on the technical one.
-              ⚠ Reveal remembers fragment state, so if you skip the row and come
-              back later you land on a half-lit Slide.
-
-              ⚠ THE SEVENTH STOP IS UNBUILT AND THE WALL DOES NOT SAY SO. An
-              executive room sees the name Reconcile and a blank command slot.
-              Say it plainly: "That last one is where we are going next — the two
-              skills for it aren't written yet."
-
-              THE SEAM IS DRAWN, NEVER LABELLED. The row breaks after To tickets
-              and the ground changes weight. It is the same seam chapter 4 had:
-              prepare it, then defend it.
-
-              HELD FOR THE EXECUTIVE ROOM, if the throughput question comes: DORA
-              2025 finds AI adoption raises throughput AND delivery instability,
-              and names small batches as the countermeasure.
-
-              IF YOU HAVE ALREADY SAID IT at the divider, do not repeat the
-              thesis here.
-            </aside>
           </ProcessSummary>
 
 
@@ -2683,56 +1790,6 @@ const baselineBlocks = BASELINE.length;
               <span class="h-line"><span>in one agent session.</span></span>
             </h2>
             <WayfinderMap />
-            <aside class="notes">
-              THE ROOM'S TAKEAWAY SENTENCE, and say it early: "Plan a huge chunk
-              of work — more than one agent session can hold." That limit is the
-              whole reason the map exists.
-
-              ⚠ MOST WORK STARTS AT THE NEXT STOP (#104). The skill calls
-              /wayfinder an ON-RAMP, not the head of the flow. A one-ticket
-              change does not get a map; this is what you reach for when the
-              thing is too big to hold.
-
-              ── WALK THE FOUR STEPS ──
-              STEP 0. Nine questions, one map. Read the TYPES off the wall —
-              grilling, research, prototype, task. That is the beat: a map is
-              not a to-do list, it is questions, each with a method attached.
-              Three are takeable now; the rest wait on them.
-
-              STEP 1. Three close. The answers arrive already made — do not
-              narrate how they were reached, that is the next Slide's job. Point
-              at #8: a grilling produced a question nobody had at charting, and
-              it is a prototype ticket. That is what grilling actually does.
-
-              STEP 2. #6 and #7 leave Blocked, saying which ticket freed them.
-              Then the fog: "Not yet specified is not a question yet. The
-              frontier reaches it, and it becomes one." #9 graduates.
-
-              STEP 3. The board empties, the map goes orange, /to-spec lights.
-              "Nothing left to decide." The map is a finished SET OF DECISIONS
-              handed to the next stop — not a project plan.
-
-              ── OUT OF SCOPE STAYS ON THE WALL THROUGHOUT ──
-              Two things are ruled past the destination and never graduate. A
-              map is bounded, and the boundary is written down where everyone
-              can see it. "What the archive costs to keep" starts as fog and is
-              ruled out rather than answered — fog leaves two ways.
-
-              ── THE EXAMPLE IS INVENTED (locked decision #6) ──
-              Never this deck's own map. If asked whether we run this: yes, and
-              leave it there.
-
-              ── MUST NOT CLAIM ──
-              That the map is generated. A person and an agent chart it
-              together, and every ticket is claimed before any work starts.
-
-              That blocking dispatches anything automatically. It records the
-              order in the tracker. ⚠ The blocking PICTURE is this Slide's and
-              is never drawn twice — `slices` only speaks it (#101).
-
-              ── HELD FOR "how long does charting take?" ──
-              One session. The map is cheap; the tickets under it are the work.
-            </aside>
           </section>
 
           <!-- ↓2 ─────────────── QUESTIONS · SHELL, filled by #101.
@@ -2793,49 +1850,6 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
-
-            <aside class="notes">
-              ⚠ THE HEADLINE IS SENTENCE ONE of #73's locked wall line, so the
-              body prints sentences TWO AND THREE only. Do not say all three
-              aloud either — you would say it twice.
-
-              ── BATCHING, SPOKEN WHILE THE HOLES FILL (locked decision #3) ──
-              The grill-in-batches short IS this Slide, folded in and never
-              played: "It does not ask one question at a time. It asks
-              everything it can ask now, then the answers open the next round.
-              This map was charted that way. So was the last chapter's spine."
-
-              ⚠ NO NUMBER (#68). Upstream says thirteen, the research document
-              says twenty, and SKILL.md carries none. Say FEWER TURNS. ⚠ Never
-              "less cognitive load".
-
-              ── WHY THREE FILLERS AND NOT FOUR SENTENCES ──
-              `prototype` earns the third hole, but its line is shaped as THE
-              EXCEPTION rather than as a fourth filler. Three fillers, three
-              commands, one claim.
-
-              ── THE FOURTH TICKET TYPE, if the room counts ──
-              "One ticket type does no asking. It goes and gets the thing the
-              question waits on." `task` has no slash command and fills no hole
-              by asking, so it is not on this wall. The room already met it on
-              the previous Slide's board.
-
-              ── THE PROTOTYPE'S CODE (Atil took this OFF the wall) ──
-              Say it: "The prototype's answer lands in main. Its code does not."
-              Not "throw it away" — our own installed skill parks the artifact
-              on a prototype/ branch as a primary source. The answer and the
-              code are different things, and only one of them ships.
-
-              ── WHAT GRILLING ACTUALLY PRODUCES (cut from the wall, #73/#50) ──
-              The ubiquitous language: CONTEXT.md and the ADRs. Those are
-              /domain-modeling's outputs, and this is where the room learns that
-              a shared vocabulary is a deliverable rather than a nicety.
-
-              ── RESERVE LINE, if the framing needs saying aloud (#73) ──
-              "It can't be wrong about something nobody ever specified."
-
-              ── LENGTH ── About ninety seconds. On budget.
-            </aside>
           </section>
 
           <!-- ↓3 ─────────────── SLICES · SHELL, filled by #101.
@@ -2928,64 +1942,6 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
-
-            <aside class="notes">
-              THE FULLEST SLIDE IN THE CHAPTER. ⚠ It runs about TWO MINUTES, not
-              ninety seconds. That is recorded, not trimmed — the vertical axis
-              is not a live time-management tool (#92), so an overrun is paid
-              elsewhere in the deck and never by a partial descent.
-
-              ── TWO STOPS, ONE REASON, AND IT IS THE SPINE ──
-              Say it in the source's own five words: "The spec exists because
-              context windows end." /to-spec writes the decisions down BECAUSE
-              the window ends; /to-tickets sizes each ticket to fit INSIDE one.
-              One constraint, answered twice — and chapter 3 already taught it.
-              That is why the smart-zone line is on the wall and not in a note.
-
-              ── OPENING ── "That is the map from a moment ago, finished." Then
-              press: the decisions become one document.
-
-              ⚠ ONLY /to-spec GETS A "WHAT IT DOES" LINE, and the asymmetry is
-              intended: slicing is drawable and the hourglass draws it, while
-              agreeing a test boundary is not drawable at all.
-
-              ── THE TRACER BULLET ── Hunt and Thomas, The Pragmatic Programmer.
-              The analogy is about SEEING THE PATH. ⚠ Never about speed, and
-              never about firing many.
-
-              ── BLOCKING EDGES, one sentence ── "Each ticket says which tickets
-              it waits on, so the order is in the tracker, not in someone's
-              head." ⚠ NO claim about parallel agents: the skill calls the
-              graph a design pattern with MANUAL dispatch. ⚠ The blocking
-              picture belongs to the previous Slide and is never drawn twice.
-
-              ── THE SEAM IS SPOKEN AFTER THIS SLIDE, technical route only ──
-              #54's line: "It can't check itself. It can run your check." ⚠
-              Never as a Headline; it is already on a wall.
-
-              ── HELD FOR "does this run without us?" ──
-              /to-tickets quizzes you on granularity and on the edges: "Nothing
-              reaches the tracker until you approve." Both Slides in this
-              movement end with a human deciding.
-
-              ── HELD FOR "you can't slice a schema rename that way" ──
-              Correct, and say so. The skill carries a WIDE REFACTOR exception:
-              when the blast radius breaks thousands of call sites, sequence it
-              expand → migrate in batches → contract instead. ⚠ Off the wall —
-              a limit printed beside a claim weakens both.
-
-              ── MUST NOT CLAIM ──
-              Twenty agent runs per ticket. One unnamed team, no control arm,
-              and the "cascading failures" mechanism was invented by the
-              research document.
-
-              ⚠ THE WORD "VERTICAL" IS NOT SPOKEN EITHER. Say SMALLER.
-
-              ── DORA IS CUT FROM THIS SLIDE (Atil) ── The instability-and-
-              countermeasure argument was written for an executive room, and an
-              executive room never arrives here. It is held for the summary
-              Slide's note instead.
-            </aside>
           </section>
 
           <!-- ↓4 ─────────────── IMPLEMENT · SHELL, filled by #102.
@@ -3073,77 +2029,6 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="4" aria-hidden="true"></span>
-
-            <aside class="notes">
-              ⚠ RED → GREEN ONLY, NO REFACTOR BEAT (#102, amending locked
-              decision #8). Our own installed tdd skill ends with "Refactoring
-              is not part of the loop. It belongs to the review stage." Upstream
-              lists five beats and refactor is not one of them.
-
-              ⚠ THE LAST PRESS IS THE MOVEMENT'S HINGE. It hands refactor to the
-              next Slide, which is what makes movement 2 ONE MOTION across two
-              Slides rather than two separate claims. Do not land on it flatly.
-
-              ── UNDER FRAGMENT 1, spoken (#104) ──
-              "The boundary was agreed at to-spec, before any code existed. That
-              is what stops it inventing its own interfaces to test against."
-              ⚠ Never reprint or paraphrase the to-spec wall line; the word
-              "seam" is already known by the time the room arrives here.
-
-              ⚠ MUST NOT CLAIM THAT WE WRITE THE TESTS BY HAND. Neither the
-              skill nor upstream says a human writes the test — they say the
-              human CONFIRMS THE BOUNDARY: "No test is written at an unconfirmed
-              seam." The AI writes the test, at a seam agreed before any code
-              exists. The number then reads as THE CEILING, not our practice:
-              the further the test is owned from the code writer, the better it
-              lands.
-
-              ── THE COST PAIR, SPOKEN NOT PRINTED ──
-              "And it cost about four times less." ⚠ Say the RATIO. The dollars
-              stay here: $1.01 against $4.12 per instance, arXiv 2510.23761. ⚠
-              No euro conversion — this is a citation, not our rate, and putting
-              it through our own exchange rate would dress someone else's
-              measurement as our price.
-
-              ── WHAT TDFLOW IS ──
-              arXiv 2510.23761, EACL 2026. An agent system that treats "fix this
-              repository" as "make the failing test pass", split over four
-              sub-agents. Benchmark: SWE-Bench Verified — real GitHub issues
-              with the maintainers' real fixes. They ran it twice and swapped
-              ONE variable, which is what makes it strong: a differential
-              measurement, not a leaderboard number. Their own conclusion is our
-              argument — test resolution is "already at human-level", and the
-              frontier is "the accurate generation of valid reproduction tests".
-
-              ── WHY IT CANNOT WRITE ITS OWN TEST, one number, held ──
-              About 15% of generated tests PASS on the unfixed code they were
-              written to fail on. The shape of the trap: a test the model
-              derives the same way it derives the code cannot disagree with the
-              code. ⚠ It stays in the note — the wall already carries the
-              chapter's one number, and a second halves the first one's force.
-
-              ── HELD FOR "it will just game the test" ──
-              Measured, and the honest answer is "rarely, when the test is owned
-              outside the patch": TDFlow found 7 test-hacking instances in about
-              800 runs and counted them as failures.
-
-              ── HELD FOR "94.3% of SWE-Bench is not 94.3% of our work" ──
-              Correct. The PAIR is the finding; the absolute number is not
-              transferable. Say so before the room does.
-
-              ── THE MODELS ARE NOT OURS ── GPT-5 / GPT-4.1, with Claude 4
-              Sonnet for test generation. The finding is about the workflow, not
-              the vendor.
-
-              ⚠ MUST NOT CLAIM that "tests first" is what the number measures.
-              It measures WHO WROTE THE TEST.
-
-              ⚠ "Code only, no explanation" IS CUT and stays cut (#67, #102).
-              The deck has retired that instruction twice, from two chapters, on
-              evidence. Do not restore it.
-
-              ── LENGTH ── About two minutes. Over budget, and recorded.
-            </aside>
           </section>
 
           <!-- ↓5 ─────────────── REVIEW · SHELL, filled by #102.
@@ -3226,63 +2111,6 @@ const baselineBlocks = BASELINE.length;
             <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
             <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
-
-            <aside class="notes">
-              THE MEMORABLE LINE, spoken: never let it review its own code.
-
-              ⚠ "SO WE USE A DIFFERENT MODEL" STAYS FALSE AND UNSAID. We spawn
-              same-model Sub-agents, and the one controlled cross-model
-              experiment is asymmetric and can go negative. Say FRESH CONTEXT.
-              The Headline's first line — Same model — already does that work.
-
-              ── THE CONTRAST, SPOKEN OVER FRAGMENT 1. NUMBERS NEVER PRINTED ──
-              The same model, judging the same patch, discriminates defects at
-              AUROC 0.99 from a clean context and 0.89 when the patch sat in its
-              own prior turn — and it is about five times more likely to approve
-              a prompt-injected patch it believes it wrote. Khullar et al.,
-              Self-Attribution Bias, arXiv 2603.04582.
-
-              ── UPSTREAM'S WORDS, ATTRIBUTED AS UPSTREAM'S ──
-              "Same context reviewing itself isn't review, it's confirmation
-              bias with a slash command." ⚠ The installed code-review skill says
-              NOTHING about a fresh session — those sentences exist only in
-              upstream's prose. Quote them as upstream's, never as a rule the
-              tool enforces.
-
-              ── HELD FOR "so it grades its own homework?" ──
-              And it is a fair hit. "/implement ends by reviewing its own work.
-              The two Sub-agents are fresh, but the session holding them wrote
-              the code. So we run review again, in a clean session, before
-              anything merges. That is our habit, not something the tool
-              enforces."
-
-              ── HELD FOR "against what standard?" ──
-              "It reviews against what the repo documents, plus twelve code
-              smells from Fowler's Refactoring when the repo documents nothing."
-              ⚠ NO SLIDE CLAIMS THIS REPO'S OWN STANDARD DRIVES THE REVIEW. The
-              caption says "what the repo documents", which is true of any repo.
-
-              ── WHY THE TWO AXES NEVER MERGE ── Upstream's reason, and it is a
-              good one: "a blended verdict lets the passing axis hide the
-              failing one." ⚠ Do not fuse this with the closing line's reason.
-              The axes stay separate for LEGIBILITY; the human merges for
-              ACCOUNTABILITY.
-
-              ⚠ AN LLM REVIEW IS NOT A GATE. "It is a reader that finds things"
-              (Crupi et al., IEEE TSE 2025). The skill has no gate: two reports,
-              one summary, a human merges. This is the most important honesty
-              available to us in this room — do not soften it.
-
-              ⚠ ALL NUMBERS STAY OFF THIS WALL, and thermonuclear's 1,000-line
-              threshold has no derivation at all — note-only, and never as a
-              number.
-
-              ── HELD IN RESERVE, for "can't the AI just do all of this by
-              itself?" ── Ralph / AFK. ⚠ Note-only, never on a wall (locked
-              decision #9).
-
-              ── LENGTH ── About ninety seconds. On budget.
-            </aside>
           </section>
 
           <!-- ↓6 ─────────────── RECONCILE · BUILT IN FULL (#93).
@@ -3315,39 +2143,6 @@ const baselineBlocks = BASELINE.length;
               the design changed while you were building it.
             </p>
             <span class="ch5-notbuilt">Not built yet</span>
-            <aside class="notes">
-              THE ONE STOP WITH NO COMMAND, and the wall says so. Own it: this
-              is what the process asks for next, and the two skills it needs are
-              a separate piece of work.
-
-              TECHNICAL ROUTE ONLY. An executive room never enters the stack, so
-              "not built yet" costs it nothing — but that room does meet the
-              name and the blank command slot on the summary Slide, where
-              nothing says it is unbuilt. Carry a sentence for it there.
-
-              ── NOTES ONLY, NEVER ON THE WALL ──
-              The diagram is merged into the existing requirement in POLARION.
-              Skill 2 ASKS THE USER before it updates a requirement — a confirm
-              step, not an autonomous rewrite.
-
-              ON RECORD FOR WHOEVER REBUILDS THIS SLIDE ONCE THE SKILLS EXIST:
-              "A sequence diagram costs about 25 credits on Haiku — that is the
-              whole run, not one prompt." The trailing clause is the entire
-              defence: 25 credits of pure input would be 250,000 tokens against
-              a 200k window, so the figure can only describe an agent loop.
-              Haiku is enabled in our tenant, so the room can reproduce it.
-
-              ── HELD ANSWERS ──
-              "Why would a generated diagram need checking?" Because a model
-              asked to describe semantically altered code hallucinates at a rate
-              that climbs from 17% to 97% in the published measurement.
-
-              "Does this touch our toolchain?" A PlantUML diagram is opaque text
-              to Polarion, so a generated diagram naming REQ-1234 creates no
-              link and no trace, and nothing notices if REQ-1234 does not exist.
-              The verifier parses the diagram and resolves every identifier
-              against the Polarion API. That check is a script, not a model.
-            </aside>
           </section>
         </section>
 
@@ -3399,23 +2194,6 @@ const baselineBlocks = BASELINE.length;
               nothing here is typed twice, and this list says the same names
               the room is about to read. */}
           <ol class="roadmap-slides" data-roadmap-slides></ol>
-          <aside class="notes">
-            A breath, and a contents list. The wash used to be BARE, and it now
-            carries the chapter's two slide titles the way every chapter 2–5
-            divider does (Atil, 2026-08-28) — the outro is the one chapter that
-            was left without the deck's own wayfinding.
-
-            Read the two names off the wall and press on. Do not hold this
-            slide: the next headline is the line that has to land.
-
-            Arrive on the hand-off you spoke at chapter 5's pay-off: the job
-            moved to the front of the work, and every one of those checks is
-            theirs. Then press on. Do not hold this slide.
-
-            The chrome reads "06 — The new job" while the wall reads "Outro".
-            That is intended — the chrome names the topic, the wall gives the
-            room a beat before the last argument.
-          </aside>
         </section>
 
         <!-- 6b ─────────────────── THE MENTAL LOAD: one working day, drawn
@@ -3469,43 +2247,6 @@ const baselineBlocks = BASELINE.length;
             <li><i class="load-sw t" aria-hidden="true"></i>tactical programming</li>
             <li><i class="load-sw s" aria-hidden="true"></i>strategic thinking</li>
           </ul>
-          <aside class="notes">
-            ONE BAR IS ONE WORKING DAY. Point at the top bar first and name the
-            pale blocks: that is tactical programming — typing out the thing you
-            already decided. It was never the hard part, and that is exactly why
-            it mattered. It was where the brain got to coast.
-
-            Then point at the dark blocks: strategic thinking — what to build,
-            what to accept, what to reject, what breaks. That is the expensive
-            work, and in the old day it came in bursts with recovery between
-            them.
-
-            Now the bottom bar. The machine took the pale blocks. Nothing filled
-            the gap, because there is no gap left — an engineer working this way
-            spends the whole day at the top of the bar. Say it plainly: this is
-            not a longer day, it is a denser one.
-
-            THE POINT FOR THIS ROOM: your engineers are not tired because the
-            tools are bad. They are tired because the tools work. Everything
-            that is left for a human is the part that requires judgement, and
-            judgement does not scale by working faster.
-
-            ⚠ NO ASK FOLLOWS. Do not pivot into training budget, headcount or
-            tooling spend. State the cost, let it sit for a beat, and go to the
-            last slide.
-
-            ⚠ NEVER SAY: "AI frees engineers for higher-value work." This slide
-            is the direct contradiction of that sentence, and chapter 5 already
-            refused to claim it.
-
-            ⚠ THE WIDTHS ARE NOT DATA. If someone asks what the proportions
-            measure, say the truth: nothing. It is the shape of a day, not a
-            time study.
-
-            IF THE ROOM PUSHES BACK — "so is this a bad trade?" — no, and do not
-            argue it here. The next slide is the answer, and it is a picture,
-            not a claim.
-          </aside>
         </section>
 
         <!-- 6c ─────────────────── RELIABILITY SCATTER (result quality × spend).
@@ -3547,64 +2288,6 @@ const baselineBlocks = BASELINE.length;
                what the slide can't. `setLottery` still drives the collapse;
                it just has no text left to update. -->
           <span class="fragment lottery-trigger" data-lottery-collapse aria-hidden="true"></span>
-          <aside class="notes">
-            THE LAST SLIDE OF THE TALK. Everything on it has now been earned,
-            so state it as a result rather than as a promise — the four factors
-            are behind you, not ahead of you. Arrive off the load slide: the job
-            got heavier, and this is what the room gets for it.
-
-            ⚠ DO NOT SAY "PROMISE" HERE. The slide was chapter 1's closing
-            promise until 2026-08-23; chapter 1 now ends on the roadmap and
-            plants nothing. There is no callback to make, and reaching for one
-            leaves the room hunting for a slide they never saw.
-
-            On entry the field is a wide scatter with a real
-            trend: more tokens roughly buys more quality (bottom-left up to
-            top-right), but the spread is enormous and it touches all four
-            quadrants — cheap misses, dear misses, lucky wins, expensive wins.
-            Narrate the lottery here before advancing: the correlation is real,
-            yet the outcome is a gamble and much of the spend is wasted. Press
-            &rarr; and the SAME attempts shift — a distribution moving, not a
-            collapse, and not two archetypes. The whole cloud slides up and to
-            the left: top quality now reached at a fraction of the tokens,
-            spend pulled left, spread tightened. A couple still miss; that's
-            honest. Attribute it to all four factors together, never to best
-            practices alone — the four you just saw on the roadmap are what
-            move this cloud, and each chapter from here moves it a little more.
-            Each cloud carries its own fitted trend line — dashed, so it reads
-            as a fit rather than as another attempt — and the pair is worth
-            pointing at explicitly. Both slope the same way: more tokens
-            really does buy more quality, in both worlds, so you are never
-            claiming the relationship disappears.
-
-            Narrate POSITION and SPAN, never slope. The after line is short,
-            high and inside the box; the before line is long, low and ends
-            outside it. Same relationship, compressed into the left quarter of
-            the spend axis and lifted into ship-ready. If someone asks: the
-            after line is actually slightly STEEPER, which is fine and is not
-            the point — a steep short line that starts high is exactly what
-            "you get there sooner" looks like.
-
-            The lines are fitted to the body of each cloud, not to every dot:
-            before's three odd attempts (the lucky win, the dear miss, the bad
-            miss) and after's two remaining misses are left out of the fit but
-            deliberately left on screen. If asked, say so plainly — they are
-            the honest tail, and a trend line dragged around by three outliers
-            would tell you less.
-
-            Nothing else on this slide is labelled, so the two readings are
-            yours to give. BEFORE: random prompts in, random results out — more
-            tokens roughly buys more quality, but the spread is huge and much
-            of the spend is wasted; only 3 of 18 attempts land ship-ready and
-            on budget. AFTER: the same attempts, after all four factors — top
-            quality at a fraction of the tokens, spend pulled left, spread
-            tightened. 16 of 18. You aim, you don't gamble. Press &larr; to
-            replay the scatter.
-
-            ⚠ ARGUMENT ENDS HERE. Only the thank-you Slide follows. End on the
-            converged cloud, thank the room, and take questions from this
-            picture.
-          </aside>
         </section>
 
         <!-- 7 ──────────────────── CLOSE: thank you + questions.
@@ -3618,13 +2301,6 @@ const baselineBlocks = BASELINE.length;
           </h1>
           <p class="hero-sub">Same licence. Different results. Let's close that gap.</p>
           <p class="byline">Atil Ilerialkan · atilileri.github.io</p>
-          <aside class="notes">
-            Stop talking. Ask for questions and wait — the silence is the room
-            deciding to speak, not a gap to fill.
-
-            If nothing comes, go back one Slide and take questions from the
-            scatter. It is the picture people argue with.
-          </aside>
         </section>
       </div>
     </div>
