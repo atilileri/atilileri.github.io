@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # Local agent worktrees (not part of the site)
 .claude/worktrees/
+
+# Playwright run artifacts (the Deck walk's goldens ARE committed; these are not)
+test-results/
+playwright-report/
