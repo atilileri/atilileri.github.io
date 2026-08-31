@@ -20,7 +20,7 @@ _Example_: We rehearse chapter 4 tonight.
 
 **Spine**:
 A Chapter's locked, ordered list of Slides. The grilling that locks one is a "spine grilling" ([#54](https://github.com/atilileri/atilileri.github.io/issues/54), [#70](https://github.com/atilileri/atilileri.github.io/issues/70)).
-_Avoid_: Never use Spine for chapter 1's overview Slide, and never for the hidden row of Fragments that drives a Widget. Both meanings existed before this glossary and both are wrong.
+_Avoid_: Never use Spine for chapter 1's overview Slide, and never for a Fragment row. Both meanings existed before this glossary and both are wrong.
 _Example_: Map #63 locks the Spine of chapter 5 at six Slides.
 
 **Slide**:
@@ -91,6 +91,11 @@ _Example_: Put the caveat on a Fragment, so the room reads the number first.
 An interactive thing on a Slide that the room can watch change. A Slide either has one or is static.
 _Avoid_: Island — that is Astro's word for a build concern. See Third-party contracts.
 _Example_: The spend-curve Widget shows one more notch of reasoning effort on each arrow press.
+
+**Fragment row**:
+The hidden row of Fragments that drives a Widget forward, so the clicker's arrow keys work with no custom key binding. It is invisible — the room never sees it.
+_Avoid_: Spine, step rail
+_Example_: The Fragment row drives the Widget, so the clicker needs no extra key.
 
 **Turn**:
 One exchange in a session — what the user said and what the agent answered. The smallest unit the Deck counts in: one press of the session Slide, and the unit the smart-zone and roll-back Widgets count in. The noun **Move** was retired with the agent-loop ledger ([ADR 0001](adr/0001-session-slide-teaches-memory.md)); nothing sits below a Turn.
