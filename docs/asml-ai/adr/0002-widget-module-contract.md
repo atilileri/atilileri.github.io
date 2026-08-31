@@ -4,6 +4,7 @@
 **Date**: 2026-08-31
 **Scope**: `docs/asml-ai` — the Deck's client code, `src/pages/decks/asml-ai/index.astro`
 and the modules under `src/lib/asml-ai/`
+**Spec**: [#106](https://github.com/atilileri/atilileri.github.io/issues/106)
 
 ## Context
 
