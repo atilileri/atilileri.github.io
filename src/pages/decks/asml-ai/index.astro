@@ -1570,6 +1570,11 @@ const baselineBlocks = BASELINE.length;
       // chapter-4 islands: the whole board is re-derived from the fragment
       // count, so → and ← replay the walk in both directions.
       import * as WFM from "../../../lib/asml-ai/wayfinder-map";
+      // The Widget contract and its registry (#109, spec #106, ADR 0002).
+      // Mounted beside the two
+      // `if` chains below, which still own every Widget; the registry is empty
+      // until Widgets move into it one at a time.
+      import { mountWidgets } from "../../../lib/asml-ai/deck-widgets";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
       import RevealNotes from "reveal.js/plugin/notes/notes.esm.js";
@@ -3339,6 +3344,11 @@ const baselineBlocks = BASELINE.length;
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
+
+      // The registry side of the same dispatch. Empty at this commit, so this
+      // adds no behaviour; the two chains above keep owning every Widget until
+      // each has moved into its own module.
+      mountWidgets(deck);
 
       /* ══════════════════════════════════════════════════════════════════════
        *  CHAPTER 4 — the smart zone (#52).
