@@ -1561,10 +1561,6 @@ const baselineBlocks = BASELINE.length;
       } from "../../../lib/asml-ai/session";
       import * as STOCH from "../../../lib/asml-ai/stochastic";
       import * as HAL from "../../../lib/asml-ai/halluc";
-      // Chapter 4's smart zone. The frontmatter import above is a separate
-      // scope — the markup and this controller read the same table by both
-      // importing it, which is what keeps them from drifting.
-      import * as SZ from "../../../lib/asml-ai/smart-zone";
       import * as RB from "../../../lib/asml-ai/roll-back";
       // Chapter 5's `wayfinder` Slide. Same contract as the chapter-3 and
       // chapter-4 islands: the whole board is re-derived from the fragment
@@ -1575,9 +1571,9 @@ const baselineBlocks = BASELINE.length;
       // into its own module never has to import from another Widget.
       import { el, svgEl } from "../../../lib/asml-ai/dom";
       // The Widget contract and its registry (#109, spec #106, ADR 0002).
-      // Mounted beside the two
-      // `if` chains below, which still own every Widget; the registry is empty
-      // until Widgets move into it one at a time.
+      // Mounted beside the two `if` chains below, which still own every Widget
+      // that has not moved; each Widget joins the registry one ticket at a
+      // time, and the chains go once the registry holds all sixteen.
       import { mountWidgets } from "../../../lib/asml-ai/deck-widgets";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
@@ -3293,10 +3289,6 @@ const baselineBlocks = BASELINE.length;
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
         }
-        // Chapter 4's smart zone: same contract as the chapter-3 islands — the
-        // whole visual is re-derived from the fragment count, so entering from
-        // either direction lands on the right state.
-        if (slide.hasAttribute("data-smartzone")) syncSmartZone(slide);
         // Chapter 5's stack. Same contract again: both islands re-derive
         // everything from the fragment count, so entering from either
         // direction lands on the right state.
@@ -3321,92 +3313,16 @@ const baselineBlocks = BASELINE.length;
         if (section?.hasAttribute("data-token-live")) renderLive();
         if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-session")) syncSession(section);
-        if (section?.hasAttribute("data-smartzone")) syncSmartZone(section);
         if (section?.hasAttribute("data-ch5-step")) syncCh5Step(section);
         if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
 
-      // The registry side of the same dispatch. Empty at this commit, so this
-      // adds no behaviour; the two chains above keep owning every Widget until
-      // each has moved into its own module.
+      // The registry side of the same dispatch. It owns the Widgets that have
+      // moved into their own modules — the smart zone so far — and the two
+      // chains above own the rest until each one follows.
       mountWidgets(deck);
-
-      /* ══════════════════════════════════════════════════════════════════════
-       *  CHAPTER 4 — the smart zone (#52).
-       *
-       *  Four fragments: the session fills, the blocks lose their colour, the
-       *  brief loses its lines, and the gauge stays green and correct. The
-       *  closing line is SPOKEN (Atil, 2026-08-25) — the widget never shows
-       *  it, so there is no fifth fragment.
-       *
-       *  Holds no state of its own: everything is re-derived from reveal's
-       *  fragment count, so ← and → replay correctly in both directions.
-       * ═══════════════════════════════════════════════════════════════════ */
-
-      function syncSmartZone(slide: HTMLElement) {
-        const rail = slide.querySelector("[data-sz-frag-row]");
-        const shown = rail ? rail.querySelectorAll(".fragment.visible").length : 0;
-        const i = Math.min(shown, SZ.STATES.length - 1);
-        const s = SZ.STATES[i];
-        const q = <T extends HTMLElement>(sel: string) => slide.querySelector<T>(sel)!;
-
-        // LINEAR against the advertised window, and it has to stay linear: a
-        // log scale made the tank read ~68% full while the gauge above it read
-        // 21%, which contradicts the slide's own argument. The band sitting
-        // close to the left edge IS the point — a session can be deep in the
-        // dumb zone with most of the window still free.
-        const pct = (n: number) => (n / SZ.WINDOW) * 100;
-
-        q("[data-sz-turn]").textContent =
-          `${s.turn} · ${s.tokens.toLocaleString("en-US")} tokens in the session`;
-        q("[data-sz-gauge]").textContent = s.gauge;
-        q<HTMLElement>("[data-sz-fill]").style.width = `${pct(s.tokens)}%`;
-
-        // Turn 1 holds still: the same tokens against the same tank is the
-        // same width, on every press. ⚠ Do not size it against the fill — that
-        // is a different percentage each time and it animates.
-        q<HTMLElement>("[data-sz-mine]").style.width = `${pct(s.mine)}%`;
-
-        const band = q<HTMLElement>("[data-sz-band]");
-        band.style.left = `${pct(SZ.SOFT)}%`;
-        band.style.width = `${pct(SZ.HARD) - pct(SZ.SOFT)}%`;
-        q<HTMLElement>("[data-sz-mark-soft]").style.left = `${pct(SZ.SOFT)}%`;
-        q<HTMLElement>("[data-sz-mark-hard]").style.left = `${pct(SZ.HARD)}%`;
-        // The dumb zone starts where the band ends and runs to the far edge.
-        q<HTMLElement>("[data-sz-dumb]").style.left = `${pct(SZ.HARD)}%`;
-        // The three causes sit under the zone they explain, from the same mark.
-        q<HTMLElement>("[data-sz-causes]").style.left = `${pct(SZ.HARD)}%`;
-
-        // The window's contents. Each block arrives in its own colour and is
-        // mixed toward the theme's pale grey as the session grows, so by the
-        // last fragment they are indistinguishable from one another.
-        const mix = (hex: string, t: number) => {
-          const rgb = (h: string) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16));
-          const [r1, g1, b1] = rgb(hex);
-          const [r2, g2, b2] = rgb(SZ.PALE);
-          const c = (a: number, b: number) => Math.round(a * t + b * (1 - t));
-          return `rgb(${c(r1, r2)}, ${c(g1, g2)}, ${c(b1, b2)})`;
-        };
-        const field = q("[data-sz-blocks]");
-        field.textContent = "";
-        for (let b = 0; b < s.blocks; b++) {
-          const el = document.createElement("i");
-          el.className = "sz-block";
-          el.style.background = mix(SZ.PALETTE[b % SZ.PALETTE.length], s.vivid);
-          el.style.animationDelay = `${Math.min(b, 30) * 10}ms`;
-          field.append(el);
-        }
-
-        // What the field above the tank now means. It reads the BLOCKS, not
-        // the tank — attention, not tokens.
-        q("[data-sz-read]").textContent = s.read;
-
-        slide.querySelectorAll<HTMLElement>("[data-sz-line]").forEach((el, n) => {
-          el.classList.toggle("dead", n >= s.live);
-        });
-      }
 
       /* ══════════════════════════════════════════════════════════════════════
        *  CHAPTER 5 — the four picture Slides in the stack (#105).
