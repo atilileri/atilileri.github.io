@@ -1570,6 +1570,10 @@ const baselineBlocks = BASELINE.length;
       // chapter-4 islands: the whole board is re-derived from the fragment
       // count, so → and ← replay the walk in both directions.
       import * as WFM from "../../../lib/asml-ai/wayfinder-map";
+      // The DOM helpers more than one Widget uses (#110, spec #106, ADR 0002).
+      // They are imported rather than closed over, so that a Widget moving
+      // into its own module never has to import from another Widget.
+      import { el, svgEl } from "../../../lib/asml-ai/dom";
       // The Widget contract and its registry (#109, spec #106, ADR 0002).
       // Mounted beside the two
       // `if` chains below, which still own every Widget; the registry is empty
@@ -2099,13 +2103,6 @@ const baselineBlocks = BASELINE.length;
       const benchPlot = benchSvg?.closest<HTMLElement>(".bench-plot");
       // Empty = show every family; otherwise only the picked ones.
       const benchOn = new Set<string>();
-
-      const NS = "http://www.w3.org/2000/svg";
-      function el(tag: string, attrs: Record<string, string | number>) {
-        const n = document.createElementNS(NS, tag);
-        for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
-        return n;
-      }
       const shown = (fam: string) => benchOn.size === 0 || benchOn.has(fam);
 
       function showTip(cv: Curve, pt: Pt, ev: MouseEvent) {
@@ -2248,18 +2245,18 @@ const baselineBlocks = BASELINE.length;
         if (!benchSvg) return;
         const { T, B, L, R } = PLOT;
         for (let s = 0; s <= 80; s += 10) {
-          benchSvg.append(el("line", { x1: L, x2: R, y1: CY(s), y2: CY(s), class: "grid" }));
-          const t = el("text", { x: L - 10, y: CY(s) + 4, class: "tick end" });
+          benchSvg.append(svgEl("line", { x1: L, x2: R, y1: CY(s), y2: CY(s), class: "grid" }));
+          const t = svgEl("text", { x: L - 10, y: CY(s) + 4, class: "tick end" });
           t.textContent = s + "%";
           benchSvg.append(t);
         }
         for (const c of COST_TICKS) {
-          if (c) benchSvg.append(el("line", { x1: CX(c), x2: CX(c), y1: T, y2: B, class: "grid" }));
-          const t = el("text", { x: CX(c), y: B + 22, class: "tick mid" });
+          if (c) benchSvg.append(svgEl("line", { x1: CX(c), x2: CX(c), y1: T, y2: B, class: "grid" }));
+          const t = svgEl("text", { x: CX(c), y: B + 22, class: "tick mid" });
           t.textContent = "$" + c;
           benchSvg.append(t);
         }
-        benchSvg.append(el("line", { x1: L, x2: R, y1: B, y2: B, class: "axis" }));
+        benchSvg.append(svgEl("line", { x1: L, x2: R, y1: B, y2: B, class: "axis" }));
 
         // THE CEILING (#33). One of the chart's two proofs — the other, the
         // stop-point, belongs to the next slide, so nothing here draws it.
@@ -2269,21 +2266,21 @@ const baselineBlocks = BASELINE.length;
           ...CURVES.flatMap((cv) => cv.pts.map((pt) => pt.rate)),
         );
         benchSvg.append(
-          el("line", { x1: L, x2: R, y1: CY(CEIL), y2: CY(CEIL), class: "ceiling" }),
+          svgEl("line", { x1: L, x2: R, y1: CY(CEIL), y2: CY(CEIL), class: "ceiling" }),
         );
         // Right-anchored: the top-LEFT band belongs to the "most efficient"
         // pointer, and two annotations in one corner read as clutter. The
         // expensive end of the ceiling is also the more damning place to say it.
-        const ceilLbl = el("text", { x: R - 8, y: CY(CEIL) - 12, class: "ceiling-lbl end" });
+        const ceilLbl = svgEl("text", { x: R - 8, y: CY(CEIL) - 12, class: "ceiling-lbl end" });
         ceilLbl.textContent = "nothing clears this";
         benchSvg.append(ceilLbl);
-        const xl = el("text", { x: (L + R) / 2, y: B + 44, class: "axis-label mid" });
+        const xl = svgEl("text", { x: (L + R) / 2, y: B + 44, class: "axis-label mid" });
         xl.textContent = "avg cost per task (square-root axis)";
         // The score used to be named in a corner title, which read as a chart
         // heading rather than as the axis it labels. It now sits ON the axis,
         // rotated, opposite the cost title — so each axis says what it is and
         // the top-left corner belongs to the "most efficient" pointer alone.
-        const yl = el("text", {
+        const yl = svgEl("text", {
           x: 26, y: (T + B) / 2, class: "axis-label mid",
           transform: `rotate(-90 26 ${(T + B) / 2})`,
         });
@@ -2291,7 +2288,7 @@ const baselineBlocks = BASELINE.length;
         // Cheap AND good is the top-LEFT corner, so the pointer sits there. It
         // names the quadrant the whole slide asks the room to look at, so it
         // carries the deck's accent rather than a whispered muted italic.
-        const eff = el("text", { x: L + 10, y: 50, class: "efficient" });
+        const eff = svgEl("text", { x: L + 10, y: 50, class: "efficient" });
         eff.textContent = "↖ most efficient";
         benchSvg.append(xl, yl, eff);
 
@@ -2306,19 +2303,19 @@ const baselineBlocks = BASELINE.length;
         const order = [...CURVES].sort(
           (a, z) => z.pts[z.at].rate - a.pts[a.at].rate,
         );
-        const marks = el("g", {}) as SVGGElement;
+        const marks = svgEl("g", {}) as SVGGElement;
         // Labels are painted OVER the marks, so without this they swallow the
         // hover of any point they cover — the callout for the dearest model
         // sits right on its own dot. They are annotation, not a target.
-        const labels = el("g", { "pointer-events": "none" }) as SVGGElement;
+        const labels = svgEl("g", { "pointer-events": "none" }) as SVGGElement;
 
         for (const cv of order) {
           const on = shown(cv.fam);
-          const g = el("g", { class: "curve", opacity: on ? 1 : 0.12 }) as SVGGElement;
+          const g = svgEl("g", { class: "curve", opacity: on ? 1 : 0.12 }) as SVGGElement;
           const color = famColor(cv.fam);
           if (cv.pts.length > 1) {
             g.append(
-              el("path", {
+              svgEl("path", {
                 d: cv.pts
                   .map((pt, i) => `${i ? "L" : "M"} ${CX(pt.cost)} ${CY(pt.rate)}`)
                   .join(" "),
@@ -2329,7 +2326,7 @@ const baselineBlocks = BASELINE.length;
           }
           cv.pts.forEach((pt, i) => {
             g.append(
-              el("circle", {
+              svgEl("circle", {
                 cx: CX(pt.cost), cy: CY(pt.rate), r: i === cv.at ? 4.5 : 3.5,
                 fill: color, class: "dot",
               }),
@@ -2338,7 +2335,7 @@ const baselineBlocks = BASELINE.length;
           // One generous hit target per point, over the top of the marks.
           if (on) {
             cv.pts.forEach((pt) => {
-              const hit = el("circle", {
+              const hit = svgEl("circle", {
                 cx: CX(pt.cost), cy: CY(pt.rate), r: 11, fill: "transparent",
               });
               hit.addEventListener("mousemove", (ev) =>
@@ -2353,23 +2350,23 @@ const baselineBlocks = BASELINE.length;
           const best = cv.pts[cv.at];
           const x = CX(best.cost), y = CY(best.rate);
           const { dx, dy, anchor } = placeLabel(cv, x, y, taken);
-          const lg = el("g", { opacity: on ? 1 : 0.12 }) as SVGGElement;
+          const lg = svgEl("g", { opacity: on ? 1 : 0.12 }) as SVGGElement;
           lg.append(
-            el("line", {
+            svgEl("line", {
               x1: x, y1: y,
               x2: x + dx - (anchor === "start" ? 3 : anchor === "end" ? -3 : 0),
               y2: y + dy - 4,
               stroke: color, "stroke-width": 1, opacity: 0.35,
             }),
           );
-          const name = el("text", {
+          const name = svgEl("text", {
             x: x + dx, y: y + dy, "text-anchor": anchor,
             fill: color, class: "curve-label",
           });
           name.textContent = cv.name;
           // The effort level under the name is the level of THAT point — the
           // provider's own word, so the room can type it into an API call.
-          const e2 = el("text", {
+          const e2 = svgEl("text", {
             x: x + dx, y: y + dy + 11, "text-anchor": anchor,
             fill: color, class: "curve-eff",
           });
@@ -2475,24 +2472,24 @@ const baselineBlocks = BASELINE.length;
         // carry ROUND EURO values and sit at their true dollar position, so
         // nothing on screen is a converted-and-rounded number.
         for (const eur of [0, 5, 10, 15, 20]) {
-          const t = el("text", { x: SX(eur * USD_PER_EUR), y: STOP.Y0 + 30, class: "tick mid" });
+          const t = svgEl("text", { x: SX(eur * USD_PER_EUR), y: STOP.Y0 + 30, class: "tick mid" });
           t.textContent = "€" + eur;
           svg.append(t);
         }
         for (const sc of [58, 60, 62, 64, 66, 68, 70]) {
           svg.append(
-            el("line", { x1: STOP.X0, x2: STOP.XN, y1: SY(sc), y2: SY(sc), class: "grid" }),
+            svgEl("line", { x1: STOP.X0, x2: STOP.XN, y1: SY(sc), y2: SY(sc), class: "grid" }),
           );
-          const t = el("text", { x: STOP.X0 - 14, y: SY(sc) + 6, class: "tick end" });
+          const t = svgEl("text", { x: STOP.X0 - 14, y: SY(sc) + 6, class: "tick end" });
           t.textContent = sc + "%";
           svg.append(t);
         }
         svg.append(
-          el("line", {
+          svgEl("line", {
             x1: STOP.X0, x2: STOP.XN, y1: STOP.Y0, y2: STOP.Y0, class: "axis",
           }),
         );
-        const xl = el("text", {
+        const xl = svgEl("text", {
           x: (STOP.X0 + STOP.XN) / 2, y: STOP.Y0 + 58, class: "axis-label mid",
         });
         xl.textContent = "cost per task";
@@ -2500,13 +2497,13 @@ const baselineBlocks = BASELINE.length;
         // the score rotated onto its own axis, opposite the cost title. Same
         // furniture, same room: the room has read this pair once already.
         const ym = (STOP.Y0 + STOP.YN) / 2;
-        const yl = el("text", {
+        const yl = svgEl("text", {
           x: 32, y: ym, class: "axis-label mid",
           transform: `rotate(-90 32 ${ym})`,
         });
         yl.textContent = "DeepSWE score";
         svg.append(yl);
-        const head = el("text", { x: STOP.X0, y: 34, class: "plot-title" });
+        const head = svgEl("text", { x: STOP.X0, y: 34, class: "plot-title" });
         // Spelled, not a numeral: it is prose on a wall, and the count comes
         // off the data so a re-transcribed curve can never make the title lie.
         const WORD = ["no", "one", "two", "three", "four", "five", "six"];
@@ -2522,9 +2519,9 @@ const baselineBlocks = BASELINE.length;
             .slice(from, to + 1)
             .map((pt, i) => `${i ? "L" : "M"} ${SX(pt.cost)} ${SY(pt.rate)}`)
             .join(" ");
-        svg.append(el("path", { d: dOf(0, last - 1), fill: "none", class: "stop-line",
+        svg.append(svgEl("path", { d: dOf(0, last - 1), fill: "none", class: "stop-line",
           "stroke-linecap": "round", "stroke-linejoin": "round" }));
-        svg.append(el("path", { d: dOf(last - 1, last), fill: "none", class: "stop-line is-down",
+        svg.append(svgEl("path", { d: dOf(last - 1, last), fill: "none", class: "stop-line is-down",
           "stroke-linecap": "round", "stroke-linejoin": "round" }));
 
         // One label per point: what that level cost on top of the one before
@@ -2548,11 +2545,11 @@ const baselineBlocks = BASELINE.length;
           // still. The cheapest point sits low, close to the cost axis, so
           // its label rides beside the dot instead of under it.
           const y = SY(pt.rate) + (down ? 34 : i === 0 ? 26 : 34);
-          const g = el("text", {
+          const g = svgEl("text", {
             x, y, class: "stop-label" + (down ? " is-down" : ""),
             "text-anchor": down ? "end" : "start",
           });
-          const val = el("tspan", { x, class: "delta" });
+          const val = svgEl("tspan", { x, class: "delta" });
           val.textContent = i
             ? `+${fmtEur(stopStep(i).eur)} → ${stopPtsLabel(stopStep(i).pts)}`
             : `${fmtEur(stopEur(pt.cost))} · ${pt.rate}%`;
@@ -2560,7 +2557,7 @@ const baselineBlocks = BASELINE.length;
           // The turn is the slide: the last level gets the sentence the other
           // four don't need, so nobody has to do the arithmetic on the wall.
           if (down) {
-            const why = el("tspan", { x, dy: 26, class: "why" });
+            const why = svgEl("tspan", { x, dy: 26, class: "why" });
             why.textContent = `${stopStep(i).pct}% more money, less score`;
             g.append(why);
           }
@@ -2568,14 +2565,14 @@ const baselineBlocks = BASELINE.length;
         });
 
         pts.forEach((pt, i) => {
-          svg.append(el("circle", {
+          svg.append(svgEl("circle", {
             cx: SX(pt.cost), cy: SY(pt.rate), r: 7,
             class: "stop-dot" + (i === last ? " is-down" : ""), "data-stop-dot": i,
           }));
         });
         // The ring marks WHERE THE SPENDING STOPS PAYING — the one point the
         // slide is about — so it is parked on the last level, not walked.
-        svg.append(el("circle", {
+        svg.append(svgEl("circle", {
           cx: SX(pts[last].cost), cy: SY(pts[last].rate), r: 14, class: "stop-marker",
         }));
 
@@ -3029,13 +3026,6 @@ const baselineBlocks = BASELINE.length;
       //  layoutStoch() and the note in theme-asml.css.
       // ══════════════════════════════════════════════════════════════════════
 
-      function stochEl(tag: string, cls?: string, txt?: string) {
-        const n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (txt != null) n.textContent = txt;
-        return n;
-      }
-
       function buildStoch(slide: HTMLElement) {
         if (slide.dataset.built === "1") return;
         const set = (sel: string, txt: string) => {
@@ -3060,7 +3050,7 @@ const baselineBlocks = BASELINE.length;
             if (ln.includes(hit)) {
               const [pre, post] = ln.split(hit);
               t.append(document.createTextNode(pre));
-              t.append(stochEl("b", undefined, hit));
+              t.append(el("b", undefined, hit));
               t.append(document.createTextNode(post));
             } else t.append(document.createTextNode(ln));
           });
@@ -3069,8 +3059,8 @@ const baselineBlocks = BASELINE.length;
         const heads = slide.querySelector<HTMLElement>("[data-stoch-lane-heads]");
         if (heads) {
           heads.textContent = "";
-          heads.append(stochEl("span", undefined, STOCH.TEXT.lanes.legit));
-          heads.append(stochEl("span", "bad", STOCH.TEXT.lanes.halluc));
+          heads.append(el("span", undefined, STOCH.TEXT.lanes.legit));
+          heads.append(el("span", "bad", STOCH.TEXT.lanes.halluc));
         }
 
         const wrap = slide.querySelector<HTMLElement>("[data-stoch-sorted]");
@@ -3078,19 +3068,19 @@ const baselineBlocks = BASELINE.length;
           wrap.textContent = "";
           STOCH.ANSWERS.forEach((a, i) => {
             const bad = a.kind !== "legit";
-            const card = stochEl("div", "card" + (bad ? " bad" : ""));
+            const card = el("div", "card" + (bad ? " bad" : ""));
             card.dataset.bad = bad ? "1" : "";
             // One slot, two occupants that never coexist: the rank bar while
             // the four are a pile, the category once they are sorted.
-            const slot = stochEl("div", "slot");
-            const bar = stochEl("span", "bar");
-            const fill = stochEl("i");
+            const slot = el("div", "slot");
+            const bar = el("span", "bar");
+            const fill = el("i");
             fill.style.setProperty("--r", Math.round(STOCH.RANK[i] * 100) + "%");
             bar.append(fill);
-            slot.append(bar, stochEl("span", "tag", STOCH.KINDS[a.kind]));
+            slot.append(bar, el("span", "tag", STOCH.KINDS[a.kind]));
             card.append(slot);
-            card.append(stochEl("p", undefined, a.text));
-            card.append(stochEl("span", "tell", a.tell));
+            card.append(el("p", undefined, a.text));
+            card.append(el("span", "tell", a.tell));
             card.style.transitionDelay = i * 80 + "ms";
             wrap.append(card);
           });
@@ -3175,36 +3165,29 @@ const baselineBlocks = BASELINE.length;
       //  and only a page load ever showed it move.
       // ══════════════════════════════════════════════════════════════════════
 
-      function halEl(tag: string, cls?: string, txt?: string) {
-        const n = document.createElement(tag);
-        if (cls) n.className = cls;
-        if (txt != null) n.textContent = txt;
-        return n;
-      }
-
       /** One branch block: the name, one sentence of cause, one of fix, and
        *  the small-type pointer at the chapter that owns the fix. */
       function halBranch(b: (typeof HAL.BRANCHES)[number]) {
-        const box = halEl("div", "halluc-branch");
+        const box = el("div", "halluc-branch");
         box.dataset.branch = b.key;
         // The name alone. A condition line here would only repeat what the
         // No/Yes on the diagram already says.
-        const k = halEl("span", "k");
-        k.append(halEl("span", undefined, b.name));
+        const k = el("span", "k");
+        k.append(el("span", undefined, b.name));
         box.append(k);
         // A newline starts a new paragraph; `backticks` inside one mark the
         // term set apart from the prose.
         b.cause.split("\n").forEach((para) => {
-          const p = halEl("p", "cause");
+          const p = el("p", "cause");
           para.split("`").forEach((part, i) => {
-            p.append(i % 2 ? halEl("em", "term", part) : document.createTextNode(part));
+            p.append(i % 2 ? el("em", "term", part) : document.createTextNode(part));
           });
           box.append(p);
         });
-        const fix = halEl("p", "fix");
-        fix.append(halEl("span", undefined, b.fix));
+        const fix = el("p", "fix");
+        fix.append(el("span", undefined, b.fix));
         box.append(fix);
-        if (b.forward) box.append(halEl("span", "fwd", b.forward));
+        if (b.forward) box.append(el("span", "fwd", b.forward));
         return box;
       }
 
