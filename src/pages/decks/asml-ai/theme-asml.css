@@ -472,14 +472,6 @@
 .scroll-step.finale h3 {
   color: var(--signal);
 }
-.scroll-hint {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--signal);
-  margin-bottom: 0.8rem;
-}
 
 /* ─────────────────────── Live tokenizer widget ── */
 .tokenizer {
@@ -504,44 +496,6 @@
   border-color: var(--signal);
   box-shadow: 0 0 0 3px #0066cc1f;
 }
-.tok-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.8rem;
-  margin-top: 1.2rem;
-}
-.tok-stat {
-  background: var(--card);
-  border: 1px solid var(--hair);
-  border-radius: 3px;
-  padding: 0.9rem 1rem;
-}
-.tok-stat .n {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  color: var(--navy);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.tok-stat.hot .n {
-  color: var(--orange);
-}
-.tok-stat .l {
-  display: block;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.66rem;
-  color: #00327d99;
-  margin-top: 0.4rem;
-}
-.tok-note {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: #00327d99;
-  margin-top: 0.9rem;
-}
 
 /* ─────────────────────── Animated data-viz (hand-rolled CSS/SVG) ── */
 .bars {
@@ -551,25 +505,6 @@
   flex-direction: column;
   gap: 0.9rem;
   margin-top: 0.5rem;
-}
-.bar-row {
-  display: grid;
-  grid-template-columns: 9.5rem 1fr;
-  align-items: center;
-  gap: 1rem;
-}
-.bar-label {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  color: var(--navy);
-  text-align: right;
-}
-.bar-track {
-  height: 2.6rem;
-  background: #0066cc12;
-  border-radius: 2px;
-  overflow: hidden;
 }
 .bar-fill {
   height: 100%;
@@ -585,13 +520,6 @@
   font-weight: 700;
   font-size: 1rem;
   transition: width 0.9s var(--ease);
-}
-.bar-row.hot .bar-fill {
-  background: var(--orange);
-}
-.viz-note {
-  font-size: 1rem;
-  margin-top: 1.4rem;
 }
 
 /* ─────────────── Interactive benchmark chart (DeepSWE v1.1) ── */
@@ -1185,27 +1113,6 @@
   box-shadow: var(--shadow);
   overflow: hidden;
 }
-.term-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.7rem 1rem;
-  background: #071a34;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: #7fb0e8;
-}
-.term-bar i {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.term-bar i:nth-child(1) { background: #ff6058; }
-.term-bar i:nth-child(2) { background: #ffbd2e; }
-.term-bar i:nth-child(3) { background: #28c840; }
-.term-bar .term-title { margin-left: 0.6rem; }
 .term-body {
   margin: 0;
   padding: 1.2rem 1.3rem;
@@ -1228,12 +1135,6 @@
 }
 @keyframes term-blink {
   50% { opacity: 0; }
-}
-.term-note {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: #00327d99;
-  margin-top: 0.9rem;
 }
 
 /* ═══════════════════════════ CINEMATIC KIT (3 named devices) ═══════ */
@@ -2375,30 +2276,6 @@
   border: 1px solid #ff6b0038;
   color: var(--navy);
   font-size: clamp(0.72rem, 1vw, 0.95rem);
-}
-
-/* The closing line: input was one kind of three. Same rule-and-rise treatment
-   as chapter 4's closing lines, because it does the same job — one sentence
-   under the evidence that hands the room to the next slide. */
-.tk-close-line {
-  margin-top: clamp(0.8rem, 2.5vh, 1.6rem);
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hair);
-}
-/* Dim the line with an alpha COLOUR, never with `opacity`: the fragment hides
-   itself with `opacity: 0` at the same specificity (see `.fragment.rise`), and
-   this rule sits later in the file, so an `opacity` here put the line on the
-   wall at slide entry — one click early. The alpha colour also lets the bold
-   half stay full-strength, which a parent `opacity` could never do. */
-.reveal .tk-close-line {
-  font-size: clamp(0.95rem, 1.55vw, 1.2rem);
-  font-weight: 500;
-  color: #1b1b1bbf;
-  max-width: 78ch;
-}
-.reveal .tk-close-line b {
-  color: var(--navy);
-  font-weight: 700;
 }
 
 /* ── The input-billing ladder ───────────────────────────────────────────
