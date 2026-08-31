@@ -10,16 +10,18 @@
  * on an arrow press, in one place, and cannot be wired to one event and
  * forgotten on the other.
  *
- * This is the expand half of an expand–contract refactor. At this commit the
- * registry is EMPTY and both `if` chains still own every Widget, so mounting
- * is a no-op the room cannot see. Widgets join the registry one ticket at a
- * time, each migration commit deleting exactly the branches it replaces, and
- * the chains are deleted once the registry holds all sixteen.
+ * This is the expand half of an expand–contract refactor. Both `if` chains are
+ * still alive and still own every Widget that has not moved, so the Deck is
+ * presentable at every commit. Widgets join the registry one ticket at a time,
+ * each migration commit deleting exactly the branches it replaces, and the
+ * chains are deleted once the registry holds all sixteen.
  *
  * The reveal.js event names live here, beside the contract that reads them,
  * so the rule "arrival calls `enter`, arrow press calls `sync`" has exactly
  * one home.
  */
+
+import { smartZoneWidget } from "./smart-zone.widget";
 
 /**
  * One Widget. Every member but `attr` is optional — a Widget that only lands
@@ -45,10 +47,10 @@ export type Widget = {
 };
 
 /**
- * The registry. Empty at this commit by design — see the header. Widgets are
- * appended here as they move out of the two `if` chains, smart zone first.
+ * The registry. Widgets are appended here as they move out of the two `if`
+ * chains, smart zone first.
  */
-export const WIDGETS: Widget[] = [];
+export const WIDGETS: Widget[] = [smartZoneWidget];
 
 /**
  * A reveal.js event payload, as much of one as this module reads. reveal ships
