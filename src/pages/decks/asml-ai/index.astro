@@ -1554,11 +1554,6 @@ const baselineBlocks = BASELINE.length;
         USD_PER_EUR,
       } from "../../../lib/asml-ai/rates";
       import { tokenize } from "../../../lib/asml-ai/tokenize";
-      import {
-        segSizer,
-        TURN_COUNT,
-        TOTAL_TOKENS,
-      } from "../../../lib/asml-ai/session";
       import * as STOCH from "../../../lib/asml-ai/stochastic";
       import * as HAL from "../../../lib/asml-ai/halluc";
       import * as RB from "../../../lib/asml-ai/roll-back";
@@ -2904,99 +2899,6 @@ const baselineBlocks = BASELINE.length;
           ?.addEventListener("click", () => selectPrimitive(slide, -1));
       });
 
-      /* ══════════ CHAPTER 03 (2nd half) — the session ═══════════════════
-         Three turns, three presses. The bar starts PRE-FILLED with the harness
-         baseline and grows downward; a bracket beside it spans everything sent
-         on this turn, which is everything above the fill line.
-
-         The turn is DERIVED from reveal's fragment state, never counted — that
-         is what makes stepping back and re-entering replay correctly. There is
-         NO other state: the sweep that once ran over the bar on a forward press
-         is gone (Atil, 2026-08-27), and with it the last-painted-turn bookkeep
-         it needed. The bracket carries the re-send on its own.
-         ────────────────────────────────────────────────────────────────────── */
-
-      function paintSession(slide: HTMLElement, turn: number) {
-        slide.querySelectorAll<HTMLElement>("[data-se-row]").forEach((row) => {
-          row.classList.toggle("is-on", Number(row.dataset.seRow) <= turn);
-        });
-
-        const col = slide.querySelector<HTMLElement>("[data-se-column]");
-        if (!col) return;
-
-        // Heights are solved against THIS frame, in pixels, so the pixel floor
-        // under the small blocks is part of the sum rather than an error added
-        // on top of it — and the floor itself shrinks on a short frame, so the
-        // document never collapses to the height of a one-line turn. See
-        // segSizer() in lib/asml-ai/session.ts.
-        const sizeOf = segSizer(col.clientHeight);
-        let fill = 0;
-        col.querySelectorAll<HTMLElement>("[data-se-seg]").forEach((seg) => {
-          // Baseline segments carry .base and are never switched off — the
-          // session is part full before anyone types, which is half the lesson.
-          const on =
-            seg.classList.contains("base") ||
-            Number(seg.dataset.seSegTurn) <= turn;
-          const h = sizeOf(
-            Number(seg.dataset.seSegTokens),
-            seg.dataset.seSegKind as any,
-          );
-          seg.classList.toggle("is-on", on);
-          seg.style.height = on ? `${h}px` : "0px";
-          if (on) fill += h;
-        });
-
-        // Both of these are the SAME sum the loop just made, so the bracket
-        // cannot drift from the fill and the hairline cannot drift from the
-        // top of the conversation — no reading of a layout mid-transition.
-        const hair = slide.querySelector<HTMLElement>("[data-se-hairline]");
-        if (hair) {
-          const segs = [...col.querySelectorAll<HTMLElement>("[data-se-seg]")];
-          const base = segs
-            .slice(0, Number(hair.dataset.seBaseline))
-            .reduce(
-              (n, sg) =>
-                n + sizeOf(Number(sg.dataset.seSegTokens), sg.dataset.seSegKind as any),
-              0,
-            );
-          hair.style.top = `${Math.round(base)}px`;
-        }
-
-        const bracket = slide.querySelector<HTMLElement>("[data-se-bracket]");
-        if (bracket) {
-          // At rest (turn -1) no Turn has happened, so the bracket is absent —
-          // the bar is pre-filled, but nothing has been SENT yet.
-          bracket.classList.toggle("is-on", turn >= 0);
-          bracket.style.height = `${Math.round(fill)}px`;
-        }
-      }
-
-      function syncSession(slide: HTMLElement) {
-        const shown = slide.querySelectorAll(
-          "[data-se-frag-row] .fragment.visible",
-        ).length;
-        paintSession(slide, shown - 1);
-      }
-
-      // The bracket is a pixel height, so a resized window (or a projector at a
-      // different aspect) has to re-measure it, not just rescale it.
-      let sessionResize = 0;
-      window.addEventListener("resize", () => {
-        window.clearTimeout(sessionResize);
-        sessionResize = window.setTimeout(() => {
-          document
-            .querySelectorAll<HTMLElement>("[data-session]")
-            .forEach(syncSession);
-        }, 150);
-      });
-
-      // Sanity net for the figure the slide's whole argument rests on: the
-      // pasted document has to stay the great majority of what is on screen.
-      if (import.meta.env.DEV && TOTAL_TOKENS !== 16425)
-        console.warn("session model drifted — re-check the document's share");
-      if (import.meta.env.DEV && TURN_COUNT !== 3)
-        console.warn("session turn count drifted from the slide three presses");
-
       // ══════════════════════════════════════════════════════════════════════
       //  Chapter 2 — the hallucination slide (#35). Two frames: the slide
       //  opens on four answers in one centred pile, and folds ONCE into two
@@ -3263,11 +3165,6 @@ const baselineBlocks = BASELINE.length;
         // the fragment state, so it lands right entering from either side.
         if (slide.hasAttribute("data-token-live")) renderLive();
         if (slide.hasAttribute("data-cost-dial")) resetDial();
-        // Chapter 3's session island reads reveal's fragment state on entry,
-        // so it replays from fragment 0 forwards and from the last fragment
-        // backwards. Its neighbour, the primitives island, has moved to the
-        // registry.
-        if (slide.hasAttribute("data-session")) syncSession(slide);
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
@@ -3294,7 +3191,6 @@ const baselineBlocks = BASELINE.length;
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-token-live")) renderLive();
-        if (section?.hasAttribute("data-session")) syncSession(section);
         if (section?.hasAttribute("data-ch5-step")) syncCh5Step(section);
         if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);
       }

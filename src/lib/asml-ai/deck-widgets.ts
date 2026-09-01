@@ -44,6 +44,7 @@
  */
 
 import { primitivesWidget } from "./primitives.widget";
+import { sessionWidget } from "./session.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
 
 /**
@@ -73,7 +74,11 @@ export type Widget = {
  * The registry. Widgets are appended here as they move out of the two `if`
  * chains, smart zone first.
  */
-export const WIDGETS: Widget[] = [primitivesWidget, smartZoneWidget];
+export const WIDGETS: Widget[] = [
+  primitivesWidget,
+  sessionWidget,
+  smartZoneWidget,
+];
 
 /**
  * A reveal.js event payload, as much of one as this module reads. reveal ships
