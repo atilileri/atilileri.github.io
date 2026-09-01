@@ -5063,7 +5063,11 @@
    test bar is orange and the passing one is blue, and BOTH carry a word.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* The counters are state carriers, never content. Reveal advances on them. */
+/* The counters are state carriers, never content. Reveal advances on them.
+   They sit in a Fragment row, which is the element a Widget's `fragSel` names
+   (#113); `.ch5-step` is the older, un-rowed spelling and goes with the last
+   Slide still using it. */
+.reveal .ch5-step-row,
 .reveal .ch5-step {
   position: absolute;
   width: 0;
