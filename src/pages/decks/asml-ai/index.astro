@@ -2880,30 +2880,12 @@ const baselineBlocks = BASELINE.length;
       }
 
       /* ══════════ CHAPTER 03 (2nd half) — context primitives ══════════════
-         Fragment index selects the block: -1 is the summary panel, 0-7 pick a
-         block. That makes the clicker's → walk the eight blocks with no custom
-         binding, and clicking a block simply navigates to its fragment — so
-         pointer and clicker share one state and can never disagree. ────── */
-
-      function paintPrimitives(slide: HTMLElement, index: number) {
-        slide.querySelectorAll<HTMLElement>("[data-prim-block]").forEach((b) => {
-          const on = Number(b.dataset.primBlock) === index;
-          b.classList.toggle("is-on", on);
-          b.setAttribute("aria-pressed", String(on));
-        });
-        const key = index < 0 ? "summary" : String(index);
-        slide
-          .querySelectorAll<HTMLElement>("[data-prim-card]")
-          .forEach((c) => c.classList.toggle("is-on", c.dataset.primCard === key));
-        slide.classList.toggle("has-selection", index >= 0);
-      }
-
-      function syncPrimitives(slide: HTMLElement) {
-        const shown = slide.querySelectorAll(
-          "[data-prim-frag-row] .fragment.visible",
-        ).length;
-        paintPrimitives(slide, shown - 1);
-      }
+         The Widget itself has moved to lib/asml-ai/primitives.widget.ts (#112).
+         What stays here is the one thing a Widget module cannot do: navigate
+         the Deck. Clicking a block moves reveal to that block's fragment and
+         paints nothing, so pointer and clicker share one state and can never
+         disagree — and `init` in the Widget contract is handed no reveal.js
+         instance to do it with. ─────────────────────────────────────────── */
 
       /** Move reveal to the fragment that selects `index` (-1 = summary). */
       function selectPrimitive(slide: HTMLElement, index: number) {
@@ -3281,9 +3263,10 @@ const baselineBlocks = BASELINE.length;
         // the fragment state, so it lands right entering from either side.
         if (slide.hasAttribute("data-token-live")) renderLive();
         if (slide.hasAttribute("data-cost-dial")) resetDial();
-        // Chapter 3's two islands read reveal's fragment state on entry, so
-        // they replay from fragment 0 forwards and from the last fragment backwards.
-        if (slide.hasAttribute("data-primitives")) syncPrimitives(slide);
+        // Chapter 3's session island reads reveal's fragment state on entry,
+        // so it replays from fragment 0 forwards and from the last fragment
+        // backwards. Its neighbour, the primitives island, has moved to the
+        // registry.
         if (slide.hasAttribute("data-session")) syncSession(slide);
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
@@ -3311,7 +3294,6 @@ const baselineBlocks = BASELINE.length;
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-token-live")) renderLive();
-        if (section?.hasAttribute("data-primitives")) syncPrimitives(section);
         if (section?.hasAttribute("data-session")) syncSession(section);
         if (section?.hasAttribute("data-ch5-step")) syncCh5Step(section);
         if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);
