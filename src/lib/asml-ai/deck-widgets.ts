@@ -43,6 +43,7 @@
  * belongs in its own ticket, after the chains are gone.
  */
 
+import { countFragments } from "./dom";
 import { primitivesWidget } from "./primitives.widget";
 import { sessionWidget } from "./session.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
@@ -75,9 +76,9 @@ export type Widget = {
  * chains, smart zone first.
  */
 export const WIDGETS: Widget[] = [
+  smartZoneWidget,
   primitivesWidget,
   sessionWidget,
-  smartZoneWidget,
 ];
 
 /**
@@ -120,9 +121,7 @@ const FRAGMENT_EVENTS = ["fragmentshown", "fragmenthidden"] as const;
  * count, which would be a wrong number dressed as a right one.
  */
 function countShown(widget: Widget, slide: HTMLElement): number {
-  if (!widget.fragSel) return 0;
-  const row = slide.querySelector(widget.fragSel);
-  return row ? row.querySelectorAll(".fragment.visible").length : 0;
+  return widget.fragSel ? countFragments(slide, widget.fragSel) : 0;
 }
 
 /** Every registered Widget whose Slide attribute `slide` carries. */

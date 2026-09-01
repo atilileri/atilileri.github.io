@@ -14,8 +14,9 @@
  * Two of the three helpers below build an element and set it up in one
  * expression. That is the whole reason they exist: a Widget that builds a
  * diagram writes one line per node instead of four, so the shape of the
- * diagram is readable in the code that draws it. The third, `q`, is the
- * element lookup every Widget wants.
+ * diagram is readable in the code that draws it. The other two — `q` and
+ * `countFragments` — are the element lookup and the Fragment-row count every
+ * Widget wants.
  */
 
 /**
@@ -33,6 +34,24 @@ export function q(root: HTMLElement, sel: string): HTMLElement {
   const node = root.querySelector<HTMLElement>(sel);
   if (!node) throw new Error(`no element matches ${sel}`);
   return node;
+}
+
+/**
+ * How many Fragments are visible inside `sel`, the Fragment row named by a
+ * Widget's `fragSel`.
+ *
+ * NEVER a count of `.fragment.visible` across the whole Slide: a Slide holds
+ * Fragments that belong to no Widget — a Closing line, a callout — so that
+ * number would be wrong. The count is always taken INSIDE the row.
+ *
+ * The registry counts this for every Widget it calls `sync` on. It lives here,
+ * and not there, because the session Widget's `resize` handler is not a reveal
+ * event, so it is handed no number and has to count the same row itself — and
+ * the rule above deserves one home rather than two.
+ */
+export function countFragments(slide: HTMLElement, sel: string): number {
+  const row = slide.querySelector(sel);
+  return row ? row.querySelectorAll(".fragment.visible").length : 0;
 }
 
 /**
