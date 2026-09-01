@@ -19,15 +19,15 @@
  * `shown`, which is what makes arriving from the left and arriving from the
  * right land on the same picture, and what makes `sync` idempotent.
  *
- * WHAT DID NOT MOVE, AND WHY. The click binding — the listeners on the blocks
- * and on the `← clear` button — is still in the Deck's page file. It navigates
- * with `deck.getIndices` and `deck.slide`, and the contract hands a Widget no
- * reveal.js instance: `init` takes no arguments (ADR 0002). Moving it here
- * would mean changing the contract, which is a decision this migration ticket
- * does not carry. It is the one Widget in the Deck that navigates the Deck.
+ * THIS IS THE WIDGET THAT NAVIGATES THE DECK, and the only one. Clicking a
+ * block does not paint: it moves the room to that block's Fragment and lets
+ * `sync` paint from there, which is why the pointer and the clicker can never
+ * disagree. Doing that needs the reveal.js instance, so `init` is handed one.
+ * The contract was widened for this Widget alone; every other `init` may
+ * ignore the argument.
  */
 
-import type { Widget } from "./deck-widgets";
+import type { RevealApi, Widget } from "./deck-widgets";
 
 /**
  * The primitives Widget: the eight blocks of a context window, one lit at a
@@ -36,6 +36,29 @@ import type { Widget } from "./deck-widgets";
 export const primitivesWidget: Widget = {
   attr: "data-primitives",
   fragSel: "[data-prim-frag-row]",
+
+  /**
+   * Bind the pointer to the same state the clicker drives. A click on a block
+   * moves the room to that block's Fragment; `← clear` returns to the summary
+   * card at Fragment -1. Neither paints — `sync` does, once reveal has moved.
+   */
+  init(deck: RevealApi): void {
+    const select = (slide: HTMLElement, index: number): void => {
+      const at = deck.getIndices(slide);
+      deck.slide(at.h, at.v, index);
+    };
+
+    document.querySelectorAll<HTMLElement>("[data-primitives]").forEach((slide) => {
+      slide.querySelectorAll<HTMLElement>("[data-prim-block]").forEach((block) =>
+        block.addEventListener("click", () =>
+          select(slide, Number(block.dataset.primBlock)),
+        ),
+      );
+      slide
+        .querySelector("[data-prim-clear]")
+        ?.addEventListener("click", () => select(slide, -1));
+    });
+  },
 
   sync(slide: HTMLElement, shown: number): void {
     // -1 is the summary panel, 0-7 pick a block.

@@ -2874,31 +2874,6 @@ const baselineBlocks = BASELINE.length;
         renderDial(undefined, true);
       }
 
-      /* ══════════ CHAPTER 03 (2nd half) — context primitives ══════════════
-         The Widget itself has moved to lib/asml-ai/primitives.widget.ts (#112).
-         What stays here is the one thing a Widget module cannot do: navigate
-         the Deck. Clicking a block moves reveal to that block's fragment and
-         paints nothing, so pointer and clicker share one state and can never
-         disagree — and `init` in the Widget contract is handed no reveal.js
-         instance to do it with. ─────────────────────────────────────────── */
-
-      /** Move reveal to the fragment that selects `index` (-1 = summary). */
-      function selectPrimitive(slide: HTMLElement, index: number) {
-        const idx = deck.getIndices(slide);
-        deck.slide(idx.h, idx.v, index);
-      }
-
-      document.querySelectorAll<HTMLElement>("[data-primitives]").forEach((slide) => {
-        slide.querySelectorAll<HTMLElement>("[data-prim-block]").forEach((b) =>
-          b.addEventListener("click", () =>
-            selectPrimitive(slide, Number(b.dataset.primBlock)),
-          ),
-        );
-        slide
-          .querySelector("[data-prim-clear]")
-          ?.addEventListener("click", () => selectPrimitive(slide, -1));
-      });
-
       // ══════════════════════════════════════════════════════════════════════
       //  Chapter 2 — the hallucination slide (#35). Two frames: the slide
       //  opens on four answers in one centred pile, and folds ONCE into two
