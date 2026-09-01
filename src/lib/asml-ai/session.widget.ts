@@ -30,7 +30,7 @@
  */
 
 import type { Widget } from "./deck-widgets";
-import { q } from "./dom";
+import { countFragments, q } from "./dom";
 import {
   segSizer,
   TOTAL_TOKENS,
@@ -38,7 +38,13 @@ import {
   type BlockKind,
 } from "./session";
 
-/** This Widget's Fragment row: one Fragment per Turn. */
+/**
+ * This Widget's Fragment row: one Fragment per Turn.
+ *
+ * It is a const here, where the other migrated Widgets write their `fragSel`
+ * inline, because this one has a SECOND reader: the resize handler is not a
+ * reveal event, so it is handed no `shown` and counts the row itself.
+ */
 const FRAG_ROW = "[data-se-frag-row]";
 
 /** How long to wait for a resize to stop before re-measuring. */
@@ -70,16 +76,18 @@ function paint(slide: HTMLElement, turn: number): void {
 
   const col = q(slide, "[data-se-column]");
   const sizeOf = segSizer(col.clientHeight);
+  /** One segment's height in this frame, from the numbers the markup carries. */
+  const heightOf = (seg: HTMLElement) =>
+    sizeOf(Number(seg.dataset.seSegTokens), seg.dataset.seSegKind as BlockKind);
+
+  const segs = [...col.querySelectorAll<HTMLElement>("[data-se-seg]")];
   let fill = 0;
-  col.querySelectorAll<HTMLElement>("[data-se-seg]").forEach((seg) => {
+  segs.forEach((seg) => {
     // Baseline segments carry .base and are never switched off — the session
     // is part full before anyone types, which is half the lesson.
     const on =
       seg.classList.contains("base") || Number(seg.dataset.seSegTurn) <= turn;
-    const h = sizeOf(
-      Number(seg.dataset.seSegTokens),
-      seg.dataset.seSegKind as BlockKind,
-    );
+    const h = heightOf(seg);
     seg.classList.toggle("is-on", on);
     seg.style.height = on ? `${h}px` : "0px";
     if (on) fill += h;
@@ -89,14 +97,9 @@ function paint(slide: HTMLElement, turn: number): void {
   // drift from the fill and the hairline cannot drift from the top of the
   // conversation — no reading of a layout mid-transition.
   const hair = q(slide, "[data-se-hairline]");
-  const segs = [...col.querySelectorAll<HTMLElement>("[data-se-seg]")];
   const base = segs
     .slice(0, Number(hair.dataset.seBaseline))
-    .reduce(
-      (n, sg) =>
-        n + sizeOf(Number(sg.dataset.seSegTokens), sg.dataset.seSegKind as BlockKind),
-      0,
-    );
+    .reduce((n, sg) => n + heightOf(sg), 0);
   hair.style.top = `${Math.round(base)}px`;
 
   const bracket = q(slide, "[data-se-bracket]");
@@ -104,18 +107,6 @@ function paint(slide: HTMLElement, turn: number): void {
   // is pre-filled, but nothing has been SENT yet.
   bracket.classList.toggle("is-on", turn >= 0);
   bracket.style.height = `${Math.round(fill)}px`;
-}
-
-/**
- * How many of this Slide's own Fragments are visible.
- *
- * The registry counts this for `sync` and passes the number. The resize
- * handler below is not a reveal event, so it has no number to be handed and
- * counts the same row itself.
- */
-function shownOn(slide: HTMLElement): number {
-  const row = slide.querySelector(FRAG_ROW);
-  return row ? row.querySelectorAll(".fragment.visible").length : 0;
 }
 
 /**
@@ -134,7 +125,7 @@ export const sessionWidget: Widget = {
       resizeTimer = window.setTimeout(() => {
         document
           .querySelectorAll<HTMLElement>("[data-session]")
-          .forEach((slide) => paint(slide, shownOn(slide) - 1));
+          .forEach((slide) => paint(slide, countFragments(slide, FRAG_ROW) - 1));
       }, RESIZE_SETTLE_MS);
     });
 
