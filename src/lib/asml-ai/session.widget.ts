@@ -30,7 +30,7 @@
  */
 
 import type { Widget } from "./deck-widgets";
-import { countFragments, q } from "./dom";
+import { countFragments, q, slidesWith } from "./dom";
 import {
   segSizer,
   TOTAL_TOKENS,
@@ -45,6 +45,9 @@ import {
  * inline, because this one has a SECOND reader: the resize handler is not a
  * reveal event, so it is handed no `shown` and counts the row itself.
  */
+/** The Slide attribute this Widget answers to. Named once, used twice. */
+const ATTR = "data-session";
+
 const FRAG_ROW = "[data-se-frag-row]";
 
 /** How long to wait for a resize to stop before re-measuring. */
@@ -113,7 +116,7 @@ function paint(slide: HTMLElement, turn: number): void {
  * The session Widget: everything, every turn.
  */
 export const sessionWidget: Widget = {
-  attr: "data-session",
+  attr: ATTR,
   fragSel: FRAG_ROW,
 
   init(): void {
@@ -123,9 +126,9 @@ export const sessionWidget: Widget = {
     window.addEventListener("resize", () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
-        document
-          .querySelectorAll<HTMLElement>("[data-session]")
-          .forEach((slide) => paint(slide, countFragments(slide, FRAG_ROW) - 1));
+        slidesWith(ATTR).forEach((slide) =>
+          paint(slide, countFragments(slide, FRAG_ROW) - 1),
+        );
       }, RESIZE_SETTLE_MS);
     });
 

@@ -1,7 +1,7 @@
 /**
  * The DOM helpers more than one Widget uses. Spec #106, ADR 0002.
  *
- * The Deck's sixteen Widgets are moving out of one inline `<script>` into one
+ * The Deck's fifteen Widgets are moving out of one inline `<script>` into one
  * module each. A Widget module must never import from another Widget module —
  * that would put a Slide's behaviour back into a shared scope under a new
  * name. So the handful of helpers that two or more Widgets genuinely share
@@ -11,12 +11,11 @@
  * used by exactly one Widget stays with that Widget and travels in its own
  * migration commit; moving it here first would only move it twice.
  *
- * Two of the three helpers below build an element and set it up in one
+ * There are four. `el` and `svgEl` build an element and set it up in one
  * expression. That is the whole reason they exist: a Widget that builds a
  * diagram writes one line per node instead of four, so the shape of the
- * diagram is readable in the code that draws it. The other two — `q` and
- * `countFragments` — are the element lookup and the Fragment-row count every
- * Widget wants.
+ * diagram is readable in the code that draws it. `q` is the element lookup
+ * and `countFragments` is the Fragment-row count every Widget wants.
  */
 
 /**
@@ -52,6 +51,24 @@ export function q(root: HTMLElement, sel: string): HTMLElement {
 export function countFragments(slide: HTMLElement, sel: string): number {
   const row = slide.querySelector(sel);
   return row ? row.querySelectorAll(".fragment.visible").length : 0;
+}
+
+/**
+ * Every Slide in the Deck carrying `attr`, the Slide attribute a Widget
+ * answers to.
+ *
+ * `init` runs once at startup, before reveal has moved anywhere, so a Widget
+ * that binds a listener or re-measures on resize cannot be handed a Slide by
+ * the registry the way `sync` and `enter` are. It has to find its own, and
+ * every such Widget walks the document for the same attribute it already
+ * declares as `attr`. That walk lives here rather than being written out once
+ * per Widget.
+ *
+ * The Deck renders one Slide per attribute today, but this returns a list: a
+ * Slide attribute is markup, and nothing stops a second Slide carrying one.
+ */
+export function slidesWith(attr: string): HTMLElement[] {
+  return [...document.querySelectorAll<HTMLElement>(`[${attr}]`)];
 }
 
 /**

@@ -28,13 +28,17 @@
  */
 
 import type { RevealApi, Widget } from "./deck-widgets";
+import { slidesWith } from "./dom";
+
+/** The Slide attribute this Widget answers to. Named once, used twice. */
+const ATTR = "data-primitives";
 
 /**
  * The primitives Widget: the eight blocks of a context window, one lit at a
  * time.
  */
 export const primitivesWidget: Widget = {
-  attr: "data-primitives",
+  attr: ATTR,
   fragSel: "[data-prim-frag-row]",
 
   /**
@@ -48,7 +52,7 @@ export const primitivesWidget: Widget = {
       deck.slide(at.h, at.v, index);
     };
 
-    document.querySelectorAll<HTMLElement>("[data-primitives]").forEach((slide) => {
+    slidesWith(ATTR).forEach((slide) => {
       slide.querySelectorAll<HTMLElement>("[data-prim-block]").forEach((block) =>
         block.addEventListener("click", () =>
           select(slide, Number(block.dataset.primBlock)),
