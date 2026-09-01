@@ -111,6 +111,21 @@ lines exist.
   ran. So the Deck has **fifteen** live Widgets, not sixteen, and the migration
   is fifteen commits.
 
+- **A missing element throws, and that is a decision, not a tidy.** The shared
+  lookup `q` throws when its selector matches nothing. Migrating the session
+  Widget turned three silent guards — `if (!col) return;` and two more — into
+  that throw, and the independent review of #112 was right to call it a
+  behaviour change folded into a move. It is accepted rather than reverted, for
+  the reason `dom.ts` already gives: a Widget's selectors name elements the
+  Slide's markup ALWAYS carries, so a miss is a broken Slide rather than a state
+  to paint around, and a throw reports it where it happened instead of failing
+  later somewhere else. All three elements exist today, so nothing the room sees
+  differs. The cost is real and is recorded here: with the mount loop
+  deliberately unguarded, a missing element now stops the Widgets after this one
+  on that Slide, where before it half-painted in silence. Later migrations may
+  use `q` the same way; use `slide.querySelector` directly for an element that
+  is genuinely optional.
+
 - **The benchmark chart keeps its eager draw.** `data-bench` draws at startup,
   before its Slide is ever seen, and it is the one Widget that appears in neither
   `if` chain. Under this ADR it draws from `init`, at the same moment as today.
