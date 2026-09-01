@@ -19,6 +19,27 @@
  * The reveal.js event names live here, beside the contract that reads them,
  * so the rule "arrival calls `enter`, arrow press calls `sync`" has exactly
  * one home.
+ *
+ * WRITING A WIDGET MODULE — three rules the migration tickets must keep.
+ *
+ * 1. Import the contract as `import type { Widget }`. This module imports the
+ *    Widget and the Widget imports the contract, so the two point at each
+ *    other. A type import erases at build, which is the only reason the cycle
+ *    is harmless. One value import back to this module makes it a real cycle.
+ *
+ * 2. A helper that a second Widget needs goes to `./dom.ts`. Promote it there
+ *    the moment the second caller appears — never copy it. The Deck's element
+ *    lookup `q` is the one every Widget wants, and six copies of it is the
+ *    duplication this whole refactor exists to remove.
+ *
+ * 3. A migration commit records the walk in its body: whether the 67 states
+ *    passed, and that no golden was updated. That is the only evidence the
+ *    move changed nothing the room can see.
+ *
+ * A throw inside a Widget stops the Widgets after it on that Slide. That is
+ * what the `if` chains do today, so the registry keeps it. Guarding the mount
+ * loop would be an improvement, and an improvement is a behaviour change; it
+ * belongs in its own ticket, after the chains are gone.
  */
 
 import { smartZoneWidget } from "./smart-zone.widget";
