@@ -63,8 +63,16 @@ export type Widget = {
    * visible Fragments in it.
    */
   fragSel?: string;
-  /** Runs once at startup. One-time listeners and handle lookups. */
-  init?: () => void;
+  /**
+   * Runs once at startup. One-time listeners and handle lookups.
+   *
+   * It is handed the reveal.js instance, because one Widget navigates the
+   * Deck: clicking a context-primitives block moves the room to that block's
+   * Fragment rather than painting anything itself, so the pointer and the
+   * clicker share one state and can never disagree. A Widget that only
+   * attaches listeners can ignore the argument.
+   */
+  init?: (deck: RevealApi) => void;
   /** The room arrived. Replay Widgets restart here. */
   enter?: (slide: HTMLElement) => void;
   /** Arrival or arrow press. Derive everything from `shown`. Idempotent. */
@@ -92,12 +100,19 @@ type RevealEvent = {
 };
 
 /**
- * The reveal.js instance, as much of it as this module uses. Named for reveal
- * and not for the Deck: the Deck is the whole presentation, this is the
- * library object that drives it.
+ * The reveal.js instance, as much of it as this module and the Widgets use.
+ * Named for reveal and not for the Deck: the Deck is the whole presentation,
+ * this is the library object that drives it.
+ *
+ * Exported because `init` is handed one. Add a member when a Widget needs it,
+ * and only then — this is a description of what we use, not of reveal's API.
  */
-type RevealApi = {
+export type RevealApi = {
   on: (type: string, listener: (event: RevealEvent) => void) => void;
+  /** Where `slide` sits: `h` across the Deck, `v` down a stack, `f` Fragment. */
+  getIndices: (slide: HTMLElement) => { h: number; v: number; f?: number };
+  /** Move the room to a Slide, and to a Fragment within it. */
+  slide: (h: number, v?: number, f?: number) => void;
 };
 
 /** Arrival on a Slide: reveal fires one of these, never both, for one arrival. */
@@ -140,7 +155,7 @@ function widgetsOn(slide: HTMLElement): Widget[] {
  *   the left and entering it from the right land on the same picture.
  */
 export function mountWidgets(deck: RevealApi): void {
-  for (const widget of WIDGETS) widget.init?.();
+  for (const widget of WIDGETS) widget.init?.(deck);
 
   for (const type of ARRIVAL_EVENTS) {
     deck.on(type, (event) => {
