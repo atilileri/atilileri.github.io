@@ -2,7 +2,7 @@
  * The Widget contract and the registry that mounts it. Spec #106, ADR 0002.
  *
  * A Widget is the interactive part of one Slide. Today reveal.js reaches the
- * Deck's sixteen Widgets through two long chains of `if` in the Deck's inline
+ * Deck's fifteen Widgets through two long chains of `if` in the Deck's inline
  * `<script>` — one that runs when the room arrives on a Slide, one that runs
  * when the room presses an arrow — and nothing makes the two chains agree
  * about a Widget. This module replaces both chains with a registry: a Widget
@@ -14,13 +14,13 @@
  * still alive and still own every Widget that has not moved, so the Deck is
  * presentable at every commit. Widgets join the registry one ticket at a time,
  * each migration commit deleting exactly the branches it replaces, and the
- * chains are deleted once the registry holds all sixteen.
+ * chains are deleted once the registry holds all fifteen.
  *
  * The reveal.js event names live here, beside the contract that reads them,
  * so the rule "arrival calls `enter`, arrow press calls `sync`" has exactly
  * one home.
  *
- * WRITING A WIDGET MODULE — three rules the migration tickets must keep.
+ * WRITING A WIDGET MODULE — four rules the migration tickets must keep.
  *
  * 1. Import the contract as `import type { Widget }`. This module imports the
  *    Widget and the Widget imports the contract, so the two point at each
@@ -31,9 +31,16 @@
  *    the moment the second caller appears — never copy it. The Deck's element
  *    lookup `q` is the one every Widget wants, and six copies of it is the
  *    duplication this whole refactor exists to remove; it made the move on
- *    its second caller and lives in `./dom.ts` now.
+ *    its second caller and lives in `./dom.ts` now. `slidesWith` made the
+ *    same move for the same reason: a Widget whose `init` binds a listener has
+ *    to find its own Slides, because `init` is handed none.
  *
- * 3. A migration commit records the walk in its body: whether the 67 states
+ * 3. Name the Slide attribute ONCE, as a module `const`, and use it for both
+ *    `attr` and any `slidesWith` call. A Widget that writes the attribute
+ *    twice can be renamed in one place and left broken in the other, and
+ *    nothing would catch it.
+ *
+ * 4. A migration commit records the walk in its body: whether the 67 states
  *    passed, and that no golden was updated. That is the only evidence the
  *    move changed nothing the room can see.
  *
