@@ -11,10 +11,11 @@
  * decision rather than a number is documented there. Read that header before
  * changing what the room sees.
  *
- * Four Fragments were designed and two are in the markup: the Fragment row
- * holds two, so `shown` runs 0 → 2 and the three states run turn 1 → turn 10
- * → turn 20. The Closing line is SPOKEN (Atil, 2026-08-25); the Widget never
- * shows it, so there is no further Fragment.
+ * The Fragment row holds two Fragments, so `shown` runs 0 → 2 and the room
+ * walks the three states: turn 1, turn 10, turn 20. On each press the session
+ * fills, the blocks lose their colour, the brief loses a line, and the gauge
+ * stays correct. The Closing line is SPOKEN (Atil, 2026-08-25) — the Widget
+ * never shows it, so there is no further Fragment.
  *
  * The Widget holds NO state of its own. Every pixel is derived from `shown`,
  * which is what makes arriving from the left and arriving from the right land
