@@ -1933,54 +1933,6 @@ const baselineBlocks = BASELINE.length;
       tokInput?.addEventListener("input", updateTokens);
       updateTokens();
 
-      // ── Terminal / CLI replay (deterministic) ─────────────────────
-      const replay: { t: string; d: number; cls?: string; type?: boolean }[] = [
-        { t: "$ ", d: 250 },
-        { t: "claude /wayfinder issue-13\n", d: 40, type: true },
-        { t: "→ claiming ticket · assigning @atilileri\n", d: 420, cls: "sig" },
-        { t: "→ building the exemplary showcase\n", d: 360, cls: "sig" },
-        { t: "  ✓ hero   ✓ scrollytelling   ✓ tokenizer\n", d: 300, cls: "ok" },
-        { t: "  ✓ data-viz   ✓ code demo   ✓ terminal\n", d: 300, cls: "ok" },
-        { t: "  ✓ sub-slides ✓ chapter wash  ✓ one-number\n", d: 300, cls: "ok" },
-        { t: "→ astro build … static, no server\n", d: 460, cls: "sig" },
-        { t: "  ✓ dist/ ready for GitHub Pages\n", d: 360, cls: "ok" },
-        { t: "$ ", d: 250 },
-      ];
-      let termTimer: number | undefined;
-      function playTerminal(slide: HTMLElement) {
-        const body = slide.querySelector<HTMLElement>("[data-term-body]");
-        if (!body) return;
-        if (termTimer) clearTimeout(termTimer);
-        body.innerHTML = "";
-        let i = 0;
-        const step = () => {
-          if (i >= replay.length) {
-            body.insertAdjacentHTML("beforeend", '<span class="term-cursor">&nbsp;</span>');
-            return;
-          }
-          const { t, d, cls, type } = replay[i++];
-          if (type) {
-            let c = 0;
-            const typeChar = () => {
-              if (c < t.length) {
-                body.append(t[c++]);
-                termTimer = window.setTimeout(typeChar, 42);
-              } else {
-                termTimer = window.setTimeout(step, d);
-              }
-            };
-            typeChar();
-          } else {
-            const span = document.createElement("span");
-            if (cls) span.className = cls;
-            span.textContent = t;
-            body.appendChild(span);
-            termTimer = window.setTimeout(step, d);
-          }
-        };
-        step();
-      }
-
       // ── Interactive benchmark chart (DeepSWE v1.1) ────────────────
       // Hand-rolled SVG — no charting library, so the deck palette reaches
       // inside the chart. Two views over one dataset: a cost/pass-rate scatter
@@ -3112,7 +3064,6 @@ const baselineBlocks = BASELINE.length;
           window.setTimeout(() => growBars(slide), 160);
         }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
-        if (slide.hasAttribute("data-terminal")) playTerminal(slide);
         // Chapter 3's stop-point lands whole — no build, so entering it from
         // either side shows the same finished chart.
         if (slide.hasAttribute("data-stop")) buildStop(slide);
