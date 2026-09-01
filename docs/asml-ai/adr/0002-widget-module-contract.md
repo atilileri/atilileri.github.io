@@ -42,8 +42,11 @@ the data module it already reads, and it exports one object:
 - **`attr`** — the Slide attribute this Widget answers to, such as `data-smartzone`.
 - **`fragSel`** — the selector for this Widget's Fragment row. The caller counts
   with it and passes the number.
-- **`init`** — runs once at startup. It owns one-time setup: the six Widgets that
-  attach listeners the room drives directly, and the two `resize` handlers.
+- **`init(deck)`** — runs once at startup. It owns one-time setup: the six
+  Widgets that attach listeners the room drives directly, and the two `resize`
+  handlers. It is handed the reveal.js instance, because one Widget navigates
+  the Deck; every other `init` ignores the argument. This ADR first gave `init`
+  no arguments, and the primitives Widget could not move under that signature.
 - **`enter(slide)`** — the room arrived. The three replay Widgets restart here.
 - **`sync(slide, shown)`** — the room pressed an arrow, or arrived. Draw the state
   for `shown` Fragments. It derives everything from `shown` and is idempotent.
@@ -53,15 +56,17 @@ the data module it already reads, and it exports one object:
 to reveal's `ready`, `slidechanged`, `fragmentshown` and `fragmenthidden`. The
 reveal event names sit in the same module as the contract that reads them.
 
-Shared DOM helpers move to `src/lib/asml-ai/dom.ts`. `stochEl` and `halEl` were
-the same function with a different default; they collapse into `el`.
+Shared DOM helpers move to `src/lib/asml-ai/dom.ts`. `stochEl` and `halEl` are
+byte-identical apart from their names — this ADR first said they differed in a
+default, which was wrong — and they collapse into `el`.
 
 `index.astro` keeps the Chrome, the Wash, the laser, the notes overlay,
 `armHeadline`, and one call to `mountWidgets`. It drops from 3 565 lines to about
 1 700.
 
-The migration runs as sixteen commits, one Widget each, with both `if` chains
-alive until the last one. `data-smartzone` goes first — one `sync`, one
+The migration runs as one commit per Widget — sixteen when this ADR was
+written, fifteen once the terminal replay proved unreachable and was deleted
+rather than moved — with both `if` chains alive until the last one. `data-smartzone` goes first — one `sync`, one
 `fragSel`, no listeners, no timers — because it proves the contract on the
 easiest case. One Playwright walk of every Slide and every Fragment, forward and
 backward, is written before the first commit and run after each one.
@@ -87,15 +92,24 @@ lines exist.
 
 ## Consequences
 
-- **There is no `leave`, and three Widgets run timers.** The count-up, the
-  terminal replay and the cost dial's glow each hold a timer in a module-scope
-  variable. This looks like a leak and is not one. All three stop themselves —
-  after 900 ms, about 4 seconds, and 900 ms — and each is cancelled by the next
-  entry to its own Slide. The behaviour is correct today. One real cost remains:
-  the terminal writes into a hidden element for about four seconds during a Slide
-  transition, and reveal.js keeps every Slide in the document. That is a
-  performance nicety, not a defect, and it does not buy a fourth member. Add
-  `leave` when a Widget needs teardown that entry cannot do.
+- **There is no `leave`, and two Widgets run timers.** The count-up and the cost
+  dial's glow each hold a timer in a module-scope variable. This looks like a
+  leak and is not one. Both stop themselves, after about 900 ms, and each is
+  cancelled by the next entry to its own Slide. The behaviour is correct today,
+  and it does not buy a fourth member. Add `leave` when a Widget needs teardown
+  that entry cannot do.
+
+  This ADR first counted three timers and named the terminal replay's four-second
+  write into a hidden Slide as the one real cost. That cost does not exist: no
+  Slide in this Deck carries `data-terminal`, so the controller never runs.
+
+- **The terminal replay is deleted, not migrated.** It came with the code this
+  Deck was copied from and no Slide ever used it. Its branch in `onShow`, its
+  replay table, its timer and its one line of a grouped CSS rule go; the other
+  four selectors in that rule stay. The showcase Deck has its own copy on its
+  own Slide and is untouched. The 67 goldens cannot move, because the code never
+  ran. So the Deck has **fifteen** live Widgets, not sixteen, and the migration
+  is fifteen commits.
 
 - **The benchmark chart keeps its eager draw.** `data-bench` draws at startup,
   before its Slide is ever seen, and it is the one Widget that appears in neither
@@ -113,9 +127,13 @@ lines exist.
   per-Widget habit. **Fragment row** was returned to the glossary on the same day
   as this ADR for that reason: the concept became load-bearing in code.
 
-- **Three Widgets declare no `fragSel`.** `data-stoch`, `data-lottery` and
-  `data-token-live` read a `.visible` flag on one named element rather than
-  counting a row. They read it in their own `sync`. A count of
+- **Three Widgets declare no `fragSel`, and receive `shown === 0`.**
+  `data-stoch`, `data-lottery` and `data-token-live` read a `.visible` flag on
+  one named element rather than counting a row. They read it in their own
+  `sync` and ignore `shown`. Zero, rather than no argument at all, so the
+  declared `sync(slide, shown: number)` stays honest at runtime; zero rather
+  than a whole-Slide count, which would be a wrong number dressed as a right
+  one. A count of
   `.fragment.visible` across the whole Slide would be wrong for them, and wrong
   for the three row-driven Widgets as well, because a Slide holds Fragments that
   are not part of any Widget.
