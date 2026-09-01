@@ -97,7 +97,6 @@
 /* Content-heavy slides top-align: centering would clip a tall block (code,
    terminal, tokenizer) off the top edge, hiding the eyebrow + headline. */
 .reveal section.code,
-.reveal section[data-terminal],
 .reveal section[data-tokenizer],
 .reveal section[data-token-live],
 .reveal section[data-cost-dial] {
@@ -1102,40 +1101,6 @@
 .reveal .hljs-ln-numbers { color: #b6c2d4; user-select: none; }
 /* reveal dims non-highlighted lines; brighten the focused row */
 .reveal .hljs .highlight-line { background: #0066cc14; }
-
-/* ─────────────────────── Terminal / CLI replay ── */
-.terminal {
-  width: 100%;
-  max-width: 60rem;
-  background: #041024;
-  border: 1px solid var(--hair);
-  border-radius: 4px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.term-body {
-  margin: 0;
-  padding: 1.2rem 1.3rem;
-  font-family: var(--font-mono);
-  font-size: clamp(0.78rem, 1.2vw, 1rem);
-  line-height: 1.6;
-  color: #d7e6f7;
-  min-height: 15rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.term-body .ok { color: #35d07f; }
-.term-body .sig { color: #4aa8ff; }
-.term-body .amber { color: #ffbd2e; }
-.term-cursor {
-  display: inline-block;
-  width: 0.55em;
-  background: var(--orange);
-  animation: term-blink 1s steps(2) infinite;
-}
-@keyframes term-blink {
-  50% { opacity: 0; }
-}
 
 /* ═══════════════════════════ CINEMATIC KIT (3 named devices) ═══════ */
 
@@ -3314,7 +3279,6 @@
     transform: none;
     transition: none;
   }
-  .term-cursor { animation: none; }
   .reveal section.alt-bands .band::before { transition: none; }
   .reveal section.alt-stack ul.stack > li.visible { transition: none; }
   .lot-dot, .lot-zone, .lot-trace { transition: none; }
