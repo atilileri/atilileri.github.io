@@ -50,6 +50,7 @@
  * belongs in its own ticket, after the chains are gone.
  */
 
+import { ch5StepWidget } from "./ch5-step.widget";
 import { countFragments } from "./dom";
 import { primitivesWidget } from "./primitives.widget";
 import { sessionWidget } from "./session.widget";
@@ -94,6 +95,7 @@ export const WIDGETS: Widget[] = [
   smartZoneWidget,
   primitivesWidget,
   sessionWidget,
+  ch5StepWidget,
 ];
 
 /**

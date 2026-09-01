@@ -1227,9 +1227,11 @@ const baselineBlocks = BASELINE.length;
               </div>
             </div>
 
-            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+            <div class="ch5-step-row" data-ch5-step-row aria-hidden="true">
+              <span class="fragment" data-fragment-index="1"></span>
+              <span class="fragment" data-fragment-index="2"></span>
+              <span class="fragment" data-fragment-index="3"></span>
+            </div>
           </section>
 
           <!-- 5.2.4 — .ch5-cut -->
@@ -1300,9 +1302,11 @@ const baselineBlocks = BASELINE.length;
               </p>
             </div>
 
-            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+            <div class="ch5-step-row" data-ch5-step-row aria-hidden="true">
+              <span class="fragment" data-fragment-index="1"></span>
+              <span class="fragment" data-fragment-index="2"></span>
+              <span class="fragment" data-fragment-index="3"></span>
+            </div>
           </section>
 
           <!-- 5.2.5 — .ch5-imp -->
@@ -1363,10 +1367,12 @@ const baselineBlocks = BASELINE.length;
               </div>
             </div>
 
-            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="4" aria-hidden="true"></span>
+            <div class="ch5-step-row" data-ch5-step-row aria-hidden="true">
+              <span class="fragment" data-fragment-index="1"></span>
+              <span class="fragment" data-fragment-index="2"></span>
+              <span class="fragment" data-fragment-index="3"></span>
+              <span class="fragment" data-fragment-index="4"></span>
+            </div>
           </section>
 
           <!-- 5.2.6 — .ch5-rev -->
@@ -1433,9 +1439,11 @@ const baselineBlocks = BASELINE.length;
               </p>
             </div>
 
-            <span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
-            <span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+            <div class="ch5-step-row" data-ch5-step-row aria-hidden="true">
+              <span class="fragment" data-fragment-index="1"></span>
+              <span class="fragment" data-fragment-index="2"></span>
+              <span class="fragment" data-fragment-index="3"></span>
+            </div>
           </section>
 
           <!-- 5.2.7 — .ch5-slide -->
@@ -3095,10 +3103,9 @@ const baselineBlocks = BASELINE.length;
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
         }
-        // Chapter 5's stack. Same contract again: both islands re-derive
+        // Chapter 5's stack. Same contract again: the island re-derives
         // everything from the fragment count, so entering from either
         // direction lands on the right state.
-        if (slide.hasAttribute("data-ch5-step")) syncCh5Step(slide);
         if (slide.hasAttribute("data-wayfinder")) syncWayfinder(slide);
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
@@ -3117,40 +3124,15 @@ const baselineBlocks = BASELINE.length;
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-token-live")) renderLive();
-        if (section?.hasAttribute("data-ch5-step")) syncCh5Step(section);
         if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
 
       // The registry side of the same dispatch. It owns the Widgets that have
-      // moved into their own modules — the smart zone so far — and the two
-      // chains above own the rest until each one follows.
+      // moved into their own modules — chapter 5's step Widget is the fourth —
+      // and the two chains above own the rest until each one follows.
       mountWidgets(deck);
-
-      /* ══════════════════════════════════════════════════════════════════════
-       *  CHAPTER 5 — the four picture Slides in the stack (#105).
-       *
-       *  `questions`, `slices`, `implement` and `review` all draw a picture
-       *  that CHANGES ON EVERY PRESS, and none of them needs data: the whole
-       *  difference is which state the CSS is in. So one function serves all
-       *  four — it counts the Slide's visible `.ch5-step` fragments and writes
-       *  the number to `data-step`, and every picture rule keys off that.
-       *
-       *  WHY INVISIBLE COUNTERS RATHER THAN FRAGMENTS ON THE PICTURE ITSELF:
-       *  a picture state is rarely "one more element appears" — the test bar
-       *  TURNS, the holes FILL, the hourglass NARROWS. Those are transitions
-       *  between states, and a state is far easier to write as one CSS rule
-       *  per step than as a pile of elements that fade over each other.
-       *
-       *  Holds no state of its own, so ← walks every picture back exactly.
-       * ═══════════════════════════════════════════════════════════════════ */
-
-      function syncCh5Step(slide: HTMLElement) {
-        slide.dataset.step = String(
-          slide.querySelectorAll(".ch5-step.visible").length,
-        );
-      }
 
       /* ══════════════════════════════════════════════════════════════════════
        *  CHAPTER 5 — the `wayfinder` Slide's map (#98 comp E, built by #105).
