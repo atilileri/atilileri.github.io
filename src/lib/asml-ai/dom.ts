@@ -11,11 +11,29 @@
  * used by exactly one Widget stays with that Widget and travels in its own
  * migration commit; moving it here first would only move it twice.
  *
- * Both helpers below build an element and set it up in one expression. That is
- * the whole reason they exist: a Widget that builds a diagram writes one line
- * per node instead of four, so the shape of the diagram is readable in the
- * code that draws it.
+ * Two of the three helpers below build an element and set it up in one
+ * expression. That is the whole reason they exist: a Widget that builds a
+ * diagram writes one line per node instead of four, so the shape of the
+ * diagram is readable in the code that draws it. The third, `q`, is the
+ * element lookup every Widget wants.
  */
+
+/**
+ * One element of a Slide, by selector. Throws when nothing matches.
+ *
+ * A Widget's selectors name elements the Slide's markup ALWAYS carries, so a
+ * miss is a broken Slide rather than a state to paint around, and this throws
+ * where it happened instead of failing later somewhere else. The selector is
+ * in the message because a Widget's selectors are its own — `[data-se-column]`
+ * says the session Slide as surely as a Widget name would.
+ *
+ * Use `slide.querySelector` directly for an element that is genuinely optional.
+ */
+export function q(root: HTMLElement, sel: string): HTMLElement {
+  const node = root.querySelector<HTMLElement>(sel);
+  if (!node) throw new Error(`no element matches ${sel}`);
+  return node;
+}
 
 /**
  * Build an HTML element, optionally with a class and text.
