@@ -23,21 +23,8 @@
  */
 
 import type { Widget } from "./deck-widgets";
-import { el } from "./dom";
+import { el, q } from "./dom";
 import { HARD, PALE, PALETTE, SOFT, STATES, WINDOW } from "./smart-zone";
-
-/**
- * One of this Widget's own elements, by selector.
- *
- * Every selector below names an element the Slide's markup always carries, so
- * a miss is a broken Slide rather than a state to paint around, and it throws
- * where it happened instead of failing later somewhere else.
- */
-function q(slide: HTMLElement, sel: string): HTMLElement {
-  const node = slide.querySelector<HTMLElement>(sel);
-  if (!node) throw new Error(`smart zone: no element matches ${sel}`);
-  return node;
-}
 
 /**
  * A position along the tank, as a percentage.

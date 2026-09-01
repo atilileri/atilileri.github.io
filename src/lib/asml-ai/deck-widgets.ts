@@ -30,7 +30,8 @@
  * 2. A helper that a second Widget needs goes to `./dom.ts`. Promote it there
  *    the moment the second caller appears — never copy it. The Deck's element
  *    lookup `q` is the one every Widget wants, and six copies of it is the
- *    duplication this whole refactor exists to remove.
+ *    duplication this whole refactor exists to remove; it made the move on
+ *    its second caller and lives in `./dom.ts` now.
  *
  * 3. A migration commit records the walk in its body: whether the 67 states
  *    passed, and that no golden was updated. That is the only evidence the
