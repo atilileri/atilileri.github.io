@@ -22,6 +22,11 @@ export default defineConfig({
   reporter: [["list"]],
   timeout: 20 * 60 * 1000,
   expect: {
+    // A screenshot assertion retries until the frame settles. 30s is the cap
+    // per state; it belongs here, on `expect`, not inside `toHaveScreenshot`,
+    // which takes no `timeout` and silently ignored it until `astro check`
+    // caught the mistake.
+    timeout: 30_000,
     // Bit-identical was tried first and does not hold. Two sources of noise
     // survive every amount of settling, and both were checked by eye against
     // the diff before this number was chosen:
@@ -37,7 +42,7 @@ export default defineConfig({
     // 1200 covers both with headroom. It is 0.08% of a 1600x900 frame, and a
     // Widget painting the wrong Fragment state moves pixels by the tens of
     // thousands, so this buys quiet without buying blindness.
-    toHaveScreenshot: { maxDiffPixels: 1200, timeout: 30_000 },
+    toHaveScreenshot: { maxDiffPixels: 1200 },
   },
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
