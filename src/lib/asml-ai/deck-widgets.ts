@@ -43,6 +43,7 @@
  * belongs in its own ticket, after the chains are gone.
  */
 
+import { primitivesWidget } from "./primitives.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
 
 /**
@@ -72,7 +73,7 @@ export type Widget = {
  * The registry. Widgets are appended here as they move out of the two `if`
  * chains, smart zone first.
  */
-export const WIDGETS: Widget[] = [smartZoneWidget];
+export const WIDGETS: Widget[] = [primitivesWidget, smartZoneWidget];
 
 /**
  * A reveal.js event payload, as much of one as this module reads. reveal ships
