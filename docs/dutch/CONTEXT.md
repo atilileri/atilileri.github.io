@@ -44,3 +44,15 @@ _Avoid_: Dictionary, lexicon, vocabulary list — the lexicon belongs to Items.
 
 **Reference**:
 A compressed, topic-shaped cheat sheet — a conjugation table, a word-order rule — revised in place rather than written once per Session.
+
+**Profile**:
+The standing description of who the learner is — work, life, sport, taste, people, and Dutch so far. Public, current-state, and revised in place. It shapes the colour of every Session; it never decides what is taught.
+_Avoid_: Bio, persona, about-me, memory
+
+**Scenario**:
+A recurring situation in the learner's life that needs Dutch, held in one library. It links to Plan objectives and carries a register; it never states an objective of its own. A Scenario is never consumed.
+_Avoid_: Use-case, situation card, role-play
+
+**Theme**:
+The subject a Session is dressed in. It is chosen by a fixed priority — the theme the learner types, then an open intake issue, then a Scenario. A Theme decorates the next Plan objective and never replaces it.
+_Avoid_: Topic, context, subject
