@@ -88,7 +88,7 @@ import * as HAL_TEXT from "../../../lib/asml-ai/halluc";
 import TurnCard from "../../../components/deck/TurnCard.astro";
 
 /**
- * Chapter 4's cache slide (#56). Static — no widget, no island, and since
+ * Chapter 4's cache Slide (#56). Static — no Widget, no client script, and since
  * 2026-08-26 no numbers of its own either: the two price tags (100k re-read at
  * 5 credits against a 100k rebuild at 62.5) came off the wall on Atil's call,
  * and with them the derived constants that used to sit here.
@@ -2393,13 +2393,17 @@ const baselineBlocks = BASELINE.length;
       deck.on("fragmentshown", (e: any) => onFragment(e));
       deck.on("fragmenthidden", (e: any) => onFragment(e));
 
-      // The registry side of the same dispatch. It owns the ten Widgets that
-      // have moved into their own modules. Of the two chains above, only the
-      // entry chain still owns anything; the arrow-press chain is empty. Both
-      // go in #118, once the last Widget follows.
+      // The registry side of the same dispatch. It owns every Widget that has
+      // moved into its own module; `WIDGETS` in `deck-widgets.ts` is the list,
+      // and reading it there beats a number here that has to be re-edited.
       //
-      // ⚠ THIS COUNT GOES STALE ON EVERY MIGRATION COMMIT. Two reviews have
-      // caught it already. Re-read it whenever a Widget moves.
+      // Of the two chains above, only the entry chain still owns anything; the
+      // arrow-press chain is empty. Both go in #118, once the last Widget
+      // follows.
+      //
+      // This comment carried a count until #115. It went stale on all three
+      // migration commits before it and three reviews caught it, which is what
+      // a fact duplicated next to its source does.
       mountWidgets(deck);
     </script>
   </body>

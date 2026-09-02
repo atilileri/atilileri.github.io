@@ -2493,7 +2493,9 @@
 
 /* ═══════════════════════════════════════════════════════════════════════
    CHAPTER 03, second half — "Where the tokens go." (wayfinder #28)
-   Two islands: the context primitives and the session.
+   Two Widgets: the context primitives and the session. Both are modules now
+   (#111, #112). The glossary asks for Widget, never island — island is
+   Astro's word for a build concern, not for what the room sees.
    Both are vanilla — no runtime, no charting library; the bars and strata are
    plain CSS boxes driven by inline widths/heights from the model.
    ═══════════════════════════════════════════════════════════════════════ */

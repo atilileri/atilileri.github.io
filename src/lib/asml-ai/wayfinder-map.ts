@@ -9,7 +9,7 @@
  *
  * Nine tickets move between four columns across four steps, and two of them
  * arrive mid-walk. Written as markup that is four hand-kept copies of the same
- * board; written as data it is one table the island reads. `pipeline.ts` holds
+ * board; written as data it is one table the Widget reads. `pipeline.ts` holds
  * the Rail's seven Stops for the same reason.
  *
  * ══ WHAT IS LOCKED HERE — do not relitigate in the Slide's markup ══

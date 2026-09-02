@@ -38,6 +38,13 @@ export const USD_PER_EUR = 1.08;
 export const eurOfAic = (aic: number) => (aic * 0.01) / USD_PER_EUR;
 
 /**
+ * Dollars to euro. The stop-point Widget prices a curve whose costs are in
+ * dollars; it lives here beside the rate rather than in that Widget, so the
+ * next Widget that prices in dollars finds it instead of copying it (#115).
+ */
+export const eurOfUsd = (usd: number) => usd / USD_PER_EUR;
+
+/**
  * Decimals for a euro figure: two at or above EUR 1, otherwise as many as it
  * takes to show two significant figures, capped at four. No figure ever reads
  * "EUR 0.00" for a non-zero amount — needing more than four decimals means the
