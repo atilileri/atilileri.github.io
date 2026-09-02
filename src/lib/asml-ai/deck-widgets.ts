@@ -53,6 +53,7 @@
  * belongs in its own ticket, after the chains are gone.
  */
 
+import { benchWidget } from "./bench.widget";
 import { ch5StepWidget } from "./ch5-step.widget";
 import { countUpWidget } from "./count-up.widget";
 import { countFragments } from "./dom";
@@ -113,6 +114,7 @@ export const WIDGETS: Widget[] = [
   stopPointWidget,
   hallucWidget,
   countUpWidget,
+  benchWidget,
 ];
 
 /**
