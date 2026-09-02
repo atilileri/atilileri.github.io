@@ -472,30 +472,6 @@
   color: var(--signal);
 }
 
-/* ─────────────────────── Live tokenizer widget ── */
-.tokenizer {
-  width: 100%;
-  max-width: 60rem;
-}
-.tok-input {
-  width: 100%;
-  min-height: 5.5rem;
-  resize: vertical;
-  font-family: var(--font-body);
-  font-size: 1.15rem;
-  line-height: 1.5;
-  color: var(--ink);
-  background: var(--card);
-  border: 1px solid var(--hair);
-  border-radius: 3px;
-  padding: 1rem 1.2rem;
-  outline: none;
-}
-.tok-input:focus {
-  border-color: var(--signal);
-  box-shadow: 0 0 0 3px #0066cc1f;
-}
-
 /* ─────────────────────── Animated data-viz (hand-rolled CSS/SVG) ── */
 .bars {
   width: 100%;
