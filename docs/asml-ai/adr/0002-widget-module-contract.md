@@ -209,3 +209,37 @@ lines exist.
   each `sync` into a pure `stateAt(n)` and a `paint` would let a test assert that
   forward and backward entry agree. That is a separate change and it depends on
   this one for its shape.
+
+- **The input-billing ladder is not a Widget, and it stays in the page file.**
+  Naming it here because the migration's last ticket counts what is left in the
+  inline `<script>`, and this is the one piece of Chapter 3 behaviour that is
+  not Chrome and not a Widget. It is an IIFE that writes four figures into the
+  vocabulary Slide's markup once, at load. It answers to no Slide attribute, it
+  binds no listener, and it never had a branch in either chain, so the registry
+  has nothing to offer it: `attr` would be a fiction and `init` would only move
+  the same one-shot write to a later line of the same synchronous script. It
+  belongs with the markup it fills, and it goes when that markup becomes a
+  component — the deferred change at the top of this ADR, not this one.
+
+- **Both `if` chains own nothing after #117, so #118 is a deletion.** The cost
+  dial's `resetDial` was the entry chain's last Widget branch. What `onShow`
+  still does — `armHeadline`, `updateChrome`, the Wash on `data-chapter`, and
+  the notes overlay — is Chrome: it runs on every Slide unconditionally, so a
+  registry buys it nothing, and this ADR always meant it to stay. The
+  arrow-press chain has been empty since #114.
+
+- **The benchmark chart's eager draw survived the move, and it was measured.**
+  The chart drew at module scope before; it draws from `init`, at
+  `mountWidgets`, now — later in the same synchronous script, and still before
+  reveal fires anything. `fitPlot` measures the plot's real box at that moment:
+  it writes a viewBox height of 528, not the 560 default it falls back to when
+  the element has no layout yet. So the timing question this ADR refused to
+  re-open stayed closed, and the answer is recorded rather than assumed.
+
+- **The walk cannot press a chip or drag a knob, and the two eager Widgets are
+  mostly pointer.** The 67-state walk proves the Deck paints the same picture,
+  which is what a move has to prove; it reaches no chip click, no hover tip, no
+  resize redraw, no knob drag and no bill-row click. Those were driven once by
+  hand under Playwright while #117 was open, and the run is recorded on that
+  issue. A committed spec for them is worth having and is not part of a move:
+  it is a new assertion about behaviour, so it gets its own ticket.
