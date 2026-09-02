@@ -76,8 +76,10 @@ import * as SZ from "../../../lib/asml-ai/smart-zone";
 // that is a decision rather than markup lives in src/lib — read that file's
 // header before changing what is on screen here.
 import * as RB from "../../../lib/asml-ai/roll-back";
-// Chapter 2's two islands. Their eyebrow and headline are painted by the
-// controller at the bottom of this file, but the headline is ALSO rendered
+// Chapter 2's two Widgets. Their eyebrow and headline are painted by their
+// own modules — `lib/asml-ai/stochastic.widget.ts` (#114) and
+// `lib/asml-ai/halluc.widget.ts` (#115), not by a controller at the bottom of
+// this file any more — but the headline is ALSO rendered
 // server-side below: the roadmap divider builds its contents list from the
 // real <h2> of each slide, and an empty one would leave a hole in the list.
 import * as STOCH_TEXT from "../../../lib/asml-ai/stochastic";
@@ -1563,12 +1565,11 @@ const baselineBlocks = BASELINE.length;
       // The DeepSWE leaderboard, read by the benchmark chart below and by
       // chapter 3's stop-point Widget (#115, spec #106, ADR 0002).
       import { CURVES, type Curve, type Pt } from "../../../lib/asml-ai/curves";
-      import * as HAL from "../../../lib/asml-ai/halluc";
       import * as RB from "../../../lib/asml-ai/roll-back";
       // The DOM helpers more than one Widget uses (#110, spec #106, ADR 0002).
       // They are imported rather than closed over, so that a Widget moving
       // into its own module never has to import from another Widget.
-      import { el, svgEl } from "../../../lib/asml-ai/dom";
+      import { svgEl } from "../../../lib/asml-ai/dom";
       // The Widget contract and its registry (#109, spec #106, ADR 0002).
       // Mounted beside the two `if` chains below, which still own every Widget
       // that has not moved; each Widget joins the registry one ticket at a
@@ -2359,101 +2360,6 @@ const baselineBlocks = BASELINE.length;
         renderDial(undefined, true);
       }
 
-      // ══════════════════════════════════════════════════════════════════════
-      //  Chapter 2 — the hallucination diagnosis (#41). ONE fragment: the slide
-      //  has no fragments, because arriving on it IS the interaction. It is
-      //  built once, painted once, and REPLAYED by the deck's own `.is-live`
-      //  (armHeadline drops the class from every section, forces a reflow and
-      //  re-adds it to the live slide), exactly as the rings slide does.
-      //
-      //  Do not put the replay on a timer or a rAF: an earlier version did,
-      //  and it ran the animation against reveal's slide transition instead
-      //  of after it, so arrowing onto the slide landed on a finished diagram
-      //  and only a page load ever showed it move.
-      // ══════════════════════════════════════════════════════════════════════
-
-      /** One branch block: the name, one sentence of cause, one of fix, and
-       *  the small-type pointer at the chapter that owns the fix. */
-      function halBranch(b: (typeof HAL.BRANCHES)[number]) {
-        const box = el("div", "halluc-branch");
-        box.dataset.branch = b.key;
-        // The name alone. A condition line here would only repeat what the
-        // No/Yes on the diagram already says.
-        const k = el("span", "k");
-        k.append(el("span", undefined, b.name));
-        box.append(k);
-        // A newline starts a new paragraph; `backticks` inside one mark the
-        // term set apart from the prose.
-        b.cause.split("\n").forEach((para) => {
-          const p = el("p", "cause");
-          para.split("`").forEach((part, i) => {
-            p.append(i % 2 ? el("em", "term", part) : document.createTextNode(part));
-          });
-          box.append(p);
-        });
-        const fix = el("p", "fix");
-        fix.append(el("span", undefined, b.fix));
-        box.append(fix);
-        if (b.forward) box.append(el("span", "fwd", b.forward));
-        return box;
-      }
-
-      function buildHalluc(slide: HTMLElement) {
-        if (slide.dataset.built === "1") return;
-        const set = (sel: string, txt: string) => {
-          const n = slide.querySelector<HTMLElement>(sel);
-          if (n) n.textContent = txt;
-        };
-        set("[data-halluc-eyebrow]", HAL.TEXT.eyebrow);
-        set("[data-halluc-headline]", HAL.TEXT.headline);
-        set("[data-halluc-close-line]", HAL.TEXT.closeLine);
-        // The hinge is set on two lines in the SVG: it is the longest string
-        // on the diagram and one line would set the viewBox's width.
-        const cut = HAL.HINGE.lastIndexOf(" ", HAL.HINGE.length / 2 + 6);
-        set("[data-fork-hinge-1]", HAL.HINGE.slice(0, cut));
-        set("[data-fork-hinge-2]", HAL.HINGE.slice(cut + 1));
-        // The nodes keep the BARE names — "hallucinations" is understood from
-        // the root node three rows above, and would not fit anyway.
-        set("[data-fork-name-1]", HAL.BRANCHES[0].key.toUpperCase());
-        set("[data-fork-name-2]", HAL.BRANCHES[1].key.toUpperCase());
-        set("[data-fork-route-1]", HAL.BRANCHES[0].edge);
-        set("[data-fork-route-2]", HAL.BRANCHES[1].edge);
-        set("[data-fork-fixed]", HAL.TEXT.fixed);
-
-        // Dash length per edge, measured — hand-computed lengths drift the
-        // moment a coordinate moves.
-        slide.querySelectorAll<SVGPathElement>(".fork .edge").forEach((p) => {
-          p.style.setProperty("--len", p.getTotalLength() + "px");
-        });
-
-        const wrap = slide.querySelector<HTMLElement>("[data-halluc-branches]");
-        if (wrap) {
-          wrap.textContent = "";
-          HAL.BRANCHES.forEach((b) => wrap.append(halBranch(b)));
-        }
-        slide.dataset.built = "1";
-
-        // Force a reflow before lighting anything, so the FIRST visit
-        // animates too: without it the cards are created and lit inside one
-        // task, the browser computes style once, and it lands straight on the
-        // final values.
-        void slide.offsetWidth;
-        paintHalluc(slide);
-      }
-
-      /** Paint the finished state once. The CSS holds it at the opening state
-       *  while the section is not `.is-live`, which is what makes every entry
-       *  replay without anything being scheduled here. */
-      function paintHalluc(slide: HTMLElement) {
-        slide.classList.add("is-done");
-        slide
-          .querySelectorAll<HTMLElement>(".halluc-branch")
-          .forEach((n) => n.classList.add("is-lit", "is-fixed"));
-        slide
-          .querySelectorAll<SVGElement>(".fork .edge, .fork .head, .fork .g")
-          .forEach((n) => n.classList.add("is-drawn"));
-      }
-
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
@@ -2464,9 +2370,6 @@ const baselineBlocks = BASELINE.length;
           window.setTimeout(() => growBars(slide), 160);
         }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
-        // Chapter 2's diagnosis slide: built once, then replayed by the
-        // `.is-live` armHeadline already added at the top of this function.
-        if (slide.hasAttribute("data-halluc")) buildHalluc(slide);
         if (slide.hasAttribute("data-cost-dial")) resetDial();
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
@@ -2490,7 +2393,7 @@ const baselineBlocks = BASELINE.length;
       deck.on("fragmentshown", (e: any) => onFragment(e));
       deck.on("fragmenthidden", (e: any) => onFragment(e));
 
-      // The registry side of the same dispatch. It owns the nine Widgets that
+      // The registry side of the same dispatch. It owns the ten Widgets that
       // have moved into their own modules. Of the two chains above, only the
       // entry chain still owns anything; the arrow-press chain is empty. Both
       // go in #118, once the last Widget follows.
