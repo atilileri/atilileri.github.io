@@ -70,7 +70,8 @@ default, which was wrong — and they collapse into `el`.
 1 700.
 
 The migration runs as one commit per Widget — sixteen when this ADR was
-written, fifteen once the terminal replay proved unreachable and was deleted
+written, fourteen once the terminal replay and the scrolly both proved
+unreachable and were deleted
 rather than moved — with both `if` chains alive until the last one. `data-smartzone` goes first — one `sync`, one
 `fragSel`, no listeners, no timers — because it proves the contract on the
 easiest case. One Playwright walk of every Slide and every Fragment, forward and
@@ -113,8 +114,9 @@ lines exist.
   replay table, its timer and its one line of a grouped CSS rule go; the other
   four selectors in that rule stay. The showcase Deck has its own copy on its
   own Slide and is untouched. The 67 goldens cannot move, because the code never
-  ran. So the Deck has **fifteen** live Widgets, not sixteen, and the migration
-  is fifteen commits.
+  ran. So the Deck has **fourteen** live Widgets, not sixteen, and the
+  migration is fourteen commits — see the scrolly entry below, which took the
+  count down again for the same reason.
 
 - **A missing element throws, and that is a decision, not a tidy.** The shared
   lookup `q` throws when its selector matches nothing. Migrating the session
@@ -130,6 +132,29 @@ lines exist.
   on that Slide, where before it half-painted in silence. Later migrations may
   use `q` the same way; use `slide.querySelector` directly for an element that
   is genuinely optional.
+
+- **The scrolly Widget is deleted, not migrated.** This is the terminal replay
+  again, found the same way and answered the same way. `data-scrolly`,
+  `data-scroll-frame` and `data-scroll-step` appear nowhere in this Deck's
+  markup — only in an `onShow` branch that can never fire, a module-scope walk
+  that creates zero `IntersectionObserver`s, and seven theme rules with nothing
+  to match. The Deck it belongs to is `showcase-for-asml`, which renders the
+  Slide, owns its own copy of the code and its own theme file, and is out of
+  scope everywhere.
+
+  Unlike the second tokenizer, which had no branch at all, this one DID sit in
+  the entry chain, so it was one of the counted Widgets. Deleting it takes the
+  Deck from fifteen to **fourteen**, exactly as deleting the terminal replay
+  took it from sixteen to fifteen. #115's two scrolly acceptance criteria, and
+  its premise that the Widget "resets its frame's scroll position on arrival"
+  and "owns an observer that needs `init`", describe the showcase Deck and are
+  retired rather than unmet.
+
+  THE PATTERN IS NOW THREE DEEP, and worth naming for whoever migrates next:
+  this Deck was copied from the showcase and inherited behaviour for Slides it
+  never built. A migration ticket is where that surfaces, because moving code
+  forces someone to find the markup it drives. Check the markup exists before
+  reasoning about how a Widget should move.
 
 - **The benchmark chart keeps its eager draw.** `data-bench` draws at startup,
   before its Slide is ever seen, and it is the one Widget that appears in neither

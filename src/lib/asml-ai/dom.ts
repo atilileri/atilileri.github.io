@@ -1,7 +1,7 @@
 /**
  * The DOM helpers more than one Widget uses. Spec #106, ADR 0002.
  *
- * The Deck's fifteen Widgets are moving out of one inline `<script>` into one
+ * The Deck's fourteen Widgets are moving out of one inline `<script>` into one
  * module each. A Widget module must never import from another Widget module —
  * that would put a Slide's behaviour back into a shared scope under a new
  * name. So the handful of helpers that two or more Widgets genuinely share
