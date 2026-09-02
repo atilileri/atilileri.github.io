@@ -11,13 +11,12 @@
  * forgotten on the other.
  *
  * This is the expand half of an expand–contract refactor. Both `if` chains are
- * still alive and still own every Widget that has not moved, so the Deck is
- * presentable at every commit. Widgets join the registry one ticket at a time,
- * each migration commit deleting exactly the branches it replaces, and the
- * chains are deleted once the registry holds them all. No count is written
- * here: four of the sixteen this refactor started with turned out to be dead
- * code, and a number beside the list goes stale on the commit that finds the
- * next one. `WIDGETS` below is the list.
+ * still alive, so the Deck was presentable at every commit, but since #117
+ * neither holds a Widget branch: every Widget is in `WIDGETS` below, and #118
+ * deletes the chains. No count is written here: four of the sixteen this
+ * refactor started with turned out to be dead code, and a number beside the
+ * list goes stale on the commit that finds the next one. `WIDGETS` below is
+ * the list.
  *
  * The reveal.js event names live here, beside the contract that reads them,
  * so the rule "arrival calls `enter`, arrow press calls `sync`" has exactly
@@ -55,6 +54,7 @@
 
 import { benchWidget } from "./bench.widget";
 import { ch5StepWidget } from "./ch5-step.widget";
+import { costDialWidget } from "./cost-dial.widget";
 import { countUpWidget } from "./count-up.widget";
 import { countFragments } from "./dom";
 import { hallucWidget } from "./halluc.widget";
@@ -115,6 +115,7 @@ export const WIDGETS: Widget[] = [
   hallucWidget,
   countUpWidget,
   benchWidget,
+  costDialWidget,
 ];
 
 /**

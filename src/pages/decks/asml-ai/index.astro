@@ -1553,20 +1553,20 @@ const baselineBlocks = BASELINE.length;
     </div>
 
     <script>
+      // Read by the input-billing ladder below, the last inline user of them:
+      // the cost dial took `eurDecimals` and `fmtAicWhole` with it (#117).
       import {
         MODELS as RATES,
         eurOfAic,
-        eurDecimals,
         eurSigDecimals,
         fmtEur,
-        fmtAicWhole,
         fmtInt,
       } from "../../../lib/asml-ai/rates";
       import * as RB from "../../../lib/asml-ai/roll-back";
       // The Widget contract and its registry (#109, spec #106, ADR 0002).
-      // Mounted beside the two `if` chains below, which still own every Widget
-      // that has not moved; each Widget joins the registry one ticket at a
-      // time, and the chains go once the registry holds all fourteen.
+      // Since #117 it owns EVERY Widget in the Deck: the two `if` chains below
+      // still run, but neither has a Widget branch left in it. #118 deletes
+      // them.
       import { mountWidgets } from "../../../lib/asml-ai/deck-widgets";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
@@ -1730,42 +1730,19 @@ const baselineBlocks = BASELINE.length;
       /* ══════════════════════════════════════════════════════════════════
          CHAPTER A — tokens, credits, the cost dial (wayfinder #27)
 
-         Two Widgets still inline here, no new runtime dependency: the
-         input-billing ladder and the bill table with its cost dial. Both are a
-         pure function of their markup plus module constants, so Slide entry
-         replays them identically with no stored state. The third, the
-         vocabulary Slide's chips and counter, is a module now —
-         `lib/asml-ai/token-live.widget.ts` (#114). The glossary asks for
+         One thing still inline here: the input-billing ladder, which writes
+         four figures into markup once and binds nothing. It answers to no
+         Slide attribute and has no branch in either chain, so it is not a
+         Widget and the registry has nothing to offer it.
+
+         The chapter's three Widgets are all modules now — the vocabulary
+         Slide's chips and counter in `lib/asml-ai/token-live.widget.ts`
+         (#114), the bill table with its cost dial in
+         `lib/asml-ai/cost-dial.widget.ts` and the benchmark chart in
+         `lib/asml-ai/bench.widget.ts` (both #117). The glossary asks for
          Widget rather than island: island is Astro's word for a build
          concern, not for what the room sees.
          ══════════════════════════════════════════════════════════════════ */
-
-      const reducedMotion = () =>
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      /** Count a number into place. Formatter is fixed by the caller so the
-          decimal width can't change mid-animation. */
-      const countShown = new WeakMap<HTMLElement, number>();
-      function countUp(
-        el: HTMLElement,
-        target: number,
-        fmt: (n: number) => string,
-        dur = 420,
-      ) {
-        const from = countShown.get(el) ?? 0;
-        countShown.set(el, target);
-        if (reducedMotion()) {
-          el.textContent = fmt(target);
-          return;
-        }
-        const t0 = performance.now();
-        const step = (t: number) => {
-          const p = Math.min(1, (t - t0) / dur);
-          el.textContent = fmt(from + (target - from) * (1 - Math.pow(1 - p, 3)));
-          if (p < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }
 
       // ── The input-billing ladder ──────────────────────────────────
       // Text lives in components/deck/BillLadder.astro; only the figures come
@@ -1790,183 +1767,11 @@ const baselineBlocks = BASELINE.length;
         set("[data-bill-eur]", fmtEur(eur, eurSigDecimals(eur)));
       })();
 
-      // ── A5: the bill table ────────────────────────────────────────
-      // Twelve rates and three token counts in one grid. The knob cells span
-      // all four rows because the token count IS shared — the span is the
-      // argument, so never render a knob per row.
-      type DialKey = "input" | "cached" | "output";
-      const DIAL_KEYS: DialKey[] = ["input", "cached", "output"];
-      const DIAL_MAX: Record<DialKey, number> = {
-        input: 400_000,
-        cached: 2_000_000,
-        output: 200_000,
-      };
-      // An afternoon of agent work, not one prompt (#25). Cached is the biggest
-      // pile on screen on purpose: it's the chapter's thesis, visible before a
-      // word is said. Every knob arrives near half travel so the room can push
-      // it either way. Costs on arrival: EUR 0.37 / 1.85 / 2.00 / 3.33.
-      const DIAL_PRESET: Record<DialKey, number> = {
-        input: 200_000,
-        cached: 1_200_000,
-        output: 80_000,
-      };
-      const dial = { ...DIAL_PRESET };
-      /** Which row the presenter is holding the room on. -1 is none. */
-      let dialLit = -1;
-
-      const billRows = document.querySelector<HTMLElement>("[data-bill-rows]");
-      if (billRows) {
-        // One knob cell per group, written into the FIRST row with rowspan=4.
-        const knobCell = (k: DialKey) =>
-          `<td class="bt-knob" rowspan="${RATES.length}">` +
-          `<div class="bk" data-knob="${k}">` +
-          `<div class="bk-track"><div class="bk-fill" data-knob-fill></div></div>` +
-          `<b class="bk-val" data-knob-val>0</b>` +
-          `<span class="bk-lab">tokens</span></div></td>`;
-        billRows.innerHTML = RATES.map((m, i) => {
-          const rate = (k: DialKey) =>
-            `<td class="bt-rate">${fmtInt(m[k])}</td>` + (i === 0 ? knobCell(k) : "");
-          return (
-            `<tr data-bill-row="${i}">` +
-            `<td class="bt-model">${m.name}</td>` +
-            DIAL_KEYS.map(rate).join("") +
-            `<td class="bt-aic" data-row-aic>0</td>` +
-            `<td class="bt-eur" data-row-eur>&euro;0.00</td>` +
-            `<td class="bt-mult" data-row-mult></td>` +
-            `</tr>`
-          );
-        }).join("");
-      }
-
-      // Clicking a row lifts it and nothing else — the arithmetic is already on
-      // screen four times over. It exists so the presenter's "start on Flash,
-      // then reach for Opus" has something to click.
-      billRows?.querySelectorAll<HTMLElement>("[data-bill-row]").forEach((tr) => {
-        tr.addEventListener("click", () => {
-          const i = Number(tr.dataset.billRow);
-          dialLit = dialLit === i ? -1 : i;
-          paintBillLit();
-        });
-      });
-      function paintBillLit() {
-        const host = document.querySelector<HTMLElement>("[data-bill-table]");
-        host?.classList.toggle("has-lit", dialLit >= 0);
-        host?.querySelectorAll<HTMLElement>("[data-bill-row]").forEach((tr) => {
-          tr.classList.toggle("is-lit", Number(tr.dataset.billRow) === dialLit);
-        });
-      }
-
-      /** AIC for one model at the current knob mix. */
-      const billAic = (m: (typeof RATES)[number]) =>
-        (dial.input * m.input + dial.cached * m.cached + dial.output * m.output) / 1e6;
-
-      /** "1×", "9×" — trailing .0 dropped so the cheapest reads as a clean 1. */
-      const fmtMult = (n: number) => n.toFixed(1).replace(/\.0$/, "") + "×";
-
-      // The knobs are pointer-only by design (#25 round 3): no tab stop and no
-      // key handling, so reveal keeps every arrow and the clicker never fights
-      // a focused control. A keyboard reader gets the table at its arrival
-      // state, which is a complete slide on its own.
-      document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
-        const key = el.dataset.knob as DialKey;
-        const step = DIAL_MAX[key] / 100;
-        let dragging = false;
-        let startY = 0;
-        let startV = 0;
-        el.addEventListener("pointerdown", (e) => {
-          dragging = true;
-          startY = e.clientY;
-          startV = dial[key];
-          el.setPointerCapture(e.pointerId);
-          e.stopPropagation();
-        });
-        el.addEventListener("pointermove", (e) => {
-          if (!dragging) return;
-          const delta = ((startY - e.clientY) / 220) * DIAL_MAX[key];
-          dial[key] = Math.max(
-            0,
-            Math.min(DIAL_MAX[key], Math.round((startV + delta) / step) * step),
-          );
-          renderDial(key);
-        });
-        el.addEventListener("pointerup", () => (dragging = false));
-        el.addEventListener("pointercancel", () => (dragging = false));
-        // A drag that starts on a track must not also count as a row click.
-        el.addEventListener("click", (e) => e.stopPropagation());
-      });
-
-      let dialLitTimer = 0;
-      /**
-       * Repaint every live figure. `touched` names the knob the hand is on, so
-       * its track and its term in the formula row glow for a moment.
-       *
-       * `animate` is off during a drag: the numbers stay glued to the hand,
-       * which is the coupling that teaches. It's on once, on slide entry, where
-       * the money climbs into place from zero.
-       */
-      function renderDial(touched?: DialKey, animate = false) {
-        const costs = RATES.map(billAic);
-        const cheapest = Math.min(...costs);
-
-        document.querySelectorAll<HTMLElement>("[data-knob]").forEach((el) => {
-          const key = el.dataset.knob as DialKey;
-          const frac = dial[key] / DIAL_MAX[key];
-          el.querySelector<HTMLElement>("[data-knob-fill]")!.style.height =
-            `${frac * 100}%`;
-          el.querySelector<HTMLElement>("[data-knob-val]")!.textContent = fmtInt(dial[key]);
-          el.toggleAttribute("data-hot", touched === key);
-        });
-        document.querySelectorAll<HTMLElement>("[data-term]").forEach((el) => {
-          el.classList.toggle("lit", (el.dataset.term as DialKey) === touched);
-        });
-
-        billRows?.querySelectorAll<HTMLElement>("[data-bill-row]").forEach((tr, i) => {
-          const aic = costs[i];
-          const eur = eurOfAic(aic);
-          const dp = eurDecimals(eur);
-          const aicEl = tr.querySelector<HTMLElement>("[data-row-aic]")!;
-          const eurEl = tr.querySelector<HTMLElement>("[data-row-eur]")!;
-          if (animate) {
-            countUp(aicEl, aic, fmtAicWhole);
-            countUp(eurEl, eur, (n) => fmtEur(n, dp));
-          } else {
-            countShown.set(aicEl, aic);
-            countShown.set(eurEl, eur);
-            aicEl.textContent = fmtAicWhole(aic);
-            eurEl.textContent = fmtEur(eur, dp);
-          }
-          // Every knob at zero makes every model free and the ratio undefined —
-          // show nothing rather than a made-up 1×.
-          tr.querySelector<HTMLElement>("[data-row-mult]")!.textContent =
-            cheapest > 0 ? fmtMult(aic / cheapest) : "";
-        });
-
-        window.clearTimeout(dialLitTimer);
-        dialLitTimer = window.setTimeout(() => {
-          document
-            .querySelectorAll(".bt-formula .lit")
-            .forEach((e) => e.classList.remove("lit"));
-          document
-            .querySelectorAll("[data-knob]")
-            .forEach((e) => e.removeAttribute("data-hot"));
-        }, 900);
-      }
-      function resetDial() {
-        Object.assign(dial, DIAL_PRESET);
-        dialLit = -1;
-        paintBillLit();
-        document
-          .querySelectorAll<HTMLElement>("[data-row-aic],[data-row-eur]")
-          .forEach((el) => countShown.set(el, 0));
-        renderDial(undefined, true);
-      }
-
       // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
       function onShow(slide: HTMLElement) {
         armHeadline(slide);
         updateChrome();
         if (slide.hasAttribute("data-chapter")) runWash();
-        if (slide.hasAttribute("data-cost-dial")) resetDial();
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
@@ -1974,24 +1779,20 @@ const baselineBlocks = BASELINE.length;
       deck.on("slidechanged", (e: any) => onShow(e.currentSlide as HTMLElement));
       deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
 
-      // The arrow-press chain, now EMPTY. Its last three branches — the
-      // reliability scatter and chapter 3's vocabulary slide and chapter 2's
-      // stochastic slide — moved to the registry in #114, and every Widget
-      // that answers an arrow press is a module. It stays wired until #118
-      // deletes both chains, so the shape of the migration is visible in the
-      // file: the entry chain above still owns the Widgets that have not
-      // moved, and this one owns nothing.
+      // The arrow-press chain, EMPTY since #114. Both chains now own nothing:
+      // the cost dial was the entry chain's last Widget branch and it moved in
+      // #117, so what `onShow` still does above is Chrome — the headline, the
+      // counter, the Wash and the notes overlay — which runs on every Slide
+      // and which `index.astro` keeps by ADR 0002. They stay wired until #118
+      // deletes them, so the last step of the migration is a deletion and
+      // nothing else.
       function onFragment(_e: any) {}
       deck.on("fragmentshown", (e: any) => onFragment(e));
       deck.on("fragmenthidden", (e: any) => onFragment(e));
 
-      // The registry side of the same dispatch. It owns every Widget that has
-      // moved into its own module; `WIDGETS` in `deck-widgets.ts` is the list,
-      // and reading it there beats a number here that has to be re-edited.
-      //
-      // Of the two chains above, only the entry chain still owns anything; the
-      // arrow-press chain is empty. Both go in #118, once the last Widget
-      // follows.
+      // The registry side of the same dispatch, and since #117 the ONLY side
+      // that owns a Widget. `WIDGETS` in `deck-widgets.ts` is the list, and
+      // reading it there beats a number here that has to be re-edited.
       //
       // This comment carried a count until #115. It went stale on all three
       // migration commits before it and three reviews caught it, which is what
