@@ -101,8 +101,8 @@ const SVG_NS = "http://www.w3.org/2000/svg";
  *
  * Named `svgEl` and not `el` because the two are not interchangeable: an SVG
  * element must be created in the SVG namespace or the browser lays it out as
- * unknown HTML and paints nothing. The two Widgets that draw charts — the
- * benchmark curves and the stop-point — call this one.
+ * unknown HTML and paints nothing. The Widgets that draw with it are the
+ * benchmark curves, the stop-point and the lottery scatter.
  */
 export function svgEl(
   tag: string,
