@@ -2403,12 +2403,14 @@ const baselineBlocks = BASELINE.length;
       /* ══════════════════════════════════════════════════════════════════
          CHAPTER A — tokens, credits, the cost dial (wayfinder #27)
 
-         Two vanilla-TS islands, no new runtime dependency: the input-billing
-         ladder and the bill table with its cost dial. Both are a pure
-         function of their markup plus module constants, so slide entry
+         Two Widgets still inline here, no new runtime dependency: the
+         input-billing ladder and the bill table with its cost dial. Both are a
+         pure function of their markup plus module constants, so Slide entry
          replays them identically with no stored state. The third, the
-         vocabulary slide's chips and counter, is a Widget module now —
-         `lib/asml-ai/token-live.widget.ts` (#114).
+         vocabulary Slide's chips and counter, is a module now —
+         `lib/asml-ai/token-live.widget.ts` (#114). The glossary asks for
+         Widget rather than island: island is Astro's word for a build
+         concern, not for what the room sees.
          ══════════════════════════════════════════════════════════════════ */
 
       const reducedMotion = () =>
@@ -2766,9 +2768,13 @@ const baselineBlocks = BASELINE.length;
       deck.on("fragmentshown", (e: any) => onFragment(e));
       deck.on("fragmenthidden", (e: any) => onFragment(e));
 
-      // The registry side of the same dispatch. It owns the five Widgets that
-      // have moved into their own modules, and the two chains above own the
-      // rest until each one follows.
+      // The registry side of the same dispatch. It owns the eight Widgets that
+      // have moved into their own modules. Of the two chains above, only the
+      // entry chain still owns anything; the arrow-press chain is empty. Both
+      // go in #118, once the last Widget follows.
+      //
+      // ⚠ THIS COUNT GOES STALE ON EVERY MIGRATION COMMIT. Two reviews have
+      // caught it already. Re-read it whenever a Widget moves.
       mountWidgets(deck);
     </script>
   </body>

@@ -3001,10 +3001,12 @@
    transform transition carries a centred pile into two packed lanes. A
    grid-column swap here is a hard cut and kills the point of the slide.
 
-   Two frames only: the slide OPENS on the five answers (no empty frame to
+   Two frames only: the Slide OPENS on the four answers (no empty frame to
    click past) and folds once. Colour rule: grounded stays in the deck's
    blue, hallucinated takes the orange accent, and NOTHING is coloured
-   before the fold — the room must find all five equally plausible first. */
+   before the fold — the room must find all four equally plausible first.
+   It said five until #114; `ANSWERS` in `stochastic.ts` has held four since
+   the 2026-08-23 cut, two of them grounded. */
 
 /* ── Dek: one line under the headline ────────────────────────────────────── */
 /* The headline is one word now, so this line carries the setup. Mono at the

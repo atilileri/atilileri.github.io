@@ -155,7 +155,12 @@ function layout(slide: HTMLElement): void {
 }
 
 /**
- * The stochastic Widget: four plausible answers, one of which is true.
+ * The stochastic Widget: four equally plausible answers, two of them grounded.
+ *
+ * `ANSWERS` in `stochastic.ts` holds four, and two carry `kind: "legit"`. The
+ * fold colours the grounded pair blue and the other two orange; before the
+ * fold nothing is coloured, because the room has to find all four equally
+ * plausible first.
  */
 export const stochasticWidget: Widget = {
   attr: ATTR,
