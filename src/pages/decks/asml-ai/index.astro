@@ -1726,25 +1726,6 @@ const baselineBlocks = BASELINE.length;
         slide.classList.add("is-live");
       }
 
-      // ── "The one number" count-up ─────────────────────────────────
-      let countTimer: number | undefined;
-      function playCount(slide: HTMLElement) {
-        const el = slide.querySelector<HTMLElement>("[data-count-to]");
-        if (!el) return;
-        const to = Number(el.getAttribute("data-count-to") ?? "0");
-        const suffix = el.getAttribute("data-count-suffix") ?? "";
-        const start = performance.now();
-        const dur = 900;
-        if (countTimer) cancelAnimationFrame(countTimer);
-        const tick = (now: number) => {
-          const t = Math.min(1, (now - start) / dur);
-          const eased = 1 - Math.pow(1 - t, 3);
-          el.textContent = String(Math.round(eased * to)) + suffix;
-          if (t < 1) countTimer = requestAnimationFrame(tick);
-        };
-        countTimer = requestAnimationFrame(tick);
-      }
-
       // ── Interactive benchmark chart (DeepSWE v1.1) ────────────────
       // Hand-rolled SVG — no charting library, so the deck palette reaches
       // inside the chart. ONE view: pass rate against average cost per task.
@@ -2335,7 +2316,6 @@ const baselineBlocks = BASELINE.length;
         armHeadline(slide);
         updateChrome();
         if (slide.hasAttribute("data-chapter")) runWash();
-        if (slide.hasAttribute("data-one-number")) playCount(slide);
         if (slide.hasAttribute("data-cost-dial")) resetDial();
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
