@@ -1,11 +1,11 @@
 # Dutch learning journey
 
-A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
+A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
 
 ## Language
 
 **Lesson**:
-A durable teaching artifact — exposition on one thing, sized to about ten minutes of reading. It contains no prompts and bears no answers. One file, mixed Turkish and English.
+A durable teaching artifact — exposition on one thing, sized to about ten minutes of reading. It contains no prompts and bears no answers. One file, written in Turkish prose, quoting Dutch and English words.
 _Avoid_: Explainer, chapter, module
 
 **Session**:
@@ -13,7 +13,7 @@ A dated record of one invocation — what was taught, what was asked, and what t
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
-One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
+One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge` and `trap`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
 _Avoid_: Note, card, word, entry
 
 **Direction**:
@@ -56,3 +56,11 @@ _Avoid_: Use-case, situation card, role-play
 **Theme**:
 The subject a Session is dressed in. It is chosen by a fixed priority — the theme the learner types, then an open intake issue, then a Scenario. A Theme decorates the next Plan objective and never replaces it.
 _Avoid_: Topic, context, subject
+
+**Bridge**:
+A resemblance that helps — a Dutch word an English or Turkish word already explains. It is an optional field on an Item, written in Turkish prose that quotes the foreign word: *"Hollandaca `vriend` ve İngilizce `friend` kelimeleri aynı kökten gelir."* A Bridge that claims a shared origin cites a source; one that claims only a resemblance needs none.
+_Avoid_: Cognate note, hint, mnemonic
+
+**Trap**:
+A resemblance that misleads — an intuition from English or Turkish that produces wrong Dutch the learner would not notice. It is an optional field on an Item and names its direction, `en` or `tr`. An Item carries at most one Trap, and a Lesson shows at most three. A difference the learner knows they are guessing at is taught, not a Trap.
+_Avoid_: False friend, gotcha, warning, flag
