@@ -52,6 +52,7 @@
 
 import { ch5StepWidget } from "./ch5-step.widget";
 import { countFragments } from "./dom";
+import { hallucWidget } from "./halluc.widget";
 import { lotteryWidget } from "./lottery.widget";
 import { primitivesWidget } from "./primitives.widget";
 import { sessionWidget } from "./session.widget";
@@ -106,6 +107,7 @@ export const WIDGETS: Widget[] = [
   lotteryWidget,
   tokenLiveWidget,
   stopPointWidget,
+  hallucWidget,
 ];
 
 /**
