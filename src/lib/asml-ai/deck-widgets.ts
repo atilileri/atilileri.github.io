@@ -55,6 +55,7 @@ import { countFragments } from "./dom";
 import { primitivesWidget } from "./primitives.widget";
 import { sessionWidget } from "./session.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
+import { stochasticWidget } from "./stochastic.widget";
 import { wayfinderWidget } from "./wayfinder.widget";
 
 /**
@@ -98,6 +99,7 @@ export const WIDGETS: Widget[] = [
   sessionWidget,
   ch5StepWidget,
   wayfinderWidget,
+  stochasticWidget,
 ];
 
 /**
