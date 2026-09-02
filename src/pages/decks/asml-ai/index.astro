@@ -1559,8 +1559,10 @@ const baselineBlocks = BASELINE.length;
         fmtEur,
         fmtAicWhole,
         fmtInt,
-        USD_PER_EUR,
       } from "../../../lib/asml-ai/rates";
+      // The DeepSWE leaderboard, read by the benchmark chart below and by
+      // chapter 3's stop-point Widget (#115, spec #106, ADR 0002).
+      import { CURVES, type Curve, type Pt } from "../../../lib/asml-ai/curves";
       import * as HAL from "../../../lib/asml-ai/halluc";
       import * as RB from "../../../lib/asml-ai/roll-back";
       // The DOM helpers more than one Widget uses (#110, spec #106, ADR 0002).
@@ -1759,99 +1761,16 @@ const baselineBlocks = BASELINE.length;
 
       // ── Interactive benchmark chart (DeepSWE v1.1) ────────────────
       // Hand-rolled SVG — no charting library, so the deck palette reaches
-      // inside the chart. Two views over one dataset: a cost/pass-rate scatter
-      // and ranked bars with 95% CI whiskers. Data transcribed from the public
-      // leaderboard at deepswe.datacurve.ai/blog/deepswe-v1-1 (113 tasks).
-      // ── Interactive benchmark chart (DeepSWE v1.1) ────────────────
-      // Hand-rolled SVG — no charting library, so the deck palette reaches
       // inside the chart. ONE view: pass rate against average cost per task.
       // The ranked-bars view was cut (Atil, 2026-08-25) — the room only ever
       // read the scatter, and a toggle with one option is furniture.
       //
-      // The unit here is a CONFIGURATION, not a model: one point is one model
-      // run at one reasoning-effort level, so a model with five levels traces
-      // a five-point curve as you spend more on it. Effort levels carry the
-      // provider's own name — low, medium, high, xhigh, max — never a
-      // position ("level 3 of 5"), because the name is what you type into an
-      // API call. A model that publishes only one level gets one point.
-      // Transcribed from the public leaderboard at
-      // deepswe.datacurve.ai/blog/deepswe-v1-1 (113 tasks, 2026-08-25).
-      type Pt = {
-        cost: number; // avg $ / task
-        rate: number; // pass@1 %
-        eff: string; // reasoning effort, the provider's own name
-        tok: string; // mean output tokens
-        steps: number; // mean agent steps
-        ci: number; // ± percentage points, 95% run-to-run
-      };
-      type Curve = {
-        name: string;
-        fam: string;
-        at: number; // index of the labelled point — the model's best score
-        pts: Pt[]; // cheapest first
-      };
-      /** Rows straight off the leaderboard: cost, score, effort, tokens, steps, ±CI. */
-      const curve = (
-        name: string,
-        fam: string,
-        rows: [number, number, string, string, number, number][],
-      ): Curve => {
-        const pts = rows.map(([cost, rate, eff, tok, steps, ci]) => ({
-          cost, rate, eff, tok, steps, ci,
-        }));
-        // The labelled point is the model's best score, resolved here rather
-        // than transcribed, so re-transcribing the data can never leave a
-        // callout pointing at a level that is no longer the model's best.
-        let at = 0;
-        pts.forEach((pt, i) => {
-          if (pt.rate > pts[at].rate) at = i;
-        });
-        return { name, fam, at, pts };
-      };
-      const CURVES: Curve[] = [
-        curve("claude-opus-5", "Anthropic", [
-          [1.66, 58.1, "LOW", "20k", 36, 2.3], [3.29, 68.9, "MEDIUM", "37k", 52, 1.2],
-          [6.08, 72.8, "HIGH", "64k", 73, 1.9], [9.07, 73.2, "XHIGH", "92k", 89, 3.1],
-          [11.84, 73.6, "MAX", "118k", 99, 3.9]]),
-        curve("gpt-5.6-sol", "OpenAI", [
-          [0.82, 45.4, "LOW", "11k", 23, 2.4], [1.42, 61.1, "MEDIUM", "18k", 31, 1.6],
-          [2.66, 69.4, "HIGH", "28k", 37, 1.4], [3.6, 70.7, "XHIGH", "41k", 44, 0.8],
-          [6.46, 72.7, "MAX", "60k", 61, 2.8]]),
-        curve("claude-fable-5", "Anthropic", [
-          [3.76, 59.6, "LOW", "25k", 38, 2.8], [6.09, 65.4, "MEDIUM", "40k", 48, 4.4],
-          [9.18, 68.6, "HIGH", "57k", 59, 1.1], [13.41, 69.9, "XHIGH", "80k", 68, 3.2],
-          [21.63, 69.7, "MAX", "119k", 88, 4.0]]),
-        curve("glm-5.3", "Other", [[3.99, 69.0, "MAX", "80k", 124, 3.0]]),
-        curve("kimi-k3", "Moonshot", [[4.65, 68.5, "MAX", "81k", 98, 4.5]]),
-        curve("gpt-5.6-luna", "OpenAI", [
-          [0.01, 1.5, "LOW", "3k", 12, 0.8], [0.04, 11.3, "MEDIUM", "8k", 24, 0.8],
-          [0.16, 44.2, "HIGH", "26k", 49, 2.9], [0.31, 56.9, "XHIGH", "45k", 71, 2.2],
-          [0.61, 67.2, "MAX", "73k", 102, 4.0]]),
-        curve("gpt-5.5", "OpenAI", [
-          [1.2, 27.0, "LOW", "9k", 28, 2.3], [2.75, 54.0, "MEDIUM", "20k", 46, 2.6],
-          [5.1, 64.4, "HIGH", "31k", 62, 3.1], [7.23, 67.0, "XHIGH", "46k", 82, 6.5]]),
-        curve("grok-4.6", "Other", [
-          [1.04, 41.6, "LOW", "16k", 44, 2.3], [3.45, 67.5, "MEDIUM", "50k", 70, 2.3],
-          [4.38, 65.2, "HIGH", "61k", 79, 1.5], [5.5, 66.7, "XHIGH", "71k", 87, 2.2]]),
-        curve("gemini-3.7-flash", "Google", [
-          [1.83, 53.8, "LOW", "73k", 130, 2.6], [2.03, 65.5, "MEDIUM", "94k", 117, 3.1],
-          [2.18, 65.3, "HIGH", "107k", 125, 1.8]]),
-        curve("deepseek-v4-pro", "Other", [[1.67, 62.8, "MAX", "106k", 155, 6.3]]),
-        curve("claude-opus-4.8", "Anthropic", [
-          [2.29, 40.8, "LOW", "29k", 54, 1.5], [3.44, 48.7, "MEDIUM", "41k", 66, 2.2],
-          [4.28, 51.8, "HIGH", "50k", 72, 4.6], [8.01, 54.4, "XHIGH", "86k", 95, 3.7],
-          [13.22, 59.0, "MAX", "135k", 120, 1.8]]),
-        curve("qwen3.8-max", "Other", [[3.73, 57.5, "XHIGH", "95k", 111, 2.7]]),
-        curve("muse-spark-1.2", "Other", [[3.7, 54.9, "XHIGH", "99k", 101, 2.1]]),
-        curve("claude-sonnet-5", "Anthropic", [
-          [4.08, 39.8, "MEDIUM", "57k", 108, 3.1], [7.43, 48.2, "HIGH", "87k", 147, 4.5],
-          [11.89, 49.7, "XHIGH", "121k", 186, 3.5], [26.4, 53.8, "MAX", "214k", 268, 4.2]]),
-        curve("deepseek-v4-flash", "Other", [[0.46, 53.3, "MAX", "108k", 153, 3.6]]),
-        curve("gemini-3.6-flash", "Google", [[2.21, 46.7, "HIGH", "96k", 117, 3.7]]),
-        curve("glm-5.2", "Other", [
-          [2.84, 36.3, "HIGH", "54k", 122, 4.8], [3.92, 43.8, "MAX", "78k", 129, 1.7]]),
-        curve("gemini-3.5-flash", "Google", [[3.45, 36.1, "HIGH", "76k", 105, 4.0]]),
-      ];
+      // The leaderboard itself — `Pt`, `Curve` and `CURVES` — is imported from
+      // `lib/asml-ai/curves.ts` (#115). Chapter 3's stop-point Slide reads the
+      // same array and is a Widget module now, and a Widget module may never
+      // import from another Widget's scope, so the data both of them read has
+      // a module of its own. The provenance note travelled with it.
+      //
       // Fixed hue order, never cycled — validated for CVD separation on this
       // light surface (scripts/validate_palette.js, all six checks pass).
       const FAMS: { key: string; color: string }[] = [
@@ -2182,179 +2101,6 @@ const baselineBlocks = BASELINE.length;
         window.clearTimeout(benchResize);
         benchResize = window.setTimeout(drawBench, 150);
       });
-
-      /* ══════════ CHAPTER 03 — the stop-point (#33) ═══════════════════════
-         The bench chart reduced to one line and five prices. It reads off the
-         SAME `CURVES` array as the slide before it, deliberately: there is no
-         second dataset to keep in sync, and if the chart's numbers ever move,
-         this slide moves with them — labels, tooltip and turn-over included.
-
-         The whole argument is MARGINAL, not cumulative — "this level cost you
-         €X more and bought you Y" — because cumulative spend is the claim the
-         previous slide already made. The last level is the slide: 61% more
-         money, 0.2 points less.
-
-         NOTHING HERE IS A BUILD AND NOTHING IS INTERACTIVE. The chart draws
-         once, complete, on entry, and the slide holds still while the room
-         reads it. Every number on screen is DERIVED from the curve, so nobody
-         has to re-transcribe a label when the data moves. */
-      const STOP_CURVE = CURVES.find((c) => c.name === "claude-fable-5")!;
-      const STOP = {
-        VB: { w: 1240, h: 600 },
-        X0: 120, XN: 1194, Y0: 520, YN: 70,
-        // The plot is framed on this curve alone, so the shape of ONE model's
-        // diminishing return fills the slide; the bench chart's shared scale
-        // would squash it into the top-right corner. The y-range is tight on
-        // purpose — the whole slide turns on a 0.2-point drop, and on the
-        // previous slide's 0–80% axis that drop is under three pixels. The
-        // axis is labelled and starts at a non-zero score, which is honest
-        // here because the slide compares levels of one curve, not models.
-        cMin: 0, cMax: 24, sMin: 58, sMax: 71,
-      };
-      const stopEur = (usd: number) => usd / USD_PER_EUR;
-      const SX = (c: number) =>
-        STOP.X0 + ((c - STOP.cMin) / (STOP.cMax - STOP.cMin)) * (STOP.XN - STOP.X0);
-      const SY = (s: number) =>
-        STOP.Y0 - ((s - STOP.sMin) / (STOP.sMax - STOP.sMin)) * (STOP.Y0 - STOP.YN);
-      /** What level `i` cost ON TOP of level i−1, in euro, points and percent. */
-      function stopStep(i: number) {
-        const p = STOP_CURVE.pts;
-        return {
-          eur: stopEur(p[i].cost) - stopEur(p[i - 1].cost),
-          pts: p[i].rate - p[i - 1].rate,
-          pct: Math.round((p[i].cost / p[i - 1].cost - 1) * 100),
-        };
-      }
-      const stopPtsLabel = (d: number) =>
-        `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(1)} pts`;
-
-      function buildStop(slide: HTMLElement) {
-        const svg = slide.querySelector<SVGSVGElement>("[data-stop-svg]");
-        if (!svg || svg.dataset.built) return;
-        const pts = STOP_CURVE.pts;
-        const last = pts.length - 1;
-
-        // Axis furniture, deliberately thin: no grid on x, a light one on y.
-        // The slide is a shape, not a chart to read values off. The x ticks
-        // carry ROUND EURO values and sit at their true dollar position, so
-        // nothing on screen is a converted-and-rounded number.
-        for (const eur of [0, 5, 10, 15, 20]) {
-          const t = svgEl("text", { x: SX(eur * USD_PER_EUR), y: STOP.Y0 + 30, class: "tick mid" });
-          t.textContent = "€" + eur;
-          svg.append(t);
-        }
-        for (const sc of [58, 60, 62, 64, 66, 68, 70]) {
-          svg.append(
-            svgEl("line", { x1: STOP.X0, x2: STOP.XN, y1: SY(sc), y2: SY(sc), class: "grid" }),
-          );
-          const t = svgEl("text", { x: STOP.X0 - 14, y: SY(sc) + 6, class: "tick end" });
-          t.textContent = sc + "%";
-          svg.append(t);
-        }
-        svg.append(
-          svgEl("line", {
-            x1: STOP.X0, x2: STOP.XN, y1: STOP.Y0, y2: STOP.Y0, class: "axis",
-          }),
-        );
-        const xl = svgEl("text", {
-          x: (STOP.X0 + STOP.XN) / 2, y: STOP.Y0 + 58, class: "axis-label mid",
-        });
-        xl.textContent = "cost per task";
-        // Both axes say what they are, the same way the bench chart says it —
-        // the score rotated onto its own axis, opposite the cost title. Same
-        // furniture, same room: the room has read this pair once already.
-        const ym = (STOP.Y0 + STOP.YN) / 2;
-        const yl = svgEl("text", {
-          x: 32, y: ym, class: "axis-label mid",
-          transform: `rotate(-90 32 ${ym})`,
-        });
-        yl.textContent = "DeepSWE score";
-        svg.append(yl);
-        const head = svgEl("text", { x: STOP.X0, y: 34, class: "plot-title" });
-        // Spelled, not a numeral: it is prose on a wall, and the count comes
-        // off the data so a re-transcribed curve can never make the title lie.
-        const WORD = ["no", "one", "two", "three", "four", "five", "six"];
-        head.textContent =
-          `${STOP_CURVE.name} — one model, ${WORD[pts.length] ?? pts.length} levels of effort`;
-        svg.append(xl, head);
-
-        // Two paths, not one: the climb, then the level that turns over. The
-        // dip is the slide's whole argument, so it is inked in the accent
-        // rather than left to the eye to find in a single-colour line.
-        const dOf = (from: number, to: number) =>
-          pts
-            .slice(from, to + 1)
-            .map((pt, i) => `${i ? "L" : "M"} ${SX(pt.cost)} ${SY(pt.rate)}`)
-            .join(" ");
-        svg.append(svgEl("path", { d: dOf(0, last - 1), fill: "none", class: "stop-line",
-          "stroke-linecap": "round", "stroke-linejoin": "round" }));
-        svg.append(svgEl("path", { d: dOf(last - 1, last), fill: "none", class: "stop-line is-down",
-          "stroke-linecap": "round", "stroke-linejoin": "round" }));
-
-        // One label per point: what that level cost on top of the one before
-        // it. Level 0 has no "before", so it carries its absolute price and
-        // score instead — the baseline the rest is read against. The level's
-        // NAME is not on the wall (low/medium/high…): the room reads the
-        // shape and the prices, and the presenter says the names. Every label
-        // sits DOWN AND RIGHT of its point, the one quarter the curve never
-        // enters: it climbs left-to-right, so the space under the next
-        // segment is always empty. The last one turns back to the left,
-        // because there is no wall to its right.
-        pts.forEach((pt, i) => {
-          const down = i === last;
-          // The last label hangs off the RIGHT WALL rather than off its own
-          // point: the curve is flat by then, so a label under the point would
-          // sit on the one before it. Anchored right, it clears the block
-          // before it and still reads as the last point's own line.
-          const x = down ? STOP.XN : SX(pt.cost) + 18;
-          // Every number sits one short drop under its own dot — the name
-          // line used to push it further away, and the last label further
-          // still. The cheapest point sits low, close to the cost axis, so
-          // its label rides beside the dot instead of under it.
-          const y = SY(pt.rate) + (down ? 34 : i === 0 ? 26 : 34);
-          const g = svgEl("text", {
-            x, y, class: "stop-label" + (down ? " is-down" : ""),
-            "text-anchor": down ? "end" : "start",
-          });
-          const val = svgEl("tspan", { x, class: "delta" });
-          val.textContent = i
-            ? `+${fmtEur(stopStep(i).eur)} → ${stopPtsLabel(stopStep(i).pts)}`
-            : `${fmtEur(stopEur(pt.cost))} · ${pt.rate}%`;
-          g.append(val);
-          // The turn is the slide: the last level gets the sentence the other
-          // four don't need, so nobody has to do the arithmetic on the wall.
-          if (down) {
-            const why = svgEl("tspan", { x, dy: 26, class: "why" });
-            why.textContent = `${stopStep(i).pct}% more money, less score`;
-            g.append(why);
-          }
-          svg.append(g);
-        });
-
-        pts.forEach((pt, i) => {
-          svg.append(svgEl("circle", {
-            cx: SX(pt.cost), cy: SY(pt.rate), r: 7,
-            class: "stop-dot" + (i === last ? " is-down" : ""), "data-stop-dot": i,
-          }));
-        });
-        // The ring marks WHERE THE SPENDING STOPS PAYING — the one point the
-        // slide is about — so it is parked on the last level, not walked.
-        svg.append(svgEl("circle", {
-          cx: SX(pts[last].cost), cy: SY(pts[last].rate), r: 14, class: "stop-marker",
-        }));
-
-        svg.dataset.built = "1";
-      }
-
-      // Sanity net: this slide's entire argument is that the LAST level costs
-      // more and scores less. If the chart's data is ever re-transcribed and
-      // that stops being true, the text is wrong and the slide must be redone.
-      if (import.meta.env.DEV) {
-        const p = STOP_CURVE.pts;
-        const last = p[p.length - 1], prev = p[p.length - 2];
-        if (!(last.cost > prev.cost && last.rate < prev.rate))
-          console.warn("#33's stop-point slide: the curve no longer turns over");
-      }
 
       // ── Chapter wash on entering a chapter divider ────────────────
       function runWash() {
@@ -2718,9 +2464,6 @@ const baselineBlocks = BASELINE.length;
           window.setTimeout(() => growBars(slide), 160);
         }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
-        // Chapter 3's stop-point lands whole — no build, so entering it from
-        // either side shows the same finished chart.
-        if (slide.hasAttribute("data-stop")) buildStop(slide);
         // Chapter 2's diagnosis slide: built once, then replayed by the
         // `.is-live` armHeadline already added at the top of this function.
         if (slide.hasAttribute("data-halluc")) buildHalluc(slide);
@@ -2747,7 +2490,7 @@ const baselineBlocks = BASELINE.length;
       deck.on("fragmentshown", (e: any) => onFragment(e));
       deck.on("fragmenthidden", (e: any) => onFragment(e));
 
-      // The registry side of the same dispatch. It owns the eight Widgets that
+      // The registry side of the same dispatch. It owns the nine Widgets that
       // have moved into their own modules. Of the two chains above, only the
       // entry chain still owns anything; the arrow-press chain is empty. Both
       // go in #118, once the last Widget follows.

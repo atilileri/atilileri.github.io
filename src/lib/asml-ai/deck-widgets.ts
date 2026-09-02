@@ -58,6 +58,7 @@ import { sessionWidget } from "./session.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
 import { tokenLiveWidget } from "./token-live.widget";
 import { stochasticWidget } from "./stochastic.widget";
+import { stopPointWidget } from "./stop-point.widget";
 import { wayfinderWidget } from "./wayfinder.widget";
 
 /**
@@ -104,6 +105,7 @@ export const WIDGETS: Widget[] = [
   stochasticWidget,
   lotteryWidget,
   tokenLiveWidget,
+  stopPointWidget,
 ];
 
 /**
