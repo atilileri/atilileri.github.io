@@ -252,3 +252,33 @@ lines exist.
   hand under Playwright while #117 was open, and the run is recorded on that
   issue. A committed spec for them is worth having and is not part of a move:
   it is a new assertion about behaviour, so it gets its own ticket.
+
+- **The pointer has its own spec, and it is a second file.** The walk is a
+  clicker: it presses arrows through 67 states and photographs each one, which
+  is what a move has to prove. Nine of the thirteen Widgets bind no listener at
+  all, so the walk is the whole story for them. Four bind a pointer or a resize
+  listener, and three are asserted in `tests/asml-ai/deck-pointer.spec.ts`
+  (#124): the benchmark chart, the cost dial, and the context primitives. The
+  fourth — the session Slide's `resize` re-measure — is deliberately left out:
+  asserting it means resizing the browser and reading a measured number, the
+  noisiest assertion available for the least protected behaviour.
+
+  The primitives Slide is in that list for a reason the other two are not. It
+  is the one Widget where the pointer and the clicker drive the same state, and
+  its module claims they "can never disagree". The spec now reaches the same
+  Fragment by a block click and by the arrow, and compares the two pictures.
+
+  The spec asserts DOM state, not pixels, with two exceptions: the filtered
+  chart and the lit bill row, where the DOM only proves a class was written and
+  a picture is what proves the room sees the change. Both shoot one element,
+  never the page.
+
+- **A resized window does not change the benchmark chart's `viewBox`, and that
+  is correct.** `fitPlot` shapes the coordinate box to the RATIO of the plot's
+  measured box, and reveal.js scales its 1600×900 canvas uniformly to fit any
+  window. Both sides of the plot's box therefore change by the same factor and
+  the ratio is unchanged: the room's projector gets the same chart shape at any
+  aspect. #124 asserted a changed `viewBox` first and it failed against a Deck
+  that was working. What the resize handler buys is the redraw itself, and that
+  is what the spec asserts. Recorded here so the wrong assertion is not written
+  a second time.
