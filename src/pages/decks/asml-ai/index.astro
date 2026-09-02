@@ -1757,27 +1757,6 @@ const baselineBlocks = BASELINE.length;
         countTimer = requestAnimationFrame(tick);
       }
 
-      // ── Live tokenizer ────────────────────────────────────────────
-      const tokInput = document.querySelector<HTMLTextAreaElement>("[data-tok-input]");
-      function updateTokens() {
-        if (!tokInput) return;
-        const text = tokInput.value;
-        const chars = text.length;
-        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-        const tokens = Math.max(0, Math.ceil(chars / 4));
-        const cost = ((tokens / 1_000_000) * 15).toFixed(6);
-        const set = (sel: string, v: string) => {
-          const el = document.querySelector(sel);
-          if (el) el.textContent = v;
-        };
-        set("[data-tok-chars]", String(chars));
-        set("[data-tok-words]", String(words));
-        set("[data-tok-tokens]", String(tokens));
-        set("[data-tok-cost]", "$" + cost);
-      }
-      tokInput?.addEventListener("input", updateTokens);
-      updateTokens();
-
       // ── Interactive benchmark chart (DeepSWE v1.1) ────────────────
       // Hand-rolled SVG — no charting library, so the deck palette reaches
       // inside the chart. Two views over one dataset: a cost/pass-rate scatter
