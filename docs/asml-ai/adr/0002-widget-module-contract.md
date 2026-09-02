@@ -70,8 +70,8 @@ default, which was wrong — and they collapse into `el`.
 1 700.
 
 The migration runs as one commit per Widget — sixteen when this ADR was
-written, fourteen once the terminal replay and the scrolly both proved
-unreachable and were deleted
+written, thirteen once the terminal replay, the scrolly and the bar chart all
+proved unreachable and were deleted
 rather than moved — with both `if` chains alive until the last one. `data-smartzone` goes first — one `sync`, one
 `fragSel`, no listeners, no timers — because it proves the contract on the
 easiest case. One Playwright walk of every Slide and every Fragment, forward and
@@ -150,11 +150,28 @@ lines exist.
   and "owns an observer that needs `init`", describe the showcase Deck and are
   retired rather than unmet.
 
-  THE PATTERN IS NOW THREE DEEP, and worth naming for whoever migrates next:
+  THE PATTERN IS NOW FOUR DEEP, and worth naming for whoever migrates next:
   this Deck was copied from the showcase and inherited behaviour for Slides it
   never built. A migration ticket is where that surfaces, because moving code
   forces someone to find the markup it drives. Check the markup exists before
   reasoning about how a Widget should move.
+
+- **The bar chart is deleted, not migrated.** The fourth of them, and the last
+  one the chains can hide: `data-viz`, `data-bars` and `.bar-fill` appear
+  nowhere in this Deck's markup, so `resetBars` and `growBars` walked an empty
+  node list and the `onShow` branch that called them never fired. Its `.bars`
+  and `.bar-fill` theme rules, and its line in the reduced-motion block, went
+  with it. The showcase Deck renders the four bars and is untouched.
+
+  Like the scrolly it DID sit in the entry chain, so it was one of the counted
+  Widgets: deleting it takes the Deck from fourteen to **thirteen**. #116 named
+  it as one of two Widgets to migrate, which makes that ticket one Widget — the
+  count-up — and retires the data-viz half rather than leaving it unmet.
+
+  `.bar-fill` was on this spec's dead-CSS list and #108 kept it, correctly: the
+  controller built that selector as a string, so the rule had a caller. A rule
+  whose only caller is dead code is a second-order version of the same pattern,
+  and it only came free once the controller went.
 
 - **The benchmark chart keeps its eager draw.** `data-bench` draws at startup,
   before its Slide is ever seen, and it is the one Widget that appears in neither

@@ -2,7 +2,7 @@
  * The Widget contract and the registry that mounts it. Spec #106, ADR 0002.
  *
  * A Widget is the interactive part of one Slide. Today reveal.js reaches the
- * Deck's fourteen Widgets through two long chains of `if` in the Deck's inline
+ * Deck's Widgets through two long chains of `if` in the Deck's inline
  * `<script>` — one that runs when the room arrives on a Slide, one that runs
  * when the room presses an arrow — and nothing makes the two chains agree
  * about a Widget. This module replaces both chains with a registry: a Widget
@@ -14,7 +14,10 @@
  * still alive and still own every Widget that has not moved, so the Deck is
  * presentable at every commit. Widgets join the registry one ticket at a time,
  * each migration commit deleting exactly the branches it replaces, and the
- * chains are deleted once the registry holds all fourteen.
+ * chains are deleted once the registry holds them all. No count is written
+ * here: four of the sixteen this refactor started with turned out to be dead
+ * code, and a number beside the list goes stale on the commit that finds the
+ * next one. `WIDGETS` below is the list.
  *
  * The reveal.js event names live here, beside the contract that reads them,
  * so the rule "arrival calls `enter`, arrow press calls `sync`" has exactly
