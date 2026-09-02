@@ -62,8 +62,8 @@ import RoadmapDivider from "../../../components/deck/RoadmapDivider.astro";
 import PipelineRail from "../../../components/deck/PipelineRail.astro";
 import ProcessSummary from "../../../components/deck/ProcessSummary.astro";
 // The `wayfinder` Stop's picture (#98 comp E, built by #105). Its nine tickets
-// and four steps live in src/lib/asml-ai/wayfinder-map.ts; the island near the
-// bottom of this file paints the board from them.
+// and four steps live in src/lib/asml-ai/wayfinder-map.ts, and
+// src/lib/asml-ai/wayfinder.widget.ts paints the board from them.
 import WayfinderMap from "../../../components/deck/WayfinderMap.astro";
 import BillLadder from "../../../components/deck/BillLadder.astro";
 
@@ -1565,10 +1565,6 @@ const baselineBlocks = BASELINE.length;
       import * as STOCH from "../../../lib/asml-ai/stochastic";
       import * as HAL from "../../../lib/asml-ai/halluc";
       import * as RB from "../../../lib/asml-ai/roll-back";
-      // Chapter 5's `wayfinder` Slide. Same contract as the chapter-3 and
-      // chapter-4 islands: the whole board is re-derived from the fragment
-      // count, so → and ← replay the walk in both directions.
-      import * as WFM from "../../../lib/asml-ai/wayfinder-map";
       // The DOM helpers more than one Widget uses (#110, spec #106, ADR 0002).
       // They are imported rather than closed over, so that a Widget moving
       // into its own module never has to import from another Widget.
@@ -3103,10 +3099,6 @@ const baselineBlocks = BASELINE.length;
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
           if (frame) frame.scrollTop = 0;
         }
-        // Chapter 5's stack. Same contract again: the island re-derives
-        // everything from the fragment count, so entering from either
-        // direction lands on the right state.
-        if (slide.hasAttribute("data-wayfinder")) syncWayfinder(slide);
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
@@ -3124,137 +3116,14 @@ const baselineBlocks = BASELINE.length;
         const section = f?.closest("section") as HTMLElement | null;
         if (section?.hasAttribute("data-stoch")) syncStoch(section);
         if (section?.hasAttribute("data-token-live")) renderLive();
-        if (section?.hasAttribute("data-wayfinder")) syncWayfinder(section);
       }
       deck.on("fragmentshown", (e: any) => onFragment(e, true));
       deck.on("fragmenthidden", (e: any) => onFragment(e, false));
 
-      // The registry side of the same dispatch. It owns the Widgets that have
-      // moved into their own modules — chapter 5's step Widget is the fourth —
-      // and the two chains above own the rest until each one follows.
+      // The registry side of the same dispatch. It owns the five Widgets that
+      // have moved into their own modules, and the two chains above own the
+      // rest until each one follows.
       mountWidgets(deck);
-
-      /* ══════════════════════════════════════════════════════════════════════
-       *  CHAPTER 5 — the `wayfinder` Slide's map (#98 comp E, built by #105).
-       *
-       *  Nine tickets move between four columns across four steps. The board
-       *  is re-rendered from `wayfinder-map.ts` on every fragment change, then
-       *  FLIP puts the motion back: each ticket is measured BEFORE the repaint
-       *  and slides from where it was to where it now is, so the room watches a
-       *  ticket LEAVE Blocked rather than watching a table re-draw. A ticket
-       *  that did not exist rises in instead, which is what makes the spawn on
-       *  step 1 read as a spawn.
-       *
-       *  ⚠ REVEAL SCALES THE CANVAS, so the measured pixels are divided by
-       *  `deck.getScale()` before they drive the transform. A build that
-       *  forgets this gets drift at every viewport except 1600×900 (#98).
-       *
-       *  ⚠ HISTORY COMPRESSES, and it is not decoration: nine full cards run
-       *  off the bottom of the canvas. A ticket closed on an EARLIER step drops
-       *  to a one-line ledger row, and only the ones closing NOW show their
-       *  answer. Without this the last two steps overflow.
-       * ═══════════════════════════════════════════════════════════════════ */
-
-      function syncWayfinder(slide: HTMLElement) {
-        const board = slide.querySelector<HTMLElement>("[data-wf-board]");
-        if (!board) return;
-        const step = slide.querySelectorAll(".ch5-step.visible").length;
-        const T = WFM.TICKETS;
-        const slot = (k: string) =>
-          slide.querySelector<HTMLElement>(`[data-wf-slot='${k}']`)!;
-        const closedAt = (id: number, at: number) =>
-          (T.find((t) => t.id === id)?.closed ?? 99) <= at;
-
-        // ── Measure, so the repaint below can be un-done into a slide ──
-        const before = new Map<string, DOMRect>();
-        board
-          .querySelectorAll<HTMLElement>("[data-tid]")
-          .forEach((e) => before.set(e.dataset.tid!, e.getBoundingClientRect()));
-        const firstPaint = before.size === 0;
-
-        const card = (t: (typeof T)[number], state: string) => {
-          if (state === "done" && t.closed < step) {
-            return `<p class="wf-row ty-${t.type}" data-tid="t${t.id}"><span class="tick">closed</span><span class="id">#${t.id}</span><span class="q">${t.q}</span></p>`;
-          }
-          const blocker =
-            state === "blocked" ? `<span class="blk">waits on #${t.blockedBy}</span>` : "";
-          // A freed ticket says which ticket freed it, on the step it moves.
-          const freed =
-            state === "open" && t.blockedBy && closedAt(t.blockedBy, step)
-              ? `<span class="freed">#${t.blockedBy} closed</span>`
-              : "";
-          const born = t.born && t.from === step ? `<span class="born">${t.born}</span>` : "";
-          const ans = state === "done" ? `<span class="a">${t.a}</span>` : "";
-          return `<div class="wf-card ${state} ty-${t.type}" data-tid="t${t.id}"><span class="head"><span class="ty">${t.type}</span><span class="id">#${t.id}</span></span><span class="q">${t.q}</span>${blocker}${freed}${born}${ans}</div>`;
-        };
-
-        const cols: Record<string, string[]> = { done: [], open: [], blocked: [] };
-        for (const t of T) {
-          if (t.from > step) continue;
-          const state =
-            t.closed <= step
-              ? "done"
-              : t.blockedBy && !closedAt(t.blockedBy, step)
-                ? "blocked"
-                : "open";
-          cols[state].push(card(t, state));
-        }
-        slot("done").innerHTML = cols.done.join("");
-        slot("open").innerHTML = cols.open.join("");
-        slot("blocked").innerHTML =
-          cols.blocked.join("") || `<p class="wf-empty">nothing waiting</p>`;
-
-        // Fog: in scope, written down, not sharp enough to ask. A patch leaves
-        // the column either by graduating into a ticket or by being ruled out
-        // of scope — the second one is why this filters against OUT as well.
-        slot("fog").innerHTML = WFM.FOG.filter(
-          (f) => f.graduates < 0 || f.graduates > step,
-        )
-          .filter((f) => !WFM.OUT.some((o) => o.text === f.text && o.from <= step))
-          .map((f) => `<p class="wf-fog" data-tid="f${f.text}">${f.text}</p>`)
-          .join("");
-        slot("out").innerHTML = WFM.OUT.filter((o) => o.from <= step)
-          .map((o) => `<p class="wf-out" data-tid="o${o.text}">${o.text}</p>`)
-          .join("");
-
-        const open = cols.open.length,
-          blocked = cols.blocked.length,
-          done = cols.done.length;
-        slide.querySelector<HTMLElement>("[data-wf-tally]")!.textContent =
-          `${done + open + blocked} tickets · ${done} closed · ${blocked} blocked`;
-        // The last beat: nothing left to decide, so the map goes orange and
-        // hands itself to /to-spec.
-        const finished = open + blocked === 0;
-        slide.querySelector<HTMLElement>("[data-wf-map]")!.classList.toggle("ready", finished);
-        board.classList.toggle("clear", finished);
-        slide
-          .querySelector<HTMLElement>("[data-wf-col='open']")!
-          .classList.toggle("lit", open > 0);
-        slide.querySelector<HTMLElement>("[data-wf-step]")!.innerHTML =
-          WFM.STEPS[Math.min(step, WFM.STEPS.length - 1)];
-
-        // ── Play: every ticket travels from where it was; new ones rise in ──
-        const k = (deck as any).getScale?.() || 1;
-        board.querySelectorAll<HTMLElement>("[data-tid]").forEach((e) => {
-          const was = before.get(e.dataset.tid!);
-          if (!was) {
-            if (!firstPaint) e.classList.add("wf-in");
-            return;
-          }
-          const now = e.getBoundingClientRect();
-          const dx = (was.left - now.left) / k;
-          const dy = (was.top - now.top) / k;
-          if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-          e.style.transition = "none";
-          e.style.transform = `translate(${dx}px, ${dy}px)`;
-          e.classList.add("wf-moving");
-          requestAnimationFrame(() => {
-            e.style.transition = "transform 520ms cubic-bezier(.2,.72,.2,1)";
-            e.style.transform = "";
-            window.setTimeout(() => e.classList.remove("wf-moving"), 540);
-          });
-        });
-      }
     </script>
   </body>
 </html>

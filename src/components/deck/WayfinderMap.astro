@@ -6,18 +6,18 @@
  * WHAT IT DRAWS: one map issue above a bracket, and the map's tickets below it
  * in four columns — Decided · Takeable now · Blocked · Not yet specified, with
  * Out of scope beneath the fog. The board is EMPTY MARKUP here; the island in
- * `index.astro` fills it from `wayfinder-map.ts` on every fragment change, in
- * both directions, so ← replays the walk backwards exactly.
+ * `wayfinder.widget.ts` fills it from `wayfinder-map.ts` on every Fragment
+ * change, in both directions, so ← replays the walk backwards exactly.
  *
  * WHY THE STEP IS DRIVEN BY INVISIBLE FRAGMENTS. The comp first used a
  * presenter key, because reveal owns `n` and `p` and the obvious keys were
  * taken. Fragments cost NO key at all and make `→` and `←` behave the way they
- * do on every other Slide in the deck (#98). The three `.ch5-step` spans are
- * counters, not content — the island reads how many are visible.
+ * do on every other Slide in the deck (#98). The three spans in the Fragment
+ * row are counters, not content — the Widget reads how many are visible.
  *
  * ⚠ HISTORY COMPRESSES, and the build must keep it (#98). Nine full cards run
  * off the bottom of the canvas. A ticket closed on an EARLIER step drops to a
- * one-line ledger row; only the ones closing NOW show their answer. The island
+ * one-line ledger row; only the ones closing NOW show their answer. The Widget
  * owns that rule; this component only holds the slots it fills.
  *
  * THE RAIL IS NOT HERE. The Slide composes `PipelineRail` above this picture,
@@ -64,7 +64,10 @@ import { MAP } from "../../lib/asml-ai/wayfinder-map";
 
 <p class="ch5-wf-step" data-wf-step></p>
 
-{/* Counters. Reveal advances on them; the island reads their count. */}
-<span class="fragment ch5-step" data-fragment-index="1" aria-hidden="true"></span>
-<span class="fragment ch5-step" data-fragment-index="2" aria-hidden="true"></span>
-<span class="fragment ch5-step" data-fragment-index="3" aria-hidden="true"></span>
+{/* Counters. Reveal advances on them; the Widget reads their count. They sit
+    in a Fragment row, because that row is the element `fragSel` names (#113). */}
+<div class="ch5-step-row" data-wf-frag-row aria-hidden="true">
+  <span class="fragment" data-fragment-index="1"></span>
+  <span class="fragment" data-fragment-index="2"></span>
+  <span class="fragment" data-fragment-index="3"></span>
+</div>
