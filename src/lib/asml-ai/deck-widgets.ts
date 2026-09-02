@@ -1,22 +1,21 @@
 /**
  * The Widget contract and the registry that mounts it. Spec #106, ADR 0002.
  *
- * A Widget is the interactive part of one Slide. Today reveal.js reaches the
+ * A Widget is the interactive part of one Slide. reveal.js used to reach the
  * Deck's Widgets through two long chains of `if` in the Deck's inline
- * `<script>` — one that runs when the room arrives on a Slide, one that runs
- * when the room presses an arrow — and nothing makes the two chains agree
- * about a Widget. This module replaces both chains with a registry: a Widget
+ * `<script>` — one that ran when the room arrived on a Slide, one that ran
+ * when the room pressed an arrow — and nothing made the two chains agree
+ * about a Widget. This module replaced both chains with a registry: a Widget
  * declares the Slide attribute it answers to and what it does on arrival and
  * on an arrow press, in one place, and cannot be wired to one event and
  * forgotten on the other.
  *
- * This is the expand half of an expand–contract refactor. Both `if` chains are
- * still alive, so the Deck was presentable at every commit, but since #117
- * neither holds a Widget branch: every Widget is in `WIDGETS` below, and #118
- * deletes the chains. No count is written here: four of the sixteen this
- * refactor started with turned out to be dead code, and a number beside the
- * list goes stale on the commit that finds the next one. `WIDGETS` below is
- * the list.
+ * The refactor ran expand–contract, so the Deck stayed presentable at every
+ * commit: both chains lived alongside the registry until #117 emptied them,
+ * and #118 deleted them. `WIDGETS` below is now the only wiring. No count is
+ * written here: four of the sixteen this refactor started with turned out to
+ * be dead code, and a number beside the list goes stale on the commit that
+ * finds the next one. `WIDGETS` below is the list.
  *
  * The reveal.js event names live here, beside the contract that reads them,
  * so the rule "arrival calls `enter`, arrow press calls `sync`" has exactly
@@ -47,9 +46,9 @@
  *    move changed nothing the room can see.
  *
  * A throw inside a Widget stops the Widgets after it on that Slide. That is
- * what the `if` chains do today, so the registry keeps it. Guarding the mount
- * loop would be an improvement, and an improvement is a behaviour change; it
- * belongs in its own ticket, after the chains are gone.
+ * what the `if` chains did, so the registry keeps it. Guarding the mount loop
+ * would be an improvement, and an improvement is a behaviour change; it
+ * belongs in its own ticket.
  */
 
 import { benchWidget } from "./bench.widget";
@@ -99,8 +98,9 @@ export type Widget = {
 };
 
 /**
- * The registry. Widgets are appended here as they move out of the two `if`
- * chains, smart zone first.
+ * The registry. Every Widget in the Deck, in the order the migration moved
+ * them out of the two `if` chains, smart zone first. A new Widget is appended
+ * here, and nowhere else.
  */
 export const WIDGETS: Widget[] = [
   smartZoneWidget,
