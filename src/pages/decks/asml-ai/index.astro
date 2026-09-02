@@ -1726,21 +1726,6 @@ const baselineBlocks = BASELINE.length;
         slide.classList.add("is-live");
       }
 
-      // ── Animated data-viz (deterministic — resets & regrows on entry) ──
-      function resetBars(slide: HTMLElement) {
-        slide
-          .querySelectorAll<HTMLElement>("[data-bars] .bar-fill")
-          .forEach((el) => (el.style.width = "0%"));
-      }
-      function growBars(slide: HTMLElement) {
-        slide
-          .querySelectorAll<HTMLElement>("[data-bars] .bar-fill")
-          .forEach((el) => {
-            const w = el.getAttribute("data-w") ?? "0";
-            el.style.width = w + "%";
-          });
-      }
-
       // ── "The one number" count-up ─────────────────────────────────
       let countTimer: number | undefined;
       function playCount(slide: HTMLElement) {
@@ -2350,10 +2335,6 @@ const baselineBlocks = BASELINE.length;
         armHeadline(slide);
         updateChrome();
         if (slide.hasAttribute("data-chapter")) runWash();
-        if (slide.hasAttribute("data-viz")) {
-          resetBars(slide);
-          window.setTimeout(() => growBars(slide), 160);
-        }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
         if (slide.hasAttribute("data-cost-dial")) resetDial();
         // Keep the inline notes overlay in sync while it's open.
