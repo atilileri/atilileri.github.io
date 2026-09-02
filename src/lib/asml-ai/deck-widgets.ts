@@ -127,10 +127,13 @@ export type RevealApi = {
   /**
    * How much reveal has scaled the canvas to fit the window.
    *
-   * Optional because a Widget that measures the DOM must work when it is
-   * absent: the wayfinder map divides its measured pixels by this before they
-   * drive a transform, and falls back to 1. Getting that wrong gives drift at
-   * every viewport except 1600×900 (#98).
+   * The wayfinder map divides its measured pixels by this before they drive a
+   * transform; without it there is drift at every viewport except 1600×900
+   * (#98).
+   *
+   * Optional ONLY because the inline code it replaced called it optionally,
+   * and #113 was a move. reveal always supplies it. Making it required is a
+   * behaviour change and belongs in its own ticket.
    */
   getScale?: () => number;
 };
