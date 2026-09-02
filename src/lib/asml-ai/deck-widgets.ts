@@ -56,6 +56,7 @@ import { lotteryWidget } from "./lottery.widget";
 import { primitivesWidget } from "./primitives.widget";
 import { sessionWidget } from "./session.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
+import { tokenLiveWidget } from "./token-live.widget";
 import { stochasticWidget } from "./stochastic.widget";
 import { wayfinderWidget } from "./wayfinder.widget";
 
@@ -102,6 +103,7 @@ export const WIDGETS: Widget[] = [
   wayfinderWidget,
   stochasticWidget,
   lotteryWidget,
+  tokenLiveWidget,
 ];
 
 /**
