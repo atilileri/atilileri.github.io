@@ -431,31 +431,6 @@
   }
 }
 
-/* ─────────────────────── Animated data-viz (hand-rolled CSS/SVG) ── */
-.bars {
-  width: 100%;
-  max-width: 54rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  margin-top: 0.5rem;
-}
-.bar-fill {
-  height: 100%;
-  width: 0;
-  background: var(--signal);
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 0.7rem;
-  color: #fff;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  transition: width 0.9s var(--ease);
-}
-
 /* ─────────────── Interactive benchmark chart (DeepSWE v1.1) ── */
 /* The chart is the slide, so it takes every pixel the furniture leaves:
    the section is a top-aligned column and the plot is the one growing row.
@@ -3199,7 +3174,6 @@
   .reveal .h-set .h-line > span { transform: none; }
   .reveal .h-set::after,
   .reveal .h-set::before { transform: scaleX(1); }
-  .bar-fill { transition: none; }
   .chapter-wash.run { animation: none; }
   .reveal section.roadmap .roadmap-factor {
     opacity: 1;
