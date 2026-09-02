@@ -55,6 +55,7 @@ import { countFragments } from "./dom";
 import { primitivesWidget } from "./primitives.widget";
 import { sessionWidget } from "./session.widget";
 import { smartZoneWidget } from "./smart-zone.widget";
+import { wayfinderWidget } from "./wayfinder.widget";
 
 /**
  * One Widget. Every member but `attr` is optional — a Widget that only lands
@@ -96,6 +97,7 @@ export const WIDGETS: Widget[] = [
   primitivesWidget,
   sessionWidget,
   ch5StepWidget,
+  wayfinderWidget,
 ];
 
 /**
@@ -122,6 +124,15 @@ export type RevealApi = {
   getIndices: (slide: HTMLElement) => { h: number; v: number; f?: number };
   /** Move the room to a Slide, and to a Fragment within it. */
   slide: (h: number, v?: number, f?: number) => void;
+  /**
+   * How much reveal has scaled the canvas to fit the window.
+   *
+   * Optional because a Widget that measures the DOM must work when it is
+   * absent: the wayfinder map divides its measured pixels by this before they
+   * drive a transform, and falls back to 1. Getting that wrong gives drift at
+   * every viewport except 1600×900 (#98).
+   */
+  getScale?: () => number;
 };
 
 /** Arrival on a Slide: reveal fires one of these, never both, for one arrival. */

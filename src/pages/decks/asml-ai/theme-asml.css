@@ -5051,8 +5051,8 @@
    and `Reconcile` are above; this block is the pictures that hang under the
    Rail on `wayfinder`, `questions`, `slices`, `implement` and `review`.
 
-   ONE MECHANIC SERVES ALL FIVE. Each Slide carries invisible `.ch5-step`
-   fragments; the island writes how many are visible to `data-step`, and every
+   ONE MECHANIC SERVES ALL FIVE. Each Slide carries a Fragment row of invisible
+   counters; its Widget writes how many are visible to `data-step`, and every
    rule below keys off that number. So a picture is a STATE, written once per
    step, rather than a pile of elements fading over each other — and ← walks
    every one of them back exactly, because nothing is remembered.
@@ -5065,10 +5065,9 @@
 
 /* The counters are state carriers, never content. Reveal advances on them.
    They sit in a Fragment row, which is the element a Widget's `fragSel` names
-   (#113); `.ch5-step` is the older, un-rowed spelling and goes with the last
-   Slide still using it. */
-.reveal .ch5-step-row,
-.reveal .ch5-step {
+   (#113). The un-rowed `.ch5-step` spelling went with the wayfinder Slide, the
+   last one that used it. */
+.reveal .ch5-step-row {
   position: absolute;
   width: 0;
   height: 0;
