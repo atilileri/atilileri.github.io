@@ -33,7 +33,7 @@
 import { CURVES } from "./curves";
 import type { Widget } from "./deck-widgets";
 import { q, svgEl } from "./dom";
-import { USD_PER_EUR, fmtEur } from "./rates";
+import { USD_PER_EUR, eurOfUsd, fmtEur } from "./rates";
 
 /** The Slide attribute this Widget answers to. */
 const ATTR = "data-stop";
@@ -41,9 +41,18 @@ const ATTR = "data-stop";
 /** The one `<svg>` the chart is drawn into. Carries the `data-built` guard. */
 const SVG = "[data-stop-svg]";
 
-const STOP_CURVE = CURVES.find((c) => c.name === "claude-fable-5")!;
+/**
+ * The one curve this Slide frames. A data miss gets the same sentence ADR 0002
+ * gives a DOM miss: throw where it happened. `!` would let a renamed model in
+ * `curves.ts` reach the DEV block below as `undefined` and take down
+ * `mountWidgets` — and every Widget with it — at module load.
+ */
+const STOP_CURVE = (() => {
+  const c = CURVES.find((c) => c.name === "claude-fable-5");
+  if (!c) throw new Error("curves.ts has no claude-fable-5 curve");
+  return c;
+})();
 const STOP = {
-  VB: { w: 1240, h: 600 },
   X0: 120, XN: 1194, Y0: 520, YN: 70,
   // The plot is framed on this curve alone, so the shape of ONE model's
   // diminishing return fills the Slide; the bench chart's shared scale
@@ -54,7 +63,6 @@ const STOP = {
   // here because the Slide compares levels of one curve, not models.
   cMin: 0, cMax: 24, sMin: 58, sMax: 71,
 };
-const stopEur = (usd: number) => usd / USD_PER_EUR;
 const SX = (c: number) =>
   STOP.X0 + ((c - STOP.cMin) / (STOP.cMax - STOP.cMin)) * (STOP.XN - STOP.X0);
 const SY = (s: number) =>
@@ -63,7 +71,7 @@ const SY = (s: number) =>
 function stopStep(i: number) {
   const p = STOP_CURVE.pts;
   return {
-    eur: stopEur(p[i].cost) - stopEur(p[i - 1].cost),
+    eur: eurOfUsd(p[i].cost) - eurOfUsd(p[i - 1].cost),
     pts: p[i].rate - p[i - 1].rate,
     pct: Math.round((p[i].cost / p[i - 1].cost - 1) * 100),
   };
@@ -174,7 +182,7 @@ function build(slide: HTMLElement): void {
     const val = svgEl("tspan", { x, class: "delta" });
     val.textContent = i
       ? `+${fmtEur(stopStep(i).eur)} → ${stopPtsLabel(stopStep(i).pts)}`
-      : `${fmtEur(stopEur(pt.cost))} · ${pt.rate}%`;
+      : `${fmtEur(eurOfUsd(pt.cost))} · ${pt.rate}%`;
     g.append(val);
     // The turn is the Slide: the last level gets the sentence the other
     // four don't need, so nobody has to do the arithmetic on the wall.
@@ -210,6 +218,10 @@ function build(slide: HTMLElement): void {
 // Slide. It is a DEV-only `console.warn`, so it is not work the room pays
 // for and it is not the "loading the file does work" that ADR 0002 is
 // against.
+// Runs at module load, as it did inline. ⚠ Imports hoist, so this is now
+// EARLIER than the inline script body rather than partway through it. Dev
+// only, and nothing the room or the walk sees, but "the same moment" would
+// not be true.
 if (import.meta.env.DEV) {
   const p = STOP_CURVE.pts;
   const last = p[p.length - 1], prev = p[p.length - 2];
