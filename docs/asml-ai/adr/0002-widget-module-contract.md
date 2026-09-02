@@ -221,12 +221,21 @@ lines exist.
   belongs with the markup it fills, and it goes when that markup becomes a
   component — the deferred change at the top of this ADR, not this one.
 
-- **Both `if` chains own nothing after #117, so #118 is a deletion.** The cost
-  dial's `resetDial` was the entry chain's last Widget branch. What `onShow`
-  still does — `armHeadline`, `updateChrome`, the Wash on `data-chapter`, and
-  the notes overlay — is Chrome: it runs on every Slide unconditionally, so a
-  registry buys it nothing, and this ADR always meant it to stay. The
-  arrow-press chain has been empty since #114.
+- **Both `if` chains are gone, and #118 deleted them and nothing else.** The
+  cost dial's `resetDial` was the entry chain's last Widget branch, so after
+  #117 neither chain owned a Widget. #118 removed the arrow-press chain with
+  its two reveal bindings, and renamed the arrival function `onShow` to
+  `onArrival` because what it still does — `armHeadline`, `updateChrome`, the
+  Wash on `data-chapter`, and the notes overlay — is Chrome, not dispatch: it
+  runs on every Slide unconditionally, so a registry buys it nothing, and this
+  ADR always meant it to stay. The registry is now the only wiring in the Deck.
+
+- **Thirteen Widgets moved, not sixteen, and the tickets kept saying sixteen.**
+  #106 and its children count sixteen because that is what the two chains held
+  when the map was charted; four of them turned out to be dead code and were
+  deleted rather than moved as the migration reached them. `WIDGETS` in
+  `deck-widgets.ts` holds thirteen and is the list. No count is written beside
+  it, for the same reason the count in the page file went stale three times.
 
 - **The benchmark chart's eager draw survived the move, and it was measured.**
   The chart drew at module scope before; it draws from `init`, at

@@ -1562,11 +1562,9 @@ const baselineBlocks = BASELINE.length;
         fmtEur,
         fmtInt,
       } from "../../../lib/asml-ai/rates";
-      import * as RB from "../../../lib/asml-ai/roll-back";
-      // The Widget contract and its registry (#109, spec #106, ADR 0002).
-      // Since #117 it owns EVERY Widget in the Deck: the two `if` chains below
-      // still run, but neither has a Widget branch left in it. #118 deletes
-      // them.
+      // The Widget contract and its registry (#109, spec #106, ADR 0002). It
+      // owns EVERY Widget in the Deck, and since #118 it is the only thing that
+      // does: the two `if` chains are deleted.
       import { mountWidgets } from "../../../lib/asml-ai/deck-widgets";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
@@ -1732,8 +1730,9 @@ const baselineBlocks = BASELINE.length;
 
          One thing still inline here: the input-billing ladder, which writes
          four figures into markup once and binds nothing. It answers to no
-         Slide attribute and has no branch in either chain, so it is not a
-         Widget and the registry has nothing to offer it.
+         Slide attribute and it never had a branch in either chain, so it is
+         not a Widget and the registry has nothing to offer it (ADR 0002). It
+         goes when its markup becomes a component.
 
          The chapter's three Widgets are all modules now — the vocabulary
          Slide's chips and counter in `lib/asml-ai/token-live.widget.ts`
@@ -1767,8 +1766,13 @@ const baselineBlocks = BASELINE.length;
         set("[data-bill-eur]", fmtEur(eur, eurSigDecimals(eur)));
       })();
 
-      // ── Wire the per-slide lifecycle (deterministic replay on entry) ──
-      function onShow(slide: HTMLElement) {
+      // ── What arrival does that is not a Widget ────────────────────
+      // The Headline, the Chrome, the Wash and the notes overlay. All four run
+      // on every Slide unconditionally, so the registry buys them nothing and
+      // ADR 0002 keeps them here. This is not a dispatch chain: it holds no
+      // `if` on a Slide attribute and it asks no question about which Slide
+      // arrived, apart from the one flag that fires the Wash.
+      function onArrival(slide: HTMLElement) {
         armHeadline(slide);
         updateChrome();
         if (slide.hasAttribute("data-chapter")) runWash();
@@ -1776,27 +1780,18 @@ const baselineBlocks = BASELINE.length;
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }
 
-      deck.on("slidechanged", (e: any) => onShow(e.currentSlide as HTMLElement));
-      deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
+      deck.on("slidechanged", (e: any) => onArrival(e.currentSlide as HTMLElement));
+      deck.on("ready", (e: any) => onArrival(e.currentSlide as HTMLElement));
 
-      // The arrow-press chain, EMPTY since #114. Both chains now own nothing:
-      // the cost dial was the entry chain's last Widget branch and it moved in
-      // #117, so what `onShow` still does above is Chrome — the headline, the
-      // counter, the Wash and the notes overlay — which runs on every Slide
-      // and which `index.astro` keeps by ADR 0002. They stay wired until #118
-      // deletes them, so the last step of the migration is a deletion and
-      // nothing else.
-      function onFragment(_e: any) {}
-      deck.on("fragmentshown", (e: any) => onFragment(e));
-      deck.on("fragmenthidden", (e: any) => onFragment(e));
-
-      // The registry side of the same dispatch, and since #117 the ONLY side
-      // that owns a Widget. `WIDGETS` in `deck-widgets.ts` is the list, and
-      // reading it there beats a number here that has to be re-edited.
+      // Every Widget in the Deck, wired to reveal.js in one call. `WIDGETS` in
+      // `deck-widgets.ts` is the list, and reading it there beats a number here
+      // that has to be re-edited: this comment carried a count until #115, it
+      // went stale on all three migration commits before it, and three reviews
+      // caught it.
       //
-      // This comment carried a count until #115. It went stale on all three
-      // migration commits before it and three reviews caught it, which is what
-      // a fact duplicated next to its source does.
+      // The two `if` chains this replaced are gone as of #118. A new Widget is
+      // now declared in its own module and appended to `WIDGETS`; there is no
+      // second place to forget.
       mountWidgets(deck);
     </script>
   </body>
