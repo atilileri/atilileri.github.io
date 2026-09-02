@@ -5051,11 +5051,16 @@
    and `Reconcile` are above; this block is the pictures that hang under the
    Rail on `wayfinder`, `questions`, `slices`, `implement` and `review`.
 
-   ONE MECHANIC SERVES ALL FIVE. Each Slide carries a Fragment row of invisible
-   counters; its Widget writes how many are visible to `data-step`, and every
-   rule below keys off that number. So a picture is a STATE, written once per
-   step, rather than a pile of elements fading over each other — and ← walks
-   every one of them back exactly, because nothing is remembered.
+   ONE MECHANIC SERVES ALL FIVE, AND IT IS THE FRAGMENT ROW. Each Slide carries
+   a row of invisible counters, and its Widget derives the whole picture from
+   how many of them are visible. So a picture is a STATE, written once per step,
+   rather than a pile of elements fading over each other — and ← walks every one
+   of them back exactly, because nothing is remembered.
+
+   WHAT THE WIDGET DOES WITH THE COUNT DIFFERS. On `questions`, `slices`,
+   `implement` and `review` it writes the number to `data-step` and every rule
+   below keys off that. On `wayfinder` it re-renders a board of tickets instead
+   and writes no `data-step`; that Slide's rules key off nothing here.
 
    COLOUR CONTRACT, unchanged: navy for structural type, signal blue for
    commands and for a thing that has been decided, ORANGE for the one live
@@ -5066,8 +5071,15 @@
 /* The counters are state carriers, never content. Reveal advances on them.
    They sit in a Fragment row, which is the element a Widget's `fragSel` names
    (#113). The un-rowed `.ch5-step` spelling went with the wayfinder Slide, the
-   last one that used it. */
-.reveal .ch5-step-row {
+   last one that used it.
+
+   A row per Widget, matching `.prim-frag-row`, `.se-frag-row` and
+   `.sz-frag-row` above: a Widget's Fragment row is its own, so two Widgets
+   sharing one class would couple them through the theme. The four rules carry
+   one shape between them, and collapsing all seven into a single `.frag-row`
+   is a tidy worth doing once the chains are gone (#118), not inside a move. */
+.reveal .ch5-step-row,
+.reveal .wf-frag-row {
   position: absolute;
   width: 0;
   height: 0;

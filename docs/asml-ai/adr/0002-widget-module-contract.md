@@ -44,10 +44,15 @@ the data module it already reads, and it exports one object:
   with it and passes the number.
 - **`init(deck)`** — runs once at startup. It owns one-time setup: the six
   Widgets that attach listeners the room drives directly, and the two `resize`
-  handlers. It is handed the reveal.js instance, because one Widget navigates
-  the Deck; every other `init` ignores the argument. This ADR first gave `init`
-  no arguments, and the primitives Widget could not move under that signature.
-- **`enter(slide)`** — the room arrived. The three replay Widgets restart here.
+  handlers. It is handed the reveal.js instance, and two Widgets read it: the
+  primitives Widget navigates the Deck, and the wayfinder map keeps the
+  instance to divide its measured pixels by `getScale()` inside `sync`. So a
+  Widget may also use `init` to KEEP the instance, not only to bind with it.
+  Every other `init` ignores the argument. This ADR first gave `init` no
+  arguments, and the primitives Widget could not move under that signature; it
+  then said every other `init` ignored it, and the wayfinder map disproved that
+  (#113).
+- **`enter(slide)`** — the room arrived. The two replay Widgets restart here.
 - **`sync(slide, shown)`** — the room pressed an arrow, or arrived. Draw the state
   for `shown` Fragments. It derives everything from `shown` and is idempotent.
 

@@ -50,9 +50,16 @@ const FLIP_EASE = "cubic-bezier(.2,.72,.2,1)";
  * The reveal instance, kept from `init` for `getScale` alone.
  *
  * `sync` is handed a Slide and a number, not the Deck, so the scale has to
- * come from somewhere. It is optional here because `sync` is written to work
- * at scale 1 if `init` never ran, which is the same fallback the inline
- * version had.
+ * come from somewhere and this is the only Widget that needs it after startup.
+ *
+ * ⚠ THE `|| 1` FALLBACK BELOW CANNOT FIRE, and is kept only because this is a
+ * move: `mountWidgets` runs every `init` before it binds a single event, so
+ * `revealDeck` is set before any `sync`, and reveal always supplies
+ * `getScale`. The inline version wrote `(deck as any).getScale?.() || 1` and
+ * this reproduces it exactly. It is worth knowing that the fallback is not a
+ * safety net — a scale of 1 where the canvas is scaled is the drift #98 exists
+ * to prevent, so if it ever did fire, it would hide the bug rather than
+ * survive it. Hardening it is a behaviour change and belongs in its own ticket.
  */
 let revealDeck: RevealApi | null = null;
 
