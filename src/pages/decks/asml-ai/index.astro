@@ -1573,7 +1573,7 @@ const baselineBlocks = BASELINE.length;
       // The Widget contract and its registry (#109, spec #106, ADR 0002).
       // Mounted beside the two `if` chains below, which still own every Widget
       // that has not moved; each Widget joins the registry one ticket at a
-      // time, and the chains go once the registry holds all fifteen.
+      // time, and the chains go once the registry holds all fourteen.
       import { mountWidgets } from "../../../lib/asml-ai/deck-widgets";
       import Reveal from "reveal.js";
       import RevealHighlight from "reveal.js/plugin/highlight/highlight.esm.js";
@@ -2111,21 +2111,6 @@ const baselineBlocks = BASELINE.length;
         wash.classList.add("run");
       }
 
-      // ── Scroll-driven narrative reveals ───────────────────────────
-      document.querySelectorAll<HTMLElement>("[data-scroll-frame]").forEach((frame) => {
-        const io = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((e) =>
-              e.target.classList.toggle("in", e.isIntersecting),
-            );
-          },
-          { root: frame, threshold: 0.55 },
-        );
-        frame
-          .querySelectorAll("[data-scroll-step]")
-          .forEach((s) => io.observe(s));
-      });
-
       /* ══════════════════════════════════════════════════════════════════
          CHAPTER A — tokens, credits, the cost dial (wayfinder #27)
 
@@ -2371,10 +2356,6 @@ const baselineBlocks = BASELINE.length;
         }
         if (slide.hasAttribute("data-one-number")) playCount(slide);
         if (slide.hasAttribute("data-cost-dial")) resetDial();
-        if (slide.hasAttribute("data-scrolly")) {
-          const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
-          if (frame) frame.scrollTop = 0;
-        }
         // Keep the inline notes overlay in sync while it's open.
         if (notesEl && !notesEl.hasAttribute("hidden")) syncNotes();
       }

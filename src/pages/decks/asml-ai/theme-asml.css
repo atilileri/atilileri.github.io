@@ -431,47 +431,6 @@
   }
 }
 
-/* SCROLL-DRIVEN NARRATIVE — a tall in-slide overflow section */
-.reveal section.scrolly {
-  justify-content: flex-start;
-}
-.scroll-frame {
-  height: 68vh;
-  overflow-y: auto;
-  scroll-snap-type: y proximity;
-  scrollbar-width: thin;
-  scrollbar-color: var(--signal) transparent;
-  width: 100%;
-  padding-right: 1rem;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    #000 8%,
-    #000 92%,
-    transparent
-  );
-}
-.scroll-step {
-  min-height: 62vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  scroll-snap-align: center;
-  opacity: 0.18;
-  transform: translateY(20px);
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
-}
-.scroll-step.in {
-  opacity: 1;
-  transform: translateY(0);
-}
-.scroll-step h3 {
-  font-size: clamp(1.8rem, 4vw, 3rem);
-}
-.scroll-step.finale h3 {
-  color: var(--signal);
-}
-
 /* ─────────────────────── Animated data-viz (hand-rolled CSS/SVG) ── */
 .bars {
   width: 100%;
@@ -3240,7 +3199,6 @@
   .reveal .h-set .h-line > span { transform: none; }
   .reveal .h-set::after,
   .reveal .h-set::before { transform: scaleX(1); }
-  .scroll-step { opacity: 1; transform: none; }
   .bar-fill { transition: none; }
   .chapter-wash.run { animation: none; }
   .reveal section.roadmap .roadmap-factor {
