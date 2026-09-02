@@ -1561,7 +1561,6 @@ const baselineBlocks = BASELINE.length;
         fmtInt,
         USD_PER_EUR,
       } from "../../../lib/asml-ai/rates";
-      import { tokenize } from "../../../lib/asml-ai/tokenize";
       import * as HAL from "../../../lib/asml-ai/halluc";
       import * as RB from "../../../lib/asml-ai/roll-back";
       // The DOM helpers more than one Widget uses (#110, spec #106, ADR 0002).
@@ -2404,15 +2403,14 @@ const baselineBlocks = BASELINE.length;
       /* ══════════════════════════════════════════════════════════════════
          CHAPTER A — tokens, credits, the cost dial (wayfinder #27)
 
-         Three vanilla-TS islands, no new runtime dependency. Every one is a
-         pure function of its markup plus module constants, so slide entry
-         replays them identically with no stored state.
+         Two vanilla-TS islands, no new runtime dependency: the input-billing
+         ladder and the bill table with its cost dial. Both are a pure
+         function of their markup plus module constants, so slide entry
+         replays them identically with no stored state. The third, the
+         vocabulary slide's chips and counter, is a Widget module now —
+         `lib/asml-ai/token-live.widget.ts` (#114).
          ══════════════════════════════════════════════════════════════════ */
 
-      const escapeHtml = (s: string) =>
-        s.replace(/[<>&"]/g, (c) =>
-          ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]!,
-        );
       const reducedMotion = () =>
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -2462,44 +2460,6 @@ const baselineBlocks = BASELINE.length;
         // same reasoning as slide 3's euro column.
         set("[data-bill-eur]", fmtEur(eur, eurSigDecimals(eur)));
       })();
-
-      // ── A3: the vocabulary slide's chips + counter ─────────────────
-      // The right panel is static markup (see the frontmatter): no renderer,
-      // no rAF loop. All this controller does is break the visible prompt into
-      // chips and put the token count above them.
-      const tkSwap = document.querySelector<HTMLElement>("[data-tk-swap]");
-      const tkChips = document.querySelector<HTMLElement>("[data-tk-chips]");
-      const tkLiveN = document.querySelector<HTMLElement>("[data-tk-live-n]");
-
-      // The billed prompt of the next slide, to the token. The question itself
-      // is ~15 tokens; the rest is the attached report, which this slide
-      // counts but never shows — the chips only ever show what is on screen.
-      const TK_ATTACHED_TOTAL = 1240;
-
-      /**
-       * Draw whichever prompt the fragment currently shows. There is no entry
-       * animation and no typing: the slide arrives finished, and the one
-       * fragment swaps the sentence for the real prompt.
-       */
-      function renderLive() {
-        if (!tkChips || !tkLiveN) return;
-        const swapped = !!tkSwap?.classList.contains("visible");
-        const msg = swapped ? tkSwap : document.querySelector<HTMLElement>("[data-tk-msg]");
-        const raw = msg?.querySelector(".tk-msg-text")?.textContent || "";
-        const toks = tokenize(raw.replace(/\s+/g, " ").trim());
-        tkChips.innerHTML = toks
-          .slice(-60)
-          .map((t) => {
-            const sp = t.text.startsWith(" ") ? " data-sp" : "";
-            return `<span class="tk-chip"${sp}><span class="t">${escapeHtml(
-              t.text.trimStart(),
-            )}</span><span class="id">${t.id}</span></span>`;
-          })
-          .join("");
-        const n = swapped ? TK_ATTACHED_TOTAL : toks.length;
-        tkLiveN.textContent = fmtInt(n);
-        countShown.set(tkLiveN, n);
-      }
 
       // ── A5: the bill table ────────────────────────────────────────
       // Twelve rates and three token counts in one grid. The knob cells span
@@ -2783,9 +2743,6 @@ const baselineBlocks = BASELINE.length;
         // Chapter 2's diagnosis slide: built once, then replayed by the
         // `.is-live` armHeadline already added at the top of this function.
         if (slide.hasAttribute("data-halluc")) buildHalluc(slide);
-        // Chapter 3's vocabulary slide re-derives its chips and counter from
-        // the fragment state, so it lands right entering from either side.
-        if (slide.hasAttribute("data-token-live")) renderLive();
         if (slide.hasAttribute("data-cost-dial")) resetDial();
         if (slide.hasAttribute("data-scrolly")) {
           const frame = slide.querySelector<HTMLElement>("[data-scroll-frame]");
@@ -2798,13 +2755,14 @@ const baselineBlocks = BASELINE.length;
       deck.on("slidechanged", (e: any) => onShow(e.currentSlide as HTMLElement));
       deck.on("ready", (e: any) => onShow(e.currentSlide as HTMLElement));
 
-      // Chapter 3's islands re-derive their whole state from the fragments on
-      // every change, in both directions.
-      function onFragment(e: any) {
-        const f = e.fragment as HTMLElement;
-        const section = f?.closest("section") as HTMLElement | null;
-        if (section?.hasAttribute("data-token-live")) renderLive();
-      }
+      // The arrow-press chain, now EMPTY. Its last three branches — the
+      // reliability scatter and chapter 3's vocabulary slide and chapter 2's
+      // stochastic slide — moved to the registry in #114, and every Widget
+      // that answers an arrow press is a module. It stays wired until #118
+      // deletes both chains, so the shape of the migration is visible in the
+      // file: the entry chain above still owns the Widgets that have not
+      // moved, and this one owns nothing.
+      function onFragment(_e: any) {}
       deck.on("fragmentshown", (e: any) => onFragment(e));
       deck.on("fragmenthidden", (e: any) => onFragment(e));
 
