@@ -17,7 +17,7 @@
 Six findings, in order of how much they change the picture.
 
 1. **Dutch speech needs no cloud account, no key, and no money.** Not a plan — measured end to end on this machine. `sherpa-onnx-node` (npm) plus a Piper `nl_NL` voice from the sherpa-onnx release assets synthesised *"Mag ik alstublieft een kilo appels? Ik woon in Eindhoven en ik leer Nederlands."* in **239 ms for 5.22 s of audio (RTF 0.046, ~21× realtime)** on this 8-core CPU with no GPU. Pure-JS MP3 encoding then took the 230 KB WAV to **21 KB at 32 kbps**. §3.
-2. **NotebookLM has no route for this user.** There is no consumer API. The one API path that did not need an enterprise licence — the standalone **Podcast API** — is marked **"Deprecated: The Podcast API is deprecated. Google isn't allowlisting new customers."** Everything else requires a Gemini Notebook Enterprise licence. That leaves browser automation, which Google's own Terms name as abuse when it violates `robots.txt`. §1.
+2. **NotebookLM has no route for this user.** There is no consumer API. The one API path that did not need an enterprise licence — the standalone **Podcast API** — is marked **"Deprecated: The Podcast API is deprecated. Google isn't allowlisting new customers."** Everything else requires a Gemini Notebook Enterprise licence. That leaves the unofficial surface. The third-party `notebooklm-py` (19.1k stars, MIT, released yesterday) reaches it, and its **master-token auth needs no per-session browser** — so an unattended route exists on paper. It stays undocumented and unsanctioned, its credential cannot be committed, and `pip` does not exist on this machine. §1.
 3. **YouTube transcripts work today, without a key — and every working route is disallowed by YouTube's `robots.txt`.** `youtube-transcript@1.3.1` pulled real Dutch ASR transcripts from NOS and Jeugdjournaal videos on the first try. The official, licence-clean `captions.download` API **only works on videos you own**. There is no sanctioned third-party route. §5.
 4. **#81's finding still holds, re-measured.** No API key in the environment, **no MCP servers configured**, no image CLI, no Python generation library, no GPU. Nothing on this machine generates an image from a prompt. But **Mermaid → SVG → PNG works entirely locally** — measured: a 13.6 KB SVG and a 2.4 KB PNG, zero cost, no account. §4.
 5. **The Web Speech API is a *reader's* feature, not a build-time one.** Headless Chromium here exposes `speechSynthesis` and returns **zero voices**. And the spec offers no way to capture synthesised audio to a file. It can speak Dutch on the learner's phone; it can never pre-render an MP3 into the repo. §3.
@@ -110,7 +110,55 @@ Google's Terms of Service, under *"Don't abuse our services"*:
 
 Measured: `notebooklm.google.com/robots.txt` → **301**, `notebook.google.com/robots.txt` → **302** (both redirect, neither serves a policy). So there is no *robots* instruction being violated by driving the NotebookLM UI — the clause above is not triggered by that specific act. The clause **is** squarely triggered by the YouTube transcript route in §5, where `robots.txt` says exactly the opposite.
 
-A third-party unofficial SDK exists (`notebooklm-py`, ~5.6k GitHub stars, surfaced by web search — **not verified by me and not a primary source**). It is a wrapper over the same unofficial surface: same login problem, same terms question, plus a dependency that breaks whenever Google changes the UI. Named here for completeness, not endorsed.
+A third-party unofficial SDK exists, `notebooklm-py`. The first draft of this section named it from a web-search snippet and did not open it. §1.6 corrects that.
+
+
+### 1.6 The unofficial SDK, re-measured
+
+**Correction.** The first draft named `notebooklm-py` from a search snippet, gave it "~5.6k stars", and left it there. The star count was wrong by a factor of three, and the conclusion in §1.3–§1.5 — *browser automation or nothing* — was too narrow. Measured on 2026-09-03 against the package registries and the project's own documentation. **Nothing was installed and nothing was run.**
+
+| Fact | Value | Source |
+|---|---|---|
+| PyPI version | `0.8.2`, uploaded **2026-09-02** | `pypi.org/pypi/notebooklm-py/json` |
+| Releases | 32 | same |
+| GitHub | `teng-lin/notebooklm-py` — **19,118 stars**, 2,567 forks, pushed 2026-09-03, not archived | `api.github.com/repos/…` |
+| Licence | MIT | both |
+| Requires | Python >= 3.10 | package metadata |
+
+The project describes itself as an *"Unofficial Python API and agentic skill for Google Gemini Notebook"*. It drives Google's **undocumented internal endpoints**. It carries no affiliation with Google, and its own README says the endpoints can change without notice.
+
+**What changes: the auth model.** §1.4 assumed a Playwright session and a `storageState` file that this map can never commit. The library documents three routes instead:
+
+> *"**Three ways to get cookies** — Interactive Playwright login (default), import from an already-signed-in browser (`login --browser-cookies chrome`, no Playwright), or a durable **master token**."*
+>
+> *"**Master-token auth** — Mints fresh web cookies **on demand** with no per-session browser (`login --master-token --account you@example.com`), so it self-heals expired sessions unattended — the auth model for servers, CI, and the remote MCP connector."*
+>
+> — [notebooklm-py README](https://github.com/teng-lin/notebooklm-py#readme)
+
+The master token removes both problems §1.4 raised: the session no longer expires into a human, and no browser runs per session. The package metadata backs this — the `android` extra pulls `gpsoauth`, the Google master-token library, and `playwright` sits in a separate optional `browser` extra.
+
+**What does not change.**
+
+- The endpoints stay undocumented and unsanctioned. §1.5's reading holds: `robots.txt` issues no instruction here, so that specific Terms clause is not triggered, but nothing makes this an approved route.
+- A master token is still a Google credential. It cannot be committed to this public repo. It becomes a GitHub secret, which is the same handling §7 describes for a Gemini key.
+- The dependency breaks whenever Google reshapes its internals.
+
+**What it exposes.** Audio Overviews, video, slide decks, infographics, quizzes, flashcards, reports, data tables and mind maps. For audio: `AudioFormat` is `DEEP_DIVE | BRIEF | CRITIQUE | DEBATE`, `AudioLength` is `SHORT | DEFAULT | LONG`. Generation is a **polled job**, not one call — `generate_audio` returns a `task_id`, and `wait_for_completion` waits on it. `download_audio` writes **M4A or MP4**; the docs name no MP3 output, so §3.2's pure-JS encoder would still have a job.
+
+⚠ **Dutch is unverified.** The docs list nine language codes and say "80+ supported". Neither `nl` nor `tr` appears in that list. Only `notebooklm language list` prints the real set, and it needs a login.
+
+⚠ **It cannot run on this machine today.** Re-measured 2026-09-03:
+
+```
+$ python3 -V                  → Python 3.12.3
+$ command -v pip pip3 pipx uv virtualenv   → all MISSING
+$ python3 -m pip -V           → No module named pip
+$ python3 -m venv <dir>       → Failing command: …/bin/python3   (no ensurepip)
+```
+
+So §4.1's "Python is read-only here" holds, and `pip install notebooklm-py` fails at step one. Installing `uv` (one user-level script, no `sudo`) would lift it. That is a machine change and a choice for #130.
+
+**Node alternatives exist and are weaker.** npm carries `notebooklm-api@0.2.3` (modified 2026-03-21) and `notebooklm@0.1.1` (2026-01-16), both unofficial TypeScript clients. Node is unrestricted here, so they need no machine change — but both are far less active than the Python package, which shipped yesterday.
 
 ---
 
@@ -417,7 +465,8 @@ Not a decision — just sorting the routes by what they need.
 - YouTube transcripts sit here too in spirit: technically keyless HTTP, but `robots.txt`-disallowed (§5.2)
 
 **Needs the user's laptop with a logged-in browser, and cannot be automated cleanly:**
-- **NotebookLM / Gemini Notebook, in every form** (§1) — the `storageState` cannot be committed to a public repo, 2FA needs a human eventually, and the whole act sits under a terms question
+- **NotebookLM / Gemini Notebook via a browser session** (§1.4) — the `storageState` cannot be committed to a public repo, and 2FA needs a human eventually
+- ⚠ **NotebookLM via `notebooklm-py`'s master token** (§1.6) belongs one bucket up, with the keyed routes: documented as self-healing and browser-free, so unattended on paper. Unverified, unsanctioned, and blocked here by the missing `pip`.
 - Listening to and approving generated Dutch audio (§3.1)
 - Approving a generated image for character consistency (#81)
 
@@ -492,4 +541,4 @@ Stated plainly, following #78's and #120's convention.
 - **The output-audio token rate for Gemini TTS.** Only the input rate (32 tok/s) is published. Every ⚠ row in §8 rests on assuming they are the same.
 - **Cloud TTS's free monthly characters.** The vendor's own page contradicts itself (§3.4).
 - **Gemini Notebook Enterprise pricing.** Not published anywhere I could reach; the pricing URL 404s.
-- **`notebooklm-py`.** Surfaced by web search, never opened, not run. Third-party, and named in §1.5 only so #130 knows it exists.
+- **`notebooklm-py`.** Registry metadata and its own docs are measured in §1.6; the library was deliberately **not installed and not run**. So its master-token route is documented, not demonstrated, and its Dutch (`nl`) support is unconfirmed — the language list needs a login.
