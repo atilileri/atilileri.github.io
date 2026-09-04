@@ -64,3 +64,11 @@ _Avoid_: Cognate note, hint, mnemonic
 **Trap**:
 A resemblance that misleads — an intuition from English or Turkish that produces wrong Dutch the learner would not notice. It is an optional field on an Item and names its direction, `en` or `tr`. An Item carries at most one Trap, and a Lesson shows at most three. A difference the learner knows they are guessing at is taught, not a Trap.
 _Avoid_: False friend, gotcha, warning, flag
+
+**Docent**:
+The single skill that runs this practice, invoked as `/docent`. It teaches, reviews, publishes and assesses; it is the only thing the learner types. Named for the Dutch and English word for a teacher, because it names the role rather than the subject.
+_Avoid_: The Dutch skill, the agent, the tutor
+
+**Mode**:
+One distinct way Docent runs, chosen from the learner's argument. Exactly four: *Session*, *Review*, *Publish*, *Assess*. Sitting an Exam task is a Session, not a Mode of its own. A Mode is never a git branch.
+_Avoid_: Branch (means git here), command, subskill, route
