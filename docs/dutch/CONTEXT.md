@@ -51,7 +51,7 @@ How far above the exam an Objective sits. Exactly three values: `exam` (B1, Staa
 _Avoid_: Level, difficulty, grade
 
 **Glossary**:
-The standing record of *metalanguage* the learner has mastered — the terms of the subject (*de/het*, *scheidbaar werkwoord*, *inburgering*), not the lexicon. Admits a term only once it is understood.
+The standing record of *metalanguage* the learner has mastered — the terms of the subject (*de/het*, *scheidbaar werkwoord*, *inburgering*), not the lexicon. Admits a term only once it is understood. It lives at `docs/dutch/METATAAL.md` and is written in **Turkish**, because it tells Docent which grammar terms it may use bare in Turkish prose.
 _Avoid_: Dictionary, lexicon, vocabulary list — the lexicon belongs to Items.
 
 **Reference**:
