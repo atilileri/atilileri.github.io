@@ -35,8 +35,20 @@ _Avoid_: Journal entry, note
 The standing one-screen statement of why this journey exists and what counts as arriving.
 
 **Plan**:
-The standing list of can-do objectives that decides what is taught next. The locked invocation shape teaches whatever is next in the Plan, dressed in a user-supplied theme.
+The standing, ordered list of Objectives that decides what is taught next, held in one English file. It carries the route and the position on it — nothing else. The locked invocation shape teaches whatever is next in the Plan, dressed in a user-supplied Theme.
 _Avoid_: Curriculum, syllabus, track
+
+**Objective**:
+One can-do descriptor, taken whole from Taalprofielen — for example *"can read a short, simple factual text about a familiar subject"*. It is never pre-cut into smaller units. It stays `active` across five or more Sessions and carries its own status, Tier, Angles covered, and the list of Sessions that worked it. KNM Objectives come from the eight syllabus themes instead, and carry no CEFR level.
+_Avoid_: Goal, can-do, sub-objective, milestone
+
+**Angle**:
+The slice of an active Objective that one Session teaches — one grammar point, one register, one text type. An Angle is chosen live, never authored in advance, and is appended to the Objective once spent. Angles run in a stated order: lexicon first, then the same lexicon across Themes, then rising difficulty toward the Tier.
+_Avoid_: Sub-objective, step, unit, slice
+
+**Tier**:
+How far above the exam an Objective sits. Exactly three values: `exam` (B1, Staatsexamen NT2 Programma I), `stretch` (B2, Programma II), and `knm` (no CEFR level). It is the operational form of the map lock *"a little above exam level"*.
+_Avoid_: Level, difficulty, grade
 
 **Glossary**:
 The standing record of *metalanguage* the learner has mastered — the terms of the subject (*de/het*, *scheidbaar werkwoord*, *inburgering*), not the lexicon. Admits a term only once it is understood.
