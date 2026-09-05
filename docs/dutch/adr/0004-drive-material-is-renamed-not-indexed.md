@@ -43,11 +43,11 @@ This produces two rules that bind every later rename in this folder:
 - **The manifest is the undo log.** [`../DRIVE-RENAME.csv`](../DRIVE-RENAME.csv) holds `old_path,new_path,file_id`
   for every file touched. The id column makes the undo exact even if a name is changed again by hand later.
 - **`DRIVE-INVENTORY.md` is regenerated** after each body, because it records facts and its facts have moved.
-- **One name was removed for privacy, not for clarity.** The recorded NT2 Taaldiensten class was called
-  `Serap ile tanisma dersi.mp4`, naming the teacher — and this public repo had published that name in the
-  inventory. [`../READING-MATERIAL.md`](../READING-MATERIAL.md) forbids publishing a name found in material, so
-  the file is renamed and the old name is scrubbed from the inventory rather than recorded in the manifest's
-  public row.
+- **One name was removed for privacy, not for clarity.** The recorded NT2 Taaldiensten class carried the
+  teacher's first name in its filename, and this public repo had published that filename in the inventory.
+  [`../READING-MATERIAL.md`](../READING-MATERIAL.md) forbids publishing a name found in material, so the file is
+  renamed and the old name is scrubbed from the inventory. The manifest's `old_path` for that one row is
+  redacted for the same reason; its Drive file id still identifies the file exactly.
 - **`dutch-listening/` keeps its names**, which were already good — except eight that were **corrupted in
   Drive** (`11-marga-klomp├⌐.mp3` for `11-marga-klompé.mp3`). Those are repaired as data, not restyled.
 - Write access to Drive is now exercised, which partly pre-empts

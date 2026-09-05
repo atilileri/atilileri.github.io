@@ -7,10 +7,10 @@ typed by hand. **This file records facts, not choices.**
 covers the podcast corpus in depth; [`READING-MATERIAL.md`](./READING-MATERIAL.md) says how the agent reads any
 of it; [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences.
 
-**Read on 2026-09-05.** A scan of the whole Drive — 22,728 directories — found Dutch material in exactly one
+**Read on 2026-09-05, and read again after the rename of the same day.** A scan of the whole Drive — 22,728 directories — found Dutch material in exactly one
 place, `atili/Dutch`, and nowhere else. Nothing here is committed to this repo, and most of it never can be.
 
-**Totals: 1,281 files, 8.61 GiB, in 31 folders.** Read again after the conversion of 2026-09-05 (below).
+**Totals: 1282 files, 8.6 GiB, in 31 folders.** Every file was renamed on 2026-09-05 so that its name explains it — see [`MATERIAL.md`](./MATERIAL.md) for the convention, [`adr/0004-drive-material-is-renamed-not-indexed.md`](./adr/0004-drive-material-is-renamed-not-indexed.md) for why, and [`DRIVE-RENAME.csv`](./DRIVE-RENAME.csv) for the old name of every file. The extra file over the 1,281 counted before is the index uploaded to the top of the folder.
 
 | Extension | Files |
 | --- | --- |
@@ -26,7 +26,7 @@ place, `atili/Dutch`, and nowhere else. Nothing here is committed to this repo, 
 
 ## The four bodies of material
 
-**1. The DUO practice exams — `oefenexamensnt2/`, 801 files, 1.04 GiB.** The complete published *openbaar
+**1. The DUO practice exams — `DUO oefenexamens NT2/`, 801 files, 1.04 GiB.** The complete published *openbaar
 examen* set for **2023, 2024 and 2025**, both programmes, all four skills. Every year carries, per skill and
 per programme, an `opgavenboekje` (the question booklet) and a `beoordelingsmodel` (the marking scheme) —
 **48 PDFs** — plus the media the Luisteren and Spreken papers play: 306 `.opus`, 53 `.webm` (VP8 video with
@@ -70,17 +70,17 @@ transcripts** — the local tree was deleted after the upload, and no transcript
 ID3 tags, a transcription of one clip, and stills from the video. See
 [`READING-MATERIAL.md`](./READING-MATERIAL.md) for how. None of them leaves Drive.
 
-- **`TRNL-all/`** — 100 clips of about 2 min 53 s, 4.8 hours in total, mono 48 kbps, dated 2016. The first clip
+- **`Goethe book2 TR-NL/`** — 100 clips of about 2 min 53 s, 4.8 hours in total, mono 48 kbps, dated 2016. The first clip
   opens *"Birçok dilde işitsel kurslar"* and then teaches `ik`, `ik en jij`, `wij beiden`, `hij en zij`, each
   Turkish phrase followed by its Dutch. That is **Goethe-Verlag's *book2* / 50LANGUAGES course, Turkish to
   Dutch, lesson 1**, whose numbering runs to exactly 100. Goethe-Verlag distributes it free for private and
   school use; the exact terms are the publisher's to state, and no one has checked them against reuse here.
   **This is the only set of the three that is plausibly free**, and it is paired Turkish–Dutch audio, which is
   what the Turkish-first lock asks for.
-- **`30gundehollandaca/`** — 28 MP3, a Turkish "Dutch in 30 days" course. Its ID3 tags read `Bilinmeyen albüm
+- **`30 Günde Hollandaca/`** — 28 MP3, a Turkish "Dutch in 30 days" course. Its ID3 tags read `Bilinmeyen albüm
   (7.11.2018 16:42:26)`, `Parça 1`, `Bilinmeyen sanatçı` — an untagged **CD rip made on 7 November 2018**.
   Commercial.
-- **`CursusA0A2/`** — one 577 MB recording, **56 minutes, 1080p**, cut in Clipchamp. It is a **recorded live
+- **`NT2 Taaldiensten - tanışma dersi A0-A2/`** — one 577 MB recording, **56 minutes, 1080p**, cut in Clipchamp. It is a **recorded live
   online NT2 class run by NT2 Taaldiensten**, whose name is in the slide footer. The slides are Dutch and at
   the stated A0–A2 level: *Zinnen maken* drills `gaan, komen, eten, drinken, wonen, werken, hebben, spreken`,
   and *Afsluiting* closes with `de les was leuk / niet leuk / makkelijk / moeilijk`. **It shows a named teacher
@@ -103,7 +103,7 @@ ID3 tags, a transcription of one clip, and stills from the video. See
 
 **The loose PDFs name their own publishers**, read out of the files on the same day: `van_start-woordenlijst_turks-web.pdf`
 is **© Boom uitgevers Amsterdam, 2019** and `woordenlijst_nederlands_turks.pdf` is **© 2013 Uitgeverij Boom**
-(*Basiscursus 1*, keyed per lesson); `dutch.pdf` is **Dutch For Dummies (Wiley)** — the filename hides it;
+(*Basiscursus 1*, keyed per lesson); `dutch.pdf` was **Dutch For Dummies (Wiley)** — the filename hid it, and now names it;
 `Survival-Dutch.pdf` is a **Dutch Academy Eindhoven** handout; and `2129-Adim_Adim_Hollandaca…pdf` reserves all
 rights to its author, runs to **58 pages not the 158 its filename claims**, and still carries the PDF title
 *"Adım adım Almanca"* from the same author's German book. So the two Turkish word lists — the only ones that
@@ -132,1008 +132,1027 @@ the source so the loss stays inaudible, but **the original is the master**. The 
 this — ffmpeg reads opus and webm directly. The converted copies exist for notebook upload, for Drive's
 in-browser player, and for the Session links the learner opens on a phone or a laptop.
 
+
+## Every name changed on 2026-09-05
+
+The names below are the ones in Drive now. **Every one of them is new.** The material arrived with names that
+carried no meaning — 753 exam media files called `Track 10.mp3`, 100 called `TRNL047.mp3`, a coursebook called
+`dutch.pdf` — and all 1,066 of them were renamed in one operation, verified file by file against the Drive file
+id so that nothing built on this folder broke.
+
+Three defects surfaced while doing it, and they are facts about the material, not about the rename:
+
+- **`30 Günde Hollandaca` is missing chapter 15.** The audio announces its own `Bölüm` number, and those numbers
+  run 1–14 and then 16–29. The old filenames ran `(1)` to `(28)` and hid the gap.
+- **`DUO oefenexamens NT2/2024 Spreken I` holds two versions of one track.** DUO published `Track 7` twice, with
+  different audio and different dates. The later one is marked `(tweede versie)`.
+- **Eight names in `dutch-listening/` were corrupted in Drive** — an accented letter mangled at download, so
+  `11-marga-klompé.mp3` was stored as `11-marga-klomp├⌐.mp3`. Two of the eight were an audio-and-transcript pair,
+  and Drive holds the only copy of those transcripts. They are repaired.
+
 ## Every file
 
-Sizes as read on 2026-09-05, after the conversion. Folders are listed alphabetically.
+Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then alphabetically.
 
-**`atili/Dutch/`** — 12 files, 639.3 MB
+**`atili/Dutch/`** — 13 files, 639.3 MB
 
-- `2129-Adim_Adim_Hollandaca-Ferhad_Yildiz-Baki-158s.pdf` — 551 KB
-- `Dutch, Teach Yourself (Quist & Strik).pdf` — 60.6 MB
-- `Dutch-Short-Stories-For-Beginners.pdf` — 8.9 MB
-- `Nederlands in actie: Methode Nederlands voor hoogopgeleide anderstaligen.pdf` — 24.2 MB
-- `Survival-Dutch.pdf` — 2.2 MB
-- `dutch.pdf` — 2.9 MB
-- `nederlands-in-gang-2017.pdf` — 11.2 MB
-- `nederlands-op-niveau.pdf` — 11.8 MB
-- `van-dale-groot-beeldwoordenboek-nederlands-english-franais-deutsch-9789066489738.djvu` — 48.6 MB
-- `van-dale-groot-beeldwoordenboek-nederlands-english-franais-deutsch-9789066489738.pdf` — 468.1 MB
-- `van_start-woordenlijst_turks-web.pdf` — 89 KB
-- `woordenlijst_nederlands_turks.pdf` — 159 KB
+- `00 README - what is here and how files are named.md` — 4 KB
+- `Adım Adım Hollandaca (Ferhad Yıldız).pdf` — 551 KB
+- `Basiscursus 1 - woordenlijst Nederlands-Turks (Boom, 2013).pdf` — 159 KB
+- `Dutch For Dummies (Wiley).pdf` — 2.9 MB
+- `Dutch Short Stories for Beginners.pdf` — 8.9 MB
+- `Nederlands in actie - methode voor hoogopgeleide anderstaligen (Coutinho).pdf` — 24.2 MB
+- `Nederlands in gang - A0-A2 (Coutinho, 2017).pdf` — 11.2 MB
+- `Nederlands op niveau - B1-B2 (Coutinho).pdf` — 11.8 MB
+- `Survival Dutch (Dutch Academy Eindhoven).pdf` — 2.2 MB
+- `Teach Yourself Dutch (Quist & Strik).pdf` — 60.6 MB
+- `Van Dale Groot Beeldwoordenboek NL-EN-FR-DE.djvu` — 48.6 MB
+- `Van Dale Groot Beeldwoordenboek NL-EN-FR-DE.pdf` — 468.1 MB
+- `Van Start - woordenlijst Nederlands-Turks (Boom, 2019).pdf` — 89 KB
 
-**`atili/Dutch/30gundehollandaca/`** — 28 files, 433.3 MB
+**`atili/Dutch/30 Günde Hollandaca/`** — 28 files, 433.3 MB
 
-- `30gundehollandaca (1).mp3` — 6.8 MB
-- `30gundehollandaca (10).mp3` — 17.9 MB
-- `30gundehollandaca (11).mp3` — 9.4 MB
-- `30gundehollandaca (12).mp3` — 12.4 MB
-- `30gundehollandaca (13).mp3` — 14.6 MB
-- `30gundehollandaca (14).mp3` — 20.8 MB
-- `30gundehollandaca (15).mp3` — 9.5 MB
-- `30gundehollandaca (16).mp3` — 10.6 MB
-- `30gundehollandaca (17).mp3` — 11.4 MB
-- `30gundehollandaca (18).mp3` — 16.4 MB
-- `30gundehollandaca (19).mp3` — 7.4 MB
-- `30gundehollandaca (2).mp3` — 10.9 MB
-- `30gundehollandaca (20).mp3` — 17.8 MB
-- `30gundehollandaca (21).mp3` — 21.8 MB
-- `30gundehollandaca (22).mp3` — 20.7 MB
-- `30gundehollandaca (23).mp3` — 17.2 MB
-- `30gundehollandaca (24).mp3` — 10.5 MB
-- `30gundehollandaca (25).mp3` — 16.3 MB
-- `30gundehollandaca (26).mp3` — 8.5 MB
-- `30gundehollandaca (27).mp3` — 20.3 MB
-- `30gundehollandaca (28).mp3` — 18.6 MB
-- `30gundehollandaca (3).mp3` — 12.6 MB
-- `30gundehollandaca (4).mp3` — 13.2 MB
-- `30gundehollandaca (5).mp3` — 12.3 MB
-- `30gundehollandaca (6).mp3` — 25.7 MB
-- `30gundehollandaca (7).mp3` — 28.7 MB
-- `30gundehollandaca (8).mp3` — 16.6 MB
-- `30gundehollandaca (9).mp3` — 24.3 MB
+- `30 Günde Hollandaca - Bölüm 01.mp3` — 6.8 MB
+- `30 Günde Hollandaca - Bölüm 02.mp3` — 10.9 MB
+- `30 Günde Hollandaca - Bölüm 03.mp3` — 12.6 MB
+- `30 Günde Hollandaca - Bölüm 04.mp3` — 13.2 MB
+- `30 Günde Hollandaca - Bölüm 05.mp3` — 12.3 MB
+- `30 Günde Hollandaca - Bölüm 06.mp3` — 25.7 MB
+- `30 Günde Hollandaca - Bölüm 07.mp3` — 28.7 MB
+- `30 Günde Hollandaca - Bölüm 08.mp3` — 16.6 MB
+- `30 Günde Hollandaca - Bölüm 09.mp3` — 24.3 MB
+- `30 Günde Hollandaca - Bölüm 10.mp3` — 17.9 MB
+- `30 Günde Hollandaca - Bölüm 11.mp3` — 9.4 MB
+- `30 Günde Hollandaca - Bölüm 12.mp3` — 12.4 MB
+- `30 Günde Hollandaca - Bölüm 13.mp3` — 14.6 MB
+- `30 Günde Hollandaca - Bölüm 14.mp3` — 20.8 MB
+- `30 Günde Hollandaca - Bölüm 16.mp3` — 9.5 MB
+- `30 Günde Hollandaca - Bölüm 17.mp3` — 10.6 MB
+- `30 Günde Hollandaca - Bölüm 18.mp3` — 11.4 MB
+- `30 Günde Hollandaca - Bölüm 19.mp3` — 16.4 MB
+- `30 Günde Hollandaca - Bölüm 20.mp3` — 7.4 MB
+- `30 Günde Hollandaca - Bölüm 21.mp3` — 17.8 MB
+- `30 Günde Hollandaca - Bölüm 22.mp3` — 21.8 MB
+- `30 Günde Hollandaca - Bölüm 23.mp3` — 20.7 MB
+- `30 Günde Hollandaca - Bölüm 24.mp3` — 17.2 MB
+- `30 Günde Hollandaca - Bölüm 25.mp3` — 10.5 MB
+- `30 Günde Hollandaca - Bölüm 26.mp3` — 16.3 MB
+- `30 Günde Hollandaca - Bölüm 27.mp3` — 8.5 MB
+- `30 Günde Hollandaca - Bölüm 28.mp3` — 20.3 MB
+- `30 Günde Hollandaca - Bölüm 29.mp3` — 18.6 MB
 
-**`atili/Dutch/CursusA0A2/`** — 1 files, 577.0 MB
+**`atili/Dutch/DUO oefenexamens NT2/`** — 48 files, 29.9 MB
 
-- `Serap ile tanisma dersi.mp4` — 577.0 MB
+- `2023 Lezen I - beoordelingsmodel.pdf` — 65 KB
+- `2023 Lezen I - opgavenboekje.pdf` — 413 KB
+- `2023 Lezen II - beoordelingsmodel.pdf` — 68 KB
+- `2023 Lezen II - opgavenboekje.pdf` — 540 KB
+- `2023 Luisteren I - beoordelingsmodel.pdf` — 155 KB
+- `2023 Luisteren I - opgavenboekje.pdf` — 2.4 MB
+- `2023 Luisteren II - beoordelingsmodel.pdf` — 201 KB
+- `2023 Luisteren II - opgavenboekje.pdf` — 1.6 MB
+- `2023 Schrijven I - beoordelingsmodel.pdf` — 275 KB
+- `2023 Schrijven I - opgavenboekje.pdf` — 504 KB
+- `2023 Schrijven II - beoordelingsmodel.pdf` — 247 KB
+- `2023 Schrijven II - opgavenboekje.pdf` — 321 KB
+- `2023 Spreken I - beoordelingsmodel.pdf` — 359 KB
+- `2023 Spreken I - opgavenboekje.pdf` — 4.2 MB
+- `2023 Spreken II - beoordelingsmodel.pdf` — 304 KB
+- `2023 Spreken II - opgavenboekje.pdf` — 2.6 MB
+- `2024 Lezen I - beoordelingsmodel.pdf` — 63 KB
+- `2024 Lezen I - opgavenboekje.pdf` — 591 KB
+- `2024 Lezen II - beoordelingsmodel.pdf` — 68 KB
+- `2024 Lezen II - opgavenboekje.pdf` — 473 KB
+- `2024 Luisteren I - beoordelingsmodel.pdf` — 155 KB
+- `2024 Luisteren I - opgavenboekje.pdf` — 1.2 MB
+- `2024 Luisteren II - beoordelingsmodel.pdf` — 196 KB
+- `2024 Luisteren II - opgavenboekje.pdf` — 620 KB
+- `2024 Schrijven I - beoordelingsmodel.pdf` — 270 KB
+- `2024 Schrijven I - opgavenboekje.pdf` — 445 KB
+- `2024 Schrijven II - beoordelingsmodel.pdf` — 247 KB
+- `2024 Schrijven II - opgavenboekje.pdf` — 421 KB
+- `2024 Spreken I - beoordelingsmodel.pdf` — 360 KB
+- `2024 Spreken I - opgavenboekje.pdf` — 2.9 MB
+- `2024 Spreken II - beoordelingsmodel.pdf` — 305 KB
+- `2024 Spreken II - opgavenboekje.pdf` — 1.1 MB
+- `2025 Lezen I - beoordelingsmodel.pdf` — 225 KB
+- `2025 Lezen I - opgavenboekje.pdf` — 590 KB
+- `2025 Lezen II - beoordelingsmodel.pdf` — 267 KB
+- `2025 Lezen II - opgavenboekje.pdf` — 647 KB
+- `2025 Luisteren I - beoordelingsmodel.pdf` — 140 KB
+- `2025 Luisteren I - opgavenboekje.pdf` — 515 KB
+- `2025 Luisteren II - beoordelingsmodel.pdf` — 140 KB
+- `2025 Luisteren II - opgavenboekje.pdf` — 207 KB
+- `2025 Schrijven I - beoordelingsmodel.pdf` — 289 KB
+- `2025 Schrijven I - opgavenboekje.pdf` — 359 KB
+- `2025 Schrijven II - beoordelingsmodel.pdf` — 274 KB
+- `2025 Schrijven II - opgavenboekje.pdf` — 295 KB
+- `2025 Spreken I - beoordelingsmodel.pdf` — 321 KB
+- `2025 Spreken I - opgavenboekje.pdf` — 1.2 MB
+- `2025 Spreken II - beoordelingsmodel.pdf` — 222 KB
+- `2025 Spreken II - opgavenboekje.pdf` — 966 KB
 
-**`atili/Dutch/TRNL-all/`** — 100 files, 124.6 MB
+**`atili/Dutch/Goethe book2 TR-NL/`** — 100 files, 124.6 MB
 
-- `TRNL001.mp3` — 1014 KB
-- `TRNL002.mp3` — 1003 KB
-- `TRNL003.mp3` — 1.0 MB
-- `TRNL004.mp3` — 1.2 MB
-- `TRNL005.mp3` — 1.3 MB
-- `TRNL006.mp3` — 1.1 MB
-- `TRNL007.mp3` — 1.2 MB
-- `TRNL008.mp3` — 1.1 MB
-- `TRNL009.mp3` — 1.1 MB
-- `TRNL010.mp3` — 1.2 MB
-- `TRNL011.mp3` — 1.0 MB
-- `TRNL012.mp3` — 1.3 MB
-- `TRNL013.mp3` — 1.1 MB
-- `TRNL014.mp3` — 1.5 MB
-- `TRNL015.mp3` — 1.4 MB
-- `TRNL016.mp3` — 1.1 MB
-- `TRNL017.mp3` — 1.2 MB
-- `TRNL018.mp3` — 1.3 MB
-- `TRNL019.mp3` — 1.3 MB
-- `TRNL020.mp3` — 1.2 MB
-- `TRNL021.mp3` — 1.3 MB
-- `TRNL022.mp3` — 1.2 MB
-- `TRNL023.mp3` — 1.3 MB
-- `TRNL024.mp3` — 1.3 MB
-- `TRNL025.mp3` — 1.2 MB
-- `TRNL026.mp3` — 1.2 MB
-- `TRNL027.mp3` — 1.2 MB
-- `TRNL028.mp3` — 1.3 MB
-- `TRNL029.mp3` — 1.1 MB
-- `TRNL030.mp3` — 1.2 MB
-- `TRNL031.mp3` — 1.2 MB
-- `TRNL032.mp3` — 1.2 MB
-- `TRNL033.mp3` — 1.4 MB
-- `TRNL034.mp3` — 1.3 MB
-- `TRNL035.mp3` — 1.4 MB
-- `TRNL036.mp3` — 1.3 MB
-- `TRNL037.mp3` — 1.2 MB
-- `TRNL038.mp3` — 1.2 MB
-- `TRNL039.mp3` — 1.1 MB
-- `TRNL040.mp3` — 1.3 MB
-- `TRNL041.mp3` — 1.2 MB
-- `TRNL042.mp3` — 1.3 MB
-- `TRNL043.mp3` — 1.1 MB
-- `TRNL044.mp3` — 1.3 MB
-- `TRNL045.mp3` — 1.1 MB
-- `TRNL046.mp3` — 1.1 MB
-- `TRNL047.mp3` — 1.5 MB
-- `TRNL048.mp3` — 1.2 MB
-- `TRNL049.mp3` — 1.2 MB
-- `TRNL050.mp3` — 1.0 MB
-- `TRNL051.mp3` — 1.4 MB
-- `TRNL052.mp3` — 1.4 MB
-- `TRNL053.mp3` — 1.5 MB
-- `TRNL054.mp3` — 1.1 MB
-- `TRNL055.mp3` — 1.2 MB
-- `TRNL056.mp3` — 1.1 MB
-- `TRNL057.mp3` — 1.2 MB
-- `TRNL058.mp3` — 1.2 MB
-- `TRNL059.mp3` — 1.3 MB
-- `TRNL060.mp3` — 1.3 MB
-- `TRNL061.mp3` — 1.3 MB
-- `TRNL062.mp3` — 1.1 MB
-- `TRNL063.mp3` — 1.2 MB
-- `TRNL064.mp3` — 1.1 MB
-- `TRNL065.mp3` — 1.2 MB
-- `TRNL066.mp3` — 1.3 MB
-- `TRNL067.mp3` — 1.2 MB
-- `TRNL068.mp3` — 1.2 MB
-- `TRNL069.mp3` — 1.2 MB
-- `TRNL070.mp3` — 1.2 MB
-- `TRNL071.mp3` — 1.2 MB
-- `TRNL072.mp3` — 1.2 MB
-- `TRNL073.mp3` — 1.3 MB
-- `TRNL074.mp3` — 1.2 MB
-- `TRNL075.mp3` — 1.2 MB
-- `TRNL076.mp3` — 1.2 MB
-- `TRNL077.mp3` — 1.4 MB
-- `TRNL078.mp3` — 1.1 MB
-- `TRNL079.mp3` — 1.4 MB
-- `TRNL080.mp3` — 1.1 MB
-- `TRNL081.mp3` — 1.4 MB
-- `TRNL082.mp3` — 1.5 MB
-- `TRNL083.mp3` — 1.1 MB
-- `TRNL084.mp3` — 1.4 MB
-- `TRNL085.mp3` — 1.2 MB
-- `TRNL086.mp3` — 1.2 MB
-- `TRNL087.mp3` — 1.4 MB
-- `TRNL088.mp3` — 1.4 MB
-- `TRNL089.mp3` — 1.4 MB
-- `TRNL090.mp3` — 1.0 MB
-- `TRNL091.mp3` — 1.3 MB
-- `TRNL092.mp3` — 1.4 MB
-- `TRNL093.mp3` — 1.4 MB
-- `TRNL094.mp3` — 1.4 MB
-- `TRNL095.mp3` — 1.5 MB
-- `TRNL096.mp3` — 1.5 MB
-- `TRNL097.mp3` — 1.8 MB
-- `TRNL098.mp3` — 1.6 MB
-- `TRNL099.mp3` — 1.4 MB
-- `TRNL100.mp3` — 1.3 MB
+- `TRNL 001 - Kişiler.mp3` — 1014 KB
+- `TRNL 002 - Aile.mp3` — 1003 KB
+- `TRNL 003 - Tanımak, öğrenmek, anlamak.mp3` — 1.0 MB
+- `TRNL 004 - Okulda.mp3` — 1.2 MB
+- `TRNL 005 - Ülkeler ve diller.mp3` — 1.3 MB
+- `TRNL 006 - Okumak ve yazmak.mp3` — 1.1 MB
+- `TRNL 007 - Sayılar.mp3` — 1.2 MB
+- `TRNL 008 - Saatler.mp3` — 1.1 MB
+- `TRNL 009 - Haftanın günleri.mp3` — 1.1 MB
+- `TRNL 010 - Dün - bugün - yarın.mp3` — 1.2 MB
+- `TRNL 011 - Aylar.mp3` — 1.0 MB
+- `TRNL 012 - İçecekler.mp3` — 1.3 MB
+- `TRNL 013 - Faaliyetler.mp3` — 1.1 MB
+- `TRNL 014 - Renkler.mp3` — 1.5 MB
+- `TRNL 015 - Meyve ve gıda maddeleri.mp3` — 1.4 MB
+- `TRNL 016 - Mevsimler ve hava.mp3` — 1.1 MB
+- `TRNL 017 - Evde.mp3` — 1.2 MB
+- `TRNL 018 - Ev temizliği.mp3` — 1.3 MB
+- `TRNL 019 - Mutfakta.mp3` — 1.3 MB
+- `TRNL 020 - Small Talk 1 (Kısa sohbet 1).mp3` — 1.2 MB
+- `TRNL 021 - Small Talk 2 (Kısa sohbet 2).mp3` — 1.3 MB
+- `TRNL 022 - Small Talk 3 (Kısa sohbet 3).mp3` — 1.2 MB
+- `TRNL 023 - Dil öğrenmek.mp3` — 1.3 MB
+- `TRNL 024 - Randevulaşmak.mp3` — 1.3 MB
+- `TRNL 025 - Şehirde.mp3` — 1.2 MB
+- `TRNL 026 - Doğada.mp3` — 1.2 MB
+- `TRNL 027 - Otelde - varış.mp3` — 1.2 MB
+- `TRNL 028 - Otelde - şikâyetler.mp3` — 1.3 MB
+- `TRNL 029 - Restoranda 1.mp3` — 1.1 MB
+- `TRNL 030 - Restoranda 2.mp3` — 1.2 MB
+- `TRNL 031 - Restoranda 3.mp3` — 1.2 MB
+- `TRNL 032 - Restoranda 4.mp3` — 1.2 MB
+- `TRNL 033 - Tren istasyonunda.mp3` — 1.4 MB
+- `TRNL 034 - Trende.mp3` — 1.3 MB
+- `TRNL 035 - Havalimanında.mp3` — 1.4 MB
+- `TRNL 036 - Toplu taşıma.mp3` — 1.3 MB
+- `TRNL 037 - Yolda.mp3` — 1.2 MB
+- `TRNL 038 - Takside.mp3` — 1.2 MB
+- `TRNL 039 - Araba arızası.mp3` — 1.1 MB
+- `TRNL 040 - Yol sormak.mp3` — 1.3 MB
+- `TRNL 041 - Oryantasyon.mp3` — 1.2 MB
+- `TRNL 042 - Şehir turu.mp3` — 1.3 MB
+- `TRNL 043 - Hayvanat bahçesinde.mp3` — 1.1 MB
+- `TRNL 044 - Gece çıkmak.mp3` — 1.3 MB
+- `TRNL 045 - Sinemada.mp3` — 1.1 MB
+- `TRNL 046 - Diskoda.mp3` — 1.1 MB
+- `TRNL 047 - Seyahat hazırlıkları.mp3` — 1.5 MB
+- `TRNL 048 - Tatil aktiviteleri.mp3` — 1.2 MB
+- `TRNL 049 - Spor.mp3` — 1.2 MB
+- `TRNL 050 - Yüzme havuzunda.mp3` — 1.0 MB
+- `TRNL 051 - Alışveriş yapmak.mp3` — 1.4 MB
+- `TRNL 052 - Alışveriş merkezinde.mp3` — 1.4 MB
+- `TRNL 053 - Mağazalar.mp3` — 1.5 MB
+- `TRNL 054 - Alışveriş yapmak.mp3` — 1.1 MB
+- `TRNL 055 - Çalışmak.mp3` — 1.2 MB
+- `TRNL 056 - Duygular.mp3` — 1.1 MB
+- `TRNL 057 - Doktorda.mp3` — 1.2 MB
+- `TRNL 058 - Vücudun bölümleri.mp3` — 1.2 MB
+- `TRNL 059 - Postanede.mp3` — 1.3 MB
+- `TRNL 060 - Bankada.mp3` — 1.3 MB
+- `TRNL 061 - Sıralama sayıları.mp3` — 1.3 MB
+- `TRNL 062 - Soru sormak 1.mp3` — 1.1 MB
+- `TRNL 063 - Soru sormak 2.mp3` — 1.2 MB
+- `TRNL 064 - Olumsuz yanıt 1.mp3` — 1.1 MB
+- `TRNL 065 - Olumsuz yanıt 2.mp3` — 1.2 MB
+- `TRNL 066 - İyelik zamiri 1.mp3` — 1.3 MB
+- `TRNL 067 - İyelik zamiri 2.mp3` — 1.2 MB
+- `TRNL 068 - büyük - küçük.mp3` — 1.2 MB
+- `TRNL 069 - ihtiyacı olmak - istemek.mp3` — 1.2 MB
+- `TRNL 070 - bir şey arzu etmek.mp3` — 1.2 MB
+- `TRNL 071 - bir şey istemek.mp3` — 1.2 MB
+- `TRNL 072 - bir şeyler yapmak zorunda olmak.mp3` — 1.2 MB
+- `TRNL 073 - bir şeylere muktedir olmak, yapabilmek.mp3` — 1.3 MB
+- `TRNL 074 - bir şey rica etmek.mp3` — 1.2 MB
+- `TRNL 075 - bir şeyler sebep göstermek 1.mp3` — 1.2 MB
+- `TRNL 076 - bir şeyler sebep göstermek 2.mp3` — 1.2 MB
+- `TRNL 077 - bir şeyler sebep göstermek 3.mp3` — 1.4 MB
+- `TRNL 078 - Sıfatlar 1.mp3` — 1.1 MB
+- `TRNL 079 - Sıfatlar 2.mp3` — 1.4 MB
+- `TRNL 080 - Sıfatlar 3.mp3` — 1.1 MB
+- `TRNL 081 - Geçmiş zaman 1.mp3` — 1.4 MB
+- `TRNL 082 - Geçmiş zaman 2.mp3` — 1.5 MB
+- `TRNL 083 - Geçmiş zaman 3.mp3` — 1.1 MB
+- `TRNL 084 - Geçmiş zaman 4.mp3` — 1.4 MB
+- `TRNL 085 - Sorular - Geçmiş zaman 1.mp3` — 1.2 MB
+- `TRNL 086 - Sorular - Geçmiş zaman 2.mp3` — 1.2 MB
+- `TRNL 087 - Yardımcı fiillerin geçmiş zamanı 1.mp3` — 1.4 MB
+- `TRNL 088 - Yardımcı fiillerin geçmiş zamanı 2.mp3` — 1.4 MB
+- `TRNL 089 - Emir kipi 1.mp3` — 1.4 MB
+- `TRNL 090 - Emir kipi 2.mp3` — 1.0 MB
+- `TRNL 091 - (ki) li yan cümleler.mp3` — 1.3 MB
+- `TRNL 092 - (ki) li yan cümleler.mp3` — 1.4 MB
+- `TRNL 093 - -mayıp - -meyip, -madığı - mediği li yan cümleler.mp3` — 1.4 MB
+- `TRNL 094 - Bağlaçlar 1.mp3` — 1.4 MB
+- `TRNL 095 - Bağlaçlar 2.mp3` — 1.5 MB
+- `TRNL 096 - Bağlaçlar 3.mp3` — 1.5 MB
+- `TRNL 097 - Bağlaçlar 4.mp3` — 1.8 MB
+- `TRNL 098 - Çift bağlaçlar.mp3` — 1.6 MB
+- `TRNL 099 - Belirten.mp3` — 1.4 MB
+- `TRNL 100 - Nitelik zarfları.mp3` — 1.3 MB
 
-**`atili/Dutch/oefenexamensnt2/`** — 48 files, 29.9 MB
+**`atili/Dutch/NT2 Taaldiensten - tanışma dersi A0-A2/`** — 1 files, 577.0 MB
 
-- `2023 Lezen I openbaar examen  tekst- en opgavenboekje (papier).pdf` — 413 KB
-- `2023 Lezen I openbaar examen beoordelingsmodel (papier).pdf` — 65 KB
-- `2023 Lezen II openbaar examen  tekst- en opgavenboekje (papier).pdf` — 540 KB
-- `2023 Lezen II openbaar examen beoordelingsmodel (papier).pdf` — 68 KB
-- `2023 Luisteren I openbaar examen  opgavenboekje (papier).pdf` — 2.4 MB
-- `2023 Luisteren I openbaar examen beoordelingsmodel (papier).pdf` — 155 KB
-- `2023 Luisteren II openbaar examen  opgavenboekje (papier).pdf` — 1.6 MB
-- `2023 Luisteren II openbaar examen beoordelingsmodel (papier).pdf` — 201 KB
-- `2023 Schrijven I openbaar examen  opgavenboekje (papier).pdf` — 504 KB
-- `2023 Schrijven I openbaar examen beoordelingsmodel (papier).pdf` — 275 KB
-- `2023 Schrijven II openbaar examen  opgavenboekje (papier).pdf` — 321 KB
-- `2023 Schrijven II openbaar examen beoordelingsmodel (papier).pdf` — 247 KB
-- `2023 Spreken I openbaar examen  opgavenboekje (papier).pdf` — 4.2 MB
-- `2023 Spreken I openbaar examen beoordelingsmodel (papier).pdf` — 359 KB
-- `2023 Spreken II openbaar examen  opgavenboekje (papier).pdf` — 2.6 MB
-- `2023 Spreken II openbaar examen beoordelingsmodel (papier).pdf` — 304 KB
-- `2024 Lezen I openbaar examen  tekst- en opgavenboekje (papier).pdf` — 591 KB
-- `2024 Lezen I openbaar examen beoordelingsmodel (papier).pdf` — 63 KB
-- `2024 Lezen II openbaar examen  tekst- en opgavenboekje (papier).pdf` — 473 KB
-- `2024 Lezen II openbaar examen beoordelingsmodel (papier).pdf` — 68 KB
-- `2024 Luisteren I openbaar examen  opgavenboekje (papier).pdf` — 1.2 MB
-- `2024 Luisteren I openbaar examen beoordelingsmodel (papier).pdf` — 155 KB
-- `2024 Luisteren II openbaar examen  opgavenboekje (papier).pdf` — 620 KB
-- `2024 Luisteren II openbaar examen beoordelingsmodel (papier).pdf` — 196 KB
-- `2024 Schrijven I openbaar examen  opgavenboekje (papier).pdf` — 445 KB
-- `2024 Schrijven I openbaar examen beoordelingsmodel (papier).pdf` — 270 KB
-- `2024 Schrijven II openbaar examen  opgavenboekje (papier).pdf` — 421 KB
-- `2024 Schrijven II openbaar examen beoordelingsmodel (papier).pdf` — 247 KB
-- `2024 Spreken I openbaar examen  opgavenboekje (papier).pdf` — 2.9 MB
-- `2024 Spreken I openbaar examen beoordelingsmodel (papier).pdf` — 360 KB
-- `2024 Spreken II openbaar examen  opgavenboekje (papier).pdf` — 1.1 MB
-- `2024 Spreken II openbaar examen beoordelingsmodel (papier).pdf` — 305 KB
-- `2025 Lezen I openbaar examen  tekst- en opgavenboekje (papier).pdf` — 590 KB
-- `2025 Lezen I openbaar examen beoordelingsmodel (papier).pdf` — 225 KB
-- `2025 Lezen II openbaar examen beoordelingsmodel (papier).pdf` — 267 KB
-- `2025 Lezen II openbaar examen tekst- en opgavenboekje (papier).pdf` — 647 KB
-- `2025 Luisteren I openbaar examen  opgavenboekje (papier).pdf` — 515 KB
-- `2025 Luisteren I openbaar examen beoordelingsmodel (papier).pdf` — 140 KB
-- `2025 Luisteren II openbaar examen  opgavenboekje (papier).pdf` — 207 KB
-- `2025 Luisteren II openbaar examen beoordelingsmodel (papier).pdf` — 140 KB
-- `2025 Schrijven I openbaar examen  opgavenboekje (papier).pdf` — 359 KB
-- `2025 Schrijven I openbaar examen beoordelingsmodel (papier).pdf` — 289 KB
-- `2025 Schrijven II openbaar examen  opgavenboekje (papier).pdf` — 295 KB
-- `2025 Schrijven II openbaar examen beoordelingsmodel (papier).pdf` — 274 KB
-- `2025 Spreken I openbaar examen  opgavenboekje (papier).pdf` — 1.2 MB
-- `2025 Spreken I openbaar examen beoordelingsmodel (papier).pdf` — 321 KB
-- `2025 Spreken II openbaar examen  opgavenboekje (papier).pdf` — 966 KB
-- `2025 Spreken II openbaar examen beoordelingsmodel (papier).pdf` — 222 KB
+- `NT2 Taaldiensten - tanışma dersi A0-A2 - weer en klimaat.mp4` — 577.0 MB
 
-**`atili/Dutch/oefenexamensnt2/2023 Luisteren I openbaar examen audio- en videobestanden/losse fragmenten/`** — 100 files, 143.3 MB
+**`atili/Dutch/Van Dale Groot Beeldwoordenboek (3 delen)/`** — 3 files, 468.2 MB
 
-- `Track 10.mp3` — 1.2 MB
-- `Track 10.opus` — 995 KB
-- `Track 11.mp3` — 1.3 MB
-- `Track 11.opus` — 1.0 MB
-- `Track 12.mp3` — 1.1 MB
-- `Track 12.opus` — 890 KB
-- `Track 13_intro.mp3` — 837 KB
-- `Track 13_intro.opus` — 1.0 MB
-- `Track 14.mp3` — 1.0 MB
-- `Track 14.opus` — 1.1 MB
-- `Track 15.mp3` — 770 KB
-- `Track 15.opus` — 795 KB
-- `Track 16.mp3` — 739 KB
-- `Track 16.opus` — 752 KB
-- `Track 17.mp3` — 799 KB
-- `Track 17.opus` — 819 KB
-- `Track 18.mp3` — 844 KB
-- `Track 18.opus` — 874 KB
-- `Track 19.mp3` — 1.2 MB
-- `Track 19.opus` — 1.2 MB
-- `Track 1_instructie.mp3` — 556 KB
-- `Track 1_instructie.opus` — 570 KB
-- `Track 20.mp3` — 825 KB
-- `Track 20.opus` — 816 KB
-- `Track 21_intro.mp3` — 1.4 MB
-- `Track 21_intro.opus` — 1.8 MB
-- `Track 22.mp3` — 943 KB
-- `Track 22.opus` — 1.2 MB
-- `Track 23.mp3` — 904 KB
-- `Track 23.opus` — 1.1 MB
-- `Track 24.mp3` — 648 KB
-- `Track 24.opus` — 816 KB
-- `Track 25.mp3` — 938 KB
-- `Track 25.opus` — 1.1 MB
-- `Track 26.mp3` — 641 KB
-- `Track 26.opus` — 780 KB
-- `Track 27.mp3` — 743 KB
-- `Track 27.opus` — 938 KB
-- `Track 28.mp3` — 559 KB
-- `Track 28.opus` — 689 KB
-- `Track 29.mp3` — 807 KB
-- `Track 29.opus` — 956 KB
-- `Track 2_intro.mp3` — 2.9 MB
-- `Track 2_intro.opus` — 3.2 MB
-- `Track 3.mp3` — 808 KB
-- `Track 3.opus` — 760 KB
-- `Track 30_intro.mp3` — 1.3 MB
-- `Track 30_intro.opus` — 1.1 MB
-- `Track 31.mp3` — 842 KB
-- `Track 31.opus` — 861 KB
-- `Track 32.mp3` — 999 KB
-- `Track 32.opus` — 1.0 MB
-- `Track 33.mp3` — 1020 KB
-- `Track 33.opus` — 1.0 MB
-- `Track 34.mp3` — 814 KB
-- `Track 34.opus` — 833 KB
-- `Track 35.mp3` — 781 KB
-- `Track 35.opus` — 780 KB
-- `Track 36_instructie videodeel.mp3` — 211 KB
-- `Track 36_instructie videodeel.opus` — 214 KB
-- `Track 37_intro1.mp3` — 284 KB
-- `Track 37_intro1.opus` — 260 KB
-- `Track 38_intro2.mp4` — 1.6 MB
-- `Track 38_intro2.webm` — 2.4 MB
-- `Track 39_instructie.mp3` — 114 KB
-- `Track 39_instructie.opus` — 105 KB
-- `Track 4.mp3` — 1.1 MB
-- `Track 4.opus` — 984 KB
-- `Track 40.mp4` — 4.4 MB
-- `Track 40.webm` — 5.0 MB
-- `Track 41.mp4` — 1.7 MB
-- `Track 41.webm` — 3.2 MB
-- `Track 42.mp4` — 5.0 MB
-- `Track 42.webm` — 7.7 MB
-- `Track 43.mp4` — 2.9 MB
-- `Track 43.webm` — 3.2 MB
-- `Track 44.mp4` — 1.7 MB
-- `Track 44.webm` — 2.3 MB
-- `Track 45.mp4` — 4.7 MB
-- `Track 45.webm` — 5.3 MB
-- `Track 46_intro.mp3` — 292 KB
-- `Track 46_intro.opus` — 262 KB
-- `Track 47.mp4` — 1.8 MB
-- `Track 47.webm` — 3.3 MB
-- `Track 48.mp4` — 4.0 MB
-- `Track 48.webm` — 6.2 MB
-- `Track 49.mp4` — 3.2 MB
-- `Track 49.webm` — 5.5 MB
-- `Track 5.mp3` — 713 KB
-- `Track 5.opus` — 643 KB
-- `Track 50_bron en disclaimer.mp3` — 102 KB
-- `Track 50_bron en disclaimer.opus` — 116 KB
-- `Track 6.mp3` — 748 KB
-- `Track 6.opus` — 689 KB
-- `Track 7.mp3` — 810 KB
-- `Track 7.opus` — 727 KB
-- `Track 8_intro.mp3` — 794 KB
-- `Track 8_intro.opus` — 740 KB
-- `Track 9.mp3` — 719 KB
-- `Track 9.opus` — 570 KB
+- `Van Dale Groot Beeldwoordenboek - deel 1 van 3.pdf` — 199.5 MB
+- `Van Dale Groot Beeldwoordenboek - deel 2 van 3.pdf` — 199.4 MB
+- `Van Dale Groot Beeldwoordenboek - deel 3 van 3.pdf` — 69.4 MB
 
-**`atili/Dutch/oefenexamensnt2/2023 Luisteren II openbaar examen audio- en videobestanden/`** — 98 files, 161.3 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Luisteren I/audio/`** — 100 files, 143.3 MB
 
-- `Track 10.mp3` — 1.2 MB
-- `Track 10.opus` — 1.0 MB
-- `Track 11.mp3` — 1.4 MB
-- `Track 11.opus` — 1.2 MB
-- `Track 12.mp3` — 1.5 MB
-- `Track 12.opus` — 1.3 MB
-- `Track 14.mp3` — 1.8 MB
-- `Track 14.opus` — 1.4 MB
-- `Track 15.mp3` — 2.0 MB
-- `Track 15.opus` — 1.5 MB
-- `Track 16.mp3` — 1.9 MB
-- `Track 16.opus` — 1.4 MB
-- `Track 17.mp3` — 1.2 MB
-- `Track 17.opus` — 941 KB
-- `Track 18.mp3` — 1.7 MB
-- `Track 18.opus` — 1.3 MB
-- `Track 19.mp3` — 1.5 MB
-- `Track 19.opus` — 1.1 MB
-- `Track 1_instructie.mp3` — 556 KB
-- `Track 1_instructie.opus` — 570 KB
-- `Track 20.mp3` — 1.8 MB
-- `Track 20.opus` — 1.4 MB
-- `Track 21.mp3` — 1.9 MB
-- `Track 21.opus` — 1.4 MB
-- `Track 22.mp3` — 1.5 MB
-- `Track 22.opus` — 1.1 MB
-- `Track 23.mp3` — 1.7 MB
-- `Track 23.opus` — 1.3 MB
-- `Track 24_intro.mp3` — 1.5 MB
-- `Track 24_intro.opus` — 1.6 MB
-- `Track 25.mp3` — 726 KB
-- `Track 25.opus` — 871 KB
-- `Track 26.mp3` — 754 KB
-- `Track 26.opus` — 878 KB
-- `Track 27.mp3` — 772 KB
-- `Track 27.opus` — 890 KB
-- `Track 28.mp3` — 739 KB
-- `Track 28.opus` — 885 KB
-- `Track 29.mp3` — 491 KB
-- `Track 29.opus` — 580 KB
-- `Track 2_intro.mp3` — 2.7 MB
-- `Track 2_intro.opus` — 2.9 MB
-- `Track 3.mp3` — 1012 KB
-- `Track 3.opus` — 875 KB
-- `Track 30.mp3` — 738 KB
-- `Track 30.opus` — 869 KB
-- `Track 31_intro.mp3` — 638 KB
-- `Track 31_intro.opus` — 641 KB
-- `Track 32.mp3` — 832 KB
-- `Track 32.opus` — 839 KB
-- `Track 33.mp3` — 781 KB
-- `Track 33.opus` — 769 KB
-- `Track 34.mp3` — 873 KB
-- `Track 34.opus` — 846 KB
-- `Track 35.mp3` — 804 KB
-- `Track 35.opus` — 801 KB
-- `Track 36.mp3` — 824 KB
-- `Track 36.opus` — 813 KB
-- `Track 37.mp3` — 1.3 MB
-- `Track 37.opus` — 1.3 MB
-- `Track 38_instructie videodeel.mp3` — 211 KB
-- `Track 38_instructie videodeel.opus` — 214 KB
-- `Track 39_intro.mp3` — 272 KB
-- `Track 39_intro.opus` — 246 KB
-- `Track 4.mp3` — 970 KB
-- `Track 4.opus` — 846 KB
-- `Track 40.mp4` — 7.2 MB
-- `Track 40.webm` — 8.8 MB
-- `Track 41.mp4` — 5.3 MB
-- `Track 41.webm` — 7.2 MB
-- `Track 42.mp4` — 2.8 MB
-- `Track 42.webm` — 3.8 MB
-- `Track 43.mp4` — 4.9 MB
-- `Track 43.webm` — 6.0 MB
-- `Track 44_intro.mp3` — 464 KB
-- `Track 44_intro.opus` — 420 KB
-- `Track 45.mp4` — 3.1 MB
-- `Track 45.webm` — 4.2 MB
-- `Track 46.mp4` — 3.6 MB
-- `Track 46.webm` — 5.4 MB
-- `Track 47.mp4` — 2.2 MB
-- `Track 47.webm` — 3.5 MB
-- `Track 48.mp4` — 3.3 MB
-- `Track 48.webm` — 4.2 MB
-- `Track 49_bron en disclaimer.mp3` — 102 KB
-- `Track 49_bron en disclaimer.opus` — 116 KB
-- `Track 5.mp3` — 1.5 MB
-- `Track 5.opus` — 1.3 MB
-- `Track 6.mp3` — 1.3 MB
-- `Track 6.opus` — 1.2 MB
-- `Track 7.mp3` — 830 KB
-- `Track 7.opus` — 719 KB
-- `Track 8.mp3` — 972 KB
-- `Track 8.opus` — 844 KB
-- `Track 9.mp3` — 765 KB
-- `Track 9.opus` — 669 KB
-- `track 13_intro.mp3` — 1.1 MB
-- `track 13_intro.opus` — 1022 KB
+- `2023 Luisteren I - 01 - instructie.mp3` — 556 KB
+- `2023 Luisteren I - 01 - instructie.opus` — 570 KB
+- `2023 Luisteren I - 02 - Een gesprek met een autoverkoper - introductie.mp3` — 2.9 MB
+- `2023 Luisteren I - 02 - Een gesprek met een autoverkoper - introductie.opus` — 3.2 MB
+- `2023 Luisteren I - 03 - Een gesprek met een autoverkoper - opgave 1.mp3` — 808 KB
+- `2023 Luisteren I - 03 - Een gesprek met een autoverkoper - opgave 1.opus` — 760 KB
+- `2023 Luisteren I - 04 - Een gesprek met een autoverkoper - opgave 2.mp3` — 1.1 MB
+- `2023 Luisteren I - 04 - Een gesprek met een autoverkoper - opgave 2.opus` — 984 KB
+- `2023 Luisteren I - 05 - Een gesprek met een autoverkoper - opgave 3.mp3` — 713 KB
+- `2023 Luisteren I - 05 - Een gesprek met een autoverkoper - opgave 3.opus` — 643 KB
+- `2023 Luisteren I - 06 - Een gesprek met een autoverkoper - opgave 4.mp3` — 748 KB
+- `2023 Luisteren I - 06 - Een gesprek met een autoverkoper - opgave 4.opus` — 689 KB
+- `2023 Luisteren I - 07 - Een gesprek met een autoverkoper - opgave 5.mp3` — 810 KB
+- `2023 Luisteren I - 07 - Een gesprek met een autoverkoper - opgave 5.opus` — 727 KB
+- `2023 Luisteren I - 08 - Een gesprek met een reisbegeleider - introductie.mp3` — 794 KB
+- `2023 Luisteren I - 08 - Een gesprek met een reisbegeleider - introductie.opus` — 740 KB
+- `2023 Luisteren I - 09 - Een gesprek met een reisbegeleider - opgave 6.mp3` — 719 KB
+- `2023 Luisteren I - 09 - Een gesprek met een reisbegeleider - opgave 6.opus` — 570 KB
+- `2023 Luisteren I - 10 - Een gesprek met een reisbegeleider - opgave 7.mp3` — 1.2 MB
+- `2023 Luisteren I - 10 - Een gesprek met een reisbegeleider - opgave 7.opus` — 995 KB
+- `2023 Luisteren I - 11 - Een gesprek met een reisbegeleider - opgave 8.mp3` — 1.3 MB
+- `2023 Luisteren I - 11 - Een gesprek met een reisbegeleider - opgave 8.opus` — 1.0 MB
+- `2023 Luisteren I - 12 - Een gesprek met een reisbegeleider - opgave 9.mp3` — 1.1 MB
+- `2023 Luisteren I - 12 - Een gesprek met een reisbegeleider - opgave 9.opus` — 890 KB
+- `2023 Luisteren I - 13 - Een les van de drogisterijdocent - introductie.mp3` — 837 KB
+- `2023 Luisteren I - 13 - Een les van de drogisterijdocent - introductie.opus` — 1.0 MB
+- `2023 Luisteren I - 14 - Een les van de drogisterijdocent - opgave 10.mp3` — 1.0 MB
+- `2023 Luisteren I - 14 - Een les van de drogisterijdocent - opgave 10.opus` — 1.1 MB
+- `2023 Luisteren I - 15 - Een les van de drogisterijdocent - opgave 11.mp3` — 770 KB
+- `2023 Luisteren I - 15 - Een les van de drogisterijdocent - opgave 11.opus` — 795 KB
+- `2023 Luisteren I - 16 - Een les van de drogisterijdocent - opgave 12.mp3` — 739 KB
+- `2023 Luisteren I - 16 - Een les van de drogisterijdocent - opgave 12.opus` — 752 KB
+- `2023 Luisteren I - 17 - Een les van de drogisterijdocent - opgave 13.mp3` — 799 KB
+- `2023 Luisteren I - 17 - Een les van de drogisterijdocent - opgave 13.opus` — 819 KB
+- `2023 Luisteren I - 18 - Een les van de drogisterijdocent - opgave 14.mp3` — 844 KB
+- `2023 Luisteren I - 18 - Een les van de drogisterijdocent - opgave 14.opus` — 874 KB
+- `2023 Luisteren I - 19 - Een les van de drogisterijdocent - opgave 15.mp3` — 1.2 MB
+- `2023 Luisteren I - 19 - Een les van de drogisterijdocent - opgave 15.opus` — 1.2 MB
+- `2023 Luisteren I - 20 - Een les van de drogisterijdocent - opgave 16.mp3` — 825 KB
+- `2023 Luisteren I - 20 - Een les van de drogisterijdocent - opgave 16.opus` — 816 KB
+- `2023 Luisteren I - 21 - Een gesprek over een kringloopwinkel - introductie.mp3` — 1.4 MB
+- `2023 Luisteren I - 21 - Een gesprek over een kringloopwinkel - introductie.opus` — 1.8 MB
+- `2023 Luisteren I - 22 - Een gesprek over een kringloopwinkel - opgave 17.mp3` — 943 KB
+- `2023 Luisteren I - 22 - Een gesprek over een kringloopwinkel - opgave 17.opus` — 1.2 MB
+- `2023 Luisteren I - 23 - Een gesprek over een kringloopwinkel - opgave 18.mp3` — 904 KB
+- `2023 Luisteren I - 23 - Een gesprek over een kringloopwinkel - opgave 18.opus` — 1.1 MB
+- `2023 Luisteren I - 24 - Een gesprek over een kringloopwinkel - opgave 19.mp3` — 648 KB
+- `2023 Luisteren I - 24 - Een gesprek over een kringloopwinkel - opgave 19.opus` — 816 KB
+- `2023 Luisteren I - 25 - Een gesprek over een kringloopwinkel - opgave 20.mp3` — 938 KB
+- `2023 Luisteren I - 25 - Een gesprek over een kringloopwinkel - opgave 20.opus` — 1.1 MB
+- `2023 Luisteren I - 26 - Een gesprek over een kringloopwinkel - opgave 21.mp3` — 641 KB
+- `2023 Luisteren I - 26 - Een gesprek over een kringloopwinkel - opgave 21.opus` — 780 KB
+- `2023 Luisteren I - 27 - Een gesprek over een kringloopwinkel - opgave 22.mp3` — 743 KB
+- `2023 Luisteren I - 27 - Een gesprek over een kringloopwinkel - opgave 22.opus` — 938 KB
+- `2023 Luisteren I - 28 - Een gesprek over een kringloopwinkel - opgave 23.mp3` — 559 KB
+- `2023 Luisteren I - 28 - Een gesprek over een kringloopwinkel - opgave 23.opus` — 689 KB
+- `2023 Luisteren I - 29 - Een gesprek over een kringloopwinkel - opgave 24.mp3` — 807 KB
+- `2023 Luisteren I - 29 - Een gesprek over een kringloopwinkel - opgave 24.opus` — 956 KB
+- `2023 Luisteren I - 30 - Een gesprek met een stewardess - introductie.mp3` — 1.3 MB
+- `2023 Luisteren I - 30 - Een gesprek met een stewardess - introductie.opus` — 1.1 MB
+- `2023 Luisteren I - 31 - Een gesprek met een stewardess - opgave 25.mp3` — 842 KB
+- `2023 Luisteren I - 31 - Een gesprek met een stewardess - opgave 25.opus` — 861 KB
+- `2023 Luisteren I - 32 - Een gesprek met een stewardess - opgave 26.mp3` — 999 KB
+- `2023 Luisteren I - 32 - Een gesprek met een stewardess - opgave 26.opus` — 1.0 MB
+- `2023 Luisteren I - 33 - Een gesprek met een stewardess - opgave 27.mp3` — 1020 KB
+- `2023 Luisteren I - 33 - Een gesprek met een stewardess - opgave 27.opus` — 1.0 MB
+- `2023 Luisteren I - 34 - Een gesprek met een stewardess - opgave 28.mp3` — 814 KB
+- `2023 Luisteren I - 34 - Een gesprek met een stewardess - opgave 28.opus` — 833 KB
+- `2023 Luisteren I - 35 - Een gesprek met een stewardess - opgave 29.mp3` — 781 KB
+- `2023 Luisteren I - 35 - Een gesprek met een stewardess - opgave 29.opus` — 780 KB
+- `2023 Luisteren I - 36 - instructie videodeel.mp3` — 211 KB
+- `2023 Luisteren I - 36 - instructie videodeel.opus` — 214 KB
+- `2023 Luisteren I - 37 - Een video over de burgemeester van Zeist - introductie 1.mp3` — 284 KB
+- `2023 Luisteren I - 37 - Een video over de burgemeester van Zeist - introductie 1.opus` — 260 KB
+- `2023 Luisteren I - 38 - Een video over de burgemeester van Zeist - introductie 2.mp4` — 1.6 MB
+- `2023 Luisteren I - 38 - Een video over de burgemeester van Zeist - introductie 2.webm` — 2.4 MB
+- `2023 Luisteren I - 39 - instructie.mp3` — 114 KB
+- `2023 Luisteren I - 39 - instructie.opus` — 105 KB
+- `2023 Luisteren I - 40 - Een video over de burgemeester van Zeist - opgave 30.mp4` — 4.4 MB
+- `2023 Luisteren I - 40 - Een video over de burgemeester van Zeist - opgave 30.webm` — 5.0 MB
+- `2023 Luisteren I - 41 - Een video over de burgemeester van Zeist - opgave 31.mp4` — 1.7 MB
+- `2023 Luisteren I - 41 - Een video over de burgemeester van Zeist - opgave 31.webm` — 3.2 MB
+- `2023 Luisteren I - 42 - Een video over de burgemeester van Zeist - opgave 32.mp4` — 5.0 MB
+- `2023 Luisteren I - 42 - Een video over de burgemeester van Zeist - opgave 32.webm` — 7.7 MB
+- `2023 Luisteren I - 43 - Een video over de burgemeester van Zeist - opgave 33.mp4` — 2.9 MB
+- `2023 Luisteren I - 43 - Een video over de burgemeester van Zeist - opgave 33.webm` — 3.2 MB
+- `2023 Luisteren I - 44 - Een video over de burgemeester van Zeist - opgave 34.mp4` — 1.7 MB
+- `2023 Luisteren I - 44 - Een video over de burgemeester van Zeist - opgave 34.webm` — 2.3 MB
+- `2023 Luisteren I - 45 - Een video over de burgemeester van Zeist - opgave 35.mp4` — 4.7 MB
+- `2023 Luisteren I - 45 - Een video over de burgemeester van Zeist - opgave 35.webm` — 5.3 MB
+- `2023 Luisteren I - 46 - Een video over Leren presenteren - introductie.mp3` — 292 KB
+- `2023 Luisteren I - 46 - Een video over Leren presenteren - introductie.opus` — 262 KB
+- `2023 Luisteren I - 47 - Een video over Leren presenteren - opgave 36.mp4` — 1.8 MB
+- `2023 Luisteren I - 47 - Een video over Leren presenteren - opgave 36.webm` — 3.3 MB
+- `2023 Luisteren I - 48 - Een video over Leren presenteren - opgave 37.mp4` — 4.0 MB
+- `2023 Luisteren I - 48 - Een video over Leren presenteren - opgave 37.webm` — 6.2 MB
+- `2023 Luisteren I - 49 - Een video over Leren presenteren - opgave 38.mp4` — 3.2 MB
+- `2023 Luisteren I - 49 - Een video over Leren presenteren - opgave 38.webm` — 5.5 MB
+- `2023 Luisteren I - 50 - Een video over Leren presenteren.mp3` — 102 KB
+- `2023 Luisteren I - 50 - Een video over Leren presenteren.opus` — 116 KB
 
-**`atili/Dutch/oefenexamensnt2/2023 Spreken I openbaar examen audiobestanden/`** — 36 files, 22.0 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Luisteren II/audio/`** — 98 files, 161.3 MB
 
-- `Track 10_deel 2 instructie.mp3` — 1.5 MB
-- `Track 10_deel 2 instructie.opus` — 2.0 MB
-- `Track 11.mp3` — 806 KB
-- `Track 11.opus` — 722 KB
-- `Track 12.mp3` — 385 KB
-- `Track 12.opus` — 507 KB
-- `Track 13.mp3` — 608 KB
-- `Track 13.opus` — 556 KB
-- `Track 14.mp3` — 695 KB
-- `Track 14.opus` — 658 KB
-- `Track 15.mp3` — 679 KB
-- `Track 15.opus` — 639 KB
-- `Track 16.mp3` — 776 KB
-- `Track 16.opus` — 713 KB
-- `Track 17.mp3` — 759 KB
-- `Track 17.opus` — 630 KB
-- `Track 18.mp3` — 587 KB
-- `Track 18.opus` — 547 KB
-- `Track 1_deel 1 instructie.mp3` — 1.1 MB
-- `Track 1_deel 1 instructie.opus` — 1.3 MB
-- `Track 2.mp3` — 441 KB
-- `Track 2.opus` — 465 KB
-- `Track 3.mp3` — 421 KB
-- `Track 3.opus` — 439 KB
-- `Track 4.mp3` — 234 KB
-- `Track 4.opus` — 207 KB
-- `Track 5.mp3` — 332 KB
-- `Track 5.opus` — 319 KB
-- `Track 6.mp3` — 504 KB
-- `Track 6.opus` — 455 KB
-- `Track 7.mp3` — 425 KB
-- `Track 7.opus` — 391 KB
-- `Track 8.mp3` — 447 KB
-- `Track 8.opus` — 511 KB
-- `Track 9.mp3` — 314 KB
-- `Track 9.opus` — 291 KB
+- `2023 Luisteren II - 01 - instructie.mp3` — 556 KB
+- `2023 Luisteren II - 01 - instructie.opus` — 570 KB
+- `2023 Luisteren II - 02 - Een gesprek over het starten van een bedrijf - introductie.mp3` — 2.7 MB
+- `2023 Luisteren II - 02 - Een gesprek over het starten van een bedrijf - introductie.opus` — 2.9 MB
+- `2023 Luisteren II - 03 - Een gesprek over het starten van een bedrijf - opgave 1.mp3` — 1012 KB
+- `2023 Luisteren II - 03 - Een gesprek over het starten van een bedrijf - opgave 1.opus` — 875 KB
+- `2023 Luisteren II - 04 - Een gesprek over het starten van een bedrijf - opgave 2.mp3` — 970 KB
+- `2023 Luisteren II - 04 - Een gesprek over het starten van een bedrijf - opgave 2.opus` — 846 KB
+- `2023 Luisteren II - 05 - Een gesprek over het starten van een bedrijf - opgave 3.mp3` — 1.5 MB
+- `2023 Luisteren II - 05 - Een gesprek over het starten van een bedrijf - opgave 3.opus` — 1.3 MB
+- `2023 Luisteren II - 06 - Een gesprek over het starten van een bedrijf - opgave 4.mp3` — 1.3 MB
+- `2023 Luisteren II - 06 - Een gesprek over het starten van een bedrijf - opgave 4.opus` — 1.2 MB
+- `2023 Luisteren II - 07 - Een gesprek over het starten van een bedrijf - opgave 5.mp3` — 830 KB
+- `2023 Luisteren II - 07 - Een gesprek over het starten van een bedrijf - opgave 5.opus` — 719 KB
+- `2023 Luisteren II - 08 - Een gesprek over het starten van een bedrijf - opgave 6.mp3` — 972 KB
+- `2023 Luisteren II - 08 - Een gesprek over het starten van een bedrijf - opgave 6.opus` — 844 KB
+- `2023 Luisteren II - 09 - Een gesprek over het starten van een bedrijf - opgave 7.mp3` — 765 KB
+- `2023 Luisteren II - 09 - Een gesprek over het starten van een bedrijf - opgave 7.opus` — 669 KB
+- `2023 Luisteren II - 10 - Een gesprek over het starten van een bedrijf - opgave 8.mp3` — 1.2 MB
+- `2023 Luisteren II - 10 - Een gesprek over het starten van een bedrijf - opgave 8.opus` — 1.0 MB
+- `2023 Luisteren II - 11 - Een gesprek over het starten van een bedrijf - opgave 9.mp3` — 1.4 MB
+- `2023 Luisteren II - 11 - Een gesprek over het starten van een bedrijf - opgave 9.opus` — 1.2 MB
+- `2023 Luisteren II - 12 - Een gesprek over het starten van een bedrijf - opgave 10.mp3` — 1.5 MB
+- `2023 Luisteren II - 12 - Een gesprek over het starten van een bedrijf - opgave 10.opus` — 1.3 MB
+- `2023 Luisteren II - 13 - Een gesprek met de directeur van De Helling in Arnhem - introductie.mp3` — 1.1 MB
+- `2023 Luisteren II - 13 - Een gesprek met de directeur van De Helling in Arnhem - introductie.opus` — 1022 KB
+- `2023 Luisteren II - 14 - Een gesprek met de directeur van De Helling in Arnhem - opgave 11.mp3` — 1.8 MB
+- `2023 Luisteren II - 14 - Een gesprek met de directeur van De Helling in Arnhem - opgave 11.opus` — 1.4 MB
+- `2023 Luisteren II - 15 - Een gesprek met de directeur van De Helling in Arnhem - opgave 12.mp3` — 2.0 MB
+- `2023 Luisteren II - 15 - Een gesprek met de directeur van De Helling in Arnhem - opgave 12.opus` — 1.5 MB
+- `2023 Luisteren II - 16 - Een gesprek met de directeur van De Helling in Arnhem - opgave 13.mp3` — 1.9 MB
+- `2023 Luisteren II - 16 - Een gesprek met de directeur van De Helling in Arnhem - opgave 13.opus` — 1.4 MB
+- `2023 Luisteren II - 17 - Een gesprek met de directeur van De Helling in Arnhem - opgave 14.mp3` — 1.2 MB
+- `2023 Luisteren II - 17 - Een gesprek met de directeur van De Helling in Arnhem - opgave 14.opus` — 941 KB
+- `2023 Luisteren II - 18 - Een gesprek met de directeur van De Helling in Arnhem - opgave 15.mp3` — 1.7 MB
+- `2023 Luisteren II - 18 - Een gesprek met de directeur van De Helling in Arnhem - opgave 15.opus` — 1.3 MB
+- `2023 Luisteren II - 19 - Een gesprek met de directeur van De Helling in Arnhem - opgave 16.mp3` — 1.5 MB
+- `2023 Luisteren II - 19 - Een gesprek met de directeur van De Helling in Arnhem - opgave 16.opus` — 1.1 MB
+- `2023 Luisteren II - 20 - Een gesprek met de directeur van De Helling in Arnhem - opgave 17.mp3` — 1.8 MB
+- `2023 Luisteren II - 20 - Een gesprek met de directeur van De Helling in Arnhem - opgave 17.opus` — 1.4 MB
+- `2023 Luisteren II - 21 - Een gesprek met de directeur van De Helling in Arnhem - opgave 18.mp3` — 1.9 MB
+- `2023 Luisteren II - 21 - Een gesprek met de directeur van De Helling in Arnhem - opgave 18.opus` — 1.4 MB
+- `2023 Luisteren II - 22 - Een gesprek met de directeur van De Helling in Arnhem - opgave 19.mp3` — 1.5 MB
+- `2023 Luisteren II - 22 - Een gesprek met de directeur van De Helling in Arnhem - opgave 19.opus` — 1.1 MB
+- `2023 Luisteren II - 23 - Een gesprek met de directeur van De Helling in Arnhem - opgave 20.mp3` — 1.7 MB
+- `2023 Luisteren II - 23 - Een gesprek met de directeur van De Helling in Arnhem - opgave 20.opus` — 1.3 MB
+- `2023 Luisteren II - 24 - Een gesprek met een boswachter - introductie.mp3` — 1.5 MB
+- `2023 Luisteren II - 24 - Een gesprek met een boswachter - introductie.opus` — 1.6 MB
+- `2023 Luisteren II - 25 - Een gesprek met een boswachter - opgave 21.mp3` — 726 KB
+- `2023 Luisteren II - 25 - Een gesprek met een boswachter - opgave 21.opus` — 871 KB
+- `2023 Luisteren II - 26 - Een gesprek met een boswachter - opgave 22.mp3` — 754 KB
+- `2023 Luisteren II - 26 - Een gesprek met een boswachter - opgave 22.opus` — 878 KB
+- `2023 Luisteren II - 27 - Een gesprek met een boswachter - opgave 23.mp3` — 772 KB
+- `2023 Luisteren II - 27 - Een gesprek met een boswachter - opgave 23.opus` — 890 KB
+- `2023 Luisteren II - 28 - Een gesprek met een boswachter - opgave 24.mp3` — 739 KB
+- `2023 Luisteren II - 28 - Een gesprek met een boswachter - opgave 24.opus` — 885 KB
+- `2023 Luisteren II - 29 - Een gesprek met een boswachter - opgave 25.mp3` — 491 KB
+- `2023 Luisteren II - 29 - Een gesprek met een boswachter - opgave 25.opus` — 580 KB
+- `2023 Luisteren II - 30 - Een gesprek met een boswachter - opgave 26.mp3` — 738 KB
+- `2023 Luisteren II - 30 - Een gesprek met een boswachter - opgave 26.opus` — 869 KB
+- `2023 Luisteren II - 31 - Een gesprek tussen student en studieadviseur - introductie.mp3` — 638 KB
+- `2023 Luisteren II - 31 - Een gesprek tussen student en studieadviseur - introductie.opus` — 641 KB
+- `2023 Luisteren II - 32 - Een gesprek tussen student en studieadviseur - opgave 27.mp3` — 832 KB
+- `2023 Luisteren II - 32 - Een gesprek tussen student en studieadviseur - opgave 27.opus` — 839 KB
+- `2023 Luisteren II - 33 - Een gesprek tussen student en studieadviseur - opgave 28.mp3` — 781 KB
+- `2023 Luisteren II - 33 - Een gesprek tussen student en studieadviseur - opgave 28.opus` — 769 KB
+- `2023 Luisteren II - 34 - Een gesprek tussen student en studieadviseur - opgave 29.mp3` — 873 KB
+- `2023 Luisteren II - 34 - Een gesprek tussen student en studieadviseur - opgave 29.opus` — 846 KB
+- `2023 Luisteren II - 35 - Een gesprek tussen student en studieadviseur - opgave 30.mp3` — 804 KB
+- `2023 Luisteren II - 35 - Een gesprek tussen student en studieadviseur - opgave 30.opus` — 801 KB
+- `2023 Luisteren II - 36 - Een gesprek tussen student en studieadviseur - opgave 31.mp3` — 824 KB
+- `2023 Luisteren II - 36 - Een gesprek tussen student en studieadviseur - opgave 31.opus` — 813 KB
+- `2023 Luisteren II - 37 - Een gesprek tussen student en studieadviseur - opgave 32.mp3` — 1.3 MB
+- `2023 Luisteren II - 37 - Een gesprek tussen student en studieadviseur - opgave 32.opus` — 1.3 MB
+- `2023 Luisteren II - 38 - instructie videodeel.mp3` — 211 KB
+- `2023 Luisteren II - 38 - instructie videodeel.opus` — 214 KB
+- `2023 Luisteren II - 39 - Een video over het lerarentekort - introductie.mp3` — 272 KB
+- `2023 Luisteren II - 39 - Een video over het lerarentekort - introductie.opus` — 246 KB
+- `2023 Luisteren II - 40 - Een video over het lerarentekort - opgave 33.mp4` — 7.2 MB
+- `2023 Luisteren II - 40 - Een video over het lerarentekort - opgave 33.webm` — 8.8 MB
+- `2023 Luisteren II - 41 - Een video over het lerarentekort - opgave 34.mp4` — 5.3 MB
+- `2023 Luisteren II - 41 - Een video over het lerarentekort - opgave 34.webm` — 7.2 MB
+- `2023 Luisteren II - 42 - Een video over het lerarentekort - opgave 35.mp4` — 2.8 MB
+- `2023 Luisteren II - 42 - Een video over het lerarentekort - opgave 35.webm` — 3.8 MB
+- `2023 Luisteren II - 43 - Een video over het lerarentekort - opgave 36.mp4` — 4.9 MB
+- `2023 Luisteren II - 43 - Een video over het lerarentekort - opgave 36.webm` — 6.0 MB
+- `2023 Luisteren II - 44 - Een video over een ondernemer van het bedrijf Yoghurt Barn - introductie.mp3` — 464 KB
+- `2023 Luisteren II - 44 - Een video over een ondernemer van het bedrijf Yoghurt Barn - introductie.opus` — 420 KB
+- `2023 Luisteren II - 45 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 37.mp4` — 3.1 MB
+- `2023 Luisteren II - 45 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 37.webm` — 4.2 MB
+- `2023 Luisteren II - 46 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 38.mp4` — 3.6 MB
+- `2023 Luisteren II - 46 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 38.webm` — 5.4 MB
+- `2023 Luisteren II - 47 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 39.mp4` — 2.2 MB
+- `2023 Luisteren II - 47 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 39.webm` — 3.5 MB
+- `2023 Luisteren II - 48 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 40.mp4` — 3.3 MB
+- `2023 Luisteren II - 48 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 40.webm` — 4.2 MB
+- `2023 Luisteren II - 49 - Een video over een ondernemer van het bedrijf Yoghurt Barn.mp3` — 102 KB
+- `2023 Luisteren II - 49 - Een video over een ondernemer van het bedrijf Yoghurt Barn.opus` — 116 KB
 
-**`atili/Dutch/oefenexamensnt2/2023 Spreken II openbaar examen audiobestanden/Audio zips/`** — 32 files, 25.6 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Spreken I/audio/`** — 36 files, 22.0 MB
 
-- `Track 10_Opgave 8.mp3` — 467 KB
-- `Track 10_Opgave 8.opus` — 625 KB
-- `Track 11_Opgave 9.mp3` — 792 KB
-- `Track 11_Opgave 9.opus` — 802 KB
-- `Track 12_Opgave 10.mp3` — 591 KB
-- `Track 12_Opgave 10.opus` — 589 KB
-- `Track 13_Opgave 11.mp3` — 683 KB
-- `Track 13_Opgave 11.opus` — 697 KB
-- `Track 14_Opgave 12.mp3` — 835 KB
-- `Track 14_Opgave 12.opus` — 825 KB
-- `Track 15_deel 3 instructie.mp3` — 582 KB
-- `Track 15_deel 3 instructie.opus` — 463 KB
-- `Track 16_Opgave 13.mp3` — 1.6 MB
-- `Track 16_Opgave 13.opus` — 3.0 MB
-- `Track 1_deel 1 instructie.mp3` — 1.5 MB
-- `Track 1_deel 1 instructie.opus` — 1.2 MB
-- `Track 2_Opgave 1.mp3` — 196 KB
-- `Track 2_Opgave 1.opus` — 173 KB
-- `Track 3_Opgave 2.mp3` — 508 KB
-- `Track 3_Opgave 2.opus` — 369 KB
-- `Track 4_Opgave 3.mp3` — 483 KB
-- `Track 4_Opgave 3.opus` — 442 KB
-- `Track 5_Opgave 4.mp3` — 453 KB
-- `Track 5_Opgave 4.opus` — 387 KB
-- `Track 6_ deel 2 instructie.mp3` — 2.3 MB
-- `Track 6_ deel 2 instructie.opus` — 1.9 MB
-- `Track 7_Opgave 5.mp3` — 424 KB
-- `Track 7_Opgave 5.opus` — 588 KB
-- `Track 8_Opgave 6.mp3` — 604 KB
-- `Track 8_Opgave 6.opus` — 612 KB
-- `Track 9_Opgave 7.mp3` — 658 KB
-- `Track 9_Opgave 7.opus` — 658 KB
+- `2023 Spreken I - 01 - deel 1 instructie.mp3` — 1.1 MB
+- `2023 Spreken I - 01 - deel 1 instructie.opus` — 1.3 MB
+- `2023 Spreken I - 02 - opgave 1 - Kappersopleiding.mp3` — 441 KB
+- `2023 Spreken I - 02 - opgave 1 - Kappersopleiding.opus` — 465 KB
+- `2023 Spreken I - 03 - opgave 2 - Persoon beschrijven.mp3` — 421 KB
+- `2023 Spreken I - 03 - opgave 2 - Persoon beschrijven.opus` — 439 KB
+- `2023 Spreken I - 04 - opgave 3 - Halve dagen werken.mp3` — 234 KB
+- `2023 Spreken I - 04 - opgave 3 - Halve dagen werken.opus` — 207 KB
+- `2023 Spreken I - 05 - opgave 4 - Belegde broodjes.mp3` — 332 KB
+- `2023 Spreken I - 05 - opgave 4 - Belegde broodjes.opus` — 319 KB
+- `2023 Spreken I - 06 - opgave 5 - Opleiding volgen.mp3` — 504 KB
+- `2023 Spreken I - 06 - opgave 5 - Opleiding volgen.opus` — 455 KB
+- `2023 Spreken I - 07 - opgave 6 - Voor de kat zorgen.mp3` — 425 KB
+- `2023 Spreken I - 07 - opgave 6 - Voor de kat zorgen.opus` — 391 KB
+- `2023 Spreken I - 08 - opgave 7 - Geen stage.mp3` — 447 KB
+- `2023 Spreken I - 08 - opgave 7 - Geen stage.opus` — 511 KB
+- `2023 Spreken I - 09 - opgave 8 - Verdrietig.mp3` — 314 KB
+- `2023 Spreken I - 09 - opgave 8 - Verdrietig.opus` — 291 KB
+- `2023 Spreken I - 10 - deel 2 instructie.mp3` — 1.5 MB
+- `2023 Spreken I - 10 - deel 2 instructie.opus` — 2.0 MB
+- `2023 Spreken I - 11 - opgave 9 - Introductiedag.mp3` — 806 KB
+- `2023 Spreken I - 11 - opgave 9 - Introductiedag.opus` — 722 KB
+- `2023 Spreken I - 12 - opgave 10 - Lang weekend weg.mp3` — 385 KB
+- `2023 Spreken I - 12 - opgave 10 - Lang weekend weg.opus` — 507 KB
+- `2023 Spreken I - 13 - opgave 11 - Kopiëren.mp3` — 608 KB
+- `2023 Spreken I - 13 - opgave 11 - Kopiëren.opus` — 556 KB
+- `2023 Spreken I - 14 - opgave 12 - Bezoeker.mp3` — 695 KB
+- `2023 Spreken I - 14 - opgave 12 - Bezoeker.opus` — 658 KB
+- `2023 Spreken I - 15 - opgave 13 - Nieuwe studieruimte.mp3` — 679 KB
+- `2023 Spreken I - 15 - opgave 13 - Nieuwe studieruimte.opus` — 639 KB
+- `2023 Spreken I - 16 - opgave 14 - Voetbal of hardlopen.mp3` — 776 KB
+- `2023 Spreken I - 16 - opgave 14 - Voetbal of hardlopen.opus` — 713 KB
+- `2023 Spreken I - 17 - opgave 15 - Sollicitatie.mp3` — 759 KB
+- `2023 Spreken I - 17 - opgave 15 - Sollicitatie.opus` — 630 KB
+- `2023 Spreken I - 18 - opgave 16 - Meesters.mp3` — 587 KB
+- `2023 Spreken I - 18 - opgave 16 - Meesters.opus` — 547 KB
 
-**`atili/Dutch/oefenexamensnt2/2024 Luisteren I openbaar examen audio- en videobestanden/`** — 61 files, 129.1 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Spreken II/audio/`** — 32 files, 25.6 MB
 
-- `Track 10 opgave 7.mp3` — 569 KB
-- `Track 11 opgave 8.mp3` — 633 KB
-- `Track 12 opgave 9.mp3` — 870 KB
-- `Track 13 opgave 10.mp3` — 683 KB
-- `Track 14 opgave 11.mp3` — 697 KB
-- `Track 15 opgave 12.mp3` — 691 KB
-- `Track 16 opgave 13.mp3` — 1.2 MB
-- `Track 17 opgave 14.mp3` — 1.0 MB
-- `Track 18  opgave 15.mp3` — 829 KB
-- `Track 19 intro bakkerij stoepje.mp3` — 1.1 MB
-- `Track 1_instructie.mp3` — 556 KB
-- `Track 1_instructie.opus` — 570 KB
-- `Track 2 intro Hoofdconducteur NS.mp3` — 2.8 MB
-- `Track 20 opgave 16.mp3` — 823 KB
-- `Track 21 opgave 17.mp3` — 806 KB
-- `Track 22 opgave 18.mp3` — 850 KB
-- `Track 23 opgave 19.mp3` — 940 KB
-- `Track 24 opgave 20.mp3` — 710 KB
-- `Track 25 opgave 21.mp3` — 710 KB
-- `Track 26 opgave 22.mp3` — 805 KB
-- `Track 27 opgave 23.mp3` — 813 KB
-- `Track 28 intro Huisartsassistent.mp3` — 1.3 MB
-- `Track 29 opgave 24.mp3` — 1.0 MB
-- `Track 3 opgave 1.mp3` — 1.0 MB
-- `Track 30 opgave 25.mp3` — 1.1 MB
-- `Track 31 opgave 26.mp3` — 997 KB
-- `Track 33 opgave 27.mp3` — 1.4 MB
-- `Track 34 opgave 28.mp3` — 587 KB
-- `Track 35 opgave 29.mp3` — 749 KB
-- `Track 36 opgave 30.mp3` — 802 KB
-- `Track 37_instructie videodeel.mp3` — 211 KB
-- `Track 37_instructie videodeel.opus` — 214 KB
-- `Track 38 intro 1 Beeldhouwer houten beelden.mp3` — 613 KB
-- `Track 39 intro 2 Beeldhouwer houten beelden.mp4` — 1.3 MB
-- `Track 39 intro 2 Beeldhouwer houten beelden.webm` — 2.0 MB
-- `Track 4 opgave 2.mp3` — 836 KB
-- `Track 40_instructie.mp3` — 114 KB
-- `Track 40_instructie.opus` — 105 KB
-- `Track 41 opgave 31.mp4` — 4.1 MB
-- `Track 41 opgave 31.webm` — 7.8 MB
-- `Track 42 opgave 32.mp4` — 4.9 MB
-- `Track 42 opgave 32.webm` — 8.4 MB
-- `Track 43 opgave 33.mp4` — 3.5 MB
-- `Track 43 opgave 33.webm` — 6.1 MB
-- `Track 44 opgave 34.mp4` — 3.7 MB
-- `Track 44 opgave 34.webm` — 6.2 MB
-- `Track 45 opgave 35.mp4` — 3.7 MB
-- `Track 45 opgave 35.webm` — 6.2 MB
-- `Track 46 opgave 36.mp4` — 5.3 MB
-- `Track 46 opgave 36.webm` — 8.5 MB
-- `Track 47 opgave 37.mp4` — 4.9 MB
-- `Track 47 opgave 37.webm` — 8.3 MB
-- `Track 48 opgave 38.mp4` — 3.7 MB
-- `Track 48 opgave 38.webm` — 6.1 MB
-- `Track 49_bron en disclaimer.mp3` — 102 KB
-- `Track 49_bron en disclaimer.opus` — 116 KB
-- `Track 5 opgave 3.mp3` — 868 KB
-- `Track 6 opgave 4.mp3` — 820 KB
-- `Track 7 opgave 5.mp3` — 802 KB
-- `Track 8 opgave 6.mp3` — 1.0 MB
-- `Track 9 intro Mbo-opleiding gastvrouw.mp3` — 1.4 MB
+- `2023 Spreken II - 01 - deel 1 instructie.mp3` — 1.5 MB
+- `2023 Spreken II - 01 - deel 1 instructie.opus` — 1.2 MB
+- `2023 Spreken II - 02 - opgave 1 - Stage of scriptie.mp3` — 196 KB
+- `2023 Spreken II - 02 - opgave 1 - Stage of scriptie.opus` — 173 KB
+- `2023 Spreken II - 03 - opgave 2 - Eerste keer vliegen.mp3` — 508 KB
+- `2023 Spreken II - 03 - opgave 2 - Eerste keer vliegen.opus` — 369 KB
+- `2023 Spreken II - 04 - opgave 3 - Weekenddienst.mp3` — 483 KB
+- `2023 Spreken II - 04 - opgave 3 - Weekenddienst.opus` — 442 KB
+- `2023 Spreken II - 05 - opgave 4 - Keuze laptop.mp3` — 453 KB
+- `2023 Spreken II - 05 - opgave 4 - Keuze laptop.opus` — 387 KB
+- `2023 Spreken II - 06 - deel 2 instructie.mp3` — 2.3 MB
+- `2023 Spreken II - 06 - deel 2 instructie.opus` — 1.9 MB
+- `2023 Spreken II - 07 - opgave 5 - Last van feestjes.mp3` — 424 KB
+- `2023 Spreken II - 07 - opgave 5 - Last van feestjes.opus` — 588 KB
+- `2023 Spreken II - 08 - opgave 6 - Sportjournalist.mp3` — 604 KB
+- `2023 Spreken II - 08 - opgave 6 - Sportjournalist.opus` — 612 KB
+- `2023 Spreken II - 09 - opgave 7 - Vrijwilligerswerk.mp3` — 658 KB
+- `2023 Spreken II - 09 - opgave 7 - Vrijwilligerswerk.opus` — 658 KB
+- `2023 Spreken II - 10 - opgave 8 - Stage in ziekenhuis.mp3` — 467 KB
+- `2023 Spreken II - 10 - opgave 8 - Stage in ziekenhuis.opus` — 625 KB
+- `2023 Spreken II - 11 - opgave 9 - Makelaar.mp3` — 792 KB
+- `2023 Spreken II - 11 - opgave 9 - Makelaar.opus` — 802 KB
+- `2023 Spreken II - 12 - opgave 10 - Festival.mp3` — 591 KB
+- `2023 Spreken II - 12 - opgave 10 - Festival.opus` — 589 KB
+- `2023 Spreken II - 13 - opgave 11 - Niet storen.mp3` — 683 KB
+- `2023 Spreken II - 13 - opgave 11 - Niet storen.opus` — 697 KB
+- `2023 Spreken II - 14 - opgave 12 - Rijbewijs vanaf 17 jaar.mp3` — 835 KB
+- `2023 Spreken II - 14 - opgave 12 - Rijbewijs vanaf 17 jaar.opus` — 825 KB
+- `2023 Spreken II - 15 - deel 3 instructie.mp3` — 582 KB
+- `2023 Spreken II - 15 - deel 3 instructie.opus` — 463 KB
+- `2023 Spreken II - 16 - opgave 13 - Toerisme.mp3` — 1.6 MB
+- `2023 Spreken II - 16 - opgave 13 - Toerisme.opus` — 3.0 MB
 
-**`atili/Dutch/oefenexamensnt2/2024 Luisteren II openbaar examen audio- en videobestanden/`** — 92 files, 167.9 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Luisteren I/audio/`** — 61 files, 129.1 MB
 
-- `Track 10_opgave 8.mp3` — 1.7 MB
-- `Track 10_opgave 8.opus` — 1.4 MB
-- `Track 11_intro.mp3` — 1.2 MB
-- `Track 11_intro.opus` — 1.3 MB
-- `Track 12_opgave 9.mp3` — 695 KB
-- `Track 12_opgave 9.opus` — 641 KB
-- `Track 13_opgave 10.mp3` — 727 KB
-- `Track 13_opgave 10.opus` — 683 KB
-- `Track 14_opgave 11.mp3` — 1.7 MB
-- `Track 14_opgave 11.opus` — 1.6 MB
-- `Track 15_opgave 12.mp3` — 1.0 MB
-- `Track 15_opgave 12.opus` — 1011 KB
-- `Track 16_opgave 13.mp3` — 1.5 MB
-- `Track 16_opgave 13.opus` — 1.3 MB
-- `Track 17_opgave 14.mp3` — 1.4 MB
-- `Track 17_opgave 14.opus` — 1.4 MB
-- `Track 18_opgave 15.mp3` — 797 KB
-- `Track 18_opgave 15.opus` — 732 KB
-- `Track 19_intro.mp3` — 1.7 MB
-- `Track 19_intro.opus` — 1.6 MB
-- `Track 1_instructie.mp3` — 556 KB
-- `Track 1_instructie.opus` — 570 KB
-- `Track 20_opgave 16.mp3` — 1.1 MB
-- `Track 20_opgave 16.opus` — 1.1 MB
-- `Track 21_opgave 17.mp3` — 903 KB
-- `Track 21_opgave 17.opus` — 840 KB
-- `Track 22_opgave 18.mp3` — 619 KB
-- `Track 22_opgave 18.opus` — 598 KB
-- `Track 23_opgave 19.mp3` — 1.3 MB
-- `Track 23_opgave 19.opus` — 1.2 MB
-- `Track 24_opgave 20.mp3` — 873 KB
-- `Track 24_opgave 20.opus` — 884 KB
-- `Track 25_opgave 21.mp3` — 965 KB
-- `Track 25_opgave 21.opus` — 978 KB
-- `Track 26_intro.mp3` — 1.5 MB
-- `Track 26_intro.opus` — 1.5 MB
-- `Track 27_opgave 22.mp3` — 1.1 MB
-- `Track 27_opgave 22.opus` — 901 KB
-- `Track 28_opgave 23.mp3` — 1.4 MB
-- `Track 28_opgave 23.opus` — 1.2 MB
-- `Track 29_opgave 24.mp3` — 732 KB
-- `Track 29_opgave 24.opus` — 616 KB
-- `Track 2_intro.mp3` — 3.4 MB
-- `Track 2_intro.opus` — 3.4 MB
-- `Track 30_opgave 25.mp3` — 1.6 MB
-- `Track 30_opgave 25.opus` — 1.3 MB
-- `Track 31_opgave 26.mp3` — 761 KB
-- `Track 31_opgave 26.opus` — 647 KB
-- `Track 32_opgave 27.mp3` — 661 KB
-- `Track 32_opgave 27.opus` — 579 KB
-- `Track 33_opgave 28.mp3` — 1.0 MB
-- `Track 33_opgave 28.opus` — 891 KB
-- `Track 34_instructie videodeel.mp3` — 211 KB
-- `Track 34_instructie videodeel.opus` — 214 KB
-- `Track 35_intro.mp3` — 500 KB
-- `Track 35_intro.opus` — 408 KB
-- `Track 36_opgave 29.mp4` — 5.6 MB
-- `Track 36_opgave 29.webm` — 9.5 MB
-- `Track 37_opgave 30.mp4` — 5.7 MB
-- `Track 37_opgave 30.webm` — 8.6 MB
-- `Track 38_opgave 31.mp4` — 3.3 MB
-- `Track 38_opgave 31.webm` — 5.5 MB
-- `Track 39_opgave 32.mp4` — 2.7 MB
-- `Track 39_opgave 32.webm` — 4.0 MB
-- `Track 3_opgave 1.mp3` — 1.4 MB
-- `Track 3_opgave 1.opus` — 1.2 MB
-- `Track 40_opgave 33.mp4` — 4.8 MB
-- `Track 40_opgave 33.webm` — 6.9 MB
-- `Track 41_intro.mp3` — 285 KB
-- `Track 41_intro.opus` — 263 KB
-- `Track 42_opgave 34.mp4` — 2.7 MB
-- `Track 42_opgave 34.webm` — 3.3 MB
-- `Track 43_opgave 35.mp4` — 5.8 MB
-- `Track 43_opgave 35.webm` — 6.4 MB
-- `Track 44_opgave 36.mp4` — 1.9 MB
-- `Track 44_opgave 36.webm` — 2.7 MB
-- `Track 45_opgave 37.mp4` — 3.8 MB
-- `Track 45_opgave 37.webm` — 5.7 MB
-- `Track 46_bron en disclaimer.mp3` — 102 KB
-- `Track 46_bron en disclaimer.opus` — 116 KB
-- `Track 4_opgave 2.mp3` — 1.4 MB
-- `Track 4_opgave 2.opus` — 1.1 MB
-- `Track 5_opgave 3.mp3` — 1.4 MB
-- `Track 5_opgave 3.opus` — 1.1 MB
-- `Track 6_opgave 4.mp3` — 1.3 MB
-- `Track 6_opgave 4.opus` — 1.1 MB
-- `Track 7_opgave 5.mp3` — 1.3 MB
-- `Track 7_opgave 5.opus` — 1.1 MB
-- `Track 8_opgave 6.mp3` — 1.6 MB
-- `Track 8_opgave 6.opus` — 1.3 MB
-- `Track 9_opgave 7.mp3` — 1.2 MB
-- `Track 9_opgave 7.opus` — 1.0 MB
+- `2024 Luisteren I - 01 - instructie.mp3` — 556 KB
+- `2024 Luisteren I - 01 - instructie.opus` — 570 KB
+- `2024 Luisteren I - 02 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - introductie.mp3` — 2.8 MB
+- `2024 Luisteren I - 03 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - opgave 1.mp3` — 1.0 MB
+- `2024 Luisteren I - 04 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - opgave 2.mp3` — 836 KB
+- `2024 Luisteren I - 05 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - opgave 3.mp3` — 868 KB
+- `2024 Luisteren I - 06 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - opgave 4.mp3` — 820 KB
+- `2024 Luisteren I - 07 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - opgave 5.mp3` — 802 KB
+- `2024 Luisteren I - 08 - Een gesprek met een hoofdconducteur van de Nederlandse Spoorwegen - opgave 6.mp3` — 1.0 MB
+- `2024 Luisteren I - 09 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - introductie.mp3` — 1.4 MB
+- `2024 Luisteren I - 10 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 7.mp3` — 569 KB
+- `2024 Luisteren I - 11 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 8.mp3` — 633 KB
+- `2024 Luisteren I - 12 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 9.mp3` — 870 KB
+- `2024 Luisteren I - 13 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 10.mp3` — 683 KB
+- `2024 Luisteren I - 14 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 11.mp3` — 697 KB
+- `2024 Luisteren I - 15 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 12.mp3` — 691 KB
+- `2024 Luisteren I - 16 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 13.mp3` — 1.2 MB
+- `2024 Luisteren I - 17 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 14.mp3` — 1.0 MB
+- `2024 Luisteren I - 18 - Een gesprek met een mbo-studente van de opleiding tot gastvrouw - opgave 15.mp3` — 829 KB
+- `2024 Luisteren I - 19 - Een gesprek met een marktkoopman - introductie.mp3` — 1.1 MB
+- `2024 Luisteren I - 20 - Een gesprek met een marktkoopman - opgave 16.mp3` — 823 KB
+- `2024 Luisteren I - 21 - Een gesprek met een marktkoopman - opgave 17.mp3` — 806 KB
+- `2024 Luisteren I - 22 - Een gesprek met een marktkoopman - opgave 18.mp3` — 850 KB
+- `2024 Luisteren I - 23 - Een gesprek met een marktkoopman - opgave 19.mp3` — 940 KB
+- `2024 Luisteren I - 24 - Een gesprek met een marktkoopman - opgave 20.mp3` — 710 KB
+- `2024 Luisteren I - 25 - Een gesprek met een marktkoopman - opgave 21.mp3` — 710 KB
+- `2024 Luisteren I - 26 - Een gesprek met een marktkoopman - opgave 22.mp3` — 805 KB
+- `2024 Luisteren I - 27 - Een gesprek met een marktkoopman.mp3` — 813 KB
+- `2024 Luisteren I - 28 - Een gesprek met een huisartsassistent - introductie.mp3` — 1.3 MB
+- `2024 Luisteren I - 29 - Een gesprek met een huisartsassistent - opgave 24.mp3` — 1.0 MB
+- `2024 Luisteren I - 30 - Een gesprek met een huisartsassistent - opgave 25.mp3` — 1.1 MB
+- `2024 Luisteren I - 31 - Een gesprek met een huisartsassistent - opgave 26.mp3` — 997 KB
+- `2024 Luisteren I - 33 - Een gesprek met een huisartsassistent - opgave 27.mp3` — 1.4 MB
+- `2024 Luisteren I - 34 - Een gesprek met een huisartsassistent - opgave 28.mp3` — 587 KB
+- `2024 Luisteren I - 35 - Een gesprek met een huisartsassistent - opgave 29.mp3` — 749 KB
+- `2024 Luisteren I - 36 - Een gesprek met een huisartsassistent - opgave 30.mp3` — 802 KB
+- `2024 Luisteren I - 37 - instructie videodeel.mp3` — 211 KB
+- `2024 Luisteren I - 37 - instructie videodeel.opus` — 214 KB
+- `2024 Luisteren I - 38 - Een interview met een beeldhouwer van houten beelden - introductie.mp3` — 613 KB
+- `2024 Luisteren I - 39 - Een interview met een beeldhouwer van houten beelden - introductie 2.mp4` — 1.3 MB
+- `2024 Luisteren I - 39 - Een interview met een beeldhouwer van houten beelden - introductie 2.webm` — 2.0 MB
+- `2024 Luisteren I - 40 - instructie.mp3` — 114 KB
+- `2024 Luisteren I - 40 - instructie.opus` — 105 KB
+- `2024 Luisteren I - 41 - Een interview met een beeldhouwer van houten beelden - opgave 31.mp4` — 4.1 MB
+- `2024 Luisteren I - 41 - Een interview met een beeldhouwer van houten beelden - opgave 31.webm` — 7.8 MB
+- `2024 Luisteren I - 42 - Een interview met een beeldhouwer van houten beelden - opgave 32.mp4` — 4.9 MB
+- `2024 Luisteren I - 42 - Een interview met een beeldhouwer van houten beelden - opgave 32.webm` — 8.4 MB
+- `2024 Luisteren I - 43 - Een interview met een beeldhouwer van houten beelden - opgave 33.mp4` — 3.5 MB
+- `2024 Luisteren I - 43 - Een interview met een beeldhouwer van houten beelden - opgave 33.webm` — 6.1 MB
+- `2024 Luisteren I - 44 - Een interview met een beeldhouwer van houten beelden - opgave 34.mp4` — 3.7 MB
+- `2024 Luisteren I - 44 - Een interview met een beeldhouwer van houten beelden - opgave 34.webm` — 6.2 MB
+- `2024 Luisteren I - 45 - Een interview met een beeldhouwer van houten beelden - opgave 35.mp4` — 3.7 MB
+- `2024 Luisteren I - 45 - Een interview met een beeldhouwer van houten beelden - opgave 35.webm` — 6.2 MB
+- `2024 Luisteren I - 46 - Een interview met een beeldhouwer van houten beelden - opgave 36.mp4` — 5.3 MB
+- `2024 Luisteren I - 46 - Een interview met een beeldhouwer van houten beelden - opgave 36.webm` — 8.5 MB
+- `2024 Luisteren I - 47 - Een interview met een beeldhouwer van houten beelden - opgave 37.mp4` — 4.9 MB
+- `2024 Luisteren I - 47 - Een interview met een beeldhouwer van houten beelden - opgave 37.webm` — 8.3 MB
+- `2024 Luisteren I - 48 - Een interview met een beeldhouwer van houten beelden - opgave 38.mp4` — 3.7 MB
+- `2024 Luisteren I - 48 - Een interview met een beeldhouwer van houten beelden - opgave 38.webm` — 6.1 MB
+- `2024 Luisteren I - 49 - Een interview met een beeldhouwer van houten beelden.mp3` — 102 KB
+- `2024 Luisteren I - 49 - Een interview met een beeldhouwer van houten beelden.opus` — 116 KB
 
-**`atili/Dutch/oefenexamensnt2/2024 Spreken I openbaar examen audiobestanden/Zips audio/`** — 38 files, 21.8 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Luisteren II/audio/`** — 92 files, 167.9 MB
 
-- `Track 10_deel_2_instructie.mp3` — 1.5 MB
-- `Track 10_deel_2_instructie.opus` — 2.0 MB
-- `Track 11_Opgave 9.mp3` — 625 KB
-- `Track 11_Opgave 9.opus` — 844 KB
-- `Track 12_Opgave 10.mp3` — 671 KB
-- `Track 12_Opgave 10.opus` — 625 KB
-- `Track 13_Opgave 11.mp3` — 392 KB
-- `Track 13_Opgave 11.opus` — 614 KB
-- `Track 14_Opgave 12.mp3` — 574 KB
-- `Track 14_Opgave 12.opus` — 773 KB
-- `Track 15_Opgave 13.mp3` — 406 KB
-- `Track 15_Opgave 13.opus` — 559 KB
-- `Track 16_Opgave 14.mp3` — 623 KB
-- `Track 16_Opgave 14.opus` — 625 KB
-- `Track 17_Opgave 15.mp3` — 512 KB
-- `Track 17_Opgave 15.opus` — 752 KB
-- `Track 18_Opgave 16.mp3` — 538 KB
-- `Track 18_Opgave 16.opus` — 489 KB
-- `Track 1_deel_1_instructie.mp3` — 1.1 MB
-- `Track 1_deel_1_instructie.opus` — 1.3 MB
-- `Track 2_Opgave 1.mp3` — 378 KB
-- `Track 2_Opgave 1.opus` — 305 KB
-- `Track 3_Opgave 2.mp3` — 539 KB
-- `Track 3_Opgave 2.opus` — 436 KB
-- `Track 4_Opgave 3.mp3` — 293 KB
-- `Track 4_Opgave 3.opus` — 371 KB
-- `Track 5_Opgave 4.mp3` — 323 KB
-- `Track 5_Opgave 4.opus` — 347 KB
-- `Track 6_Opgave 5.mp3` — 367 KB
-- `Track 6_Opgave 5.opus` — 394 KB
-- `Track 7_Opgave 6.mp3` — 389 KB
-- `Track 7_Opgave 6.opus` — 333 KB
-- `Track 7_Opgave 6_.mp3` — 359 KB
-- `Track 7_Opgave 6_.opus` — 324 KB
-- `Track 8_Opgave 7.mp3` — 223 KB
-- `Track 8_Opgave 7.opus` — 242 KB
-- `Track 9_Opgave 8.mp3` — 503 KB
-- `Track 9_Opgave 8.opus` — 595 KB
+- `2024 Luisteren II - 01 - instructie.mp3` — 556 KB
+- `2024 Luisteren II - 01 - instructie.opus` — 570 KB
+- `2024 Luisteren II - 02 - Een gastcollege over waterbeheer - introductie.mp3` — 3.4 MB
+- `2024 Luisteren II - 02 - Een gastcollege over waterbeheer - introductie.opus` — 3.4 MB
+- `2024 Luisteren II - 03 - Een gastcollege over waterbeheer - opgave 1.mp3` — 1.4 MB
+- `2024 Luisteren II - 03 - Een gastcollege over waterbeheer - opgave 1.opus` — 1.2 MB
+- `2024 Luisteren II - 04 - Een gastcollege over waterbeheer - opgave 2.mp3` — 1.4 MB
+- `2024 Luisteren II - 04 - Een gastcollege over waterbeheer - opgave 2.opus` — 1.1 MB
+- `2024 Luisteren II - 05 - Een gastcollege over waterbeheer - opgave 3.mp3` — 1.4 MB
+- `2024 Luisteren II - 05 - Een gastcollege over waterbeheer - opgave 3.opus` — 1.1 MB
+- `2024 Luisteren II - 06 - Een gastcollege over waterbeheer - opgave 4.mp3` — 1.3 MB
+- `2024 Luisteren II - 06 - Een gastcollege over waterbeheer - opgave 4.opus` — 1.1 MB
+- `2024 Luisteren II - 07 - Een gastcollege over waterbeheer - opgave 5.mp3` — 1.3 MB
+- `2024 Luisteren II - 07 - Een gastcollege over waterbeheer - opgave 5.opus` — 1.1 MB
+- `2024 Luisteren II - 08 - Een gastcollege over waterbeheer - opgave 6.mp3` — 1.6 MB
+- `2024 Luisteren II - 08 - Een gastcollege over waterbeheer - opgave 6.opus` — 1.3 MB
+- `2024 Luisteren II - 09 - Een gastcollege over waterbeheer - opgave 7.mp3` — 1.2 MB
+- `2024 Luisteren II - 09 - Een gastcollege over waterbeheer - opgave 7.opus` — 1.0 MB
+- `2024 Luisteren II - 10 - Een gastcollege over waterbeheer - opgave 8.mp3` — 1.7 MB
+- `2024 Luisteren II - 10 - Een gastcollege over waterbeheer - opgave 8.opus` — 1.4 MB
+- `2024 Luisteren II - 11 - Een gesprek met een vrijwilliger van de Ouderenbond - introductie.mp3` — 1.2 MB
+- `2024 Luisteren II - 11 - Een gesprek met een vrijwilliger van de Ouderenbond - introductie.opus` — 1.3 MB
+- `2024 Luisteren II - 12 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 9.mp3` — 695 KB
+- `2024 Luisteren II - 12 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 9.opus` — 641 KB
+- `2024 Luisteren II - 13 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 10.mp3` — 727 KB
+- `2024 Luisteren II - 13 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 10.opus` — 683 KB
+- `2024 Luisteren II - 14 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 11.mp3` — 1.7 MB
+- `2024 Luisteren II - 14 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 11.opus` — 1.6 MB
+- `2024 Luisteren II - 15 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 12.mp3` — 1.0 MB
+- `2024 Luisteren II - 15 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 12.opus` — 1011 KB
+- `2024 Luisteren II - 16 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 13.mp3` — 1.5 MB
+- `2024 Luisteren II - 16 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 13.opus` — 1.3 MB
+- `2024 Luisteren II - 17 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 14.mp3` — 1.4 MB
+- `2024 Luisteren II - 17 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 14.opus` — 1.4 MB
+- `2024 Luisteren II - 18 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 15.mp3` — 797 KB
+- `2024 Luisteren II - 18 - Een gesprek met een vrijwilliger van de Ouderenbond - opgave 15.opus` — 732 KB
+- `2024 Luisteren II - 19 - Een gesprek met twee binnenhuisarchitecten - introductie.mp3` — 1.7 MB
+- `2024 Luisteren II - 19 - Een gesprek met twee binnenhuisarchitecten - introductie.opus` — 1.6 MB
+- `2024 Luisteren II - 20 - Een gesprek met twee binnenhuisarchitecten - opgave 16.mp3` — 1.1 MB
+- `2024 Luisteren II - 20 - Een gesprek met twee binnenhuisarchitecten - opgave 16.opus` — 1.1 MB
+- `2024 Luisteren II - 21 - Een gesprek met twee binnenhuisarchitecten - opgave 17.mp3` — 903 KB
+- `2024 Luisteren II - 21 - Een gesprek met twee binnenhuisarchitecten - opgave 17.opus` — 840 KB
+- `2024 Luisteren II - 22 - Een gesprek met twee binnenhuisarchitecten - opgave 18.mp3` — 619 KB
+- `2024 Luisteren II - 22 - Een gesprek met twee binnenhuisarchitecten - opgave 18.opus` — 598 KB
+- `2024 Luisteren II - 23 - Een gesprek met twee binnenhuisarchitecten - opgave 19.mp3` — 1.3 MB
+- `2024 Luisteren II - 23 - Een gesprek met twee binnenhuisarchitecten - opgave 19.opus` — 1.2 MB
+- `2024 Luisteren II - 24 - Een gesprek met twee binnenhuisarchitecten - opgave 20.mp3` — 873 KB
+- `2024 Luisteren II - 24 - Een gesprek met twee binnenhuisarchitecten - opgave 20.opus` — 884 KB
+- `2024 Luisteren II - 25 - Een gesprek met twee binnenhuisarchitecten - opgave 21.mp3` — 965 KB
+- `2024 Luisteren II - 25 - Een gesprek met twee binnenhuisarchitecten - opgave 21.opus` — 978 KB
+- `2024 Luisteren II - 26 - Een gesprek over wilgen knotten - introductie.mp3` — 1.5 MB
+- `2024 Luisteren II - 26 - Een gesprek over wilgen knotten - introductie.opus` — 1.5 MB
+- `2024 Luisteren II - 27 - Een gesprek over wilgen knotten - opgave 22.mp3` — 1.1 MB
+- `2024 Luisteren II - 27 - Een gesprek over wilgen knotten - opgave 22.opus` — 901 KB
+- `2024 Luisteren II - 28 - Een gesprek over wilgen knotten - opgave 23.mp3` — 1.4 MB
+- `2024 Luisteren II - 28 - Een gesprek over wilgen knotten - opgave 23.opus` — 1.2 MB
+- `2024 Luisteren II - 29 - Een gesprek over wilgen knotten - opgave 24.mp3` — 732 KB
+- `2024 Luisteren II - 29 - Een gesprek over wilgen knotten - opgave 24.opus` — 616 KB
+- `2024 Luisteren II - 30 - Een gesprek over wilgen knotten - opgave 25.mp3` — 1.6 MB
+- `2024 Luisteren II - 30 - Een gesprek over wilgen knotten - opgave 25.opus` — 1.3 MB
+- `2024 Luisteren II - 31 - Een gesprek over wilgen knotten - opgave 26.mp3` — 761 KB
+- `2024 Luisteren II - 31 - Een gesprek over wilgen knotten - opgave 26.opus` — 647 KB
+- `2024 Luisteren II - 32 - Een gesprek over wilgen knotten - opgave 27.mp3` — 661 KB
+- `2024 Luisteren II - 32 - Een gesprek over wilgen knotten - opgave 27.opus` — 579 KB
+- `2024 Luisteren II - 33 - Een gesprek over wilgen knotten - opgave 28.mp3` — 1.0 MB
+- `2024 Luisteren II - 33 - Een gesprek over wilgen knotten - opgave 28.opus` — 891 KB
+- `2024 Luisteren II - 34 - instructie videodeel.mp3` — 211 KB
+- `2024 Luisteren II - 34 - instructie videodeel.opus` — 214 KB
+- `2024 Luisteren II - 35 - Een gesprek over duurzame mode - introductie.mp3` — 500 KB
+- `2024 Luisteren II - 35 - Een gesprek over duurzame mode - introductie.opus` — 408 KB
+- `2024 Luisteren II - 36 - Een gesprek over duurzame mode - opgave 29.mp4` — 5.6 MB
+- `2024 Luisteren II - 36 - Een gesprek over duurzame mode - opgave 29.webm` — 9.5 MB
+- `2024 Luisteren II - 37 - Een gesprek over duurzame mode - opgave 30.mp4` — 5.7 MB
+- `2024 Luisteren II - 37 - Een gesprek over duurzame mode - opgave 30.webm` — 8.6 MB
+- `2024 Luisteren II - 38 - Een gesprek over duurzame mode - opgave 31.mp4` — 3.3 MB
+- `2024 Luisteren II - 38 - Een gesprek over duurzame mode - opgave 31.webm` — 5.5 MB
+- `2024 Luisteren II - 39 - Een gesprek over duurzame mode - opgave 32.mp4` — 2.7 MB
+- `2024 Luisteren II - 39 - Een gesprek over duurzame mode - opgave 32.webm` — 4.0 MB
+- `2024 Luisteren II - 40 - Een gesprek over duurzame mode - opgave 33.mp4` — 4.8 MB
+- `2024 Luisteren II - 40 - Een gesprek over duurzame mode - opgave 33.webm` — 6.9 MB
+- `2024 Luisteren II - 41 - Een filmpje over een bijzondere fiets - introductie.mp3` — 285 KB
+- `2024 Luisteren II - 41 - Een filmpje over een bijzondere fiets - introductie.opus` — 263 KB
+- `2024 Luisteren II - 42 - Een filmpje over een bijzondere fiets - opgave 34.mp4` — 2.7 MB
+- `2024 Luisteren II - 42 - Een filmpje over een bijzondere fiets - opgave 34.webm` — 3.3 MB
+- `2024 Luisteren II - 43 - Een filmpje over een bijzondere fiets - opgave 35.mp4` — 5.8 MB
+- `2024 Luisteren II - 43 - Een filmpje over een bijzondere fiets - opgave 35.webm` — 6.4 MB
+- `2024 Luisteren II - 44 - Een filmpje over een bijzondere fiets - opgave 36.mp4` — 1.9 MB
+- `2024 Luisteren II - 44 - Een filmpje over een bijzondere fiets - opgave 36.webm` — 2.7 MB
+- `2024 Luisteren II - 45 - Een filmpje over een bijzondere fiets - opgave 37.mp4` — 3.8 MB
+- `2024 Luisteren II - 45 - Een filmpje over een bijzondere fiets - opgave 37.webm` — 5.7 MB
+- `2024 Luisteren II - 46 - Een filmpje over een bijzondere fiets.mp3` — 102 KB
+- `2024 Luisteren II - 46 - Een filmpje over een bijzondere fiets.opus` — 116 KB
 
-**`atili/Dutch/oefenexamensnt2/2024 Spreken II openbaar examen audiobestanden/Zips audio/`** — 32 files, 28.4 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Spreken I/audio/`** — 38 files, 21.8 MB
 
-- `Track 10_Opgave 8.mp3` — 706 KB
-- `Track 10_Opgave 8.opus` — 830 KB
-- `Track 11_Opgave 9.mp3` — 477 KB
-- `Track 11_Opgave 9.opus` — 631 KB
-- `Track 12_Opgave 10.mp3` — 428 KB
-- `Track 12_Opgave 10.opus` — 595 KB
-- `Track 13_Opgave 11.mp3` — 741 KB
-- `Track 13_Opgave 11.opus` — 801 KB
-- `Track 14_Opgave 12.mp3` — 453 KB
-- `Track 14_Opgave 12.opus` — 598 KB
-- `Track 15_deel_3_instructie.mp3` — 582 KB
-- `Track 15_deel_3_instructie.opus` — 463 KB
-- `Track 16_Opgave 13.mp3` — 3.0 MB
-- `Track 16_Opgave 13.opus` — 3.0 MB
-- `Track 1_deel_1_instructie.mp3` — 1.5 MB
-- `Track 1_deel_1_instructie.opus` — 1.2 MB
-- `Track 2_Opgave 1.mp3` — 592 KB
-- `Track 2_Opgave 1.opus` — 615 KB
-- `Track 3_Opgave 2.mp3` — 431 KB
-- `Track 3_Opgave 2.opus` — 423 KB
-- `Track 4_Opgave 3.mp3` — 487 KB
-- `Track 4_Opgave 3.opus` — 524 KB
-- `Track 5_Opgave 4.mp3` — 601 KB
-- `Track 5_Opgave 4.opus` — 494 KB
-- `Track 6_deel_2_instructie.mp3` — 2.3 MB
-- `Track 6_deel_2_instructie.opus` — 1.9 MB
-- `Track 7_Opgave 5.mp3` — 631 KB
-- `Track 7_Opgave 5.opus` — 676 KB
-- `Track 8_Opgave 6.mp3` — 790 KB
-- `Track 8_Opgave 6.opus` — 749 KB
-- `Track 9_Opgave 7.mp3` — 821 KB
-- `Track 9_Opgave 7.opus` — 790 KB
+- `2024 Spreken I - 01 - deel 1 instructie.mp3` — 1.1 MB
+- `2024 Spreken I - 01 - deel 1 instructie.opus` — 1.3 MB
+- `2024 Spreken I - 02 - opgave 1 - Foto's van een huwelijk.mp3` — 378 KB
+- `2024 Spreken I - 02 - opgave 1 - Foto's van een huwelijk.opus` — 305 KB
+- `2024 Spreken I - 03 - opgave 2 - Agenda.mp3` — 539 KB
+- `2024 Spreken I - 03 - opgave 2 - Agenda.opus` — 436 KB
+- `2024 Spreken I - 04 - opgave 3 - Boodschappen gedaan.mp3` — 293 KB
+- `2024 Spreken I - 04 - opgave 3 - Boodschappen gedaan.opus` — 371 KB
+- `2024 Spreken I - 05 - opgave 4 - Stageplaats.mp3` — 323 KB
+- `2024 Spreken I - 05 - opgave 4 - Stageplaats.opus` — 347 KB
+- `2024 Spreken I - 06 - opgave 5 - Kaaswinkel.mp3` — 367 KB
+- `2024 Spreken I - 06 - opgave 5 - Kaaswinkel.opus` — 394 KB
+- `2024 Spreken I - 07 - opgave 6 - Schoolkantine (tweede versie).mp3` — 359 KB
+- `2024 Spreken I - 07 - opgave 6 - Schoolkantine (tweede versie).opus` — 324 KB
+- `2024 Spreken I - 07 - opgave 6 - Schoolkantine.mp3` — 389 KB
+- `2024 Spreken I - 07 - opgave 6 - Schoolkantine.opus` — 333 KB
+- `2024 Spreken I - 08 - opgave 7 - Feestavond in de buurt.mp3` — 223 KB
+- `2024 Spreken I - 08 - opgave 7 - Feestavond in de buurt.opus` — 242 KB
+- `2024 Spreken I - 09 - opgave 8 - Dierverzorger.mp3` — 503 KB
+- `2024 Spreken I - 09 - opgave 8 - Dierverzorger.opus` — 595 KB
+- `2024 Spreken I - 10 - deel 2 instructie.mp3` — 1.5 MB
+- `2024 Spreken I - 10 - deel 2 instructie.opus` — 2.0 MB
+- `2024 Spreken I - 11 - opgave 9 - Keuze taal.mp3` — 625 KB
+- `2024 Spreken I - 11 - opgave 9 - Keuze taal.opus` — 844 KB
+- `2024 Spreken I - 12 - opgave 10 - Begeleid wonen.mp3` — 671 KB
+- `2024 Spreken I - 12 - opgave 10 - Begeleid wonen.opus` — 625 KB
+- `2024 Spreken I - 13 - opgave 11 - Meer bewegen.mp3` — 392 KB
+- `2024 Spreken I - 13 - opgave 11 - Meer bewegen.opus` — 614 KB
+- `2024 Spreken I - 14 - opgave 12 - Dingen vervangen.mp3` — 574 KB
+- `2024 Spreken I - 14 - opgave 12 - Dingen vervangen.opus` — 773 KB
+- `2024 Spreken I - 15 - opgave 13 - Schoolkeuze.mp3` — 406 KB
+- `2024 Spreken I - 15 - opgave 13 - Schoolkeuze.opus` — 559 KB
+- `2024 Spreken I - 16 - opgave 14 - Stage in Spanje.mp3` — 623 KB
+- `2024 Spreken I - 16 - opgave 14 - Stage in Spanje.opus` — 625 KB
+- `2024 Spreken I - 17 - opgave 15 - Yoga.mp3` — 512 KB
+- `2024 Spreken I - 17 - opgave 15 - Yoga.opus` — 752 KB
+- `2024 Spreken I - 18 - opgave 16 - Machines.mp3` — 538 KB
+- `2024 Spreken I - 18 - opgave 16 - Machines.opus` — 489 KB
 
-**`atili/Dutch/oefenexamensnt2/2025 Luisteren I openbaar examen audio- en videobestanden/`** — 100 files, 128.6 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Spreken II/audio/`** — 32 files, 28.4 MB
 
-- `Track 10 _opgave 7.mp3` — 1.0 MB
-- `Track 10 _opgave 7.opus` — 964 KB
-- `Track 11_opgave 8.mp3` — 1.5 MB
-- `Track 11_opgave 8.opus` — 1.3 MB
-- `Track 12 _opgave 9.mp3` — 1.7 MB
-- `Track 12 _opgave 9.opus` — 1.5 MB
-- `Track 13 _opgave 10.mp3` — 1.2 MB
-- `Track 13 _opgave 10.opus` — 1.1 MB
-- `Track 14 _opgave 11.mp3` — 1.1 MB
-- `Track 14 _opgave 11.opus` — 978 KB
-- `Track 15 _opgave 12.mp3` — 1.1 MB
-- `Track 15 _opgave 12.opus` — 977 KB
-- `Track 16 _opgave 13.mp3` — 978 KB
-- `Track 16 _opgave 13.opus` — 883 KB
-- `Track 17_intro.mp3` — 845 KB
-- `Track 17_intro.opus` — 887 KB
-- `Track 18_opgave 14.mp3` — 1021 KB
-- `Track 18_opgave 14.opus` — 1.1 MB
-- `Track 19_opgave 15.mp3` — 714 KB
-- `Track 19_opgave 15.opus` — 717 KB
-- `Track 1_instructie.mp3` — 556 KB
-- `Track 1_instructie.opus` — 570 KB
-- `Track 20_opgave 16.mp3` — 1.1 MB
-- `Track 20_opgave 16.opus` — 1.2 MB
-- `Track 21_opgave 17.mp3` — 849 KB
-- `Track 21_opgave 17.opus` — 858 KB
-- `Track 22_opgave 18.mp3` — 1019 KB
-- `Track 22_opgave 18.opus` — 1.0 MB
-- `Track 23_intro.mp3` — 843 KB
-- `Track 23_intro.opus` — 848 KB
-- `Track 24_opgave 19.mp3` — 677 KB
-- `Track 24_opgave 19.opus` — 844 KB
-- `Track 25_opgave 20.mp3` — 421 KB
-- `Track 25_opgave 20.opus` — 527 KB
-- `Track 26_opgave 21.mp3` — 566 KB
-- `Track 26_opgave 21.opus` — 676 KB
-- `Track 27_opgave 22.mp3` — 777 KB
-- `Track 27_opgave 22.opus` — 944 KB
-- `Track 28_opgave 23.mp3` — 457 KB
-- `Track 28_opgave 23.opus` — 586 KB
-- `Track 29_intro.mp3` — 733 KB
-- `Track 29_intro.opus` — 693 KB
-- `Track 2_Intro.mp3` — 2.5 MB
-- `Track 2_Intro.opus` — 3.2 MB
-- `Track 30_opgave 24.mp3` — 1.1 MB
-- `Track 30_opgave 24.opus` — 918 KB
-- `Track 31_opgave 25.mp3` — 1.2 MB
-- `Track 31_opgave 25.opus` — 942 KB
-- `Track 32_opgave 26.mp3` — 629 KB
-- `Track 32_opgave 26.opus` — 502 KB
-- `Track 33_opgave 27.mp3` — 1.1 MB
-- `Track 33_opgave 27.opus` — 915 KB
-- `Track 34_opgave 28.mp3` — 673 KB
-- `Track 34_opgave 28.opus` — 546 KB
-- `Track 35_opgave 29.mp3` — 1.1 MB
-- `Track 35_opgave 29.opus` — 877 KB
-- `Track 36_opgave 30.mp3` — 897 KB
-- `Track 36_opgave 30.opus` — 704 KB
-- `Track 37_opgave 31.mp3` — 947 KB
-- `Track 37_opgave 31.opus` — 767 KB
-- `Track 38_opgave 32.mp3` — 863 KB
-- `Track 38_opgave 32.opus` — 703 KB
-- `Track 39_instructie videodeel.mp3` — 211 KB
-- `Track 39_instructie videodeel.opus` — 214 KB
-- `Track 3_opgave 1.mp3` — 738 KB
-- `Track 3_opgave 1.opus` — 855 KB
-- `Track 40_Intro1.mp3` — 341 KB
-- `Track 40_Intro1.opus` — 354 KB
-- `Track 41_Intro2.mp4` — 2.5 MB
-- `Track 41_Intro2.webm` — 5.6 MB
-- `Track 42_instructie.mp3` — 114 KB
-- `Track 42_instructie.opus` — 105 KB
-- `Track 43_opgave 33.mp4` — 1.8 MB
-- `Track 43_opgave 33.webm` — 4.2 MB
-- `Track 44_opgave 34.mp4` — 3.1 MB
-- `Track 44_opgave 34.webm` — 5.9 MB
-- `Track 45_opgave 35.mp4` — 2.2 MB
-- `Track 45_opgave 35.webm` — 4.7 MB
-- `Track 46_opgave 36.mp4` — 1.7 MB
-- `Track 46_opgave 36.webm` — 3.8 MB
-- `Track 47_opgave 37.mp4` — 2.0 MB
-- `Track 47_opgave 37.webm` — 6.8 MB
-- `Track 48_opgave 38.mp4` — 1.2 MB
-- `Track 48_opgave 38.webm` — 2.6 MB
-- `Track 49_opgave 39.mp4` — 2.3 MB
-- `Track 49_opgave 39.webm` — 4.8 MB
-- `Track 4_opgave 2.mp3` — 825 KB
-- `Track 4_opgave 2.opus` — 921 KB
-- `Track 50_bron en disclaimer.mp3` — 102 KB
-- `Track 50_bron en disclaimer.opus` — 116 KB
-- `Track 5_opgave 3.mp3` — 1.0 MB
-- `Track 5_opgave 3.opus` — 1.2 MB
-- `Track 6_opgave 4.mp3` — 566 KB
-- `Track 6_opgave 4.opus` — 678 KB
-- `Track 7_opgave 5.mp3` — 793 KB
-- `Track 7_opgave 5.opus` — 944 KB
-- `Track 8_Intro.mp3` — 1.2 MB
-- `Track 8_Intro.opus` — 1.1 MB
-- `Track 9_opgave 6.mp3` — 1.4 MB
-- `Track 9_opgave 6.opus` — 1.3 MB
+- `2024 Spreken II - 01 - deel 1 instructie.mp3` — 1.5 MB
+- `2024 Spreken II - 01 - deel 1 instructie.opus` — 1.2 MB
+- `2024 Spreken II - 02 - opgave 1 - Rijexamen.mp3` — 592 KB
+- `2024 Spreken II - 02 - opgave 1 - Rijexamen.opus` — 615 KB
+- `2024 Spreken II - 03 - opgave 2 - 's Avonds college.mp3` — 431 KB
+- `2024 Spreken II - 03 - opgave 2 - 's Avonds college.opus` — 423 KB
+- `2024 Spreken II - 04 - opgave 3 - Bezorgdienst.mp3` — 487 KB
+- `2024 Spreken II - 04 - opgave 3 - Bezorgdienst.opus` — 524 KB
+- `2024 Spreken II - 05 - opgave 4 - Vragen stellen.mp3` — 601 KB
+- `2024 Spreken II - 05 - opgave 4 - Vragen stellen.opus` — 494 KB
+- `2024 Spreken II - 06 - deel 2 instructie.mp3` — 2.3 MB
+- `2024 Spreken II - 06 - deel 2 instructie.opus` — 1.9 MB
+- `2024 Spreken II - 07 - opgave 5 - Kamer verven.mp3` — 631 KB
+- `2024 Spreken II - 07 - opgave 5 - Kamer verven.opus` — 676 KB
+- `2024 Spreken II - 08 - opgave 6 - Tas.mp3` — 790 KB
+- `2024 Spreken II - 08 - opgave 6 - Tas.opus` — 749 KB
+- `2024 Spreken II - 09 - opgave 7 - Pasje aanvragen.mp3` — 821 KB
+- `2024 Spreken II - 09 - opgave 7 - Pasje aanvragen.opus` — 790 KB
+- `2024 Spreken II - 10 - opgave 8 - Uitwisseling.mp3` — 706 KB
+- `2024 Spreken II - 10 - opgave 8 - Uitwisseling.opus` — 830 KB
+- `2024 Spreken II - 11 - opgave 9 - Ontevreden over cursus.mp3` — 477 KB
+- `2024 Spreken II - 11 - opgave 9 - Ontevreden over cursus.opus` — 631 KB
+- `2024 Spreken II - 12 - opgave 10 - Hogeschool of universiteit-.mp3` — 428 KB
+- `2024 Spreken II - 12 - opgave 10 - Hogeschool of universiteit-.opus` — 595 KB
+- `2024 Spreken II - 13 - opgave 11 - Geld voor goed doel.mp3` — 741 KB
+- `2024 Spreken II - 13 - opgave 11 - Geld voor goed doel.opus` — 801 KB
+- `2024 Spreken II - 14 - opgave 12 - Maximumsnelheid.mp3` — 453 KB
+- `2024 Spreken II - 14 - opgave 12 - Maximumsnelheid.opus` — 598 KB
+- `2024 Spreken II - 15 - deel 3 instructie.mp3` — 582 KB
+- `2024 Spreken II - 15 - deel 3 instructie.opus` — 463 KB
+- `2024 Spreken II - 16 - opgave 13 - Geluidsoverlast.mp3` — 3.0 MB
+- `2024 Spreken II - 16 - opgave 13 - Geluidsoverlast.opus` — 3.0 MB
 
-**`atili/Dutch/oefenexamensnt2/2025 Luisteren II openbaar examen audio- en videobestanden/`** — 96 files, 159.1 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Luisteren I/audio/`** — 100 files, 128.6 MB
 
-- `Track 10_opgave 8.mp3` — 649 KB
-- `Track 10_opgave 8.opus` — 734 KB
-- `Track 11_Intro.mp3` — 1.5 MB
-- `Track 11_Intro.opus` — 1.4 MB
-- `Track 12_opgave 9.mp3` — 722 KB
-- `Track 12_opgave 9.opus` — 960 KB
-- `Track 13_opgave 10.mp3` — 619 KB
-- `Track 13_opgave 10.opus` — 826 KB
-- `Track 14_opgave 11.mp3` — 534 KB
-- `Track 14_opgave 11.opus` — 708 KB
-- `Track 15_opgave 12.mp3` — 827 KB
-- `Track 15_opgave 12.opus` — 1.1 MB
-- `Track 16_opgave 13.mp3` — 601 KB
-- `Track 16_opgave 13.opus` — 815 KB
-- `Track 17_opgave 14.mp3` — 674 KB
-- `Track 17_opgave 14.opus` — 876 KB
-- `Track 18_opgave 15.mp3` — 463 KB
-- `Track 18_opgave 15.opus` — 639 KB
-- `Track 19_intro.mp3` — 2.3 MB
-- `Track 19_intro.opus` — 2.5 MB
-- `Track 1_instructie.mp3` — 556 KB
-- `Track 1_instructie.opus` — 570 KB
-- `Track 20_opgave 16.mp3` — 879 KB
-- `Track 20_opgave 16.opus` — 1.0 MB
-- `Track 21_opgave 17.mp3` — 770 KB
-- `Track 21_opgave 17.opus` — 935 KB
-- `Track 22_opgave 18.mp3` — 651 KB
-- `Track 22_opgave 18.opus` — 786 KB
-- `Track 23_opgave 19.mp3` — 971 KB
-- `Track 23_opgave 19.opus` — 1.0 MB
-- `Track 24_opgave 20.mp3` — 887 KB
-- `Track 24_opgave 20.opus` — 1.0 MB
-- `Track 25_opgave 21.mp3` — 674 KB
-- `Track 25_opgave 21.opus` — 803 KB
-- `Track 26_opgave 22.mp3` — 914 KB
-- `Track 26_opgave 22.opus` — 1.0 MB
-- `Track 27_opgave 23.mp3` — 883 KB
-- `Track 27_opgave 23.opus` — 1.0 MB
-- `Track 28_opgave 24.mp3` — 904 KB
-- `Track 28_opgave 24.opus` — 1.1 MB
-- `Track 29_intro.mp3` — 660 KB
-- `Track 29_intro.opus` — 633 KB
-- `Track 2_intro.mp3` — 2.9 MB
-- `Track 2_intro.opus` — 3.3 MB
-- `Track 30_opgave 25.mp3` — 1.4 MB
-- `Track 30_opgave 25.opus` — 1.1 MB
-- `Track 31_opgave 26.mp3` — 1.6 MB
-- `Track 31_opgave 26.opus` — 1.2 MB
-- `Track 32_opgave 27.mp3` — 1.5 MB
-- `Track 32_opgave 27.opus` — 1.2 MB
-- `Track 33_opgave 28.mp3` — 1.3 MB
-- `Track 33_opgave 28.opus` — 1.0 MB
-- `Track 34_opgave 29.mp3` — 1.6 MB
-- `Track 34_opgave 29.opus` — 1.3 MB
-- `Track 35_opgave 30.mp3` — 1.7 MB
-- `Track 35_opgave 30.opus` — 1.3 MB
-- `Track 36_instructie videodeel.mp3` — 211 KB
-- `Track 36_instructie videodeel.opus` — 214 KB
-- `Track 37_intro 1.mp3` — 337 KB
-- `Track 37_intro 1.opus` — 343 KB
-- `Track 38_intro 2.mp4` — 1.0 MB
-- `Track 38_intro 2.webm` — 2.1 MB
-- `Track 39_instructie.mp3` — 114 KB
-- `Track 39_instructie.opus` — 105 KB
-- `Track 3_opgave 1.mp3` — 1.1 MB
-- `Track 3_opgave 1.opus` — 1.3 MB
-- `Track 40_opgave 31.mp4` — 2.8 MB
-- `Track 40_opgave 31.webm` — 6.9 MB
-- `Track 41_opgave 32.mp4` — 3.4 MB
-- `Track 41_opgave 32.webm` — 8.6 MB
-- `Track 42_opgave 33.mp4` — 2.8 MB
-- `Track 42_opgave 33.webm` — 6.3 MB
-- `Track 43_opgave 34.mp4` — 2.8 MB
-- `Track 43_opgave 34.webm` — 7.0 MB
-- `Track 44_opgave 35.mp4` — 3.0 MB
-- `Track 44_opgave 35.webm` — 7.2 MB
-- `Track 45_opgave 36.mp4` — 2.8 MB
-- `Track 45_opgave 36.webm` — 6.4 MB
-- `Track 46_opgave 37.mp4` — 2.6 MB
-- `Track 46_opgave 37.webm` — 5.8 MB
-- `Track 47_opgave 38.mp4` — 3.8 MB
-- `Track 47_opgave 38.webm` — 9.7 MB
-- `Track 48_bron en disclaimer.mp3` — 102 KB
-- `Track 48_bron en disclaimer.opus` — 116 KB
-- `Track 4_opgave 2.mp3` — 1.0 MB
-- `Track 4_opgave 2.opus` — 1.1 MB
-- `Track 5_opgave 3.mp3` — 833 KB
-- `Track 5_opgave 3.opus` — 928 KB
-- `Track 6_opgave 4.mp3` — 717 KB
-- `Track 6_opgave 4.opus` — 803 KB
-- `Track 7_opgave 5.mp3` — 880 KB
-- `Track 7_opgave 5.opus` — 1013 KB
-- `Track 8_opgave 6.mp3` — 846 KB
-- `Track 8_opgave 6.opus` — 957 KB
-- `Track 9_opgave 7.mp3` — 709 KB
-- `Track 9_opgave 7.opus` — 808 KB
+- `2025 Luisteren I - 01 - instructie.mp3` — 556 KB
+- `2025 Luisteren I - 01 - instructie.opus` — 570 KB
+- `2025 Luisteren I - 02 - Een gesprek met een decaan van natuuropleidingen - introductie.mp3` — 2.5 MB
+- `2025 Luisteren I - 02 - Een gesprek met een decaan van natuuropleidingen - introductie.opus` — 3.2 MB
+- `2025 Luisteren I - 03 - Een gesprek met een decaan van natuuropleidingen - opgave 1.mp3` — 738 KB
+- `2025 Luisteren I - 03 - Een gesprek met een decaan van natuuropleidingen - opgave 1.opus` — 855 KB
+- `2025 Luisteren I - 04 - Een gesprek met een decaan van natuuropleidingen - opgave 2.mp3` — 825 KB
+- `2025 Luisteren I - 04 - Een gesprek met een decaan van natuuropleidingen - opgave 2.opus` — 921 KB
+- `2025 Luisteren I - 05 - Een gesprek met een decaan van natuuropleidingen - opgave 3.mp3` — 1.0 MB
+- `2025 Luisteren I - 05 - Een gesprek met een decaan van natuuropleidingen - opgave 3.opus` — 1.2 MB
+- `2025 Luisteren I - 06 - Een gesprek met een decaan van natuuropleidingen - opgave 4.mp3` — 566 KB
+- `2025 Luisteren I - 06 - Een gesprek met een decaan van natuuropleidingen - opgave 4.opus` — 678 KB
+- `2025 Luisteren I - 07 - Een gesprek met een decaan van natuuropleidingen - opgave 5.mp3` — 793 KB
+- `2025 Luisteren I - 07 - Een gesprek met een decaan van natuuropleidingen - opgave 5.opus` — 944 KB
+- `2025 Luisteren I - 08 - Een gesprek met Janine van der Deure over veranderingen in - introductie.mp3` — 1.2 MB
+- `2025 Luisteren I - 08 - Een gesprek met Janine van der Deure over veranderingen in - introductie.opus` — 1.1 MB
+- `2025 Luisteren I - 09 - Een gesprek met Janine van der Deure over veranderingen in - opgave 6.mp3` — 1.4 MB
+- `2025 Luisteren I - 09 - Een gesprek met Janine van der Deure over veranderingen in - opgave 6.opus` — 1.3 MB
+- `2025 Luisteren I - 10 - Een gesprek met Janine van der Deure over veranderingen in - opgave 7.mp3` — 1.0 MB
+- `2025 Luisteren I - 10 - Een gesprek met Janine van der Deure over veranderingen in - opgave 7.opus` — 964 KB
+- `2025 Luisteren I - 11 - Een gesprek met Janine van der Deure over veranderingen in - opgave 8.mp3` — 1.5 MB
+- `2025 Luisteren I - 11 - Een gesprek met Janine van der Deure over veranderingen in - opgave 8.opus` — 1.3 MB
+- `2025 Luisteren I - 12 - Een gesprek met Janine van der Deure over veranderingen in - opgave 9.mp3` — 1.7 MB
+- `2025 Luisteren I - 12 - Een gesprek met Janine van der Deure over veranderingen in - opgave 9.opus` — 1.5 MB
+- `2025 Luisteren I - 13 - Een gesprek met Janine van der Deure over veranderingen in - opgave 10.mp3` — 1.2 MB
+- `2025 Luisteren I - 13 - Een gesprek met Janine van der Deure over veranderingen in - opgave 10.opus` — 1.1 MB
+- `2025 Luisteren I - 14 - Een gesprek met Janine van der Deure over veranderingen in - opgave 11.mp3` — 1.1 MB
+- `2025 Luisteren I - 14 - Een gesprek met Janine van der Deure over veranderingen in - opgave 11.opus` — 978 KB
+- `2025 Luisteren I - 15 - Een gesprek met Janine van der Deure over veranderingen in - opgave 12.mp3` — 1.1 MB
+- `2025 Luisteren I - 15 - Een gesprek met Janine van der Deure over veranderingen in - opgave 12.opus` — 977 KB
+- `2025 Luisteren I - 16 - Een gesprek met Janine van der Deure over veranderingen in - opgave 13.mp3` — 978 KB
+- `2025 Luisteren I - 16 - Een gesprek met Janine van der Deure over veranderingen in - opgave 13.opus` — 883 KB
+- `2025 Luisteren I - 17 - Een functioneringsgesprek - introductie.mp3` — 845 KB
+- `2025 Luisteren I - 17 - Een functioneringsgesprek - introductie.opus` — 887 KB
+- `2025 Luisteren I - 18 - Een functioneringsgesprek - opgave 14.mp3` — 1021 KB
+- `2025 Luisteren I - 18 - Een functioneringsgesprek - opgave 14.opus` — 1.1 MB
+- `2025 Luisteren I - 19 - Een functioneringsgesprek - opgave 15.mp3` — 714 KB
+- `2025 Luisteren I - 19 - Een functioneringsgesprek - opgave 15.opus` — 717 KB
+- `2025 Luisteren I - 20 - Een functioneringsgesprek - opgave 16.mp3` — 1.1 MB
+- `2025 Luisteren I - 20 - Een functioneringsgesprek - opgave 16.opus` — 1.2 MB
+- `2025 Luisteren I - 21 - Een functioneringsgesprek - opgave 17.mp3` — 849 KB
+- `2025 Luisteren I - 21 - Een functioneringsgesprek - opgave 17.opus` — 858 KB
+- `2025 Luisteren I - 22 - Een functioneringsgesprek - opgave 18.mp3` — 1019 KB
+- `2025 Luisteren I - 22 - Een functioneringsgesprek - opgave 18.opus` — 1.0 MB
+- `2025 Luisteren I - 23 - Een gesprek met een suppoost - introductie.mp3` — 843 KB
+- `2025 Luisteren I - 23 - Een gesprek met een suppoost - introductie.opus` — 848 KB
+- `2025 Luisteren I - 24 - Een gesprek met een suppoost - opgave 19.mp3` — 677 KB
+- `2025 Luisteren I - 24 - Een gesprek met een suppoost - opgave 19.opus` — 844 KB
+- `2025 Luisteren I - 25 - Een gesprek met een suppoost.mp3` — 421 KB
+- `2025 Luisteren I - 25 - Een gesprek met een suppoost.opus` — 527 KB
+- `2025 Luisteren I - 26 - Een gesprek met een suppoost.mp3` — 566 KB
+- `2025 Luisteren I - 26 - Een gesprek met een suppoost.opus` — 676 KB
+- `2025 Luisteren I - 27 - Een gesprek met een suppoost.mp3` — 777 KB
+- `2025 Luisteren I - 27 - Een gesprek met een suppoost.opus` — 944 KB
+- `2025 Luisteren I - 28 - Een gesprek met een suppoost.mp3` — 457 KB
+- `2025 Luisteren I - 28 - Een gesprek met een suppoost.opus` — 586 KB
+- `2025 Luisteren I - 29 - Een gesprek met een personal trainer - introductie.mp3` — 733 KB
+- `2025 Luisteren I - 29 - Een gesprek met een personal trainer - introductie.opus` — 693 KB
+- `2025 Luisteren I - 30 - Een gesprek met een personal trainer - opgave 24.mp3` — 1.1 MB
+- `2025 Luisteren I - 30 - Een gesprek met een personal trainer - opgave 24.opus` — 918 KB
+- `2025 Luisteren I - 31 - Een gesprek met een personal trainer - opgave 25.mp3` — 1.2 MB
+- `2025 Luisteren I - 31 - Een gesprek met een personal trainer - opgave 25.opus` — 942 KB
+- `2025 Luisteren I - 32 - Een gesprek met een personal trainer - opgave 26.mp3` — 629 KB
+- `2025 Luisteren I - 32 - Een gesprek met een personal trainer - opgave 26.opus` — 502 KB
+- `2025 Luisteren I - 33 - Een gesprek met een personal trainer - opgave 27.mp3` — 1.1 MB
+- `2025 Luisteren I - 33 - Een gesprek met een personal trainer - opgave 27.opus` — 915 KB
+- `2025 Luisteren I - 34 - Een gesprek met een personal trainer - opgave 28.mp3` — 673 KB
+- `2025 Luisteren I - 34 - Een gesprek met een personal trainer - opgave 28.opus` — 546 KB
+- `2025 Luisteren I - 35 - Een gesprek met een personal trainer - opgave 29.mp3` — 1.1 MB
+- `2025 Luisteren I - 35 - Een gesprek met een personal trainer - opgave 29.opus` — 877 KB
+- `2025 Luisteren I - 36 - Een gesprek met een personal trainer - opgave 30.mp3` — 897 KB
+- `2025 Luisteren I - 36 - Een gesprek met een personal trainer - opgave 30.opus` — 704 KB
+- `2025 Luisteren I - 37 - Een gesprek met een personal trainer - opgave 31.mp3` — 947 KB
+- `2025 Luisteren I - 37 - Een gesprek met een personal trainer - opgave 31.opus` — 767 KB
+- `2025 Luisteren I - 38 - Een gesprek met een personal trainer - opgave 32.mp3` — 863 KB
+- `2025 Luisteren I - 38 - Een gesprek met een personal trainer - opgave 32.opus` — 703 KB
+- `2025 Luisteren I - 39 - instructie videodeel.mp3` — 211 KB
+- `2025 Luisteren I - 39 - instructie videodeel.opus` — 214 KB
+- `2025 Luisteren I - 40 - Een gesprek met een onderwijsassistente - introductie 1.mp3` — 341 KB
+- `2025 Luisteren I - 40 - Een gesprek met een onderwijsassistente - introductie 1.opus` — 354 KB
+- `2025 Luisteren I - 41 - Een gesprek met een onderwijsassistente - introductie 2.mp4` — 2.5 MB
+- `2025 Luisteren I - 41 - Een gesprek met een onderwijsassistente - introductie 2.webm` — 5.6 MB
+- `2025 Luisteren I - 42 - instructie.mp3` — 114 KB
+- `2025 Luisteren I - 42 - instructie.opus` — 105 KB
+- `2025 Luisteren I - 43 - Een gesprek met een onderwijsassistente - opgave 33.mp4` — 1.8 MB
+- `2025 Luisteren I - 43 - Een gesprek met een onderwijsassistente - opgave 33.webm` — 4.2 MB
+- `2025 Luisteren I - 44 - Een gesprek met een onderwijsassistente - opgave 34.mp4` — 3.1 MB
+- `2025 Luisteren I - 44 - Een gesprek met een onderwijsassistente - opgave 34.webm` — 5.9 MB
+- `2025 Luisteren I - 45 - Een gesprek met een onderwijsassistente - opgave 35.mp4` — 2.2 MB
+- `2025 Luisteren I - 45 - Een gesprek met een onderwijsassistente - opgave 35.webm` — 4.7 MB
+- `2025 Luisteren I - 46 - Een gesprek met een onderwijsassistente - opgave 36.mp4` — 1.7 MB
+- `2025 Luisteren I - 46 - Een gesprek met een onderwijsassistente - opgave 36.webm` — 3.8 MB
+- `2025 Luisteren I - 47 - Een gesprek met een onderwijsassistente - opgave 37.mp4` — 2.0 MB
+- `2025 Luisteren I - 47 - Een gesprek met een onderwijsassistente - opgave 37.webm` — 6.8 MB
+- `2025 Luisteren I - 48 - Een gesprek met een onderwijsassistente - opgave 38.mp4` — 1.2 MB
+- `2025 Luisteren I - 48 - Een gesprek met een onderwijsassistente - opgave 38.webm` — 2.6 MB
+- `2025 Luisteren I - 49 - Een gesprek met een onderwijsassistente - opgave 39.mp4` — 2.3 MB
+- `2025 Luisteren I - 49 - Een gesprek met een onderwijsassistente - opgave 39.webm` — 4.8 MB
+- `2025 Luisteren I - 50 - Een gesprek met een onderwijsassistente.mp3` — 102 KB
+- `2025 Luisteren I - 50 - Een gesprek met een onderwijsassistente.opus` — 116 KB
 
-**`atili/Dutch/oefenexamensnt2/2025 Spreken I openbaar examen audiobestanden/`** — 36 files, 21.7 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Luisteren II/audio/`** — 96 files, 159.1 MB
 
-- `Track 10_deel 2 instructie.mp3` — 1.4 MB
-- `Track 10_deel 2 instructie.opus` — 1.9 MB
-- `Track 11_Opgave 9.mp3` — 466 KB
-- `Track 11_Opgave 9.opus` — 675 KB
-- `Track 12_Opgave 10.mp3` — 590 KB
-- `Track 12_Opgave 10.opus` — 580 KB
-- `Track 13_Opgave 11.mp3` — 590 KB
-- `Track 13_Opgave 11.opus` — 784 KB
-- `Track 14_Opgave 12.mp3` — 785 KB
-- `Track 14_Opgave 12.opus` — 881 KB
-- `Track 15_Opgave 13.mp3` — 692 KB
-- `Track 15_Opgave 13.opus` — 828 KB
-- `Track 16_Opgave 14.mp3` — 463 KB
-- `Track 16_Opgave 14.opus` — 664 KB
-- `Track 17_Opgave 15.mp3` — 523 KB
-- `Track 17_Opgave 15.opus` — 604 KB
-- `Track 18_Opgave 16.mp3` — 423 KB
-- `Track 18_Opgave 16.opus` — 619 KB
-- `Track 1_deel 1 instructie.mp3` — 1.0 MB
-- `Track 1_deel 1 instructie.opus` — 1.3 MB
-- `Track 2_Opgave 1.mp3` — 351 KB
-- `Track 2_Opgave 1.opus` — 309 KB
-- `Track 3_Opgave 2.mp3` — 511 KB
-- `Track 3_Opgave 2.opus` — 481 KB
-- `Track 4_Opgave 3.mp3` — 428 KB
-- `Track 4_Opgave 3.opus` — 442 KB
-- `Track 5_Opgave 4.mp3` — 386 KB
-- `Track 5_Opgave 4.opus` — 349 KB
-- `Track 6_Opgave 5.mp3` — 445 KB
-- `Track 6_Opgave 5.opus` — 483 KB
-- `Track 7_Opgave 6.mp3` — 481 KB
-- `Track 7_Opgave 6.opus` — 386 KB
-- `Track 8_Opgave 7.mp3` — 312 KB
-- `Track 8_Opgave 7.opus` — 407 KB
-- `Track 9_Opgave 8.mp3` — 248 KB
-- `Track 9_Opgave 8.opus` — 323 KB
+- `2025 Luisteren II - 01 - instructie.mp3` — 556 KB
+- `2025 Luisteren II - 01 - instructie.opus` — 570 KB
+- `2025 Luisteren II - 02 - Een sollicitatiegesprek met een hbo-docent - introductie.mp3` — 2.9 MB
+- `2025 Luisteren II - 02 - Een sollicitatiegesprek met een hbo-docent - introductie.opus` — 3.3 MB
+- `2025 Luisteren II - 03 - Een sollicitatiegesprek met een hbo-docent - opgave 1.mp3` — 1.1 MB
+- `2025 Luisteren II - 03 - Een sollicitatiegesprek met een hbo-docent - opgave 1.opus` — 1.3 MB
+- `2025 Luisteren II - 04 - Een sollicitatiegesprek met een hbo-docent - opgave 2.mp3` — 1.0 MB
+- `2025 Luisteren II - 04 - Een sollicitatiegesprek met een hbo-docent - opgave 2.opus` — 1.1 MB
+- `2025 Luisteren II - 05 - Een sollicitatiegesprek met een hbo-docent - opgave 3.mp3` — 833 KB
+- `2025 Luisteren II - 05 - Een sollicitatiegesprek met een hbo-docent - opgave 3.opus` — 928 KB
+- `2025 Luisteren II - 06 - Een sollicitatiegesprek met een hbo-docent - opgave 4.mp3` — 717 KB
+- `2025 Luisteren II - 06 - Een sollicitatiegesprek met een hbo-docent - opgave 4.opus` — 803 KB
+- `2025 Luisteren II - 07 - Een sollicitatiegesprek met een hbo-docent - opgave 5.mp3` — 880 KB
+- `2025 Luisteren II - 07 - Een sollicitatiegesprek met een hbo-docent - opgave 5.opus` — 1013 KB
+- `2025 Luisteren II - 08 - Een sollicitatiegesprek met een hbo-docent - opgave 6.mp3` — 846 KB
+- `2025 Luisteren II - 08 - Een sollicitatiegesprek met een hbo-docent - opgave 6.opus` — 957 KB
+- `2025 Luisteren II - 09 - Een sollicitatiegesprek met een hbo-docent - opgave 7.mp3` — 709 KB
+- `2025 Luisteren II - 09 - Een sollicitatiegesprek met een hbo-docent - opgave 7.opus` — 808 KB
+- `2025 Luisteren II - 10 - Een sollicitatiegesprek met een hbo-docent - opgave 8.mp3` — 649 KB
+- `2025 Luisteren II - 10 - Een sollicitatiegesprek met een hbo-docent - opgave 8.opus` — 734 KB
+- `2025 Luisteren II - 11 - Een gesprek met een zorggroepmanager - introductie.mp3` — 1.5 MB
+- `2025 Luisteren II - 11 - Een gesprek met een zorggroepmanager - introductie.opus` — 1.4 MB
+- `2025 Luisteren II - 12 - Een gesprek met een zorggroepmanager - opgave 9.mp3` — 722 KB
+- `2025 Luisteren II - 12 - Een gesprek met een zorggroepmanager - opgave 9.opus` — 960 KB
+- `2025 Luisteren II - 13 - Een gesprek met een zorggroepmanager - opgave 10.mp3` — 619 KB
+- `2025 Luisteren II - 13 - Een gesprek met een zorggroepmanager - opgave 10.opus` — 826 KB
+- `2025 Luisteren II - 14 - Een gesprek met een zorggroepmanager - opgave 11.mp3` — 534 KB
+- `2025 Luisteren II - 14 - Een gesprek met een zorggroepmanager - opgave 11.opus` — 708 KB
+- `2025 Luisteren II - 15 - Een gesprek met een zorggroepmanager - opgave 12.mp3` — 827 KB
+- `2025 Luisteren II - 15 - Een gesprek met een zorggroepmanager - opgave 12.opus` — 1.1 MB
+- `2025 Luisteren II - 16 - Een gesprek met een zorggroepmanager - opgave 13.mp3` — 601 KB
+- `2025 Luisteren II - 16 - Een gesprek met een zorggroepmanager - opgave 13.opus` — 815 KB
+- `2025 Luisteren II - 17 - Een gesprek met een zorggroepmanager - opgave 14.mp3` — 674 KB
+- `2025 Luisteren II - 17 - Een gesprek met een zorggroepmanager - opgave 14.opus` — 876 KB
+- `2025 Luisteren II - 18 - Een gesprek met een zorggroepmanager - opgave 15.mp3` — 463 KB
+- `2025 Luisteren II - 18 - Een gesprek met een zorggroepmanager - opgave 15.opus` — 639 KB
+- `2025 Luisteren II - 19 - Lezing sportrusten - introductie.mp3` — 2.3 MB
+- `2025 Luisteren II - 19 - Lezing sportrusten - introductie.opus` — 2.5 MB
+- `2025 Luisteren II - 20 - Lezing sportrusten - opgave 16.mp3` — 879 KB
+- `2025 Luisteren II - 20 - Lezing sportrusten - opgave 16.opus` — 1.0 MB
+- `2025 Luisteren II - 21 - Lezing sportrusten - opgave 17.mp3` — 770 KB
+- `2025 Luisteren II - 21 - Lezing sportrusten - opgave 17.opus` — 935 KB
+- `2025 Luisteren II - 22 - Lezing sportrusten - opgave 18.mp3` — 651 KB
+- `2025 Luisteren II - 22 - Lezing sportrusten - opgave 18.opus` — 786 KB
+- `2025 Luisteren II - 23 - Lezing sportrusten - opgave 19.mp3` — 971 KB
+- `2025 Luisteren II - 23 - Lezing sportrusten - opgave 19.opus` — 1.0 MB
+- `2025 Luisteren II - 24 - Lezing sportrusten - opgave 20.mp3` — 887 KB
+- `2025 Luisteren II - 24 - Lezing sportrusten - opgave 20.opus` — 1.0 MB
+- `2025 Luisteren II - 25 - Lezing sportrusten - opgave 21.mp3` — 674 KB
+- `2025 Luisteren II - 25 - Lezing sportrusten - opgave 21.opus` — 803 KB
+- `2025 Luisteren II - 26 - Lezing sportrusten - opgave 22.mp3` — 914 KB
+- `2025 Luisteren II - 26 - Lezing sportrusten - opgave 22.opus` — 1.0 MB
+- `2025 Luisteren II - 27 - Lezing sportrusten - opgave 23.mp3` — 883 KB
+- `2025 Luisteren II - 27 - Lezing sportrusten - opgave 23.opus` — 1.0 MB
+- `2025 Luisteren II - 28 - Lezing sportrusten - opgave 24.mp3` — 904 KB
+- `2025 Luisteren II - 28 - Lezing sportrusten - opgave 24.opus` — 1.1 MB
+- `2025 Luisteren II - 29 - Een interview met theaterdocent Marloes Heemskerk - introductie.mp3` — 660 KB
+- `2025 Luisteren II - 29 - Een interview met theaterdocent Marloes Heemskerk - introductie.opus` — 633 KB
+- `2025 Luisteren II - 30 - Een interview met theaterdocent Marloes Heemskerk - opgave 25.mp3` — 1.4 MB
+- `2025 Luisteren II - 30 - Een interview met theaterdocent Marloes Heemskerk - opgave 25.opus` — 1.1 MB
+- `2025 Luisteren II - 31 - Een interview met theaterdocent Marloes Heemskerk - opgave 26.mp3` — 1.6 MB
+- `2025 Luisteren II - 31 - Een interview met theaterdocent Marloes Heemskerk - opgave 26.opus` — 1.2 MB
+- `2025 Luisteren II - 32 - Een interview met theaterdocent Marloes Heemskerk - opgave 27.mp3` — 1.5 MB
+- `2025 Luisteren II - 32 - Een interview met theaterdocent Marloes Heemskerk - opgave 27.opus` — 1.2 MB
+- `2025 Luisteren II - 33 - Een interview met theaterdocent Marloes Heemskerk - opgave 28.mp3` — 1.3 MB
+- `2025 Luisteren II - 33 - Een interview met theaterdocent Marloes Heemskerk - opgave 28.opus` — 1.0 MB
+- `2025 Luisteren II - 34 - Een interview met theaterdocent Marloes Heemskerk - opgave 29.mp3` — 1.6 MB
+- `2025 Luisteren II - 34 - Een interview met theaterdocent Marloes Heemskerk - opgave 29.opus` — 1.3 MB
+- `2025 Luisteren II - 35 - Een interview met theaterdocent Marloes Heemskerk - opgave 30.mp3` — 1.7 MB
+- `2025 Luisteren II - 35 - Een interview met theaterdocent Marloes Heemskerk - opgave 30.opus` — 1.3 MB
+- `2025 Luisteren II - 36 - instructie videodeel.mp3` — 211 KB
+- `2025 Luisteren II - 36 - instructie videodeel.opus` — 214 KB
+- `2025 Luisteren II - 37 - Een interview met een stadsgids - introductie 1.mp3` — 337 KB
+- `2025 Luisteren II - 37 - Een interview met een stadsgids - introductie 1.opus` — 343 KB
+- `2025 Luisteren II - 38 - Een interview met een stadsgids - introductie 2.mp4` — 1.0 MB
+- `2025 Luisteren II - 38 - Een interview met een stadsgids - introductie 2.webm` — 2.1 MB
+- `2025 Luisteren II - 39 - instructie.mp3` — 114 KB
+- `2025 Luisteren II - 39 - instructie.opus` — 105 KB
+- `2025 Luisteren II - 40 - Een interview met een stadsgids - opgave 31.mp4` — 2.8 MB
+- `2025 Luisteren II - 40 - Een interview met een stadsgids - opgave 31.webm` — 6.9 MB
+- `2025 Luisteren II - 41 - Een interview met een stadsgids - opgave 32.mp4` — 3.4 MB
+- `2025 Luisteren II - 41 - Een interview met een stadsgids - opgave 32.webm` — 8.6 MB
+- `2025 Luisteren II - 42 - Een interview met een stadsgids - opgave 33.mp4` — 2.8 MB
+- `2025 Luisteren II - 42 - Een interview met een stadsgids - opgave 33.webm` — 6.3 MB
+- `2025 Luisteren II - 43 - Een interview met een stadsgids - opgave 34.mp4` — 2.8 MB
+- `2025 Luisteren II - 43 - Een interview met een stadsgids - opgave 34.webm` — 7.0 MB
+- `2025 Luisteren II - 44 - Een interview met een stadsgids - opgave 35.mp4` — 3.0 MB
+- `2025 Luisteren II - 44 - Een interview met een stadsgids - opgave 35.webm` — 7.2 MB
+- `2025 Luisteren II - 45 - Een interview met een stadsgids - opgave 36.mp4` — 2.8 MB
+- `2025 Luisteren II - 45 - Een interview met een stadsgids - opgave 36.webm` — 6.4 MB
+- `2025 Luisteren II - 46 - Een interview met een stadsgids - opgave 37.mp4` — 2.6 MB
+- `2025 Luisteren II - 46 - Een interview met een stadsgids - opgave 37.webm` — 5.8 MB
+- `2025 Luisteren II - 47 - Een interview met een stadsgids - opgave 38.mp4` — 3.8 MB
+- `2025 Luisteren II - 47 - Een interview met een stadsgids - opgave 38.webm` — 9.7 MB
+- `2025 Luisteren II - 48 - Een interview met een stadsgids.mp3` — 102 KB
+- `2025 Luisteren II - 48 - Een interview met een stadsgids.opus` — 116 KB
 
-**`atili/Dutch/oefenexamensnt2/2025 Spreken II openbaar examen audiobestanden/`** — 32 files, 30.0 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Spreken I/audio/`** — 36 files, 21.7 MB
 
-- `Track 10_Opgave 8.mp3` — 696 KB
-- `Track 10_Opgave 8.opus` — 805 KB
-- `Track 11_Opgave 9.mp3` — 752 KB
-- `Track 11_Opgave 9.opus` — 904 KB
-- `Track 12_Opgave 10.mp3` — 670 KB
-- `Track 12_Opgave 10.opus` — 699 KB
-- `Track 13_Opgave 11.mp3` — 865 KB
-- `Track 13_Opgave 11.opus` — 987 KB
-- `Track 14_Opgave 12.mp3` — 524 KB
-- `Track 14_Opgave 12.opus` — 691 KB
-- `Track 15_deel 3 instructie.mp3` — 465 KB
-- `Track 15_deel 3 instructie.opus` — 400 KB
-- `Track 16_Opgave 13.mp3` — 2.8 MB
-- `Track 16_Opgave 13.opus` — 2.9 MB
-- `Track 1_deel 1 instructie.mp3` — 1.3 MB
-- `Track 1_deel 1 instructie.opus` — 1.2 MB
-- `Track 2_Opgave 1.mp3` — 590 KB
-- `Track 2_Opgave 1.opus` — 578 KB
-- `Track 3_Opgave 2.mp3` — 537 KB
-- `Track 3_Opgave 2.opus` — 527 KB
-- `Track 4_Opgave 3.mp3` — 521 KB
-- `Track 4_Opgave 3.opus` — 499 KB
-- `Track 5_Opgave 4.mp3` — 641 KB
-- `Track 5_Opgave 4.opus` — 657 KB
-- `Track 6_deel 2 instructie.mp3` — 2.1 MB
-- `Track 6_deel 2 instructie.opus` — 1.8 MB
-- `Track 7_Opgave 5.mp3` — 864 KB
-- `Track 7_Opgave 5.opus` — 803 KB
-- `Track 8_Opgave 6.mp3` — 864 KB
-- `Track 8_Opgave 6.opus` — 981 KB
-- `Track 9_Opgave 7.mp3` — 833 KB
-- `Track 9_Opgave 7.opus` — 804 KB
+- `2025 Spreken I - 01 - deel 1 instructie.mp3` — 1.0 MB
+- `2025 Spreken I - 01 - deel 1 instructie.opus` — 1.3 MB
+- `2025 Spreken I - 02 - opgave 1 - Helpen in de tuin.mp3` — 351 KB
+- `2025 Spreken I - 02 - opgave 1 - Helpen in de tuin.opus` — 309 KB
+- `2025 Spreken I - 03 - opgave 2 - Nieuw rooster.mp3` — 511 KB
+- `2025 Spreken I - 03 - opgave 2 - Nieuw rooster.opus` — 481 KB
+- `2025 Spreken I - 04 - opgave 3 - Een concert.mp3` — 428 KB
+- `2025 Spreken I - 04 - opgave 3 - Een concert.opus` — 442 KB
+- `2025 Spreken I - 05 - opgave 4 - Sleutels kwijt.mp3` — 386 KB
+- `2025 Spreken I - 05 - opgave 4 - Sleutels kwijt.opus` — 349 KB
+- `2025 Spreken I - 06 - opgave 5 - Zaterdag of zondag-.mp3` — 445 KB
+- `2025 Spreken I - 06 - opgave 5 - Zaterdag of zondag-.opus` — 483 KB
+- `2025 Spreken I - 07 - opgave 6 - Te laat.mp3` — 481 KB
+- `2025 Spreken I - 07 - opgave 6 - Te laat.opus` — 386 KB
+- `2025 Spreken I - 08 - opgave 7 - Bibliotheek.mp3` — 312 KB
+- `2025 Spreken I - 08 - opgave 7 - Bibliotheek.opus` — 407 KB
+- `2025 Spreken I - 09 - opgave 8 - Pakketjes.mp3` — 248 KB
+- `2025 Spreken I - 09 - opgave 8 - Pakketjes.opus` — 323 KB
+- `2025 Spreken I - 10 - deel 2 instructie.mp3` — 1.4 MB
+- `2025 Spreken I - 10 - deel 2 instructie.opus` — 1.9 MB
+- `2025 Spreken I - 11 - opgave 9 - Naar zee.mp3` — 466 KB
+- `2025 Spreken I - 11 - opgave 9 - Naar zee.opus` — 675 KB
+- `2025 Spreken I - 12 - opgave 10 - Pizza's bezorgen.mp3` — 590 KB
+- `2025 Spreken I - 12 - opgave 10 - Pizza's bezorgen.opus` — 580 KB
+- `2025 Spreken I - 13 - opgave 11 - Opleiding Fotografie.mp3` — 590 KB
+- `2025 Spreken I - 13 - opgave 11 - Opleiding Fotografie.opus` — 784 KB
+- `2025 Spreken I - 14 - opgave 12 - Welke sport-.mp3` — 785 KB
+- `2025 Spreken I - 14 - opgave 12 - Welke sport-.opus` — 881 KB
+- `2025 Spreken I - 15 - opgave 13 - Kamers opruimen.mp3` — 692 KB
+- `2025 Spreken I - 15 - opgave 13 - Kamers opruimen.opus` — 828 KB
+- `2025 Spreken I - 16 - opgave 14 - Kinderfeest.mp3` — 463 KB
+- `2025 Spreken I - 16 - opgave 14 - Kinderfeest.opus` — 664 KB
+- `2025 Spreken I - 17 - opgave 15 - Student Landbouwschool.mp3` — 523 KB
+- `2025 Spreken I - 17 - opgave 15 - Student Landbouwschool.opus` — 604 KB
+- `2025 Spreken I - 18 - opgave 16 - Lunchpauze.mp3` — 423 KB
+- `2025 Spreken I - 18 - opgave 16 - Lunchpauze.opus` — 619 KB
 
-**`atili/Dutch/van-dale-groot-beeldwoordenboek-split/`** — 3 files, 468.2 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Spreken II/audio/`** — 32 files, 30.0 MB
 
-- `van-dale-groot-beeldwoordenboek-nederlands-english-franais-deutsch-9789066489738_part_1.pdf` — 199.5 MB
-- `van-dale-groot-beeldwoordenboek-nederlands-english-franais-deutsch-9789066489738_part_2.pdf` — 199.4 MB
-- `van-dale-groot-beeldwoordenboek-nederlands-english-franais-deutsch-9789066489738_part_3.pdf` — 69.4 MB
+- `2025 Spreken II - 01 - deel 1 instructie.mp3` — 1.3 MB
+- `2025 Spreken II - 01 - deel 1 instructie.opus` — 1.2 MB
+- `2025 Spreken II - 02 - opgave 1 - Nieuwe personeelsruimte.mp3` — 590 KB
+- `2025 Spreken II - 02 - opgave 1 - Nieuwe personeelsruimte.opus` — 578 KB
+- `2025 Spreken II - 03 - opgave 2 - Oefening op werkplek.mp3` — 537 KB
+- `2025 Spreken II - 03 - opgave 2 - Oefening op werkplek.opus` — 527 KB
+- `2025 Spreken II - 04 - opgave 3 - Teksten nakijken en verbeteren.mp3` — 521 KB
+- `2025 Spreken II - 04 - opgave 3 - Teksten nakijken en verbeteren.opus` — 499 KB
+- `2025 Spreken II - 05 - opgave 4 - Glasbak.mp3` — 641 KB
+- `2025 Spreken II - 05 - opgave 4 - Glasbak.opus` — 657 KB
+- `2025 Spreken II - 06 - deel 2 instructie.mp3` — 2.1 MB
+- `2025 Spreken II - 06 - deel 2 instructie.opus` — 1.8 MB
+- `2025 Spreken II - 07 - opgave 5 - Mentorprogramma.mp3` — 864 KB
+- `2025 Spreken II - 07 - opgave 5 - Mentorprogramma.opus` — 803 KB
+- `2025 Spreken II - 08 - opgave 6 - Wachttijden.mp3` — 864 KB
+- `2025 Spreken II - 08 - opgave 6 - Wachttijden.opus` — 981 KB
+- `2025 Spreken II - 09 - opgave 7 - Pakket voor de buren.mp3` — 833 KB
+- `2025 Spreken II - 09 - opgave 7 - Pakket voor de buren.opus` — 804 KB
+- `2025 Spreken II - 10 - opgave 8 - Studiereis Kunstgeschiedenis.mp3` — 696 KB
+- `2025 Spreken II - 10 - opgave 8 - Studiereis Kunstgeschiedenis.opus` — 805 KB
+- `2025 Spreken II - 11 - opgave 9 - Brandveiligheid.mp3` — 752 KB
+- `2025 Spreken II - 11 - opgave 9 - Brandveiligheid.opus` — 904 KB
+- `2025 Spreken II - 12 - opgave 10 - Uitstapje.mp3` — 670 KB
+- `2025 Spreken II - 12 - opgave 10 - Uitstapje.opus` — 699 KB
+- `2025 Spreken II - 13 - opgave 11 - Straat afsluiten.mp3` — 865 KB
+- `2025 Spreken II - 13 - opgave 11 - Straat afsluiten.opus` — 987 KB
+- `2025 Spreken II - 14 - opgave 12 - Tijd of geld-.mp3` — 524 KB
+- `2025 Spreken II - 14 - opgave 12 - Tijd of geld-.opus` — 691 KB
+- `2025 Spreken II - 15 - deel 3 instructie.mp3` — 465 KB
+- `2025 Spreken II - 15 - deel 3 instructie.opus` — 400 KB
+- `2025 Spreken II - 16 - opgave 13 - Vrije tijd kinderen.mp3` — 2.8 MB
+- `2025 Spreken II - 16 - opgave 13 - Vrije tijd kinderen.opus` — 2.9 MB
 
 ### The listening corpus, file by file
 
@@ -1143,14 +1162,33 @@ these. Listed here only so this inventory is complete.
 <details>
 <summary>336 files in <code>dutch-listening/</code></summary>
 
-**`atili/Dutch/dutch-listening/`** — 1 files, 1 KB
+**`atili/Dutch/dutch-listening/`** — 1 files, 879 B
 
-- `README.md` — 1 KB
+- `README.md` — 879 B
 
 **`atili/Dutch/dutch-listening/echt-gebeurd/`** — 2 files, 2.0 MB
 
 - `episodes.json` — 16 KB
 - `feed.rss` — 2.0 MB
+
+**`atili/Dutch/dutch-listening/eenbeetjenederlands/`** — 2 files, 414 KB
+
+- `episodes.json` — 56 KB
+- `feed.rss` — 357 KB
+
+**`atili/Dutch/dutch-listening/librivox-nl/`** — 1 files, 25 KB
+
+- `catalogue-210-titles.json` — 25 KB
+
+**`atili/Dutch/dutch-listening/nos-jeugdjournaal/`** — 2 files, 499 KB
+
+- `episodes.json` — 28 KB
+- `feed.rss` — 471 KB
+
+**`atili/Dutch/dutch-listening/zeg-het-in-het-nederlands/`** — 2 files, 109 KB
+
+- `episodes.json` — 23 KB
+- `feed.rss` — 86 KB
 
 **`atili/Dutch/dutch-listening/echt-gebeurd/audio/`** — 30 files, 367.2 MB
 
@@ -1179,23 +1217,18 @@ these. Listed here only so this inventory is complete.
 - `afl-572-verliefd-david-goovaerts.mp3` — 10.2 MB
 - `afl-573-de-parade-renette-kwakkenbos-en-marlinde-van-zessen.mp3` — 15.3 MB
 - `afl-574-zweet-henri-oogjen.mp3` — 11.3 MB
-- `afl-575-puberdagboek-christine-marg├⌐s.mp3` — 16.2 MB
-- `afl-576-de-parade-esma-╥½├╝r├╝k-en-thijs-van-litsenburg.mp3` — 13.7 MB
+- `afl-575-puberdagboek-christine-margés.mp3` — 16.2 MB
+- `afl-576-de-parade-esma-ҫürük-en-thijs-van-litsenburg.mp3` — 13.7 MB
 - `afl-577-de-parade-arianne-hinz-en-martijn-winkler.mp3` — 17.6 MB
 - `afl-578-de-parade-verhalen-uit-het-publiek.mp3` — 16.8 MB
 - `afl-579-het-huwelijk-maaike-dirkje-hop.mp3` — 12.5 MB
 
-**`atili/Dutch/dutch-listening/eenbeetjenederlands/`** — 2 files, 414 KB
-
-- `episodes.json` — 56 KB
-- `feed.rss` — 357 KB
-
-**`atili/Dutch/dutch-listening/eenbeetjenederlands/audio/`** — 91 files, 2141.7 MB
+**`atili/Dutch/dutch-listening/eenbeetjenederlands/audio/`** — 91 files, 2.1 GiB
 
 - `0-trailer.mp3` — 1.3 MB
 - `1-aletta-jacobs.mp3` — 10.6 MB
 - `10-oranjekoorts.mp3` — 26.2 MB
-- `11-marga-klomp├⌐.mp3` — 31.9 MB
+- `11-marga-klompé.mp3` — 31.9 MB
 - `12-praten-met-devika-partiman-stem-op-een-vrouw---bonus.mp3` — 27.5 MB
 - `13-vlaams.mp3` — 12.2 MB
 - `14-praten-met-sietske---bonus.mp3` — 30.6 MB
@@ -1245,7 +1278,7 @@ these. Listed here only so this inventory is complete.
 - `54-efteling-madurodam.mp3` — 13.4 MB
 - `55-bonuskaart-guldens.mp3` — 16.4 MB
 - `56-kapsalon-patatdebat.mp3` — 13.8 MB
-- `57-andr├⌐-rieu-andr├⌐-hazes.mp3` — 14.9 MB
+- `57-andré-rieu-andré-hazes.mp3` — 14.9 MB
 - `58-neutraal-moresnet.mp3` — 27.9 MB
 - `59-fietsen.mp3` — 25.7 MB
 - `6-koningsdag.mp3` — 9.7 MB
@@ -1288,7 +1321,7 @@ these. Listed here only so this inventory is complete.
 
 - `1-aletta-jacobs.txt` — 9 KB
 - `10-oranjekoorts.txt` — 9 KB
-- `11-marga-klomp├⌐.txt` — 11 KB
+- `11-marga-klompé.txt` — 11 KB
 - `12-praten-met-devika-partiman-stem-op-een-vrouw---bonus.txt` — 33 KB
 - `13-vlaams.txt` — 12 KB
 - `14-praten-met-sietske---bonus.txt` — 37 KB
@@ -1338,7 +1371,7 @@ these. Listed here only so this inventory is complete.
 - `54-efteling-madurodam.txt` — 4 KB
 - `55-bonuskaart-guldens.txt` — 6 KB
 - `56-kapsalon-patatdebat.txt` — 5 KB
-- `57-andr├⌐-rieu-andr├⌐-hazes.txt` — 5 KB
+- `57-andré-rieu-andré-hazes.txt` — 5 KB
 - `58-neutraal-moresnet.txt` — 9 KB
 - `59-fietsen.txt` — 9 KB
 - `6-koningsdag.txt` — 8 KB
@@ -1374,148 +1407,134 @@ these. Listed here only so this inventory is complete.
 - `87-homohuwelijk.txt` — 12 KB
 - `9-willem-barentsz.txt` — 13 KB
 
-**`atili/Dutch/dutch-listening/librivox-nl/`** — 1 files, 25 KB
+**`atili/Dutch/dutch-listening/nos-jeugdjournaal/audio/`** — 40 files, 1.1 GiB
 
-- `catalogue-210-titles.json` — 25 KB
+- `2025-05-28 - crèmes-serums-en-lotion-maken-kinderen-hun-huid-kapot.mp3` — 27.9 MB
+- `2025-06-04 - wat-is-de-echte-reden-dat-wilders-is-gestopt.mp3` — 26.0 MB
+- `2025-06-18 - waarom-zijn-er-27000-agenten-nodig-voor-één-vergadering.mp3` — 28.3 MB
+- `2025-06-25 - bye-bye-basisschool-hoe-neem-je-goed-afscheid.mp3` — 28.3 MB
+- `2025-08-20 - offline-wat-is-het-probleem.mp3` — 27.5 MB
+- `2025-08-21 - offline-hoe-schadelijk-is-een-telefoon.mp3` — 28.0 MB
+- `2025-08-22 - offline-wanneer-ben-je-klaar-voor-een-telefoon.mp3` — 29.5 MB
+- `2025-09-10 - is-het-slecht-om-de-hele-dag-op-school-te-zitten.mp3` — 26.2 MB
+- `2025-09-17 - waarom-is-pesten-niet-verboden.mp3` — 28.2 MB
+- `2025-09-24 - is-er-een-spinnenplaag-in-nederland.mp3` — 29.0 MB
+- `2025-10-01 - zijn-drones-cool-of-gevaarlijk.mp3` — 28.7 MB
+- `2025-10-08 - hoe-weet-je-wat-echt-is-over-de-oorlog-in-gaza.mp3` — 27.6 MB
+- `2025-10-15 - is-het-gevaarlijk-om-politicus-te-zijn.mp3` — 28.1 MB
+- `2025-10-29 - hoe-kun-je-samenwerken-met-je-grootste-tegenstander.mp3` — 30.1 MB
+- `2025-11-05 - kapot-en-giftig-hoe-weet-je-of-spullen-in-webshops-goed-zijn.mp3` — 29.8 MB
+- `2025-11-12 - wat-gebeurt-er-als-we-niets-doen-aan-klimaatverandering.mp3` — 28.4 MB
+- `2025-11-19 - hoe-werd-suriname-onafhankelijk-van-nederland.mp3` — 30.3 MB
+- `2025-11-26 - feest-hoe-wordt-de-jeugdjournaalpodcast-gemaakt.mp3` — 41.3 MB
+- `2025-12-03 - moeten-kinderen-zich-voorbereiden-op-een-noodsituatie.mp3` — 27.8 MB
+- `2025-12-10 - hoe-zwaar-is-het-om-youtuber-te-zijn.mp3` — 28.2 MB
+- `2025-12-17 - hoe-zorg-je-dat-het-kerstdiner-een-succes-wordt.mp3` — 29.1 MB
+- `2026-01-10 - 45-jaar-jeugdjournaal-hoe-kijken-oud-presentatoren-daarop-terug.mp3` — 49.7 MB
+- `2026-01-28 - hoe-zorg-je-dat-je-klaar-bent-voor-de-doorstroomtoets.mp3` — 26.5 MB
+- `2026-02-04 - hoe-win-je-goud-op-de-olympische-winterspelen.mp3` — 29.7 MB
+- `2026-02-18 - wordt-rob-jetten-een-goede-minister-president-voor-nederland.mp3` — 28.7 MB
+- `2026-02-25 - waarom-moeten-steeds-meer-kinderen-naar-halt.mp3` — 29.7 MB
+- `2026-03-04 - waarom-wordt-iran-aangevallen.mp3` — 29.2 MB
+- `2026-03-11 - hoe-kies-je-de-middelbare-school-die-bij-jou-past.mp3` — 30.1 MB
+- `2026-03-18 - wat-hebben-kinderen-nou-aan-gemeenteraadsverkiezingen.mp3` — 23.8 MB
+- `2026-04-01 - hoe-bedenk-je-de-perfecte-grap.mp3` — 30.8 MB
+- `2026-04-15 - waarom-zien-we-steeds-vaker-ratten.mp3` — 28.9 MB
+- `2026-04-29 - waarom-wordt-er-zo-weinig-gepraat-over-roma-en-sinti-in-de-tweede-were.mp3` — 29.7 MB
+- `2026-05-13 - moeten-kinderen-zich-zorgen-maken-over-het-hantavirus.mp3` — 29.2 MB
+- `2026-05-20 - waarom-lopen-de-protesten-tegen-asielzoekers-uit-de-hand.mp3` — 29.5 MB
+- `2026-06-03 - hoe-volg-je-een-concert-als-je-blind-of-slechtziend-bent.mp3` — 28.4 MB
+- `2026-06-10 - waarom-worden-aangespoelde-walvissen-onderzocht.mp3` — 31.9 MB
+- `2026-06-17 - alles-wat-je-moet-weten-om-mee-te-kunnen-praten-over-het-wk-voetbal.mp3` — 30.1 MB
+- `2026-06-25 - waarom-is-het-belangrijk-om-te-praten-over-de-dood.mp3` — 31.2 MB
+- `2026-07-01 - hoe-blijf-je-veilig-bij-onweer.mp3` — 29.9 MB
+- `2026-08-26 - extra-roxy-dekker-over-haar-muziek-en-grote-liefde-koen.mp3` — 13.8 MB
+
+**`atili/Dutch/dutch-listening/zeg-het-in-het-nederlands/audio/`** — 58 files, 1.6 GiB
+
+- `01 - de boekenweek en een favoriete schrijver.mp3` — 11.4 MB
+- `02 - de lente en de gemeenteraadsverkiezingen.mp3` — 14.7 MB
+- `03 - Pasen en het paasfeest.mp3` — 15.8 MB
+- `04 - de tulp, nationaal symbool van Nederland.mp3` — 15.1 MB
+- `05 - de Nationale Museumweek en de pronkstukken.mp3` — 20.8 MB
+- `06 - sport, topsport en voetbal.mp3` — 14.9 MB
+- `07 - Koningsdag, de koning en kroonprinses Amalia.mp3` — 14.2 MB
+- `08 - dodenherdenking en bevrijdingsdag.mp3` — 19.6 MB
+- `09 - het Songfestival, de Molendag en Moederdag.mp3` — 15.8 MB
+- `10 - Pinksteren, kastelen en Annie M.G. Schmidt.mp3` — 21.6 MB
+- `11 - Bluetooth.mp3` — 17.0 MB
+- `12 - de provincie Friesland.mp3` — 16.3 MB
+- `13 - Hollandse Nieuwe en haring.mp3` — 19.7 MB
+- `14 - studeren en Aletta Jacobs.mp3` — 23.3 MB
+- `15 - droogte, dijken en Prinsjesdag.mp3` — 17.4 MB
+- `16 - de kunstenaar Escher.mp3` — 19.4 MB
+- `17 - kerstmis, kerstbomen en vuurwerk.mp3` — 18.4 MB
+- `18 - het Rembrandtjaar en de Nachtwacht.mp3` — 22.9 MB
+- `19 - liefde, trouwen en huwelijken.mp3` — 34.2 MB
+- `20 - Martinus Nijhoff, de boekenweek en de verkiezingen.mp3` — 25.0 MB
+- `21 - Rotterdam, de haven en de Erasmusbrug.mp3` — 24.8 MB
+- `22 - de grutto en Berend Botje.mp3` — 20.4 MB
+- `23 - Sint Maarten en de feestdagen.mp3` — 24.7 MB
+- `24 - Multatuli en Max Havelaar (tweede publicatie).mp3` — 31.4 MB
+- `24 - Multatuli en Max Havelaar.mp3` — 31.6 MB
+- `25 - professor Oort, de sterrenkundige.mp3` — 26.0 MB
+- `26 - bevallingen in Nederland.mp3` — 30.2 MB
+- `27 - corona, de zomer en de Noordzee.mp3` — 30.8 MB
+- `28 - gezelligheid.mp3` — 26.2 MB
+- `29 - Vondel en Gijsbrecht van Aemstel.mp3` — 27.7 MB
+- `30 - auto's, fietsen en snelwegen.mp3` — 31.0 MB
+- `31 - moderne architectuur.mp3` — 35.2 MB
+- `32 - het stembiljet en schaken.mp3` — 32.5 MB
+- `33 - bier, Heineken en de ontvoering.mp3` — 34.0 MB
+- `34 - voetbal, het EK en Johan Cruijff.mp3` — 27.4 MB
+- `35 - water, wateroverlast en de Betuwe.mp3` — 29.1 MB
+- `36 - mode, kleding en de textielindustrie.mp3` — 33.3 MB
+- `37 - Nederlands eten en aardappels.mp3` — 25.2 MB
+- `38 - de schrijver Gerard Reve.mp3` — 36.7 MB
+- `39 - Hugo de Groot.mp3` — 37.6 MB
+- `40 - lekkere hapjes en de lelijke eend.mp3` — 28.0 MB
+- `41 - de Nederlandse Antillen en de zilvervloot.mp3` — 38.8 MB
+- `42 - boeken lezen en kinderboeken.mp3` — 38.4 MB
+- `43 - Nederlandse popmuziek en de Top 2000.mp3` — 43.6 MB
+- `44 - Golden Earring.mp3` — 46.9 MB
+- `45 - de overwintering op Nova Zembla.mp3` — 34.4 MB
+- `46 - de Nederlandse mentaliteit.mp3` — 30.7 MB
+- `47 - de kunstbeweging Cobra en de Vijftigers.mp3` — 35.3 MB
+- `48 - stakingen, lonen en vakbonden.mp3` — 29.3 MB
+- `49 - Mata Hari.mp3` — 48.2 MB
+- `50 - de ijstijd, de hunebedden en de eerste boeren.mp3` — 50.6 MB
+- `51 - hoogveen, turf en Vincent van Gogh.mp3` — 45.4 MB
+- `52 - de Lage Landen en Vlaanderen.mp3` — 48.1 MB
+- `53 - Marten Toonder, Tom Poes en Olivier B. Bommel.mp3` — 36.1 MB
+- `54 - water, terpen en dijken.mp3` — 47.3 MB
+- `54a - kerstberichtje.mp3` — 1.5 MB
+- `55 - ingenieur Cornelis Lely en de Afsluitdijk.mp3` — 40.4 MB
+- `56 - het werk op de Afsluitdijk.mp3` — 28.7 MB
 
 **`atili/Dutch/dutch-listening/librivox-nl/audio/ali_baba_en_de_veertig_roovers_1411_librivox/`** — 5 files, 51.4 MB
 
-- `alibaba_01_anoniem_64kb.mp3` — 11.8 MB
-- `alibaba_02_anoniem_64kb.mp3` — 12.2 MB
-- `alibaba_03_anoniem_64kb.mp3` — 15.1 MB
-- `alibaba_04_anoniem_64kb.mp3` — 12.4 MB
+- `Ali Baba en de veertig roovers - deel 01.mp3` — 11.8 MB
+- `Ali Baba en de veertig roovers - deel 02.mp3` — 12.2 MB
+- `Ali Baba en de veertig roovers - deel 03.mp3` — 15.1 MB
+- `Ali Baba en de veertig roovers - deel 04.mp3` — 12.4 MB
 - `metadata.json` — 2 KB
 
 **`atili/Dutch/dutch-listening/librivox-nl/audio/zoon_dik_trom_0908_librivox/`** — 15 files, 128.5 MB
 
+- `De zoon van Dik Trom - hoofdstuk 01 (Kieviet).mp3` — 2.4 MB
+- `De zoon van Dik Trom - hoofdstuk 02 (Kieviet).mp3` — 5.3 MB
+- `De zoon van Dik Trom - hoofdstuk 03 (Kieviet).mp3` — 5.8 MB
+- `De zoon van Dik Trom - hoofdstuk 04 (Kieviet).mp3` — 5.6 MB
+- `De zoon van Dik Trom - hoofdstuk 05 (Kieviet).mp3` — 11.4 MB
+- `De zoon van Dik Trom - hoofdstuk 06 (Kieviet).mp3` — 12.7 MB
+- `De zoon van Dik Trom - hoofdstuk 07 (Kieviet).mp3` — 9.8 MB
+- `De zoon van Dik Trom - hoofdstuk 08 (Kieviet).mp3` — 13.8 MB
+- `De zoon van Dik Trom - hoofdstuk 09 (Kieviet).mp3` — 8.6 MB
+- `De zoon van Dik Trom - hoofdstuk 10 (Kieviet).mp3` — 9.2 MB
+- `De zoon van Dik Trom - hoofdstuk 11 (Kieviet).mp3` — 12.9 MB
+- `De zoon van Dik Trom - hoofdstuk 12 (Kieviet).mp3` — 12.4 MB
+- `De zoon van Dik Trom - hoofdstuk 13 (Kieviet).mp3` — 15.2 MB
+- `De zoon van Dik Trom - hoofdstuk 14 (Kieviet).mp3` — 3.3 MB
 - `metadata.json` — 3 KB
-- `trom2_01_kieviet_64kb.mp3` — 2.4 MB
-- `trom2_02_kieviet_64kb.mp3` — 5.3 MB
-- `trom2_03_kieviet_64kb.mp3` — 5.8 MB
-- `trom2_04_kieviet_64kb.mp3` — 5.6 MB
-- `trom2_05_kieviet_64kb.mp3` — 11.4 MB
-- `trom2_06_kieviet_64kb.mp3` — 12.7 MB
-- `trom2_07_kieviet_64kb.mp3` — 9.8 MB
-- `trom2_08_kieviet_64kb.mp3` — 13.8 MB
-- `trom2_09_kieviet_64kb.mp3` — 8.6 MB
-- `trom2_10_kieviet_64kb.mp3` — 9.2 MB
-- `trom2_11_kieviet_64kb.mp3` — 12.9 MB
-- `trom2_12_kieviet_64kb.mp3` — 12.4 MB
-- `trom2_13_kieviet_64kb.mp3` — 15.2 MB
-- `trom2_14_kieviet_64kb.mp3` — 3.3 MB
-
-**`atili/Dutch/dutch-listening/nos-jeugdjournaal/`** — 2 files, 499 KB
-
-- `episodes.json` — 28 KB
-- `feed.rss` — 471 KB
-
-**`atili/Dutch/dutch-listening/nos-jeugdjournaal/audio/`** — 40 files, 1169.0 MB
-
-- `45-jaar-jeugdjournaal-hoe-kijken-oud-presentatoren-daarop-terug.mp3` — 49.7 MB
-- `alles-wat-je-moet-weten-om-mee-te-kunnen-praten-over-het-wk-voetbal.mp3` — 30.1 MB
-- `bye-bye-basisschool-hoe-neem-je-goed-afscheid.mp3` — 28.3 MB
-- `cr├¿mes-serums-en-lotion-maken-kinderen-hun-huid-kapot.mp3` — 27.9 MB
-- `extra-roxy-dekker-over-haar-muziek-en-grote-liefde-koen.mp3` — 13.8 MB
-- `feest-hoe-wordt-de-jeugdjournaalpodcast-gemaakt.mp3` — 41.3 MB
-- `hoe-bedenk-je-de-perfecte-grap.mp3` — 30.8 MB
-- `hoe-blijf-je-veilig-bij-onweer.mp3` — 29.9 MB
-- `hoe-kies-je-de-middelbare-school-die-bij-jou-past.mp3` — 30.1 MB
-- `hoe-kun-je-samenwerken-met-je-grootste-tegenstander.mp3` — 30.1 MB
-- `hoe-volg-je-een-concert-als-je-blind-of-slechtziend-bent.mp3` — 28.4 MB
-- `hoe-weet-je-wat-echt-is-over-de-oorlog-in-gaza.mp3` — 27.6 MB
-- `hoe-werd-suriname-onafhankelijk-van-nederland.mp3` — 30.3 MB
-- `hoe-win-je-goud-op-de-olympische-winterspelen.mp3` — 29.7 MB
-- `hoe-zorg-je-dat-het-kerstdiner-een-succes-wordt.mp3` — 29.1 MB
-- `hoe-zorg-je-dat-je-klaar-bent-voor-de-doorstroomtoets.mp3` — 26.5 MB
-- `hoe-zwaar-is-het-om-youtuber-te-zijn.mp3` — 28.2 MB
-- `is-er-een-spinnenplaag-in-nederland.mp3` — 29.0 MB
-- `is-het-gevaarlijk-om-politicus-te-zijn.mp3` — 28.1 MB
-- `is-het-slecht-om-de-hele-dag-op-school-te-zitten.mp3` — 26.2 MB
-- `kapot-en-giftig-hoe-weet-je-of-spullen-in-webshops-goed-zijn.mp3` — 29.8 MB
-- `moeten-kinderen-zich-voorbereiden-op-een-noodsituatie.mp3` — 27.8 MB
-- `moeten-kinderen-zich-zorgen-maken-over-het-hantavirus.mp3` — 29.2 MB
-- `offline-hoe-schadelijk-is-een-telefoon.mp3` — 28.0 MB
-- `offline-wanneer-ben-je-klaar-voor-een-telefoon.mp3` — 29.5 MB
-- `offline-wat-is-het-probleem.mp3` — 27.5 MB
-- `waarom-is-het-belangrijk-om-te-praten-over-de-dood.mp3` — 31.2 MB
-- `waarom-is-pesten-niet-verboden.mp3` — 28.2 MB
-- `waarom-lopen-de-protesten-tegen-asielzoekers-uit-de-hand.mp3` — 29.5 MB
-- `waarom-moeten-steeds-meer-kinderen-naar-halt.mp3` — 29.7 MB
-- `waarom-worden-aangespoelde-walvissen-onderzocht.mp3` — 31.9 MB
-- `waarom-wordt-er-zo-weinig-gepraat-over-roma-en-sinti-in-de-tweede-were.mp3` — 29.7 MB
-- `waarom-wordt-iran-aangevallen.mp3` — 29.2 MB
-- `waarom-zien-we-steeds-vaker-ratten.mp3` — 28.9 MB
-- `waarom-zijn-er-27000-agenten-nodig-voor-├⌐├⌐n-vergadering.mp3` — 28.3 MB
-- `wat-gebeurt-er-als-we-niets-doen-aan-klimaatverandering.mp3` — 28.4 MB
-- `wat-hebben-kinderen-nou-aan-gemeenteraadsverkiezingen.mp3` — 23.8 MB
-- `wat-is-de-echte-reden-dat-wilders-is-gestopt.mp3` — 26.0 MB
-- `wordt-rob-jetten-een-goede-minister-president-voor-nederland.mp3` — 28.7 MB
-- `zijn-drones-cool-of-gevaarlijk.mp3` — 28.7 MB
-
-**`atili/Dutch/dutch-listening/zeg-het-in-het-nederlands/`** — 2 files, 109 KB
-
-- `episodes.json` — 23 KB
-- `feed.rss` — 86 KB
-
-**`atili/Dutch/dutch-listening/zeg-het-in-het-nederlands/audio/`** — 58 files, 1645.1 MB
-
-- `34-zeg-het-in-het-nederlands.mp3` — 27.4 MB
-- `35-zeg-het-in-het-nederlands.mp3` — 29.1 MB
-- `36-zeg-het-in-het-nederlands.mp3` — 33.3 MB
-- `37-zeg-het-in-het-nederlands.mp3` — 25.2 MB
-- `38-zeg-het-in-het-nederlands.mp3` — 36.7 MB
-- `39-zeg-het-in-het-nederlands.mp3` — 37.6 MB
-- `40-zeg-het-in-het-nederlands.mp3` — 28.0 MB
-- `41-zeg-het-in-het-nederlands.mp3` — 38.8 MB
-- `42-zeg-het-in-het-nederlands.mp3` — 38.4 MB
-- `43-zeg-het-in-het-nederlands.mp3` — 43.6 MB
-- `44-zeg-het-in-het-nederlands.mp3` — 46.9 MB
-- `45-zeg-het-in-het-nederlands.mp3` — 34.4 MB
-- `46-zeg-het-in-het-nederlands.mp3` — 30.7 MB
-- `47-zeg-het-in-het-nederlands.mp3` — 35.3 MB
-- `48-zeg-het-in-het-nederlands.mp3` — 29.3 MB
-- `49-zeg-het-in-het-nederlands.mp3` — 48.2 MB
-- `50-zeg-het-in-het-nederlands.mp3` — 50.6 MB
-- `51-zeg-het-in-het-nederlands.mp3` — 45.4 MB
-- `52-zeg-het-in-het-nederlands.mp3` — 48.1 MB
-- `53-zeg-het-in-het-nederlands.mp3` — 36.1 MB
-- `54-zeg-het-in-het-nederlands.mp3` — 47.3 MB
-- `55-zeg-het-in-het-nederlands.mp3` — 40.4 MB
-- `56-zeg-het-in-het-nederlands.mp3` — 28.7 MB
-- `even-een-kerstberichtje.mp3` — 1.5 MB
-- `zeg-het---in-het-nederlands-24.mp3` — 31.4 MB
-- `zeg-het-in-het-nederlands-01.mp3` — 11.4 MB
-- `zeg-het-in-het-nederlands-02.mp3` — 14.7 MB
-- `zeg-het-in-het-nederlands-03.mp3` — 15.8 MB
-- `zeg-het-in-het-nederlands-04.mp3` — 15.1 MB
-- `zeg-het-in-het-nederlands-05.mp3` — 20.8 MB
-- `zeg-het-in-het-nederlands-06.mp3` — 14.9 MB
-- `zeg-het-in-het-nederlands-07.mp3` — 14.2 MB
-- `zeg-het-in-het-nederlands-08.mp3` — 19.6 MB
-- `zeg-het-in-het-nederlands-09.mp3` — 15.8 MB
-- `zeg-het-in-het-nederlands-10.mp3` — 21.6 MB
-- `zeg-het-in-het-nederlands-11.mp3` — 17.0 MB
-- `zeg-het-in-het-nederlands-12.mp3` — 16.3 MB
-- `zeg-het-in-het-nederlands-13.mp3` — 19.7 MB
-- `zeg-het-in-het-nederlands-14.mp3` — 23.3 MB
-- `zeg-het-in-het-nederlands-15.mp3` — 17.4 MB
-- `zeg-het-in-het-nederlands-16.mp3` — 19.4 MB
-- `zeg-het-in-het-nederlands-17.mp3` — 18.4 MB
-- `zeg-het-in-het-nederlands-18.mp3` — 22.9 MB
-- `zeg-het-in-het-nederlands-19.mp3` — 34.2 MB
-- `zeg-het-in-het-nederlands-20.mp3` — 25.0 MB
-- `zeg-het-in-het-nederlands-21.mp3` — 24.8 MB
-- `zeg-het-in-het-nederlands-22.mp3` — 20.4 MB
-- `zeg-het-in-het-nederlands-23.mp3` — 24.7 MB
-- `zeg-het-in-het-nederlands-24.mp3` — 31.6 MB
-- `zeg-het-in-het-nederlands-25.mp3` — 26.0 MB
-- `zeg-het-in-het-nederlands-26.mp3` — 30.2 MB
-- `zeg-het-in-het-nederlands-27.mp3` — 30.8 MB
-- `zeg-het-in-het-nederlands-28.mp3` — 26.2 MB
-- `zeg-het-in-het-nederlands-29.mp3` — 27.7 MB
-- `zeg-het-in-het-nederlands-30.mp3` — 31.0 MB
-- `zeg-het-in-het-nederlands-31.mp3` — 35.2 MB
-- `zeg-het-in-het-nederlands-32.mp3` — 32.5 MB
-- `zeg-het-in-het-nederlands-33.mp3` — 34.0 MB
 
 </details>
