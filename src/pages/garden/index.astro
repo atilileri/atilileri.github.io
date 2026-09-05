@@ -1,5 +1,38 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const entries = await getCollection("garden");
+
+// Featured entries fill the bento at the top, in the order they declare.
+const featured = entries
+  .filter((e) => e.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+
+// Everything else flows into the grid below: declared order first, then the
+// most recently touched.
+const rest = entries
+  .filter((e) => !e.data.featured)
+  .sort(
+    (a, b) =>
+      a.data.order - b.data.order ||
+      b.data.lastUpdated.getTime() - a.data.lastUpdated.getTime()
+  );
+
+const statusLabel = {
+  seedling: "Seedling",
+  budding: "Budding",
+  evergreen: "Evergreen",
+};
+
+const kindLabel = {
+  project: "Project",
+  deck: "Deck",
+  note: "Note",
+};
+
+const monthYear = (d: Date) =>
+  d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 ---
 
 <BaseLayout title="Digital Garden" currentPath="/garden">
@@ -17,116 +50,151 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         </div>
         <div class="pb-2">
           <p class="text-on-surface-variant text-lg leading-relaxed w-full">
-            A nonlinear archive of research, experiments, and technical philosophy. Sharp precision meets organic growth.
+            Projects, decks and notes, at whatever stage they have reached. Some
+            ship, some are still being argued with. Nothing here claims to be
+            finished.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Featured Section: Bento Style -->
-    <section class="mb-40 min-w-0">
-      <div
-        class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-surface-container-highest p-1 min-w-0 [&>*]:min-w-0"
-      >
-        <!-- Bento Item 1 -->
-        <a href="/decks/asml-ai/" class="md:col-span-2 bg-surface-container-low p-6 md:p-12 min-h-[500px] flex flex-col justify-between group min-w-0">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-black tracking-widest text-primary">01 // LIVE DECK</span>
-            <span class="material-symbols-outlined text-on-surface opacity-20 group-hover:opacity-100 transition-opacity">arrow_outward</span>
+    <!-- Featured: Bento -->
+    {
+      featured.length > 0 && (
+        <section class="mb-24 min-w-0">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-surface-container-highest p-1 min-w-0 [&>*]:min-w-0">
+            {featured.map((entry, i) => (
+              <a
+                href={entry.data.link ?? entry.data.github}
+                class:list={[
+                  "p-6 md:p-12 flex flex-col justify-between group min-w-0 transition-colors",
+                  i === 0
+                    ? "md:col-span-2 min-h-[420px] bg-surface-container-low"
+                    : "bg-primary text-on-primary",
+                ]}
+              >
+                <div class="flex justify-between items-start gap-4">
+                  <span
+                    class:list={[
+                      "text-xs font-black tracking-widest",
+                      i === 0 ? "text-primary" : "text-[rgba(255,255,255,0.7)]",
+                    ]}
+                  >
+                    {String(i + 1).padStart(2, "0")} // {kindLabel[entry.data.kind].toUpperCase()}
+                  </span>
+                  <span
+                    class:list={[
+                      "material-symbols-outlined transition-opacity",
+                      i === 0
+                        ? "text-on-surface opacity-20 group-hover:opacity-100"
+                        : "opacity-40 group-hover:opacity-100",
+                    ]}
+                  >
+                    arrow_outward
+                  </span>
+                </div>
+                <div class="mt-10">
+                  <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-4 max-w-full [overflow-wrap:break-word]">
+                    {entry.data.title}
+                  </h2>
+                  <p
+                    class:list={[
+                      "text-sm leading-relaxed mb-6 max-w-2xl",
+                      i === 0
+                        ? "text-on-surface-variant"
+                        : "text-[rgba(255,255,255,0.85)]",
+                    ]}
+                  >
+                    {entry.data.description}
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      class:list={[
+                        "text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1",
+                        i === 0
+                          ? "bg-on-surface text-surface"
+                          : "bg-[rgba(255,255,255,0.9)] text-primary",
+                      ]}
+                    >
+                      {statusLabel[entry.data.status]}
+                    </span>
+                    {entry.data.tags.map((tag) => (
+                      <span
+                        class:list={[
+                          "text-[0.65rem] uppercase font-bold tracking-widest border px-3 py-1",
+                          i === 0
+                            ? "border-on-surface/10"
+                            : "border-[rgba(255,255,255,0.3)]",
+                        ]}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </a>
+            ))}
           </div>
-          <div>
-            <h2 class="text-2xl sm:text-4xl font-bold tracking-tight mb-6 max-w-full [overflow-wrap:break-word]">GETTING THE MOST FROM AI</h2>
-            <div class="flex gap-4">
-              <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-on-surface/10 px-3 py-1">Presentation</span>
-              <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-on-surface/10 px-3 py-1">Executive Deck</span>
-            </div>
-          </div>
-        </a>
-        <!-- Bento Item 2 -->
-        <a href="/decks/showcase-for-asml/" class="bg-primary text-on-primary p-6 md:p-12 flex flex-col justify-between group min-w-0">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-black tracking-widest opacity-60 text-[rgba(255,255,255,0.7)]">02 // SHOWCASE DECK</span>
-            <span class="material-symbols-outlined opacity-40 group-hover:opacity-100 transition-opacity">arrow_outward</span>
-          </div>
-          <div>
-            <h2 class="text-2xl font-bold tracking-tight mt-8 max-w-full [overflow-wrap:break-word]">SHOWCASE FOR AI PRESENTATION</h2>
-            <div class="flex flex-wrap gap-4 mt-6">
-              <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-[rgba(255,255,255,0.3)] px-3 py-1">Presentation</span>
-              <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-[rgba(255,255,255,0.3)] px-3 py-1">Capability Showcase</span>
-            </div>
-          </div>
-        </a>
-        <!-- Bento Item 3 -->
-        <div class="bg-surface-container p-6 md:p-12 flex flex-col justify-center items-center text-center min-w-0">
-          <div class="w-full h-48 bg-surface-container-highest mb-8 overflow-hidden relative border border-on-surface/5">
-            <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent"></div>
-            <img
-              class="w-full h-full object-cover mix-blend-multiply opacity-80 dark:mix-blend-screen"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgAQSVIFSbrKDEj6lfxiVuz5wdB4YqCiG46lpFlv9aU56Ism2upeoUw33qm2_83OoCrSPCPRADO-TiHNDn2JRiiqvmyDj1nUXsoq14WfbU6VDixSg9cBTvg5JTVCFAAyjaNr2_Ka0EPezFGUnV4o1ZHjCW09bEg9wnvsYl8wTlloO8S2XC_L2k82iUNp6aUqBuP1QZecQLKKQgayDohPHoEL4WhXO-z4-Uv3bSTUvrRrOwSjhSEQBkee9D1K_bR88A6YLhZOpNjCqS"
-            />
-          </div>
-          <span class="text-xs font-black tracking-widest text-on-surface mb-2 block">03 // VISUALS</span>
-          <h3 class="text-lg font-bold">GEOMETRIC TRUTH</h3>
-        </div>
-        <!-- Bento Item 4 -->
-        <div class="md:col-span-2 bg-surface-container-low p-6 md:p-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
-          <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 md:gap-12 min-w-0">
-            <span class="text-5xl font-black text-on-surface/10 shrink-0">04</span>
-            <div>
-              <h3 class="text-lg sm:text-xl font-bold max-w-full [overflow-wrap:break-word]">RUST FOR FRONTEND ENGINEERS</h3>
-              <p class="text-sm text-on-surface-variant mt-2">The paradigm shift in memory safety.</p>
-            </div>
-          </div>
-            <span class="shrink-0 self-start sm:self-center text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 bg-on-surface text-surface">Technical</span>
-        </div>
-      </div>
-    </section>
+        </section>
+      )
+    }
 
-    <!-- Hybrid List View -->
-    <section class="max-w-4xl w-full min-w-0">
+    <!-- The rest: uniform cards -->
+    <section class="pb-32 min-w-0">
       <div class="mb-12">
-        <h2 class="text-[0.75rem] uppercase font-black tracking-[0.3em] text-on-surface/40">Archive // Index</h2>
+        <h2 class="text-[0.75rem] uppercase font-black tracking-[0.3em] text-on-surface/40">
+          Everything else
+        </h2>
       </div>
 
-      <!-- List Items -->
-      <div class="group border-t border-on-surface/10 py-12 flex flex-col md:flex-row gap-8 items-baseline transition-all hover:bg-surface-container-low px-4 cursor-pointer">
-        <span class="text-4xl font-black text-on-surface/10 group-hover:text-primary transition-colors">05</span>
-        <div class="flex-1">
-          <span class="text-[0.65rem] uppercase font-bold tracking-widest text-primary mb-2 block">March 2024</span>
-          <h3 class="text-2xl font-bold tracking-tight group-hover:translate-x-2 transition-transform">THE MINIMALIST FALLACY IN MODERN WEB.</h3>
-        </div>
-        <div class="hidden md:block">
-          <span class="text-sm font-medium text-on-surface-variant">/ Research</span>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-1 bg-surface-container-highest p-1 min-w-0 [&>*]:min-w-0">
+        {
+          rest.map((entry) => {
+            const href = entry.data.link ?? entry.data.github;
+            const Tag = href ? "a" : "div";
+            return (
+              <Tag
+                href={href}
+                class="bg-surface-container-low p-8 flex flex-col justify-between gap-8 group min-w-0 hover:bg-surface-container transition-colors"
+              >
+                <div class="min-w-0">
+                  <div class="flex justify-between items-start gap-4 mb-6">
+                    <span class="text-[0.65rem] font-black tracking-widest text-primary uppercase">
+                      {kindLabel[entry.data.kind]}
+                    </span>
+                    {href && (
+                      <span class="material-symbols-outlined text-on-surface opacity-20 group-hover:opacity-100 transition-opacity">
+                        arrow_outward
+                      </span>
+                    )}
+                  </div>
+                  <h3 class="text-xl font-bold tracking-tight mb-4 max-w-full [overflow-wrap:break-word]">
+                    {entry.data.title}
+                  </h3>
+                  <p class="text-sm leading-relaxed text-on-surface-variant">
+                    {entry.data.description}
+                  </p>
+                </div>
 
-      <div class="group border-t border-on-surface/10 py-12 flex flex-col md:flex-row gap-8 items-baseline transition-all hover:bg-surface-container-low px-4 cursor-pointer">
-        <span class="text-4xl font-black text-on-surface/10 group-hover:text-primary transition-colors">06</span>
-        <div class="flex-1">
-          <span class="text-[0.65rem] uppercase font-bold tracking-widest text-primary mb-2 block">February 2024</span>
-          <h3 class="text-2xl font-bold tracking-tight group-hover:translate-x-2 transition-transform">UNDERSTANDING SWISS TYPOGRAPHY.</h3>
-        </div>
-        <div class="hidden md:block">
-          <span class="text-sm font-medium text-on-surface-variant">/ Design</span>
-        </div>
-      </div>
-
-      <div class="group border-t border-on-surface/10 py-12 flex flex-col md:flex-row gap-8 items-baseline transition-all hover:bg-surface-container-low px-4 cursor-pointer">
-        <span class="text-4xl font-black text-on-surface/10 group-hover:text-primary transition-colors">07</span>
-        <div class="flex-1">
-          <span class="text-[0.65rem] uppercase font-bold tracking-widest text-primary mb-2 block">January 2024</span>
-          <h3 class="text-2xl font-bold tracking-tight group-hover:translate-x-2 transition-transform">THE DEATH OF THE BORDER RADIUS.</h3>
-        </div>
-        <div class="hidden md:block">
-          <span class="text-sm font-medium text-on-surface-variant">/ Manifesto</span>
-        </div>
-      </div>
-
-      <div class="border-t border-on-surface/10 pt-12 text-center md:text-left">
-        <button class="inline-flex items-center gap-4 text-[0.75rem] font-black uppercase tracking-[0.2em] text-primary group">
-          View Entire Archive 
-          <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
-        </button>
+                <div class="min-w-0">
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 bg-on-surface text-surface">
+                      {statusLabel[entry.data.status]}
+                    </span>
+                    {entry.data.tags.map((tag) => (
+                      <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-on-surface/10 px-3 py-1">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span class="text-[0.65rem] uppercase tracking-widest text-on-surface/40 font-bold">
+                    Updated {monthYear(entry.data.lastUpdated)}
+                  </span>
+                </div>
+              </Tag>
+            );
+          })
+        }
       </div>
     </section>
   </div>

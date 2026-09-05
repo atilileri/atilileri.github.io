@@ -20,41 +20,21 @@ const garden = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/garden" }),
   schema: z.object({
     title: z.string(),
-    description: z.string().optional(),
-    lastUpdated: z.coerce.date(),
-    status: z.enum(["seedling", "budding", "evergreen"]).default("seedling"),
-    tags: z.array(z.string()).default([]),
-  }),
-});
-
-
-
-const projects = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
-  schema: z.object({
-    title: z.string(),
     description: z.string(),
-    image: z.string().optional(),
+    lastUpdated: z.coerce.date(),
+    // How far the thing has grown.
+    status: z.enum(["seedling", "budding", "evergreen"]).default("seedling"),
+    // What the thing is. Decides nothing about layout; it labels the card.
+    kind: z.enum(["project", "deck", "note"]).default("note"),
+    tags: z.array(z.string()).default([]),
+    // Where to go. An internal path, or an external URL.
     link: z.string().optional(),
     github: z.string().optional(),
-    tags: z.array(z.string()).default([]),
+    // Featured entries fill the bento at the top, in `order`. The rest flow
+    // into the grid below, newest first.
     featured: z.boolean().default(false),
     order: z.number().default(0),
   }),
 });
 
-const sports = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/sports" }),
-  schema: z.object({
-    title: z.string(),
-    role: z.string().optional(),
-    location: z.string(),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date().optional(),
-    current: z.boolean().default(false),
-    image: z.string().optional(),
-    type: z.enum(["sports", "volunteering"]),
-  }),
-});
-
-export const collections = { blog, garden, projects, sports };
+export const collections = { blog, garden };
