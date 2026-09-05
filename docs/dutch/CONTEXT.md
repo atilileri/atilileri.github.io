@@ -20,8 +20,17 @@ _Avoid_: Note, card, word, entry
 One of exactly two ways an Item is asked: `recognition` (Dutch → known language) or `production` (known language → Dutch). Each Direction carries its own scheduling state on the Item.
 _Avoid_: Card — the word is banned, because it invites storing the derived thing as a record of its own.
 
+**Rung**:
+The position of one Direction on the interval ladder — an integer from 1 to 5. It is the only scheduling state stored, beside the date of the last answer. The gap to the next ask is *derived* from the Rung and the Horizon, never stored, so changing the Horizon reschedules the whole inventory without rewriting a row.
+_Avoid_: Level (means Tier here), stage, interval, ease
+
+**Horizon**:
+The date the learner is studying toward, held as one line in the Plan. It sets every gap below the Mastered Rung, because the best gap is a fraction of the delay you are studying for. It is a declared stand-in when no exam is booked, and it is always a real date — never "none".
+_Avoid_: Deadline, target date, exam date
+
 **Mastered**:
-A final state on an Item, reached when it graduates out of active learning. A Mastered Item is never deleted; it returns rarely, to confirm it is still held.
+The final Rung, 5. A Mastered Direction is never deleted and **never leaves circulation** — it returns on a flat 180-day gap, to confirm the word is still held. An Item counts as Mastered only when both its Directions are. Mastery is losable: a wrong answer costs a Rung.
+_Avoid_: Learnt, graduated, retired, done
 
 **Exam task**:
 An authored, kept, re-takeable artifact that mimics a real exam task — for example a *Schrijven* writing brief. Distinct from prompt sets, which are generated per Session and stored nowhere but that Session.
