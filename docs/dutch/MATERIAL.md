@@ -7,6 +7,7 @@ Decided by [#89](https://github.com/atilileri/atilileri.github.io/issues/89); co
 outside the agent's scope. **This file records locations and provenance. It is not a licence register.**
 
 The audio corpus has its own inventory: [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md).
+Everything in Drive, file by file, is listed in [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md).
 
 ## The four homes
 
@@ -16,8 +17,10 @@ Material lives in one of four places. Nothing lives in two.
    Everything here is committed and public.
 2. **The user's Google Drive.** Large media, and anything the repo should not carry — the listening corpus of
    [#96](https://github.com/atilileri/atilileri.github.io/issues/96), plus whatever
-   [#133](https://github.com/atilileri/atilileri.github.io/issues/133) finds. Whether the agent may read that
-   folder is [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s decision.
+   [#133](https://github.com/atilileri/atilileri.github.io/issues/133) found — **922 files, 8.18 GiB**, listed in
+   [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md), including the complete 2023–2025 DUO practice exams. The agent
+   now reads this folder with `rclone` at read-only scope; whether it may *write* there is
+   [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s decision.
 3. **The Oracle** ([#134](https://github.com/atilileri/atilileri.github.io/issues/134)). The textbooks and their
    scans. The agent asks the Oracle a question and gets an answer; it never copies the book. **In practice today
    the Oracle is a collection of Gemini Notebook (NotebookLM) notebooks**, stated by the user on 2026-09-05, with
