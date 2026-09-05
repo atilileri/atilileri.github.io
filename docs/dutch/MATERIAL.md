@@ -45,7 +45,8 @@ in [`adr/0004-drive-material-is-renamed-not-indexed.md`](./adr/0004-drive-materi
 **This is a standing convention, not a one-time tidy.** Material added to `atili/Dutch` later is named to match.
 The reader-facing copy lives at the top of the Drive folder itself, as
 `00 README - what is here and how files are named.md`, written in English — read that file when you are in
-Drive, and this section when you are in the repo.
+Drive, and this section when you are in the repo. Its source is [`DRIVE-README.md`](./DRIVE-README.md); edit
+that and re-upload, so the two never drift.
 
 The shape is a sortable prefix and a prose tail:
 
