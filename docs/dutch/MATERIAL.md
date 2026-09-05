@@ -8,6 +8,8 @@ outside the agent's scope. **This file records locations and provenance. It is n
 
 The audio corpus has its own inventory: [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md).
 Everything in Drive, file by file, is listed in [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md).
+**How the agent actually reads any of it — audio, video, scanned pages — is
+[`READING-MATERIAL.md`](./READING-MATERIAL.md).**
 
 ## The four homes
 

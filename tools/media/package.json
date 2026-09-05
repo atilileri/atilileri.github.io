@@ -1,0 +1,12 @@
+{
+  "name": "dutch-media-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Read media the agent cannot read natively: speech to text, PDF text, OCR.",
+  "license": "MIT",
+  "dependencies": {
+    "pdf-parse": "^2.4.5",
+    "sherpa-onnx-node": "^1.13.7",
+    "tesseract.js": "^7.0.0"
+  }
+}

@@ -4,8 +4,8 @@ What the user holds in Google Drive, file by file. Produced by
 [#133](https://github.com/atilileri/atilileri.github.io/issues/133), read directly with `rclone` rather than
 typed by hand. **This file records facts, not choices.**
 [`MATERIAL.md`](./MATERIAL.md) says where material lives; [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md)
-covers the podcast corpus in depth; [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on
-licences.
+covers the podcast corpus in depth; [`READING-MATERIAL.md`](./READING-MATERIAL.md) says how the agent reads any
+of it; [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences.
 
 **Read on 2026-09-05.** A scan of the whole Drive — 22,728 directories — found Dutch material in exactly one
 place, `atili/Dutch`, and nowhere else. Nothing here is committed to this repo, and most of it never can be.
@@ -66,10 +66,35 @@ agent asks the Oracle about them and never copies them.
 [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md). **Drive is the only copy of the 87 Een Beetje Nederlands
 transcripts** — the local tree was deleted after the upload, and no transcript is re-fetchable. The audio is.
 
-**4. Three older audio sets — 129 files, 1.13 GiB.** `30gundehollandaca/` (28 MP3, a Turkish "Dutch in 30
-days" course), `TRNL-all/` (100 short Turkish–Dutch clips numbered `TRNL001`–`TRNL100`, dated 2016) and
-`CursusA0A2/` (one 577 MB recording of a lesson by a named teacher). Origins unknown and not chased; the user
-found them in their own research. Treated as commercial, and none of them leaves Drive.
+**4. Three older audio sets — 129 files, 1.13 GiB.** All three were identified on 2026-09-05 by reading them —
+ID3 tags, a transcription of one clip, and stills from the video. See
+[`READING-MATERIAL.md`](./READING-MATERIAL.md) for how. None of them leaves Drive.
+
+- **`TRNL-all/`** — 100 clips of about 2 min 53 s, 4.8 hours in total, mono 48 kbps, dated 2016. The first clip
+  opens *"Birçok dilde işitsel kurslar"* and then teaches `ik`, `ik en jij`, `wij beiden`, `hij en zij`, each
+  Turkish phrase followed by its Dutch. That is **Goethe-Verlag's *book2* / 50LANGUAGES course, Turkish to
+  Dutch, lesson 1**, whose numbering runs to exactly 100. Goethe-Verlag distributes it free for private and
+  school use; the exact terms are the publisher's to state, and no one has checked them against reuse here.
+  **This is the only set of the three that is plausibly free**, and it is paired Turkish–Dutch audio, which is
+  what the Turkish-first lock asks for.
+- **`30gundehollandaca/`** — 28 MP3, a Turkish "Dutch in 30 days" course. Its ID3 tags read `Bilinmeyen albüm
+  (7.11.2018 16:42:26)`, `Parça 1`, `Bilinmeyen sanatçı` — an untagged **CD rip made on 7 November 2018**.
+  Commercial.
+- **`CursusA0A2/`** — one 577 MB recording, **56 minutes, 1080p**, cut in Clipchamp. It is a **recorded live
+  online NT2 class run by NT2 Taaldiensten**, whose name is in the slide footer. The slides are Dutch and at
+  the stated A0–A2 level: *Zinnen maken* drills `gaan, komen, eten, drinken, wonen, werken, hebben, spreken`,
+  and *Afsluiting* closes with `de les was leuk / niet leuk / makkelijk / moeilijk`. **It shows a named teacher
+  and several identifiable students, one with an email address on screen.** Treat it as private: no name, face
+  or address from it may ever be published, whatever the publicness lock says about the journey's own
+  artifacts.
+
+**The loose PDFs name their own publishers**, read out of the files on the same day: `van_start-woordenlijst_turks-web.pdf`
+is **© Boom uitgevers Amsterdam, 2019** and `woordenlijst_nederlands_turks.pdf` is **© 2013 Uitgeverij Boom**
+(*Basiscursus 1*, keyed per lesson); `dutch.pdf` is **Dutch For Dummies (Wiley)** — the filename hides it;
+`Survival-Dutch.pdf` is a **Dutch Academy Eindhoven** handout; and `2129-Adim_Adim_Hollandaca…pdf` reserves all
+rights to its author, runs to **58 pages not the 158 its filename claims**, and still carries the PDF title
+*"Adım adım Almanca"* from the same author's German book. So the two Turkish word lists — the only ones that
+looked like they might be free — are both Boom's. That lead is closed.
 
 ## The media was converted on 2026-09-05
 
