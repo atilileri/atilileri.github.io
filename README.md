@@ -116,3 +116,14 @@ The site builds to `./dist/` and deploys automatically on every push.
 ```
 
 All dependencies are ESM-only (`"type": "module"`).
+
+## Licence
+
+This repository carries two licences.
+
+| What | Where | Licence |
+|------|-------|---------|
+| Code | Everything else | [MIT](LICENSE) |
+| Content | `src/content/`, `docs/` | [CC BY 4.0](LICENSE-CONTENT) |
+
+Reuse the code freely, keeping the copyright notice. Reuse the content freely, crediting "Atil Ilerialkan" with a link to https://atilileri.github.io.

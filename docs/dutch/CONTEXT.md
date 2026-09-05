@@ -1,6 +1,6 @@
 # Dutch learning journey
 
-A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
+A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); provenance by [#94](https://github.com/atilileri/atilileri.github.io/issues/94); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
 
 ## Language
 
@@ -84,3 +84,7 @@ _Avoid_: The Dutch skill, the agent, the tutor
 **Mode**:
 One distinct way Docent runs, chosen from the learner's argument. Exactly four: *Session*, *Review*, *Publish*, *Assess*. Sitting an Exam task is a Session, not a Mode of its own. A Mode is never a git branch.
 _Avoid_: Branch (means git here), command, subskill, route
+
+**Provenance**:
+Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise.
+_Avoid_: Source, attribution, reference (the cheat sheet), credit
