@@ -10,26 +10,28 @@ licences.
 **Read on 2026-09-05.** A scan of the whole Drive — 22,728 directories — found Dutch material in exactly one
 place, `atili/Dutch`, and nowhere else. Nothing here is committed to this repo, and most of it never can be.
 
-**Totals: 922 files, 8.18 GiB, in 31 folders.**
+**Totals: 1,281 files, 8.61 GiB, in 31 folders.** Read again after the conversion of 2026-09-05 (below).
 
 | Extension | Files |
 | --- | --- |
-| `.mp3` | 400 |
+| `.mp3` | 706 |
 | `.opus` | 306 |
 | `.txt` | 87 |
 | `.pdf` | 62 |
+| `.mp4` | 54 |
 | `.webm` | 53 |
 | `.json` | 7 |
 | `.rss` | 4 |
-| `.djvu`, `.md`, `.mp4` | 1 each |
+| `.djvu`, `.md` | 1 each |
 
 ## The four bodies of material
 
-**1. The DUO practice exams — `oefenexamensnt2/`, 442 files, 625 MB.** The complete published *openbaar
+**1. The DUO practice exams — `oefenexamensnt2/`, 801 files, 1.04 GiB.** The complete published *openbaar
 examen* set for **2023, 2024 and 2025**, both programmes, all four skills. Every year carries, per skill and
 per programme, an `opgavenboekje` (the question booklet) and a `beoordelingsmodel` (the marking scheme) —
-**48 PDFs** — plus the audio and video the Luisteren and Spreken papers play: 306 `.opus`, 53 `.webm`
-(VP8 video with Vorbis audio) and 35 `.mp3`.
+**48 PDFs** — plus the media the Luisteren and Spreken papers play: 306 `.opus`, 53 `.webm` (VP8 video with
+Vorbis audio) and 35 `.mp3` as published, and since 2026-09-05 a converted `.mp3` or `.mp4` sibling beside
+every one of the first two (see below).
 
 This **overturns a recorded finding.** [`MATERIAL.md`](./MATERIAL.md) and
 [#96](https://github.com/atilileri/atilileri.github.io/issues/96) both recorded the practice exams as
@@ -69,17 +71,32 @@ days" course), `TRNL-all/` (100 short Turkish–Dutch clips numbered `TRNL001`�
 `CursusA0A2/` (one 577 MB recording of a lesson by a named teacher). Origins unknown and not chased; the user
 found them in their own research. Treated as commercial, and none of them leaves Drive.
 
-## Two formats need conversion
+## The media was converted on 2026-09-05
 
-The exam media arrives in formats a phone player often refuses. Measured on this machine with a static
-ffmpeg 7.0.2: **306 `.opus` files** (Ogg Opus, 48 kHz stereo, ~129 kbps) and **53 `.webm` files** (VP8 video
-at 510×382, 25 fps, with Vorbis audio). Converting them runs at roughly **170× realtime for audio and 45× for
-video**, so the whole set is minutes of work. Where the converted copies land is not yet decided — the agent's
-Drive access is read-only.
+The exam media arrived in two formats that a browser preview and a phone player often refuse. Both were
+converted with a static **ffmpeg 7.0.2**, and **every converted file sits beside its original**, same folder,
+same name, different extension — `Track 2.opus` has a sibling `Track 2.mp3`.
+
+| From | Count | Was | To | Settings |
+| --- | --- | --- | --- | --- |
+| `.opus` | 306, 265 MB | Ogg Opus, 48 kHz stereo, ~129 kbps | `.mp3`, 268 MB | libmp3lame VBR `-q:a 2`, ~190 kbps |
+| `.webm` | 53, 298 MB | VP8 video 510×382 at 25 fps, Vorbis audio | `.mp4`, 177 MB | H.264 `-crf 20`, AAC 192 kbps, `+faststart` |
+
+**Nothing was replaced.** The originals are still there — they are the higher-quality copy, and DUO may not
+publish them forever. The 35 files that were already `.mp3` were left untouched rather than re-encoded.
+
+**Verified, not assumed.** All 359 outputs exist, none is empty, and no file drifted more than 0.35 s from its
+source: 5.61 hours of audio in, 5.61 hours out. Every `.opus` has an `.mp3` sibling and every `.webm` has an
+`.mp4` sibling, checked against Drive after the upload.
+
+Both conversions are lossy-to-lossy, so a generation of quality is gone. The bitrates were chosen to sit above
+the source so the loss stays inaudible, but **the original is the master**. The agent itself needs none of
+this — ffmpeg reads opus and webm directly. The converted copies exist for notebook upload, for Drive's
+in-browser player, and for the Session links the learner opens on a phone or a laptop.
 
 ## Every file
 
-Sizes as read on 2026-09-05. Folders are listed alphabetically.
+Sizes as read on 2026-09-05, after the conversion. Folders are listed alphabetically.
 
 **`atili/Dutch/`** — 12 files, 639.3 MB
 
@@ -285,152 +302,285 @@ Sizes as read on 2026-09-05. Folders are listed alphabetically.
 - `2025 Spreken II openbaar examen  opgavenboekje (papier).pdf` — 966 KB
 - `2025 Spreken II openbaar examen beoordelingsmodel (papier).pdf` — 222 KB
 
-**`atili/Dutch/oefenexamensnt2/2023 Luisteren I openbaar examen audio- en videobestanden/losse fragmenten/`** — 50 files, 78.6 MB
+**`atili/Dutch/oefenexamensnt2/2023 Luisteren I openbaar examen audio- en videobestanden/losse fragmenten/`** — 100 files, 143.3 MB
 
+- `Track 10.mp3` — 1.2 MB
 - `Track 10.opus` — 995 KB
+- `Track 11.mp3` — 1.3 MB
 - `Track 11.opus` — 1.0 MB
+- `Track 12.mp3` — 1.1 MB
 - `Track 12.opus` — 890 KB
+- `Track 13_intro.mp3` — 837 KB
 - `Track 13_intro.opus` — 1.0 MB
+- `Track 14.mp3` — 1.0 MB
 - `Track 14.opus` — 1.1 MB
+- `Track 15.mp3` — 770 KB
 - `Track 15.opus` — 795 KB
+- `Track 16.mp3` — 739 KB
 - `Track 16.opus` — 752 KB
+- `Track 17.mp3` — 799 KB
 - `Track 17.opus` — 819 KB
+- `Track 18.mp3` — 844 KB
 - `Track 18.opus` — 874 KB
+- `Track 19.mp3` — 1.2 MB
 - `Track 19.opus` — 1.2 MB
+- `Track 1_instructie.mp3` — 556 KB
 - `Track 1_instructie.opus` — 570 KB
+- `Track 20.mp3` — 825 KB
 - `Track 20.opus` — 816 KB
+- `Track 21_intro.mp3` — 1.4 MB
 - `Track 21_intro.opus` — 1.8 MB
+- `Track 22.mp3` — 943 KB
 - `Track 22.opus` — 1.2 MB
+- `Track 23.mp3` — 904 KB
 - `Track 23.opus` — 1.1 MB
+- `Track 24.mp3` — 648 KB
 - `Track 24.opus` — 816 KB
+- `Track 25.mp3` — 938 KB
 - `Track 25.opus` — 1.1 MB
+- `Track 26.mp3` — 641 KB
 - `Track 26.opus` — 780 KB
+- `Track 27.mp3` — 743 KB
 - `Track 27.opus` — 938 KB
+- `Track 28.mp3` — 559 KB
 - `Track 28.opus` — 689 KB
+- `Track 29.mp3` — 807 KB
 - `Track 29.opus` — 956 KB
+- `Track 2_intro.mp3` — 2.9 MB
 - `Track 2_intro.opus` — 3.2 MB
+- `Track 3.mp3` — 808 KB
 - `Track 3.opus` — 760 KB
+- `Track 30_intro.mp3` — 1.3 MB
 - `Track 30_intro.opus` — 1.1 MB
+- `Track 31.mp3` — 842 KB
 - `Track 31.opus` — 861 KB
+- `Track 32.mp3` — 999 KB
 - `Track 32.opus` — 1.0 MB
+- `Track 33.mp3` — 1020 KB
 - `Track 33.opus` — 1.0 MB
+- `Track 34.mp3` — 814 KB
 - `Track 34.opus` — 833 KB
+- `Track 35.mp3` — 781 KB
 - `Track 35.opus` — 780 KB
+- `Track 36_instructie videodeel.mp3` — 211 KB
 - `Track 36_instructie videodeel.opus` — 214 KB
+- `Track 37_intro1.mp3` — 284 KB
 - `Track 37_intro1.opus` — 260 KB
+- `Track 38_intro2.mp4` — 1.6 MB
 - `Track 38_intro2.webm` — 2.4 MB
+- `Track 39_instructie.mp3` — 114 KB
 - `Track 39_instructie.opus` — 105 KB
+- `Track 4.mp3` — 1.1 MB
 - `Track 4.opus` — 984 KB
+- `Track 40.mp4` — 4.4 MB
 - `Track 40.webm` — 5.0 MB
+- `Track 41.mp4` — 1.7 MB
 - `Track 41.webm` — 3.2 MB
+- `Track 42.mp4` — 5.0 MB
 - `Track 42.webm` — 7.7 MB
+- `Track 43.mp4` — 2.9 MB
 - `Track 43.webm` — 3.2 MB
+- `Track 44.mp4` — 1.7 MB
 - `Track 44.webm` — 2.3 MB
+- `Track 45.mp4` — 4.7 MB
 - `Track 45.webm` — 5.3 MB
+- `Track 46_intro.mp3` — 292 KB
 - `Track 46_intro.opus` — 262 KB
+- `Track 47.mp4` — 1.8 MB
 - `Track 47.webm` — 3.3 MB
+- `Track 48.mp4` — 4.0 MB
 - `Track 48.webm` — 6.2 MB
+- `Track 49.mp4` — 3.2 MB
 - `Track 49.webm` — 5.5 MB
+- `Track 5.mp3` — 713 KB
 - `Track 5.opus` — 643 KB
+- `Track 50_bron en disclaimer.mp3` — 102 KB
 - `Track 50_bron en disclaimer.opus` — 116 KB
+- `Track 6.mp3` — 748 KB
 - `Track 6.opus` — 689 KB
+- `Track 7.mp3` — 810 KB
 - `Track 7.opus` — 727 KB
+- `Track 8_intro.mp3` — 794 KB
 - `Track 8_intro.opus` — 740 KB
+- `Track 9.mp3` — 719 KB
 - `Track 9.opus` — 570 KB
 
-**`atili/Dutch/oefenexamensnt2/2023 Luisteren II openbaar examen audio- en videobestanden/`** — 49 files, 83.6 MB
+**`atili/Dutch/oefenexamensnt2/2023 Luisteren II openbaar examen audio- en videobestanden/`** — 98 files, 161.3 MB
 
+- `Track 10.mp3` — 1.2 MB
 - `Track 10.opus` — 1.0 MB
+- `Track 11.mp3` — 1.4 MB
 - `Track 11.opus` — 1.2 MB
+- `Track 12.mp3` — 1.5 MB
 - `Track 12.opus` — 1.3 MB
+- `Track 14.mp3` — 1.8 MB
 - `Track 14.opus` — 1.4 MB
+- `Track 15.mp3` — 2.0 MB
 - `Track 15.opus` — 1.5 MB
+- `Track 16.mp3` — 1.9 MB
 - `Track 16.opus` — 1.4 MB
+- `Track 17.mp3` — 1.2 MB
 - `Track 17.opus` — 941 KB
+- `Track 18.mp3` — 1.7 MB
 - `Track 18.opus` — 1.3 MB
+- `Track 19.mp3` — 1.5 MB
 - `Track 19.opus` — 1.1 MB
+- `Track 1_instructie.mp3` — 556 KB
 - `Track 1_instructie.opus` — 570 KB
+- `Track 20.mp3` — 1.8 MB
 - `Track 20.opus` — 1.4 MB
+- `Track 21.mp3` — 1.9 MB
 - `Track 21.opus` — 1.4 MB
+- `Track 22.mp3` — 1.5 MB
 - `Track 22.opus` — 1.1 MB
+- `Track 23.mp3` — 1.7 MB
 - `Track 23.opus` — 1.3 MB
+- `Track 24_intro.mp3` — 1.5 MB
 - `Track 24_intro.opus` — 1.6 MB
+- `Track 25.mp3` — 726 KB
 - `Track 25.opus` — 871 KB
+- `Track 26.mp3` — 754 KB
 - `Track 26.opus` — 878 KB
+- `Track 27.mp3` — 772 KB
 - `Track 27.opus` — 890 KB
+- `Track 28.mp3` — 739 KB
 - `Track 28.opus` — 885 KB
+- `Track 29.mp3` — 491 KB
 - `Track 29.opus` — 580 KB
+- `Track 2_intro.mp3` — 2.7 MB
 - `Track 2_intro.opus` — 2.9 MB
+- `Track 3.mp3` — 1012 KB
 - `Track 3.opus` — 875 KB
+- `Track 30.mp3` — 738 KB
 - `Track 30.opus` — 869 KB
+- `Track 31_intro.mp3` — 638 KB
 - `Track 31_intro.opus` — 641 KB
+- `Track 32.mp3` — 832 KB
 - `Track 32.opus` — 839 KB
+- `Track 33.mp3` — 781 KB
 - `Track 33.opus` — 769 KB
+- `Track 34.mp3` — 873 KB
 - `Track 34.opus` — 846 KB
+- `Track 35.mp3` — 804 KB
 - `Track 35.opus` — 801 KB
+- `Track 36.mp3` — 824 KB
 - `Track 36.opus` — 813 KB
+- `Track 37.mp3` — 1.3 MB
 - `Track 37.opus` — 1.3 MB
+- `Track 38_instructie videodeel.mp3` — 211 KB
 - `Track 38_instructie videodeel.opus` — 214 KB
+- `Track 39_intro.mp3` — 272 KB
 - `Track 39_intro.opus` — 246 KB
+- `Track 4.mp3` — 970 KB
 - `Track 4.opus` — 846 KB
+- `Track 40.mp4` — 7.2 MB
 - `Track 40.webm` — 8.8 MB
+- `Track 41.mp4` — 5.3 MB
 - `Track 41.webm` — 7.2 MB
+- `Track 42.mp4` — 2.8 MB
 - `Track 42.webm` — 3.8 MB
+- `Track 43.mp4` — 4.9 MB
 - `Track 43.webm` — 6.0 MB
+- `Track 44_intro.mp3` — 464 KB
 - `Track 44_intro.opus` — 420 KB
+- `Track 45.mp4` — 3.1 MB
 - `Track 45.webm` — 4.2 MB
+- `Track 46.mp4` — 3.6 MB
 - `Track 46.webm` — 5.4 MB
+- `Track 47.mp4` — 2.2 MB
 - `Track 47.webm` — 3.5 MB
+- `Track 48.mp4` — 3.3 MB
 - `Track 48.webm` — 4.2 MB
+- `Track 49_bron en disclaimer.mp3` — 102 KB
 - `Track 49_bron en disclaimer.opus` — 116 KB
+- `Track 5.mp3` — 1.5 MB
 - `Track 5.opus` — 1.3 MB
+- `Track 6.mp3` — 1.3 MB
 - `Track 6.opus` — 1.2 MB
+- `Track 7.mp3` — 830 KB
 - `Track 7.opus` — 719 KB
+- `Track 8.mp3` — 972 KB
 - `Track 8.opus` — 844 KB
+- `Track 9.mp3` — 765 KB
 - `Track 9.opus` — 669 KB
+- `track 13_intro.mp3` — 1.1 MB
 - `track 13_intro.opus` — 1022 KB
 
-**`atili/Dutch/oefenexamensnt2/2023 Spreken I openbaar examen audiobestanden/`** — 18 files, 11.1 MB
+**`atili/Dutch/oefenexamensnt2/2023 Spreken I openbaar examen audiobestanden/`** — 36 files, 22.0 MB
 
+- `Track 10_deel 2 instructie.mp3` — 1.5 MB
 - `Track 10_deel 2 instructie.opus` — 2.0 MB
+- `Track 11.mp3` — 806 KB
 - `Track 11.opus` — 722 KB
+- `Track 12.mp3` — 385 KB
 - `Track 12.opus` — 507 KB
+- `Track 13.mp3` — 608 KB
 - `Track 13.opus` — 556 KB
+- `Track 14.mp3` — 695 KB
 - `Track 14.opus` — 658 KB
+- `Track 15.mp3` — 679 KB
 - `Track 15.opus` — 639 KB
+- `Track 16.mp3` — 776 KB
 - `Track 16.opus` — 713 KB
+- `Track 17.mp3` — 759 KB
 - `Track 17.opus` — 630 KB
+- `Track 18.mp3` — 587 KB
 - `Track 18.opus` — 547 KB
+- `Track 1_deel 1 instructie.mp3` — 1.1 MB
 - `Track 1_deel 1 instructie.opus` — 1.3 MB
+- `Track 2.mp3` — 441 KB
 - `Track 2.opus` — 465 KB
+- `Track 3.mp3` — 421 KB
 - `Track 3.opus` — 439 KB
+- `Track 4.mp3` — 234 KB
 - `Track 4.opus` — 207 KB
+- `Track 5.mp3` — 332 KB
 - `Track 5.opus` — 319 KB
+- `Track 6.mp3` — 504 KB
 - `Track 6.opus` — 455 KB
+- `Track 7.mp3` — 425 KB
 - `Track 7.opus` — 391 KB
+- `Track 8.mp3` — 447 KB
 - `Track 8.opus` — 511 KB
+- `Track 9.mp3` — 314 KB
 - `Track 9.opus` — 291 KB
 
-**`atili/Dutch/oefenexamensnt2/2023 Spreken II openbaar examen audiobestanden/Audio zips/`** — 16 files, 13.2 MB
+**`atili/Dutch/oefenexamensnt2/2023 Spreken II openbaar examen audiobestanden/Audio zips/`** — 32 files, 25.6 MB
 
+- `Track 10_Opgave 8.mp3` — 467 KB
 - `Track 10_Opgave 8.opus` — 625 KB
+- `Track 11_Opgave 9.mp3` — 792 KB
 - `Track 11_Opgave 9.opus` — 802 KB
+- `Track 12_Opgave 10.mp3` — 591 KB
 - `Track 12_Opgave 10.opus` — 589 KB
+- `Track 13_Opgave 11.mp3` — 683 KB
 - `Track 13_Opgave 11.opus` — 697 KB
+- `Track 14_Opgave 12.mp3` — 835 KB
 - `Track 14_Opgave 12.opus` — 825 KB
+- `Track 15_deel 3 instructie.mp3` — 582 KB
 - `Track 15_deel 3 instructie.opus` — 463 KB
+- `Track 16_Opgave 13.mp3` — 1.6 MB
 - `Track 16_Opgave 13.opus` — 3.0 MB
+- `Track 1_deel 1 instructie.mp3` — 1.5 MB
 - `Track 1_deel 1 instructie.opus` — 1.2 MB
+- `Track 2_Opgave 1.mp3` — 196 KB
 - `Track 2_Opgave 1.opus` — 173 KB
+- `Track 3_Opgave 2.mp3` — 508 KB
 - `Track 3_Opgave 2.opus` — 369 KB
+- `Track 4_Opgave 3.mp3` — 483 KB
 - `Track 4_Opgave 3.opus` — 442 KB
+- `Track 5_Opgave 4.mp3` — 453 KB
 - `Track 5_Opgave 4.opus` — 387 KB
+- `Track 6_ deel 2 instructie.mp3` — 2.3 MB
 - `Track 6_ deel 2 instructie.opus` — 1.9 MB
+- `Track 7_Opgave 5.mp3` — 424 KB
 - `Track 7_Opgave 5.opus` — 588 KB
+- `Track 8_Opgave 6.mp3` — 604 KB
 - `Track 8_Opgave 6.opus` — 612 KB
+- `Track 9_Opgave 7.mp3` — 658 KB
 - `Track 9_Opgave 7.opus` — 658 KB
 
-**`atili/Dutch/oefenexamensnt2/2024 Luisteren I openbaar examen audio- en videobestanden/`** — 48 files, 93.1 MB
+**`atili/Dutch/oefenexamensnt2/2024 Luisteren I openbaar examen audio- en videobestanden/`** — 61 files, 129.1 MB
 
 - `Track 10 opgave 7.mp3` — 569 KB
 - `Track 11 opgave 8.mp3` — 633 KB
@@ -442,6 +592,7 @@ Sizes as read on 2026-09-05. Folders are listed alphabetically.
 - `Track 17 opgave 14.mp3` — 1.0 MB
 - `Track 18  opgave 15.mp3` — 829 KB
 - `Track 19 intro bakkerij stoepje.mp3` — 1.1 MB
+- `Track 1_instructie.mp3` — 556 KB
 - `Track 1_instructie.opus` — 570 KB
 - `Track 2 intro Hoofdconducteur NS.mp3` — 2.8 MB
 - `Track 20 opgave 16.mp3` — 823 KB
@@ -461,19 +612,31 @@ Sizes as read on 2026-09-05. Folders are listed alphabetically.
 - `Track 34 opgave 28.mp3` — 587 KB
 - `Track 35 opgave 29.mp3` — 749 KB
 - `Track 36 opgave 30.mp3` — 802 KB
+- `Track 37_instructie videodeel.mp3` — 211 KB
 - `Track 37_instructie videodeel.opus` — 214 KB
 - `Track 38 intro 1 Beeldhouwer houten beelden.mp3` — 613 KB
+- `Track 39 intro 2 Beeldhouwer houten beelden.mp4` — 1.3 MB
 - `Track 39 intro 2 Beeldhouwer houten beelden.webm` — 2.0 MB
 - `Track 4 opgave 2.mp3` — 836 KB
+- `Track 40_instructie.mp3` — 114 KB
 - `Track 40_instructie.opus` — 105 KB
+- `Track 41 opgave 31.mp4` — 4.1 MB
 - `Track 41 opgave 31.webm` — 7.8 MB
+- `Track 42 opgave 32.mp4` — 4.9 MB
 - `Track 42 opgave 32.webm` — 8.4 MB
+- `Track 43 opgave 33.mp4` — 3.5 MB
 - `Track 43 opgave 33.webm` — 6.1 MB
+- `Track 44 opgave 34.mp4` — 3.7 MB
 - `Track 44 opgave 34.webm` — 6.2 MB
+- `Track 45 opgave 35.mp4` — 3.7 MB
 - `Track 45 opgave 35.webm` — 6.2 MB
+- `Track 46 opgave 36.mp4` — 5.3 MB
 - `Track 46 opgave 36.webm` — 8.5 MB
+- `Track 47 opgave 37.mp4` — 4.9 MB
 - `Track 47 opgave 37.webm` — 8.3 MB
+- `Track 48 opgave 38.mp4` — 3.7 MB
 - `Track 48 opgave 38.webm` — 6.1 MB
+- `Track 49_bron en disclaimer.mp3` — 102 KB
 - `Track 49_bron en disclaimer.opus` — 116 KB
 - `Track 5 opgave 3.mp3` — 868 KB
 - `Track 6 opgave 4.mp3` — 820 KB
@@ -481,238 +644,451 @@ Sizes as read on 2026-09-05. Folders are listed alphabetically.
 - `Track 8 opgave 6.mp3` — 1.0 MB
 - `Track 9 intro Mbo-opleiding gastvrouw.mp3` — 1.4 MB
 
-**`atili/Dutch/oefenexamensnt2/2024 Luisteren II openbaar examen audio- en videobestanden/`** — 46 files, 90.2 MB
+**`atili/Dutch/oefenexamensnt2/2024 Luisteren II openbaar examen audio- en videobestanden/`** — 92 files, 167.9 MB
 
+- `Track 10_opgave 8.mp3` — 1.7 MB
 - `Track 10_opgave 8.opus` — 1.4 MB
+- `Track 11_intro.mp3` — 1.2 MB
 - `Track 11_intro.opus` — 1.3 MB
+- `Track 12_opgave 9.mp3` — 695 KB
 - `Track 12_opgave 9.opus` — 641 KB
+- `Track 13_opgave 10.mp3` — 727 KB
 - `Track 13_opgave 10.opus` — 683 KB
+- `Track 14_opgave 11.mp3` — 1.7 MB
 - `Track 14_opgave 11.opus` — 1.6 MB
+- `Track 15_opgave 12.mp3` — 1.0 MB
 - `Track 15_opgave 12.opus` — 1011 KB
+- `Track 16_opgave 13.mp3` — 1.5 MB
 - `Track 16_opgave 13.opus` — 1.3 MB
+- `Track 17_opgave 14.mp3` — 1.4 MB
 - `Track 17_opgave 14.opus` — 1.4 MB
+- `Track 18_opgave 15.mp3` — 797 KB
 - `Track 18_opgave 15.opus` — 732 KB
+- `Track 19_intro.mp3` — 1.7 MB
 - `Track 19_intro.opus` — 1.6 MB
+- `Track 1_instructie.mp3` — 556 KB
 - `Track 1_instructie.opus` — 570 KB
+- `Track 20_opgave 16.mp3` — 1.1 MB
 - `Track 20_opgave 16.opus` — 1.1 MB
+- `Track 21_opgave 17.mp3` — 903 KB
 - `Track 21_opgave 17.opus` — 840 KB
+- `Track 22_opgave 18.mp3` — 619 KB
 - `Track 22_opgave 18.opus` — 598 KB
+- `Track 23_opgave 19.mp3` — 1.3 MB
 - `Track 23_opgave 19.opus` — 1.2 MB
+- `Track 24_opgave 20.mp3` — 873 KB
 - `Track 24_opgave 20.opus` — 884 KB
+- `Track 25_opgave 21.mp3` — 965 KB
 - `Track 25_opgave 21.opus` — 978 KB
+- `Track 26_intro.mp3` — 1.5 MB
 - `Track 26_intro.opus` — 1.5 MB
+- `Track 27_opgave 22.mp3` — 1.1 MB
 - `Track 27_opgave 22.opus` — 901 KB
+- `Track 28_opgave 23.mp3` — 1.4 MB
 - `Track 28_opgave 23.opus` — 1.2 MB
+- `Track 29_opgave 24.mp3` — 732 KB
 - `Track 29_opgave 24.opus` — 616 KB
+- `Track 2_intro.mp3` — 3.4 MB
 - `Track 2_intro.opus` — 3.4 MB
+- `Track 30_opgave 25.mp3` — 1.6 MB
 - `Track 30_opgave 25.opus` — 1.3 MB
+- `Track 31_opgave 26.mp3` — 761 KB
 - `Track 31_opgave 26.opus` — 647 KB
+- `Track 32_opgave 27.mp3` — 661 KB
 - `Track 32_opgave 27.opus` — 579 KB
+- `Track 33_opgave 28.mp3` — 1.0 MB
 - `Track 33_opgave 28.opus` — 891 KB
+- `Track 34_instructie videodeel.mp3` — 211 KB
 - `Track 34_instructie videodeel.opus` — 214 KB
+- `Track 35_intro.mp3` — 500 KB
 - `Track 35_intro.opus` — 408 KB
+- `Track 36_opgave 29.mp4` — 5.6 MB
 - `Track 36_opgave 29.webm` — 9.5 MB
+- `Track 37_opgave 30.mp4` — 5.7 MB
 - `Track 37_opgave 30.webm` — 8.6 MB
+- `Track 38_opgave 31.mp4` — 3.3 MB
 - `Track 38_opgave 31.webm` — 5.5 MB
+- `Track 39_opgave 32.mp4` — 2.7 MB
 - `Track 39_opgave 32.webm` — 4.0 MB
+- `Track 3_opgave 1.mp3` — 1.4 MB
 - `Track 3_opgave 1.opus` — 1.2 MB
+- `Track 40_opgave 33.mp4` — 4.8 MB
 - `Track 40_opgave 33.webm` — 6.9 MB
+- `Track 41_intro.mp3` — 285 KB
 - `Track 41_intro.opus` — 263 KB
+- `Track 42_opgave 34.mp4` — 2.7 MB
 - `Track 42_opgave 34.webm` — 3.3 MB
+- `Track 43_opgave 35.mp4` — 5.8 MB
 - `Track 43_opgave 35.webm` — 6.4 MB
+- `Track 44_opgave 36.mp4` — 1.9 MB
 - `Track 44_opgave 36.webm` — 2.7 MB
+- `Track 45_opgave 37.mp4` — 3.8 MB
 - `Track 45_opgave 37.webm` — 5.7 MB
+- `Track 46_bron en disclaimer.mp3` — 102 KB
 - `Track 46_bron en disclaimer.opus` — 116 KB
+- `Track 4_opgave 2.mp3` — 1.4 MB
 - `Track 4_opgave 2.opus` — 1.1 MB
+- `Track 5_opgave 3.mp3` — 1.4 MB
 - `Track 5_opgave 3.opus` — 1.1 MB
+- `Track 6_opgave 4.mp3` — 1.3 MB
 - `Track 6_opgave 4.opus` — 1.1 MB
+- `Track 7_opgave 5.mp3` — 1.3 MB
 - `Track 7_opgave 5.opus` — 1.1 MB
+- `Track 8_opgave 6.mp3` — 1.6 MB
 - `Track 8_opgave 6.opus` — 1.3 MB
+- `Track 9_opgave 7.mp3` — 1.2 MB
 - `Track 9_opgave 7.opus` — 1.0 MB
 
-**`atili/Dutch/oefenexamensnt2/2024 Spreken I openbaar examen audiobestanden/Zips audio/`** — 19 files, 11.7 MB
+**`atili/Dutch/oefenexamensnt2/2024 Spreken I openbaar examen audiobestanden/Zips audio/`** — 38 files, 21.8 MB
 
+- `Track 10_deel_2_instructie.mp3` — 1.5 MB
 - `Track 10_deel_2_instructie.opus` — 2.0 MB
+- `Track 11_Opgave 9.mp3` — 625 KB
 - `Track 11_Opgave 9.opus` — 844 KB
+- `Track 12_Opgave 10.mp3` — 671 KB
 - `Track 12_Opgave 10.opus` — 625 KB
+- `Track 13_Opgave 11.mp3` — 392 KB
 - `Track 13_Opgave 11.opus` — 614 KB
+- `Track 14_Opgave 12.mp3` — 574 KB
 - `Track 14_Opgave 12.opus` — 773 KB
+- `Track 15_Opgave 13.mp3` — 406 KB
 - `Track 15_Opgave 13.opus` — 559 KB
+- `Track 16_Opgave 14.mp3` — 623 KB
 - `Track 16_Opgave 14.opus` — 625 KB
+- `Track 17_Opgave 15.mp3` — 512 KB
 - `Track 17_Opgave 15.opus` — 752 KB
+- `Track 18_Opgave 16.mp3` — 538 KB
 - `Track 18_Opgave 16.opus` — 489 KB
+- `Track 1_deel_1_instructie.mp3` — 1.1 MB
 - `Track 1_deel_1_instructie.opus` — 1.3 MB
+- `Track 2_Opgave 1.mp3` — 378 KB
 - `Track 2_Opgave 1.opus` — 305 KB
+- `Track 3_Opgave 2.mp3` — 539 KB
 - `Track 3_Opgave 2.opus` — 436 KB
+- `Track 4_Opgave 3.mp3` — 293 KB
 - `Track 4_Opgave 3.opus` — 371 KB
+- `Track 5_Opgave 4.mp3` — 323 KB
 - `Track 5_Opgave 4.opus` — 347 KB
+- `Track 6_Opgave 5.mp3` — 367 KB
 - `Track 6_Opgave 5.opus` — 394 KB
+- `Track 7_Opgave 6.mp3` — 389 KB
 - `Track 7_Opgave 6.opus` — 333 KB
+- `Track 7_Opgave 6_.mp3` — 359 KB
 - `Track 7_Opgave 6_.opus` — 324 KB
+- `Track 8_Opgave 7.mp3` — 223 KB
 - `Track 8_Opgave 7.opus` — 242 KB
+- `Track 9_Opgave 8.mp3` — 503 KB
 - `Track 9_Opgave 8.opus` — 595 KB
 
-**`atili/Dutch/oefenexamensnt2/2024 Spreken II openbaar examen audiobestanden/Zips audio/`** — 16 files, 14.1 MB
+**`atili/Dutch/oefenexamensnt2/2024 Spreken II openbaar examen audiobestanden/Zips audio/`** — 32 files, 28.4 MB
 
+- `Track 10_Opgave 8.mp3` — 706 KB
 - `Track 10_Opgave 8.opus` — 830 KB
+- `Track 11_Opgave 9.mp3` — 477 KB
 - `Track 11_Opgave 9.opus` — 631 KB
+- `Track 12_Opgave 10.mp3` — 428 KB
 - `Track 12_Opgave 10.opus` — 595 KB
+- `Track 13_Opgave 11.mp3` — 741 KB
 - `Track 13_Opgave 11.opus` — 801 KB
+- `Track 14_Opgave 12.mp3` — 453 KB
 - `Track 14_Opgave 12.opus` — 598 KB
+- `Track 15_deel_3_instructie.mp3` — 582 KB
 - `Track 15_deel_3_instructie.opus` — 463 KB
+- `Track 16_Opgave 13.mp3` — 3.0 MB
 - `Track 16_Opgave 13.opus` — 3.0 MB
+- `Track 1_deel_1_instructie.mp3` — 1.5 MB
 - `Track 1_deel_1_instructie.opus` — 1.2 MB
+- `Track 2_Opgave 1.mp3` — 592 KB
 - `Track 2_Opgave 1.opus` — 615 KB
+- `Track 3_Opgave 2.mp3` — 431 KB
 - `Track 3_Opgave 2.opus` — 423 KB
+- `Track 4_Opgave 3.mp3` — 487 KB
 - `Track 4_Opgave 3.opus` — 524 KB
+- `Track 5_Opgave 4.mp3` — 601 KB
 - `Track 5_Opgave 4.opus` — 494 KB
+- `Track 6_deel_2_instructie.mp3` — 2.3 MB
 - `Track 6_deel_2_instructie.opus` — 1.9 MB
+- `Track 7_Opgave 5.mp3` — 631 KB
 - `Track 7_Opgave 5.opus` — 676 KB
+- `Track 8_Opgave 6.mp3` — 790 KB
 - `Track 8_Opgave 6.opus` — 749 KB
+- `Track 9_Opgave 7.mp3` — 821 KB
 - `Track 9_Opgave 7.opus` — 790 KB
 
-**`atili/Dutch/oefenexamensnt2/2025 Luisteren I openbaar examen audio- en videobestanden/`** — 50 files, 74.8 MB
+**`atili/Dutch/oefenexamensnt2/2025 Luisteren I openbaar examen audio- en videobestanden/`** — 100 files, 128.6 MB
 
+- `Track 10 _opgave 7.mp3` — 1.0 MB
 - `Track 10 _opgave 7.opus` — 964 KB
+- `Track 11_opgave 8.mp3` — 1.5 MB
 - `Track 11_opgave 8.opus` — 1.3 MB
+- `Track 12 _opgave 9.mp3` — 1.7 MB
 - `Track 12 _opgave 9.opus` — 1.5 MB
+- `Track 13 _opgave 10.mp3` — 1.2 MB
 - `Track 13 _opgave 10.opus` — 1.1 MB
+- `Track 14 _opgave 11.mp3` — 1.1 MB
 - `Track 14 _opgave 11.opus` — 978 KB
+- `Track 15 _opgave 12.mp3` — 1.1 MB
 - `Track 15 _opgave 12.opus` — 977 KB
+- `Track 16 _opgave 13.mp3` — 978 KB
 - `Track 16 _opgave 13.opus` — 883 KB
+- `Track 17_intro.mp3` — 845 KB
 - `Track 17_intro.opus` — 887 KB
+- `Track 18_opgave 14.mp3` — 1021 KB
 - `Track 18_opgave 14.opus` — 1.1 MB
+- `Track 19_opgave 15.mp3` — 714 KB
 - `Track 19_opgave 15.opus` — 717 KB
+- `Track 1_instructie.mp3` — 556 KB
 - `Track 1_instructie.opus` — 570 KB
+- `Track 20_opgave 16.mp3` — 1.1 MB
 - `Track 20_opgave 16.opus` — 1.2 MB
+- `Track 21_opgave 17.mp3` — 849 KB
 - `Track 21_opgave 17.opus` — 858 KB
+- `Track 22_opgave 18.mp3` — 1019 KB
 - `Track 22_opgave 18.opus` — 1.0 MB
+- `Track 23_intro.mp3` — 843 KB
 - `Track 23_intro.opus` — 848 KB
+- `Track 24_opgave 19.mp3` — 677 KB
 - `Track 24_opgave 19.opus` — 844 KB
+- `Track 25_opgave 20.mp3` — 421 KB
 - `Track 25_opgave 20.opus` — 527 KB
+- `Track 26_opgave 21.mp3` — 566 KB
 - `Track 26_opgave 21.opus` — 676 KB
+- `Track 27_opgave 22.mp3` — 777 KB
 - `Track 27_opgave 22.opus` — 944 KB
+- `Track 28_opgave 23.mp3` — 457 KB
 - `Track 28_opgave 23.opus` — 586 KB
+- `Track 29_intro.mp3` — 733 KB
 - `Track 29_intro.opus` — 693 KB
+- `Track 2_Intro.mp3` — 2.5 MB
 - `Track 2_Intro.opus` — 3.2 MB
+- `Track 30_opgave 24.mp3` — 1.1 MB
 - `Track 30_opgave 24.opus` — 918 KB
+- `Track 31_opgave 25.mp3` — 1.2 MB
 - `Track 31_opgave 25.opus` — 942 KB
+- `Track 32_opgave 26.mp3` — 629 KB
 - `Track 32_opgave 26.opus` — 502 KB
+- `Track 33_opgave 27.mp3` — 1.1 MB
 - `Track 33_opgave 27.opus` — 915 KB
+- `Track 34_opgave 28.mp3` — 673 KB
 - `Track 34_opgave 28.opus` — 546 KB
+- `Track 35_opgave 29.mp3` — 1.1 MB
 - `Track 35_opgave 29.opus` — 877 KB
+- `Track 36_opgave 30.mp3` — 897 KB
 - `Track 36_opgave 30.opus` — 704 KB
+- `Track 37_opgave 31.mp3` — 947 KB
 - `Track 37_opgave 31.opus` — 767 KB
+- `Track 38_opgave 32.mp3` — 863 KB
 - `Track 38_opgave 32.opus` — 703 KB
+- `Track 39_instructie videodeel.mp3` — 211 KB
 - `Track 39_instructie videodeel.opus` — 214 KB
+- `Track 3_opgave 1.mp3` — 738 KB
 - `Track 3_opgave 1.opus` — 855 KB
+- `Track 40_Intro1.mp3` — 341 KB
 - `Track 40_Intro1.opus` — 354 KB
+- `Track 41_Intro2.mp4` — 2.5 MB
 - `Track 41_Intro2.webm` — 5.6 MB
+- `Track 42_instructie.mp3` — 114 KB
 - `Track 42_instructie.opus` — 105 KB
+- `Track 43_opgave 33.mp4` — 1.8 MB
 - `Track 43_opgave 33.webm` — 4.2 MB
+- `Track 44_opgave 34.mp4` — 3.1 MB
 - `Track 44_opgave 34.webm` — 5.9 MB
+- `Track 45_opgave 35.mp4` — 2.2 MB
 - `Track 45_opgave 35.webm` — 4.7 MB
+- `Track 46_opgave 36.mp4` — 1.7 MB
 - `Track 46_opgave 36.webm` — 3.8 MB
+- `Track 47_opgave 37.mp4` — 2.0 MB
 - `Track 47_opgave 37.webm` — 6.8 MB
+- `Track 48_opgave 38.mp4` — 1.2 MB
 - `Track 48_opgave 38.webm` — 2.6 MB
+- `Track 49_opgave 39.mp4` — 2.3 MB
 - `Track 49_opgave 39.webm` — 4.8 MB
+- `Track 4_opgave 2.mp3` — 825 KB
 - `Track 4_opgave 2.opus` — 921 KB
+- `Track 50_bron en disclaimer.mp3` — 102 KB
 - `Track 50_bron en disclaimer.opus` — 116 KB
+- `Track 5_opgave 3.mp3` — 1.0 MB
 - `Track 5_opgave 3.opus` — 1.2 MB
+- `Track 6_opgave 4.mp3` — 566 KB
 - `Track 6_opgave 4.opus` — 678 KB
+- `Track 7_opgave 5.mp3` — 793 KB
 - `Track 7_opgave 5.opus` — 944 KB
+- `Track 8_Intro.mp3` — 1.2 MB
 - `Track 8_Intro.opus` — 1.1 MB
+- `Track 9_opgave 6.mp3` — 1.4 MB
 - `Track 9_opgave 6.opus` — 1.3 MB
 
-**`atili/Dutch/oefenexamensnt2/2025 Luisteren II openbaar examen audio- en videobestanden/`** — 48 files, 98.2 MB
+**`atili/Dutch/oefenexamensnt2/2025 Luisteren II openbaar examen audio- en videobestanden/`** — 96 files, 159.1 MB
 
+- `Track 10_opgave 8.mp3` — 649 KB
 - `Track 10_opgave 8.opus` — 734 KB
+- `Track 11_Intro.mp3` — 1.5 MB
 - `Track 11_Intro.opus` — 1.4 MB
+- `Track 12_opgave 9.mp3` — 722 KB
 - `Track 12_opgave 9.opus` — 960 KB
+- `Track 13_opgave 10.mp3` — 619 KB
 - `Track 13_opgave 10.opus` — 826 KB
+- `Track 14_opgave 11.mp3` — 534 KB
 - `Track 14_opgave 11.opus` — 708 KB
+- `Track 15_opgave 12.mp3` — 827 KB
 - `Track 15_opgave 12.opus` — 1.1 MB
+- `Track 16_opgave 13.mp3` — 601 KB
 - `Track 16_opgave 13.opus` — 815 KB
+- `Track 17_opgave 14.mp3` — 674 KB
 - `Track 17_opgave 14.opus` — 876 KB
+- `Track 18_opgave 15.mp3` — 463 KB
 - `Track 18_opgave 15.opus` — 639 KB
+- `Track 19_intro.mp3` — 2.3 MB
 - `Track 19_intro.opus` — 2.5 MB
+- `Track 1_instructie.mp3` — 556 KB
 - `Track 1_instructie.opus` — 570 KB
+- `Track 20_opgave 16.mp3` — 879 KB
 - `Track 20_opgave 16.opus` — 1.0 MB
+- `Track 21_opgave 17.mp3` — 770 KB
 - `Track 21_opgave 17.opus` — 935 KB
+- `Track 22_opgave 18.mp3` — 651 KB
 - `Track 22_opgave 18.opus` — 786 KB
+- `Track 23_opgave 19.mp3` — 971 KB
 - `Track 23_opgave 19.opus` — 1.0 MB
+- `Track 24_opgave 20.mp3` — 887 KB
 - `Track 24_opgave 20.opus` — 1.0 MB
+- `Track 25_opgave 21.mp3` — 674 KB
 - `Track 25_opgave 21.opus` — 803 KB
+- `Track 26_opgave 22.mp3` — 914 KB
 - `Track 26_opgave 22.opus` — 1.0 MB
+- `Track 27_opgave 23.mp3` — 883 KB
 - `Track 27_opgave 23.opus` — 1.0 MB
+- `Track 28_opgave 24.mp3` — 904 KB
 - `Track 28_opgave 24.opus` — 1.1 MB
+- `Track 29_intro.mp3` — 660 KB
 - `Track 29_intro.opus` — 633 KB
+- `Track 2_intro.mp3` — 2.9 MB
 - `Track 2_intro.opus` — 3.3 MB
+- `Track 30_opgave 25.mp3` — 1.4 MB
 - `Track 30_opgave 25.opus` — 1.1 MB
+- `Track 31_opgave 26.mp3` — 1.6 MB
 - `Track 31_opgave 26.opus` — 1.2 MB
+- `Track 32_opgave 27.mp3` — 1.5 MB
 - `Track 32_opgave 27.opus` — 1.2 MB
+- `Track 33_opgave 28.mp3` — 1.3 MB
 - `Track 33_opgave 28.opus` — 1.0 MB
+- `Track 34_opgave 29.mp3` — 1.6 MB
 - `Track 34_opgave 29.opus` — 1.3 MB
+- `Track 35_opgave 30.mp3` — 1.7 MB
 - `Track 35_opgave 30.opus` — 1.3 MB
+- `Track 36_instructie videodeel.mp3` — 211 KB
 - `Track 36_instructie videodeel.opus` — 214 KB
+- `Track 37_intro 1.mp3` — 337 KB
 - `Track 37_intro 1.opus` — 343 KB
+- `Track 38_intro 2.mp4` — 1.0 MB
 - `Track 38_intro 2.webm` — 2.1 MB
+- `Track 39_instructie.mp3` — 114 KB
 - `Track 39_instructie.opus` — 105 KB
+- `Track 3_opgave 1.mp3` — 1.1 MB
 - `Track 3_opgave 1.opus` — 1.3 MB
+- `Track 40_opgave 31.mp4` — 2.8 MB
 - `Track 40_opgave 31.webm` — 6.9 MB
+- `Track 41_opgave 32.mp4` — 3.4 MB
 - `Track 41_opgave 32.webm` — 8.6 MB
+- `Track 42_opgave 33.mp4` — 2.8 MB
 - `Track 42_opgave 33.webm` — 6.3 MB
+- `Track 43_opgave 34.mp4` — 2.8 MB
 - `Track 43_opgave 34.webm` — 7.0 MB
+- `Track 44_opgave 35.mp4` — 3.0 MB
 - `Track 44_opgave 35.webm` — 7.2 MB
+- `Track 45_opgave 36.mp4` — 2.8 MB
 - `Track 45_opgave 36.webm` — 6.4 MB
+- `Track 46_opgave 37.mp4` — 2.6 MB
 - `Track 46_opgave 37.webm` — 5.8 MB
+- `Track 47_opgave 38.mp4` — 3.8 MB
 - `Track 47_opgave 38.webm` — 9.7 MB
+- `Track 48_bron en disclaimer.mp3` — 102 KB
 - `Track 48_bron en disclaimer.opus` — 116 KB
+- `Track 4_opgave 2.mp3` — 1.0 MB
 - `Track 4_opgave 2.opus` — 1.1 MB
+- `Track 5_opgave 3.mp3` — 833 KB
 - `Track 5_opgave 3.opus` — 928 KB
+- `Track 6_opgave 4.mp3` — 717 KB
 - `Track 6_opgave 4.opus` — 803 KB
+- `Track 7_opgave 5.mp3` — 880 KB
 - `Track 7_opgave 5.opus` — 1013 KB
+- `Track 8_opgave 6.mp3` — 846 KB
 - `Track 8_opgave 6.opus` — 957 KB
+- `Track 9_opgave 7.mp3` — 709 KB
 - `Track 9_opgave 7.opus` — 808 KB
 
-**`atili/Dutch/oefenexamensnt2/2025 Spreken I openbaar examen audiobestanden/`** — 18 files, 11.8 MB
+**`atili/Dutch/oefenexamensnt2/2025 Spreken I openbaar examen audiobestanden/`** — 36 files, 21.7 MB
 
+- `Track 10_deel 2 instructie.mp3` — 1.4 MB
 - `Track 10_deel 2 instructie.opus` — 1.9 MB
+- `Track 11_Opgave 9.mp3` — 466 KB
 - `Track 11_Opgave 9.opus` — 675 KB
+- `Track 12_Opgave 10.mp3` — 590 KB
 - `Track 12_Opgave 10.opus` — 580 KB
+- `Track 13_Opgave 11.mp3` — 590 KB
 - `Track 13_Opgave 11.opus` — 784 KB
+- `Track 14_Opgave 12.mp3` — 785 KB
 - `Track 14_Opgave 12.opus` — 881 KB
+- `Track 15_Opgave 13.mp3` — 692 KB
 - `Track 15_Opgave 13.opus` — 828 KB
+- `Track 16_Opgave 14.mp3` — 463 KB
 - `Track 16_Opgave 14.opus` — 664 KB
+- `Track 17_Opgave 15.mp3` — 523 KB
 - `Track 17_Opgave 15.opus` — 604 KB
+- `Track 18_Opgave 16.mp3` — 423 KB
 - `Track 18_Opgave 16.opus` — 619 KB
+- `Track 1_deel 1 instructie.mp3` — 1.0 MB
 - `Track 1_deel 1 instructie.opus` — 1.3 MB
+- `Track 2_Opgave 1.mp3` — 351 KB
 - `Track 2_Opgave 1.opus` — 309 KB
+- `Track 3_Opgave 2.mp3` — 511 KB
 - `Track 3_Opgave 2.opus` — 481 KB
+- `Track 4_Opgave 3.mp3` — 428 KB
 - `Track 4_Opgave 3.opus` — 442 KB
+- `Track 5_Opgave 4.mp3` — 386 KB
 - `Track 5_Opgave 4.opus` — 349 KB
+- `Track 6_Opgave 5.mp3` — 445 KB
 - `Track 6_Opgave 5.opus` — 483 KB
+- `Track 7_Opgave 6.mp3` — 481 KB
 - `Track 7_Opgave 6.opus` — 386 KB
+- `Track 8_Opgave 7.mp3` — 312 KB
 - `Track 8_Opgave 7.opus` — 407 KB
+- `Track 9_Opgave 8.mp3` — 248 KB
 - `Track 9_Opgave 8.opus` — 323 KB
 
-**`atili/Dutch/oefenexamensnt2/2025 Spreken II openbaar examen audiobestanden/`** — 16 files, 15.1 MB
+**`atili/Dutch/oefenexamensnt2/2025 Spreken II openbaar examen audiobestanden/`** — 32 files, 30.0 MB
 
+- `Track 10_Opgave 8.mp3` — 696 KB
 - `Track 10_Opgave 8.opus` — 805 KB
+- `Track 11_Opgave 9.mp3` — 752 KB
 - `Track 11_Opgave 9.opus` — 904 KB
+- `Track 12_Opgave 10.mp3` — 670 KB
 - `Track 12_Opgave 10.opus` — 699 KB
+- `Track 13_Opgave 11.mp3` — 865 KB
 - `Track 13_Opgave 11.opus` — 987 KB
+- `Track 14_Opgave 12.mp3` — 524 KB
 - `Track 14_Opgave 12.opus` — 691 KB
+- `Track 15_deel 3 instructie.mp3` — 465 KB
 - `Track 15_deel 3 instructie.opus` — 400 KB
+- `Track 16_Opgave 13.mp3` — 2.8 MB
 - `Track 16_Opgave 13.opus` — 2.9 MB
+- `Track 1_deel 1 instructie.mp3` — 1.3 MB
 - `Track 1_deel 1 instructie.opus` — 1.2 MB
+- `Track 2_Opgave 1.mp3` — 590 KB
 - `Track 2_Opgave 1.opus` — 578 KB
+- `Track 3_Opgave 2.mp3` — 537 KB
 - `Track 3_Opgave 2.opus` — 527 KB
+- `Track 4_Opgave 3.mp3` — 521 KB
 - `Track 4_Opgave 3.opus` — 499 KB
+- `Track 5_Opgave 4.mp3` — 641 KB
 - `Track 5_Opgave 4.opus` — 657 KB
+- `Track 6_deel 2 instructie.mp3` — 2.1 MB
 - `Track 6_deel 2 instructie.opus` — 1.8 MB
+- `Track 7_Opgave 5.mp3` — 864 KB
 - `Track 7_Opgave 5.opus` — 803 KB
+- `Track 8_Opgave 6.mp3` — 864 KB
 - `Track 8_Opgave 6.opus` — 981 KB
+- `Track 9_Opgave 7.mp3` — 833 KB
 - `Track 9_Opgave 7.opus` — 804 KB
 
 **`atili/Dutch/van-dale-groot-beeldwoordenboek-split/`** — 3 files, 468.2 MB
