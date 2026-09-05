@@ -9,7 +9,7 @@ A durable teaching artifact — exposition on one thing, sized to about ten minu
 _Avoid_: Explainer, chapter, module
 
 **Session**:
-A dated record of one invocation — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many.
+A dated record of one invocation — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many. It holds its own Prompts, and its state — planned, partial or complete — is read off them rather than declared.
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
@@ -31,6 +31,14 @@ _Avoid_: Deadline, target date, exam date
 **Mastered**:
 The final Rung, 5. A Mastered Direction is never deleted and **never leaves circulation** — it returns on a flat 180-day gap, to confirm the word is still held. An Item counts as Mastered only when both its Directions are. Mastery is losable: a wrong answer costs a Rung.
 _Avoid_: Learnt, graduated, retired, done
+
+**Prompt**:
+One thing a Session asks. It is generated when the Session is planned, stored nowhere but that Session, and addressed by a positional id — `P1`, `P2` — so it can be answered from a phone keyboard. It has exactly two types: an `item` Prompt is bound to one Item Direction and moves a Rung, an `open` Prompt is bound to an Objective and moves nothing.
+_Avoid_: Question, exercise, quiz item, card
+
+**Verdict**:
+The judgement on one answer to an `item` Prompt, from a closed set of three: `correct`, `close` and `incorrect`. A `close` answer is right in substance and wrong in form — a misspelling — and moves no Rung. An `open` Prompt bears no Verdict, only prose feedback, because a written paragraph has no right answer.
+_Avoid_: Score, grade, mark, result, rating
 
 **Exam task**:
 An authored, kept, re-takeable artifact that mimics a real exam task — for example a *Schrijven* writing brief. Distinct from prompt sets, which are generated per Session and stored nowhere but that Session.
