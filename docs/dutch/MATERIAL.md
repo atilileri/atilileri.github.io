@@ -19,7 +19,10 @@ Material lives in one of four places. Nothing lives in two.
    [#133](https://github.com/atilileri/atilileri.github.io/issues/133) finds. Whether the agent may read that
    folder is [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s decision.
 3. **The Oracle** ([#134](https://github.com/atilileri/atilileri.github.io/issues/134)). The textbooks and their
-   scans. The agent asks the Oracle a question and gets an answer; it never copies the book.
+   scans. The agent asks the Oracle a question and gets an answer; it never copies the book. **In practice today
+   the Oracle is a collection of Gemini Notebook (NotebookLM) notebooks**, stated by the user on 2026-09-05, with
+   the files behind them in Drive. It holds *Nederlands op niveau* and the captured exam material. #134 still owns
+   what the Oracle **is** — this line records what exists, not a lock.
 4. **The live web.** Material that stays at its URL and is fetched when a Session needs it. Nothing is mirrored.
 
 **There is no fifth home inside the repo.** A file in this repo is committed, or it is not in this repo. The
@@ -77,6 +80,12 @@ complete past papers for 2021–2023, downloadable. **That is no longer true.** 
 `staatsexamensnt2.nl/voorbereiden/examens-oefenen` offers exactly one route — the *oefenomgeving* at
 `oefenexamensnt2.nl`, an Angular application over an API at `/api/facet-service-openbaar` whose routes are not
 discoverable from the client bundle. This matches [#96](https://github.com/atilileri/atilileri.github.io/issues/96)'s
-finding for the DUO practice exams. Reaching either one needs a browser, which is
+finding for the DUO practice exams. Reaching either one **from a script** needs a browser, which is
 [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s and
 [#135](https://github.com/atilileri/atilileri.github.io/issues/135)'s decision to make.
+
+**The material itself is no longer missing.** The user captured it by hand on 2026-09-05, into Drive and into the
+Oracle's notebooks. So the map has exam material; what it lacks is an *unattended* route to more of it. That
+distinction matters to [#95](https://github.com/atilileri/atilileri.github.io/issues/95), which can now judge
+luisteren against real exam tasks, and it narrows #130 from "can we get this at all" to "must a human keep
+fetching it".
