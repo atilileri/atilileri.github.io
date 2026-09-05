@@ -88,6 +88,19 @@ ID3 tags, a transcription of one clip, and stills from the video. See
   or address from it may ever be published, whatever the publicness lock says about the journey's own
   artifacts.
 
+  Transcribing all 56 minutes settles what it is worth. **It is a taster class, not a course lesson** — the
+  teacher says outright that the session exists *"to show what I do in an online lesson"*, not to teach, and it
+  closes by quoting the timetable and price structure of the real A2 and B1 groups. The teaching that does
+  happen is weather vocabulary — `hittegolf`, `bosbrand`, `sneeuwen`, `onweer`, `droog` — explained in Turkish.
+  So its value here is **not the content but the format**: 56 minutes of a real teacher teaching Dutch through
+  Turkish, which is the register this journey is trying to write. Useful to
+  [#90](https://github.com/atilileri/atilileri.github.io/issues/90) as a model, not as material.
+
+  It also demonstrated a limit worth recording. The recording alternates Turkish and Dutch, and the Turkish came
+  back clean while the embedded Dutch words were mangled — `hittegolf` as *"Hitticholf"*, `bosbrand` as *"Bosch
+  Brand"*, `onweer` as *"on wear"*. This is the per-segment language problem in
+  [`READING-MATERIAL.md`](./READING-MATERIAL.md), seen in the wild.
+
 **The loose PDFs name their own publishers**, read out of the files on the same day: `van_start-woordenlijst_turks-web.pdf`
 is **© Boom uitgevers Amsterdam, 2019** and `woordenlijst_nederlands_turks.pdf` is **© 2013 Uitgeverij Boom**
 (*Basiscursus 1*, keyed per lesson); `dutch.pdf` is **Dutch For Dummies (Wiley)** — the filename hides it;

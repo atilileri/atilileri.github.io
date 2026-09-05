@@ -70,8 +70,10 @@ Three limits worth knowing before trusting the output:
    [#137](https://github.com/atilileri/atilileri.github.io/issues/137) exists and is not solved by this.
 2. **Language is set per run, not per sentence.** The default is Dutch. Automatic detection runs per segment, so
    a recording that alternates Turkish and Dutch comes back with segments labelled wrongly and words mangled
-   across the two. For paired bilingual audio, transcribe twice — once forced to each language — and read the two
-   passes side by side.
+   across the two. Measured on the `CursusA0A2` lesson, which is taught in Turkish about Dutch: the Turkish came
+   back clean, and the Dutch words inside it came back as `hittegolf` → *"Hitticholf"*, `bosbrand` → *"Bosch
+   Brand"*, `onweer` → *"on wear"*. **The mangled half is exactly the half that matters here.** For bilingual
+   audio, transcribe twice — once forced to each language — and read the two passes side by side.
 3. **Names and rare words drift.** Proper nouns, URLs and brand names are the usual errors. Check a name against
    the source before it reaches a Lesson.
 
