@@ -47,7 +47,7 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 ## Sport
 
 - Kitesurfs at intermediate level: does waterstarts, rides independently, and is starting to jump.
-- Kitesurfed mostly in Urla, Turkey. Kitesurfed in the Netherlands once, in August 2026.
+- Kitesurfed mostly in Urla, Turkey. Kitesurfed once in the Netherlands, at Ouddorp near the Natural High surf shop, in August 2026.
 - Plans to kitesurf wherever they travel, and enjoys talking about future kite spots.
 - Plays padel at Peakz Padel in Eindhoven, with a Peakz rating around 7–8. Also plays at Jack's Hustle.
 - Takes padel classes; ten taken so far, two weeks of classes remaining as of September 2026.
@@ -58,6 +58,10 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Played American football from 2009 to 2024, including two seasons with the Eindhoven Raptors. Won the national league in 2010, 2011 and 2016.
 - No longer plays or watches American football, but knows the rules and the positions well.
 - Joins the David Lloyd gym in Eindhoven in September 2026, for padel, tennis, swimming, spa and group classes.
+- Snowboards confidently on and off piste, and does jumps.
+- Owns a Korua Apollo 157 snowboard, Rome Katana bindings and Nidecker Kita boots.
+- Wakeboards at intermediate level, and rides with either foot forward.
+- Learned to ski in 2025, and skis red pistes at intermediate level.
 
 ## Taste
 
@@ -65,6 +69,8 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Named favourites, across genres: *Friends*, *How I Met Your Mother*, *Silo*, *Westworld*, *Breaking Bad*, *House*, *Fringe*, *Stranger Things*.
 - Wants Dutch-language viewing material that matches these tastes, watched with English subtitles.
 - Follows basketball. Follows the NBA as a viewer, not as an analyst.
+- Wants to learn to ride a motorcycle, and to get a licence. Does not ride one today.
+- Runs a home server: a Ryzen 5 7600 with 32 GB of RAM, in a Fractal Design Meshify 2 Lite case. Plans to add an RTX 4060 Ti for AI work and transcoding.
 
 ## People and routine
 
