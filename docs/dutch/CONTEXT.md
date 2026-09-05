@@ -86,5 +86,5 @@ One distinct way Docent runs, chosen from the learner's argument. Exactly four: 
 _Avoid_: Branch (means git here), command, subskill, route
 
 **Provenance**:
-Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise.
+Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise. The string names one of the four homes in [`MATERIAL.md`](./MATERIAL.md), which also holds the form to write for each.
 _Avoid_: Source, attribution, reference (the cheat sheet), credit

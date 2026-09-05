@@ -9,8 +9,8 @@ Produced by [#96](https://github.com/atilileri/atilileri.github.io/issues/96). *
 **The audio now lives in the user's Google Drive, and nowhere else on this machine.** It was landed to
 `/home/neo/private/dutch-listening/`, uploaded on 2026-09-05, and the local copy was then deleted at the user's
 instruction. Nothing was ever committed to this repo. Every downloaded source is copyrighted except the LibriVox
-recordings, and [#89](https://github.com/atilileri/atilileri.github.io/issues/89) has not yet fixed a repo location or
-a pointer convention.
+recordings. [#89](https://github.com/atilileri/atilileri.github.io/issues/89) has since fixed the homes and the pointer
+convention in [`MATERIAL.md`](./MATERIAL.md): Drive is one of the four homes, and audio stays there.
 
 The tree that went up: one directory per source, each holding `feed.rss`, an `episodes.json` index and `audio/`;
 `eenbeetjenederlands/` also holds `transcript/`. The Drive copy is now the only copy of the **87 transcripts**. The
