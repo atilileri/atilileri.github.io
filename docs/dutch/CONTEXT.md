@@ -97,3 +97,7 @@ _Avoid_: Branch (means git here), command, subskill, route
 **Provenance**:
 Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise. The string names one of the four homes in [`MATERIAL.md`](./MATERIAL.md), which also holds the form to write for each.
 _Avoid_: Source, attribution, reference (the cheat sheet), credit
+
+**Register**:
+How formally a Scenario is conducted, held on the Scenario as one of exactly three values: `informal` (`je`; friends, teammates, a market stall), `neutral` (`je` or `u`; a shop, a class, a stranger) and `formal` (`u`; official letters, a doctor, a bank). A closed set, so Docent chooses a value rather than inventing one.
+_Avoid_: Formality, tone, politeness level, style
