@@ -1,18 +1,27 @@
 # Listening material inventory
 
-What Dutch listening material exists, what is on this machine, and what only a human can get.
+What Dutch listening material exists, what was landed, and what only a human can get.
 Produced by [#96](https://github.com/atilileri/atilileri.github.io/issues/96). **This file records facts, not choices.**
 [#97](https://github.com/atilileri/atilileri.github.io/issues/97) selects the sources; [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences; [#89](https://github.com/atilileri/atilileri.github.io/issues/89) decides where material lives in the repo.
 
 ## Where the files are
 
-Audio lives at `/home/neo/private/dutch-listening/`, **outside this public repo**. Nothing was committed here.
-Every downloaded source is copyrighted except the LibriVox recordings, and #89 has not yet fixed a repo location or a
-pointer convention. One directory per source, each with `feed.rss` and an `episodes.json` index.
+**The audio now lives in the user's Google Drive, and nowhere else on this machine.** It was landed to
+`/home/neo/private/dutch-listening/`, uploaded on 2026-09-05, and the local copy was then deleted at the user's
+instruction. Nothing was ever committed to this repo. Every downloaded source is copyrighted except the LibriVox
+recordings, and [#89](https://github.com/atilileri/atilileri.github.io/issues/89) has not yet fixed a repo location or
+a pointer convention.
+
+The tree that went up: one directory per source, each holding `feed.rss`, an `episodes.json` index and `audio/`;
+`eenbeetjenederlands/` also holds `transcript/`. The Drive copy is now the only copy of the **87 transcripts**. The
+audio itself is re-fetchable — every podcast from its feed, both LibriVox titles from the Internet Archive — so a lost
+Drive folder costs time, not material. Whether the agent may *read* that Drive folder is
+[#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s decision, and the folder's contents belong on
+[#133](https://github.com/atilileri/atilileri.github.io/issues/133)'s list.
 
 ## Landed by the agent
 
-| Source | Path | Items | Audio | Size | Level | Transcript | Licence |
+| Source | Folder | Items | Audio | Size | Level | Transcript | Licence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Een Beetje Nederlands](https://www.eenbeetjenederlands.nl/) | `eenbeetjenederlands/` | 91 of 91 (whole feed) | 19.6 h | 2.25 GB | Self-declared B1/B2 | **Yes — 87 free full transcripts**, median 1,534 words | © the podcast. Feed and transcripts are public and free; `robots.txt` allows everything |
 | [Zeg het in het Nederlands](https://dutchidiom.com/shownotes-zeg-het-in-het-nederlands/) | `zeg-het-in-het-nederlands/` | 58 of 58 (whole feed) | 29.9 h | 1.72 GB | Self-declared "slow Dutch", reviewers say A2–B1 | No — PDF transcripts are **sold**, episodes 1–40 only | © the podcast. Audio free via SoundCloud feed |
