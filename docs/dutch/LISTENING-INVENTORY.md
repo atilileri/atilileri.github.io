@@ -15,8 +15,9 @@ convention in [`MATERIAL.md`](./MATERIAL.md): Drive is one of the four homes, an
 The tree that went up: one directory per source, each holding `feed.rss`, an `episodes.json` index and `audio/`;
 `eenbeetjenederlands/` also holds `transcript/`. The Drive copy is now the only copy of the **87 transcripts**. The
 audio itself is re-fetchable — every podcast from its feed, both LibriVox titles from the Internet Archive — so a lost
-Drive folder costs time, not material. Whether the agent may *read* that Drive folder is
-[#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s decision, and the folder's contents belong on
+Drive folder costs time, not material. The agent **may read that Drive folder**, and may write to it behind a human
+confirmation — [#130](https://github.com/atilileri/atilileri.github.io/issues/130), recorded in
+[`AUTOMATION.md`](./AUTOMATION.md); the folder's contents are on
 [#133](https://github.com/atilileri/atilileri.github.io/issues/133)'s list.
 
 **The "Transcript" column below no longer says what the agent can read.** Since 2026-09-05 the agent transcribes

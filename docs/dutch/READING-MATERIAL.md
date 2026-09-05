@@ -4,9 +4,10 @@ The agent reads text, images and PDFs by itself. It cannot hear audio and it can
 how it reads the rest anyway, and what each route costs, so a Session can choose one without guessing.
 
 **This file records capability, not choice.** It says what the agent *can* read and how. Which material a Session
-*should* reach for stays with [#97](https://github.com/atilileri/atilileri.github.io/issues/97), and whether the
-agent may drive external tools at all stays with [#130](https://github.com/atilileri/atilileri.github.io/issues/130).
-Nothing here settles either.
+*should* reach for stays with [#97](https://github.com/atilileri/atilileri.github.io/issues/97). Whether the agent
+may drive external tools at all is settled by [#130](https://github.com/atilileri/atilileri.github.io/issues/130)
+and written in [`AUTOMATION.md`](./AUTOMATION.md) — read that file for the named targets, the credentials and the
+write gate. Nothing here settles either.
 
 Where the material lives is [`MATERIAL.md`](./MATERIAL.md). What is in Drive, file by file, is
 [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md). The scripts named below live in

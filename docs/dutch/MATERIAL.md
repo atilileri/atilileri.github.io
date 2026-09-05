@@ -21,8 +21,10 @@ Material lives in one of four places. Nothing lives in two.
    [#96](https://github.com/atilileri/atilileri.github.io/issues/96), plus whatever
    [#133](https://github.com/atilileri/atilileri.github.io/issues/133) found — **922 files, 8.18 GiB**, listed in
    [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md), including the complete 2023–2025 DUO practice exams. The agent
-   now reads this folder with `rclone` at read-only scope; whether it may *write* there is
-   [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s decision.
+   now reads this folder with `rclone` at read-only scope, and **may write to it with `gdrive-rw` once a human
+   confirms the batch** — [#130](https://github.com/atilileri/atilileri.github.io/issues/130), recorded in
+   [`AUTOMATION.md`](./AUTOMATION.md). Converted copies and transcripts of third-party audio land here, not in
+   this repo.
 3. **The Oracle** ([#134](https://github.com/atilileri/atilileri.github.io/issues/134)). The textbooks and their
    scans. The agent asks the Oracle a question and gets an answer; it never copies the book. **In practice today
    the Oracle is a collection of Gemini Notebook (NotebookLM) notebooks**, stated by the user on 2026-09-05, with
@@ -126,12 +128,13 @@ complete past papers for 2021–2023, downloadable. **That is no longer true.** 
 `staatsexamensnt2.nl/voorbereiden/examens-oefenen` offers exactly one route — the *oefenomgeving* at
 `oefenexamensnt2.nl`, an Angular application over an API at `/api/facet-service-openbaar` whose routes are not
 discoverable from the client bundle. This matches [#96](https://github.com/atilileri/atilileri.github.io/issues/96)'s
-finding for the DUO practice exams. Reaching either one **from a script** needs a browser, which is
-[#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s and
-[#135](https://github.com/atilileri/atilileri.github.io/issues/135)'s decision to make.
+finding for the DUO practice exams. Reaching either one **from a script** needs a browser.
+[#130](https://github.com/atilileri/atilileri.github.io/issues/130) allows browser automation, but only against a
+**named target**, and neither of these is on the list — so a human keeps fetching this material by hand.
+[#135](https://github.com/atilileri/atilileri.github.io/issues/135) may propose adding one.
 
 **The material itself is no longer missing.** The user captured it by hand on 2026-09-05, into Drive and into the
 Oracle's notebooks. So the map has exam material; what it lacks is an *unattended* route to more of it. That
 distinction matters to [#95](https://github.com/atilileri/atilileri.github.io/issues/95), which can now judge
-luisteren against real exam tasks, and it narrows #130 from "can we get this at all" to "must a human keep
-fetching it".
+luisteren against real exam tasks. #130 answered the narrowed question: **yes, a human keeps fetching it**, because
+the allowlist admits only the Oracle and `nos.nl`.

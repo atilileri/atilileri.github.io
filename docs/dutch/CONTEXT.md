@@ -101,3 +101,11 @@ _Avoid_: Source, attribution, reference (the cheat sheet), credit
 **Register**:
 How formally a Scenario is conducted, held on the Scenario as one of exactly three values: `informal` (`je`; friends, teammates, a market stall), `neutral` (`je` or `u`; a shop, a class, a stranger) and `formal` (`u`; official letters, a doctor, a bank). A closed set, so Docent chooses a value rather than inventing one.
 _Avoid_: Formality, tone, politeness level, style
+
+**Named target**:
+A third party's website a script is allowed to reach, listed as one row in [`AUTOMATION.md`](./AUTOMATION.md) with what the script takes from it. The list is closed and a human adds to it; the agent reaches nothing else and never crawls. Two exist: the Oracle and `nos.nl`.
+_Avoid_: Allowed site, whitelist entry, scrape target, integration
+
+**Machine credential**:
+A secret that lives on this machine and never in this repo — the rclone token and the Oracle's login state. It is not an artifact, so the publicness lock does not reach it, but every capability it opens must degrade: with the credential missing the Session still runs and Docent names what it could not reach.
+_Avoid_: Secret, key, token (each names one instance, not the class), config
