@@ -38,16 +38,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         class="col-span-12 lg:col-span-4 flex justify-end relative h-[500px]"
       >
         <div
-          class="w-full h-full bg-surface-container-highest relative overflow-hidden group"
+          class="w-full h-full bg-surface-container-highest relative overflow-hidden border border-on-surface/15 group"
         >
           <img
-            alt="Professional portrait"
-            class="w-full h-full object-cover" style="filter: grayscale(40%)"
-            src="/prof.png"
+            alt="Portrait of Atıl İlerialkan"
+            class="w-full h-full object-cover object-[center_22%]"
+            src="/prof.webp"
+            width="1000"
+            height="1334"
+            fetchpriority="high"
+            decoding="async"
           />
           <!-- Technical Overlay -->
           <div
-            class="absolute bottom-4 left-4 bg-on-background text-surface text-[0.65rem] px-3 py-1 tracking-widest uppercase"
+            class="absolute top-4 left-4 bg-on-background text-surface text-[0.65rem] px-3 py-1 tracking-widest uppercase"
           >
             AUTHOR
           </div>

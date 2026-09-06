@@ -1,6 +1,6 @@
 # atilileri.github.io
 
-Personal website and digital garden of Atil Ilerialkan, built with [Astro](https://astro.build). Deployed to [GitHub Pages](https://atilileri.github.io).
+Personal website and digital garden of Atıl İlerialkan, built with [Astro](https://astro.build). Deployed to [GitHub Pages](https://atilileri.github.io).
 
 ## Architecture
 
@@ -126,4 +126,4 @@ This repository carries two licences.
 | Code | Everything else | [MIT](LICENSE) |
 | Content | `src/content/`, `docs/` | [CC BY 4.0](LICENSE-CONTENT) |
 
-Reuse the code freely, keeping the copyright notice. Reuse the content freely, crediting "Atil Ilerialkan" with a link to https://atilileri.github.io.
+Reuse the code freely, keeping the copyright notice. Reuse the content freely, crediting "Atıl İlerialkan" with a link to https://atilileri.github.io.
