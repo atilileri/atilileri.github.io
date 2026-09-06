@@ -1,5 +1,5 @@
 ---
-title: "Getting the Most from AI"
+title: "How to Better Use Copilot"
 description: "An executive presentation on working with AI coding agents, built for ASML. Five chapters, from why optimize at all, through what a token and a context window really are, to a best-practice loop and an operating model for a team. Every chapter was planned as its own agent-run map before a single slide existed."
 lastUpdated: 2026-08-12
 status: "evergreen"

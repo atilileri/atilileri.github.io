@@ -6,8 +6,8 @@ status: "seedling"
 kind: "project"
 tags: ["Agents", "Language Learning", "Astro", "Learning in Public"]
 link: "https://github.com/atilileri/atilileri.github.io/issues/74"
-featured: false
-order: 17
+featured: true
+order: 2
 ---
 
 Still in planning, deliberately. The map is a public issue with forty child

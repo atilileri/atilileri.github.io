@@ -55,7 +55,10 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Plays football on Sunday with a club in the Netherlands. Sessions are sometimes cancelled for low attendance.
 - Plays street basketball occasionally, when the weather is good.
 - Played club basketball at Karşıyaka Spor Kulübü in İzmir until university, and in the high-school team.
-- Played American football from 2009 to 2024, including two seasons with the Eindhoven Raptors. Won the national league in 2010, 2011 and 2016.
+- Played American football for the Hacettepe Red Deers in Ankara, Turkey, from 2009 to 2022.
+- Played for the Turkish national American football team during those years.
+- Played two further seasons with the Eindhoven Raptors after moving to the Netherlands.
+- Won the national league in 2010, 2011 and 2016.
 - No longer plays or watches American football, but knows the rules and the positions well.
 - Joins the David Lloyd gym in Eindhoven in September 2026, for padel, tennis, swimming, spa and group classes.
 - Snowboards confidently on and off piste, and does jumps.

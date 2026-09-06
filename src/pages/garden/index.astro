@@ -19,10 +19,13 @@ const rest = entries
       b.data.lastUpdated.getTime() - a.data.lastUpdated.getTime()
   );
 
-const statusLabel = {
-  seedling: "Seedling",
-  budding: "Budding",
-  evergreen: "Evergreen",
+// Soil to canopy: a seedling is still mostly earth, an evergreen is all leaf.
+// Whole class names, because Tailwind cannot see one that is assembled at
+// runtime.
+const statusChip = {
+  seedling: { label: "Seedling", class: "bg-[#8a5a2b] text-white" },
+  budding: { label: "Budding", class: "bg-[#6f8f3a] text-white" },
+  evergreen: { label: "Evergreen", class: "bg-[#2f6b46] text-white" },
 };
 
 const kindLabel = {
@@ -84,13 +87,11 @@ const monthYear = (d: Date) =>
                   </span>
                   <span
                     class:list={[
-                      "material-symbols-outlined transition-opacity",
-                      i === 0
-                        ? "text-on-surface opacity-20 group-hover:opacity-100"
-                        : "opacity-40 group-hover:opacity-100",
+                      "text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 shrink-0",
+                      statusChip[entry.data.status].class,
                     ]}
                   >
-                    arrow_outward
+                    {statusChip[entry.data.status].label}
                   </span>
                 </div>
                 <div class="mt-10">
@@ -108,16 +109,6 @@ const monthYear = (d: Date) =>
                     {entry.data.description}
                   </p>
                   <div class="flex flex-wrap gap-2">
-                    <span
-                      class:list={[
-                        "text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1",
-                        i === 0
-                          ? "bg-on-surface text-surface"
-                          : "bg-[rgba(255,255,255,0.9)] text-primary",
-                      ]}
-                    >
-                      {statusLabel[entry.data.status]}
-                    </span>
                     {entry.data.tags.map((tag) => (
                       <span
                         class:list={[
@@ -162,11 +153,14 @@ const monthYear = (d: Date) =>
                     <span class="text-[0.65rem] font-black tracking-widest text-primary uppercase">
                       {kindLabel[entry.data.kind]}
                     </span>
-                    {href && (
-                      <span class="material-symbols-outlined text-on-surface opacity-20 group-hover:opacity-100 transition-opacity">
-                        arrow_outward
-                      </span>
-                    )}
+                    <span
+                      class:list={[
+                        "text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 shrink-0",
+                        statusChip[entry.data.status].class,
+                      ]}
+                    >
+                      {statusChip[entry.data.status].label}
+                    </span>
                   </div>
                   <h3 class="text-xl font-bold tracking-tight mb-4 max-w-full [overflow-wrap:break-word]">
                     {entry.data.title}
@@ -178,9 +172,6 @@ const monthYear = (d: Date) =>
 
                 <div class="min-w-0">
                   <div class="flex flex-wrap gap-2 mb-4">
-                    <span class="text-[0.65rem] uppercase font-bold tracking-widest px-3 py-1 bg-on-surface text-surface">
-                      {statusLabel[entry.data.status]}
-                    </span>
                     {entry.data.tags.map((tag) => (
                       <span class="text-[0.65rem] uppercase font-bold tracking-widest border border-on-surface/10 px-3 py-1">
                         {tag}
