@@ -78,7 +78,7 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Has Dutch friends, and speaks English with them.
 - Has no situation that forces Dutch, because everyone around them speaks English.
 - Takes an online Dutch course on Monday and Thursday evenings, 18:15 to 19:15.
-- Uploads the recording of each online class to Drive, in the `CursusA0A2` folder. Those recordings show identifiable people and are never published.
+- Uploads the recording of each online class to Drive, in the `NT2 Taaldiensten - A0-A2` folder, as shortcuts. Those recordings show identifiable people and are never published.
 - Misses the next two Monday classes because of padel, and watches the recordings instead.
 - Considers the taal café at Veldhoven library on Tuesday evenings, near the office, as a weekly speaking outlet.
 - Studies at home in the evening, most likely right after the online class on Monday and Thursday.

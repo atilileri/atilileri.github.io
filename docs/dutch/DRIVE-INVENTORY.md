@@ -1,16 +1,16 @@
 # Drive inventory: every Dutch file in `atili/Dutch`
 
-What the user holds in Google Drive, file by file. Produced by
-[#133](https://github.com/atilileri/atilileri.github.io/issues/133), read directly with `rclone` rather than
-typed by hand. **This file records facts, not choices.**
-[`MATERIAL.md`](./MATERIAL.md) says where material lives; [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md)
-covers the podcast corpus in depth; [`READING-MATERIAL.md`](./READING-MATERIAL.md) says how the agent reads any
-of it; [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences.
+What the user holds in Google Drive, file by file, read with `rclone` rather than typed by hand.
+**This file records facts, not choices.** [`MATERIAL.md`](./MATERIAL.md) says where material lives and how its
+files are named; [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) covers the podcast corpus in depth;
+[`READING-MATERIAL.md`](./READING-MATERIAL.md) says how the agent reads any of it;
+[#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences.
 
-**Read on 2026-09-05, and read again after the rename of the same day.** A scan of the whole Drive — 22,728 directories — found Dutch material in exactly one
+**Read on 2026-09-05.** A scan of the whole Drive — 22,728 directories — found Dutch material in exactly one
 place, `atili/Dutch`, and nowhere else. Nothing here is committed to this repo, and most of it never can be.
 
-**Totals: 1282 files, 8.6 GiB, in 31 folders.** Every file was renamed on 2026-09-05 so that its name explains it — see [`MATERIAL.md`](./MATERIAL.md) for the convention, [`adr/0004-drive-material-is-renamed-not-indexed.md`](./adr/0004-drive-material-is-renamed-not-indexed.md) for why, and [`DRIVE-RENAME.csv`](./DRIVE-RENAME.csv) for the old name of every file. The extra file over the 1,281 counted before is the index uploaded to the top of the folder.
+**Totals: 1,282 files, 8.6 GiB, in 31 folders**, plus the index at the top of the folder that repeats the
+naming convention for anyone browsing Drive.
 
 | Extension | Files |
 | --- | --- |
@@ -27,35 +27,42 @@ place, `atili/Dutch`, and nowhere else. Nothing here is committed to this repo, 
 ## The four bodies of material
 
 **1. The DUO practice exams — `DUO oefenexamens NT2/`, 801 files, 1.04 GiB.** The complete published *openbaar
-examen* set for **2023, 2024 and 2025**, both programmes, all four skills. Every year carries, per skill and
-per programme, an `opgavenboekje` (the question booklet) and a `beoordelingsmodel` (the marking scheme) —
-**48 PDFs** — plus the media the Luisteren and Spreken papers play: 306 `.opus`, 53 `.webm` (VP8 video with
-Vorbis audio) and 35 `.mp3` as published, and since 2026-09-05 a converted `.mp3` or `.mp4` sibling beside
-every one of the first two (see below).
+examen* set for **2023, 2024 and 2025**, both programmes, all four skills. Each year and skill has an
+`opgavenboekje` (the questions) and a `beoordelingsmodel` (the marking scheme) — **48 PDFs** — and the
+Luisteren and Spreken papers keep their media in an `audio/` folder beside them.
 
-This **overturns a recorded finding.** [`MATERIAL.md`](./MATERIAL.md) and
-[#96](https://github.com/atilileri/atilileri.github.io/issues/96) both recorded the practice exams as
-unreachable — an Angular application with no discoverable API. The user extracted them by hand. The agent's
-finding was about the *agent's* reach, and it stands as that; the material itself is now here.
+The user extracted these by hand. That matters, because
+[#96](https://github.com/atilileri/atilileri.github.io/issues/96) recorded the practice exams as unreachable —
+an Angular application with no discoverable API. That finding was about the *agent's* reach and still holds;
+the material itself is here.
 
 Three tickets should read this folder before they resolve.
 [#95](https://github.com/atilileri/atilileri.github.io/issues/95) asks what can honestly be done for spreken
-and luisteren — there are now **six real spreken papers with prompts and marking schemes**.
+and luisteren, and there are **six real spreken papers with prompts and marking schemes**.
 [#85](https://github.com/atilileri/atilileri.github.io/issues/85) marked every spreken Objective `unsupported`
 on the evidence available then. [#82](https://github.com/atilileri/atilileri.github.io/issues/82)'s **Exam
-task** now has authentic examples to be modelled on, rather than invented from a description.
+task** has authentic examples to model on.
 
-**Licence, unresolved.** These are published by DUO, a Dutch government body, for candidates to practise with.
-Dutch law treats works published by a public authority generously, but the folder carries no licence statement
-and this file does not rule. [#94](https://github.com/atilileri/atilileri.github.io/issues/94) decides whether
-any of it may be committed. Until then it stays in Drive.
+Two things about this set are worth knowing before using it:
 
-**2. The coursebooks and dictionaries — 12 files at the folder root, 641 MB.** Four named NT2 methods
-(Coutinho's *Nederlands in gang* A0–A2, *Nederlands in actie* and *Nederlands op niveau* for B1–B2, plus
-*Teach Yourself Dutch*), *Dutch For Dummies* (Wiley — the filename `dutch.pdf` hides it; the PDF metadata
-names it), a graded reader, a Dutch Academy Eindhoven handout, a Turkish-medium course, two Turkish word
-lists, and the **Van Dale Groot Beeldwoordenboek** — a four-language picture dictionary shipped as a 468 MB
-PDF, a 49 MB DjVu, and three split PDF parts.
+- **`2024 Spreken I` has two versions of track 07.** DUO published it twice, with different audio and different
+  dates. The later one is marked `(tweede versie)`.
+- **Licence, unruled here.** DUO published these for candidates to practise with, and the CvTE notice in each
+  booklet states its own terms. This file does not interpret them;
+  [#94](https://github.com/atilileri/atilileri.github.io/issues/94) put licence compliance outside the agent's
+  scope.
+
+**2. The coursebooks and dictionaries — 13 files at the folder root, 641 MB.** Four NT2 methods (Coutinho's
+*Nederlands in gang* A0–A2, *Nederlands in actie*, *Nederlands op niveau* B1–B2, plus *Teach Yourself Dutch*),
+*Dutch For Dummies*, a graded reader, a Dutch Academy Eindhoven handout, a Turkish-medium course, two Turkish
+word lists, and the **Van Dale Groot Beeldwoordenboek** — a four-language picture dictionary held as a 468 MB
+PDF, a 49 MB DjVu, and three split parts in their own folder.
+
+Each filename names its book and publisher, read from the PDF metadata rather than guessed. Both Turkish word
+lists are Boom's — *Van Start* (2019) and *Basiscursus 1* (2013) — which closes the one lead that looked as
+though it might be freely licensed. `Adım Adım Hollandaca` reserves all rights to its author, runs to **58
+pages** despite the 158 its original filename claimed, and still carries the PDF title *"Adım adım Almanca"*
+from the same author's German book.
 
 These are the Oracle's material, home 3 in [`MATERIAL.md`](./MATERIAL.md). They are commercial works: the
 agent asks the Oracle about them and never copies them.
@@ -66,89 +73,53 @@ agent asks the Oracle about them and never copies them.
 [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md). **Drive is the only copy of the 87 Een Beetje Nederlands
 transcripts** — the local tree was deleted after the upload, and no transcript is re-fetchable. The audio is.
 
-**4. Three older audio sets — 129 files, 1.13 GiB.** All three were identified on 2026-09-05 by reading them —
-ID3 tags, a transcription of one clip, and stills from the video. See
-[`READING-MATERIAL.md`](./READING-MATERIAL.md) for how. None of them leaves Drive.
+**4. Three Turkish-medium sets — 129 files, 1.13 GiB.** All three were identified by reading them: ID3 tags, a
+transcription, and stills from the video. See [`READING-MATERIAL.md`](./READING-MATERIAL.md) for how. None of
+them leaves Drive.
 
-- **`Goethe book2 TR-NL/`** — 100 clips of about 2 min 53 s, 4.8 hours in total, mono 48 kbps, dated 2016. The first clip
-  opens *"Birçok dilde işitsel kurslar"* and then teaches `ik`, `ik en jij`, `wij beiden`, `hij en zij`, each
-  Turkish phrase followed by its Dutch. That is **Goethe-Verlag's *book2* / 50LANGUAGES course, Turkish to
-  Dutch, lesson 1**, whose numbering runs to exactly 100. Goethe-Verlag distributes it free for private and
-  school use; the exact terms are the publisher's to state, and no one has checked them against reuse here.
-  **This is the only set of the three that is plausibly free**, and it is paired Turkish–Dutch audio, which is
+- **`Goethe book2 TR-NL/`** — 100 clips, about 4.8 hours, mono 48 kbps, dated 2016. Goethe-Verlag's *book2* /
+  50LANGUAGES course, Turkish to Dutch, one file per lesson, numbered as the publisher numbers them.
+  Goethe-Verlag distributes it free for private and school use; the exact terms are the publisher's to state.
+  **This is the only one of the three that is plausibly free**, and it is paired Turkish–Dutch audio, which is
   what the Turkish-first lock asks for.
-- **`30 Günde Hollandaca/`** — 28 MP3, a Turkish "Dutch in 30 days" course. Its ID3 tags read `Bilinmeyen albüm
-  (7.11.2018 16:42:26)`, `Parça 1`, `Bilinmeyen sanatçı` — an untagged **CD rip made on 7 November 2018**.
-  Commercial.
-- **`NT2 Taaldiensten - tanışma dersi A0-A2/`** — one 577 MB recording, **56 minutes, 1080p**, cut in Clipchamp. It is a **recorded live
-  online NT2 class run by NT2 Taaldiensten**, whose name is in the slide footer. The slides are Dutch and at
-  the stated A0–A2 level: *Zinnen maken* drills `gaan, komen, eten, drinken, wonen, werken, hebben, spreken`,
-  and *Afsluiting* closes with `de les was leuk / niet leuk / makkelijk / moeilijk`. **It shows a named teacher
-  and several identifiable students, one with an email address on screen.** Treat it as private: no name, face
-  or address from it may ever be published, whatever the publicness lock says about the journey's own
-  artifacts.
+- **`30 Günde Hollandaca/`** — 28 MP3, a Turkish "Dutch in 30 days" course, an untagged CD rip from **7
+  November 2018**. Commercial. Each file is a word-and-phrase drill with no spoken topic, so it is named by the
+  `Bölüm` number the audio announces. **Chapter 15 is absent**: the set runs 1–14 and 16–29.
+- **`NT2 Taaldiensten - A0-A2/`** — where the user keeps **shortcuts to recorded online NT2 classes**, added as
+  each class happens. The recordings are run by NT2 Taaldiensten and are **owned by the school, not by the
+  user**; what lives here is a Drive shortcut, so the agent can open a recording but can neither copy nor
+  rename the underlying file.
 
-  Transcribing all 56 minutes settles what it is worth. **It is a taster class, not a course lesson** — the
-  teacher says outright that the session exists *"to show what I do in an online lesson"*, not to teach, and it
-  closes by quoting the timetable and price structure of the real A2 and B1 groups. The teaching that does
-  happen is weather vocabulary — `hittegolf`, `bosbrand`, `sneeuwen`, `onweer`, `droog` — explained in Turkish.
-  So its value here is **not the content but the format**: 56 minutes of a real teacher teaching Dutch through
-  Turkish, which is the register this journey is trying to write. Useful to
+  The one recorded so far is **56 minutes, 1080p**, an A0–A2 class taught in Turkish. **It is a taster class,
+  not a course lesson** — the teacher says the session exists *"to show what I do in an online lesson"*, and it
+  closes by quoting the timetable and prices of the real A2 and B1 groups. The teaching that does happen is
+  weather vocabulary — `hittegolf`, `bosbrand`, `sneeuwen`, `onweer`, `droog` — explained in Turkish. So its
+  value is **the format, not the content**: a real teacher teaching Dutch through Turkish, which is the
+  register this journey is trying to write. Useful to
   [#90](https://github.com/atilileri/atilileri.github.io/issues/90) as a model, not as material.
 
-  It also demonstrated a limit worth recording. The recording alternates Turkish and Dutch, and the Turkish came
-  back clean while the embedded Dutch words were mangled — `hittegolf` as *"Hitticholf"*, `bosbrand` as *"Bosch
-  Brand"*, `onweer` as *"on wear"*. This is the per-segment language problem in
+  **These recordings show identifiable people** — a named teacher, several students, one with an email address
+  on screen. No name, face or address from them may ever be published, whatever the publicness lock says about
+  the journey's own artifacts.
+
+  One recording also demonstrated a limit worth keeping. It alternates Turkish and Dutch; the Turkish
+  transcribed cleanly while the embedded Dutch was mangled — `hittegolf` as *"Hitticholf"*, `bosbrand` as
+  *"Bosch Brand"*, `onweer` as *"on wear"*. That is the per-segment language problem in
   [`READING-MATERIAL.md`](./READING-MATERIAL.md), seen in the wild.
 
-**The loose PDFs name their own publishers**, read out of the files on the same day: `van_start-woordenlijst_turks-web.pdf`
-is **© Boom uitgevers Amsterdam, 2019** and `woordenlijst_nederlands_turks.pdf` is **© 2013 Uitgeverij Boom**
-(*Basiscursus 1*, keyed per lesson); `dutch.pdf` was **Dutch For Dummies (Wiley)** — the filename hid it, and now names it;
-`Survival-Dutch.pdf` is a **Dutch Academy Eindhoven** handout; and `2129-Adim_Adim_Hollandaca…pdf` reserves all
-rights to its author, runs to **58 pages not the 158 its filename claims**, and still carries the PDF title
-*"Adım adım Almanca"* from the same author's German book. So the two Turkish word lists — the only ones that
-looked like they might be free — are both Boom's. That lead is closed.
+## The exam media exists in two formats
 
-## The media was converted on 2026-09-05
+The exam media was published as Ogg Opus and VP8 webm, which a browser preview and a phone player often refuse.
+**Every such file has a converted sibling in the same folder, under the same name**, differing only in
+extension: 306 `.opus` with an `.mp3` beside it, 53 `.webm` with an `.mp4`. Converted with a static ffmpeg
+7.0.2, audio at libmp3lame VBR `-q:a 2` and video at H.264 `-crf 20` with AAC 192 kbps and `+faststart`.
 
-The exam media arrived in two formats that a browser preview and a phone player often refuse. Both were
-converted with a static **ffmpeg 7.0.2**, and **every converted file sits beside its original**, same folder,
-same name, different extension — `Track 2.opus` has a sibling `Track 2.mp3`.
+**The published file is the master.** Nothing was replaced, the 35 files already published as `.mp3` were left
+alone, and both conversions are lossy-to-lossy — the bitrates sit above the source so the loss stays inaudible.
+All 359 outputs were checked: none empty, and none drifted more than 0.35 s from its source.
 
-| From | Count | Was | To | Settings |
-| --- | --- | --- | --- | --- |
-| `.opus` | 306, 265 MB | Ogg Opus, 48 kHz stereo, ~129 kbps | `.mp3`, 268 MB | libmp3lame VBR `-q:a 2`, ~190 kbps |
-| `.webm` | 53, 298 MB | VP8 video 510×382 at 25 fps, Vorbis audio | `.mp4`, 177 MB | H.264 `-crf 20`, AAC 192 kbps, `+faststart` |
-
-**Nothing was replaced.** The originals are still there — they are the higher-quality copy, and DUO may not
-publish them forever. The 35 files that were already `.mp3` were left untouched rather than re-encoded.
-
-**Verified, not assumed.** All 359 outputs exist, none is empty, and no file drifted more than 0.35 s from its
-source: 5.61 hours of audio in, 5.61 hours out. Every `.opus` has an `.mp3` sibling and every `.webm` has an
-`.mp4` sibling, checked against Drive after the upload.
-
-Both conversions are lossy-to-lossy, so a generation of quality is gone. The bitrates were chosen to sit above
-the source so the loss stays inaudible, but **the original is the master**. The agent itself needs none of
-this — ffmpeg reads opus and webm directly. The converted copies exist for notebook upload, for Drive's
-in-browser player, and for the Session links the learner opens on a phone or a laptop.
-
-
-## Every name changed on 2026-09-05
-
-The names below are the ones in Drive now. **Every one of them is new.** The material arrived with names that
-carried no meaning — 753 exam media files called `Track 10.mp3`, 100 called `TRNL047.mp3`, a coursebook called
-`dutch.pdf` — and all 1,066 of them were renamed in one operation, verified file by file against the Drive file
-id so that nothing built on this folder broke.
-
-Three defects surfaced while doing it, and they are facts about the material, not about the rename:
-
-- **`30 Günde Hollandaca` is missing chapter 15.** The audio announces its own `Bölüm` number, and those numbers
-  run 1–14 and then 16–29. The old filenames ran `(1)` to `(28)` and hid the gap.
-- **`DUO oefenexamens NT2/2024 Spreken I` holds two versions of one track.** DUO published `Track 7` twice, with
-  different audio and different dates. The later one is marked `(tweede versie)`.
-- **Eight names in `dutch-listening/` were corrupted in Drive** — an accented letter mangled at download, so
-  `11-marga-klompé.mp3` was stored as `11-marga-klomp├⌐.mp3`. Two of the eight were an audio-and-transcript pair,
-  and Drive holds the only copy of those transcripts. They are repaired.
+The agent needs none of this, since ffmpeg reads opus and webm directly. The conversions exist for notebook
+upload, for Drive's in-browser player, and for the Session links the learner opens on a phone.
 
 ## Every file
 

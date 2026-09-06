@@ -72,7 +72,7 @@ Gated — the agent proposes, the human confirms, and only then does it run:
 
 - **A Drive write.** Use `gdrive-rw`, named on the command so a write is always deliberate. Confirm each
   batch. Never `delete`, never `sync`. A converted copy and a transcript of third-party audio land beside the
-  original, sharing its stem, per [`adr/0004`](./adr/0004-drive-material-is-renamed-not-indexed.md).
+  original, sharing its stem, per the naming rule in [`MATERIAL.md`](./MATERIAL.md).
 - **A git commit.**
 - **A git push.**
 

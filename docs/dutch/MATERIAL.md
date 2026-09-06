@@ -39,44 +39,35 @@ public, and the publicness lock forbids that ambiguity. The private staging dire
 
 ## How files in Drive are named
 
-**A filename in `atili/Dutch` explains itself.** The material arrived with names that carried no meaning —
-`Track 10.mp3`, `TRNL047.mp3`, `dutch.pdf` for *Dutch For Dummies* — so it was renamed in place. Locked by
-[#138](https://github.com/atilileri/atilileri.github.io/issues/138); the reasoning and the safety evidence are
-in [`adr/0004-drive-material-is-renamed-not-indexed.md`](./adr/0004-drive-material-is-renamed-not-indexed.md).
-
-**This is a standing convention, not a one-time tidy.** Material added to `atili/Dutch` later is named to match.
-The reader-facing copy lives at the top of the Drive folder itself, as
-`00 README - what is here and how files are named.md`, written in English — read that file when you are in
-Drive, and this section when you are in the repo. Its source is [`DRIVE-README.md`](./DRIVE-README.md); edit
-that and re-upload, so the two never drift.
-
-The shape is a sortable prefix and a prose tail:
+**A filename in `atili/Dutch` explains itself**, so that a file still makes sense once it is sent to a phone,
+away from its folder. The shape is a sortable prefix and a prose tail:
 
 ```
 <identity> - <nn> - <what it is>.<ext>
 ```
 
-- **The prefix repeats the folder's identity**, so a file still names itself after it is dragged out of Drive
-  onto a phone. The number is zero-padded, so a media player keeps exam order.
-- **Names are in the language of the source, and are transcribed, never translated.** Exam material is Dutch,
-  because every string comes out of its own `opgavenboekje`. Turkish courses keep Turkish names; their topics
-  may be Dutch.
-- **A converted copy shares its original's stem** and differs only by extension — `… - 17 - ….opus` beside
-  `… - 17 - ….mp3`. The original is the master.
+- **The prefix repeats the folder's identity.** Redundant inside the folder, essential outside it.
+- **The number is zero-padded**, so a media player keeps exam order.
+- **Names are in the language of the source, and transcribed, never translated.** Exam names come out of the
+  exam's own `opgavenboekje`, word for word. Turkish courses keep Turkish names.
+- **A converted copy shares its original's name** and differs only by extension. The published file is the
+  master.
 - **No filename carries a person's name** found inside the material. See
   [`READING-MATERIAL.md`](./READING-MATERIAL.md).
+- **Punctuation is plain ASCII** — a hyphen, never a dash; a straight apostrophe, never a curly one.
 
 | Body | Example |
 | --- | --- |
 | Exam media | `2023 Luisteren I - 17 - Een les van de drogisterijdocent - opgave 13.mp3` |
 | Exam papers | `2023 Luisteren I - opgavenboekje.pdf`, `2023 Luisteren I - beoordelingsmodel.pdf` |
 | Books | `Nederlands in gang - A0-A2 (Coutinho, 2017).pdf` |
-| Goethe book2 | `TRNL 007 - Sayilar.mp3` |
-| Podcasts | unchanged — `dutch-listening/` was already self-explanatory |
+| Goethe book2 | `TRNL 007 - Sayılar.mp3` |
+| Podcasts | `50 - de ijstijd, de hunebedden en de eerste boeren.mp3` |
 
-**Every rename is recorded** in [`DRIVE-RENAME.csv`](./DRIVE-RENAME.csv) as `old_path,new_path,file_id`. That
-file is the undo log, and the `file_id` column makes the undo exact. `DRIVE-INVENTORY.md` is regenerated from
-Drive after each body, so it always describes the folder as it is now.
+**This binds new material too.** Anything added to `atili/Dutch` later is named the same way. The same rule,
+written for someone browsing Drive rather than reading this repo, sits at the top of the folder as
+`00 README - what is here and how files are named.md`; its source is [`DRIVE-README.md`](./DRIVE-README.md),
+so edit that and re-upload rather than editing the copy in Drive.
 
 ## How content points at material
 

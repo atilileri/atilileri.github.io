@@ -23,7 +23,7 @@ confirmation — [#130](https://github.com/atilileri/atilileri.github.io/issues/
 **The "Transcript" column below no longer says what the agent can read.** Since 2026-09-05 the agent transcribes
 Dutch speech locally, at **96.1% word accuracy against a human transcript** and about **4x realtime** — so every
 hour in this table is readable, published transcript or not, and so are the 306 exam listening clips in
-`oefenexamensnt2/`. The column still matters, because a published transcript is exact, free and already written;
+`DUO oefenexamens NT2/`. The column still matters, because a published transcript is exact, free and already written;
 a generated one costs CPU time and drifts on names. See [`READING-MATERIAL.md`](./READING-MATERIAL.md) for the
 measured limits. What a Session should reach for stays with
 [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
