@@ -12,8 +12,21 @@ instruction. Nothing was ever committed to this repo. Every downloaded source is
 recordings. [#89](https://github.com/atilileri/atilileri.github.io/issues/89) has since fixed the homes and the pointer
 convention in [`MATERIAL.md`](./MATERIAL.md): Drive is one of the four homes, and audio stays there.
 
-The tree that went up: one directory per source, each holding `feed.rss`, an `episodes.json` index and `audio/`;
-`eenbeetjenederlands/` also holds `transcript/`. The Drive copy is now the only copy of the **87 transcripts**. The
+The tree that went up: one directory per source, each holding `feed.rss`, an `episodes.json` index and `audio/`.
+
+**Every source was flattened on 2026-09-06**, at the user's instruction, because the files are sources in his
+NotebookLM notebooks. The `audio/` folders are gone, and each episode now sits in its source folder beside its
+transcript, which shares the episode's name — the naming rule in [`MATERIAL.md`](./MATERIAL.md). Two details:
+`eenbeetjenederlands/` also lost `transcript/`, so its 87 human transcripts moved up to sit beside their
+episodes; and `librivox-nl/` keeps a folder per book, because each book carries its own `metadata.json`.
+**A machine transcript takes the plain `.txt`, except in `eenbeetjenederlands/`, where a human transcript
+already owns that name — there it is `<episode>.asr.txt`.**
+
+**Every Drive file id survived unchanged.** The moves were server-side, and the ids were snapshotted first and
+compared afterwards: 178 of 178 for Een Beetje Nederlands, 148 of 148 for the other four sources, none lost.
+The snapshots are `/home/neo/private/eenbeetje-ids-before.tsv` and `dl-before.json`.
+
+The Drive copy is now the only copy of the **87 transcripts**. The
 audio itself is re-fetchable — every podcast from its feed, both LibriVox titles from the Internet Archive — so a lost
 Drive folder costs time, not material. The agent **may read that Drive folder**, and may write to it behind a human
 confirmation — [#130](https://github.com/atilileri/atilileri.github.io/issues/130), recorded in

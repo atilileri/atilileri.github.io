@@ -17,7 +17,7 @@ About 1,280 files, 8.6 GB.
 | --- | --- |
 | *(top level)* | The coursebooks, the word lists and the picture dictionary, one file per book. |
 | `DUO oefenexamens NT2/` | The published NT2 practice exams for 2023, 2024 and 2025 — both programmes, all four skills. Each year and skill has an `opgavenboekje` (the questions) and a `beoordelingsmodel` (the marking scheme); the Luisteren and Spreken papers keep their media in an `audio/` folder beside them. |
-| `dutch-listening/` | Five podcast and audiobook sources, each with an `audio/` folder, its feed, and an `episodes.json` listing what was downloaded. *Een Beetje Nederlands* also has `transcript/`. |
+| `dutch-listening/` | Five podcast and audiobook sources. Each folder is flat: every episode sits beside its transcript of the same name, next to the source's feed and an `episodes.json` listing what was downloaded. *LibriVox* keeps a folder per book. A transcript written by machine rather than by a person says so in its first line. |
 | `Goethe book2 TR-NL/` | The 100-lesson Goethe-Verlag *book2* course, Turkish to Dutch. |
 | `30 Günde Hollandaca/` | A Turkish audio course. See the note on its numbering below. |
 | `NT2 Taaldiensten - A0-A2/` | Shortcuts to recorded online NT2 classes, added as each class happens. The recordings belong to the school, so these are links, not copies. |
