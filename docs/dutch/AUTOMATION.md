@@ -76,6 +76,14 @@ Gated — the agent proposes, the human confirms, and only then does it run:
 - **A git commit.**
 - **A git push.**
 
+One thing is a write that leaves the machine and is **not** gated, because it publishes nothing about the
+learner: **Docent's own comments on its own queues.** The `read` note it leaves on a `docent:intake` issue so a
+later Session need not re-read the media, and the closing comment on an issue the learner has already agreed to
+close, are bookkeeping on a queue the agent owns. Gating them would put a confirmation prompt in front of every
+preflight. Everything that touches a learner artifact still passes the gate above — including the act of
+closing an intake issue, which the learner confirms, per
+[#121](https://github.com/atilileri/atilileri.github.io/issues/121).
+
 The gate is publication, not the tool. This is the general form of the propose-then-confirm rule that
 [#83](https://github.com/atilileri/atilileri.github.io/issues/83) set for the Profile and the Scenarios: a
 silent write to a public place is a publication.

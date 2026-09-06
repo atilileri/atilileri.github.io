@@ -88,6 +88,13 @@ _Avoid_: Use-case, situation card, role-play
 The subject a Session is dressed in. It is chosen by a fixed priority — the theme the learner types, then an open intake issue, then a Scenario. A Theme decorates the next Plan objective and never replaces it.
 _Avoid_: Topic, context, subject
 
+**Intake**:
+An issue the learner files from a phone and labels `docent:intake`. It holds anything about their Dutch life,
+in any form and any language — a photo of a sign, a story from the day, a wish about what to study, a few typed
+words. It has no format. Docent reads every open one in the preflight, media included, and offers them; it is
+consumed over one or more Sessions and closes only on the learner's confirmation.
+_Avoid_: Inbox, capture, submission, queue, backlog
+
 **Bridge**:
 A resemblance that helps — a Dutch word an English or Turkish word already explains. It is an optional field on an Item, written in Turkish prose that quotes the foreign word: *"Hollandaca `vriend` ve İngilizce `friend` kelimeleri aynı kökten gelir."* A Bridge that claims a shared origin cites a source; one that claims only a resemblance needs none.
 _Avoid_: Cognate note, hint, mnemonic
