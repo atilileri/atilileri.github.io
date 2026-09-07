@@ -64,6 +64,13 @@ Measured on this machine, 8 CPU cores, no GPU, no key, no network:
 So **a Session can afford to transcribe an exam clip or a short podcast while the learner waits. It cannot afford
 a lecture.** Transcribe anything long ahead of time and keep the text.
 
+**For the material already in Drive, none of that cost applies: it is transcribed.** A run on 2026-09-07 read
+644 files — every DUO exam clip and every podcast episode — and wrote the text beside each one, so a Session
+reads a transcript in milliseconds instead of minutes. **Read the text before you reach for the audio.** The
+numbers above govern audio the journey meets for the first time. Two bodies were left untranscribed on purpose,
+and the Goethe `book2` transcripts are unreliable because those clips alternate Turkish and Dutch; both facts
+are in [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md).
+
 Three limits worth knowing before trusting the output:
 
 1. **It reports words, never sound.** It cannot tell you whether Dutch is pronounced well, natural or regional.

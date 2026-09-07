@@ -11,12 +11,12 @@ section of [`MATERIAL.md`](./MATERIAL.md). What is in the folder, file by file, 
 ## What is here
 
 The Dutch material for the learning journey at `https://github.com/atilileri/atilileri.github.io`.
-About 1,280 files, 8.6 GB.
+About 1,930 files, 8.6 GB.
 
 | Folder | What it holds |
 | --- | --- |
 | *(top level)* | The coursebooks, the word lists and the picture dictionary, one file per book. |
-| `DUO oefenexamens NT2/` | The published NT2 practice exams for 2023, 2024 and 2025 — both programmes, all four skills. Each year and skill has an `opgavenboekje` (the questions) and a `beoordelingsmodel` (the marking scheme); the Luisteren and Spreken papers keep their media in an `audio/` folder beside them. |
+| `DUO oefenexamens NT2/` | The published NT2 practice exams for 2023, 2024 and 2025 — both programmes, all four skills. The `opgavenboekje` (the questions) and the `beoordelingsmodel` (the marking scheme) for each year and skill sit here as PDFs; the Luisteren and Spreken media, and a transcript of each clip, sit in the year-and-skill folder. |
 | `dutch-listening/` | Five podcast and audiobook sources. Each folder is flat: every episode sits beside its transcript of the same name, next to the source's feed and an `episodes.json` listing what was downloaded. *LibriVox* keeps a folder per book. A transcript written by machine rather than by a person says so in its first line. |
 | `Goethe book2 TR-NL/` | The 100-lesson Goethe-Verlag *book2* course, Turkish to Dutch. |
 | `30 Günde Hollandaca/` | A Turkish audio course. See the note on its numbering below. |

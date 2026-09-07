@@ -6,41 +6,44 @@ files are named; [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) covers the
 [`READING-MATERIAL.md`](./READING-MATERIAL.md) says how the agent reads any of it;
 [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences.
 
-**Read on 2026-09-05, and `dutch-listening/` re-read on 2026-09-06.** A scan of the whole Drive — 22,728
+**Read on 2026-09-05, and the whole folder re-read on 2026-09-07.** A scan of the whole Drive — 22,728
 directories — found Dutch material in exactly one place, `atili/Dutch`, and nowhere else. Nothing here is
 committed to this repo, and most of it never can be.
 
-**Two changes on 2026-09-06 that this file only partly reflects.** First, **`dutch-listening/` was flattened**
-at the user's instruction: every source's `audio/` folder is gone and its files sit in the source folder, so a
+**Two changes finished on 2026-09-07, and this file reflects both.** First, **every `audio/` folder is gone**,
+at the user's instruction: the DUO exam media and the listening corpus now sit in their own folders, so a
 transcript can sit beside its audio. `librivox-nl/` keeps a folder per book, because two books cannot share one
-`metadata.json`. The moves were server-side, so **every Drive file id survived unchanged** — 178 ids for Een
-Beetje Nederlands and 148 for the other sources, all verified against a snapshot taken first. Second, a
-**machine transcription run is in progress**: it writes one `.txt` beside each audio file it reads, and it will
-add about 640 of them. The `dutch-listening/` listing below was regenerated after the flattening; the
-`DUO oefenexamens NT2/` sections were not, so they do not yet list the transcripts already landing there.
-**Regenerate the whole file once the run finishes.**
+`metadata.json`. The moves were server-side, so **every id of the user's own material survived unchanged** —
+178 for Een Beetje Nederlands, 148 for the other listening sources and 1,007 for the DUO exams, each verified
+against a snapshot taken first. Forty-five ids did change, all of them machine transcripts written earlier that
+day, because the uploader was running while the move was in flight; the content was compared and is identical.
 
-**Totals: 1,282 files, 8.6 GiB, in 31 folders**, plus the index at the top of the folder that repeats the
+Second, the **machine transcription run finished**: 644 files, 69.4 hours of audio, no failures, read locally
+and offline. Drive now holds **732 transcripts** — the user's 87 plus 645 written by machine. Two folders were
+left untranscribed on purpose, and [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) says why.
+
+**Totals: 1,927 files, 8.6 GiB, in 25 folders**, plus the index at the top of the folder that repeats the
 naming convention for anyone browsing Drive.
 
 | Extension | Files |
 | --- | --- |
+| `.txt` | 732 |
 | `.mp3` | 706 |
 | `.opus` | 306 |
-| `.txt` | 87 |
 | `.pdf` | 62 |
 | `.mp4` | 54 |
 | `.webm` | 53 |
 | `.json` | 7 |
 | `.rss` | 4 |
-| `.djvu`, `.md` | 1 each |
+| `.md` | 2 |
+| `.djvu` | 1 |
 
 ## The four bodies of material
 
-**1. The DUO practice exams — `DUO oefenexamens NT2/`, 801 files, 1.04 GiB.** The complete published *openbaar
+**1. The DUO practice exams — `DUO oefenexamens NT2/`, 1,196 files, 1.04 GiB.** The complete published *openbaar
 examen* set for **2023, 2024 and 2025**, both programmes, all four skills. Each year and skill has an
 `opgavenboekje` (the questions) and a `beoordelingsmodel` (the marking scheme) — **48 PDFs** — and the
-Luisteren and Spreken papers keep their media in an `audio/` folder beside them.
+Luisteren and Spreken papers keep their media, and its transcripts, in the year-and-skill folder itself.
 
 The user extracted these by hand. That matters, because
 [#96](https://github.com/atilileri/atilileri.github.io/issues/96) recorded the practice exams as unreachable —
@@ -79,8 +82,7 @@ These are the Oracle's material, home 3 in [`MATERIAL.md`](./MATERIAL.md). They 
 agent asks the Oracle about them and never copies them.
 [#134](https://github.com/atilileri/atilileri.github.io/issues/134) decides what the Oracle is.
 
-**3. The listening corpus — `dutch-listening/`, 336 audio and text files, 5.38 GiB, plus the machine
-transcripts now arriving.** Landed by
+**3. The listening corpus — `dutch-listening/`, 486 files, 5.38 GiB.** Landed by
 [#96](https://github.com/atilileri/atilileri.github.io/issues/96) and inventoried source by source in
 [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md). **Drive is the only copy of the 87 Een Beetje Nederlands
 transcripts** — the local tree was deleted after the upload, and no transcript is re-fetchable. The audio is.
@@ -135,7 +137,10 @@ upload, for Drive's in-browser player, and for the Session links the learner ope
 
 ## Every file
 
-Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then alphabetically.
+Sizes as read on 2026-09-07, after the flattening and the transcription run. Folders are listed by depth,
+then alphabetically. **A transcript is never listed on its own line**: every audio file has one beside it,
+sharing its name, so each folder states the count instead. The two folders left untranscribed on purpose —
+`30 Günde Hollandaca` and `NT2 Taaldiensten - A0-A2` — have none.
 
 **`atili/Dutch/`** — 13 files, 639.3 MB
 
@@ -235,7 +240,7 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2025 Spreken II - beoordelingsmodel.pdf` — 222 KB
 - `2025 Spreken II - opgavenboekje.pdf` — 966 KB
 
-**`atili/Dutch/Goethe book2 TR-NL/`** — 100 files, 124.6 MB
+**`atili/Dutch/Goethe book2 TR-NL/`** — 200 files, 124.8 MB
 
 - `TRNL 001 - Kişiler.mp3` — 1014 KB
 - `TRNL 002 - Aile.mp3` — 1003 KB
@@ -337,8 +342,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `TRNL 098 - Çift bağlaçlar.mp3` — 1.6 MB
 - `TRNL 099 - Belirten.mp3` — 1.4 MB
 - `TRNL 100 - Nitelik zarfları.mp3` — 1.3 MB
+- **plus 100 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 230 KB in total.
 
-**`atili/Dutch/NT2 Taaldiensten - tanışma dersi A0-A2/`** — 1 files, 577.0 MB
+**`atili/Dutch/NT2 Taaldiensten - A0-A2/`** — 1 files, 577.0 MB
 
 - `NT2 Taaldiensten - tanışma dersi A0-A2 - weer en klimaat.mp4` — 577.0 MB
 
@@ -348,7 +354,7 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `Van Dale Groot Beeldwoordenboek - deel 2 van 3.pdf` — 199.4 MB
 - `Van Dale Groot Beeldwoordenboek - deel 3 van 3.pdf` — 69.4 MB
 
-**`atili/Dutch/DUO oefenexamens NT2/2023 Luisteren I/audio/`** — 100 files, 143.3 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Luisteren I/`** — 151 files, 143.4 MB
 
 - `2023 Luisteren I - 01 - instructie.mp3` — 556 KB
 - `2023 Luisteren I - 01 - instructie.opus` — 570 KB
@@ -450,8 +456,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2023 Luisteren I - 49 - Een video over Leren presenteren - opgave 38.webm` — 5.5 MB
 - `2023 Luisteren I - 50 - Een video over Leren presenteren.mp3` — 102 KB
 - `2023 Luisteren I - 50 - Een video over Leren presenteren.opus` — 116 KB
+- **plus 51 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 58 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2023 Luisteren II/audio/`** — 98 files, 161.3 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Luisteren II/`** — 147 files, 161.4 MB
 
 - `2023 Luisteren II - 01 - instructie.mp3` — 556 KB
 - `2023 Luisteren II - 01 - instructie.opus` — 570 KB
@@ -551,8 +558,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2023 Luisteren II - 48 - Een video over een ondernemer van het bedrijf Yoghurt Barn - opgave 40.webm` — 4.2 MB
 - `2023 Luisteren II - 49 - Een video over een ondernemer van het bedrijf Yoghurt Barn.mp3` — 102 KB
 - `2023 Luisteren II - 49 - Een video over een ondernemer van het bedrijf Yoghurt Barn.opus` — 116 KB
+- **plus 49 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 62 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2023 Spreken I/audio/`** — 36 files, 22.0 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Spreken I/`** — 54 files, 22.0 MB
 
 - `2023 Spreken I - 01 - deel 1 instructie.mp3` — 1.1 MB
 - `2023 Spreken I - 01 - deel 1 instructie.opus` — 1.3 MB
@@ -590,8 +598,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2023 Spreken I - 17 - opgave 15 - Sollicitatie.opus` — 630 KB
 - `2023 Spreken I - 18 - opgave 16 - Meesters.mp3` — 587 KB
 - `2023 Spreken I - 18 - opgave 16 - Meesters.opus` — 547 KB
+- **plus 18 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 12 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2023 Spreken II/audio/`** — 32 files, 25.6 MB
+**`atili/Dutch/DUO oefenexamens NT2/2023 Spreken II/`** — 48 files, 25.6 MB
 
 - `2023 Spreken II - 01 - deel 1 instructie.mp3` — 1.5 MB
 - `2023 Spreken II - 01 - deel 1 instructie.opus` — 1.2 MB
@@ -625,8 +634,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2023 Spreken II - 15 - deel 3 instructie.opus` — 463 KB
 - `2023 Spreken II - 16 - opgave 13 - Toerisme.mp3` — 1.6 MB
 - `2023 Spreken II - 16 - opgave 13 - Toerisme.opus` — 3.0 MB
+- **plus 16 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 12 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2024 Luisteren I/audio/`** — 61 files, 129.1 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Luisteren I/`** — 109 files, 129.2 MB
 
 - `2024 Luisteren I - 01 - instructie.mp3` — 556 KB
 - `2024 Luisteren I - 01 - instructie.opus` — 570 KB
@@ -689,8 +699,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2024 Luisteren I - 48 - Een interview met een beeldhouwer van houten beelden - opgave 38.webm` — 6.1 MB
 - `2024 Luisteren I - 49 - Een interview met een beeldhouwer van houten beelden.mp3` — 102 KB
 - `2024 Luisteren I - 49 - Een interview met een beeldhouwer van houten beelden.opus` — 116 KB
+- **plus 48 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 57 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2024 Luisteren II/audio/`** — 92 files, 167.9 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Luisteren II/`** — 138 files, 167.9 MB
 
 - `2024 Luisteren II - 01 - instructie.mp3` — 556 KB
 - `2024 Luisteren II - 01 - instructie.opus` — 570 KB
@@ -784,8 +795,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2024 Luisteren II - 45 - Een filmpje over een bijzondere fiets - opgave 37.webm` — 5.7 MB
 - `2024 Luisteren II - 46 - Een filmpje over een bijzondere fiets.mp3` — 102 KB
 - `2024 Luisteren II - 46 - Een filmpje over een bijzondere fiets.opus` — 116 KB
+- **plus 46 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 56 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2024 Spreken I/audio/`** — 38 files, 21.8 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Spreken I/`** — 57 files, 21.8 MB
 
 - `2024 Spreken I - 01 - deel 1 instructie.mp3` — 1.1 MB
 - `2024 Spreken I - 01 - deel 1 instructie.opus` — 1.3 MB
@@ -825,8 +837,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2024 Spreken I - 17 - opgave 15 - Yoga.opus` — 752 KB
 - `2024 Spreken I - 18 - opgave 16 - Machines.mp3` — 538 KB
 - `2024 Spreken I - 18 - opgave 16 - Machines.opus` — 489 KB
+- **plus 19 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 13 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2024 Spreken II/audio/`** — 32 files, 28.4 MB
+**`atili/Dutch/DUO oefenexamens NT2/2024 Spreken II/`** — 48 files, 28.4 MB
 
 - `2024 Spreken II - 01 - deel 1 instructie.mp3` — 1.5 MB
 - `2024 Spreken II - 01 - deel 1 instructie.opus` — 1.2 MB
@@ -860,8 +873,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2024 Spreken II - 15 - deel 3 instructie.opus` — 463 KB
 - `2024 Spreken II - 16 - opgave 13 - Geluidsoverlast.mp3` — 3.0 MB
 - `2024 Spreken II - 16 - opgave 13 - Geluidsoverlast.opus` — 3.0 MB
+- **plus 16 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 13 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2025 Luisteren I/audio/`** — 100 files, 128.6 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Luisteren I/`** — 150 files, 128.7 MB
 
 - `2025 Luisteren I - 01 - instructie.mp3` — 556 KB
 - `2025 Luisteren I - 01 - instructie.opus` — 570 KB
@@ -963,8 +977,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2025 Luisteren I - 49 - Een gesprek met een onderwijsassistente - opgave 39.webm` — 4.8 MB
 - `2025 Luisteren I - 50 - Een gesprek met een onderwijsassistente.mp3` — 102 KB
 - `2025 Luisteren I - 50 - Een gesprek met een onderwijsassistente.opus` — 116 KB
+- **plus 50 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 55 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2025 Luisteren II/audio/`** — 96 files, 159.1 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Luisteren II/`** — 144 files, 159.1 MB
 
 - `2025 Luisteren II - 01 - instructie.mp3` — 556 KB
 - `2025 Luisteren II - 01 - instructie.opus` — 570 KB
@@ -1062,8 +1077,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2025 Luisteren II - 47 - Een interview met een stadsgids - opgave 38.webm` — 9.7 MB
 - `2025 Luisteren II - 48 - Een interview met een stadsgids.mp3` — 102 KB
 - `2025 Luisteren II - 48 - Een interview met een stadsgids.opus` — 116 KB
+- **plus 48 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 59 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2025 Spreken I/audio/`** — 36 files, 21.7 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Spreken I/`** — 54 files, 21.7 MB
 
 - `2025 Spreken I - 01 - deel 1 instructie.mp3` — 1.0 MB
 - `2025 Spreken I - 01 - deel 1 instructie.opus` — 1.3 MB
@@ -1101,8 +1117,9 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2025 Spreken I - 17 - opgave 15 - Student Landbouwschool.opus` — 604 KB
 - `2025 Spreken I - 18 - opgave 16 - Lunchpauze.mp3` — 423 KB
 - `2025 Spreken I - 18 - opgave 16 - Lunchpauze.opus` — 619 KB
+- **plus 18 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 12 KB in total.
 
-**`atili/Dutch/DUO oefenexamens NT2/2025 Spreken II/audio/`** — 32 files, 30.0 MB
+**`atili/Dutch/DUO oefenexamens NT2/2025 Spreken II/`** — 48 files, 30.0 MB
 
 - `2025 Spreken II - 01 - deel 1 instructie.mp3` — 1.3 MB
 - `2025 Spreken II - 01 - deel 1 instructie.opus` — 1.2 MB
@@ -1136,6 +1153,7 @@ Sizes as read on 2026-09-05, after the rename. Folders are listed by depth, then
 - `2025 Spreken II - 15 - deel 3 instructie.opus` — 400 KB
 - `2025 Spreken II - 16 - opgave 13 - Vrije tijd kinderen.mp3` — 2.8 MB
 - `2025 Spreken II - 16 - opgave 13 - Vrije tijd kinderen.opus` — 2.9 MB
+- **plus 16 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 14 KB in total.
 
 ### The listening corpus, file by file
 
@@ -1143,13 +1161,13 @@ Collapsed because [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) is the fi
 these. Listed here only so this inventory is complete.
 
 <details>
-<summary>337 files in <code>dutch-listening/</code></summary>
+<summary>486 files in <code>dutch-listening/</code></summary>
 
 **`atili/Dutch/dutch-listening/`** — 1 files, 879 B
 
 - `README.md` — 879 B
 
-**`atili/Dutch/dutch-listening/echt-gebeurd/`** — 32 files, 369.3 MB
+**`atili/Dutch/dutch-listening/echt-gebeurd/`** — 62 files, 369.6 MB
 
 - `afl-550-een-nieuwe-taal-micha-wertheim.mp3` — 11.0 MB
 - `afl-551-verliefd-daan-buringa.mp3` — 14.2 MB
@@ -1183,196 +1201,110 @@ these. Listed here only so this inventory is complete.
 - `afl-579-het-huwelijk-maaike-dirkje-hop.mp3` — 12.5 MB
 - `episodes.json` — 16 KB
 - `feed.rss` — 2.0 MB
+- **plus 30 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 384 KB in total.
 
-**`atili/Dutch/dutch-listening/eenbeetjenederlands/`** — 181 files, 2.1 GiB
+**`atili/Dutch/dutch-listening/eenbeetjenederlands/`** — 184 files, 2.1 GiB
 
 - `0-trailer.mp3` — 1.3 MB
 - `1-aletta-jacobs.mp3` — 10.6 MB
-- `1-aletta-jacobs.txt` — 9 KB
 - `10-oranjekoorts.mp3` — 26.2 MB
-- `10-oranjekoorts.txt` — 9 KB
 - `11-marga-klompé.mp3` — 31.9 MB
-- `11-marga-klompé.txt` — 11 KB
 - `12-praten-met-devika-partiman-stem-op-een-vrouw---bonus.mp3` — 27.5 MB
-- `12-praten-met-devika-partiman-stem-op-een-vrouw---bonus.txt` — 33 KB
 - `13-vlaams.mp3` — 12.2 MB
-- `13-vlaams.txt` — 12 KB
 - `14-praten-met-sietske---bonus.mp3` — 30.6 MB
-- `14-praten-met-sietske---bonus.txt` — 37 KB
 - `15-rembrandt-van-rijn.mp3` — 11.6 MB
-- `15-rembrandt-van-rijn.txt` — 11 KB
 - `16-de-nachtwacht---bonus.mp3` — 22.9 MB
-- `16-de-nachtwacht---bonus.txt` — 8 KB
 - `17-onderwijs-in-nederland.mp3` — 52.0 MB
-- `17-onderwijs-in-nederland.txt` — 18 KB
 - `18-wie-is-robin---bonus.mp3` — 4.9 MB
-- `18-wie-is-robin---bonus.txt` — 5 KB
 - `19-sinterklaas.mp3` — 11.2 MB
-- `19-sinterklaas.txt` — 11 KB
 - `2-de-elfstedentocht.mp3` — 28.0 MB
-- `2-de-elfstedentocht.txt` — 8 KB
 - `20-gronings-gas.mp3` — 13.2 MB
-- `20-gronings-gas.txt` — 13 KB
 - `21-karel-ende-elegast.mp3` — 35.2 MB
-- `21-karel-ende-elegast.txt` — 11 KB
 - `22-wubbo-ockels.mp3` — 22.9 MB
-- `22-wubbo-ockels.txt` — 7 KB
 - `23-watersnoodramp-1953.mp3` — 12.5 MB
-- `23-watersnoodramp-1953.txt` — 12 KB
 - `24-tulpen.mp3` — 23.9 MB
-- `24-tulpen.txt` — 8 KB
 - `25-typisch-nederlands-kinderen-voor-kinderen.mp3` — 3.5 MB
-- `25-typisch-nederlands-kinderen-voor-kinderen.txt` — 4 KB
 - `26-waddeneilanden.mp3` — 34.3 MB
-- `26-waddeneilanden.txt` — 10 KB
 - `27-typisch-nederlands-drop.mp3` — 4.1 MB
-- `27-typisch-nederlands-drop.txt` — 4 KB
 - `28-het-levenslied.mp3` — 24.2 MB
-- `28-het-levenslied.txt` — 8 KB
 - `29-typisch-nederlands-de-kringverjaardag.mp3` — 3.8 MB
-- `29-typisch-nederlands-de-kringverjaardag.txt` — 4 KB
 - `3-verkiezingen.mp3` — 11.9 MB
-- `3-verkiezingen.txt` — 11 KB
 - `30-stikstofcrisis.mp3` — 28.5 MB
-- `30-stikstofcrisis.txt` — 9 KB
 - `31-typisch-nederlands-tikkie.mp3` — 10.1 MB
-- `31-typisch-nederlands-tikkie.txt` — 4 KB
 - `32-romeinen-in-nederland.mp3` — 24.1 MB
-- `32-romeinen-in-nederland.txt` — 8 KB
 - `33-typisch-nederlands-top-2000.mp3` — 10.9 MB
-- `33-typisch-nederlands-top-2000.txt` — 5 KB
 - `34-prinsjesdag.mp3` — 23.4 MB
-- `34-prinsjesdag.txt` — 7 KB
 - `35-troonrede.mp3` — 38.0 MB
-- `35-troonrede.txt` — 12 KB
 - `36-typisch-nederlands-beschuit-met-muisjes.mp3` — 8.8 MB
-- `36-typisch-nederlands-beschuit-met-muisjes.txt` — 3 KB
 - `37-misdaad-en-straf.mp3` — 27.8 MB
-- `37-misdaad-en-straf.txt` — 9 KB
 - `38-de-heinekenontvoering.mp3` — 23.6 MB
-- `38-de-heinekenontvoering.txt` — 7 KB
 - `39-typisch-limburgs-vlaai.mp3` — 12.4 MB
-- `39-typisch-limburgs-vlaai.txt` — 4 KB
 - `4-het-wilhelmus.mp3` — 9.3 MB
-- `4-het-wilhelmus.txt` — 7 KB
 - `40-de-bijlmer.mp3` — 38.8 MB
-- `40-de-bijlmer.txt` — 12 KB
 - `41-bijlmerramp.mp3` — 36.1 MB
-- `41-bijlmerramp.txt` — 11 KB
 - `42-typisch-nederlands-geboortekaartjes.mp3` — 11.5 MB
-- `42-typisch-nederlands-geboortekaartjes.txt` — 4 KB
 - `43-carnaval.mp3` — 28.9 MB
-- `43-carnaval.txt` — 8 KB
 - `44-anne-frank.mp3` — 19.9 MB
-- `44-anne-frank.txt` — 7 KB
 - `45-mata-hari.mp3` — 23.3 MB
-- `45-mata-hari.txt` — 7 KB
 - `46-johannes-vermeer.mp3` — 19.8 MB
-- `46-johannes-vermeer.txt` — 6 KB
 - `47-de-grondwet.mp3` — 18.6 MB
-- `47-de-grondwet.txt` — 6 KB
 - `48-euthanasie.mp3` — 28.3 MB
-- `48-euthanasie.txt` — 9 KB
 - `49-drugsbeleid.mp3` — 25.9 MB
-- `49-drugsbeleid.txt` — 8 KB
 - `5-de-zuiderzeewerken-de-afsluitdijk-flevoland.mp3` — 11.8 MB
-- `5-de-zuiderzeewerken-de-afsluitdijk-flevoland.txt` — 11 KB
 - `50-computerpioniers.mp3` — 31.5 MB
-- `50-computerpioniers.txt` — 9 KB
 - `51-de-digitale-stad.mp3` — 24.6 MB
-- `51-de-digitale-stad.txt` — 8 KB
 - `52-bokito-dominomus.mp3` — 15.8 MB
-- `52-bokito-dominomus.txt` — 5 KB
 - `53-buienradar-9292.mp3` — 10.9 MB
-- `53-buienradar-9292.txt` — 4 KB
 - `54-efteling-madurodam.mp3` — 13.4 MB
-- `54-efteling-madurodam.txt` — 4 KB
 - `55-bonuskaart-guldens.mp3` — 16.4 MB
-- `55-bonuskaart-guldens.txt` — 6 KB
 - `56-kapsalon-patatdebat.mp3` — 13.8 MB
-- `56-kapsalon-patatdebat.txt` — 5 KB
 - `57-andré-rieu-andré-hazes.mp3` — 14.9 MB
-- `57-andré-rieu-andré-hazes.txt` — 5 KB
 - `58-neutraal-moresnet.mp3` — 27.9 MB
-- `58-neutraal-moresnet.txt` — 9 KB
 - `59-fietsen.mp3` — 25.7 MB
-- `59-fietsen.txt` — 9 KB
 - `6-koningsdag.mp3` — 9.7 MB
-- `6-koningsdag.txt` — 8 KB
 - `60-anton-de-kom.mp3` — 24.4 MB
-- `60-anton-de-kom.txt` — 7 KB
 - `61-de-dom-van-utrecht.mp3` — 21.9 MB
-- `61-de-dom-van-utrecht.txt` — 6 KB
 - `62-het-mirakel-van-amsterdam.mp3` — 28.1 MB
-- `62-het-mirakel-van-amsterdam.txt` — 8 KB
 - `63-antoni-van-leeuwenhoek.mp3` — 26.1 MB
-- `63-antoni-van-leeuwenhoek.txt` — 8 KB
 - `64-jan-van-eyck.mp3` — 29.5 MB
-- `64-jan-van-eyck.txt` — 9 KB
 - `65-limburgs.mp3` — 26.6 MB
-- `65-limburgs.txt` — 8 KB
 - `66-zwangerschap-in-nederland.mp3` — 34.4 MB
-- `66-zwangerschap-in-nederland.txt` — 11 KB
 - `67-tachtigjarige-oorlog-deel-1.mp3` — 34.8 MB
-- `67-tachtigjarige-oorlog-deel-1.txt` — 10 KB
 - `68-tachtigjarige-oorlog-deel-2.mp3` — 49.7 MB
-- `68-tachtigjarige-oorlog-deel-2.txt` — 15 KB
 - `69-anna-maria-van-schurman.mp3` — 24.1 MB
-- `69-anna-maria-van-schurman.txt` — 7 KB
 - `7-tweede-wereldoorlog-in-nederland.mp3` — 23.5 MB
-- `7-tweede-wereldoorlog-in-nederland.txt` — 21 KB
 - `70-natuur-in-nederland.mp3` — 38.7 MB
-- `70-natuur-in-nederland.txt` — 11 KB
 - `71-limburgse-mijnen.mp3` — 46.3 MB
-- `71-limburgse-mijnen.txt` — 14 KB
 - `72-nederlandse-cariben.mp3` — 38.3 MB
-- `72-nederlandse-cariben.txt` — 11 KB
 - `73-reinaert-de-vos.mp3` — 60.6 MB
-- `73-reinaert-de-vos.txt` — 18 KB
 - `74-provo.mp3` — 47.7 MB
-- `74-provo.txt` — 14 KB
 - `75-heksenvervolging.mp3` — 40.0 MB
-- `75-heksenvervolging.txt` — 14 KB
 - `76-hyves.mp3` — 32.4 MB
-- `76-hyves.txt` — 11 KB
 - `77-achternamen.mp3` — 45.3 MB
-- `77-achternamen.txt` — 14 KB
 - `78-soldaat-van-oranje.mp3` — 38.9 MB
-- `78-soldaat-van-oranje.txt` — 11 KB
 - `79-michiel-de-ruyter.mp3` — 33.7 MB
-- `79-michiel-de-ruyter.txt` — 10 KB
 - `8-annie-mg-schmidt.mp3` — 27.9 MB
-- `8-annie-mg-schmidt.txt` — 9 KB
 - `80-kneppelfreed.mp3` — 37.2 MB
-- `80-kneppelfreed.txt` — 11 KB
 - `81-volkshuisvesting.mp3` — 39.1 MB
-- `81-volkshuisvesting.txt` — 13 KB
 - `82-de-biesbosch.mp3` — 11.8 MB
-- `82-de-biesbosch.txt` — 10 KB
 - `83-van-gogh-deel-1-de-jonge-jaren.mp3` — 40.6 MB
-- `83-van-gogh-deel-1-de-jonge-jaren.txt` — 13 KB
 - `84-van-gogh-deel-2-de-kunstenaar.mp3` — 23.0 MB
-- `84-van-gogh-deel-2-de-kunstenaar.txt` — 17 KB
 - `85-ramses-shaffy.mp3` — 12.8 MB
-- `85-ramses-shaffy.txt` — 9 KB
 - `86-gabber.mp3` — 16.2 MB
-- `86-gabber.txt` — 13 KB
 - `87-homohuwelijk.mp3` — 15.9 MB
-- `87-homohuwelijk.txt` — 12 KB
 - `9-willem-barentsz.mp3` — 14.2 MB
-- `9-willem-barentsz.txt` — 13 KB
 - `episodes.json` — 56 KB
 - `feed.rss` — 357 KB
-- `trailer-seizoen-5-introductie-yvette.asr.txt` — 957 B
 - `trailer-seizoen-5-introductie-yvette.mp3` — 1.7 MB
 - `trailer-seizoen-8.mp3` — 7.2 MB
 - `word-nu-vriend-van-de-podcast-via-petjeafcom.mp3` — 4.5 MB
+- **plus 91 transcripts** — 87 written by a person as `<episode>.txt`, 4 by machine as `<episode>.asr.txt` — one per episode, 869 KB in total.
 
 **`atili/Dutch/dutch-listening/librivox-nl/`** — 1 files, 25 KB
 
 - `catalogue-210-titles.json` — 25 KB
 
-**`atili/Dutch/dutch-listening/nos-jeugdjournaal/`** — 42 files, 1.1 GiB
+**`atili/Dutch/dutch-listening/nos-jeugdjournaal/`** — 82 files, 1.1 GiB
 
 - `2025-05-28 - crèmes-serums-en-lotion-maken-kinderen-hun-huid-kapot.mp3` — 27.9 MB
 - `2025-06-04 - wat-is-de-echte-reden-dat-wilders-is-gestopt.mp3` — 26.0 MB
@@ -1416,8 +1348,9 @@ these. Listed here only so this inventory is complete.
 - `2026-08-26 - extra-roxy-dekker-over-haar-muziek-en-grote-liefde-koen.mp3` — 13.8 MB
 - `episodes.json` — 28 KB
 - `feed.rss` — 471 KB
+- **plus 40 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 870 KB in total.
 
-**`atili/Dutch/dutch-listening/zeg-het-in-het-nederlands/`** — 60 files, 1.6 GiB
+**`atili/Dutch/dutch-listening/zeg-het-in-het-nederlands/`** — 118 files, 1.6 GiB
 
 - `01 - de boekenweek en een favoriete schrijver.mp3` — 11.4 MB
 - `02 - de lente en de gemeenteraadsverkiezingen.mp3` — 14.7 MB
@@ -1479,16 +1412,18 @@ these. Listed here only so this inventory is complete.
 - `56 - het werk op de Afsluitdijk.mp3` — 28.7 MB
 - `episodes.json` — 23 KB
 - `feed.rss` — 86 KB
+- **plus 58 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 1.2 MB in total.
 
-**`atili/Dutch/dutch-listening/librivox-nl/ali_baba_en_de_veertig_roovers_1411_librivox/`** — 5 files, 51.4 MB
+**`atili/Dutch/dutch-listening/librivox-nl/ali_baba_en_de_veertig_roovers_1411_librivox/`** — 9 files, 51.5 MB
 
 - `Ali Baba en de veertig roovers - deel 01.mp3` — 11.8 MB
 - `Ali Baba en de veertig roovers - deel 02.mp3` — 12.2 MB
 - `Ali Baba en de veertig roovers - deel 03.mp3` — 15.1 MB
 - `Ali Baba en de veertig roovers - deel 04.mp3` — 12.4 MB
 - `metadata.json` — 2 KB
+- **plus 4 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 100 KB in total.
 
-**`atili/Dutch/dutch-listening/librivox-nl/zoon_dik_trom_0908_librivox/`** — 15 files, 128.5 MB
+**`atili/Dutch/dutch-listening/librivox-nl/zoon_dik_trom_0908_librivox/`** — 29 files, 128.8 MB
 
 - `De zoon van Dik Trom - hoofdstuk 01 (Kieviet).mp3` — 2.4 MB
 - `De zoon van Dik Trom - hoofdstuk 02 (Kieviet).mp3` — 5.3 MB
@@ -1505,4 +1440,6 @@ these. Listed here only so this inventory is complete.
 - `De zoon van Dik Trom - hoofdstuk 13 (Kieviet).mp3` — 15.2 MB
 - `De zoon van Dik Trom - hoofdstuk 14 (Kieviet).mp3` — 3.3 MB
 - `metadata.json` — 3 KB
+- **plus 14 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 282 KB in total.
+
 </details>

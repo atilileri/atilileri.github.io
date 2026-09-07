@@ -19,8 +19,9 @@ Material lives in one of four places. Nothing lives in two.
    Everything here is committed and public.
 2. **The user's Google Drive.** Large media, and anything the repo should not carry — the listening corpus of
    [#96](https://github.com/atilileri/atilileri.github.io/issues/96), plus whatever
-   [#133](https://github.com/atilileri/atilileri.github.io/issues/133) found — **922 files, 8.18 GiB**, listed in
-   [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md), including the complete 2023–2025 DUO practice exams. The agent
+   [#133](https://github.com/atilileri/atilileri.github.io/issues/133) found — **1,927 files, 8.6 GiB**, listed in
+   [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md), including the complete 2023–2025 DUO practice exams and, since
+   2026-09-07, **a transcript beside every audio file**. The agent
    now reads this folder with `rclone` at read-only scope, and **may write to it with `gdrive-rw` once a human
    confirms the batch** — [#130](https://github.com/atilileri/atilileri.github.io/issues/130), recorded in
    [`AUTOMATION.md`](./AUTOMATION.md). Converted copies and transcripts of third-party audio land here, not in

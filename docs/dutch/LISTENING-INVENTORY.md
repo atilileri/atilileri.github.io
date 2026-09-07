@@ -33,6 +33,14 @@ confirmation — [#130](https://github.com/atilileri/atilileri.github.io/issues/
 [`AUTOMATION.md`](./AUTOMATION.md); the folder's contents are on
 [#133](https://github.com/atilileri/atilileri.github.io/issues/133)'s list.
 
+**Every source now has a transcript, and the run that made them is finished.** On 2026-09-07 the agent
+transcribed **644 files, 69.4 hours of audio, with no failures**, locally and offline, and wrote one text file
+beside each audio file. That covers every source in the table below and all 394 DUO exam clips. Two bodies were
+left out on purpose: `30 Günde Hollandaca`, whose files are word drills with no spoken topic, and the NT2
+Taaldiensten class recordings, which show identifiable people. **The Goethe `book2` transcripts are marked
+unreliable** — those clips alternate Turkish and Dutch, and recognition mangles Dutch embedded in Turkish
+speech; their header records `language=auto`.
+
 **The "Transcript" column below no longer says what the agent can read.** Since 2026-09-05 the agent transcribes
 Dutch speech locally, at **96.1% word accuracy against a human transcript** and about **4x realtime** — so every
 hour in this table is readable, published transcript or not, and so are the 306 exam listening clips in
