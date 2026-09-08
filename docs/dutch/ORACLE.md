@@ -90,6 +90,9 @@ The notebook's own answer-language setting is left alone.
   fact the learner controls in the interface, never a guess made from a title. **A name prefix is not the
   mechanism**, and Docent must not rely on one.
 - **Address with `-n <id>`. Never use `notebooklm use`,** which is stateful and would let two Sessions collide.
+- **Pin the client version.** `notebooklm-py 0.8.2` is what this lock was measured against. It is an
+  unofficial client holding a Google master token, so an upgrade is a deliberate act — see
+  [adr/0009](./adr/0009-the-shelf-rests-on-an-unofficial-client.md).
 - **Pass `--quiet`,** or the CLI prints a `Matched: …` banner into stdout and breaks JSON parsing.
 - **Resolve a family to a set of notebooks, never to one.** The 100-source cap splits a family.
 

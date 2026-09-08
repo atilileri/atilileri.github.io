@@ -24,7 +24,7 @@ the list grows on evidence that a Session needs it.
 
 | Target | What a script takes | Route | Added |
 | --- | --- | --- | --- |
-| The Oracle (the user's Gemini Notebook) | Answers to curriculum questions | Browser automation, logged in | 2026-09-05 |
+| The Oracle (the `OracleDutch` collection) | Answers to curriculum questions, and passages from its sources | `notebooklm-py` over HTTP, with a durable token | 2026-09-05 |
 | `nos.nl` | The text of one named article | `fetch` plus Readability | 2026-09-05 |
 | `commons.wikimedia.org` | Whether a word has a human recording, and its licence | MediaWiki API, no key | 2026-09-08 |
 | `nl.wiktionary.org` | The IPA transcription of a word | MediaWiki API, no key | 2026-09-08 |
@@ -45,13 +45,14 @@ does not reach it — but the lock still binds what it unlocks: nothing a creden
 | Credential | Path | What it opens |
 | --- | --- | --- |
 | rclone token | `~/.config/rclone/rclone.conf` | Google Drive, read (`gdrive`) and write (`gdrive-rw`) |
-| Oracle login state | `~/.config/docent/` | The Oracle's browser session |
+| Oracle master token | `~/.notebooklm/profiles/default/` | The Oracle. It mints its own cookies, so it needs no browser |
 
 **Every capability that needs a credential must degrade.** With no credential the Session still runs. Docent
 names the missing capability in the Session record and teaches anyway.
 
-**A password never enters this system.** When the Oracle's login state expires, the script stops and asks the
-human to log in by hand and save the state again. It never prompts for a password and never stores one.
+**A password never enters this system.** The Oracle's token mints its own cookies, so an expired session
+heals itself. When the token itself dies, the script stops and asks the human to sign in by hand — Chrome on
+their own machine, its debug port forwarded here. It never prompts for a password and never stores one.
 
 ## No paid service
 
@@ -104,7 +105,9 @@ someone else's audio — goes to Drive, not to this repo. Only what this journey
   [`pronounce.mjs`](../../tools/dutch/pronounce.mjs) fills the word audio and IPA fields; Docent runs it at the
   end of a Session. Rules and usage: [`PRONUNCIATION.md`](./PRONUNCIATION.md).
 - **A script that decides something about teaching belongs to `docent`.** Asking the Oracle a curriculum
-  question is a teaching act, so the Oracle driver lives with the skill.
+  question is a teaching act, so the Oracle driver lives with the skill. That driver is now **thin**: the
+  `notebooklm-py` CLI does the talking, and `docent` only decides which notebook to ask and what to do with
+  the answer. See [`ORACLE.md`](./ORACLE.md).
 
 ## When a route fails
 

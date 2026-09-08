@@ -25,6 +25,11 @@ We gave that up for two things a keyless system cannot have.
 and there is no other route to them. #129 found the consumer API gone and the podcast route deprecated, so a
 logged-in browser is the only door. The user chose to open it.
 
+> **Corrected by [#134](https://github.com/atilileri/atilileri.github.io/issues/134), 2026-09-06.** The door
+> needs a browser exactly once. `notebooklm-py`'s master token mints its own cookies afterwards, so the
+> running system needs no browser at all — this machine has none. The credential is still uncommittable, so
+> this ADR's trade-off stands unchanged; only the mechanism is different, and it is milder than described.
+
 ## Why this does not break the publicness lock
 
 The lock is about **artifacts**, not about access. A credential is not an artifact: it produces nothing that

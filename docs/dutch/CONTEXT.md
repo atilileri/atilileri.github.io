@@ -126,3 +126,11 @@ _Avoid_: Allowed site, whitelist entry, scrape target, integration
 **Machine credential**:
 A secret that lives on this machine and never in this repo — the rclone token and the Oracle's login state. It is not an artifact, so the publicness lock does not reach it, but every capability it opens must degrade: with the credential missing the Session still runs and Docent names what it could not reach.
 _Avoid_: Secret, key, token (each names one instance, not the class), config
+
+**Oracle**:
+The `OracleDutch` collection of Gemini Notebook notebooks, holding the course books, the practice exams and the listening corpus with its text — the shelf this repo may not hold. It is **a source, never a planner**: it answers and it proposes, and the Plan still holds the route. Docent resolves its membership through the collection, never through a name prefix. What it holds is [`ORACLE-INVENTORY.md`](./ORACLE-INVENTORY.md); what Docent may ask it is [`ORACLE.md`](./ORACLE.md).
+_Avoid_: NotebookLM, Gemini Notebook (each names the product, not the role), knowledge base, RAG, the notebooks
+
+**Scratch notebook**:
+The one notebook in the Oracle a Session may write to, emptied when that Session ends. Everything else in the collection is curated by the learner alone. The split exists so an experiment can never damage material that was paid for.
+_Avoid_: Sandbox, temp notebook, workspace, staging
