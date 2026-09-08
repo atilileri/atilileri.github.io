@@ -109,7 +109,8 @@ Ordered by what each one is worth.
 - **Wikimedia Commons, `Category:Dutch pronunciation`** — **875,832 audio files**, one spoken word each, CC-licensed,
   reachable through the MediaWiki API with no key. Worthless for listening comprehension, **strong for per-Item word
   audio** in the `recognition` direction, and it may answer the map's open "pronunciation correctness" question with
-  recorded human speech instead of synthesis.
+  recorded human speech instead of synthesis. **Now used**: [`PRONUNCIATION.md`](./PRONUNCIATION.md) links a
+  recording to an Item by file title, and measured 98% coverage over 221 words.
 - **VoxForge Dutch** — GPL, exists, tiny and dated. Recorded only so nobody re-treads it.
 
 ## Dead ends, so nobody re-treads them

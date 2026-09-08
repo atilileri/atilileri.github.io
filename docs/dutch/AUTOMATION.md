@@ -26,6 +26,8 @@ the list grows on evidence that a Session needs it.
 | --- | --- | --- | --- |
 | The Oracle (the user's Gemini Notebook) | Answers to curriculum questions | Browser automation, logged in | 2026-09-05 |
 | `nos.nl` | The text of one named article | `fetch` plus Readability | 2026-09-05 |
+| `commons.wikimedia.org` | Whether a word has a human recording, and its licence | MediaWiki API, no key | 2026-09-08 |
+| `nl.wiktionary.org` | The IPA transcription of a word | MediaWiki API, no key | 2026-09-08 |
 
 **Fetch on demand, one page at a time. Never crawl.** The agent takes the article a Session points at and
 nothing more. When the journey needs a whole corpus of a site, the human puts it in Drive by hand — the way
@@ -98,6 +100,9 @@ someone else's audio — goes to Drive, not to this repo. Only what this journey
 
 - **A script that reads or converts material is a repo tool**, at [`tools/media/`](../../tools/media/). It
   serves anyone, it is committed and public, and `setup.sh` reproduces it.
+- **A script that enriches the Item inventory is a repo tool too**, at [`tools/dutch/`](../../tools/dutch/).
+  [`pronounce.mjs`](../../tools/dutch/pronounce.mjs) fills the word audio and IPA fields; Docent runs it at the
+  end of a Session. Rules and usage: [`PRONUNCIATION.md`](./PRONUNCIATION.md).
 - **A script that decides something about teaching belongs to `docent`.** Asking the Oracle a curriculum
   question is a teaching act, so the Oracle driver lives with the skill.
 
