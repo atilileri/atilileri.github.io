@@ -77,22 +77,6 @@ that truncates.
 returns verbatim speech with the source file named. So every audio notebook is a searchable corpus, whether or
 not a separate transcript notebook exists.
 
-### Where the level comes from
-
-**A filename never states a level, so the notebook carries it instead.** Every source inside one notebook comes
-from a single body of material, so the level belongs to the notebook, and this table is where Docent reads it.
-Each claim names its evidence:
-
-- **`(CvTE)`** — certain. Programma I *is* B1 and Programma II *is* B2, by the exam board's definition. **The
-  exam notebooks are the only ground truth on this shelf**, which is what makes job 11 possible: to rate
-  anything else, compare it against an exam task.
-- **`(self-declared)`** and **`(reviewers)`** — the publisher's or the audience's claim, recorded in
-  [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md). Useful, not authoritative.
-- **`native`** — made for Dutch speakers, so no CEFR level applies. Treat it as above B2 unless a Session
-  proves otherwise.
-- **`unrated`** — no evidence exists. **Docent does not guess a level for these; it either avoids the notebook
-  or rates it against an exam notebook first, and the rating is written here.**
-
 ## The books — `books - library`
 
 Thirteen PDFs. The three Coutinho methods are the spine of the shelf, and they ladder by level.
@@ -175,27 +159,39 @@ Lesson must never quote a classmate.
 
 ### Adding a lesson recording
 
-**A notebook accepts audio; the *Drive* route does not.** Keep the two apart, because confusing them makes the
-shelf look more closed than it is.
+**Two Drive routes exist and they behave differently.** Telling them apart matters, because one of them
+carries audio and the other refuses it.
 
-- **A local upload of audio works** — `source add <file> --type file`. Measured many times on 2026-09-08.
-- **No Drive route carries audio.** `source add-drive-file` accepts only
-  `csv, docx, epub, markdown, md, pdf, pptx, txt`; `source add-drive` takes only native Docs, Slides, Sheets
-  and PDF; and a Drive share URL passed to `source add` fails to fetch. So the `google_drive` mp3 sources
-  already on this shelf came from the web interface, which has a route the API does not expose.
-- **A transcript is a `.txt`, so a transcript *can* go in by Drive reference.** Text and audio take different
-  routes.
+- **`source add-drive` adds a Drive file by reference, and it carries audio.** Measured 2026-09-08: an mp3
+  from `dutch-listening/echt-gebeurd` went in, reached `ready`, and a search returned verbatim Dutch from the
+  episode. The command demands a declared `--mime-type`, whose only non-native choice is `pdf`, **so an mp3
+  goes in labelled as a PDF and the server ignores the label** — the stored type comes back as
+  `google_drive`. Every audio source already on this shelf has that type, so this is the route that loaded the
+  whole corpus.
+- **`source add-drive-file` downloads and re-uploads, and it refuses audio by type.** Its own error names the
+  set: *"Accepted: csv, docx, epub, markdown, md, pdf, pptx, txt."* A transcript is a `.txt`, so this route
+  suits text.
+- **A local upload of audio also works** — `source add <file> --type file`. Both lesson recordings went in
+  this way on 2026-09-08, before the reference route was measured.
 
-The 200 MB source limit also rejects an hour of video. The route that works for a lesson recording, measured on
-both:
+**Prefer the reference route.** It uploads nothing, so Drive stays the master as
+[`MATERIAL.md`](./MATERIAL.md) requires, and the notebook holds a pointer rather than a copy. Its cost is that
+it rests on undeclared behaviour of an unofficial client — see
+[adr/0009](./adr/0009-the-shelf-rests-on-an-unofficial-client.md).
+
+A video still needs converting, because the 200 MB source limit rejects an hour of video and no route accepts
+`video/mp4` at all. The full procedure for a lesson recording:
 
 1. `rclone copy` the `.mp4` to a scratch directory.
 2. `ffmpeg -vn -ac 1 -ar 16000 -b:a 32k` — an hour becomes about **14 MB**, and takes about 6 seconds.
-3. `notebooklm source add "<file>.mp3" --type file -n <id> --title "<name>"`.
-4. `notebooklm source wait <source-id> -n <id>` until the status is `ready`.
+3. `rclone copy` the mp3 back to `NT2 Taaldiensten`, flat, keeping the lesson's date in the name.
+4. `notebooklm source add-drive <file-id> "<title>" -n <id> --mime-type pdf`.
+5. `notebooklm source wait <source-id> -n <id>` until the status is `ready`.
+
+[#143](https://github.com/atilileri/atilileri.github.io/issues/143) turns this into a script.
 
 The video track carries the slides, and this route drops it. The slides folder in Drive
-(`A0>A2/Ders slaytlari`) is empty today; when it fills, add the slides as their own sources.
+(`A0>A2/Ders slaytlari`) is empty today, and #143 rules it **out of scope** until it fills.
 
 ## Known gaps
 
@@ -224,9 +220,10 @@ Six things a Session should expect. None is an error, and Docent repairs none of
 5. **A notebook source title can lag behind a Drive rename.** On 2026-09-06 two Goethe sources and every
    30 Günde source still carried pre-rename names; by 2026-09-08 all of them matched Drive. The title does
    catch up, so a mismatch means the survey is stale, not that the file is wrong.
-6. **Filenames are not a level signal.** No file is named for A2, B1 or B2, so a Session cannot read a level
-   off a name. **The Level column above carries it instead**, per notebook and with its evidence — see
-   *Where the level comes from*.
+6. **Filenames are not a level signal.** No file is named for A2, B1 or B2. The Level column above is a rough
+   guide, and only the `(CvTE)` rows are certain — Programma I *is* B1 and Programma II *is* B2, by the exam
+   board's definition. A notebook can hold mixed levels, so when the level of a specific file matters, Docent
+   asks the Oracle and judges the answer.
 
 ## What is not in the Oracle
 
