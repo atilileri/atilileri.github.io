@@ -1,74 +1,83 @@
 # Oracle inventory
 
 What each notebook in the Oracle holds, so a Session knows where to ask before it asks.
-Surveyed 2026-09-06 by [#134](https://github.com/atilileri/atilileri.github.io/issues/134), and updated
-2026-09-07 when the transcripts landed.
+Surveyed and reshaped 2026-09-08 by [#134](https://github.com/atilileri/atilileri.github.io/issues/134).
 **This file records facts, not choices.** What the Oracle *is* and what Docent may do with it is
 [`ORACLE.md`](./ORACLE.md). Where material lives is [`MATERIAL.md`](./MATERIAL.md).
 
 ## How to reach it
 
 The client is `notebooklm-py`, installed with `uv tool install "notebooklm-py[browser,headless]"`. Its durable
-credential sits at `~/.notebooklm/profiles/default/storage_state.json` — a
-**Machine credential** under [`AUTOMATION.md`](./AUTOMATION.md), never committed.
+credential sits at `~/.notebooklm/profiles/default/storage_state.json` — a **Machine credential** under
+[`AUTOMATION.md`](./AUTOMATION.md), never committed.
 
 Three rules bind every call:
 
-- **Expand the `OracleDutch` collection** — `notebooklm collection notebooks OracleDutch --json`. The account
-  holds other, unrelated notebooks; the collection names the **24** that belong to this journey. Do not filter
-  on the title.
-- **Address with `-n <id>`, never `notebooklm use`.** The context command is stateful, so two Sessions would
-  collide on it.
+- **Expand the `OracleDutch` collection** — `notebooklm collection notebooks OracleDutch --json`. A collection
+  is a real container that the API expands, and the learner controls its membership in the interface. The
+  account holds notebooks from other projects, so **membership is never guessed from a title**.
+- **Address with `-n <id>`. Never use `notebooklm use`,** which is stateful and would let two Sessions collide.
 - **Pass `--quiet`.** Without it the CLI prints a `Matched: …` banner to stdout and breaks JSON parsing.
 
 ## Account limits
 
 | Limit | Value | Consequence |
 | --- | --- | --- |
-| Sources per notebook | **100** | A source family splits across notebooks. `OracleDutchTRNL` and `OracleDutchTRNL-transcripts` are both **full**. |
-| Size per source | **200 MB** | The Van Dale picture dictionary is split into three parts. |
+| Sources per notebook | **100** | A source family splits across notebooks. `turkish - goethe book2 - transcript` is **full**. |
+| Size per source | **200 MB** | An hour of video needs its audio extracted first. See *Adding a lesson recording*. |
+
+## How a notebook is named
+
+`<family> - <source> - <modality>`, in lower case, with ` - ` between the parts.
+
+- The **family** comes first, so an alphabetical list sorts into blocks: `books`, `course`, `exam`,
+  `listening`, `scratch`, `turkish`.
+- The **source** mirrors its folder in Drive, because [`MATERIAL.md`](./MATERIAL.md) makes Drive the master.
+- The **modality** — `audio` or `transcript`, always singular — appears **only when a source is split across
+  two notebooks**. A source whose audio and text fit together under the 100-source cap has no modality suffix,
+  and holds both.
+
+No name repeats the collection. `OracleDutch` was a prefix on all 16 notebooks until 2026-09-08; the
+collection does that work, and the prefix cost 12 identical characters at the front of every tile in a grid
+that truncates.
 
 ## The shelf, at a glance
 
-Twenty-four notebooks. A row marked **+ text** holds the transcripts in the same notebook as the audio; a
-family too large for one notebook keeps its text in a separate `-transcripts` notebook.
+25 notebooks, 1,500 sources.
 
-| Notebook | Family | Sources | Holds |
-| --- | --- | --- | --- |
-| `OracleDutchPDF` | books | 13 | Every course book, dictionary and word list |
-| `OracleDutch-exam-2023-1` | exams | 66 | NT2 Programma I, 2023 — four skills |
-| `OracleDutch-exam-2023-2` | exams | 65 | NT2 Programma II, 2023 |
-| `OracleDutch-exam-2024-1` | exams | 66 | NT2 Programma I, 2024 |
-| `OracleDutch-exam-2024-2` | exams | 61 | NT2 Programma II, 2024 |
-| `OracleDutch-exam-2025-1` | exams | 67 | NT2 Programma I, 2025 |
-| `OracleDutch-exam-2025-2` | exams | 63 | NT2 Programma II, 2025 |
-| `OracleDutch-exam-2023-1-transcripts` | exams | 68 | The 2023 I listening and speaking audio, as text |
-| `OracleDutch-exam-2023-2-transcripts` | exams | 65 | The 2023 II audio, as text |
-| `OracleDutch-exam-2024-1-transcripts` | exams | 67 | The 2024 I audio, as text |
-| `OracleDutch-exam-2024-2-transcripts` | exams | 62 | The 2024 II audio, as text |
-| `OracleDutch-exam-2025-1-transcripts` | exams | 68 | The 2025 I audio, as text |
-| `OracleDutch-exam-2025-2-transcripts` | exams | 64 | The 2025 II audio, as text |
-| `OracleDutch-eenbeetjenederlands-voice` | listening | 91 | Een Beetje Nederlands, the audio |
-| `OracleDutch-eenbeetjenederlands-transcript` | listening | 92 | The same podcast as text — 87 human, 5 machine |
-| `OracleDutch-zeg-het-in-het-nederlands` | listening | 58 | Zeg het in het Nederlands, the audio |
-| `OracleDutch-zeg-het-in-het-nederlands-transcripts` | listening | 58 | The same episodes as text |
-| `OracleDutch-nos-jeugdjournaal` | listening | 80 | NOS Jeugdjournaal — 40 audio **+ text** |
-| `OracleDutch-echt-gebeurd` | listening | 60 | Echt Gebeurd — 30 audio **+ text** |
-| `OracleDutch-librivox-nl` | listening | 36 | Two public-domain audiobooks — 18 audio **+ text** |
-| `OracleDutchTRNL` | Turkish | 100 | A Turkish–Dutch audio course, complete and **full** |
-| `OracleDutchTRNL-transcripts` | Turkish | 100 | The same 100 lessons as text, and also **full** |
-| `OracleDutch30gunde` | Turkish | 28 | *30 Günde Hollandaca*. **The only source with no transcript.** |
-| `OracleDutch-scratch` | scratch | 0 | Empty on purpose. The only notebook a Session writes to. |
+| Notebook | Sources | Holds |
+| --- | --- | --- |
+| `books - library` | 13 | Every course book, dictionary and word list |
+| `course - nt2 taaldiensten` | 2 | Recordings of a live NT2 course, taught in Turkish |
+| `exam - 2023 I` | 66 | NT2 Programma I, 2023 — papers and listening audio |
+| `exam - 2023 I - transcript` | 68 | The same year as text |
+| `exam - 2023 II` | 65 | NT2 Programma II, 2023 |
+| `exam - 2023 II - transcript` | 65 | |
+| `exam - 2024 I` | 66 | NT2 Programma I, 2024 |
+| `exam - 2024 I - transcript` | 67 | |
+| `exam - 2024 II` | 61 | NT2 Programma II, 2024 |
+| `exam - 2024 II - transcript` | 62 | |
+| `exam - 2025 I` | 68 | NT2 Programma I, 2025 |
+| `exam - 2025 I - transcript` | 68 | |
+| `exam - 2025 II` | 63 | NT2 Programma II, 2025 |
+| `exam - 2025 II - transcript` | 64 | |
+| `listening - een beetje nederlands - audio` | 91 | Slow, scripted Dutch history and culture |
+| `listening - een beetje nederlands - transcript` | 92 | The published human transcripts |
+| `listening - zeg het in het nederlands - audio` | 59 | Holds one duplicate — see *Known gaps* |
+| `listening - zeg het in het nederlands - transcript` | 58 | |
+| `listening - nos jeugdjournaal` | 80 | 40 recordings **and** their 40 transcripts |
+| `listening - echt gebeurd` | 60 | 30 recordings and their 30 transcripts |
+| `listening - librivox` | 36 | 18 recordings and their 18 transcripts |
+| `turkish - goethe book2 - audio` | 98 | A Turkish–Dutch audio course |
+| `turkish - goethe book2 - transcript` | 100 | **Full.** |
+| `turkish - 30 gunde hollandaca` | 28 | *30 Günde Hollandaca*, audio only |
+| `scratch` | 0 | Empty on purpose. The only notebook a Session writes to. |
 
-**Google transcribes the audio itself.** Measured on 2026-09-06: a question to
-`OracleDutch-nos-jeugdjournaal` returned verbatim Dutch speech with the source file named. So every audio
-notebook is a searchable Dutch corpus, not a shelf of opaque files.
+**Google transcribes audio itself.** Measured 2026-09-06 and again 2026-09-08: a question to an audio notebook
+returns verbatim speech with the source file named. So every audio notebook is a searchable corpus, whether or
+not a separate transcript notebook exists.
 
-**Prefer the text.** A transcript notebook answers a `source search` in about **2 seconds** and returns the
-words as written, so it cannot mishear. Ask an audio notebook when the sound itself is the question — pace,
-accent, a speaker's manner.
-
-## The books — `OracleDutchPDF`
+## The books — `books - library`
 
 Thirteen PDFs. The three Coutinho methods are the spine of the shelf, and they ladder by level.
 
@@ -86,98 +95,112 @@ Thirteen PDFs. The three Coutinho methods are the spine of the shelf, and they l
 | *Basiscursus 1 — woordenlijst NL–TR* (Boom, 2013) | A1–A2 | Dutch–Turkish word list |
 | *Van Start — woordenlijst NL–TR* (Boom, 2019) | A1 | Dutch–Turkish word list |
 
-Three of these are Turkish-mediated, which matters under the Turkish-first lock
+Three are Turkish-mediated, which matters under the Turkish-first lock
 ([adr/0002](./adr/0002-turkish-prose-quoted-english.md)): a Turkish explanation of a Dutch rule already exists
 and does not need inventing.
 
-## The exams — six notebooks
+## The exams — twelve notebooks
 
-Each notebook is **one year, one Programma**: `-1` is Programma I (B1, the `exam` Tier) and `-2` is
-Programma II (B2, the `stretch` Tier). Years 2023, 2024 and 2025.
+Each pair is **one year, one Programma**: `I` is Programma I (B1, the `exam` Tier) and `II` is Programma II
+(B2, the `stretch` Tier). Years 2023, 2024 and 2025.
 
-Each holds, for all four skills (Lezen, Luisteren, Schrijven, Spreken):
+The base notebook holds, for all four skills (Lezen, Luisteren, Schrijven, Spreken):
 
 - an **opgavenboekje** — the task booklet, the questions as the candidate sees them;
-- a **beoordelingsmodel** — the marking model, which is the answer key **and the scoring rules**;
-- the **Luisteren audio**, 53 to 60 mp3 tracks per notebook.
+- a **beoordelingsmodel** — the marking model, which is the answer key **and** the scoring rules;
+- the **Luisteren audio**, 53 to 60 mp3 tracks.
+
+The `- transcript` notebook holds the same listening material as text.
 
 Naming differs by year, so match loosely, never exactly:
 
 - **2023** names the audio by content — `2023 Luisteren I - 02 - Een gesprek met een autoverkoper - introductie.mp3`.
 - **2024 and 2025** name it by position — `Track 9_opgave 7.mp3`, with spacing that varies between files.
 
-**One gap.** `OracleDutch-exam-2025-1` holds 7 PDFs, not 8: the *Luisteren I opgavenboekje* is missing, so
-that year has the marking model for listening but not the task booklet. Every other exam notebook is complete.
-
-**Each year also has a `-transcripts` twin**, holding the Luisteren *and* Spreken audio as text. The audio and
-its text cannot share a notebook, because together they exceed 100 sources. Search the twin to find the task
-that matches an Objective, then open the audio in the paired notebook.
-
 ## The listening corpus — seven notebooks
-
-**Every listening source now has its text.** Five sources, 237 recordings, all readable as words.
 
 | Notebook | Range | Note |
 | --- | --- | --- |
-| `-eenbeetjenederlands-voice` | trailer, episodes 1–90 | Slow, scripted Dutch history and culture |
-| `-eenbeetjenederlands-transcript` | 92 `.txt` files | **The same podcast as text.** 87 published human transcripts plus 5 machine ones for the trailers |
-| `-zeg-het-in-het-nederlands` | episodes 1–58 | Two naming schemes coexist: `34 - zeg - het …` and `zeg - het … - 33` |
-| `-zeg-het-in-het-nederlands-transcripts` | 58 `.txt` files | The same episodes as text |
-| `-nos-jeugdjournaal` | 2025-05-28 → 2026-08-26 | Dated news for children. The best level fit found for B1. Audio **and** text |
-| `-echt-gebeurd` | afleveringen 550–579 | Native storytelling, unscripted, hardest of the five. Audio **and** text |
-| `-librivox-nl` | `alibaba` (chapters), `trom2` (chapters) | Two public-domain audiobooks, the only committable licence. Audio **and** text |
+| `een beetje nederlands - audio` | trailer, episodes 1–90 | Slow, scripted Dutch history and culture |
+| `een beetje nederlands - transcript` | 92 `.txt` files | **Published human transcripts.** Exact wording, free to search |
+| `zeg het in het nederlands - audio` | episodes 1–58 | One episode is stored twice — see *Known gaps* |
+| `zeg het in het nederlands - transcript` | 58 `.txt` files | Pairs with the audio by name, episode for episode |
+| `nos jeugdjournaal` | 2025-05-28 → 2026-08-26 | Dated news for children. The best level fit found for B1 |
+| `echt gebeurd` | afleveringen 550–579 | Native storytelling, unscripted, hardest of the set |
+| `librivox` | `alibaba`, `trom2` | Two public-domain audiobooks, the only committable licence |
 
-**Een Beetje Nederlands is split by modality, not by the source cap.** Ask `-transcript` when the exact
-wording matters; ask `-voice` when the audio itself matters. They are the same 90-odd episodes.
+**Een Beetje Nederlands splits by modality, not by the cap.** Ask `- transcript` when the exact wording
+matters; ask `- audio` when the sound matters. They are the same episodes.
 
-## The Turkish-mediated audio — two notebooks
+## The Turkish-mediated material — three notebooks
 
-- **`OracleDutchTRNL`** — 100 lessons, numbered 001–100 with no gaps and no duplicates, titled in Turkish by
-  topic (`TRNL 003 - Tanımak, öğrenmek, anlamak.mp3`). **This notebook is at the 100-source cap.** A new file
-  needs a second notebook.
-- **`OracleDutchTRNL-transcripts`** — the same 100 lessons as text. **Also at the cap**, so the pair cannot
-  grow without a third notebook.
-- **`OracleDutch30gunde`** — 28 tracks of *30 Günde Hollandaca*, still under their raw filenames
-  (`30gundehollandaca (14).mp3`), so a title says nothing about the lesson. Ask by content, never by name.
-  **This is the only source in the Oracle with no transcript**, because Drive holds none for it.
+- **`turkish - goethe book2 - audio`** — 98 lessons, titled in Turkish by topic
+  (`TRNL 003 - Tanımak, öğrenmek, anlamak.mp3`).
+- **`turkish - goethe book2 - transcript`** — 100 texts, numbered 001–100 with no gaps. **At the cap.**
+- **`turkish - 30 gunde hollandaca`** — 28 tracks, `30 Günde Hollandaca - Bölüm 01.mp3` upward. **No
+  transcripts, on purpose** — see *Known gaps*.
 
-## The transcripts
+## The live course — `course - nt2 taaldiensten`
 
-Every transcript beyond the 87 published Een Beetje Nederlands ones is a **machine transcript**, produced on
-this machine by [`tools/media/transcribe.js`](../../tools/media/README.md) — Whisper turbo, offline, measured
-at 96.1% word accuracy against a human transcript.
+Recordings of an NT2 course the learner attends, from Drive folder `NT2 Taaldiensten`. **This notebook grows**
+— a new recording appears after each lesson.
 
-Each file opens with a provenance header, so a Session can tell text from speech at a glance:
+- `NT2 Taaldiensten - tanisma dersi - weer en klimaat` — 56 min, the introduction lesson, weather vocabulary.
+- `NT2 Taaldiensten - les 2026-09-07` — 59 min.
 
-```
-### Machine transcript. Generated by tools/media/transcribe.js (Whisper turbo, offline).
-### Source: DUO oefenexamens NT2/2023 Spreken I/… .mp3   language=nl   9 segments  40s audio  4.4x realtime
-[00:00] Uw vriendin heeft morgen een sollicitatiegesprek.
-```
+**The teacher speaks Turkish and teaches Dutch words**, so a search in this notebook returns Turkish prose
+around Dutch terms. It is the closest thing on the shelf to the learner's own classroom, which makes it the
+right place to ask what a lesson has already covered.
 
-The header carries **timestamps per line**, so a passage found by search points straight at its second in the
-recording. Trust the words, and expect drift on names and on rare words — the accuracy figure is a word count,
-not a promise about any single word.
+**These recordings carry other people's voices.**
+[`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) excluded them from the Drive transcription run for that
+reason. The notebook is private and nothing from it is published, so the publicness lock is not touched — but a
+Lesson must never quote a classmate.
 
-**How they were loaded, in case it must be repeated.** The Drive route fails: `source add-drive-file` returns
-*"failed to process"* for these text files and leaves an error row behind. The working route is two steps —
-copy down with `rclone`, then upload with `notebooklm source add <path> --type file`, about **6 seconds per
-file**. 644 files were loaded this way with zero failures.
+### Adding a lesson recording
 
-## Known drift
+A Drive video does not go in directly, and **no audio file does either**. `source add-drive-file` accepts only
+`csv, docx, epub, markdown, md, pdf, pptx, txt`, so every mp3 on this shelf arrived through the web interface
+or as a local upload. The 200 MB source limit also rejects an hour of video. The route that works, measured on
+both recordings:
 
-Three things a Session should expect, none of them errors.
+1. `rclone copy` the `.mp4` to a scratch directory.
+2. `ffmpeg -vn -ac 1 -ar 16000 -b:a 32k` — an hour becomes about **14 MB**, and takes about 6 seconds.
+3. `notebooklm source add "<file>.mp3" --type file -n <id> --title "<name>"`.
+4. `notebooklm source wait <source-id> -n <id>` until the status is `ready`.
 
-1. **A notebook source title does not follow a Drive rename.** The title is a snapshot taken when the source
-   was added. Two `OracleDutchTRNL` sources still carry pre-rename names, `TRNL007.mp3` and `TRNL011.mp3`,
-   while the other 98 carry the [#139](https://github.com/atilileri/atilileri.github.io/issues/139) names.
-2. **Some titles carry mojibake** from the upload — `11 - marga - klomp├⌐.mp3` is Marga Klompé. Match on the
-   number, not the accented word.
-3. **Filenames are not a level signal.** Nothing in a title states A2, B1 or B2. Level comes from the exam
-   notebooks or from the human, never from a name.
-4. **A transcript notebook is not always separate.** Three listening sources keep their text beside their
-   audio, and four keep it in a `-transcripts` twin. The cap decided which, not a rule about meaning — so
-   resolve a family through the collection, never by assuming a name.
+The video track carries the slides, and this route drops it. The slides folder in Drive
+(`A0>A2/Ders slaytlari`) is empty today; when it fills, add the slides as their own sources.
+
+## Known gaps
+
+Six things a Session should expect. None is an error, and Docent repairs none of them —
+[`ORACLE.md`](./ORACLE.md) leaves the shelf to the learner.
+
+1. **Two Goethe lessons have no recording.** `TRNL 007 - Sayılar` and `TRNL 011 - Aylar` exist in Drive and
+   their transcripts are on the shelf, but the audio notebook holds neither. **Google rejects both files**,
+   reproducibly: the upload succeeds and processing then fails. Measured 2026-09-08 — the audio decodes
+   cleanly at normal loudness, a sibling file of identical format and size (`TRNL 006`) uploads and processes,
+   and the failure survives a re-encode, a metadata strip, an `m4a` container and a different notebook. The API
+   gives no reason. **Add these two through the web interface**, where every other file in that notebook came
+   from. The lessons are still searchable as text.
+2. **`listening - zeg het in het nederlands - audio` holds a duplicate.**
+   `25 - professor Oort, de sterrenkundige.mp3` appears twice, which is why the notebook shows 59 sources for
+   58 episodes. Audio and text pair by name on every episode.
+3. **The exam video tasks exist as text only.** Each `exam - … - transcript` notebook holds about ten more
+   files than its audio notebook — the DUO video tasks, such as *Een video over de burgemeester van Zeist*.
+   The video itself is not on the shelf.
+4. **`turkish - 30 gunde hollandaca` has no transcripts, on purpose.** The transcription run of 2026-09-07
+   covered 644 files and 69.4 hours with no failures, and
+   [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) records this body as deliberately excluded: the files
+   are word drills with no spoken topic. The same note marks the Goethe `book2` transcripts **unreliable**,
+   because those clips alternate Turkish and Dutch and recognition mangles Dutch inside Turkish speech. Treat
+   a Turkish-mediated transcript as a hint, never as a quotation.
+5. **A notebook source title can lag behind a Drive rename.** On 2026-09-06 two Goethe sources and every
+   30 Günde source still carried pre-rename names; by 2026-09-08 all of them matched Drive. The title does
+   catch up, so a mismatch means the survey is stale, not that the file is wrong.
+6. **Filenames are not a level signal.** No file is named for A2, B1 or B2, so a Session cannot read the level
+   off a name. Level comes from the exam notebooks, or from the learner.
 
 ## What is not in the Oracle
 
