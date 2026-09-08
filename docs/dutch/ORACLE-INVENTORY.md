@@ -43,39 +43,55 @@ that truncates.
 
 ## The shelf, at a glance
 
-25 notebooks, 1,500 sources.
+25 notebooks, 1,499 sources.
 
-| Notebook | Sources | Holds |
-| --- | --- | --- |
-| `books - library` | 13 | Every course book, dictionary and word list |
-| `course - nt2 taaldiensten` | 2 | Recordings of a live NT2 course, taught in Turkish |
-| `exam - 2023 I` | 66 | NT2 Programma I, 2023 — papers and listening audio |
-| `exam - 2023 I - transcript` | 68 | The same year as text |
-| `exam - 2023 II` | 65 | NT2 Programma II, 2023 |
-| `exam - 2023 II - transcript` | 65 | |
-| `exam - 2024 I` | 66 | NT2 Programma I, 2024 |
-| `exam - 2024 I - transcript` | 67 | |
-| `exam - 2024 II` | 61 | NT2 Programma II, 2024 |
-| `exam - 2024 II - transcript` | 62 | |
-| `exam - 2025 I` | 68 | NT2 Programma I, 2025 |
-| `exam - 2025 I - transcript` | 68 | |
-| `exam - 2025 II` | 63 | NT2 Programma II, 2025 |
-| `exam - 2025 II - transcript` | 64 | |
-| `listening - een beetje nederlands - audio` | 91 | Slow, scripted Dutch history and culture |
-| `listening - een beetje nederlands - transcript` | 92 | The published human transcripts |
-| `listening - zeg het in het nederlands - audio` | 59 | Holds one duplicate — see *Known gaps* |
-| `listening - zeg het in het nederlands - transcript` | 58 | |
-| `listening - nos jeugdjournaal` | 80 | 40 recordings **and** their 40 transcripts |
-| `listening - echt gebeurd` | 60 | 30 recordings and their 30 transcripts |
-| `listening - librivox` | 36 | 18 recordings and their 18 transcripts |
-| `turkish - goethe book2 - audio` | 98 | A Turkish–Dutch audio course |
-| `turkish - goethe book2 - transcript` | 100 | **Full.** |
-| `turkish - 30 gunde hollandaca` | 28 | *30 Günde Hollandaca*, audio only |
-| `scratch` | 0 | Empty on purpose. The only notebook a Session writes to. |
+| Notebook | Level | Sources | Holds |
+| --- | --- | --- | --- |
+| `books - library` | A0–B2 *(per book, below)* | 13 | Every course book, dictionary and word list |
+| `course - nt2 taaldiensten` | A0–A2 *(the course's own name)* | 2 | Recordings of a live NT2 course, taught in Turkish |
+| `exam - 2023 I` | **B1** *(CvTE)* | 66 | NT2 Programma I, 2023 — papers and listening audio |
+| `exam - 2023 I - transcript` | **B1** *(CvTE)* | 68 | The same year as text |
+| `exam - 2023 II` | **B2** *(CvTE)* | 65 | NT2 Programma II, 2023 |
+| `exam - 2023 II - transcript` | **B2** *(CvTE)* | 65 | The same year as text |
+| `exam - 2024 I` | **B1** *(CvTE)* | 66 | NT2 Programma I, 2024 |
+| `exam - 2024 I - transcript` | **B1** *(CvTE)* | 67 | The same year as text |
+| `exam - 2024 II` | **B2** *(CvTE)* | 61 | NT2 Programma II, 2024 |
+| `exam - 2024 II - transcript` | **B2** *(CvTE)* | 62 | The same year as text |
+| `exam - 2025 I` | **B1** *(CvTE)* | 68 | NT2 Programma I, 2025 |
+| `exam - 2025 I - transcript` | **B1** *(CvTE)* | 68 | The same year as text |
+| `exam - 2025 II` | **B2** *(CvTE)* | 63 | NT2 Programma II, 2025 |
+| `exam - 2025 II - transcript` | **B2** *(CvTE)* | 64 | The same year as text |
+| `listening - een beetje nederlands - audio` | B1–B2 *(self-declared)* | 91 | Slow, scripted Dutch history and culture |
+| `listening - een beetje nederlands - transcript` | B1–B2 *(self-declared)* | 92 | The published human transcripts |
+| `listening - zeg het in het nederlands - audio` | A2–B1 *(reviewers)* | 58 | 58 recordings |
+| `listening - zeg het in het nederlands - transcript` | A2–B1 *(reviewers)* | 58 | The same 58 episodes as text |
+| `listening - nos jeugdjournaal` | native, for children | 80 | 40 recordings **and** their 40 transcripts |
+| `listening - echt gebeurd` | native, unscripted | 60 | 30 recordings and their 30 transcripts |
+| `listening - librivox` | native, literary | 36 | 18 recordings and their 18 transcripts |
+| `turkish - goethe book2 - audio` | unrated | 98 | A Turkish–Dutch audio course |
+| `turkish - goethe book2 - transcript` | unrated | 100 | **Full.** |
+| `turkish - 30 gunde hollandaca` | unrated | 28 | *30 Günde Hollandaca*, audio only |
+| `scratch` | — | 0 | Empty on purpose. The only notebook a Session writes to. |
 
 **Google transcribes audio itself.** Measured 2026-09-06 and again 2026-09-08: a question to an audio notebook
 returns verbatim speech with the source file named. So every audio notebook is a searchable corpus, whether or
 not a separate transcript notebook exists.
+
+### Where the level comes from
+
+**A filename never states a level, so the notebook carries it instead.** Every source inside one notebook comes
+from a single body of material, so the level belongs to the notebook, and this table is where Docent reads it.
+Each claim names its evidence:
+
+- **`(CvTE)`** — certain. Programma I *is* B1 and Programma II *is* B2, by the exam board's definition. **The
+  exam notebooks are the only ground truth on this shelf**, which is what makes job 11 possible: to rate
+  anything else, compare it against an exam task.
+- **`(self-declared)`** and **`(reviewers)`** — the publisher's or the audience's claim, recorded in
+  [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md). Useful, not authoritative.
+- **`native`** — made for Dutch speakers, so no CEFR level applies. Treat it as above B2 unless a Session
+  proves otherwise.
+- **`unrated`** — no evidence exists. **Docent does not guess a level for these; it either avoids the notebook
+  or rates it against an exam notebook first, and the rating is written here.**
 
 ## The books — `books - library`
 
@@ -123,7 +139,7 @@ Naming differs by year, so match loosely, never exactly:
 | --- | --- | --- |
 | `een beetje nederlands - audio` | trailer, episodes 1–90 | Slow, scripted Dutch history and culture |
 | `een beetje nederlands - transcript` | 92 `.txt` files | **Published human transcripts.** Exact wording, free to search |
-| `zeg het in het nederlands - audio` | episodes 1–58 | One episode is stored twice — see *Known gaps* |
+| `zeg het in het nederlands - audio` | episodes 1–58 | |
 | `zeg het in het nederlands - transcript` | 58 `.txt` files | Pairs with the audio by name, episode for episode |
 | `nos jeugdjournaal` | 2025-05-28 → 2026-08-26 | Dated news for children. The best level fit found for B1 |
 | `echt gebeurd` | afleveringen 550–579 | Native storytelling, unscripted, hardest of the set |
@@ -159,10 +175,19 @@ Lesson must never quote a classmate.
 
 ### Adding a lesson recording
 
-A Drive video does not go in directly, and **no audio file does either**. `source add-drive-file` accepts only
-`csv, docx, epub, markdown, md, pdf, pptx, txt`, so every mp3 on this shelf arrived through the web interface
-or as a local upload. The 200 MB source limit also rejects an hour of video. The route that works, measured on
-both recordings:
+**A notebook accepts audio; the *Drive* route does not.** Keep the two apart, because confusing them makes the
+shelf look more closed than it is.
+
+- **A local upload of audio works** — `source add <file> --type file`. Measured many times on 2026-09-08.
+- **No Drive route carries audio.** `source add-drive-file` accepts only
+  `csv, docx, epub, markdown, md, pdf, pptx, txt`; `source add-drive` takes only native Docs, Slides, Sheets
+  and PDF; and a Drive share URL passed to `source add` fails to fetch. So the `google_drive` mp3 sources
+  already on this shelf came from the web interface, which has a route the API does not expose.
+- **A transcript is a `.txt`, so a transcript *can* go in by Drive reference.** Text and audio take different
+  routes.
+
+The 200 MB source limit also rejects an hour of video. The route that works for a lesson recording, measured on
+both:
 
 1. `rclone copy` the `.mp4` to a scratch directory.
 2. `ffmpeg -vn -ac 1 -ar 16000 -b:a 32k` — an hour becomes about **14 MB**, and takes about 6 seconds.
@@ -182,11 +207,11 @@ Six things a Session should expect. None is an error, and Docent repairs none of
    reproducibly: the upload succeeds and processing then fails. Measured 2026-09-08 — the audio decodes
    cleanly at normal loudness, a sibling file of identical format and size (`TRNL 006`) uploads and processes,
    and the failure survives a re-encode, a metadata strip, an `m4a` container and a different notebook. The API
-   gives no reason. **Add these two through the web interface**, where every other file in that notebook came
-   from. The lessons are still searchable as text.
-2. **`listening - zeg het in het nederlands - audio` holds a duplicate.**
-   `25 - professor Oort, de sterrenkundige.mp3` appears twice, which is why the notebook shows 59 sources for
-   58 episodes. Audio and text pair by name on every episode.
+   gives no reason, **and the web interface refuses them too** — the learner confirmed it on 2026-09-08. These
+   two are therefore **left out for good**, not pending. The lessons stay searchable as text.
+2. ~~A duplicate in `listening - zeg het in het nederlands - audio`.~~ **Fixed 2026-09-08.**
+   `25 - professor Oort, de sterrenkundige.mp3` had been added twice from the same Drive file; the later row
+   was deleted. The notebook now holds 58 sources, and audio and text pair by name on every episode.
 3. **The exam video tasks exist as text only.** Each `exam - … - transcript` notebook holds about ten more
    files than its audio notebook — the DUO video tasks, such as *Een video over de burgemeester van Zeist*.
    The video itself is not on the shelf.
@@ -199,8 +224,9 @@ Six things a Session should expect. None is an error, and Docent repairs none of
 5. **A notebook source title can lag behind a Drive rename.** On 2026-09-06 two Goethe sources and every
    30 Günde source still carried pre-rename names; by 2026-09-08 all of them matched Drive. The title does
    catch up, so a mismatch means the survey is stale, not that the file is wrong.
-6. **Filenames are not a level signal.** No file is named for A2, B1 or B2, so a Session cannot read the level
-   off a name. Level comes from the exam notebooks, or from the learner.
+6. **Filenames are not a level signal.** No file is named for A2, B1 or B2, so a Session cannot read a level
+   off a name. **The Level column above carries it instead**, per notebook and with its evidence — see
+   *Where the level comes from*.
 
 ## What is not in the Oracle
 
