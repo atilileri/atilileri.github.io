@@ -10,6 +10,17 @@ A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on 
 A durable teaching artifact — exposition on one thing, sized to about ten minutes of reading. It contains no prompts and bears no answers. One file, written in Turkish prose, quoting Dutch and English words.
 _Avoid_: Explainer, chapter, module
 
+**Tekst**:
+A published practice post built on one short Dutch text — the form the learner reads *in* Dutch,
+where a Lesson reads *about* Dutch. One file, never a set of translations. It holds, in this order,
+a word list of the Items it uses, the Dutch text, a Turkish gist of two or three sentences, and
+comprehension questions in Turkish. It introduces at most ten new words, which is one Session's
+new-Item budget. Docent writes it as a by-product of a Session whose Objective is a *lezen* one, so
+it inherits that Session's Theme and never picks a subject of its own. The Dutch is written by the
+agent and carries no marker; see [`adr/0010`](./adr/0010-published-dutch-is-unmarked.md).
+_Avoid_: Reading, article, parallel text, Delft post — the method here is Delft (a text plus its
+word list), not parallel text (the same content written twice).
+
 **Session**:
 A dated record of one invocation — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many. It holds its own Prompts, and its state — planned, partial or complete — is read off them rather than declared.
 _Avoid_: Iteration, lesson (when the event is meant), practice log
