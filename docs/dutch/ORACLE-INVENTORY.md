@@ -43,7 +43,7 @@ that truncates.
 
 ## The shelf, at a glance
 
-25 notebooks, 1,499 sources.
+25 notebooks, 1,555 sources.
 
 | Notebook | Level | Sources | Holds |
 | --- | --- | --- | --- |
@@ -70,7 +70,7 @@ that truncates.
 | `listening - librivox` | native, literary | 36 | 18 recordings and their 18 transcripts |
 | `turkish - goethe book2 - audio` | unrated | 98 | A Turkish–Dutch audio course |
 | `turkish - goethe book2 - transcript` | unrated | 100 | **Full.** |
-| `turkish - 30 gunde hollandaca` | unrated | 28 | *30 Günde Hollandaca*, audio only |
+| `turkish - 30 gunde hollandaca` | unrated | 84 | 28 recordings, each with a Turkish **and** a Dutch transcript |
 | `scratch` | — | 0 | Empty on purpose. The only notebook a Session writes to. |
 
 **Google transcribes audio itself.** Measured 2026-09-06 and again 2026-09-08: a question to an audio notebook
@@ -137,8 +137,9 @@ matters; ask `- audio` when the sound matters. They are the same episodes.
 - **`turkish - goethe book2 - audio`** — 98 lessons, titled in Turkish by topic
   (`TRNL 003 - Tanımak, öğrenmek, anlamak.mp3`).
 - **`turkish - goethe book2 - transcript`** — 100 texts, numbered 001–100 with no gaps. **At the cap.**
-- **`turkish - 30 gunde hollandaca`** — 28 tracks, `30 Günde Hollandaca - Bölüm 01.mp3` upward. **No
-  transcripts, on purpose** — see *Known gaps*.
+- **`turkish - 30 gunde hollandaca`** — 28 tracks, `30 Günde Hollandaca - Bölüm 01.mp3` upward, each with
+  **two** transcripts: `.tr.txt` and `.nl.txt`. The content is drills — chapter 1 is the alphabet read aloud,
+  chapter 20 is a noun list — so ask it for vocabulary, never for explanation.
 
 ## The live course — `course - nt2 taaldiensten`
 
@@ -168,25 +169,57 @@ carries audio and the other refuses it.
   goes in labelled as a PDF and the server ignores the label** — the stored type comes back as
   `google_drive`. Every audio source already on this shelf has that type, so this is the route that loaded the
   whole corpus.
-- **`source add-drive-file` downloads and re-uploads, and it refuses audio by type.** Its own error names the
-  set: *"Accepted: csv, docx, epub, markdown, md, pdf, pptx, txt."* A transcript is a `.txt`, so this route
-  suits text.
-- **A local upload of audio also works** — `source add <file> --type file`. Both lesson recordings went in
-  this way on 2026-09-08, before the reference route was measured.
+- **`source add-drive-file` downloads and re-uploads, and it is the route to avoid.** It refuses audio by
+  type, naming its own set — *"Accepted: csv, docx, epub, markdown, md, pdf, pptx, txt"* — and then **fails on
+  a `.txt` as well**, which is in that list: it copies the file under a temporary name such as
+  `nlm-drive-dblluc9x.txt` and the source lands at `error`. Measured on two transcripts, 2026-09-09. Use
+  `source add-drive` for text too.
+- **A local upload works for anything** — `source add <file> --type file`. Both lesson recordings went in this
+  way on 2026-09-08, before the reference route was measured, and 56 transcripts followed on 2026-09-09. **It
+  stores a copy, not a pointer**, and the copy shows up as type `pasted_text` rather than `google_drive` —
+  which is how those 56 were found and converted to references. Keep it as the fallback, never the default.
 
 **Prefer the reference route.** It uploads nothing, so Drive stays the master as
 [`MATERIAL.md`](./MATERIAL.md) requires, and the notebook holds a pointer rather than a copy. Its cost is that
 it rests on undeclared behaviour of an unofficial client — see
 [adr/0009](./adr/0009-the-shelf-rests-on-an-unofficial-client.md).
 
+### Three traps in the reference route
+
+All three were met on 2026-09-08, and each one cost a wrong conclusion before it was understood.
+
+1. **Drive fixes a file's mime type at upload and never revises it on rename.** A file uploaded as
+   `<name>.mp3.part` and then renamed is stored for ever as `application/x-partial-download`, and Gemini
+   Notebook refuses to import it — *"API returned no data for Drive source"*. So an atomic upload must keep the
+   extension and vary the **stem**: `.uploading-<name>.mp3`. Check a file with
+   `rclone lsjson` and expect `audio/mpeg` or `text/plain`.
+2. **The client reports a failure when the add succeeded.** Every `add-drive` in that session printed
+   *"RPC ADD_SOURCE failed after 30s, retries exhausted"* and the source landed anyway. Reading the error as
+   truth and retrying created a duplicate. **Verify by listing sources, never by exit status.**
+3. **A failed add can leave a source stuck in `error` state**, which still counts against the 100-source cap.
+   List with `--status error` and delete what you find.
+
+### The title is not yours to choose
+
+**Gemini Notebook rewrites a source title**, spacing out hyphens: `les 2026-09-07.mp3` is stored as
+`les 2026 - 09 - 07.mp3`. That is where every spaced-dash title on this shelf comes from — `afl - 550 - een -
+nieuwe - taal …` was never typed that way. A caller cannot prevent it, so **match a title to a Drive filename
+loosely**: lower-case it, collapse runs of spaces, hyphens and underscores into one separator, and compare the
+extension exactly, so an episode's mp3 never matches its own transcript.
+
+### Adding a lesson recording, step by step
+
 A video still needs converting, because the 200 MB source limit rejects an hour of video and no route accepts
-`video/mp4` at all. The full procedure for a lesson recording:
+`video/mp4` at all.
 
 1. `rclone copy` the `.mp4` to a scratch directory.
 2. `ffmpeg -vn -ac 1 -ar 16000 -b:a 32k` — an hour becomes about **14 MB**, and takes about 6 seconds.
-3. `rclone copy` the mp3 back to `NT2 Taaldiensten`, flat, keeping the lesson's date in the name.
+3. `rclone copyto` the mp3 to `.uploading-<name>.mp3` in `NT2 Taaldiensten`, then `rclone moveto` it to its
+   final name. Trap 1 explains the two steps.
 4. `notebooklm source add-drive <file-id> "<title>" -n <id> --mime-type pdf`.
-5. `notebooklm source wait <source-id> -n <id>` until the status is `ready`.
+5. **List the notebook's sources** and find the one carrying that `drive_document_id`. Trap 2 explains why the
+   command's own answer is not enough.
+6. `notebooklm source wait <source-id> -n <id>` until the status is `ready`.
 
 [#143](https://github.com/atilileri/atilileri.github.io/issues/143) turns this into a script.
 
@@ -211,12 +244,14 @@ Six things a Session should expect. None is an error, and Docent repairs none of
 3. **The exam video tasks exist as text only.** Each `exam - … - transcript` notebook holds about ten more
    files than its audio notebook — the DUO video tasks, such as *Een video over de burgemeester van Zeist*.
    The video itself is not on the shelf.
-4. **`turkish - 30 gunde hollandaca` has no transcripts, on purpose.** The transcription run of 2026-09-07
-   covered 644 files and 69.4 hours with no failures, and
-   [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) records this body as deliberately excluded: the files
-   are word drills with no spoken topic. The same note marks the Goethe `book2` transcripts **unreliable**,
-   because those clips alternate Turkish and Dutch and recognition mangles Dutch inside Turkish speech. Treat
-   a Turkish-mediated transcript as a hint, never as a quotation.
+4. **Turkish-mediated transcripts come in two passes, and neither is exact.** Recognition sets one language
+   per run, so a recording that alternates Turkish and Dutch mangles whichever half it was not told to expect.
+   `30 Günde Hollandaca` was transcribed twice on 2026-09-09 for that reason — 56 passes, 3.15 hours of audio,
+   no failures — and the two passes disagree usefully: chapter 20 gives `ziekenhuis` and `Zij is niet jong` in
+   the Dutch pass against `Ziktenhuis` and `Zij es niet jong` in the Turkish one. **Read the pass that matches
+   the language you want**, and treat either as a hint, never as a quotation. The Goethe `book2` transcripts
+   carry the same flaw and are marked unreliable in
+   [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md).
 5. **A notebook source title can lag behind a Drive rename.** On 2026-09-06 two Goethe sources and every
    30 Günde source still carried pre-rename names; by 2026-09-08 all of them matched Drive. The title does
    catch up, so a mismatch means the survey is stale, not that the file is wrong.
