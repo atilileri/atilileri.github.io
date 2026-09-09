@@ -1,0 +1,320 @@
+---
+// PROTOTYPE — throwaway. Issue #97, question Q16a/Q16b.
+//
+// "Can we embed the materials? both video and audio?"
+//
+// Three variants of ONE listening Clip on a mock Session page, switchable with
+// ?variant=A|B|C. Structurally different because they are three different embed
+// routes, not three skins:
+//
+//   A — YouTube iframe          (a public video; start/end is a real control)
+//   B — <audio> on the source's own URL (a podcast; #t= is a hint, not a lock)
+//   C — Drive iframe preview    (material with no public original — DUO exam)
+//
+// Every URL, id, level and duration below is REAL, not placeholder:
+//   A  video judged by #141's blind run  (MGX-sQLgdt8)
+//   B  Een Beetje Nederlands #87, 17:23, human transcript of 2,035 words
+//   C  DUO 2023 Luisteren I, opgave 1, Drive id 1RTBhdw…
+//
+// Do not merge to main. Delete with the branch.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const SESSION = {
+  id: "2026-09-09-autoverkoper",
+  date: "9 September 2026",
+  objective: "LUB1-2c — kan een eenvoudig gesprek over een alledaagse aankoop volgen",
+  tier: "exam (B1)",
+  theme: "Een tweedehands auto kopen",
+};
+
+const variants = [
+  {
+    key: "A",
+    name: "YouTube iframe",
+    home: "The live web",
+  },
+  {
+    key: "B",
+    name: "Audio on the source's own URL",
+    home: "The live web",
+  },
+  {
+    key: "C",
+    name: "Drive preview iframe",
+    home: "Drive",
+  },
+];
+
+// --- Variant A: a public video, judged by #141 -----------------------------
+const A = {
+  title: "B1 NT2 staatsexamen luisteren oefenexamen 1, deel 1",
+  videoId: "MGX-sQLgdt8",
+  start: 62,
+  end: 305,
+  declared: "B1 (in the title)",
+  judged: "at or below B1 — blind, title stripped",
+  duration: "4:03 of a longer video",
+  provenance: "https://www.youtube.com/watch?v=MGX-sQLgdt8 — read 2026-09-09",
+  questions: [
+    "Kandidaat hangi belgeyi getirmeyi unutmuş?",
+    "Satıcı arabanın kilometre bilgisi hakkında ne söylüyor?",
+    "Konuşmanın sonunda iki taraf neyi kararlaştırıyor?",
+  ],
+};
+
+// --- Variant B: a podcast, played from the podcast's own server ------------
+const B = {
+  title: "Een Beetje Nederlands #87 — Homohuwelijk",
+  src: "https://anchor.fm/s/48d96938/podcast/play/123593008/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2026-6-31%2F04115525-5724-1c68-08ac-ceba10ec73cf.mp3",
+  start: 260,
+  end: 430,
+  declared: "B1/B2 — the podcast's own claim",
+  judged: "at or below B1 — blind",
+  duration: "2:50 of 17:23",
+  provenance:
+    "https://podcasters.spotify.com/pod/show/een-beetje-nederlands/episodes/87-Homohuwelijk-e3mq8rg — read 2026-09-09",
+  drive: "Drive: dutch-listening/eenbeetjenederlands/87-homohuwelijk.mp3",
+  driveId: "1J6yOBKSToQ0E2QlGZRBIzYDRmmIZwbQo",
+  // Quoted Dutch is allowed here ONLY because a HUMAN transcript exists (Q5).
+  quote:
+    "In 2001 was Nederland het eerste land ter wereld waar twee mannen of twee vrouwen met elkaar konden trouwen.",
+  questions: [
+    "Hollanda bu konuda dünyada kaçıncı ülke oldu?",
+    "Sunucu hangi yılı iki kez tekrar ediyor, ve neden?",
+    "Konuşmacıya göre yasa çıkmadan önce çiftler ne yapabiliyordu?",
+  ],
+};
+
+// --- Variant C: an Exam task, with the official Dutch questions ------------
+const C = {
+  title: "DUO 2023 Luisteren I — Een gesprek met een autoverkoper, opgave 1",
+  driveId: "1RTBhdwbYpu78kTJDF2k55slM_rz0g_kV",
+  declared: "Luisteren I — certified B1 by the exam board",
+  judged: "not asked — a certified level is trusted",
+  duration: "0:48",
+  provenance:
+    "Drive: DUO oefenexamens NT2/2023 Luisteren I/2023 Luisteren I - 03 - Een gesprek met een autoverkoper - opgave 1.mp3",
+  // Official questions stay in Dutch, verbatim — Q18.
+  questions: [
+    "Waarom komt de man bij de autoverkoper?",
+    "Wat vindt de man belangrijk aan de auto?",
+    "Wat spreken ze af voor volgende week?",
+  ],
+  marking: "beoordelingsmodel.pdf, beside the clip in Drive",
+};
+---
+
+<BaseLayout title="PROTOTYPE — listening embeds" currentPath="/prototype/">
+  <main class="mx-auto max-w-3xl px-6 py-10">
+    <p
+      class="mb-8 rounded border border-dashed border-error px-4 py-2 text-sm text-error"
+    >
+      <strong>PROTOTYPE — issue #97.</strong> Three embed routes for one listening
+      Clip. Flip with the bar at the bottom, or the ← → keys. Nothing here is a real
+      Session.
+    </p>
+
+    <!-- The mock Session header is shared, so the variants are judged against the
+         same surroundings rather than in a vacuum. -->
+    <header class="mb-8 border-b border-outline-variant pb-6">
+      <p class="text-xs uppercase tracking-widest text-outline">
+        Session · {SESSION.date}
+      </p>
+      <h1 class="mt-1 text-2xl font-semibold text-on-background">
+        {SESSION.theme}
+      </h1>
+      <dl class="mt-4 grid grid-cols-[8rem_1fr] gap-y-1 text-sm">
+        <dt class="text-outline">Objective</dt>
+        <dd class="text-on-background">{SESSION.objective}</dd>
+        <dt class="text-outline">Tier</dt>
+        <dd class="text-on-background">{SESSION.tier}</dd>
+      </dl>
+    </header>
+
+    <!-- ================= VARIANT A — YouTube iframe ================= -->
+    <section data-variant="A" hidden>
+      <h2 class="mb-1 text-lg font-semibold">Luisteren</h2>
+      <p class="mb-4 text-sm text-outline">
+        Kijk van {Math.floor(A.start / 60)}:{
+          String(A.start % 60).padStart(2, "0")
+        } tot {Math.floor(A.end / 60)}:{String(A.end % 60).padStart(2, "0")}.
+      </p>
+
+      <div
+        class="aspect-video w-full overflow-hidden rounded-lg bg-surface-container-high"
+      >
+        <iframe
+          class="h-full w-full"
+          src={`https://www.youtube-nocookie.com/embed/${A.videoId}?start=${A.start}&end=${A.end}&rel=0`}
+          title={A.title}
+          allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+
+      <p class="mt-3 text-sm font-medium text-on-background">{A.title}</p>
+      <ul class="mt-1 space-y-0.5 text-xs text-outline">
+        <li>{A.duration}</li>
+        <li>Judged: {A.judged}</li>
+        <li>Claimed: {A.declared}</li>
+        <li class="break-all">{A.provenance}</li>
+        <li>Anyone can open this.</li>
+      </ul>
+
+      <ol class="mt-6 space-y-3">
+        {
+          A.questions.map((q, i) => (
+            <li class="rounded bg-surface-container-low px-4 py-3 text-sm">
+              <span class="mr-2 font-mono text-xs text-primary">P{i + 1}</span>
+              {q}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <!-- ================= VARIANT B — audio on the source's URL ================= -->
+    <section data-variant="B" hidden>
+      <h2 class="mb-1 text-lg font-semibold">Luisteren</h2>
+      <p class="mb-4 text-sm text-outline">
+        Luister van {Math.floor(B.start / 60)}:{
+          String(B.start % 60).padStart(2, "0")
+        } tot {Math.floor(B.end / 60)}:{String(B.end % 60).padStart(2, "0")}.
+        De speler begint daar zelf.
+      </p>
+
+      <div class="rounded-lg bg-surface-container-low p-4">
+        <p class="mb-3 text-sm font-medium text-on-background">{B.title}</p>
+        <!-- #t=start,end — the browser honours the start reliably and the end
+             loosely, so the range is also stated in the text above. -->
+        <audio
+          class="w-full"
+          controls
+          preload="metadata"
+          src={`${B.src}#t=${B.start},${B.end}`}></audio>
+      </div>
+
+      <!-- Quoted Dutch: allowed because episode 87 has a HUMAN transcript. -->
+      <blockquote
+        class="mt-5 border-l-2 border-primary bg-surface-container-lowest py-2 pl-4 text-sm italic text-on-background"
+      >
+        “{B.quote}”
+      </blockquote>
+
+      <ul class="mt-3 space-y-0.5 text-xs text-outline">
+        <li>{B.duration}</li>
+        <li>Judged: {B.judged}</li>
+        <li>Claimed: {B.declared}</li>
+        <li class="break-all">{B.provenance}</li>
+        <li class="break-all">
+          {B.drive} — <a
+            class="underline"
+            href={`https://drive.google.com/file/d/${B.driveId}/view`}
+            target="_blank">the working copy</a
+          >, which only the learner can open.
+        </li>
+      </ul>
+
+      <ol class="mt-6 space-y-3">
+        {
+          B.questions.map((q, i) => (
+            <li class="rounded bg-surface-container-low px-4 py-3 text-sm">
+              <span class="mr-2 font-mono text-xs text-primary">P{i + 1}</span>
+              {q}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <!-- ================= VARIANT C — Drive preview, as an Exam task ================= -->
+    <section data-variant="C" hidden>
+      <h2 class="mb-1 text-lg font-semibold">Exam task — Luisteren I</h2>
+      <p class="mb-4 text-sm text-outline">
+        Een echt oefenexamen. De vragen zijn de officiële vragen, in het
+        Nederlands.
+      </p>
+
+      <div class="overflow-hidden rounded-lg bg-surface-container-high">
+        <iframe
+          class="h-24 w-full"
+          src={`https://drive.google.com/file/d/${C.driveId}/preview`}
+          title={C.title}
+          allow="autoplay"></iframe>
+      </div>
+
+      <p class="mt-3 text-sm font-medium text-on-background">{C.title}</p>
+      <ul class="mt-1 space-y-0.5 text-xs text-outline">
+        <li>{C.duration}</li>
+        <li>Level: {C.declared}</li>
+        <li>Oracle: {C.judged}</li>
+        <li class="break-all">{C.provenance}</li>
+        <li>
+          No public original exists. Only the learner can open this, and the
+          player above shows a sign-in wall to anybody else.
+        </li>
+        <li>Marked against {C.marking}.</li>
+      </ul>
+
+      <ol class="mt-6 space-y-3">
+        {
+          C.questions.map((q, i) => (
+            <li class="rounded bg-surface-container-low px-4 py-3 text-sm">
+              <span class="mr-2 font-mono text-xs text-primary">P{i + 1}</span>
+              {q}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+  </main>
+
+  <!-- Floating switcher. Prototype furniture, deliberately not in the design. -->
+  <div
+    id="switcher"
+    class="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full bg-inverse-surface px-3 py-2 text-inverse-on-surface shadow-lg"
+  >
+    <button data-step="-1" class="px-2 text-lg leading-none">←</button>
+    <span id="switcher-label" class="min-w-56 text-center text-sm"></span>
+    <button data-step="1" class="px-2 text-lg leading-none">→</button>
+  </div>
+
+  <script is:inline define:vars={{ variants }}>
+    const keys = variants.map((v) => v.key);
+    const label = document.getElementById("switcher-label");
+
+    function render(key) {
+      document
+        .querySelectorAll("[data-variant]")
+        .forEach((el) => (el.hidden = el.dataset.variant !== key));
+      const v = variants.find((x) => x.key === key);
+      label.textContent = `${v.key} — ${v.name}`;
+      const url = new URL(window.location.href);
+      url.searchParams.set("variant", key);
+      history.replaceState({}, "", url);
+    }
+
+    function current() {
+      const k = new URL(window.location.href).searchParams.get("variant");
+      return keys.includes(k) ? k : keys[0];
+    }
+
+    function step(n) {
+      const i = keys.indexOf(current());
+      render(keys[(i + n + keys.length) % keys.length]);
+    }
+
+    document
+      .querySelectorAll("#switcher button")
+      .forEach((b) => b.addEventListener("click", () => step(+b.dataset.step)));
+
+    document.addEventListener("keydown", (e) => {
+      const t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable))
+        return;
+      if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "ArrowRight") step(1);
+    });
+
+    render(current());
+  </script>
+</BaseLayout>
