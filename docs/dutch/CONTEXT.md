@@ -2,7 +2,7 @@
 
 A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); provenance by [#94](https://github.com/atilileri/atilileri.github.io/issues/94); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
 
-**Three skills, not four.** This journey teaches *lezen*, *schrijven* and *luisteren*, plus KNM. **Spreken** is a word the Plan uses and the system does not teach: nothing here judges an accent, so the speaking Objectives sit in the Plan marked `unsupported` and are never selected. Listening rests on human recordings only; generated speech is unused. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md).
+**Three skills, not four.** This journey teaches *lezen*, *schrijven* and *luisteren*, plus KNM. **Spreken** is a word the Plan uses and the system does not teach: nothing here judges an accent, so the speaking Objectives sit in the Plan marked `unsupported` and are never selected. Listening rests on human recordings only; generated speech is unused. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Which listening material is admitted, and what a Session makes from it, is [`LISTENING.md`](./LISTENING.md)**, locked by [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
 
 ## Language
 
@@ -125,6 +125,14 @@ _Avoid_: Branch (means git here), command, subskill, route
 **Provenance**:
 Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise. The string names one of the four homes in [`MATERIAL.md`](./MATERIAL.md), which also holds the form to write for each.
 _Avoid_: Source, attribution, reference (the cheat sheet), credit
+
+**Body**:
+One whole source folder of listening material — `eenbeetjenederlands/`, `DUO oefenexamens NT2/`. It is the unit an admission verdict judges, and the verdict is written once in [`LISTENING.md`](./LISTENING.md) and does not change. Level is never a Body's property, because one Body spans several levels.
+_Avoid_: Source (means the citation), collection, corpus, feed
+
+**Clip**:
+One recording the learner listens to, with its transcript — a whole file, or a **stated time range** inside one, named off the transcript's `[mm:ss]` marks. It is the unit a Session points at, and its level is judged live and stored nowhere. Audio is never cut to make one.
+_Avoid_: Listening item (the word Item is taken and means one lexical thing), track, episode, segment, excerpt
 
 **Register**:
 How formally a Scenario is conducted, held on the Scenario as one of exactly three values: `informal` (`je`; friends, teammates, a market stall), `neutral` (`je` or `u`; a shop, a class, a stranger) and `formal` (`u`; official letters, a doctor, a bank). A closed set, so Docent chooses a value rather than inventing one.

@@ -2,7 +2,7 @@
 
 What Dutch listening material exists, what was landed, and what only a human can get.
 Produced by [#96](https://github.com/atilileri/atilileri.github.io/issues/96). **This file records facts, not choices.**
-[#97](https://github.com/atilileri/atilileri.github.io/issues/97) selects the sources; [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences; [#89](https://github.com/atilileri/atilileri.github.io/issues/89) decides where material lives in the repo.
+**The choices now live in [`LISTENING.md`](./LISTENING.md)** — which Bodies are admitted, how a Clip's level is judged, and what a Session makes from one — locked by [#97](https://github.com/atilileri/atilileri.github.io/issues/97). [#94](https://github.com/atilileri/atilileri.github.io/issues/94) rules on licences; [#89](https://github.com/atilileri/atilileri.github.io/issues/89) decides where material lives in the repo.
 
 ## Where the files are
 

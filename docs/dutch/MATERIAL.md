@@ -62,6 +62,7 @@ away from its folder. The shape is a sortable prefix and a prose tail:
 | Exam media | `2023 Luisteren I - 17 - Een les van de drogisterijdocent - opgave 13.mp3` |
 | Exam papers | `2023 Luisteren I - opgavenboekje.pdf`, `2023 Luisteren I - beoordelingsmodel.pdf` |
 | Books | `Nederlands in gang - A0-A2 (Coutinho, 2017).pdf` |
+| Coursebook audio | `Nederlands in gang - 01 - dialoog.mp3`, `Nederlands in gang - 17 - opdracht 04c.mp3` |
 | Goethe book2 | `TRNL 007 - Sayılar.mp3` |
 | Podcasts | `50 - de ijstijd, de hunebedden en de eerste boeren.mp3` |
 
@@ -84,6 +85,10 @@ and it names the home:
 | The live web | the URL, plus the date read |
 
 An **Item** carries no provenance. A word comes from everywhere.
+
+A **Clip** in a Session uses the same strings, and adds the duration or time range, the judged
+level band beside any declared claim, and — for Drive material — optionally a Drive link
+beside the `Drive:` string. The format is in [`LISTENING.md`](./LISTENING.md).
 
 ## What is in the repo, and where it came from
 
