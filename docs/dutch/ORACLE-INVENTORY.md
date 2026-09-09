@@ -184,9 +184,16 @@ carries audio and the other refuses it.
 it rests on undeclared behaviour of an unofficial client — see
 [adr/0009](./adr/0009-the-shelf-rests-on-an-unofficial-client.md).
 
-### Three traps in the reference route
+**Every source on this shelf is a reference.** Measured 2026-09-09 across all 25 notebooks: **1,557 sources,
+1,557 references, no copies and none in an error state.** It was not always so — 647 sources were uploaded
+copies, and `tools/dutch/oracle-refs.mjs` converted them, adding the reference and confirming it `ready`
+before deleting each copy. **Keep it that way**: a copy stores the same bytes twice and hides a file from the
+Drive folder that is supposed to be the master. Check with `source list --json` and read `drive_document_id` —
+a copy has none.
 
-All three were met on 2026-09-08, and each one cost a wrong conclusion before it was understood.
+### Four traps in the reference route
+
+All four were met on 2026-09-08 and 2026-09-09, and each one cost a wrong conclusion before it was understood.
 
 1. **Drive fixes a file's mime type at upload and never revises it on rename.** A file uploaded as
    `<name>.mp3.part` and then renamed is stored for ever as `application/x-partial-download`, and Gemini
@@ -198,6 +205,12 @@ All three were met on 2026-09-08, and each one cost a wrong conclusion before it
    truth and retrying created a duplicate. **Verify by listing sources, never by exit status.**
 3. **A failed add can leave a source stuck in `error` state**, which still counts against the 100-source cap.
    List with `--status error` and delete what you find.
+4. **A notebook at the 100-source cap cannot be converted in the safe order.** Replacing a copy with a
+   reference normally means *add, confirm, then delete*, which needs a 101st slot — so at the cap the add
+   quietly does nothing and the copy stays. Freeing one slot buys nothing either, because such a notebook
+   **ends** at the cap too. Every file there needs the order inverted: **delete the copy, then add the
+   reference**, which is what `tools/dutch/oracle-refs.mjs --capped` does. Confirm the file is in Drive first,
+   so a failure costs the notebook's link and never the material.
 
 ### The title is not yours to choose
 
