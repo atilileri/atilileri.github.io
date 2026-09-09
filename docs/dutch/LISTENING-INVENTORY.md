@@ -33,25 +33,34 @@ confirmation — [#130](https://github.com/atilileri/atilileri.github.io/issues/
 [`AUTOMATION.md`](./AUTOMATION.md); the folder's contents are on
 [#133](https://github.com/atilileri/atilileri.github.io/issues/133)'s list.
 
-**Every source now has a transcript, and the run that made them is finished.** On 2026-09-07 the agent
+**Every source now has a transcript, and the runs that made them are finished.** On 2026-09-07 the agent
 transcribed **644 files, 69.4 hours of audio, with no failures**, locally and offline, and wrote one text file
-beside each audio file. That covers every source in the table below and all 394 DUO exam clips. Two bodies were
-left out on purpose: `30 Günde Hollandaca`, whose files are word drills with no spoken topic, and the NT2
-Taaldiensten class recordings, which show identifiable people. **The Goethe `book2` transcripts are marked
-unreliable** — those clips alternate Turkish and Dutch, and recognition mangles Dutch embedded in Turkish
-speech; their header records `language=auto`.
+beside each audio file — every source in the table below, plus all 394 DUO exam clips. On 2026-09-09
+`30 Günde Hollandaca` followed, **twice per recording**: 28 recordings, **56 passes**, 3.15 hours. Recognition
+sets one language per run, so each recording carries a `.tr.txt` and a `.nl.txt`. **700 machine transcripts in
+total.**
 
-**The "Transcript" column below no longer says what the agent can read.** Since 2026-09-05 the agent transcribes
+**One body is left untranscribed on purpose**: the NT2 Taaldiensten class recordings, which show identifiable
+people.
+
+**Two bodies are marked unreliable in the files themselves, because they alternate Turkish and Dutch and
+recognition mangles Dutch embedded in Turkish speech.** The Goethe `book2` transcripts carry a
+`# UNRELIABLE for Dutch` line and ran with `language=auto`. The `30 Günde Hollandaca` passes carry a
+`# UNRELIABLE` line for a second reason: those recordings are word drills with no sentence context, so
+recognition has almost nothing to work from and **both passes read poorly** — chapter 1 is the alphabet read
+aloud. Read either set as a hint, never as a source.
+
+**The "Published transcript" column below says what a *person* wrote, not what the agent can read.** Since 2026-09-05 the agent transcribes
 Dutch speech locally, at **96.1% word accuracy against a human transcript** and about **4x realtime** — so every
-hour in this table is readable, published transcript or not, and so are the 306 exam listening clips in
-`DUO oefenexamens NT2/`. The column still matters, because a published transcript is exact, free and already written;
-a generated one costs CPU time and drifts on names. See [`READING-MATERIAL.md`](./READING-MATERIAL.md) for the
+hour in this table is readable, published transcript or not, and so are the 291 Luisteren clips in
+`DUO oefenexamens NT2/`. Every row now has a transcript beside its audio. The column still matters, because a
+published transcript is exact, free and already written; a generated one costs CPU time and drifts on names. See [`READING-MATERIAL.md`](./READING-MATERIAL.md) for the
 measured limits. What a Session should reach for stays with
 [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
 
 ## Landed by the agent
 
-| Source | Folder | Items | Audio | Size | Level | Transcript | Licence |
+| Source | Folder | Items | Audio | Size | Level | Published transcript | Licence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Een Beetje Nederlands](https://www.eenbeetjenederlands.nl/) | `eenbeetjenederlands/` | 91 of 91 (whole feed) | 19.6 h | 2.25 GB | Self-declared B1/B2 | **Yes — 87 free full transcripts**, median 1,534 words | © the podcast. Feed and transcripts are public and free; `robots.txt` allows everything |
 | [Zeg het in het Nederlands](https://dutchidiom.com/shownotes-zeg-het-in-het-nederlands/) | `zeg-het-in-het-nederlands/` | 58 of 58 (whole feed) | 29.9 h | 1.72 GB | Self-declared "slow Dutch", reviewers say A2–B1 | No — PDF transcripts are **sold**, episodes 1–40 only | © the podcast. Audio free via SoundCloud feed |
