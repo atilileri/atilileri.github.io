@@ -36,6 +36,11 @@ Three rules bind every call:
 - The **modality** — `audio` or `transcript`, always singular — appears **only when a source is split across
   two notebooks**. A source whose audio and text fit together under the 100-source cap has no modality suffix,
   and holds both.
+- **A modality may carry a variant**, when one source publishes the same content twice and the difference
+  matters to a Session. *Nederlands in gang* is the only case today: `audio met pauzes` holds the
+  listen-and-repeat recordings, in the source's own words, so a search for the content lands on the plain
+  recording and never on the one full of silence. The variant splits the transcripts the same way, which keeps
+  every audio notebook paired one-to-one with a text one.
 
 No name repeats the collection. `OracleDutch` was a prefix on all 16 notebooks until 2026-09-08; the
 collection does that work, and the prefix cost 12 identical characters at the front of every tile in a grid
@@ -43,11 +48,15 @@ that truncates.
 
 ## The shelf, at a glance
 
-25 notebooks, 1,555 sources.
+29 notebooks, 1,771 sources.
 
 | Notebook | Level | Sources | Holds |
 | --- | --- | --- | --- |
 | `books - library` | A0–B2 *(per book, below)* | 13 | Every course book, dictionary and word list |
+| `books - nederlands in gang - audio` | **A0–A2** *(the book's own level)* | 71 | The recordings Coutinho publishes with the book |
+| `books - nederlands in gang - audio met pauzes` | **A0–A2** | 36 | The same recordings with gaps for repeating |
+| `books - nederlands in gang - transcript` | **A0–A2** | 71 | The 71 recordings as text |
+| `books - nederlands in gang - transcript met pauzes` | **A0–A2** | 36 | The 36 repeat versions as text |
 | `course - nt2 taaldiensten` | A0–A2 *(the course's own name)* | 2 | Recordings of a live NT2 course, taught in Turkish |
 | `exam - 2023 I` | **B1** *(CvTE)* | 66 | NT2 Programma I, 2023 — papers and listening audio |
 | `exam - 2023 I - transcript` | **B1** *(CvTE)* | 68 | The same year as text |
@@ -98,6 +107,35 @@ Thirteen PDFs. The three Coutinho methods are the spine of the shelf, and they l
 Three are Turkish-mediated, which matters under the Turkish-first lock
 ([adr/0002](./adr/0002-turkish-prose-quoted-english.md)): a Turkish explanation of a Dutch rule already exists
 and does not need inventing.
+
+### One book also has its audio — four notebooks
+
+*Nederlands in gang* is the only book on the shelf whose recordings are here too, added 2026-09-09 by
+[#144](https://github.com/atilileri/atilileri.github.io/issues/144). The 107 recordings and their 107 machine
+transcripts sit in Drive at `Nederlands in gang - audio/`, and the four notebooks hold **references, never
+copies**.
+
+**Why four and not one.** 214 sources cannot fit under the 100-source cap. The split follows the material's own
+distinction rather than a chapter range: a `met pauzes` recording is the same text read with gaps for
+repeating, so it belongs beside its plain twin but must never be what a content search returns.
+
+| Notebook | Sources | Ask it for |
+| --- | --- | --- |
+| `books - nederlands in gang - audio` | 71 | The dialogue, the listening text or an exercise clip, chapters 1–18 |
+| `books - nederlands in gang - transcript` | 71 | The same, as exact text |
+| `books - nederlands in gang - audio met pauzes` | 36 | The listen-and-repeat version, when the *pauses* are the point |
+| `books - nederlands in gang - transcript met pauzes` | 36 | Rarely. Its words repeat the plain transcript |
+
+**Search the plain notebooks first.** The `met pauzes` pair exists so the material is complete, not because a
+Session usually wants it.
+
+**The transcripts are machine-written and say so in their first line.** They come from
+`tools/media/transcribe.js`, offline, at about 3.2x realtime. Accuracy on this material is good — the
+recordings are scripted, studio-clean, A0–A2 speech — but a transcript is still evidence about the audio and
+never the book's printed text. **For the printed text, ask `books - library`**, which holds the PDF.
+
+**This notebook family pairs with the book.** A grammar question belongs in `books - library`; *"how does this
+dialogue actually sound, and what is said in it"* belongs here.
 
 ## The exams — twelve notebooks
 
@@ -184,16 +222,16 @@ carries audio and the other refuses it.
 it rests on undeclared behaviour of an unofficial client — see
 [adr/0009](./adr/0009-the-shelf-rests-on-an-unofficial-client.md).
 
-**Every source on this shelf is a reference.** Measured 2026-09-09 across all 25 notebooks: **1,557 sources,
-1,557 references, no copies and none in an error state.** It was not always so — 647 sources were uploaded
+**Every source on this shelf is a reference.** Measured 2026-09-09 across all 29 notebooks: **1,771 sources,
+1,771 references, no copies and none in an error state.** It was not always so — 647 sources were uploaded
 copies, and `tools/dutch/oracle-refs.mjs` converted them, adding the reference and confirming it `ready`
 before deleting each copy. **Keep it that way**: a copy stores the same bytes twice and hides a file from the
 Drive folder that is supposed to be the master. Check with `source list --json` and read `drive_document_id` —
 a copy has none.
 
-### Four traps in the reference route
+### Five traps in the reference route
 
-All four were met on 2026-09-08 and 2026-09-09, and each one cost a wrong conclusion before it was understood.
+All five were met on 2026-09-08 and 2026-09-09, and each one cost a wrong conclusion before it was understood.
 
 1. **Drive fixes a file's mime type at upload and never revises it on rename.** A file uploaded as
    `<name>.mp3.part` and then renamed is stored for ever as `application/x-partial-download`, and Gemini
@@ -211,6 +249,13 @@ All four were met on 2026-09-08 and 2026-09-09, and each one cost a wrong conclu
    **ends** at the cap too. Every file there needs the order inverted: **delete the copy, then add the
    reference**, which is what `tools/dutch/oracle-refs.mjs --capped` does. Confirm the file is in Drive first,
    so a failure costs the notebook's link and never the material.
+5. **One `add-drive` call can create more than one source.** The client retries internally, so a retry can land
+   even when the caller made a single call. Measured 2026-09-09 on
+   [#144](https://github.com/atilileri/atilileri.github.io/issues/144): 71 audio files produced **100** sources
+   — the cap — and 36 produced **72**, every extra one a second row carrying the same `drive_document_id`. So
+   **verify a run by de-duplicating on `drive_document_id`, never by counting sources**, and clean up by
+   deleting the later row until each Drive file appears exactly once. This is trap 2 from the other side: the
+   client's report of what it did is evidence in neither direction.
 
 ### The title is not yours to choose
 

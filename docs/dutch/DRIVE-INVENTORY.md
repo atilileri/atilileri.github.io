@@ -22,16 +22,18 @@ Second, the **machine transcription run finished**: 644 files, 69.4 hours of aud
 and offline. Drive now holds **732 transcripts** — the user's 87 plus 645 written by machine. Two folders were
 left untranscribed on purpose, and [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md) says why.
 
-**Totals: 1,927 files, 8.6 GiB, in 25 folders**, plus the index at the top of the folder that repeats the
-naming convention for anyone browsing Drive.
+**Totals, measured 2026-09-09: 2,201 files, 8.99 GiB, in 29 folders**, plus the index at the top of the
+folder that repeats the naming convention for anyone browsing Drive. The count is read from Drive, never
+computed from the previous total — the folder grows between reads, and the weekly course recordings
+([#143](https://github.com/atilileri/atilileri.github.io/issues/143)) land themselves.
 
 | Extension | Files |
 | --- | --- |
-| `.txt` | 732 |
-| `.mp3` | 706 |
+| `.txt` | 896 |
+| `.mp3` | 815 |
 | `.opus` | 306 |
 | `.pdf` | 62 |
-| `.mp4` | 54 |
+| `.mp4` | 55 |
 | `.webm` | 53 |
 | `.json` | 7 |
 | `.rss` | 4 |
@@ -81,6 +83,27 @@ from the same author's German book.
 These are the Oracle's material, home 3 in [`MATERIAL.md`](./MATERIAL.md). They are commercial works: the
 agent asks the Oracle about them and never copies them.
 [#134](https://github.com/atilileri/atilileri.github.io/issues/134) decides what the Oracle is.
+
+**One of them has its audio here too — `Nederlands in gang - audio/`, 214 files, 180.5 MB.** This is the
+audio Coutinho publishes with *Nederlands in gang*, the A0–A2 method: **107 recordings across the book's 18
+chapters**, plus a machine transcript of each. Four kinds of recording, and every chapter has the first two:
+
+- **the `dialoog`** that opens each chapter, and
+- **the `intensieve luistertekst`**, the intensive listening text from the chapter's extra material;
+- **33 `opdracht` clips**, the audio a numbered exercise needs;
+- **`het alfabet` and `telwoorden`** in chapter 1, which teach the letters and the numbers.
+
+**Thirty-six of the 107 are a `met pauzes` version** — the same recording with gaps for repeating aloud, which
+the book's preface tells the learner to use. Every chapter has one for its `dialoog`; chapters 14 and 17 have
+none for their listening text.
+
+**The chapter number in a filename is the book's own.** The recordings announce it — *"Dialoog bij
+hoofdstuk 1"* — and the book's contents pages, read through the Oracle, name all 18 chapters. The name carries
+the number and not the chapter title, at the learner's request.
+
+**The audio is commercial, exactly like the book it belongs to**, so it never leaves Drive. It is on the
+Oracle by reference only — four notebooks, listed in
+[`ORACLE-INVENTORY.md`](./ORACLE-INVENTORY.md).
 
 **3. The listening corpus — `dutch-listening/`, 486 files, 5.38 GiB.** Landed by
 [#96](https://github.com/atilileri/atilileri.github.io/issues/96) and inventoried source by source in
@@ -343,6 +366,116 @@ sharing its name, so each folder states the count instead. The two folders left 
 - `TRNL 099 - Belirten.mp3` — 1.4 MB
 - `TRNL 100 - Nitelik zarfları.mp3` — 1.3 MB
 - **plus 100 machine transcripts**, one per audio file, each named for its audio file with a `.txt` extension — 230 KB in total.
+
+**`atili/Dutch/Nederlands in gang - audio/`** — 214 files, 180.5 MB
+
+- `Nederlands in gang - 01 - dialoog met pauzes.mp3` — 3.4 MB
+- `Nederlands in gang - 01 - dialoog.mp3` — 2.1 MB
+- `Nederlands in gang - 01 - het alfabet met pauzes.mp3` — 607 KB
+- `Nederlands in gang - 01 - het alfabet.mp3` — 401 KB
+- `Nederlands in gang - 01 - intensieve luistertekst met pauzes.mp3` — 885 KB
+- `Nederlands in gang - 01 - intensieve luistertekst.mp3` — 366 KB
+- `Nederlands in gang - 01 - opdracht 10.mp3` — 1.9 MB
+- `Nederlands in gang - 01 - telwoorden met pauzes.mp3` — 868 KB
+- `Nederlands in gang - 01 - telwoorden.mp3` — 523 KB
+- `Nederlands in gang - 02 - dialoog met pauzes.mp3` — 2.6 MB
+- `Nederlands in gang - 02 - dialoog.mp3` — 1.6 MB
+- `Nederlands in gang - 02 - intensieve luistertekst met pauzes.mp3` — 606 KB
+- `Nederlands in gang - 02 - intensieve luistertekst.mp3` — 265 KB
+- `Nederlands in gang - 02 - opdracht 15.mp3` — 3.0 MB
+- `Nederlands in gang - 02 - opdracht 16.mp3` — 1.4 MB
+- `Nederlands in gang - 03 - dialoog met pauzes.mp3` — 2.5 MB
+- `Nederlands in gang - 03 - dialoog.mp3` — 1.7 MB
+- `Nederlands in gang - 03 - intensieve luistertekst met pauzes.mp3` — 538 KB
+- `Nederlands in gang - 03 - intensieve luistertekst.mp3` — 213 KB
+- `Nederlands in gang - 03 - opdracht 12.mp3` — 1.6 MB
+- `Nederlands in gang - 03 - opdracht 13.mp3` — 1.3 MB
+- `Nederlands in gang - 04 - dialoog met pauzes.mp3` — 2.9 MB
+- `Nederlands in gang - 04 - dialoog.mp3` — 1.6 MB
+- `Nederlands in gang - 04 - intensieve luistertekst met pauzes.mp3` — 930 KB
+- `Nederlands in gang - 04 - intensieve luistertekst.mp3` — 345 KB
+- `Nederlands in gang - 04 - opdracht 09.mp3` — 2.4 MB
+- `Nederlands in gang - 04 - opdracht 10.mp3` — 1.5 MB
+- `Nederlands in gang - 05 - dialoog met pauzes.mp3` — 3.1 MB
+- `Nederlands in gang - 05 - dialoog.mp3` — 1.8 MB
+- `Nederlands in gang - 05 - intensieve luistertekst met pauzes.mp3` — 693 KB
+- `Nederlands in gang - 05 - intensieve luistertekst.mp3` — 289 KB
+- `Nederlands in gang - 05 - opdracht 14.mp3` — 2.1 MB
+- `Nederlands in gang - 05 - opdracht 15.mp3` — 2.0 MB
+- `Nederlands in gang - 05 - opdracht 16.mp3` — 1.5 MB
+- `Nederlands in gang - 06 - dialoog met pauzes.mp3` — 3.7 MB
+- `Nederlands in gang - 06 - dialoog.mp3` — 2.3 MB
+- `Nederlands in gang - 06 - intensieve luistertekst met pauzes.mp3` — 768 KB
+- `Nederlands in gang - 06 - intensieve luistertekst.mp3` — 347 KB
+- `Nederlands in gang - 06 - opdracht 12.mp3` — 1.9 MB
+- `Nederlands in gang - 07 - dialoog met pauzes.mp3` — 2.8 MB
+- `Nederlands in gang - 07 - dialoog.mp3` — 1.8 MB
+- `Nederlands in gang - 07 - intensieve luistertekst met pauzes.mp3` — 733 KB
+- `Nederlands in gang - 07 - intensieve luistertekst.mp3` — 328 KB
+- `Nederlands in gang - 07 - opdracht 15.mp3` — 1.6 MB
+- `Nederlands in gang - 08 - dialoog met pauzes.mp3` — 3.0 MB
+- `Nederlands in gang - 08 - dialoog.mp3` — 1.7 MB
+- `Nederlands in gang - 08 - intensieve luistertekst met pauzes.mp3` — 653 KB
+- `Nederlands in gang - 08 - intensieve luistertekst.mp3` — 276 KB
+- `Nederlands in gang - 08 - opdracht 13.mp3` — 1.7 MB
+- `Nederlands in gang - 08 - opdracht 14.mp3` — 1.3 MB
+- `Nederlands in gang - 09 - dialoog met pauzes.mp3` — 2.8 MB
+- `Nederlands in gang - 09 - dialoog.mp3` — 1.7 MB
+- `Nederlands in gang - 09 - intensieve luistertekst met pauzes.mp3` — 723 KB
+- `Nederlands in gang - 09 - intensieve luistertekst.mp3` — 296 KB
+- `Nederlands in gang - 09 - opdracht 17a.mp3` — 1.4 MB
+- `Nederlands in gang - 09 - opdracht 17b.mp3` — 1.3 MB
+- `Nederlands in gang - 10 - dialoog met pauzes.mp3` — 2.9 MB
+- `Nederlands in gang - 10 - dialoog.mp3` — 1.7 MB
+- `Nederlands in gang - 10 - intensieve luistertekst met pauzes.mp3` — 939 KB
+- `Nederlands in gang - 10 - intensieve luistertekst.mp3` — 409 KB
+- `Nederlands in gang - 10 - opdracht 14.mp3` — 1.1 MB
+- `Nederlands in gang - 11 - dialoog met pauzes.mp3` — 5.5 MB
+- `Nederlands in gang - 11 - dialoog.mp3` — 3.0 MB
+- `Nederlands in gang - 11 - intensieve luistertekst met pauzes.mp3` — 870 KB
+- `Nederlands in gang - 11 - intensieve luistertekst.mp3` — 372 KB
+- `Nederlands in gang - 11 - opdracht 13b.mp3` — 1.5 MB
+- `Nederlands in gang - 12 - dialoog met pauzes.mp3` — 2.9 MB
+- `Nederlands in gang - 12 - dialoog.mp3` — 1.7 MB
+- `Nederlands in gang - 12 - intensieve luistertekst met pauzes.mp3` — 920 KB
+- `Nederlands in gang - 12 - intensieve luistertekst.mp3` — 376 KB
+- `Nederlands in gang - 12 - opdracht 10.mp3` — 2.8 MB
+- `Nederlands in gang - 12 - opdracht 11.mp3` — 1.1 MB
+- `Nederlands in gang - 13 - dialoog met pauzes.mp3` — 3.9 MB
+- `Nederlands in gang - 13 - dialoog.mp3` — 2.2 MB
+- `Nederlands in gang - 13 - intensieve luistertekst met pauzes.mp3` — 916 KB
+- `Nederlands in gang - 13 - intensieve luistertekst.mp3` — 394 KB
+- `Nederlands in gang - 14 - dialoog met pauzes.mp3` — 5.1 MB
+- `Nederlands in gang - 14 - dialoog.mp3` — 2.8 MB
+- `Nederlands in gang - 14 - intensieve luistertekst.mp3` — 1.6 MB
+- `Nederlands in gang - 14 - opdracht 12.mp3` — 1.4 MB
+- `Nederlands in gang - 14 - opdracht 13.mp3` — 1.6 MB
+- `Nederlands in gang - 15 - dialoog met pauzes.mp3` — 4.6 MB
+- `Nederlands in gang - 15 - dialoog.mp3` — 2.5 MB
+- `Nederlands in gang - 15 - intensieve luistertekst met pauzes.mp3` — 1.2 MB
+- `Nederlands in gang - 15 - intensieve luistertekst.mp3` — 538 KB
+- `Nederlands in gang - 15 - opdracht 14.mp3` — 2.1 MB
+- `Nederlands in gang - 16 - dialoog met pauzes.mp3` — 3.2 MB
+- `Nederlands in gang - 16 - dialoog.mp3` — 1.8 MB
+- `Nederlands in gang - 16 - intensieve luistertekst met pauzes.mp3` — 1.1 MB
+- `Nederlands in gang - 16 - intensieve luistertekst.mp3` — 484 KB
+- `Nederlands in gang - 16 - opdracht 10.mp3` — 2.0 MB
+- `Nederlands in gang - 17 - dialoog met pauzes.mp3` — 6.0 MB
+- `Nederlands in gang - 17 - dialoog.mp3` — 3.5 MB
+- `Nederlands in gang - 17 - intensieve luistertekst.mp3` — 1.8 MB
+- `Nederlands in gang - 17 - opdracht 04a.mp3` — 546 KB
+- `Nederlands in gang - 17 - opdracht 04b.mp3` — 1.4 MB
+- `Nederlands in gang - 17 - opdracht 04c.mp3` — 1.1 MB
+- `Nederlands in gang - 17 - opdracht 04d.mp3` — 606 KB
+- `Nederlands in gang - 17 - opdracht 04e.mp3` — 794 KB
+- `Nederlands in gang - 17 - opdracht 04f.mp3` — 1.7 MB
+- `Nederlands in gang - 17 - opdracht 12.mp3` — 2.2 MB
+- `Nederlands in gang - 17 - opdracht 13.mp3` — 1.7 MB
+- `Nederlands in gang - 18 - dialoog met pauzes.mp3` — 4.2 MB
+- `Nederlands in gang - 18 - dialoog.mp3` — 2.3 MB
+- `Nederlands in gang - 18 - intensieve luistertekst met pauzes.mp3` — 1.1 MB
+- `Nederlands in gang - 18 - intensieve luistertekst.mp3` — 497 KB
+- `Nederlands in gang - 18 - opdracht 11.mp3` — 1.2 MB
 
 **`atili/Dutch/NT2 Taaldiensten - A0-A2/`** — 1 files, 577.0 MB
 

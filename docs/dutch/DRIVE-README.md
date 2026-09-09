@@ -11,7 +11,7 @@ section of [`MATERIAL.md`](./MATERIAL.md). What is in the folder, file by file, 
 ## What is here
 
 The Dutch material for the learning journey at `https://github.com/atilileri/atilileri.github.io`.
-About 1,930 files, 8.6 GB.
+About 2,200 files, 9.0 GB.
 
 | Folder | What it holds |
 | --- | --- |
@@ -19,6 +19,7 @@ About 1,930 files, 8.6 GB.
 | `DUO oefenexamens NT2/` | The published NT2 practice exams for 2023, 2024 and 2025 — both programmes, all four skills. The `opgavenboekje` (the questions) and the `beoordelingsmodel` (the marking scheme) for each year and skill sit here as PDFs; the Luisteren and Spreken media, and a transcript of each clip, sit in the year-and-skill folder. |
 | `dutch-listening/` | Five podcast and audiobook sources. Each folder is flat: every episode sits beside its transcript of the same name, next to the source's feed and an `episodes.json` listing what was downloaded. *LibriVox* keeps a folder per book. A transcript written by machine rather than by a person says so in its first line. |
 | `Goethe book2 TR-NL/` | The 100-lesson Goethe-Verlag *book2* course, Turkish to Dutch. |
+| `Nederlands in gang - audio/` | The audio Coutinho publishes with *Nederlands in gang*, the A0–A2 method: 107 recordings across the book's 18 chapters, each with a machine transcript beside it. A `met pauzes` file is the same recording with gaps for repeating aloud. |
 | `30 Günde Hollandaca/` | A Turkish audio course. See the note on its numbering below. |
 | `NT2 Taaldiensten - A0-A2/` | Shortcuts to recorded online NT2 classes, added as each class happens. The recordings belong to the school, so these are links, not copies. |
 | `Van Dale Groot Beeldwoordenboek (3 delen)/` | The picture dictionary, split into three parts because the whole file is too large to upload in one piece. |
@@ -51,6 +52,8 @@ Examples:
 2023 Luisteren I - 17 - Een les van de drogisterijdocent - opgave 13.mp3
 2023 Spreken I - 02 - opgave 1 - Kappersopleiding.mp3
 2023 Luisteren I - opgavenboekje.pdf
+Nederlands in gang - 01 - dialoog.mp3
+Nederlands in gang - 17 - opdracht 04c.mp3
 Nederlands in gang - A0-A2 (Coutinho, 2017).pdf
 TRNL 007 - Sayılar.mp3
 50 - de ijstijd, de hunebedden en de eerste boeren.mp3
@@ -58,9 +61,11 @@ TRNL 007 - Sayılar.mp3
 
 **This applies to new material too.** Anything added to this folder later is named the same way.
 
-## Two things to know about the material
+## Three things to know about the material
 
 - **`30 Günde Hollandaca` has no chapter 15.** The audio announces its own `Bölüm` number, and those numbers
   run 1–14 and then 16–29. The filenames carry the real chapter number, so the gap is visible.
+- **`Nederlands in gang - audio` has no `intensieve luistertekst met pauzes` for chapters 14 and 17.** Every
+  other chapter has one. The publisher's download is missing them, so nothing here is lost.
 - **`DUO oefenexamens NT2/2024 Spreken I` has two versions of track 07.** DUO published it twice, with
   different audio and different dates. The later one is marked `(tweede versie)`.

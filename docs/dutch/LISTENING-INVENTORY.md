@@ -37,8 +37,16 @@ confirmation — [#130](https://github.com/atilileri/atilileri.github.io/issues/
 transcribed **644 files, 69.4 hours of audio, with no failures**, locally and offline, and wrote one text file
 beside each audio file — every source in the table below, plus all 394 DUO exam clips. On 2026-09-09
 `30 Günde Hollandaca` followed, **twice per recording**: 28 recordings, **56 passes**, 3.15 hours. Recognition
-sets one language per run, so each recording carries a `.tr.txt` and a `.nl.txt`. **700 machine transcripts in
-total.**
+sets one language per run, so each recording carries a `.tr.txt` and a `.nl.txt`. The same day the **107
+*Nederlands in gang* recordings** were transcribed in Dutch, one pass each
+([#144](https://github.com/atilileri/atilileri.github.io/issues/144)). Drive holds **896 `.txt` transcripts**
+on 2026-09-09 — the user's 87 written by a human, and **809 written by machine**. That figure is read from
+Drive, not added up from the runs: the weekly course recordings
+([#143](https://github.com/atilileri/atilileri.github.io/issues/143)) transcribe themselves between reads.
+
+Two of those bodies are coursebook material and not listening practice — this file counts them only so the
+total stays true. What each one is belongs to
+[`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md).
 
 **One body is left untranscribed on purpose**: the NT2 Taaldiensten class recordings, which show identifiable
 people.
