@@ -29,6 +29,11 @@ const SESSION = {
 
 const variants = [
   {
+    key: "ALL",
+    name: "All three, stacked",
+    home: "—",
+  },
+  {
     key: "A",
     name: "YouTube iframe",
     home: "The live web",
@@ -133,6 +138,13 @@ const C = {
 
     <!-- ================= VARIANT A — YouTube iframe ================= -->
     <section data-variant="A" hidden>
+      <p
+        data-route-banner
+        class="mb-4 mt-10 rounded bg-inverse-surface px-3 py-1.5 text-sm font-semibold text-inverse-on-surface"
+        hidden
+      >
+        Route A — YouTube iframe · a public video · anyone can play it
+      </p>
       <h2 class="mb-1 text-lg font-semibold">Luisteren</h2>
       <p class="mb-4 text-sm text-outline">
         Kijk van {Math.floor(A.start / 60)}:{
@@ -174,6 +186,13 @@ const C = {
 
     <!-- ================= VARIANT B — audio on the source's URL ================= -->
     <section data-variant="B" hidden>
+      <p
+        data-route-banner
+        class="mb-4 mt-10 rounded bg-inverse-surface px-3 py-1.5 text-sm font-semibold text-inverse-on-surface"
+        hidden
+      >
+        Route B — &lt;audio&gt; on the podcast's own URL · anyone can play it
+      </p>
       <h2 class="mb-1 text-lg font-semibold">Luisteren</h2>
       <p class="mb-4 text-sm text-outline">
         Luister van {Math.floor(B.start / 60)}:{
@@ -228,6 +247,13 @@ const C = {
 
     <!-- ================= VARIANT C — Drive preview, as an Exam task ================= -->
     <section data-variant="C" hidden>
+      <p
+        data-route-banner
+        class="mb-4 mt-10 rounded bg-inverse-surface px-3 py-1.5 text-sm font-semibold text-inverse-on-surface"
+        hidden
+      >
+        Route C — Drive preview iframe · only the learner can play it
+      </p>
       <h2 class="mb-1 text-lg font-semibold">Exam task — Luisteren I</h2>
       <p class="mb-4 text-sm text-outline">
         Een echt oefenexamen. De vragen zijn de officiële vragen, in het
@@ -285,7 +311,14 @@ const C = {
     function render(key) {
       document
         .querySelectorAll("[data-variant]")
-        .forEach((el) => (el.hidden = el.dataset.variant !== key));
+        .forEach(
+          (el) => (el.hidden = key !== "ALL" && el.dataset.variant !== key),
+        );
+      // In the stacked view each route needs its own banner, because the three
+      // sections otherwise read as one long page.
+      document
+        .querySelectorAll("[data-route-banner]")
+        .forEach((el) => (el.hidden = key !== "ALL"));
       const v = variants.find((x) => x.key === key);
       label.textContent = `${v.key} — ${v.name}`;
       const url = new URL(window.location.href);
