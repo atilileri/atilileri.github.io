@@ -4,6 +4,8 @@ A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on 
 
 **Three skills, not four.** This journey teaches *lezen*, *schrijven* and *luisteren*, plus KNM. **Spreken** is a word the Plan uses and the system does not teach: nothing here judges an accent, so the speaking Objectives sit in the Plan marked `unsupported` and are never selected. Listening rests on human recordings only; generated speech is unused. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Which listening material is admitted, and what a Session makes from it, is [`LISTENING.md`](./LISTENING.md)**, locked by [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
 
+**Where all of it surfaces on the site — which form gets a URL, and for which reader — is [`SITE.md`](./SITE.md)**, locked by [#88](https://github.com/atilileri/atilileri.github.io/issues/88). The site-wide language mechanism it rests on has its own context, [`../site/CONTEXT.md`](../site/CONTEXT.md).
+
 ## Language
 
 **Lesson**:
@@ -20,6 +22,14 @@ it inherits that Session's Theme and never picks a subject of its own. The Dutch
 agent and carries no marker; see [`adr/0010`](./adr/0010-published-dutch-is-unmarked.md).
 _Avoid_: Reading, article, parallel text, Delft post — the method here is Delft (a text plus its
 word list), not parallel text (the same content written twice).
+
+**Journey post**:
+A blog entry written for a reader rather than for the learner — the one thing Publish Mode
+writes. It carries no Items and no Prompts, and it lives in `blog` beside the site's other
+posts, tagged `Nederlands`. A post built on a Tekst publishes that Tekst's Dutch alongside
+an English and a Turkish version; one built on a Lesson or on a Session's story has no
+Dutch to publish. Docent proposes one and the learner confirms it.
+_Avoid_: Post (means any blog entry), article, write-up, publication
 
 **Session**:
 A dated record of one invocation — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many. It holds its own Prompts, and its state — planned, partial or complete — is read off them rather than declared.
