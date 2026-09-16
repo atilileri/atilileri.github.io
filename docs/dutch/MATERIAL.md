@@ -128,10 +128,11 @@ discoverable from the client bundle. This matches [#96](https://github.com/atili
 finding for the DUO practice exams. Reaching either one **from a script** needs a browser.
 [#130](https://github.com/atilileri/atilileri.github.io/issues/130) allows browser automation, but only against a
 **named target**, and neither of these is on the list — so a human keeps fetching this material by hand.
-[#135](https://github.com/atilileri/atilileri.github.io/issues/135) may propose adding one.
+[#135](https://github.com/atilileri/atilileri.github.io/issues/135) added no row: a link the learner sends is its own
+permission, but these are applications, not pages a link opens.
 
 **The material itself is no longer missing.** The user captured it by hand on 2026-09-05, into Drive and into the
 Oracle's notebooks. So the map has exam material; what it lacks is an *unattended* route to more of it. That
 distinction matters to [#95](https://github.com/atilileri/atilileri.github.io/issues/95), which can now judge
 luisteren against real exam tasks. #130 answered the narrowed question: **yes, a human keeps fetching it**, because
-the allowlist admits only the Oracle and `nos.nl`.
+the allowlist does not admit them.

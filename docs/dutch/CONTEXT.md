@@ -161,7 +161,7 @@ How formally a Scenario is conducted, held on the Scenario as one of exactly thr
 _Avoid_: Formality, tone, politeness level, style
 
 **Named target**:
-A third party's website a script is allowed to reach, listed as one row in [`AUTOMATION.md`](./AUTOMATION.md) with what the script takes from it. The list is closed and a human adds to it; the agent reaches nothing else and never crawls. Two exist: the Oracle and `nos.nl`.
+A third party's website Docent may reach **on its own initiative** — without the learner handing it a link — listed as one row in [`AUTOMATION.md`](./AUTOMATION.md) with what the script takes from it. The list is closed and a human adds to it. A link the learner sends, in an Intake or as a Theme, needs no row: it is its own permission, for that one page and what it embeds. Either way the agent never crawls.
 _Avoid_: Allowed site, whitelist entry, scrape target, integration
 
 **Machine credential**:

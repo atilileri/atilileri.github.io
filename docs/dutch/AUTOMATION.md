@@ -33,9 +33,29 @@ the list grows on evidence that a Session needs it.
 nothing more. When the journey needs a whole corpus of a site, the human puts it in Drive by hand — the way
 the DUO exam papers arrived.
 
-Two targets were considered and left off, and the reason is recorded so they are not re-argued: YouTube
-transcripts and the DPG news sites (`nu.nl`, Volkskrant) wait until
-[#135](https://github.com/atilileri/atilileri.github.io/issues/135) shows a Session that needs them.
+### A link the learner sends
+
+**A link the learner sends is its own permission.** The list above governs what Docent reaches on its own
+initiative. A URL in a `docent:intake` issue, or typed as a Theme in the terminal, was already named by a human,
+so it needs no row. Locked by [#135](https://github.com/atilileri/atilileri.github.io/issues/135).
+
+- **That page only**, plus what it embeds — its images, video and audio. Docent follows no link on it.
+- **Docent's own route first**: `fetch`, or a script such as a caption library. When that fails, or the Oracle
+  does the job better, Docent adds the link to the Oracle's `scratch` notebook and deletes it after reading.
+- **A video that becomes a listening Clip goes straight to the Oracle**, because only the Oracle judges its level
+  ([`LISTENING.md`](./LISTENING.md)). A video that only feeds a Theme and Items tries the caption script first.
+  No audio is downloaded for local transcription.
+- **Every extracted text passes the language check** — below about 0.6 coverage in the top 2,000 words of
+  `frequency-nl-50k.txt`, it is not Dutch.
+- **No site login, ever.** A paywall or a private post degrades to the Intake's own content, and the one-line
+  limitation asks the learner for a screenshot or pasted text.
+- **A link no route can read is recorded in one line and dropped.** It never retries. The rest of the Intake is
+  still consumed.
+- **Nothing extracted is kept.** The live web is the home. Docent's `read` comment holds a gist and word counts,
+  never quoted Dutch, and a Session that uses the page reads it again.
+
+So YouTube and the DPG news sites (`nu.nl`, Volkskrant) get no row: they are reached when the learner sends a
+link, and not otherwise.
 
 ## Machine credentials
 
@@ -96,6 +116,8 @@ silent write to a public place is a publication.
 **Drive is the master. The laptop keeps no mirror.** The agent reads Drive read-only and copies a file into a
 scratch directory for as long as it works on it. Third-party text — an extracted article, a transcript of
 someone else's audio — goes to Drive, not to this repo. Only what this journey writes itself is committed.
+**Read that as *never the repo*, not *always Drive***: text kept for a reason goes to Drive under the write gate,
+and an article read from a learner's link is kept nowhere (#135).
 
 ## Where a script lives
 
