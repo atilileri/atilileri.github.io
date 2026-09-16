@@ -192,11 +192,73 @@ The Dutch block inside a Tekst keeps `lang="nl"` on the element, per #132, so a 
 reader pronounces Dutch as Dutch and the browser stops offering to translate the text the
 learner came to read.
 
+## Interactivity: what a page may do
+
+Locked by [#136](https://github.com/atilileri/atilileri.github.io/issues/136).
+
+**The limit, stated once.** A static page can show, hide, play and compose text. It can
+never receive, store for Docent, grade or schedule. An answer reaches Docent only as an
+issue the learner submits ([#80](https://github.com/atilileri/atilileri.github.io/issues/80),
+[#99](https://github.com/atilileri/atilileri.github.io/issues/99)). No later ticket needs to
+re-measure this.
+
+**Every page reads completely with JavaScript off.** Interactivity improves a page; no page
+depends on it. A stranger reading MDX source on GitHub, or a phone blocking scripts, still
+gets the whole page.
+
+### Four components, and no others
+
+A human builds them once. **Docent never writes script code into a Lesson or a Session** —
+per-page code written by an agent is code nobody reviews, on a public site. A fifth
+component is a human decision, the way a Named target is
+([`AUTOMATION.md`](./AUTOMATION.md)).
+
+| Component | Does | Without JavaScript |
+|---|---|---|
+| `<Reveal>` | Shows an answer on request | It is a native `<details>`, so it works anyway |
+| `<HideColumn>` | Hides one table column, e.g. the Turkish in a conjugation table | The column shows |
+| `<WordAudio>` | Plays an Item's `say` recording with native `<audio>` controls, `sayCredit` beside it ([`PRONUNCIATION.md`](./PRONUNCIATION.md)); renders nothing when `say` is `none` | Native element, works anyway |
+| `<AnswerForm>` | One field per Prompt on a Session page; builds the prefilled issue link from what the learner typed; keeps an unsent draft in the browser; gone once the Session is `complete` | Falls back to the plain prefilled link |
+
+A Split ([`SPLIT.md`](./SPLIT.md)) and a Tekst's order ([#132](https://github.com/atilileri/atilileri.github.io/issues/132))
+are layout, not components.
+
+### Reveal trusts the learner
+
+**A Lesson and an `item` Prompt on a Session page may reveal their answer at any time,
+answered or not.** The learner is trusted. The answer form sends only what the learner
+typed and carries no mark of a reveal, so a Verdict on a revealed answer moves its Rung
+like any other. This was chosen knowingly over marking reveals or hiding answers until
+grading: the learner owns the honesty of their own schedule.
+
+**An `open` Prompt and an Exam task sitting reveal nothing** — the DUO answer keys
+([#97](https://github.com/atilileri/atilileri.github.io/issues/97)) included. A sitting is
+the only measurement shaped like the real exam, and a visible key turns it into reading.
+
+### Nothing is stored that could disagree with the Session
+
+**`localStorage` holds an unsent answer draft and nothing else** — never a score, never a
+result, never progress. A score Docent cannot see tells the learner they practised while no
+Rung moves; the Session and the schedule file
+([#100](https://github.com/atilileri/atilileri.github.io/issues/100)) stay the only record.
+Practising a Lesson alone leaves no record, and that is correct.
+
+### Cut, with the reason
+
+- **Client-side speech** (`SpeechRecognition`, `speechSynthesis`) — speaking is out of scope
+  and generated speech is banned ([`adr/0008`](./adr/0008-speaking-is-out-of-scope.md)).
+  The API also cannot be verified from this machine, only on the learner's device.
+- **Recording the learner's voice** (`MediaRecorder`) — it works, but it claims spreken
+  coverage the map ruled out, and the recording can go nowhere.
+- **An Anki export** — Anki runs its own scheduler, so one word would climb two ladders,
+  and its answers never come back.
+- **A custom audio player** — a Clip is a link with its stated time range
+  ([`LISTENING.md`](./LISTENING.md)); Drive and YouTube do not play in `<audio>` anyway.
+  Whatever media [#131](https://github.com/atilileri/atilileri.github.io/issues/131) commits
+  plays in the native element with no new decision.
+
 ## What this ticket does not decide
 
-- **Interactivity** — widgets, self-marking, client-side speech, `localStorage`. That is
-  [#136](https://github.com/atilileri/atilileri.github.io/issues/136), which this unblocks.
-  This file fixes page structure only.
 - **Enrichment** — audio and images on these pages, owned by
   [#131](https://github.com/atilileri/atilileri.github.io/issues/131).
 
