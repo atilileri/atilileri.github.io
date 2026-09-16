@@ -128,6 +128,10 @@ _Avoid_: Cognate note, hint
 An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scene that joins them. It is an optional field on an Item, written in Turkish prose that quotes the Dutch and the keyword. It claims nothing about either language, so it needs no source and cannot be wrong, only unhelpful. A Hook is distinctive rather than absurd, may use a scene from a show the Profile names but never quotes one, and is offered rather than written for every Item. A true resemblance is never a Hook; it is a Bridge.
 _Avoid_: Keyword, peg, association, story
 
+**Split**:
+The parts of a word, shown where a Lesson introduces it — each part with its Turkish and English gloss, then the literal sum and the meaning. Written whenever a word splits into two or more meaningful parts; a word with one part, or a bare inflection, gets none. It is part of the Lesson's explanation of the word, never the whole of it, and it is not a Mnemonic: it is held in the Lesson, not on the Item. A part spelt differently inside the word is shown as written and the change is stated. Its format is [`SPLIT.md`](./SPLIT.md).
+_Avoid_: Breakdown, decomposition, word tree, parse, morphology
+
 **Trap**:
 A resemblance that misleads — an intuition from English or Turkish that produces wrong Dutch the learner would not notice. It is an optional field on an Item and names its direction, `en` or `tr`. An Item carries at most one Trap, and a Lesson shows at most three. A difference the learner knows they are guessing at is taught, not a Trap.
 _Avoid_: False friend, gotcha, warning, flag
