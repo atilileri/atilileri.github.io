@@ -36,7 +36,7 @@ A dated record of one invocation — what was taught, what was asked, and what t
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
-One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook` and `trap`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
+One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
 _Avoid_: Note, card, word, entry
 
 **Direction**:
@@ -117,7 +117,7 @@ consumed over one or more Sessions and closes only on the learner's confirmation
 _Avoid_: Inbox, capture, submission, queue, backlog
 
 **Mnemonic**:
-Anything held on an Item that helps the learner recall it. Exactly two kinds: a **Bridge**, which makes a claim about the languages that a reader can check, and a **Hook**, which makes no claim. It is a grouping word, not a field — each kind is its own field. A Trap is not a Mnemonic: it stops a wrong answer rather than recalling a right one. Study advice a Lesson gives in prose, such as picturing a familiar building, is not a Mnemonic either, because nothing is held on an Item.
+Anything held on an Item that helps the learner recall it. Exactly two kinds: a **Bridge**, which makes a claim about the languages that a reader can check, and a **Hook**, which makes no claim. It is a grouping word, not a field — each kind is its own field. A Trap is not a Mnemonic: it stops a wrong answer rather than recalling a right one. Study advice a Lesson gives in prose, such as picturing a familiar building, is not a Mnemonic either, because nothing is held on an Item. Nor is a Split, though it is held on an Item: it explains what the word is made of, where a Mnemonic gives recall something to hold on to.
 _Avoid_: Memory aid, memory artifact, trick
 
 **Bridge**:
@@ -129,7 +129,7 @@ An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scen
 _Avoid_: Keyword, peg, association, story
 
 **Split**:
-The parts of a word, shown where a Lesson introduces it — each part with its Turkish and English gloss, then the literal sum and the meaning. Written whenever a word splits into two or more meaningful parts; a word with one part, or a bare inflection, gets none. It is part of the Lesson's explanation of the word, never the whole of it, and it is not a Mnemonic: it is held in the Lesson, not on the Item. A part spelt differently inside the word is shown as written and the change is stated. Its format is [`SPLIT.md`](./SPLIT.md).
+The parts of a word — each part with its Turkish and English gloss, then the literal sum and the meaning. An optional field on an Item, written once for a word that splits into two or more meaningful parts; a word with one part gets none. Docent reads it whenever the word needs explaining, and a Lesson shows it the first time it introduces the word. It is part of that explanation, never the whole of it, and it is not a Mnemonic. A part spelt differently inside the word is shown as written and the change is stated. Its format is [`SPLIT.md`](./SPLIT.md).
 _Avoid_: Breakdown, decomposition, word tree, parse, morphology
 
 **Trap**:

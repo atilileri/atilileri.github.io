@@ -1,25 +1,33 @@
-# The Split: a word's parts in a Lesson
+# The Split: a word's parts, held on its Item
 
-A **Split** shows what a Dutch word is made of, at the point a Lesson introduces it. Each part gets its Turkish and
-English gloss, then the literal sum, then the meaning. The learner reads the word from its parts instead of
-memorising it whole. This file is the format Docent follows every time it writes one.
+A **Split** shows what a Dutch word is made of. Each part gets its Turkish and English gloss, then the literal sum,
+then the meaning. The learner reads the word from its parts instead of memorising it whole. A Split is **held on the
+Item**, written once, and read whenever the word needs explaining; a Lesson shows it the first time it introduces the
+word. This file is the format Docent follows when it writes one and when it shows one.
 
 Locked by [#148](https://github.com/atilileri/atilileri.github.io/issues/148). The learner compared five ways to
 draw a word's parts and chose the inline split: text and colour, no diagram. The prototype is kept on the branch
 [`prototype/148-dutch-word-parts`](https://github.com/atilileri/atilileri.github.io/tree/prototype/148-dutch-word-parts);
 the chosen form is its variant A.
 
-## When to write one
+## When to write one, and where it is shown
 
-**Write a Split whenever a Lesson introduces a word that splits into two or more meaningful parts.** That covers a
-compound (`troon` + `rede`), a derivation (`be-` + `groot` + `-ing`), and a compound held together by a linking
-sound (`miljoen` + `-en-` + `nota`).
+**Give an Item a Split when its word splits into two or more meaningful parts.** That covers a compound (`troon` +
+`rede`), a derivation (`be-` + `groot` + `-ing`), and a compound held together by a linking sound (`miljoen` +
+`-en-` + `nota`).
 
 - **A word with one part gets no Split.** `gordijn` is shown as itself.
-- **An inflection alone does not make a Split.** `boeken` is `boek` plus a plural; nothing is learned by drawing
-  that. An inflection is shown only on a word that already splits: `telwoorden` shows its `-en`.
-- **Write it where the word is introduced, once per Lesson.** A later Lesson that introduces the word again writes
-  its own Split.
+- **An inflection alone does not make a Split.** The Item holds the dictionary form, so its Split splits that form:
+  `telwoord`, not `telwoorden`. When a Lesson quotes an inflected form, it may add the ending as one more `affix`
+  part as it renders — `telwoorden` shows its `-en` — without changing the Item.
+- **Write it once, on the Item.** Docent writes the Split when it creates the Item, or the first time it finds the
+  word can be split. It corrects the Split in place when it finds an error, and never keeps a second copy elsewhere.
+
+**Show it wherever the word needs explaining.**
+
+- **A Lesson shows it the first time it introduces the word.** This is where the learner meets it.
+- **Docent reads it whenever else it helps** — for example, when the learner asks what a word means, or answers a
+  Prompt on it wrongly. It shows the Split from the Item; it does not write a new one.
 
 **A Split is part of the word's explanation, never the whole of it.** The Lesson's prose around the word stays.
 So do the Item's Bridge, Trap and Hook. The Split sits beside them and replaces none of them.
@@ -73,8 +81,8 @@ chosen in this order:
    stands behind it.
 
 This is looser than the rule for a **Bridge**, which must cite a source when it claims a shared origin. A Bridge is
-a Mnemonic on the Item and follows the rule in [`CONTEXT.md`](./CONTEXT.md). A Split's origin line belongs to the
-Lesson and follows this file.
+a Mnemonic on the Item and follows the rule in [`CONTEXT.md`](./CONTEXT.md). A Split's origin line is part of the Split and
+follows this file.
 
 ## Language
 
@@ -84,12 +92,11 @@ English appears as a quoted word.
 
 ## The fields
 
-A Split is held in the Lesson, at the word it explains. The build decides the component that renders it.
+A Split is one optional field, `split`, on the Item. The word and its article come from the Item itself, so the Split
+does not repeat them. The build decides the component that renders it.
 
 | Field | Holds | Required |
 | --- | --- | --- |
-| `word` | The word as it appears in the Lesson | yes |
-| `article` | `de` or `het`, for a noun | for a noun |
 | `parts` | The parts in order; each has `nl`, `role`, `tr`, `en` | yes, two or more meaningful parts |
 | `parts[].base` | The dictionary form, when the part is spelt differently in the word | when it differs |
 | `parts[].parts` | The part's own parts, which produces the group row | when it has them |
@@ -97,11 +104,10 @@ A Split is held in the Lesson, at the word it explains. The build decides the co
 | `why` | Why the literal sum became the meaning, in Turkish | when they differ |
 | `spelling` | The spelling rule that changed a part, in Turkish | when `base` is set |
 | `origins` | Lines of `part`, Turkish text, and `source` — a URL, or `docent` | no |
-| `meaning` | The meaning, in Turkish | yes |
+| `meaning` | The meaning, in Turkish, when it says more than the Item's `tr` | no — the Item's `tr` otherwise |
 
 ```yaml
-word: rijksbegroting
-article: de
+# the `split` field of the Item rijksbegroting
 parts:
   - { nl: rijk, role: stem, tr: devlet, en: state }
   - { nl: "-s-", role: link, tr: bağlayıcı ses, en: linking sound }
