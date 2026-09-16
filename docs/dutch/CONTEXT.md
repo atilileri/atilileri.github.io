@@ -36,7 +36,7 @@ A dated record of one invocation — what was taught, what was asked, and what t
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
-One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge` and `trap`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
+One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook` and `trap`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
 _Avoid_: Note, card, word, entry
 
 **Direction**:
@@ -116,9 +116,17 @@ words. It has no format. Docent reads every open one in the preflight, media inc
 consumed over one or more Sessions and closes only on the learner's confirmation.
 _Avoid_: Inbox, capture, submission, queue, backlog
 
+**Mnemonic**:
+Anything held on an Item that helps the learner recall it. Exactly two kinds: a **Bridge**, which makes a claim about the languages that a reader can check, and a **Hook**, which makes no claim. It is a grouping word, not a field — each kind is its own field. A Trap is not a Mnemonic: it stops a wrong answer rather than recalling a right one. Study advice a Lesson gives in prose, such as picturing a familiar building, is not a Mnemonic either, because nothing is held on an Item.
+_Avoid_: Memory aid, memory artifact, trick
+
 **Bridge**:
-A resemblance that helps — a Dutch word an English or Turkish word already explains. It is an optional field on an Item, written in Turkish prose that quotes the foreign word: *"Hollandaca `vriend` ve İngilizce `friend` kelimeleri aynı kökten gelir."* A Bridge that claims a shared origin cites a source; one that claims only a resemblance needs none.
-_Avoid_: Cognate note, hint, mnemonic
+A resemblance that helps — a Dutch word an English or Turkish word already explains. It is an optional field on an Item, written in Turkish prose that quotes the foreign word: *"Hollandaca `vriend` ve İngilizce `friend` kelimeleri aynı kökten gelir."* A Bridge that claims a shared origin cites a source; one that claims only a resemblance needs none. A Bridge is the Mnemonic that can be wrong.
+_Avoid_: Cognate note, hint
+
+**Hook**:
+An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scene that joins them. It is an optional field on an Item, written in Turkish prose that quotes the Dutch and the keyword. It claims nothing about either language, so it needs no source and cannot be wrong, only unhelpful. A Hook is distinctive rather than absurd, may use a scene from a show the Profile names but never quotes one, and is offered rather than written for every Item. A true resemblance is never a Hook; it is a Bridge.
+_Avoid_: Keyword, peg, association, story
 
 **Trap**:
 A resemblance that misleads — an intuition from English or Turkish that produces wrong Dutch the learner would not notice. It is an optional field on an Item and names its direction, `en` or `tr`. An Item carries at most one Trap, and a Lesson shows at most three. A difference the learner knows they are guessing at is taught, not a Trap.
