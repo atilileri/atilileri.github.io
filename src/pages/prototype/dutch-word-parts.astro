@@ -1,0 +1,231 @@
+---
+// PROTOTYPE — throwaway. Ticket #148: five ways to draw a word's parts in a Lesson.
+// Plan: five structurally different variants (A–E) of one mock Turkish Lesson, switchable via ?variant=.
+// Mermaid is pre-rendered to static SVG in public/prototype/dutch-word-parts/ — no Mermaid script on the page.
+// Not a real Lesson: the Lesson form is not built yet. Delete with the SVG folder once the verdict is captured.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { words, situationLabel, type Part, type Word } from "./_dutch-word-parts.data.ts";
+
+const base = "/prototype/dutch-word-parts";
+const code = (s: string) => s.replace(/`([^`]+)`/g, "<code>$1</code>");
+const leaves = (parts: Part[]) => parts.flatMap((p) => (p.children ? p.children : [p]));
+
+const roleClass = {
+  stem: "bg-[#dbeafe] border-[#1d4ed8] text-[#0b2a66]",
+  stem2: "bg-[#dcfce7] border-[#15803d] text-[#0f3d22]",
+  link: "bg-[#f3f4f6] border-[#6b7280] text-[#374151] border-dashed",
+  affix: "bg-[#ffedd5] border-[#c2410c] text-[#6b2308]",
+};
+
+const legend = [
+  { cls: roleClass.stem, label: "ilk parça" },
+  { cls: roleClass.stem2, label: "ikinci parça" },
+  { cls: roleClass.link, label: "bağlayıcı ses" },
+  { cls: roleClass.affix, label: "ek" },
+  { cls: "bg-[#f5f3ff] border-[#6d28d9] text-[#3b1d78]", label: "sözcüğü sözcüğüne · eski biçim" },
+  { cls: "bg-[#fef9c3] border-[#a16207] text-[#422006]", label: "anlamı" },
+];
+
+// consecutive plain parts merge into one group (rijk + -s- → rijks); used by the A and E bracket rows
+const groups = (w: Word) => {
+  const out: { nl: string; span: number }[] = [];
+  for (const p of w.parts) {
+    const last = out[out.length - 1];
+    if (!p.children && last && !(last as any).nested) { last.nl += p.nl.replace(/-/g, ""); last.span += 1; }
+    else out.push(Object.assign({ nl: p.children ? p.nl : p.nl.replace(/-/g, ""), span: p.children ? p.children.length : 1 }, p.children ? { nested: true } : {}));
+  }
+  return out;
+};
+
+const variants = [
+  {
+    key: "A", name: "Inline split, no diagram",
+    draws: "Coloured parts in the text, a gloss grid under the word (Dutch · Turkish · English), then the literal sum and the meaning.",
+    fails: "No drawn path from the parts to the meaning — the eye does that work. A nested word gets a bracket row, not a real tree.",
+    cost: "Pure HTML and CSS from the data file. No render step, no image, text stays selectable and translatable.",
+  },
+  {
+    key: "B", name: "Split tree",
+    draws: "Word at the top, parts below, then the literal sum, a “neden?” step where the meaning drifts, and the meaning at the bottom. begroting opens into be- · grot (← groot) · -ing.",
+    fails: "Tall: rijksbegroting is the tallest thing on the page. On a 390 px phone a wide tree (miljoenennota, rijksbegroting) shrinks to small text, a narrow one (troonrede) does not — the size jumps from word to word.",
+    cost: "Mermaid flowchart generated from data. 2 rounds: the first had no “why” step, so voorbeelden did not explain itself.",
+  },
+  {
+    key: "C", name: "Bricks",
+    draws: "Parts as a row of bricks, the Turkish gloss under each, then the literal sum and the meaning as full-width bars. A group row shows rijks | begroting. The compound rule is drawn once.",
+    fails: "No “why” step. Size follows word length: on a 390 px phone rijksbegroting shrinks to unreadable text, while gordijn stays large. The group row is built by code, not by Mermaid.",
+    cost: "Mermaid block + railroad-ebnf. 3 rounds: tiny text, rijk and -s- printed twice, literal row missing.",
+  },
+  {
+    key: "D", name: "Word family and topic",
+    draws: "Relations, not one word: the families around beeld and tel, the parts these words share, and the Prinsjesdag topic map.",
+    fails: "Never splits a single word. The sankey is noise to some readers. A family built on shared letters can lie — the prototype only lists words that visibly contain the part, and still does not source them.",
+    cost: "Mermaid mindmap and sankey. 1 round.",
+  },
+  {
+    key: "E", name: "Origin and bridges",
+    draws: "Per word: the split, then each part's origin with a link to its source, its Germanic cousins, and any resemblance to English or Turkish. Origin chains for miljoen and gordijn, a Venn for nota.",
+    fails: "The most text on the page. Only as good as the source: two claims were dropped because nl.wiktionary does not make them (troon ← Greek thronos; tellen related to English tell). Mermaid timeline labels were too small, so chains replace them — and a left-to-right chain is itself small on a 390 px phone.",
+    cost: "Hand-written HTML plus Mermaid flowchart and venn. 3 rounds.",
+  },
+];
+---
+
+<BaseLayout title="PROTOTYPE — word parts" description="Throwaway prototype for ticket #148" currentPath="/prototype/">
+  <div class="bg-[#fff3cd] text-[#664d03] text-xs font-bold uppercase tracking-widest text-center py-2 px-4">
+    Prototype · ticket #148 · not a real Lesson
+  </div>
+
+  <article class="max-w-3xl mx-auto w-full min-w-0 px-5 py-14 sm:px-8 pb-32">
+    <header class="mb-8">
+      <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-xs font-bold px-3 py-1 uppercase tracking-widest">Ders · Nederlands</span>
+      <h1 class="font-[Space_Grotesk] text-[clamp(2rem,6vw,3rem)] font-bold tracking-tighter leading-[0.95] mt-6 mb-4">Uzun sözcükleri parçalamak</h1>
+      <p class="text-lg text-[var(--color-on-surface-variant)] font-light">Hollandaca uzun sözcükleri birleştirerek kurar. Parçaları görünce anlam çoğu zaman kendiliğinden çıkar.</p>
+    </header>
+
+    <div class="flex flex-wrap gap-2 mb-10 text-xs">
+      {legend.map((l) => <span class={`border rounded px-2 py-1 ${l.cls}`}>{l.label}</span>)}
+    </div>
+
+    <!-- ───────── A — inline split ───────── -->
+    <section data-variant="A" hidden>
+      {words.map((w) => (
+        <div class="mb-12">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">{situationLabel[w.situation]}</p>
+          <div class="font-[Space_Grotesk] text-3xl sm:text-4xl font-bold mb-4 flex flex-wrap items-baseline gap-x-2">
+            <span class="text-base font-normal text-[var(--color-outline)]">{w.article}</span>
+            <span>{leaves(w.parts).map((p) => <span class={`border-b-4 ${roleClass[p.role]} px-0.5`}>{p.nl.replace(/^-|-$/g, "")}</span>)}</span>
+          </div>
+          {w.situation !== "control" && (
+            <div class="overflow-x-auto">
+              <div class="grid gap-1 text-sm min-w-max" style={`grid-template-columns: 5.5rem repeat(${leaves(w.parts).length}, minmax(4.5rem, auto))`}>
+                {w.parts.some((p) => p.children) && (<>
+                  <span></span>
+                  {groups(w).map((g) => <span class="text-center text-xs font-bold border-t-2 border-x-2 border-[#111827] rounded-t pt-0.5" style={`grid-column: span ${g.span}`}>{g.nl}</span>)}
+                </>)}
+                <span class="text-[var(--color-outline)] text-xs self-center">Hollandaca</span>
+                {leaves(w.parts).map((p) => <span class={`border rounded px-2 py-1 text-center font-semibold ${roleClass[p.role]}`}>{p.nl}{p.base && <span class="block text-[11px] font-normal">← {p.base}</span>}</span>)}
+                <span class="text-[var(--color-outline)] text-xs self-center">Türkçe</span>
+                {leaves(w.parts).map((p) => <span class="px-2 py-1 text-center">{p.tr}</span>)}
+                <span class="text-[var(--color-outline)] text-xs self-center">English</span>
+                {leaves(w.parts).map((p) => <span class="px-2 py-1 text-center italic text-[var(--color-on-surface-variant)]">{p.en}</span>)}
+              </div>
+            </div>
+          )}
+          <div class="mt-3 space-y-1 text-[15px]">
+            {w.situation !== "control" && <p class="m-0"><span class="text-[#6d28d9] font-semibold">Sözcüğü sözcüğüne:</span> {w.literal.tr}</p>}
+            {w.drift && <p class="m-0 text-[var(--color-on-surface-variant)]" set:html={"<span class='font-semibold'>Neden?</span> " + code(w.drift)} />}
+            {w.spelling && <p class="m-0 text-[var(--color-on-surface-variant)]" set:html={"<span class='font-semibold'>Yazım:</span> " + code(w.spelling)} />}
+            <p class="m-0"><span class="bg-[#fef9c3] px-1 font-semibold">Anlamı:</span> {w.meaning.tr}{w.situation === "control" && " — parçalanmaz, bir bütün."}</p>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- ───────── B — split tree ───────── -->
+    <section data-variant="B" hidden>
+      {words.map((w) => (
+        <figure class="mb-12">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">{situationLabel[w.situation]}</p>
+          <img src={`${base}/B-${w.id}.svg`} alt={`${w.nl}: parçaları ve anlamı, ağaç olarak`} class="mx-auto max-h-[36rem] w-auto max-w-full" loading="lazy" />
+        </figure>
+      ))}
+    </section>
+
+    <!-- ───────── C — bricks ───────── -->
+    <section data-variant="C" hidden>
+      <div class="prose max-w-none mb-4">
+        <p>Hollandaca bir birleşik sözcüğü hep aynı kuralla kurar: iki sözcük, arada bazen bir <code>s</code> ya da <code>en</code>. Asıl anlamı <strong>son parça</strong> taşır; <code>rijksbegroting</code> bir çeşit <code>begroting</code>'dir.</p>
+      </div>
+      <img src={`${base}/C-rule.svg`} alt="Kural: samenstelling = woord, isteğe bağlı s ya da en, woord" class="w-full max-w-md mb-12" />
+      {words.map((w) => (
+        <figure class="mb-10">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">{situationLabel[w.situation]}</p>
+          <img src={`${base}/C-${w.id}.svg`} alt={`${w.nl}: parçalar tuğla olarak, altında Türkçesi ve anlamı`} class="max-w-full h-auto mx-auto" loading="lazy" />
+        </figure>
+      ))}
+    </section>
+
+    <!-- ───────── D — family and topic ───────── -->
+    <section data-variant="D" hidden>
+      <div class="prose max-w-none"><h2>Aynı parça, başka sözcükler</h2><p>Bir parçayı öğrenince onu taşıyan bütün sözcükler kolaylaşır.</p></div>
+      <div class="grid sm:grid-cols-2 gap-4 my-6">
+        <img src={`${base}/D-beeld.svg`} alt="beeld ailesi: voorbeeld, afbeelding, beeldscherm, beeldhouwer" class="w-full border rounded-lg bg-white p-2" />
+        <img src={`${base}/D-tel.svg`} alt="tel ailesi: tellen, telwoord, optellen, aftellen, teller" class="w-full border rounded-lg bg-white p-2" />
+      </div>
+      <div class="prose max-w-none"><h2>Paylaşılan parçalar</h2><p>Soldaki parça, sağdaki sözcüklerin içinde duruyor.</p></div>
+      <img src={`${base}/D-sankey.svg`} alt="Parçalardan sözcüklere akış: voor, beeld, woord, tel" class="max-w-full h-auto mx-auto my-6" />
+      <div class="prose max-w-none"><h2>Konu haritası: Prinsjesdag</h2><p><code>troonrede</code>, <code>miljoenennota</code> ve <code>rijksbegroting</code> aynı günün sözcükleri.</p></div>
+      <img src={`${base}/D-prinsjesdag.svg`} alt="Prinsjesdag: troonrede, miljoenennota, rijksbegroting" class="max-w-full h-auto mx-auto my-6" />
+      <p class="text-sm text-[var(--color-outline)]">telwoorden, voorbeelden ve gordijn bu varyantta tek başına parçalanmıyor — D ilişkileri çizer, sözcüğün içini değil.</p>
+    </section>
+
+    <!-- ───────── E — origin and bridges ───────── -->
+    <section data-variant="E" hidden>
+      {words.map((w) => (
+        <div class="mb-12 rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface-container-lowest)] p-5">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">{situationLabel[w.situation]}</p>
+          <div class="font-[Space_Grotesk] text-3xl font-bold mb-1">
+            {leaves(w.parts).map((p, i) => <>{i > 0 && <span class="text-[var(--color-outline)] font-normal mx-0.5">·</span>}<span class={`border-b-4 ${roleClass[p.role]} px-0.5`}>{p.nl}</span></>)}
+          </div>
+          <p class="mb-4"><span class="bg-[#fef9c3] px-1 font-semibold">Anlamı:</span> {w.meaning.tr}</p>
+          <ol class="space-y-2 list-none p-0 m-0 text-[15px]">
+            {w.origins.map((o) => (
+              <li class="grid grid-cols-[7.5rem_1fr] gap-3 items-baseline">
+                <code class="text-sm font-bold truncate">{o.part}</code>
+                <span><span set:html={code(o.tr)} /> <a href={o.source} target="_blank" rel="noopener" class="text-xs text-[var(--color-primary-container)] whitespace-nowrap">kaynak: nl.wiktionary ↗</a></span>
+              </li>
+            ))}
+          </ol>
+          {w.spelling && <p class="mt-4 mb-0 text-sm" set:html={"<span class='font-semibold'>Yazım:</span> " + code(w.spelling)} />}
+          {w.cousins && <p class="mt-4 mb-0 text-sm"><span class="font-semibold">Cermen akrabaları:</span> <span set:html={code(w.cousins)} /></p>}
+          {w.resemblance && <p class="mt-2 mb-0 text-sm"><span class="font-semibold">Benzerlik</span> <span class="text-[var(--color-outline)]">(köken iddiası değil)</span>: <span set:html={code(w.resemblance)} /></p>}
+          {w.id === "miljoenennota" && (<>
+            <img src={`${base}/E-miljoen-chain.svg`} alt="miljoen'un yolu: mille, milione, miljoen 1510, 1.000.000 17. yüzyıl" class="max-w-full h-auto mx-auto mt-5" />
+            <img src={`${base}/E-nota.svg`} alt="Venn: nota (nl), nota (tr), note (en) — ortasında yazılı not" class="w-full max-w-sm mx-auto mt-4" />
+          </>)}
+          {w.id === "gordijn" && <img src={`${base}/E-gordijn-chain.svg`} alt="gordijn'in yolu: cortina, curtine, gardîne, gordijn 1285" class="max-w-full h-auto mx-auto mt-5" />}
+        </div>
+      ))}
+      <details class="text-sm text-[var(--color-outline)]">
+        <summary class="cursor-pointer">Karşılaştırma: aynı köken, Mermaid timeline ile</summary>
+        <img src={`${base}/E-miljoen.svg`} alt="miljoen timeline" class="w-full mt-3" />
+      </details>
+    </section>
+
+    {variants.map((v) => (
+      <aside data-variant={v.key} hidden class="mt-12 rounded-lg bg-[#1b1b1b] text-[#f1f1f1] p-5 text-sm font-mono leading-relaxed">
+        <div class="text-[#ffd666] font-bold mb-2">{v.key} — {v.name}</div>
+        <div><span class="text-[#9aa4b8]">draws:</span> {v.draws}</div>
+        <div class="mt-1"><span class="text-[#9aa4b8]">fails at:</span> {v.fails}</div>
+        <div class="mt-1"><span class="text-[#9aa4b8]">cost:</span> {v.cost}</div>
+      </aside>
+    ))}
+  </article>
+
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-[#111] text-white shadow-2xl px-2 py-1.5 text-sm font-mono max-w-[95vw]">
+    <button id="proto-prev" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Previous variant">←</button>
+    <span id="proto-label" class="whitespace-nowrap overflow-hidden text-ellipsis text-center"></span>
+    <button id="proto-next" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Next variant">→</button>
+  </div>
+
+  <script is:inline define:vars={{ keys: variants.map((v) => v.key), names: Object.fromEntries(variants.map((v) => [v.key, v.name])) }}>
+    const params = new URLSearchParams(location.search);
+    let i = Math.max(0, keys.indexOf((params.get("variant") ?? keys[0]).toUpperCase()));
+    function show() {
+      const k = keys[i];
+      document.querySelectorAll("[data-variant]").forEach((el) => (el.hidden = el.dataset.variant !== k));
+      document.getElementById("proto-label").textContent = `${k} — ${names[k]} (${i + 1}/${keys.length})`;
+      const u = new URL(location.href); u.searchParams.set("variant", k); history.replaceState(null, "", u);
+    }
+    const step = (d) => { i = (i + d + keys.length) % keys.length; show(); window.scrollTo({ top: 0 }); };
+    document.getElementById("proto-prev").onclick = () => step(-1);
+    document.getElementById("proto-next").onclick = () => step(1);
+    addEventListener("keydown", (e) => {
+      if (e.target.closest("input, textarea, [contenteditable]")) return;
+      if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "ArrowRight") step(1);
+    });
+    show();
+  </script>
+</BaseLayout>
