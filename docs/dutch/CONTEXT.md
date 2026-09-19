@@ -179,3 +179,11 @@ _Avoid_: NotebookLM, Gemini Notebook (each names the product, not the role), kno
 **Scratch notebook**:
 The one notebook in the Oracle a Session may write to, emptied when that Session ends. Everything else in the collection is curated by the learner alone. The split exists so an experiment can never damage material that was paid for.
 _Avoid_: Sandbox, temp notebook, workspace, staging
+
+**NT2 course recording**:
+One live class of the NT2 course the learner attends — the teacher's video and everything derived from it, the mp3 and its two transcripts. Named by the date it was taught. It is private material: it shows identifiable people and is never published, and a Lesson never quotes a classmate.
+_Avoid_: Lesson (means the durable artifact), les, class video, lecture
+
+**NT2 course supplement**:
+Any material the NT2 course teacher hands out beside the recordings — a slide deck for a numbered course unit, or a one-page sheet on one topic. It carries no date, it may arrive before or after the recordings it belongs to, and nothing records which recordings those are: the Oracle finds the match by content. It is the school's material and the paid books', so it is never published; a Lesson may cite it as Provenance and never quotes it.
+_Avoid_: Chapter, slides, deck, handout, presentation, attachment

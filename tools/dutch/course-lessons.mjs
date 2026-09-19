@@ -9,8 +9,14 @@
  * mp3 and two transcripts from each, files them in Drive, and adds all three to
  * the Oracle notebook.
  *
- * Locked by issue #143. The reasoning lives there and in
- * docs/dutch/ORACLE-INVENTORY.md; this file only implements it.
+ * It does the same for the course supplements — the teacher's slide decks and
+ * one-page sheets. Each gets an OCR text file in Drive, and a deck is also
+ * linked into the notebook by reference. An image is represented by its OCR
+ * file alone, because the notebook cannot reference an image in Drive.
+ *
+ * Locked by issues #143 (recordings) and #145 (supplements). The reasoning
+ * lives there and in docs/dutch/ORACLE-INVENTORY.md; this file only
+ * implements it.
  *
  * Three rules shape the code:
  *
@@ -29,16 +35,23 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import zlib from 'node:zlib';
 
 const HOME = process.env.HOME;
 const RCLONE = process.env.RCLONE || `${HOME}/bin/rclone`;
 const FFMPEG = process.env.FFMPEG || `${HOME}/bin/ffmpeg`;
 const NOTEBOOKLM = process.env.NOTEBOOKLM || `${HOME}/.local/bin/notebooklm`;
 const TRANSCRIBE = new URL('../media/transcribe.js', import.meta.url).pathname;
+const OCR = new URL('../media/ocr.js', import.meta.url).pathname;
+// Tesseract stores its language data in the working directory. Run it from a
+// cache outside the repo, so the data is fetched once and never committed.
+const OCR_CACHE = path.join(HOME, '.cache', 'docent-ocr');
+const OCR_LANG = 'nld+tur';
 
-// Read from the teacher's folder, which is a shortcut and is not writable.
+// Read from the teacher's folders, which sit in a shortcut and are not writable.
 // Write flat into the course folder, which is the learner's own.
 const READ_DIR = 'gdrive:atili/Dutch/NT2 Taaldiensten/A0>A2/Ders kayitlari';
+const SUPPLEMENT_DIR = 'gdrive:atili/Dutch/NT2 Taaldiensten/A0>A2/Ders slaytlari';
 const WRITE_DIR = 'gdrive-rw:atili/Dutch/NT2 Taaldiensten';
 const LIST_DIR = 'gdrive:atili/Dutch/NT2 Taaldiensten';
 const NOTEBOOK = 'course - nt2 taaldiensten';
@@ -122,6 +135,133 @@ export function lessonName(filename) {
   return `NT2 Taaldiensten - ${stem}`;
 }
 
+// ---------------------------------------------------------------- supplements
+
+/*
+ * A supplement keeps the teacher's stem, untranslated, behind the word
+ * "supplement" so it never sorts into the dated lesson series.
+ *
+ * Only a known extension is stripped. The teacher uploads files with no
+ * extension at all ("De stamboom"), and a stem like "Les 1.1" has a dot of its
+ * own — stripping any last dot would turn it into "Les 1".
+ */
+const SUPPLEMENT_EXT = /\.(pptx|png|jpe?g)$/i;
+
+export function supplementName(filename) {
+  return `NT2 Taaldiensten - supplement ${filename.replace(SUPPLEMENT_EXT, '')}`;
+}
+
+/*
+ * The kind comes from Drive's mime type, never from the extension, for the
+ * same reason. Anything else is logged and skipped rather than guessed at.
+ */
+const SUPPLEMENT_KINDS = {
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'deck',
+  'image/png': 'image',
+  'image/jpeg': 'image',
+};
+
+export function supplementKind(mimeType) {
+  return SUPPLEMENT_KINDS[mimeType] || null;
+}
+
+/*
+ * The OCR file is read by the Oracle, not by the learner, so it is plain
+ * English around the material. Each block names where its text came from:
+ * the slide's own text layer, or Tesseract's reading of a picture. The header
+ * says what the file is, because a search result shows no context.
+ */
+export function ocrDocument({ file, kind, date, blocks }) {
+  const n = blocks.length;
+  const what = kind === 'deck' ? `deck, ${n} slide${n === 1 ? '' : 's'}` : 'one-page sheet';
+  const lines = [
+    `Machine reading of the NT2 course supplement "${file}" (${what}).`,
+    `Made by tools/dutch/course-lessons.mjs on ${date}. Errors are possible; the original in Drive is the authority.`,
+    `"text" is the slide's own text. "ocr" is Tesseract (${OCR_LANG}) reading a picture, with its confidence.`,
+  ];
+  for (const block of blocks) {
+    lines.push('', `[${block.label}]`);
+    for (const part of block.parts) {
+      lines.push(`${part.head}:`);
+      const body = part.body.trim();
+      lines.push(body ? body.replace(/^/gm, '  ') : '  (nothing)');
+    }
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+// A .pptx is a zip. This machine has no unzip, and the pipeline stays Node, so
+// read the central directory directly. Stored and deflated entries only, which
+// is all an Office file uses.
+export function readZip(buf) {
+  let eocd = buf.length - 22;
+  while (eocd >= 0 && buf.readUInt32LE(eocd) !== 0x06054b50) eocd -= 1;
+  if (eocd < 0) throw new Error('not a zip file');
+  const count = buf.readUInt16LE(eocd + 10);
+  let p = buf.readUInt32LE(eocd + 16);
+  const entries = new Map();
+  for (let i = 0; i < count; i += 1) {
+    if (buf.readUInt32LE(p) !== 0x02014b50) throw new Error('broken zip directory');
+    const method = buf.readUInt16LE(p + 10);
+    const size = buf.readUInt32LE(p + 20);
+    const nameLen = buf.readUInt16LE(p + 28);
+    const skip = nameLen + buf.readUInt16LE(p + 30) + buf.readUInt16LE(p + 32);
+    const local = buf.readUInt32LE(p + 42);
+    const name = buf.toString('utf8', p + 46, p + 46 + nameLen);
+    const start = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+    const raw = buf.subarray(start, start + size);
+    if (method === 0) entries.set(name, raw);
+    else if (method === 8) entries.set(name, zlib.inflateRawSync(raw));
+    p += 46 + skip;
+  }
+  return entries;
+}
+
+const unescapeXml = (s) =>
+  s
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&amp;/g, '&');
+
+function relationships(xml) {
+  const map = new Map();
+  for (const [tag] of xml.matchAll(/<Relationship\b[^>]*>/g)) {
+    const id = tag.match(/\bId="([^"]*)"/);
+    const target = tag.match(/\bTarget="([^"]*)"/);
+    if (id && target) map.set(id[1], target[1]);
+  }
+  return map;
+}
+
+/*
+ * The slides of a deck in presentation order, each with its text paragraphs and
+ * the pictures it shows, in the order they appear. Slide file numbers are not
+ * the order: a teacher who moves a slide changes only presentation.xml.
+ */
+export function deckSlides(entries) {
+  const text = (name) => (entries.has(name) ? entries.get(name).toString('utf8') : '');
+  const deckRels = relationships(text('ppt/_rels/presentation.xml.rels'));
+  const ids = [...text('ppt/presentation.xml').matchAll(/<p:sldId\b[^>]*\br:id="([^"]*)"/g)].map((m) => m[1]);
+  return ids.map((rid, i) => {
+    const file = `ppt/${deckRels.get(rid)}`;
+    const xml = text(file);
+    const rels = relationships(text(file.replace(/slides\/(slide\d+\.xml)$/, 'slides/_rels/$1.rels')));
+    const paragraphs = [...xml.matchAll(/<a:p>([\s\S]*?)<\/a:p>/g)]
+      .map((m) => [...m[1].matchAll(/<a:t>([^<]*)<\/a:t>/g)].map((t) => unescapeXml(t[1])).join(''))
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const pictures = [...xml.matchAll(/r:embed="([^"]*)"/g)]
+      .map((m) => rels.get(m[1]))
+      .filter(Boolean)
+      .map((target) => path.posix.normalize(path.posix.join('ppt/slides', target)));
+    return { number: i + 1, hidden: /<p:sld\b[^>]*\bshow="0"/.test(xml), paragraphs, pictures };
+  });
+}
+
 // ---------------------------------------------------------------- Drive
 
 function rclone(argv, { quiet = true } = {}) {
@@ -189,6 +329,29 @@ function notebookId() {
  */
 function addByReference(nbId, fileId, title) {
   notebooklm(['source', 'add-drive', fileId, title, '-n', nbId, '--mime-type', 'pdf', '--json']);
+}
+
+/*
+ * A supplement links two sources in two steps, and a run can die between them.
+ * So a supplement links a Drive file only when the notebook lacks it, which
+ * makes a re-run finish the job instead of adding a second copy.
+ *
+ * The key is the Drive file id, never the title: Gemini Notebook rewrites a
+ * title as it stores it, spacing out hyphens, so a title check would miss.
+ */
+function notebookDriveIds(nbId) {
+  const j = notebooklm(['source', 'list', '-n', nbId, '--json']);
+  return new Set((j.sources || []).map((s) => s.drive_document_id).filter(Boolean));
+}
+
+function linkOnce(nbId, linked, fileId, title) {
+  if (linked.has(fileId)) {
+    log(`   ${title} is already in the notebook`);
+    return;
+  }
+  log(`   linking ${title} into the notebook`);
+  addByReference(nbId, fileId, title);
+  linked.add(fileId);
 }
 
 // ---------------------------------------------------------------- one lesson
@@ -263,10 +426,124 @@ function processLesson(video, done, nbId) {
   return { name, did };
 }
 
+// ---------------------------------------------------------------- one supplement
+
+const OCR_READS = /\.(png|jpe?g|bmp|webp)$/i;
+
+function ocrImage(localImage) {
+  fs.mkdirSync(OCR_CACHE, { recursive: true });
+  const r = spawnSync('node', [OCR, localImage], {
+    cwd: OCR_CACHE,
+    env: { ...process.env, OCR_LANG },
+    encoding: 'utf8',
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  if (r.status !== 0) throw new Error(`ocr failed on ${path.basename(localImage)}: ${(r.stderr || '').trim()}`);
+  const confidence = (r.stderr.match(/confidence (\d+)%/) || [])[1];
+  return { text: r.stdout, confidence: confidence ? `${confidence}%` : 'unknown' };
+}
+
+/*
+ * Every picture is read once. A logo on every slide would otherwise repeat its
+ * noise 25 times; later slides point back at the first reading instead.
+ */
+export function readDeck(localDeck, scratch) {
+  const entries = readZip(fs.readFileSync(localDeck));
+  const seen = new Map();
+  return deckSlides(entries).map((slide) => {
+    const parts = [{ head: 'text', body: slide.paragraphs.join('\n') }];
+    for (const picture of slide.pictures) {
+      const name = path.posix.basename(picture);
+      if (seen.has(picture)) {
+        parts.push({ head: `ocr ${name}`, body: `(the same picture as slide ${seen.get(picture)})` });
+        continue;
+      }
+      seen.set(picture, slide.number);
+      if (!OCR_READS.test(name) || !entries.has(picture)) {
+        parts.push({ head: `ocr ${name}`, body: '(not read: OCR takes raster pictures only)' });
+        continue;
+      }
+      const file = path.join(scratch, name);
+      fs.writeFileSync(file, entries.get(picture));
+      const { text, confidence } = ocrImage(file);
+      parts.push({ head: `ocr ${name}, confidence ${confidence}`, body: text });
+    }
+    return { label: `slide ${slide.number}${slide.hidden ? ', hidden' : ''}`, parts };
+  });
+}
+
+function processSupplement(file, kind, done, nbId, linked) {
+  const name = supplementName(file.Name);
+  const ocrFile = `${name}.ocr.txt`;
+  if (done.has(ocrFile)) return;
+
+  log(`\n== ${name}  (${kind}, from ${file.Name})`);
+  log(`   missing: ${ocrFile}`);
+  if (dryRun) return;
+
+  const scratch = path.join(WORK, 'supplement');
+  fs.rmSync(scratch, { recursive: true, force: true });
+  fs.mkdirSync(scratch, { recursive: true });
+  // The local copy gets an extension from its kind, whatever the teacher named it.
+  const local = path.join(scratch, kind === 'deck' ? 'original.pptx' : `original${path.extname(file.Name) || '.img'}`);
+  log('   fetching');
+  rclone(['copyto', `${SUPPLEMENT_DIR}/${file.Name}`, local]);
+
+  log('   reading (text layer and OCR)');
+  const blocks =
+    kind === 'deck'
+      ? readDeck(local, scratch)
+      : (() => {
+          const { text, confidence } = ocrImage(local);
+          return [{ label: 'page', parts: [{ head: `ocr, confidence ${confidence}`, body: text }] }];
+        })();
+  const out = path.join(scratch, ocrFile);
+  const date = new Date().toISOString().slice(0, 10);
+  fs.writeFileSync(out, ocrDocument({ file: file.Name, kind, date, blocks }));
+
+  // The deck goes in by reference from the teacher's folder. It is linked
+  // before the OCR file lands, because the OCR file is the "done" marker: once
+  // it exists, no later run looks at this supplement again.
+  if (kind === 'deck') linkOnce(nbId, linked, file.ID, name);
+
+  log(`   uploading ${ocrFile}`);
+  uploadFinal(out, ocrFile);
+  const landed = listDrive(LIST_DIR).find((f) => f.Name === ocrFile);
+  if (!landed) {
+    log(`   ! ${ocrFile} is not in Drive yet; link it by hand or delete it and re-run`);
+    return;
+  }
+  linkOnce(nbId, linked, landed.ID, ocrFile.replace(/\.txt$/, ''));
+  fs.rmSync(scratch, { recursive: true, force: true });
+}
+
+function processSupplements(done, nbId) {
+  const files = listDrive(SUPPLEMENT_DIR);
+  const pending = [];
+  for (const f of files) {
+    const kind = supplementKind(f.MimeType);
+    if (!kind) {
+      log(`skipping supplement ${f.Name}: ${f.MimeType} is not a deck or an image`);
+      continue;
+    }
+    if (!done.has(`${supplementName(f.Name)}.ocr.txt`)) pending.push({ f, kind });
+  }
+  log(`${files.length} supplement(s) in the slides folder, ${pending.length} need work`);
+  if (pending.length === 0) return;
+  const linked = dryRun ? new Set() : notebookDriveIds(nbId);
+  for (const { f, kind } of pending) {
+    try {
+      processSupplement(f, kind, done, nbId, linked);
+    } catch (e) {
+      log(`   ! failed: ${e.message}`);
+    }
+  }
+}
+
 // ---------------------------------------------------------------- main
 
 function main() {
-  for (const p of [RCLONE, FFMPEG, NOTEBOOKLM, TRANSCRIBE]) {
+  for (const p of [RCLONE, FFMPEG, NOTEBOOKLM, TRANSCRIBE, OCR]) {
     if (!fs.existsSync(p)) {
       console.error(`missing: ${p}`);
       process.exit(1);
@@ -282,11 +559,8 @@ function main() {
       const n = lessonName(v.Name);
       return !done.has(`${n}.mp3`) || !done.has(`${n}.tr.txt`) || !done.has(`${n}.nl.txt`);
     });
-    if (pending.length === 0) {
-      log('every lesson is processed. Nothing to do.');
-      return;
-    }
-    log(`${pending.length} lesson(s) need work${dryRun ? ' (dry run — nothing will be written)' : ''}`);
+    if (pending.length === 0) log('every lesson is processed.');
+    else log(`${pending.length} lesson(s) need work${dryRun ? ' (dry run — nothing will be written)' : ''}`);
 
     const nbId = dryRun ? null : notebookId();
     let count = 0;
@@ -304,6 +578,11 @@ function main() {
       }
       count += 1;
     }
+
+    // Supplements run after the lessons. They are cheap — seconds of OCR,
+    // against minutes of recognition — and --limit counts lessons only.
+    log('');
+    processSupplements(done, nbId);
   } finally {
     if (!dryRun) releaseLock();
   }

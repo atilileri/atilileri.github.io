@@ -281,8 +281,52 @@ A video still needs converting, because the 200 MB source limit rejects an hour 
 
 [#143](https://github.com/atilileri/atilileri.github.io/issues/143) turns this into a script.
 
-The video track carries the slides, and this route drops it. The slides folder in Drive
-(`A0>A2/Ders slaytlari`) is empty today, and #143 rules it **out of scope** until it fills.
+The video track carries the slides, and this route drops it. The teacher's own files make up for that — see
+the next section.
+
+### Adding an NT2 course supplement
+
+An **NT2 course supplement** is anything in `A0>A2/Ders slaytlari`: a slide deck for a numbered course unit
+(`Les 1.1.pptx`), or a one-page sheet on one topic (`Twee spelalfabetten.jpg`, `De stamboom`). It carries no
+date, and it can arrive before or after the recordings it belongs to — both decks and the JPG were uploaded
+2026-07-16, before the first lesson. [#145](https://github.com/atilileri/atilileri.github.io/issues/145) locked
+the route and `tools/dutch/course-lessons.mjs` runs it after the lessons.
+
+**What the notebook can read**, measured in `scratch` on 2026-09-19:
+
+| Route | Deck (`.pptx`) | Image (PNG, JPEG) |
+| --- | --- | --- |
+| `add-drive`, by reference | **Works** with `--mime-type pdf`; `google-slides` fails. | **Fails**, and leaves an `error` row (trap 3). |
+| `source add --type file`, a copy | Not measured. | Works, and Gemini reads the image correctly. |
+
+**A deck by reference is read only in part, and the gap is silent.** Its indexed text keeps every picture as a
+link. Gemini read the pronoun table on slide 17, then said twice that the deck holds no *hebben*/*zijn* table —
+slide 20 shows one. So "it is not in the deck" is never a trustworthy answer from that source alone.
+
+**So every supplement gets an OCR file**, `NT2 Taaldiensten - supplement <teacher's stem>.ocr.txt`, flat in
+`NT2 Taaldiensten` and linked by reference. It holds the whole item, marked `[slide N]` or `[page]`: each
+slide's text layer, then Tesseract's reading (`nld+tur`) of each picture with its confidence. A picture repeated
+across slides is read once. A deck also enters by reference from the teacher's folder, titled without the
+`.ocr`; an image is represented by its OCR file alone, which keeps every source on this shelf a reference.
+Measured: the *hebben*/*zijn* table the notebook missed reads at **90%** in the OCR file; the designed pronoun
+table at 69%, noisier but with every pair intact. A whole deck takes about 15 seconds.
+
+- **The teacher's stem is kept exactly.** Only `.pptx`, `.png`, `.jpg` and `.jpeg` are stripped, because a
+  supplement can have no extension at all (`De stamboom`) and a stem can hold a dot of its own (`Les 1.1`).
+- **The kind comes from Drive's mime type.** Anything that is not a deck or an image is logged and skipped.
+- **The OCR file is the "done" marker**, so the deck is linked before it lands. Both links check the notebook
+  for the Drive file id first, never the title, which the notebook rewrites.
+- **Nothing records which recordings a supplement covers.** The notebook matches them by content.
+- **Tesseract keeps its language data in `~/.cache/docent-ocr`.** It fetches it once, with the network; run
+  from anywhere else, it writes `nld.traineddata` into the working directory.
+- **No LibreOffice on this machine**, so a deck cannot be turned into a PDF here.
+- **The notebook can ignore the title a deck is added with.** On 2026-09-19 `Les 1.2.pptx` kept its title and
+  `Les 1.1.pptx` came back under its Drive filename — the one deck that had been added to `scratch` an hour
+  earlier. `notebooklm source rename <id> "<title>" -n <id>` fixed it. The script does not check, because the
+  Drive id, not the title, is what it relies on.
+
+A supplement is the school's material and pages from paid books, so it is never published. A Lesson may cite it
+as Provenance — "NT2 Taaldiensten, Les 1.1" — and never quotes it.
 
 ## Known gaps
 
