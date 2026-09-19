@@ -145,8 +145,16 @@ The single skill that runs this practice, invoked as `/docent`. It teaches, revi
 _Avoid_: The Dutch skill, the agent, the tutor
 
 **Mode**:
-One distinct way Docent runs, chosen from the learner's argument. Exactly four: *Session*, *Review*, *Publish*, *Assess*. Sitting an Exam task is a Session, not a Mode of its own. A Mode is never a git branch.
+One distinct way Docent runs, chosen by a Flag. Exactly four: *Session*, *Review*, *Publish*, *Assess*, and every one of them writes. Session is the default, so a line with no Flag is a Session. Sitting an Exam task is a Session, not a Mode of its own. A Mode is never a git branch.
 _Avoid_: Branch (means git here), command, subskill, route
+
+**Flag**:
+A token on the `/docent` line that starts with `--` and chooses what Docent does. Every other token is the Theme, so a Flag can never collide with a Theme. Exactly five: `--session`, `--review`, `--publish`, `--assess` and `--help`; the first four name a Mode and `--help` names none, because it only reads. Each Flag has three spellings — English, Turkish and Dutch — matched case-insensitively with diacritics folded, so `--yardim` reaches `--yardım`. An unrecognised `--flag` refuses and prints the Flag list. Locked by [#140](https://github.com/atilileri/atilileri.github.io/issues/140) and recorded in [`adr/0012-modes-are-flags-the-rest-is-the-theme.md`](./adr/0012-modes-are-flags-the-rest-is-the-theme.md).
+_Avoid_: Option, switch, argument (that is the whole line), command, mode (four of five are Modes)
+
+**Help**:
+What Docent reports about itself, printed by the `--help` Flag. Two halves in one output: a **Status** half, which is live state read off the Plan, the Items and the inbox, and a **Reference** half, which is the Flag table with generated examples. Help is strictly read-only — it runs no preflight, writes no file and leaves no trace — and it reports a broken journey without repairing it. Help is not a Mode.
+_Avoid_: Help mode, status mode, `--help` mode, usage, manual
 
 **Provenance**:
 Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise. The string names one of the four homes in [`MATERIAL.md`](./MATERIAL.md), which also holds the form to write for each.
