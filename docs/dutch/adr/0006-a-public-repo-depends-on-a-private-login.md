@@ -48,7 +48,9 @@ publication. A Drive write, a commit and a push each wait for the human, which i
 ## What we accept, and how we would back out
 
 **Browser automation is fragile and it is somebody else's UI.** A page changes and the script breaks with no
-warning. We accept that at exactly two named targets, listed in `AUTOMATION.md` and extended only by a human.
+warning. We accept that at the named targets listed in `AUTOMATION.md`, and, since
+[#87](https://github.com/atilileri/atilileri.github.io/issues/87), at any other site when no listed one answers.
+Docent may offer a new row; a human confirms it.
 The fallback already exists and has been used: the human opens the browser and drops the result in Drive,
 which is how 48 exam papers arrived.
 

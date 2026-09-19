@@ -80,7 +80,8 @@ chosen in this order:
 3. **Docent's own reasoning** — acceptable, not preferred. Mark it `Docent'in çıkarımı`, so a reader knows no page
    stands behind it.
 
-This is looser than the rule for a **Bridge**, which must cite a source when it claims a shared origin. A Bridge is
+This is looser than the rule for a **Bridge**, which must cite a source when it tells a shared origin or a history,
+because Docent never makes one up. A Bridge is
 a Mnemonic on the Item and follows the rule in [`CONTEXT.md`](./CONTEXT.md). A Split's origin line is part of the Split and
 follows this file.
 

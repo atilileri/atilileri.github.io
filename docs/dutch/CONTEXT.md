@@ -36,7 +36,7 @@ A dated record of one invocation — what was taught, what was asked, and what t
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
-One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
+One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory. It may also carry the pronunciation fields `say` — a link to a human recording on Wikimedia Commons — and `ipa`; they help the learner say the word, not recall it, so they are not Mnemonics. Their format is [`PRONUNCIATION.md`](./PRONUNCIATION.md). The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
 _Avoid_: Note, card, word, entry
 
 **Direction**:
@@ -117,15 +117,15 @@ consumed over one or more Sessions and closes only on the learner's confirmation
 _Avoid_: Inbox, capture, submission, queue, backlog
 
 **Mnemonic**:
-Anything held on an Item that helps the learner recall it. Exactly two kinds: a **Bridge**, which makes a claim about the languages that a reader can check, and a **Hook**, which makes no claim. It is a grouping word, not a field — each kind is its own field. A Trap is not a Mnemonic: it stops a wrong answer rather than recalling a right one. Study advice a Lesson gives in prose, such as picturing a familiar building, is not a Mnemonic either, because nothing is held on an Item. Nor is a Split, though it is held on an Item: it explains what the word is made of, where a Mnemonic gives recall something to hold on to.
+Anything held on an Item that helps the learner recall it. Exactly two kinds: a **Bridge**, which tells something true about the word, and a **Hook**, which is invented. It is a grouping word, not a field — each kind is its own field. A Trap is not a Mnemonic: it stops a wrong answer rather than recalling a right one. Study advice a Lesson gives in prose, such as picturing a familiar building, is not a Mnemonic either, because nothing is held on an Item. Nor is a Split, though it is held on an Item: it explains what the word is made of, where a Mnemonic gives recall something to hold on to.
 _Avoid_: Memory aid, memory artifact, trick
 
 **Bridge**:
-A resemblance that helps — a Dutch word an English or Turkish word already explains. It is an optional field on an Item, written in Turkish prose that quotes the foreign word: *"Hollandaca `vriend` ve İngilizce `friend` kelimeleri aynı kökten gelir."* A Bridge that claims a shared origin cites a source; one that claims only a resemblance needs none. A Bridge is the Mnemonic that can be wrong.
-_Avoid_: Cognate note, hint
+A true fact that helps the learner remember a Dutch word — an English or Turkish word that already explains it, or, for a word with no such relative, the word's own history. It is an optional field on an Item, written in Turkish prose that quotes the foreign word: *"Hollandaca `vriend` ve İngilizce `friend` kelimeleri aynı kökten gelir."* The learner uses a Bridge to remember, not to verify it. Docent takes a shared origin or a history from a source and never makes one up, and it links that source so a learner the story interests can read more; a Bridge that states only a resemblance needs none. A history is offered rather than written for every Item. A Bridge is the Mnemonic that can be wrong.
+_Avoid_: Cognate note, hint, etymology note
 
 **Hook**:
-An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scene that joins them. It is an optional field on an Item, written in Turkish prose that quotes the Dutch and the keyword. It claims nothing about either language, so it needs no source and cannot be wrong, only unhelpful. A Hook is distinctive rather than absurd, may use a scene from a show the Profile names but never quotes one, and is offered rather than written for every Item. A true resemblance is never a Hook; it is a Bridge.
+An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scene that joins them. It is an optional field on an Item, written in Turkish prose that quotes the Dutch and the keyword. It claims nothing about either language, so it needs no source and cannot be wrong, only unhelpful. A Hook is distinctive rather than absurd, may use a scene from a show the Profile names but never quotes one, and is offered rather than written for every Item. A true resemblance or a true history is never a Hook; it is a Bridge.
 _Avoid_: Keyword, peg, association, story
 
 **Picture**:
@@ -165,7 +165,7 @@ How formally a Scenario is conducted, held on the Scenario as one of exactly thr
 _Avoid_: Formality, tone, politeness level, style
 
 **Named target**:
-A third party's website Docent may reach **on its own initiative** — without the learner handing it a link — listed as one row in [`AUTOMATION.md`](./AUTOMATION.md) with what the script takes from it. The list is closed and a human adds to it. A link the learner sends, in an Intake or as a Theme, needs no row: it is its own permission, for that one page and what it embeds. Either way the agent never crawls.
+A third party's website Docent checks first when it looks something up **on its own initiative** — without the learner handing it a link — listed as one row in [`AUTOMATION.md`](./AUTOMATION.md) with what the script takes from it. When no listed site answers, another site is fine, by fetch or by a browser script. Docent may offer a new row, and a human confirms it. A link the learner sends, in an Intake or as a Theme, needs no row: it is its own permission, for that one page and what it embeds. Either way the agent never crawls.
 _Avoid_: Allowed site, whitelist entry, scrape target, integration
 
 **Machine credential**:

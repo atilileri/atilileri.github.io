@@ -136,3 +136,6 @@ Oracle's notebooks. So the map has exam material; what it lacks is an *unattende
 distinction matters to [#95](https://github.com/atilileri/atilileri.github.io/issues/95), which can now judge
 luisteren against real exam tasks. #130 answered the narrowed question: **yes, a human keeps fetching it**, because
 the allowlist does not admit them.
+[#87](https://github.com/atilileri/atilileri.github.io/issues/87) made the list a preference, so that reason is gone:
+a browser script may now try these applications when no listed site answers. Nobody has tried yet, and a human
+still fetches the material until a script does it.

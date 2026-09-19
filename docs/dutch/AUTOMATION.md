@@ -18,16 +18,25 @@ asks for one named action.
 
 ## Named targets
 
-A script reaches a third party's website **only** if that site has a row here. The list is closed. **A human
-adds a row; the agent never does.** Each target costs maintenance, because a page changes without warning, so
-the list grows on evidence that a Session needs it.
+**A listed site is checked first and preferred.** When Docent looks something up on its own initiative, it
+asks the sites below before any other. When none of them answers, another site is fine, by `fetch` or by a
+browser script, one page at a time. Changed from a closed list by
+[#87](https://github.com/atilileri/atilileri.github.io/issues/87). A site that needs a login still needs a
+Machine credential, and the rules for one below still apply.
+
+**Docent offers a row; a human confirms it.** When Docent reads an unlisted site that a later Session will need
+again, it proposes the row in the Session. The row enters the table only after the human says yes. Each target
+costs maintenance, because a page changes without warning, so the list grows on evidence that a Session needs it.
 
 | Target | What a script takes | Route | Added |
 | --- | --- | --- | --- |
 | The Oracle (the `OracleDutch` collection) | Answers to curriculum questions, and passages from its sources | `notebooklm-py` over HTTP, with a durable token | 2026-09-05 |
 | `nos.nl` | The text of one named article | `fetch` plus Readability | 2026-09-05 |
 | `commons.wikimedia.org` | Whether a word has a human recording, and its licence | MediaWiki API, no key | 2026-09-08 |
-| `nl.wiktionary.org` | The IPA transcription of a word | MediaWiki API, no key | 2026-09-08 |
+| `nl.wiktionary.org` | The IPA transcription of a word, and the origin of a Dutch word | MediaWiki API, no key | 2026-09-08 |
+| `etymologiebank.nl` | The origin of a Dutch word — the *Etymologisch Woordenboek van het Nederlands* and its sibling dictionaries. The first source for a Dutch origin | `fetch`, one entry page | 2026-09-19 |
+| `etymonline.com` | The origin of an English word | `fetch`, one entry page | 2026-09-19 |
+| `en.wiktionary.org` | The origin of an English word, and its relatives in other languages | MediaWiki API, no key | 2026-09-19 |
 
 **Fetch on demand, one page at a time. Never crawl.** The agent takes the article a Session points at and
 nothing more. When the journey needs a whole corpus of a site, the human puts it in Drive by hand — the way
