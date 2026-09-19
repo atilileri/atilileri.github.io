@@ -128,6 +128,10 @@ _Avoid_: Cognate note, hint
 An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scene that joins them. It is an optional field on an Item, written in Turkish prose that quotes the Dutch and the keyword. It claims nothing about either language, so it needs no source and cannot be wrong, only unhelpful. A Hook is distinctive rather than absurd, may use a scene from a show the Profile names but never quotes one, and is offered rather than written for every Item. A true resemblance is never a Hook; it is a Bridge.
 _Avoid_: Keyword, peg, association, story
 
+**Picture**:
+One image the Oracle draws of one scene, owned by exactly one thing — a Hook, a Trap, a Lesson, a Tekst or a Clip. It is drawn once and kept with its owner, and drawn again only when the owner changes. The owner's confirmation approves it; it never asks for its own. A Session draws at most three: the learner's request first, then an Item answered wrong, then an Item with no Bridge, then a header. A Picture is never a Mnemonic of its own — the Picture of a Hook is part of that Hook, shows where the Hook shows, and never in a Prompt. A failed Picture leaves its owner complete in text.
+_Avoid_: Image, drawing, visual, infographic, card
+
 **Split**:
 The parts of a word — each part with its Turkish and English gloss, then the literal sum and the meaning. An optional field on an Item, written once for a word that splits into two or more meaningful parts; a word with one part gets none. Docent reads it whenever the word needs explaining, and a Lesson shows it the first time it introduces the word. It is part of that explanation, never the whole of it, and it is not a Mnemonic. A part spelt differently inside the word is shown as written and the change is stated. Its format is [`SPLIT.md`](./SPLIT.md).
 _Avoid_: Breakdown, decomposition, word tree, parse, morphology

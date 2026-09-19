@@ -81,6 +81,12 @@ input — that clause lands on the [Profile](./PROFILE.md). Everything runs loca
 Dutch speech synthesis, PDF text, OCR, `ffmpeg`, Mermaid. A later ticket may reopen this with a named cost and
 a named need.
 
+**One exception: a Picture's image instruction.** The Oracle draws each [Picture](./CONTEXT.md), and it runs on the
+learner's own Google account at no extra cost. Its instruction may carry facts the public Profile already
+publishes — a padel club, a kite spot, a show — because sending them reveals nothing new. The Profile file itself
+is never sent, and neither is any line that is not already public. Set by
+[#122](https://github.com/atilileri/atilileri.github.io/issues/122).
+
 ## The write gate
 
 **Reading is free. Every write that leaves the machine is gated.**
