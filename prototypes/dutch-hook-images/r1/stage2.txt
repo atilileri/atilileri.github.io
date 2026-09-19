@@ -1,0 +1,11 @@
+auto-1 style=auto FAILED 31s
+auto-2 style=auto ok 90s
+academic-1 style=12 ok 144s
+academic-2 style=12 FAILED 76s
+control source 2cab0255-5a7c-40ec-a85a-597d38b86b9b
+control-professional style=professional ok 91s
+control-bento-grid style=bento-grid ok 146s
+control-editorial style=editorial ok 106s
+control-anime style=anime ok 105s
+control-scientific style=scientific ok 110s
+DONE

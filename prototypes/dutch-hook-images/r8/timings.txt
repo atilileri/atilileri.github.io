@@ -1,0 +1,4 @@
+flux seed=7 200 image/jpeg 2377ms 53922B
+flux seed=42 200 image/jpeg 47866ms 52569B
+turbo seed=7 200 image/jpeg 375ms 53922B
+turbo seed=42 200 image/jpeg 157ms 52569B

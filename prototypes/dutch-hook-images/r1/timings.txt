@@ -1,0 +1,5 @@
+sketch-note 176s exit=0
+kawaii 40s exit=0
+clay 40s exit=0
+retry kawaii 103s
+retry clay 83s

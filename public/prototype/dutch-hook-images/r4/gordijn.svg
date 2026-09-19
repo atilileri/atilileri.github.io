@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="t">
+  <title id="t">Chef GORDON hides behind the gordijn, raising a padel racket</title>
+  <!-- PROTOTYPE route 4: hand-written SVG by Claude -->
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6efe3"/><stop offset="1" stop-color="#eadfcb"/></linearGradient>
+    <linearGradient id="fold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9e1f2c"/><stop offset=".25" stop-color="#c8384a"/><stop offset=".5" stop-color="#a92635"/><stop offset=".75" stop-color="#cf4153"/><stop offset="1" stop-color="#9e1f2c"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd3f2"/><stop offset="1" stop-color="#d9f0fb"/></linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#wall)"/>
+  <rect y="505" width="600" height="95" fill="#b98a5a"/>
+  <g stroke="#a67a4c" stroke-width="2"><line x1="0" y1="535" x2="600" y2="535"/><line x1="0" y1="568" x2="600" y2="568"/></g>
+  <!-- window -->
+  <rect x="330" y="95" width="200" height="250" rx="4" fill="url(#sky)" stroke="#fff" stroke-width="12"/>
+  <line x1="430" y1="95" x2="430" y2="345" stroke="#fff" stroke-width="8"/>
+  <line x1="330" y1="220" x2="530" y2="220" stroke="#fff" stroke-width="8"/>
+  <!-- arm and racket, raised like a spatula -->
+  <path d="M316 300 C 370 296 410 270 432 236" stroke="#fff" stroke-width="34" stroke-linecap="round" fill="none"/>
+  <path d="M316 300 C 370 296 410 270 432 236" stroke="#d6d6d6" stroke-width="2" fill="none" transform="translate(0 16)"/>
+  <circle cx="438" cy="226" r="17" fill="#f1c29b"/>
+  <g transform="rotate(24 440 225)">
+    <rect x="432" y="150" width="16" height="80" rx="6" fill="#222"/>
+    <rect x="430" y="208" width="20" height="28" rx="5" fill="#f2c230"/>
+    <path d="M440 20 C 485 20 500 60 500 90 C 500 125 475 150 440 150 C 405 150 380 125 380 90 C 380 60 395 20 440 20 Z" fill="#1d6fd6" stroke="#0d3f80" stroke-width="6"/>
+    <g fill="#0d3f80"><circle cx="420" cy="65" r="6"/><circle cx="440" cy="65" r="6"/><circle cx="460" cy="65" r="6"/><circle cx="410" cy="90" r="6"/><circle cx="430" cy="90" r="6"/><circle cx="450" cy="90" r="6"/><circle cx="470" cy="90" r="6"/><circle cx="420" cy="115" r="6"/><circle cx="440" cy="115" r="6"/><circle cx="460" cy="115" r="6"/></g>
+  </g>
+  <circle cx="438" cy="226" r="17" fill="#f1c29b"/>
+  <!-- chef face peeking round the right edge of the curtain -->
+  <g transform="translate(14 0)">
+    <path d="M232 128 C 225 92 262 70 288 86 C 300 60 342 64 348 94 C 378 90 388 128 362 140 L 358 170 L 240 170 Z" fill="#fff" stroke="#c9c9c9" stroke-width="3"/>
+    <rect x="248" y="146" width="104" height="24" rx="4" fill="#fff" stroke="#c9c9c9" stroke-width="3"/>
+    <text x="300" y="164" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" text-anchor="middle" fill="#1d1d1d" letter-spacing="1">GORDON</text>
+    <ellipse cx="300" cy="222" rx="58" ry="56" fill="#f1c29b"/>
+    <path d="M262 196 L 292 208" stroke="#3a2412" stroke-width="7" stroke-linecap="round"/>
+    <path d="M338 196 L 308 208" stroke="#3a2412" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="280" cy="222" r="7" fill="#1d1d1d"/><circle cx="320" cy="222" r="7" fill="#1d1d1d"/>
+    <path d="M276 258 Q 300 240 324 258" fill="none" stroke="#7a1f1f" stroke-width="6" stroke-linecap="round"/>
+    <path d="M354 212 q 10 -2 12 8" fill="none" stroke="#e05555" stroke-width="3"/>
+    <path d="M360 196 q 12 0 14 10" fill="none" stroke="#e05555" stroke-width="3"/>
+  </g>
+  <!-- rod -->
+  <rect x="40" y="58" width="300" height="10" rx="5" fill="#6b4a2b"/>
+  <circle cx="40" cy="63" r="12" fill="#6b4a2b"/><circle cx="340" cy="63" r="12" fill="#6b4a2b"/>
+  <!-- the curtain covers the chef's left half -->
+  <path d="M55 68 L 270 68 C 262 180 282 300 262 420 C 256 460 262 490 266 500 L 55 500 C 70 380 45 240 55 68 Z" fill="url(#fold)"/>
+  <g stroke="#7e1623" stroke-width="3" fill="none" opacity=".55">
+    <path d="M100 72 C 92 200 108 340 96 498"/><path d="M150 72 C 160 200 140 340 152 498"/><path d="M205 72 C 196 200 214 340 204 498"/>
+  </g>
+  <!-- shoes under the curtain -->
+  <g fill="#1d1d1d"><path d="M110 500 h 58 q 18 0 18 14 h -76 z"/><path d="M190 500 h 58 q 18 0 18 14 h -76 z"/></g>
+  <!-- label tag hanging from the rod -->
+  <line x1="150" y1="68" x2="150" y2="104" stroke="#6b4a2b" stroke-width="2"/>
+  <rect x="88" y="104" width="124" height="40" rx="8" fill="#fffdf7" stroke="#6b4a2b" stroke-width="2"/>
+  <text x="150" y="131" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="middle" fill="#6b4a2b">gordijn</text>
+</svg>

@@ -1,0 +1,2 @@
+started GenerationStatus(task_id='8e7f68cc-f71a-449c-bf45-ff925b0628b9', status='in_progress', url=None, error=None, error_code=None, metadata=None)
+final GenerationStatus(task_id='8e7f68cc-f71a-449c-bf45-ff925b0628b9', status='failed', url=None, error=None, error_code=None, metadata=None) 74s

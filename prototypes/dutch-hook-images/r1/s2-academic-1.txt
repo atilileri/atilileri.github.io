@@ -1,0 +1,3 @@
+started GenerationStatus(task_id='cb701bd0-1f5f-4166-b3ac-89c8b29485c7', status='in_progress', url=None, error=None, error_code=None, metadata=None)
+final GenerationStatus(task_id='cb701bd0-1f5f-4166-b3ac-89c8b29485c7', status='completed', url='https://lh3.googleusercontent.com/notebooklm/AKYWMX9pnKO6B94PTRInNFpBgC_o6s2g403o-uvLvbkzIyggA3899SOdx4unQebzMSh4g0ycUmxP9JRY67P9E7VxrkKcVrfhJST08OTN254cdeEb_I5QRmGihSDX0V1k69YoEkpO2vv4POM5bNqxG-rYoxKw6SbBO0c=w1376-d-h768-mp2', error=None, error_code=None, metadata=None) 140s
+saved /home/neo/projects/atilileri.github.io/public/prototype/dutch-hook-images/r1/academic-1.png

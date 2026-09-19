@@ -1,0 +1,19 @@
+professional #1 FAILED 40s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+bento-grid #1 FAILED 40s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+editorial #1 FAILED 40s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+instructional #1 ok 105s
+bricks #1 ok 93s
+clay #1 ok 104s
+anime #1 FAILED 30s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+kawaii #1 ok 118s
+scientific #1 FAILED 31s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+professional #2 ok 95s
+bento-grid #2 FAILED 41s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+editorial #2 FAILED 85s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+instructional #2 ok 74s
+bricks #2 ok 96s
+clay #2 FAILED 97s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+anime #2 FAILED 41s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+kawaii #2 FAILED 33s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+scientific #2 FAILED 85s {   "error": true,   "code": "GENERATION_FAILED",   "message": "Infographic generation failed" } 
+DONE

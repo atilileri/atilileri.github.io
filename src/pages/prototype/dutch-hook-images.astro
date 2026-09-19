@@ -1,0 +1,224 @@
+---
+// PROTOTYPE — throwaway. Ticket #146 (stage 1 of image prototyping for Hooks).
+// Plan: nine image routes for one Hook, shown inside a mock Lesson, switchable via ?variant=.
+// Not a real Lesson: the Lesson form is not built yet. Delete this file and
+// public/prototype/dutch-hook-images/ once the verdict is captured.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import fs from "node:fs";
+
+// Route 1 styles are read from disk, so each sweep result appears on reload.
+const r1Dir = "public/prototype/dutch-hook-images/r1";
+const r1Files = fs.readdirSync(r1Dir).filter((f) => f.endsWith(".jpg")).sort();
+
+const base = "/prototype/dutch-hook-images";
+
+type Figure = { src: string; alt: string; kind?: "img" | "svg"; caption?: string };
+type Variant = {
+  key: string;
+  name: string;
+  status: "ok" | "partial" | "failed" | "pending";
+  unattended: string;
+  cost: string;
+  note: string;
+  figures: Figure[];
+  links?: { label: string; href: string; hint: string }[];
+  table?: [string, string, string][]; // style, with GORDON, without the name
+  hook?: string; // overrides the default Hook text when a route needs its own scene
+  grammar?: boolean; // route draws a grammar Item instead of the scene
+};
+
+const variants: Variant[] = [
+  {
+    key: "r1", name: "Oracle infographic (NotebookLM)", status: "ok",
+    unattended: "Yes — CLI, no browser", cost: "83–176 s per image when it works; your Gemini plan; see the captions for which styles succeeded",
+    note: "Files named control-* use the same scene with no name: \"an angry cook in an apron\". With the name, 12 of 27 generations succeeded; without it, 5 of 5 — including four styles that had never worked. The failures carry no error text at all (error=None), which fits a silent content filter on a public-figure likeness. academic is Google's hidden style 12: it works, but ignores the square request and returns 1376×768.",
+    table: [
+      ["sketch-note", "1 / 1", "–"], ["instructional", "2 / 2", "–"], ["bricks", "2 / 2", "–"],
+      ["kawaii", "2 / 4", "–"], ["clay", "1 / 4", "–"], ["professional", "1 / 2", "1 / 1"],
+      ["auto", "1 / 2", "–"], ["academic (code 12)", "1 / 2", "–"],
+      ["bento-grid", "0 / 2", "1 / 1"], ["editorial", "0 / 2", "1 / 1"], ["anime", "0 / 2", "1 / 1"], ["scientific", "0 / 2", "1 / 1"],
+    ],
+    figures: r1Files.map((f) => ({ src: `${base}/r1/${f}`, alt: `NotebookLM infographic, style ${f.replace(".jpg", "")}`, caption: f.replace(".jpg", "") })),
+  },
+  {
+    key: "r3", name: "Gemini app in the browser", status: "failed",
+    unattended: "Technically yes — Playwright drove your signed-in Chrome over an SSH tunnel", cost: "Your Gemini plan; 15 s for the one image it made",
+    note: "Dropped. The first prompt returned a strong image in 15 s (chef, padel racket, GORDON tag, shoes under the curtain) — lost when it was deleted for a full-resolution re-run. Every later prompt was refused: \"I can't depict some public figures\" — an angry chef named GORDON reads as Gordon Ramsay. One refusal was a flat \"I'm just a language model and can't help with that.\"",
+    figures: [],
+  },
+  {
+    key: "r4", name: "Claude-drawn SVG", status: "ok",
+    unattended: "Yes — fully local", cost: "Free; 3 draw-and-check rounds in Chromium",
+    note: "Crisp at any size, restyles with the site, ~5 KB. Flat cartoon; faces and hands are the hard part.",
+    figures: [{ src: `${base}/r4/gordijn.svg`, alt: "Flat SVG: chef GORDON peeks from a red curtain labelled gordijn, raising a blue padel racket", kind: "svg" }],
+  },
+  {
+    key: "r5", name: "OpenMoji composed scene", status: "partial",
+    unattended: "Yes — fully local", cost: "Free; 2 layout rounds",
+    note: "Instantly readable, one consistent look. The set has no curtain and no padel racket (table-tennis bat instead), and the cook cannot look angry — the emotion floats beside him.",
+    figures: [{ src: `${base}/r5/gordijn-scene.svg`, alt: "Emoji scene: cook emoji behind a red curtain, table-tennis bat, angry-face emoji, sneakers under the curtain", kind: "svg" }],
+  },
+  {
+    key: "r6", name: "Mermaid (grammar Item)", status: "ok", grammar: true,
+    unattended: "Yes — local Chromium render to static SVG", cost: "Free; 2 rounds",
+    note: "Draws structure, never a scene. Shown here on the separable verb opbellen instead of the gordijn Hook.",
+    figures: [{ src: `${base}/r6/opbellen.svg`, alt: "Diagram: opbellen splits into bel in position 2 and op at the end of Ik bel je morgen op", kind: "svg" }],
+  },
+  {
+    key: "r8", name: "Pollinations (free online generator)", status: "partial",
+    unattended: "Yes — one HTTP GET, no key", cost: "Free; 2–48 s",
+    note: "A chef in a curtained room, but a tennis racket, no hiding, no name tag, and a watermark despite nologo. The model parameter is ignored: flux and turbo returned identical images for the same seed.",
+    figures: [
+      { src: `${base}/r8/flux-7.jpg`, alt: "Photo-like chef holding a tennis racket in front of curtains" },
+      { src: `${base}/r8/flux-42.jpg`, alt: "Photo-like chef crouching in a room with curtains, holding tongs" },
+    ],
+  },
+  {
+    key: "r9", name: "Photo search (Openverse, Wikimedia Commons)", status: "partial",
+    unattended: "Yes — keyless APIs", cost: "Free; under 1 s per query",
+    note: "Good for the object: 240 curtain and 240 padel-racket hits. Zero hits for the scene (\"chef hiding behind curtain\"). You get parts, never the Hook.",
+    figures: [
+      { src: `${base}/r9/e7dc42.jpg`, alt: "Photo of curtains (Openverse)" },
+      { src: `${base}/r9/125364.jpg`, alt: "Photo of padel rackets and balls (Wikimedia Commons)" },
+      { src: `${base}/r9/71041d.jpg`, alt: "Photo of an angry chef (Openverse)" },
+    ],
+  },
+  {
+    key: "r10", name: "YouTube frame (Friends)", status: "ok",
+    unattended: "Mostly — yt-dlp needs Node as its JS runtime; picking the frame took a look", cost: "Free; ~10 s download",
+    note: "A real scene from a show you know: Rachel hides Gavin behind the curtain. This upload is a phone filming a TV with Spanish subtitles, so quality depends on what exists. A different Hook, because no show holds the padel chef.",
+    hook: "`gordijn` için <em>Friends</em>'ten bir sahne: Ross kapıdayken Rachel, Gavin'i salondaki ekoseli perdenin arkasına iter. Perdenin altından sadece ayakkabıları görünür.",
+    figures: [
+      { src: `${base}/r10/friends-14.2.jpg`, alt: "Friends frame: Rachel pushes Gavin behind a plaid curtain" },
+      { src: `${base}/r10/friends-16.4.jpg`, alt: "Friends frame: the plaid curtain closed, Gavin hidden" },
+    ],
+  },
+  {
+    key: "r12", name: "Link, do not copy", status: "ok",
+    unattended: "Yes — builds URLs only", cost: "Free; nothing stored",
+    note: "Nothing to judge on the page itself — you click out. Shown as link cards where the picture would sit.",
+    figures: [],
+    links: [
+      { label: "Google Images: gordijn", href: "https://www.google.com/search?tbm=isch&q=gordijn", hint: "Dutch word, Dutch results" },
+      { label: "Openverse: curtain", href: "https://openverse.org/search/image?q=curtain", hint: "Openly licensed photos" },
+      { label: "Friends — Rachel hides Gavin behind the curtains (0:14)", href: "https://www.youtube.com/watch?v=k1_Y0MM3Rr0&t=14s", hint: "Timestamped video" },
+    ],
+  },
+];
+
+const defaultHook = "`gordijn` kulağa <em>Gordon</em> gibi gelir. Yaka kartında GORDON yazan öfkeli bir aşçı, salondaki uzun perdenin arkasına saklanmış; elindeki padel raketini spatula gibi havaya kaldırmış. Perdenin altından sadece ayakkabıları, yanından da kızgın yüzü görünüyor.";
+const code = (s: string) => s.replace(/`([^`]+)`/g, "<code>$1</code>");
+const statusLabel = { ok: "works", partial: "partial", failed: "failed", pending: "not run yet" };
+---
+
+<BaseLayout title="PROTOTYPE — Hook images" description="Throwaway prototype for ticket #146" currentPath="/prototype/">
+  <div class="bg-[#fff3cd] text-[#664d03] text-xs font-bold uppercase tracking-widest text-center py-2">
+    Prototype · ticket #146 · not a real Lesson
+  </div>
+
+  <article class="max-w-3xl mx-auto w-full min-w-0 px-6 py-16 sm:px-8">
+    <header class="mb-10">
+      <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-xs font-bold px-3 py-1 uppercase tracking-widest">Ders · Nederlands</span>
+      <h1 class="font-[Space_Grotesk] text-[clamp(2rem,6vw,3rem)] font-bold tracking-tighter leading-[0.95] mt-6 mb-4">Evde: salondaki eşyalar</h1>
+      <p class="text-lg text-[var(--color-on-surface-variant)] font-light">Salonda gördüğün eşyaların Hollandacası — ve akılda kalmaları için birer kanca.</p>
+    </header>
+
+    {variants.map((v) => (
+      <section data-variant={v.key} hidden>
+        <div class="prose max-w-none">
+          <p>
+            Hollandacada ev eşyalarının çoğu İngilizceye benzer: <code>tafel</code> <em>table</em>, <code>lamp</code> <em>lamp</em>.
+            Bazıları ise hiç benzemez; onlar için bir <strong>kanca</strong> (Hook) kuruyoruz.
+          </p>
+        </div>
+
+        {!v.grammar && (
+          <div class="my-8 rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface-container-lowest)] p-5 sm:p-6">
+            <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-4">
+              <span class="font-[Space_Grotesk] text-3xl font-bold">de gordijn</span>
+              <span class="text-[var(--color-on-surface-variant)]">perde · <em>curtain</em></span>
+            </div>
+            <div class="grid gap-5 sm:grid-cols-[1fr_minmax(0,1.1fr)] items-start">
+              <p class="text-[15px] leading-relaxed m-0" set:html={"<strong>Kanca:</strong> " + code(v.hook ?? defaultHook)} />
+              <div class="min-w-0">
+                {v.figures.length > 0 && (
+                  <div class={v.figures.length > 1 ? "grid grid-cols-2 gap-2" : ""}>
+                    {v.figures.map((f, i) => (
+                      <figure class={`m-0 ${v.figures.length === 3 && i === 0 ? "col-span-2" : ""}`}>
+                        <img src={f.src} alt={f.alt} loading="lazy" class="w-full rounded-lg border border-[var(--color-outline-variant)] bg-white" />
+                        {f.caption && <figcaption class="text-xs font-mono text-[var(--color-outline)] mt-1">{f.caption}</figcaption>}
+                      </figure>
+                    ))}
+                  </div>
+                )}
+                {v.links && (
+                  <ul class="space-y-2 list-none p-0 m-0">
+                    {v.links.map((l) => (
+                      <li><a href={l.href} target="_blank" rel="noopener" class="block rounded-lg border border-[var(--color-outline-variant)] p-3 hover:border-[var(--color-primary-container)]">
+                        <span class="font-semibold">{l.label} ↗</span><br /><span class="text-xs text-[var(--color-outline)]">{l.hint}</span>
+                      </a></li>
+                    ))}
+                  </ul>
+                )}
+                {(v.status === "pending" || (v.status === "failed" && v.figures.length === 0)) && (
+                  <div class="aspect-square rounded-lg border-2 border-dashed border-[var(--color-outline-variant)] grid place-items-center text-center p-6 text-sm text-[var(--color-outline)]">{v.note}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div class="prose max-w-none">
+          <h2>Ayrılabilen fiiller</h2>
+          <p>
+            <code>opbellen</code> (telefonla aramak) cümlede ikiye bölünür: çekimli kısım <code>bel</code> ikinci sıraya gider, ön ek <code>op</code> cümlenin sonuna kalır.
+          </p>
+        </div>
+        {v.grammar && (
+          <figure class="my-6">
+            <img src={v.figures[0].src} alt={v.figures[0].alt} class="w-full rounded-lg border border-[var(--color-outline-variant)] bg-white p-2" />
+          </figure>
+        )}
+
+        <aside class="mt-12 rounded-lg bg-[#1b1b1b] text-[#f1f1f1] p-5 text-sm font-mono leading-relaxed">
+          <div class="text-[#ffd666] font-bold mb-2">{v.key.toUpperCase()} — {v.name} · {statusLabel[v.status]}</div>
+          <div><span class="text-[#9aa4b8]">unattended:</span> {v.unattended}</div>
+          <div><span class="text-[#9aa4b8]">cost:</span> {v.cost}</div>
+          <div class="mt-2">{v.note}</div>
+          {v.table && (
+            <table class="mt-4 w-full text-left border-collapse">
+              <thead><tr class="text-[#9aa4b8]"><th class="pr-4 py-1">style</th><th class="pr-4">with GORDON</th><th>without the name</th></tr></thead>
+              <tbody>{v.table.map(([a, b, c]) => (<tr class="border-t border-white/10"><td class="pr-4 py-1">{a}</td><td class="pr-4">{b}</td><td>{c}</td></tr>))}</tbody>
+            </table>
+          )}
+        </aside>
+      </section>
+    ))}
+  </article>
+
+  <div id="proto-bar" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-full bg-[#111] text-white shadow-2xl px-3 py-2 text-sm font-mono">
+    <button id="proto-prev" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Previous route">←</button>
+    <span id="proto-label" class="whitespace-nowrap text-center"></span>
+    <button id="proto-next" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Next route">→</button>
+  </div>
+
+  <script is:inline define:vars={{ keys: variants.map((v) => v.key), names: Object.fromEntries(variants.map((v) => [v.key, v.name])) }}>
+    const params = new URLSearchParams(location.search);
+    let i = Math.max(0, keys.indexOf(params.get("variant") ?? keys[0]));
+    function show() {
+      const k = keys[i];
+      document.querySelectorAll("[data-variant]").forEach((el) => (el.hidden = el.dataset.variant !== k));
+      document.getElementById("proto-label").textContent = `${k.toUpperCase()} — ${names[k]}  (${i + 1}/${keys.length})`;
+      const u = new URL(location.href); u.searchParams.set("variant", k); history.replaceState(null, "", u);
+    }
+    const step = (d) => { i = (i + d + keys.length) % keys.length; show(); window.scrollTo({ top: 0 }); };
+    document.getElementById("proto-prev").onclick = () => step(-1);
+    document.getElementById("proto-next").onclick = () => step(1);
+    addEventListener("keydown", (e) => {
+      if (e.target.closest("input, textarea, [contenteditable]")) return;
+      if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "ArrowRight") step(1);
+    });
+    show();
+  </script>
+</BaseLayout>
