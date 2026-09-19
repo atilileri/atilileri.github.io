@@ -120,6 +120,14 @@ content.
 Turkish. A Lesson quoting extracts from a copyright book stops being the learner's own work, and the citation
 exists so **Docent** can check the claim, not so the learner can read the book.
 
+**A Studio output may be published** — a slide deck, a quiz, an audio or video overview, a data table, a
+Picture — on the site or in the repo, even when the Oracle made it from a purchased book, an exam paper or a
+course recording. **The material itself stays on the shelf**: no book, exam paper or recording is published,
+and no shelf notebook gets a public link. An output that repeats a source passage word for word counts as that
+passage. An output made from `course - nt2 taaldiensten` keeps that course's rule — it never names or quotes a
+classmate. Set by the learner on 2026-09-19, revising
+[#94](https://github.com/atilileri/atilileri.github.io/issues/94).
+
 **Provenance is a mark, not a paragraph.** The Session record carries the smallest possible reference — a
 superscript number or star, whose hover text reads `Oracle: Nederlands in gang, ch. 7, 2026-09-08`, in the
 form fixed by [`MATERIAL.md`](./MATERIAL.md). A reader who owns the book can follow it; everyone else sees a
@@ -155,6 +163,9 @@ Two roles, one tool.
   experiment can never damage the shelf, and scratch never quietly becomes a family of its own. The write
   leaves the machine, so [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s gate applies
   and the learner confirms it.
+- **To make an output from shelf data, Docent copies the chosen sources into `scratch`** with `source copy`,
+  generates there, and empties `scratch` afterwards. It never generates inside a shelf notebook. Chosen by the
+  learner on 2026-09-19.
 
 **Docent never repairs the shelf.** When it finds a gap it names the gap in the Session record and teaches
 around it — the degrade rule of [`AUTOMATION.md`](./AUTOMATION.md), applied to missing material.
