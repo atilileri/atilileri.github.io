@@ -1,5 +1,123 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Inline glyphs for the inventory tables; each value is the inside of a
+// 24x24 stroke-only <svg>.
+const icons: Record<string, string> = {
+  snowboard: '<rect x="9" y="2" width="6" height="20" rx="3"/><path d="M9 8h6M9 16h6"/>',
+  bindings: '<path d="M7 20V9a5 5 0 0 1 10 0v11"/><path d="M5 12h14M5 16h14"/>',
+  boots: '<path d="M8 3v10l-3 3v5h13v-4l-6-3V3z"/><path d="M8 13h4"/>',
+  pants: '<path d="M6 3h12l-1 18h-4l-1-10-1 10H7z"/><path d="M6 7h12"/>',
+  suit: '<path d="M8 3h8l2 3-2 2v13h-3l-1-8-1 8H8V8L6 6z"/>',
+  harness: '<rect x="3" y="9" width="18" height="6" rx="2"/><rect x="9" y="7" width="6" height="10" rx="1"/>',
+  bar: '<path d="M3 9c3 5 15 5 18 0"/><path d="M3 9v4c3 5 15 5 18 0V9"/><path d="M12 14v2a2.5 2.5 0 1 0 2.5-2.5"/>',
+  vest: '<path d="M8 3l4 3 4-3 3 2v16H5V5z"/><path d="M12 6v15"/>',
+  wetsuit: '<path d="M8 3h8l2 3-2 2v13h-3l-1-8-1 8H8V8L6 6z"/><path d="M12 3v5"/>',
+  helmet: '<path d="M4 16a8 8 0 0 1 16 0v2H4z"/><path d="M4 18h16"/><path d="M12 8v8"/>',
+  shoes: '<path d="M3 16h8l4 2h6v3H3z"/><path d="M3 16v-5h4l2 3"/>',
+  racket: '<ellipse cx="12" cy="8" rx="5" ry="6"/><path d="M12 14v7"/><path d="M7 8h10M12 2v12"/>',
+  balls: '<circle cx="9" cy="14" r="5"/><path d="M4.2 12.5c3.2.6 5.7 3.1 6.4 6.3"/><circle cx="16.5" cy="7.5" r="4"/><path d="M12.8 6c2 .5 3.6 2.1 4.1 4.1"/>',
+  case: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M9 6h6M9 9h6"/>',
+  cpu: '<rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+  gpu: '<rect x="2" y="7" width="20" height="10" rx="1"/><circle cx="8" cy="12" r="3"/><path d="M14 10h5M14 14h5"/>',
+  ram: '<rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 7v10M10 7v10M14 7v10M18 7v10"/>',
+};
+
+const kits = [
+  {
+    name: "Alpine Kit_01",
+    tag: "SNOWBOARD_SETUP",
+    items: [
+      { icon: "snowboard", component: "Snowboard", model: "Korua Apollo 157" },
+      { icon: "bindings", component: "Bindings", model: "Rome Katana AW FASE" },
+      { icon: "boots", component: "Boots", model: "Nidecker Kita (Ejack Camo)" },
+      {
+        icon: "pants",
+        component: "Impact Pants",
+        model: "Demon Zero RF Pants D3O",
+      },
+      {
+        icon: "suit",
+        component: "Snow Suit",
+        model: "Oneskee Mark VI (Red/White, M)",
+      },
+    ],
+  },
+  {
+    name: "Wave Kit_01",
+    tag: "KITE_WAKE_SETUP",
+    items: [
+      {
+        icon: "harness",
+        component: "Harness",
+        model: "Mystic Majestic 2024 (Trapeze, L, Black)",
+      },
+      {
+        icon: "bar",
+        component: "Spreader Bar",
+        model: "Mystic Stealth Bar Gen 3 (320mm, L/XXL)",
+      },
+      {
+        icon: "vest",
+        component: "Impact Vest",
+        model: "Prolimit Predator Impact Vest Frontzip (Navy, L)",
+      },
+      {
+        icon: "wetsuit",
+        component: "Wetsuit",
+        model: "C-Skins NuWave Session 4/3 Frontzip (Black/Silver, M)",
+      },
+      {
+        icon: "helmet",
+        component: "Helmet",
+        model: "Mystic Vandal Pro (M/L, Black)",
+      },
+    ],
+  },
+  {
+    name: "Racquet Kit_01",
+    tag: "PADEL_TENNIS_SETUP",
+    items: [
+      {
+        icon: "shoes",
+        component: "Shoes",
+        model: "Asics Gel Resolution X All-Terrain (42.5, Black)",
+      },
+      {
+        icon: "racket",
+        component: "Racket",
+        model: "Tecnifibre Wall Breaker 365 (Black)",
+      },
+      {
+        icon: "balls",
+        component: "Balls",
+        model: "Tretorn Serie+ Padel Tour",
+      },
+    ],
+  },
+  {
+    name: "Computation Unit_01",
+    tag: "HOME_SERVER",
+    items: [
+      {
+        icon: "case",
+        component: "Case",
+        model: "Fractal Design Meshify 2 Lite (White)",
+      },
+      {
+        icon: "cpu",
+        component: "CPU",
+        model: "AMD Ryzen 5 7600 (6-Core/12-Thread)",
+      },
+      {
+        icon: "gpu",
+        component: "GPU",
+        model: "RTX 4060 Ti 16GB (AI & Transcoding)",
+      },
+      { icon: "ram", component: "RAM", model: "Corsair Vengeance 32GB 5200MHz" },
+    ],
+  },
+];
 ---
 
 <BaseLayout title="Home" currentPath="/">
@@ -187,156 +305,56 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
 
       <div class="grid grid-cols-12 gap-8 md:gap-12 min-w-0 [&>*]:min-w-0">
-        <!-- Snowboard Setup -->
-        <div class="col-span-12 lg:col-span-6 space-y-8">
-          <div class="flex items-center gap-4">
-            <h3 class="text-xl font-bold tracking-tight uppercase">
-              Alpine Kit_01
-            </h3>
-            <span class="h-[1px] flex-1 bg-on-surface/10"></span>
-            <span class="text-[0.7rem] font-mono opacity-50"
-              >SNOWBOARD_SETUP</span
-            >
-          </div>
-          <div class="overflow-x-auto">
-            <table
-              class="w-full text-left text-[0.7rem] font-mono border-collapse"
-            >
-              <thead>
-                <tr
-                  class="border-b border-on-surface/20 uppercase tracking-widest text-on-surface/60"
-                >
-                  <th class="py-3 pr-4">Component</th>
-                  <th class="py-3 px-4">Model</th>
-                  <th class="py-3 px-4">Status</th>
-                  <th class="py-3 pl-4">Notes</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-on-surface/5">
-                <tr>
-                  <td class="py-4 pr-4 font-bold">Snowboard</td>
-                  <td class="py-4 px-4 text-primary">Korua Apollo 157</td>
-                  <td class="py-4 px-4"
-                    ><span
-                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.7rem]"
-                      >READY</span
-                    ></td
-                  >
-                  <td class="py-4 pl-4 italic"
-                    >Carving machine, +21°/+6° angles.</td
-                  >
-                </tr>
-                <tr>
-                  <td class="py-4 pr-4 font-bold">Bindings</td>
-                  <td class="py-4 px-4">Rome Katana FASE</td>
-                  <td class="py-4 px-4"
-                    ><span
-                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.7rem]"
-                      >READY</span
-                    ></td
-                  >
-                  <td class="py-4 pl-4 italic"
-                    >Centering and strap adjustments complete.</td
-                  >
-                </tr>
-                <tr>
-                  <td class="py-4 pr-4 font-bold">Boots</td>
-                  <td class="py-4 px-4">Nidecker Kita (Camo)</td>
-                  <td class="py-4 px-4"
-                    ><span
-                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.7rem]"
-                      >READY</span
-                    ></td
-                  >
-                  <td class="py-4 pl-4 italic"
-                    >Heat-molded, "Performance Fit" achieved.</td
-                  >
-                </tr>
-                <tr>
-                  <td class="py-4 pr-4 font-bold">Protection</td>
-                  <td class="py-4 px-4">Demon Zero RF D3O</td>
-                  <td class="py-4 px-4"
-                    ><span
-                      class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[0.7rem]"
-                      >READY</span
-                    ></td
-                  >
-                  <td class="py-4 pl-4 italic">No-limit mobility armor.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Home Server -->
-        <div class="col-span-12 lg:col-span-6 space-y-8">
-          <div class="flex items-center gap-4">
-            <h3 class="text-xl font-bold tracking-tight uppercase">
-              Computation Unit_01
-            </h3>
-            <span class="h-[1px] flex-1 bg-on-surface/10"></span>
-            <span class="text-[0.7rem] font-mono opacity-50">HOME_SERVER</span>
-          </div>
-          <div class="overflow-x-auto">
-            <table
-              class="w-full text-left text-[0.7rem] font-mono border-collapse"
-            >
-              <thead>
-                <tr
-                  class="border-b border-on-surface/20 uppercase tracking-widest text-on-surface/60"
-                >
-                  <th class="py-3 pr-4">Component</th>
-                  <th class="py-3 px-4">Model & Key Details</th>
-                  <th class="py-3 pl-4 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-on-surface/5">
-                <tr>
-                  <td class="py-4 pr-4 font-bold">Case</td>
-                  <td class="py-4 px-4"
-                    >Fractal Design Meshify 2 Lite (White)</td
-                  >
-                  <td class="py-4 pl-4 text-right"
-                    ><span
-                      class="bg-on-surface/10 text-on-surface px-2 py-0.5 rounded text-[0.7rem] uppercase"
-                      >READY</span
-                    ></td
-                  >
-                </tr>
-                <tr>
-                  <td class="py-4 pr-4 font-bold">CPU</td>
-                  <td class="py-4 px-4">AMD Ryzen 5 7600 (6-Core/12-Thread)</td>
-                  <td class="py-4 pl-4 text-right"
-                    ><span
-                      class="bg-on-surface/10 text-on-surface px-2 py-0.5 rounded text-[0.7rem] uppercase"
-                      >READY</span
-                    ></td
-                  >
-                </tr>
-                <tr>
-                  <td class="py-4 pr-4 font-bold">GPU</td>
-                  <td class="py-4 px-4">RTX 4060 Ti 16GB (AI & Transcoding)</td>
-                  <td class="py-4 pl-4 text-right"
-                    ><span
-                      class="bg-primary/20 text-primary px-2 py-0.5 rounded text-[0.7rem] uppercase font-bold text-nowrap"
-                      >FUTURE PLAN</span
-                    ></td
-                  >
-                </tr>
-                <tr>
-                  <td class="py-4 pr-4 font-bold">RAM</td>
-                  <td class="py-4 px-4">Corsair Vengeance 32GB 5200MHz</td>
-                  <td class="py-4 pl-4 text-right"
-                    ><span
-                      class="bg-on-surface/10 text-on-surface px-2 py-0.5 rounded text-[0.7rem] uppercase"
-                      >READY</span
-                    ></td
-                  >
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {
+          kits.map((kit) => (
+            <div class="col-span-12 lg:col-span-6 space-y-8">
+              <div class="flex items-center gap-4">
+                <h3 class="text-xl font-bold tracking-tight uppercase">
+                  {kit.name}
+                </h3>
+                <span class="h-[1px] flex-1 bg-on-surface/10" />
+                <span class="text-[0.7rem] font-mono opacity-50">
+                  {kit.tag}
+                </span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-[0.7rem] font-mono border-collapse">
+                  <thead>
+                    <tr
+                      class="border-b border-on-surface/20 uppercase tracking-widest text-on-surface/60"
+                    >
+                      <th class="py-3 pr-4">Component</th>
+                      <th class="py-3 pl-4">Model</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-on-surface/5">
+                    {kit.items.map((item) => (
+                      <tr>
+                        <td class="py-4 pr-4 font-bold">
+                          <span class="flex items-center gap-3">
+                            <svg
+                              class="w-4 h-4 shrink-0 text-primary"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                              set:html={icons[item.icon]}
+                            />
+                            <span>{item.component}</span>
+                          </span>
+                        </td>
+                        <td class="py-4 pl-4">{item.model}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))
+        }
       </div>
   </section>
 </BaseLayout>
