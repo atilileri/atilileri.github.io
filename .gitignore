@@ -33,3 +33,6 @@ playwright-report/
 # Editor-generated MCP config (machine-specific absolute paths)
 .mcp.json
 .cursor/
+# PROTOTYPE #90 — the Oracle's raw generation logs
+prototypes/90-superbowl-session/.prompt
+prototypes/90-superbowl-session/.rules.txt

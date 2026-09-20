@@ -1,0 +1,5 @@
+{
+  "error": true,
+  "code": "VALIDATION_ERROR",
+  "message": "Unknown language code: nl\nRun 'notebooklm language list' to see supported codes."
+}

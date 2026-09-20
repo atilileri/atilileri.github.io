@@ -1,0 +1,11 @@
+[17:24:44] === 20 pictures to draw ===
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/lesson-header.png
+Artifact: Hollandaca Cümle Yapısı Analizi (latest of 2 artifacts)
+[17:26:31] lesson-header (editorial) OK attempt=1 101s 7230429 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-wedstrijd.png
+Artifact: Tribünde Heyecanlı Maç Coşkusu (latest of 3 artifacts)
+[17:28:12] s1-wedstrijd (sketch-note) OK attempt=1 93s 5618857 bytes

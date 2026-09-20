@@ -1,0 +1,496 @@
+---
+// PROTOTYPE — throwaway. Ticket #90: one Superbowl-themed Session, end to end.
+//
+// Plan: five variants on one route, switchable via ?variant=. Unlike a normal UI
+// prototype these are NOT five designs of one screen — the question here is what a
+// Session is made of, so each variant is a different ARTIFACT of the same Session pair:
+//   A  the invocation and preflight, then Session 1 as it would render (planned, empty inventory)
+//   B  Session 1's Lesson
+//   C  a mid-journey Session, answered, with Verdicts
+//   D  the Tekst that mid-journey Session produced
+//   E  the Plan slice, the ladder maths and the Item inventory behind both
+//
+// Nothing here is real: no skill exists, PLAN.md does not exist, and the inventory is
+// invented. Delete this file, the data file, prototypes/90-superbowl-session/ and
+// public/prototype/90-superbowl-session/ once the verdict is captured.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  HORIZON, ladder, gapsAt, objective, planNeighbours,
+  sessionOneItems, sessionTwelveNewItems, inventorySlice, inventoryTotals,
+  sessionOne, sessionTwelve, tekst, lesson, findings,
+  type Item, type Part,
+} from "./_90-superbowl-session.data.ts";
+
+const base = "/prototype/90-superbowl-session";
+const code = (s: string) => s.replace(/`([^`]+)`/g, "<code class='bg-black/5 px-1 rounded text-[0.9em]'>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\*([^*]+)\*/g, "<em>$1</em>");
+
+const allItems: Item[] = [...sessionOneItems, ...sessionTwelveNewItems];
+const byId = Object.fromEntries(allItems.map((i) => [i.id, i]));
+
+const roleClass: Record<string, string> = {
+  stem: "bg-[#dbeafe] border-[#1d4ed8] text-[#0b2a66]",
+  stem2: "bg-[#dcfce7] border-[#15803d] text-[#0f3d22]",
+  link: "bg-[#f3f4f6] border-[#6b7280] text-[#374151] border-dashed",
+  affix: "bg-[#ffedd5] border-[#c2410c] text-[#6b2308]",
+};
+
+// The ladder, derived rather than stored (#100). Horizon minus the Session date.
+const daysTo = (from: string) => Math.round((Date.parse(HORIZON) - Date.parse(from)) / 86400000);
+const h1 = daysTo(sessionOne.date);
+const h12 = daysTo(sessionTwelve.date);
+const gaps12 = gapsAt(h12);
+const addDays = (d: string, n: number) => new Date(Date.parse(d) + n * 86400000).toISOString().slice(0, 10);
+const due = (last: string, rung: number) => addDays(last, gaps12[rung - 1]);
+const isDue = (last: string, rung: number) => Date.parse(due(last, rung)) <= Date.parse(sessionTwelve.date);
+
+const verdictClass: Record<string, string> = {
+  correct: "bg-[#dcfce7] text-[#14532d] border-[#15803d]",
+  close: "bg-[#fef9c3] text-[#713f12] border-[#a16207]",
+  incorrect: "bg-[#fee2e2] text-[#7f1d1d] border-[#b91c1c]",
+};
+
+const variants = [
+  { key: "A", name: "Preflight + Session 1 (planned, empty inventory)" },
+  { key: "B", name: "Session 1's Lesson" },
+  { key: "C", name: "Session 12 (answered, with Verdicts)" },
+  { key: "D", name: "The Tekst (Delft: one text + its word list)" },
+  { key: "E", name: "The Plan, the ladder and the inventory" },
+];
+
+const issueBody = sessionOne.prompts.map((p) => `### ${p.id}\n\n`).join("");
+const answerLink = `https://github.com/atilileri/atilileri.github.io/issues/new?labels=docent:answer&title=${encodeURIComponent(sessionOne.id)}&body=${encodeURIComponent(issueBody)}`;
+---
+
+<BaseLayout title="PROTOTYPE — one Superbowl Session" description="Throwaway prototype for ticket #90" currentPath="/prototype/">
+  <div class="bg-[#fff3cd] text-[#664d03] text-xs font-bold uppercase tracking-widest text-center py-2 px-4">
+    Prototype · ticket #90 · no skill exists · every number invented
+  </div>
+
+  <article class="max-w-3xl mx-auto w-full min-w-0 px-5 py-10 sm:px-8 pb-32">
+
+    <!-- ══════════════ A — preflight + Session 1 ══════════════ -->
+    <section data-variant="A" hidden>
+      <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">Terminal · {sessionOne.date}</p>
+      <div class="rounded-lg bg-[#1b1b1b] text-[#f1f1f1] p-5 text-[13px] font-mono leading-relaxed overflow-x-auto">
+        <div class="text-[#7ee787]">$ {sessionOne.invocation}</div>
+        <div class="text-[#9aa4b8] mt-3 mb-2">preflight — no <span class="text-[#ffd666]">--flag</span>, so this is a Session (#140). Everything after <code>/docent</code> is the Theme.</div>
+        {sessionOne.preflight.map((p) => (
+          <div class="grid grid-cols-[7.5rem_1fr] gap-3 py-0.5">
+            <span class="text-[#79c0ff]">{p.step}</span><span>{p.out}</span>
+          </div>
+        ))}
+        <div class="text-[#ffd666] mt-3">Session hazır. 10 yeni sözcük, 12 soru, bir Ders. Başlayalım mı? [E/h]</div>
+        <div class="text-[#7ee787]">&gt; E</div>
+      </div>
+
+      <div class="mt-3 rounded border-l-4 border-[#b91c1c] bg-[#fee2e2] px-4 py-3 text-sm text-[#7f1d1d]">
+        <strong>The real Docent stops at step 3.</strong> <code>docs/dutch/PLAN.md</code> does not exist and
+        nothing on the map owns writing it. Everything below this line rests on a Plan that was hand-written for
+        this prototype.
+      </div>
+
+      <hr class="my-10 border-[var(--color-outline)]/30" />
+
+      <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">Renders at {sessionOne.url}</p>
+      <div class="border border-[var(--color-outline)]/30 rounded-lg p-6 sm:p-8">
+        <div class="flex flex-wrap gap-2 items-center mb-4 text-xs">
+          <span class="bg-[#e0e7ff] text-[#3730a3] font-bold px-2 py-1 rounded">SESSION</span>
+          <span class="bg-[#fef9c3] text-[#713f12] font-bold px-2 py-1 rounded">planned</span>
+          <span class="text-[var(--color-outline)]">{sessionOne.date} · thema: <em>{sessionOne.theme}</em> · {objective.id} · angle {sessionOne.angle}</span>
+        </div>
+        <h1 class="font-[Space_Grotesk] text-3xl font-bold tracking-tight mb-4">Super Bowl · ilk oturum</h1>
+        <p class="text-[15px] leading-relaxed mb-6">{sessionOne.intro}</p>
+
+        <p class="text-sm text-[var(--color-outline)] mb-6">
+          Ders: <a href="?variant=B" class="underline">{sessionOne.lesson.title}</a> · Tekst: yok
+          <span class="text-xs">(bu oturumda Tekst yazılmadı — Angle 1 sözcük dağarcığı)</span>
+        </p>
+
+        <div class="rounded border border-dashed border-[var(--color-outline)]/50 p-4 mb-8 text-sm">
+          <div class="font-bold mb-1">Cevaplarını gönder</div>
+          <p class="text-[var(--color-outline)] text-xs m-0 mb-3">
+            <code>&lt;AnswerForm&gt;</code> — her soru için bir alan, hepsi tek bir GitHub issue'suna dönüşür.
+            Taslak tarayıcıda kalır. JavaScript kapalıysa aşağıdaki düz bağlantı çalışır.
+          </p>
+          <a href={answerLink} target="_blank" rel="noopener" class="inline-block bg-[#111] text-white px-3 py-1.5 rounded text-xs font-mono">↗ prefilled issue · 12 alan</a>
+        </div>
+
+        <ol class="list-none p-0 m-0 space-y-4">
+          {sessionOne.prompts.map((p) => (
+            <li class="border-l-2 border-[var(--color-outline)]/30 pl-4">
+              <div class="flex gap-2 items-baseline text-xs mb-1">
+                <span class="font-mono font-bold">{p.id}</span>
+                <span class={`px-1.5 rounded ${p.type === "item" ? "bg-[#e0e7ff] text-[#3730a3]" : "bg-[#f3e8ff] text-[#6b21a8]"}`}>{p.type}</span>
+                {p.item && <span class="text-[var(--color-outline)] font-mono">{p.item} · {p.dir}</span>}
+                {p.objective && <span class="text-[var(--color-outline)] font-mono">{p.objective}</span>}
+              </div>
+              <div class="text-[15px] whitespace-pre-line" set:html={code(p.ask)} />
+              <div class="mt-2 h-8 rounded border border-[var(--color-outline)]/30 bg-black/[0.02]"></div>
+            </li>
+          ))}
+        </ol>
+
+        <div class="mt-8">
+          <a href={answerLink} target="_blank" rel="noopener" class="inline-block bg-[#111] text-white px-3 py-1.5 rounded text-xs font-mono">↗ prefilled issue · 12 alan</a>
+          <p class="text-xs text-[var(--color-outline)] mt-2 m-0">Bağlantı iki kez görünür: girişin altında ve son sorudan sonra (SITE.md).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ B — the Lesson ══════════════ -->
+    <section data-variant="B" hidden>
+      <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">Renders at {lesson.url}</p>
+      <div class="border border-[var(--color-outline)]/30 rounded-lg p-6 sm:p-8">
+        <span class="bg-[#dcfce7] text-[#14532d] text-xs font-bold px-2 py-1 rounded">LESSON</span>
+        <h1 class="font-[Space_Grotesk] text-[clamp(1.8rem,5vw,2.6rem)] font-bold tracking-tight leading-tight mt-5 mb-3">{lesson.title}</h1>
+        <p class="text-lg font-light text-[var(--color-on-surface-variant)] mb-6">{lesson.lead}</p>
+        <img src={`${base}/${lesson.picture.file}`} alt={lesson.picture.alt} class="w-full rounded-lg my-6" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full rounded-lg my-6 border border-dashed p-6 text-center text-xs text-gray-500',textContent:'Picture eksik — Ders metinle tam (#147 kuralı): '+this.alt}))" />
+
+        <p class="text-sm border-l-4 border-[#6d28d9] pl-3 mb-8" set:html={code(lesson.objectiveLine)} />
+
+        {lesson.sections.map((s) => (
+          <>
+            <h2 class="font-[Space_Grotesk] text-2xl font-bold tracking-tight mt-10 mb-3">{s.h}</h2>
+            {s.body.map((p) => <p class="text-[15px] leading-relaxed mb-3" set:html={code(p)} />)}
+            {s.items && (
+              <div class="space-y-6 mt-6">
+                {s.items.map((id) => { const it = byId[id]; return (
+                  <div class="rounded-lg border border-[var(--color-outline)]/25 p-4">
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
+                      <span class="font-[Space_Grotesk] text-2xl font-bold">
+                        {it.article && <span class="text-base font-normal text-[var(--color-outline)]">{it.article} </span>}{it.nl}
+                      </span>
+                      <span class="text-[15px]">{it.tr}</span>
+                      <span class="text-sm italic text-[var(--color-outline)]">{it.en}</span>
+                      {it.ipa && <span class="text-xs font-mono text-[var(--color-outline)]">{it.ipa}</span>}
+                    </div>
+
+                    {it.split && (
+                      <div class="my-3">
+                        <div class="overflow-x-auto">
+                          <div class="grid gap-1 text-sm min-w-max" style={`grid-template-columns: 5.5rem repeat(${it.split.parts.length}, minmax(4.5rem, auto))`}>
+                            <span class="text-[var(--color-outline)] text-xs self-center">Hollandaca</span>
+                            {it.split.parts.map((p: Part) => <span class={`border rounded px-2 py-1 text-center font-semibold ${roleClass[p.role]}`}>{p.nl}{p.base && <span class="block text-[11px] font-normal">← {p.base}</span>}</span>)}
+                            <span class="text-[var(--color-outline)] text-xs self-center">Türkçe</span>
+                            {it.split.parts.map((p: Part) => <span class="px-2 py-1 text-center">{p.tr}</span>)}
+                            <span class="text-[var(--color-outline)] text-xs self-center">English</span>
+                            {it.split.parts.map((p: Part) => <span class="px-2 py-1 text-center italic text-[var(--color-on-surface-variant)]">{p.en}</span>)}
+                          </div>
+                        </div>
+                        <p class="m-0 mt-2 text-[15px]"><span class="text-[#6d28d9] font-semibold">Sözcüğü sözcüğüne:</span> {it.split.literal}</p>
+                        {it.split.drift && <p class="m-0 text-[15px] text-[var(--color-on-surface-variant)]" set:html={"<span class='font-semibold'>Neden?</span> " + code(it.split.drift)} />}
+                        {it.split.spelling && <p class="m-0 text-[15px] text-[var(--color-on-surface-variant)]" set:html={"<span class='font-semibold'>Yazım:</span> " + code(it.split.spelling)} />}
+                        {it.split.origins?.map((o) => (
+                          <p class="m-0 text-sm text-[var(--color-on-surface-variant)]">
+                            <span class="font-semibold">Köken</span> <code class="text-xs">{o.part}</code>: <span set:html={code(o.tr)} />
+                            {o.source && <a href={o.source} target="_blank" rel="noopener" class="text-xs ml-1 whitespace-nowrap text-[var(--color-primary-container)]">kaynak ↗</a>}
+                          </p>
+                        ))}
+                        <p class="m-0 mt-1 text-[15px]"><span class="bg-[#fef9c3] px-1 font-semibold">Anlamı:</span> {it.tr}</p>
+                      </div>
+                    )}
+
+                    {it.bridge && (
+                      <p class="m-0 mt-2 text-[15px] border-l-4 border-[#1d4ed8] pl-3">
+                        <span class="font-semibold text-[#1d4ed8]">Köprü.</span> <span set:html={code(it.bridge)} />
+                        {it.bridgeSource && <a href={it.bridgeSource} target="_blank" rel="noopener" class="text-xs ml-1 whitespace-nowrap text-[var(--color-primary-container)]">kaynak ↗</a>}
+                      </p>
+                    )}
+                    {it.hook && (
+                      <p class="m-0 mt-2 text-[15px] border-l-4 border-[#c2410c] pl-3">
+                        <span class="font-semibold text-[#c2410c]">Çengel.</span> <span set:html={code(it.hook)} />
+                        <span class="block text-xs text-[var(--color-outline)] mt-0.5">Uydurma — dil hakkında hiçbir iddiası yok, yanlış olamaz, sadece işe yaramayabilir.</span>
+                      </p>
+                    )}
+                    {it.picture && it.picture.owner !== "trap" && (
+                      <img src={`${base}/${it.picture.file}`} alt={it.picture.alt} class="w-full max-w-sm rounded-lg mt-3"
+                        onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full max-w-sm rounded-lg mt-3 border border-dashed p-4 text-center text-xs text-gray-500',textContent:'Picture eksik: '+this.alt}))" />
+                    )}
+                    {!it.split && !it.bridge && id === "verdediging" && (
+                      <p class="m-0 mt-2 text-xs text-[var(--color-outline)] italic">Split yok: <code>ver-</code> + <code>dedig-</code> + <code>-ing</code> ayrılır ama <code>dedig-</code> bugün Hollandaca bir sözcük değil. İki <em>anlamlı</em> parça yoksa Split yazılmaz (SPLIT.md).</p>
+                    )}
+                  </div>
+                ); })}
+              </div>
+            )}
+          </>
+        ))}
+
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold tracking-tight mt-12 mb-3">Tuzaklar</h2>
+        <p class="text-sm text-[var(--color-outline)] mb-4">Bir Ders en fazla üç tuzak gösterir. Bu on sözcükte dört tuzak vardı; <code>verslaan</code>'ın ikinci anlamı ('haberini yapmak') metnin içine kaldı.</p>
+        <div class="space-y-3">
+          {lesson.traps.map((id) => { const it = byId[id]; return (
+            <div class="rounded border border-[#b91c1c]/40 bg-[#fee2e2]/40 p-4">
+              <div class="font-bold mb-1">{it.article} {it.nl} <span class="text-xs font-mono font-normal text-[#7f1d1d]">↯ {it.trap!.dir}</span></div>
+              <p class="m-0 text-[15px]" set:html={code(it.trap!.tr)} />
+              {it.picture?.owner === "trap" && (
+                <img src={`${base}/${it.picture.file}`} alt={it.picture.alt} class="w-full max-w-sm rounded-lg mt-3"
+                  onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full max-w-sm rounded-lg mt-3 border border-dashed p-4 text-center text-xs text-gray-500',textContent:'Picture eksik: '+this.alt}))" />
+              )}
+            </div>
+          ); })}
+        </div>
+
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold tracking-tight mt-12 mb-3">Metataal</h2>
+        <p class="text-sm text-[var(--color-outline)] mb-3">Bu Derste ilk kez geçen iki terim. Onayladığında <code>METATAAL.md</code>'ye girer ve bundan sonra Türkçe metinde çıplak kullanılır.</p>
+        <ul class="text-[15px] space-y-1">
+          {lesson.metataal.map((m) => <li><code class="font-bold">{m.term}</code> — {m.tr}</li>)}
+        </ul>
+
+        <p class="text-[15px] leading-relaxed mt-10 border-t border-[var(--color-outline)]/20 pt-6" set:html={code(lesson.close)} />
+        <p class="text-xs text-[var(--color-outline)] mt-6">Provenance: {lesson.provenance}</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ C — the mid-journey Session ══════════════ -->
+    <section data-variant="C" hidden>
+      <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">Terminal · {sessionTwelve.date}</p>
+      <div class="rounded-lg bg-[#1b1b1b] text-[#f1f1f1] p-5 text-[13px] font-mono leading-relaxed overflow-x-auto">
+        <div class="text-[#7ee787]">$ {sessionTwelve.invocation}</div>
+        {sessionTwelve.preflight.map((p) => (
+          <div class="grid grid-cols-[7.5rem_1fr] gap-3 py-0.5">
+            <span class="text-[#79c0ff]">{p.step}</span><span set:html={p.out.replace(/\*\*(.+?)\*\*/g, "<span class='text-[#ffd666]'>$1</span>")} />
+          </div>
+        ))}
+      </div>
+
+      <hr class="my-10 border-[var(--color-outline)]/30" />
+
+      <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">Renders at {sessionTwelve.url}</p>
+      <div class="border border-[var(--color-outline)]/30 rounded-lg p-6 sm:p-8">
+        <div class="flex flex-wrap gap-2 items-center mb-4 text-xs">
+          <span class="bg-[#e0e7ff] text-[#3730a3] font-bold px-2 py-1 rounded">SESSION</span>
+          <span class="bg-[#dcfce7] text-[#14532d] font-bold px-2 py-1 rounded">complete</span>
+          <span class="text-[var(--color-outline)]">{sessionTwelve.date} · thema: <em>{sessionTwelve.theme}</em> · {objective.id} · angle {sessionTwelve.angle}</span>
+        </div>
+        <h1 class="font-[Space_Grotesk] text-3xl font-bold tracking-tight mb-4">Super Bowl, ikinci tur</h1>
+        <p class="text-[15px] leading-relaxed mb-4">{sessionTwelve.intro}</p>
+        <p class="text-sm text-[var(--color-outline)] mb-8">
+          Ders: <em>{sessionTwelve.lesson.title}</em> · Tekst: <a href="?variant=D" class="underline">{sessionTwelve.tekst.title}</a>
+        </p>
+
+        <div class="flex flex-wrap gap-3 text-xs mb-8">
+          <span class="bg-[#dcfce7] text-[#14532d] px-2 py-1 rounded">↑ {sessionTwelve.rungMoves.up} Rung yükseldi</span>
+          <span class="bg-[#fef9c3] text-[#713f12] px-2 py-1 rounded">= {sessionTwelve.rungMoves.flat} yerinde kaldı</span>
+          <span class="bg-[#fee2e2] text-[#7f1d1d] px-2 py-1 rounded">↓ {sessionTwelve.rungMoves.down} düştü</span>
+          <span class="bg-[#e0e7ff] text-[#3730a3] px-2 py-1 rounded">★ {sessionTwelve.rungMoves.mastered} Mastered</span>
+        </div>
+
+        <ol class="list-none p-0 m-0 space-y-5">
+          {sessionTwelve.answered.map((p) => (
+            <li class="border-l-2 border-[var(--color-outline)]/30 pl-4">
+              <div class="flex flex-wrap gap-2 items-baseline text-xs mb-1">
+                <span class="font-mono font-bold">{p.id}</span>
+                <span class={`px-1.5 rounded ${p.type === "item" ? "bg-[#e0e7ff] text-[#3730a3]" : "bg-[#f3e8ff] text-[#6b21a8]"}`}>{p.type}</span>
+                {p.item && <span class="text-[var(--color-outline)] font-mono">{p.item} · {p.dir}</span>}
+                {p.rungFrom !== undefined && (
+                  <span class="font-mono text-[var(--color-outline)]">
+                    Rung {p.rungFrom === 0 ? "yeni" : p.rungFrom} → {p.rungTo}{p.rungTo === 5 ? " ★" : ""}
+                  </span>
+                )}
+              </div>
+              <div class="text-[15px] whitespace-pre-line mb-2" set:html={code(p.ask)} />
+              <div class={`rounded border px-3 py-2 text-[15px] ${p.verdict ? verdictClass[p.verdict] : "bg-black/[0.03] border-[var(--color-outline)]/30"}`}>
+                <div class="text-xs font-bold uppercase tracking-wider mb-1">
+                  {p.verdict ?? "open — cevabın notu var, hükmü yok"}
+                </div>
+                <div class="font-mono text-[13px] whitespace-pre-line">{p.answer}</div>
+              </div>
+              {p.note && <p class="m-0 mt-2 text-[14px] text-[var(--color-on-surface-variant)]" set:html={code(p.note)} />}
+            </li>
+          ))}
+        </ol>
+
+        <p class="text-xs text-[var(--color-outline)] mt-8 border-t border-[var(--color-outline)]/20 pt-4">
+          Cevaplar olduğu gibi yayımlanır — düzeltilmeden, gizlenmeden (adr/0007, SITE.md). Oturum
+          <code>complete</code> olduğu için cevap formu artık görünmüyor.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════ D — the Tekst ══════════════ -->
+    <section data-variant="D" hidden>
+      <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-2">Renders at {tekst.url}</p>
+      <div class="border border-[var(--color-outline)]/30 rounded-lg p-6 sm:p-8">
+        <span class="bg-[#ffedd5] text-[#6b2308] text-xs font-bold px-2 py-1 rounded">TEKST</span>
+        <h1 class="font-[Space_Grotesk] text-[clamp(1.8rem,5vw,2.6rem)] font-bold tracking-tight leading-tight mt-5 mb-4">{tekst.title}</h1>
+        <img src={`${base}/${tekst.picture.file}`} alt={tekst.picture.alt} class="w-full rounded-lg mb-6"
+          onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-full rounded-lg mb-6 border border-dashed p-6 text-center text-xs text-gray-500',textContent:'Picture eksik: '+this.alt}))" />
+
+        <h2 class="font-[Space_Grotesk] text-xl font-bold mb-2">Woordenlijst</h2>
+        <p class="text-xs text-[var(--color-outline)] mb-3">Delft yöntemi: önce sözcükler, sonra metin. Kalın olanlar yeni.</p>
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-[15px] mb-8">
+          {tekst.wordlist.map((w) => (
+            <div class="flex justify-between gap-3 border-b border-dotted border-[var(--color-outline)]/30 py-0.5">
+              <span class={w.known ? "" : "font-bold"}>{w.nl}</span>
+              <span class="text-[var(--color-outline)]">{w.tr}</span>
+            </div>
+          ))}
+        </div>
+
+        <div class="rounded-lg bg-black/[0.03] p-5 mb-6">
+          {tekst.body.map((p) => <p class="text-[17px] leading-[1.7] mb-4 last:mb-0">{p}</p>)}
+        </div>
+
+        <h2 class="font-[Space_Grotesk] text-xl font-bold mb-2">Özet</h2>
+        <p class="text-[15px] leading-relaxed mb-8">{tekst.gist}</p>
+
+        <h2 class="font-[Space_Grotesk] text-xl font-bold mb-2">Sorular</h2>
+        <ol class="text-[15px] space-y-2 pl-5">
+          {tekst.questions.map((q) => <li>{q}</li>)}
+        </ol>
+
+        <p class="text-xs text-[var(--color-outline)] mt-8">{tekst.note}</p>
+        <p class="text-xs text-[var(--color-outline)] mt-2">Provenance: {tekst.provenance}</p>
+
+        <div class="mt-8 rounded border-l-4 border-[#6d28d9] bg-[#f5f3ff] px-4 py-3 text-sm">
+          <strong>Bu sayfa üç dilli değil.</strong> #132 üç dilli yazıyı kesti: Delft yöntemi bir Hollandaca
+          metin artı sözcük listesidir, aynı içeriğin iki kez yazılması değil. Türkçe burada sadece sözcük
+          listesinde, özette ve sorularda — metnin kendisinde değil.
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ E — the state ══════════════ -->
+    <section data-variant="E" hidden>
+      <h1 class="font-[Space_Grotesk] text-3xl font-bold tracking-tight mb-2">Arkadaki durum</h1>
+      <p class="text-[15px] text-[var(--color-on-surface-variant)] mb-8">
+        Bu bölümdeki her satır elle yazıldı. <code>docs/dutch/PLAN.md</code> ve Item envanteri depoda yok.
+      </p>
+
+      <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">Plan — the slice that matters</h2>
+      <div class="overflow-x-auto mb-4">
+        <table class="w-full text-sm border-collapse min-w-max">
+          <thead><tr class="text-left border-b-2 border-[var(--color-outline)]/40">
+            <th class="py-2 pr-3">Objective</th><th class="pr-3">Skill</th><th class="pr-3">Tier</th><th class="pr-3">Status</th><th>Descriptor</th>
+          </tr></thead>
+          <tbody>
+            {planNeighbours.map((o) => (
+              <tr class={`border-b border-[var(--color-outline)]/20 ${o.status === "active" ? "bg-[#fef9c3]" : ""}`}>
+                <td class="py-2 pr-3 font-mono font-bold">{o.id}</td>
+                <td class="pr-3">{o.skill}</td>
+                <td class="pr-3"><code class="text-xs">{o.tier}</code></td>
+                <td class="pr-3"><code class="text-xs">{o.status}</code></td>
+                <td class="text-[13px] max-w-md">{o.nl}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-[var(--color-outline)] mb-8">
+        Objective bütün hâlinde alınır, parçalanmaz (#85). Bir oturumun öğrettiği dilim <strong>Angle</strong>'dır,
+        ve harcandıktan sonra Objective'e eklenir.
+      </p>
+
+      <h3 class="font-bold mb-2">{objective.id} — harcanan Angle'lar</h3>
+      <ol class="text-[15px] space-y-1 mb-10 pl-5">
+        {objective.angles.map((a) => (
+          <li><span class="font-mono text-xs text-[var(--color-outline)]">{a.spent}</span> — {a.label} <code class="text-xs">{a.kind}</code></li>
+        ))}
+      </ol>
+
+      <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">The ladder is a function, not a stored date</h2>
+      <p class="text-[15px] mb-4">
+        Horizon <code>{HORIZON}</code>. Tek saklanan şey Rung ve son cevabın tarihi. Aradaki boşluk
+        her seferinde yeniden hesaplanır — Horizon değişirse bütün envanter yeniden planlanır (adr/0005).
+      </p>
+      <div class="overflow-x-auto mb-4">
+        <table class="w-full text-sm border-collapse min-w-max">
+          <thead><tr class="text-left border-b-2 border-[var(--color-outline)]/40">
+            <th class="py-2 pr-4">Rung</th><th class="pr-4">Formula</th>
+            <th class="pr-4">{sessionOne.date}<br /><span class="font-normal text-xs">H = {h1} gün</span></th>
+            <th class="pr-4">{sessionTwelve.date}<br /><span class="font-normal text-xs">H = {h12} gün</span></th>
+            <th>Neden</th>
+          </tr></thead>
+          <tbody>
+            {ladder.map((r, i) => (
+              <tr class="border-b border-[var(--color-outline)]/20">
+                <td class="py-2 pr-4 font-mono font-bold">{r.rung}</td>
+                <td class="pr-4 font-mono">{r.formula}</td>
+                <td class="pr-4 font-mono">{gapsAt(h1)[i]} gün</td>
+                <td class="pr-4 font-mono">{gaps12[i]} gün</td>
+                <td class="text-[13px] max-w-xs">{r.why}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-[var(--color-outline)] mb-10">
+        İki ay içinde her aralık kısaldı, tek bir satır değişmeden. Sınav tarihi girilirse aynı şey bir daha olur.
+      </p>
+
+      <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">Envanter — {sessionTwelve.date} günü vadesi gelenler</h2>
+      <p class="text-[15px] mb-4">
+        {inventoryTotals.items} Item, {inventoryTotals.directions} Direction, {inventoryTotals.sessions} oturum.
+        Aşağıda 18 Item (36 Direction) gösteriliyor — bugünün kuyruğundaki 11 Direction'un hepsi burada. Sarı satırlar kuyruk. Tarihler ay-gün: son cevap → vade.
+      </p>
+      <div class="overflow-x-auto mb-4">
+        <table class="w-full text-sm border-collapse min-w-max">
+          <thead><tr class="text-left border-b-2 border-[var(--color-outline)]/40">
+            <th class="py-2 pr-3">Item</th><th class="pr-3">tr</th>
+            <th class="pr-3">rec<br /><span class="font-normal text-xs">rung · son · vade</span></th>
+            <th class="pr-3">pro<br /><span class="font-normal text-xs">rung · son · vade</span></th>
+          </tr></thead>
+          <tbody>
+            {inventorySlice.map((it) => {
+              const dr = isDue(it.recLast, it.rec), dp = isDue(it.proLast, it.pro);
+              return (
+                <tr class={`border-b border-[var(--color-outline)]/20 ${dr || dp ? "bg-[#fef9c3]" : ""}`}>
+                  <td class="py-1.5 pr-3 font-semibold">{it.nl}</td>
+                  <td class="pr-3 text-[var(--color-outline)]">{it.tr}</td>
+                  <td class={`pr-3 font-mono text-xs ${dr ? "font-bold" : "text-[var(--color-outline)]"}`}>
+                    {it.rec === 5 ? "★5" : it.rec} · {it.recLast.slice(5)} → {due(it.recLast, it.rec).slice(5)}{dr ? " ⟵" : ""}
+                  </td>
+                  <td class={`pr-3 font-mono text-xs ${dp ? "font-bold" : "text-[var(--color-outline)]"}`}>
+                    {it.pro === 5 ? "★5" : it.pro} · {it.proLast.slice(5)} → {due(it.proLast, it.pro).slice(5)}{dp ? " ⟵" : ""}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-[var(--color-outline)] mb-12">
+        <code>recognition</code> hep <code>production</code>'dan önde: tanımak üretmekten kolay. Rung 5 ★ olanlar
+        dolaşımdan çıkmaz, 180 günde bir döner.
+      </p>
+
+      <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Findings</h2>
+      <div class="space-y-5">
+        {findings.map((f) => (
+          <div class="rounded-lg border border-[var(--color-outline)]/25 p-4">
+            <div class="text-xs font-mono uppercase tracking-widest text-[var(--color-outline)] mb-1">{f.tag}</div>
+            <div class="font-bold text-[16px] mb-1">{f.claim}</div>
+            <p class="m-0 text-[15px] text-[var(--color-on-surface-variant)]" set:html={code(f.body)} />
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-[#111] text-white shadow-2xl px-2 py-1.5 text-sm font-mono max-w-[95vw]">
+      <button id="proto-prev" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Previous variant">←</button>
+      <span id="proto-label" class="whitespace-nowrap overflow-hidden text-ellipsis text-center"></span>
+      <button id="proto-next" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Next variant">→</button>
+    </div>
+  </article>
+
+  <script is:inline define:vars={{ keys: variants.map((v) => v.key), names: Object.fromEntries(variants.map((v) => [v.key, v.name])) }}>
+    const params = new URLSearchParams(location.search);
+    let i = Math.max(0, keys.indexOf((params.get("variant") ?? keys[0]).toUpperCase()));
+    function show() {
+      const k = keys[i];
+      document.querySelectorAll("[data-variant]").forEach((el) => (el.hidden = el.dataset.variant !== k));
+      document.getElementById("proto-label").textContent = `${k} — ${names[k]} (${i + 1}/${keys.length})`;
+      const u = new URL(location.href); u.searchParams.set("variant", k); history.replaceState(null, "", u);
+    }
+    const step = (d) => { i = (i + d + keys.length) % keys.length; show(); window.scrollTo({ top: 0 }); };
+    document.getElementById("proto-prev").onclick = () => step(-1);
+    document.getElementById("proto-next").onclick = () => step(1);
+    addEventListener("keydown", (e) => {
+      if (e.target.closest("input, textarea, [contenteditable]")) return;
+      if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "ArrowRight") step(1);
+    });
+    show();
+  </script>
+</BaseLayout>

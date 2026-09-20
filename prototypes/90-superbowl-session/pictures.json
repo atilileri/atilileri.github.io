@@ -1,0 +1,162 @@
+[
+  {
+    "file": "lesson-header",
+    "session": 1,
+    "rule": "unprompted-3-header",
+    "owner": "lesson",
+    "style": "editorial",
+    "prompt": "One single editorial illustration, no statistics and no bullet lists: a Dutch newspaper sports page lying on a kitchen table, its opening sentence pulled apart into five labelled blocks that float above the page. The five blocks read, left to right and exactly letter for letter: 'De Seattle Seahawks' / 'wonnen' / 'zondag' / 'in Santa Clara' / 'de zestigste Super Bowl'. A thin arrow runs under the blocks. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-wedstrijd",
+    "session": 1,
+    "rule": "unprompted-2-no-bridge",
+    "owner": "hook",
+    "style": "sketch-note",
+    "prompt": "One single hand-drawn sketch-note illustration of this memory scene, no statistics and no bullet lists: the last minute of a match. A packed grandstand of supporters is rising off its seats at once, hands in the air, faces tense. In the foreground a large scoreboard clock shows 00:09. A banner across the stand reads exactly 'WEDSTRIJD'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-ploeg",
+    "session": 1,
+    "rule": "unprompted-2-no-bridge",
+    "owner": "hook",
+    "style": "sketch-note",
+    "prompt": "One single hand-drawn sketch-note illustration of this memory scene, no statistics and no bullet lists: a long white extension lead lying on a floor with eleven electrical plugs pushed into it, each plug wearing a tiny numbered sports shirt. One plug at the far end has been pulled out and its shirt has gone grey, and the lamp it fed is dark. A small label on the extension lead reads exactly 'PLOEG'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-uitslag",
+    "session": 1,
+    "rule": "unprompted-2-no-bridge",
+    "owner": "trap",
+    "style": "scientific",
+    "prompt": "One single clear diagram, no statistics and no bullet lists: three separate panels side by side, joined at the top by one arrow pointing down into all three. The arrow is labelled exactly 'UITSLAG'. Panel one: a stadium scoreboard showing 29 - 13. Panel two: a sealed ballot box with paper slips going in and a chart of election results beside it. Panel three: a close-up of a forearm with a red skin rash. Each panel has one small caption underneath, exactly: 'de uitslag van de wedstrijd' / 'de uitslag van de verkiezingen' / 'huiduitslag'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-verdediging",
+    "session": 1,
+    "rule": "unprompted-2-no-bridge",
+    "owner": "hook",
+    "style": "sketch-note",
+    "prompt": "One single hand-drawn sketch-note illustration of this memory scene, no statistics and no bullet lists: a sports pitch seen from above, with defending players arranged in two clear rows, a row of four in front and a row of three behind. Two very large letters D and E are painted on the grass, one on each row, so the two rows read as two 'DE' marks. A label at the edge of the pitch reads exactly 'VERDEDIGING'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-scheidsrechter",
+    "session": 1,
+    "rule": "offered",
+    "owner": "item",
+    "style": "sketch-note",
+    "prompt": "One single hand-drawn sketch-note illustration, no statistics and no bullet lists: a referee stands between two arguing players and pushes them apart with both arms. The referee wears a courtroom judge's black robe over a striped referee shirt and holds a wooden gavel in one hand and a whistle in the other. Two labels point at the referee, reading exactly 'scheiden = ayirmak' and 'rechter = yargic'. A banner above reads exactly 'SCHEIDSRECHTER'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-verslaan",
+    "session": 1,
+    "rule": "offered",
+    "owner": "split",
+    "style": "scientific",
+    "prompt": "One single clear diagram of how a word is built, no statistics and no bullet lists: the word 'verslaan' written large and broken into two coloured blocks, 'ver-' in orange and 'slaan' in green. Under the orange block a small caption reads exactly 'bitirecek sekilde'. Under the green block a small caption reads exactly 'vurmak'. An arrow leads down from the two blocks to one final box reading exactly 'yenmek'. Beside the arrow a tiny drawing shows a boxer landing a final punch.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-aanval",
+    "session": 1,
+    "rule": "offered",
+    "owner": "split",
+    "style": "scientific",
+    "prompt": "One single clear diagram of how a word is built, no statistics and no bullet lists: the word 'aanval' written large and broken into two coloured blocks, 'aan' in blue and 'val' in green. Under the blue block a small caption reads exactly 'uzerine'. Under the green block a small caption reads exactly 'dusus'. An arrow leads down from the two blocks to one final box reading exactly 'hucum'. Beside it a tiny drawing shows one player falling forward onto another.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-woordvolgorde",
+    "session": 1,
+    "rule": "offered",
+    "owner": "lesson",
+    "style": "instructional",
+    "prompt": "One single instructional diagram teaching a grammar rule, no statistics and no bullet lists: a numbered track of five slots running left to right, like platforms at a station. The slots carry these labels exactly, in this order: '1 WIE' / '2 WERKWOORD' / '3 WANNEER' / '4 WAAR' / '5 WAT'. Slot 2 is highlighted in a strong colour with a padlock icon on it. Below the track, one example sentence is laid out so each word sits under its slot, reading exactly: 'De Seahawks' / 'wonnen' / 'zondag' / 'in Santa Clara' / 'de Super Bowl'. A small note under slots 3 and 4 reads exactly 'TIJD VOOR PLAATS'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s1-helft",
+    "session": 1,
+    "rule": "offered",
+    "owner": "trap",
+    "style": "scientific",
+    "prompt": "One single clear diagram, no statistics and no bullet lists: one English word box at the top reading exactly 'half', with two arrows splitting down into two separate Dutch boxes. The left Dutch box reads exactly 'half' and is marked with a small label reading exactly 'bijvoeglijk naamwoord'; beside it a clock face shows thirty minutes shaded and a caption reads exactly 'een half uur'. The right Dutch box reads exactly 'de helft' and is marked with a small label reading exactly 'zelfstandig naamwoord'; beside it a grandstand is drawn with half of its seats shaded and a caption reads exactly 'de helft van het publiek'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "tekst-header",
+    "session": 12,
+    "rule": "unprompted-3-header",
+    "owner": "tekst",
+    "style": "editorial",
+    "prompt": "One single editorial illustration, no statistics and no bullet lists: a large stadium scoreboard at night, seen from low in an empty stand, showing the score 29 - 13 in bright lettering. Confetti falls through the floodlights. A small strip along the bottom of the scoreboard reads exactly 'SUPER BOWL LX'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-uitslag-fout",
+    "session": 12,
+    "rule": "unprompted-1-answered-wrong",
+    "owner": "trap",
+    "style": "scientific",
+    "prompt": "One single clear diagram correcting a mistake, no statistics and no bullet lists: on the left a box reading exactly 'het resultaat' with a large red cross over it, and beside it a small drawing of a person finishing a long climb. On the right a box reading exactly 'de uitslag' with a large green tick over it, and beside it a sealed ballot box. An arrow runs from left to right between them. A caption under the whole diagram reads exactly 'de uitslag van de verkiezingen'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-ruim-fout",
+    "session": 12,
+    "rule": "unprompted-1-answered-wrong",
+    "owner": "trap",
+    "style": "scientific",
+    "prompt": "One single clear diagram, no statistics and no bullet lists: one word box reading exactly 'ruim' sits in the middle, with two arrows leading away from it. The upper arrow leads to a drawing of a wide empty room with a caption reading exactly 'een ruime kamer'. The lower arrow leads to a drawing of a crowd of people filling a stadium with a number above them, and a caption reading exactly 'ruim 125 miljoen'. The lower arrow is labelled exactly 'voor een getal'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-verslagen",
+    "session": 12,
+    "rule": "unprompted-1-answered-wrong",
+    "owner": "item",
+    "style": "scientific",
+    "prompt": "One single clear diagram teaching a verb form, no statistics and no bullet lists: three word boxes in a row joined by arrows, reading exactly 'slaan' then 'sloeg' then 'geslagen'. Below them a second row of three boxes reading exactly 'verslaan' then 'versloeg' then 'verslagen'. To the side, one box reading exactly 'verslagd' has a large red cross through it. A small heading above the whole diagram reads exactly 'STERK WERKWOORD'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-scheids-s",
+    "session": 12,
+    "rule": "unprompted-1-answered-wrong",
+    "owner": "split",
+    "style": "scientific",
+    "prompt": "One single clear diagram of how a word is built, no statistics and no bullet lists: three blocks joined in a row, the first blue reading exactly 'scheid', the second small and grey with a dashed border reading exactly '-s-', the third green reading exactly 'rechter'. The grey middle block is circled in red and an arrow points at it from a small note reading exactly 'niet vergeten'. Under the three blocks the whole word is written out exactly as 'scheidsrechter'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-er-gebeurd",
+    "session": 12,
+    "rule": "unprompted-1-answered-wrong",
+    "owner": "item",
+    "style": "instructional",
+    "prompt": "One single instructional diagram teaching a grammar rule, no statistics and no bullet lists: two sentence strips stacked one above the other. The upper strip reads exactly 'Wat is gebeurd?' and has a large red cross beside it. The lower strip reads exactly 'Wat is er gebeurd?' and has a large green tick beside it; the word 'er' in it is drawn as a bright highlighted tile being slotted into a gap. A small note under the lower strip reads exactly 'er is verplicht'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-optreden",
+    "session": 12,
+    "rule": "offered",
+    "owner": "split",
+    "style": "sketch-note",
+    "prompt": "One single hand-drawn sketch-note illustration, no statistics and no bullet lists: a singer climbing a short flight of steps up onto a lit stage, one foot already on the top step, a microphone in hand, a crowd of silhouettes below. Two labels point at the steps and read exactly 'op = yukari' and 'treden = adim atmak'. A banner above the stage reads exactly 'OPTREDEN'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-verlenging",
+    "session": 12,
+    "rule": "offered",
+    "owner": "split",
+    "style": "scientific",
+    "prompt": "One single clear diagram of how a word is built, no statistics and no bullet lists: three coloured blocks in a row reading exactly 'ver-' in orange, 'leng' in green, and '-ing' in orange. Under the green block a small note reads exactly 'lang'. Beside the blocks a drawing shows a rubber band being stretched wider, and under it a stadium clock reading 90 with a small extra dial added beside it. One caption under the whole diagram reads exactly 'uzatma'.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-toeschouwer",
+    "session": 12,
+    "rule": "offered",
+    "owner": "split",
+    "style": "sketch-note",
+    "prompt": "One single hand-drawn sketch-note illustration, no statistics and no bullet lists: one person in a stadium seat leaning forward with both hands shading their eyes, staring hard at the pitch below. Three small labels point at the person and read exactly 'toe', 'schouw' and '-er'. A caption under the drawing reads exactly 'seyirci'. Big picture, very little text.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  },
+  {
+    "file": "s12-record",
+    "session": 12,
+    "rule": "offered",
+    "owner": "trap",
+    "style": "scientific",
+    "prompt": "One single clear diagram, no statistics and no bullet lists: two separate boxes side by side with a wall between them. The left box reads exactly 'het record' and shows a kicker striking a ball between goalposts with a small trophy beside it. The right box reads exactly 'opnemen' and shows an old tape recorder with its reels turning. A red line is drawn through an arrow that tries to cross the wall between the two boxes.\nTEXT RULES, these override the style: every string inside single quotes above is either Dutch or Turkish and must be reproduced letter for letter, exactly as given. NEVER translate a quoted string. NEVER replace a Dutch word with its Turkish meaning. Do not add explanatory paragraphs, do not add a long headline, do not add body text of your own: the only words in the image are the quoted strings and the short labels named above. Use standard Latin capitals in Dutch words; never use the Turkish dotted capital I or the dotless i inside a Dutch word.\n"
+  }
+]
