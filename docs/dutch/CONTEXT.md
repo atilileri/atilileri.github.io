@@ -106,7 +106,7 @@ A recurring situation in the learner's life that needs Dutch, held in one librar
 _Avoid_: Use-case, situation card, role-play
 
 **Theme**:
-The subject a Session is dressed in. It is chosen by a fixed priority — the theme the learner types, then an open intake issue, then a Scenario. A Theme decorates the next Plan objective and never replaces it.
+The subject a Session is dressed in. It is chosen by a fixed priority — the theme the learner types, then an open intake issue, then a Scenario. A Theme decorates the next Plan objective and never replaces it. A Theme that reaches no Scenario is still used; Docent reports it in one line and names the new Items that reach none either, so the learner knows what stays inside the Theme. See [`SCENARIOS.md`](./SCENARIOS.md).
 _Avoid_: Topic, context, subject
 
 **Intake**:

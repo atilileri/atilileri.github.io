@@ -12,6 +12,28 @@ A Scenario **links to** Plan objectives and never states an objective of its own
 
 **How this file grows.** Docent proposes a Scenario at the end of a Session and the learner confirms it. Docent never writes this file silently.
 
+## Docent names what this library does not reach
+
+**A Theme that reaches no Scenario is reported, never refused.** The Theme priority stands: the Theme the
+learner types wins, an open Intake comes second, a Scenario third. Nothing here changes that order. But a
+Theme can teach real Dutch and still connect to nothing in the learner's week, and Docent says so instead of
+leaving the learner to notice.
+
+Two reports, both one line, both at the end of the Session:
+
+- **The Theme.** When the Session's Theme matches no Scenario in this library, Docent names that and offers
+  one Scenario that works the same Objective. The learner keeps the Theme or switches it.
+- **The Items.** When a new Item reaches no Scenario either, Docent names those words. A word that only lives
+  inside one Theme is still worth learning — it is worth knowing which ones they are.
+
+**Matching is a judgement, not a lookup.** Docent reads the Setting of each Scenario and decides; nothing is
+indexed and no field is added. A report is never a reason to drop a word or to change the Plan.
+
+Locked by [#90](https://github.com/atilileri/atilileri.github.io/issues/90), whose prototype found the case:
+a Session dressed in *last superbowl* taught ten Items, of which eight reach a traffic report and a council
+notice while `de aanval` and `de scheidsrechter` reach only sport — and no Scenario in this library needs
+American football at all.
+
 ---
 
 ## `padel-app` — The padel WhatsApp groups
