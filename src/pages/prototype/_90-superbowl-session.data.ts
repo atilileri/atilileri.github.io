@@ -119,7 +119,7 @@ export const sessionOneItems: Item[] = [
       ],
     },
     hook: "`wedstrijd` içinde `strijd` var — `stres` gibi okunuyor. Maçın son dakikası: tribün stresten ayağa kalkıyor. `Wed-strijd` = stresli mücadele.",
-    picture: { file: "s1-wedstrijd.png", style: "sketch-note", alt: "Hook: wedstrijd — a packed stand rising on its feet in the last minute", owner: "hook" },
+    picture: { file: "s1-wedstrijd.webp", style: "sketch-note", alt: "Hook: wedstrijd — a packed stand rising on its feet in the last minute", owner: "hook" },
   },
   {
     id: "ploeg",
@@ -134,7 +134,7 @@ export const sessionOneItems: Item[] = [
       tr: "`de ploeg` İngilizce `plough` (saban) ile birebir aynı sözcük — ve Hollandacada **ikisi de** doğru: tarladaki saban da `de ploeg`, sahadaki takım da. Spor haberinde `ploeg` gördüğünde saban arama; `het team` ile eş anlamlı.",
     },
     hook: "Bir takımın on bir oyuncusu, bir uzatma kablosundaki on bir `plug` gibi — biri çıkarsa hepsinin akımı kesilir. `Ploeg` ≈ `plug`.",
-    picture: { file: "s1-ploeg.png", style: "sketch-note", alt: "Hook: ploeg — eleven plugs in one extension lead, one pulled out", owner: "hook" },
+    picture: { file: "s1-ploeg.webp", style: "sketch-note", alt: "Hook: ploeg — eleven plugs in one extension lead, one pulled out", owner: "hook" },
   },
   {
     id: "winnen",
@@ -177,6 +177,7 @@ export const sessionOneItems: Item[] = [
         { part: "ver-", tr: "İngilizce `for-` ön ekinin kardeşi: `forget`, `forbid`. İkisi de 'öteye, bitirerek' anlamı taşır.", source: "https://etymologiebank.nl/trefwoord/ver1" },
       ],
     },
+    picture: { file: "s1-verslaan.webp", style: "scientific", alt: "Split: verslaan — ver- + slaan, a final punch, yenmek", owner: "split" },
   },
   {
     id: "uitslag",
@@ -202,7 +203,7 @@ export const sessionOneItems: Item[] = [
       dir: "tr",
       tr: "`de uitslag` yalnız 'skor' değil. Aynı sözcük **deri döküntüsü** (`huiduitslag`) ve **seçim sonucu** (`de uitslag van de verkiezingen`) demek. Türkçede 'sonuç' dediğin her yere `uitslag` koyarsan yanılırsın: bir cümlenin mantıksal sonucu `het gevolg`, bir çabanın karşılığı `het resultaat`.",
     },
-    picture: { file: "s1-uitslag.png", style: "scientific", alt: "Trap: uitslag — a scoreboard, a ballot box and a rash, all labelled uitslag", owner: "trap" },
+    picture: { file: "s1-uitslag.webp", style: "scientific", alt: "Trap: uitslag — a scoreboard, a ballot box and a rash, all labelled uitslag", owner: "trap" },
   },
   {
     id: "helft",
@@ -219,6 +220,7 @@ export const sessionOneItems: Item[] = [
       dir: "en",
       tr: "İngilizcede `half` hem sıfat hem isim. Hollandacada **ikiye ayrılır**: sıfat `half` (`een half uur` = yarım saat), isim `de helft` (`de helft van het publiek` = seyircinin yarısı). Maçın devresi de isimdir: `de tweede helft`.",
     },
+    picture: { file: "s1-helft.webp", style: "scientific", alt: "Trap: half splits into the adjective half and the noun de helft", owner: "trap" },
   },
   {
     id: "aanval",
@@ -239,7 +241,7 @@ export const sessionOneItems: Item[] = [
         { part: "val", tr: "`vallen` 'düşmek' fiilinden; İngilizce `fall` ile aynı sözcük.", source: "https://etymologiebank.nl/trefwoord/aanval" },
       ],
     },
-    hook: "",
+    picture: { file: "s1-aanval.webp", style: "scientific", alt: "Split: aanval — aan + val, uzerine + dusus, hucum", owner: "split" },
   },
   {
     id: "verdediging",
@@ -252,6 +254,7 @@ export const sessionOneItems: Item[] = [
     // NO SPLIT — deliberately. ver- + dedig- + -ing: `dedig-` is not a Dutch word today,
     // so the word does not split into two or more MEANINGFUL parts (SPLIT.md).
     hook: "`verdediging` içinde iki kez `de` var: `ver-DE-DIG-ing`. Savunma hattı da iki sıradır — önde dörtlü, arkada üçlü. İki `de`, iki sıra.",
+    picture: { file: "s1-verdediging.webp", style: "sketch-note", alt: "Hook: verdediging — two rows of defenders standing on a painted DE", owner: "hook" },
   },
   {
     id: "scheidsrechter",
@@ -274,7 +277,7 @@ export const sessionOneItems: Item[] = [
         { part: "rechter", tr: "`recht` 'hukuk, doğru' + `-er`. Mahkemedeki yargıç da `de rechter` — aynı sözcük.", source: "https://etymologiebank.nl/trefwoord/scheidsrechter" },
       ],
     },
-    picture: { file: "s1-scheidsrechter.png", style: "sketch-note", alt: "scheidsrechter — a judge in a courtroom robe separating two players", owner: "item" },
+    picture: { file: "s1-scheidsrechter.webp", style: "sketch-note", alt: "scheidsrechter — a judge in a courtroom robe separating two players", owner: "item" },
   },
 ];
 
@@ -302,6 +305,7 @@ export const sessionTwelveNewItems: Item[] = [
         { part: "schouwen", tr: "'bakmak, gözden geçirmek'. İngilizce `show` ile aynı kök: önce 'bakmak', sonra 'gösterilen şey'.", source: "https://etymologiebank.nl/trefwoord/schouwen" },
       ],
     },
+    picture: { file: "s12-toeschouwer.webp", style: "x", alt: "Split: toeschouwer — toe + schouw + -er, one spectator shading their eyes", owner: "item" },
   },
   {
     id: "optreden",
@@ -323,6 +327,7 @@ export const sessionTwelveNewItems: Item[] = [
       dir: "en",
       tr: "İngilizce `performance` her yerde işe yarar; Hollandacada değil. Sahnedeki gösteri `het optreden`, ama bir makinenin performansı `de prestatie`, bir sporcununki de `de prestatie`.",
     },
+    picture: { file: "s12-optreden.webp", style: "x", alt: "Split: optreden — op + treden, a singer stepping up onto a stage", owner: "item" },
   },
   {
     id: "pauze",
@@ -361,6 +366,7 @@ export const sessionTwelveNewItems: Item[] = [
       dir: "tr",
       tr: "Türkçede 'rekor' sadece sporda kırılır. Hollandacada `het record` aynı şeydir, ama **`de recorder`** kaydedicidir ve `opnemen` kaydetmektir. `Ik heb het record opgenomen` demek 'rekoru kaydettim' değil, 'rekoru banda aldım'dır.",
     },
+    picture: { file: "s12-record.webp", style: "x", alt: "Trap: het record is a record broken; opnemen is to record onto tape", owner: "item" },
   },
   {
     id: "verlenging",
@@ -383,6 +389,7 @@ export const sessionTwelveNewItems: Item[] = [
         { part: "lang", tr: "İngilizce `long` ile aynı sözcük; `verlengen` de İngilizce `lengthen` ile aynı yapı.", source: "https://etymologiebank.nl/trefwoord/verlengen" },
       ],
     },
+    picture: { file: "s12-verlenging.webp", style: "x", alt: "Split: verlenging — ver- + leng + -ing, a stretched band and a clock at 90", owner: "item" },
   },
 ];
 
@@ -451,11 +458,11 @@ export const sessionOne = {
   prompts: [
     { id: "P1", type: "item", item: "wedstrijd", dir: "recognition", ask: "`de wedstrijd` ne demek?" },
     { id: "P2", type: "item", item: "wedstrijd", dir: "production", ask: "'maç' Hollandaca nasıl yazılır? (artikeliyle)" },
-    { id: "P3", type: "item", item: "uitslag", dir: "recognition", ask: "`de uitslag was 29-13` — `uitslag` ne demek?" },
-    { id: "P4", type: "item", item: "uitslag", dir: "production", ask: "'Seçim sonucu' Hollandaca nasıl söylenir?" },
-    { id: "P5", type: "item", item: "helft", dir: "recognition", ask: "`in de tweede helft` ne demek?" },
-    { id: "P6", type: "item", item: "helft", dir: "production", ask: "'Seyircinin yarısı' Hollandaca nasıl söylenir?" },
-    { id: "P7", type: "item", item: "scheidsrechter", dir: "recognition", ask: "`de scheidsrechter` kimdir — ve sözcüğün iki parçası ne?" },
+    { picture: { file: "s12-verslagen.webp", alt: "slaan/sloeg/geslagen over verslaan/versloeg/verslagen; verslagd crossed out" }, id: "P3", type: "item", item: "uitslag", dir: "recognition", ask: "`de uitslag was 29-13` — `uitslag` ne demek?" },
+    { picture: { file: "s12-scheids-s.webp", alt: "scheid + -s- + rechter, the linking -s- circled: niet vergeten" }, id: "P4", type: "item", item: "uitslag", dir: "production", ask: "'Seçim sonucu' Hollandaca nasıl söylenir?" },
+    { picture: { file: "s12-er-gebeurd.webp", alt: "Wat is gebeurd? crossed out; Wat is er gebeurd? ticked — er is verplicht" }, id: "P5", type: "item", item: "helft", dir: "recognition", ask: "`in de tweede helft` ne demek?" },
+    { picture: { file: "s12-uitslag-fout.webp", alt: "het resultaat crossed out, de uitslag ticked, a ballot box" }, id: "P6", type: "item", item: "helft", dir: "production", ask: "'Seyircinin yarısı' Hollandaca nasıl söylenir?" },
+    { picture: { file: "s12-ruim-fout.webp", alt: "ruim splits: een ruime kamer, and ruim 125 miljoen before a number" }, id: "P7", type: "item", item: "scheidsrechter", dir: "recognition", ask: "`de scheidsrechter` kimdir — ve sözcüğün iki parçası ne?" },
     { id: "P8", type: "item", item: "verslaan", dir: "production", ask: "'Seattle, New England'i yendi' — `verslaan` ile kur." },
     { id: "P9", type: "item", item: "ploeg", dir: "recognition", ask: "`de ploeg speelde goed` — burada `ploeg` ne demek?" },
     { id: "P10", type: "item", item: "aanval", dir: "recognition", ask: "`de aanval` ve `de verdediging` — hangisi hücum?" },
@@ -509,6 +516,7 @@ export const sessionTwelve = {
     { id: "P11", type: "item", item: "wedstrijd", dir: "production", ask: "'Maç iki saat sürdü' — Hollandaca kur.", answer: "De wedstrijd duurde twee uur", verdict: "correct", rungFrom: 3, rungTo: 4, note: "" },
     { id: "P12", type: "item", item: "optreden", dir: "recognition", ask: "`het optreden in de pauze` ne demek?", answer: "aradaki gösteri", verdict: "correct", rungFrom: 0, rungTo: 1, note: "Yeni Item — ilk doğru cevap Rung 1'e koydu. İlk tekrar 2 gün sonra." },
     {
+      picture: undefined as { file: string; alt: string } | undefined,
       id: "P13", type: "open", objective: "LEB1-3a",
       ask: "Tekst'i oku, sonra şu soruyu Türkçe üç cümleyle cevapla: haber, Seattle'ın bu galibiyetini neden 'ikinci' diye anıyor ve önceki iki final ne olmuştu?",
       answer:
@@ -564,7 +572,7 @@ export const tekst = {
     "Devre arasında ne oldu, ve kaç kişi maçı izledi?",
   ],
   note: "Bir Tekst en fazla on yeni sözcük getirir — bir oturumun yeni Item bütçesi. Burada altısı yeni, yedisi zaten envanterde.",
-  picture: { file: "tekst-header.png", style: "editorial", alt: "Tekst header — a stadium scoreboard reading 29-13 under a night sky", owner: "tekst" },
+  picture: { file: "tekst-header.webp", style: "editorial", alt: "Tekst header — a stadium scoreboard reading 29-13 under a night sky", owner: "tekst" },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -583,6 +591,7 @@ export const lesson = {
   sections: [
     {
       h: "Haberin ilk cümlesi",
+      picture: { file: "s1-woordvolgorde.webp", style: "instructional", alt: "Five numbered slots: WIE, WERKWOORD (locked), WANNEER, WAAR, WAT", owner: "lesson" },
       body: [
         "Hollandaca haber cümlesi şu sırayı sever: **kim — ne yaptı — ne zaman — nerede — neyi**. Türkçeden en çok ayrıldığı yer burası: Türkçede fiil sona gider, Hollandacada çekimli fiil **ikinci** sıraya oturur ve orada kalır.",
         "`De Seattle Seahawks wonnen zondag in Santa Clara de zestigste Super Bowl.`",
@@ -591,6 +600,7 @@ export const lesson = {
       ],
     },
     {
+      picture: undefined as { file: string; style: string; alt: string; owner: string } | undefined,
       h: "Maçın kendisi",
       body: [
         "Bir maç haberi üç şeyi söyler: kim oynadı, kim kazandı, skor ne. Üçü için üç sözcük ailesi var — ve hepsi spor dışında da çalışır.",
@@ -612,7 +622,7 @@ export const lesson = {
   ],
   close:
     "Bu on sözcüğün sekizi her maç haberinde var. Dördü — `de uitslag`, `de helft`, `winnen`, `verliezen` — spor sayfasının dışında da, belediye haberinde ve seçim haberinde de karşına çıkacak. İkisi — `de aanval` ve `de scheidsrechter` — bu temaya bağlı kalır. Bu, temanın nereye kadar taşıdığını gösteren dürüst çizgi.",
-  picture: { file: "lesson-header.png", style: "editorial", alt: "Lesson header — a Dutch news page with the lead sentence broken into who, what, where", owner: "lesson" },
+  picture: { file: "lesson-header.webp", style: "editorial", alt: "Lesson header — a Dutch news page with the lead sentence broken into who, what, where", owner: "lesson" },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -624,7 +634,7 @@ export const findings = [
     tag: "size",
     claim: "Session 1 is too big and the mid-journey Session is about right.",
     body:
-      "Session 1 carries ten brand-new Items, twelve Prompts and a full Lesson, with nothing to review. Every word on the page is unknown. Session 12 carries six new Items, thirteen Prompts and a Tekst, and eleven of its Prompts are words the learner has already met. The second reads in about ten minutes; the first does not.",
+      "Session 1 carries ten brand-new Items, twelve Prompts and a full Lesson, with nothing to review. Every word on the page is unknown. Session 12 carries six new Items, thirteen Prompts and a Tekst, and eleven of its Prompts are words the learner has already met. The second reads in about ten minutes; the first does not. **The Pictures make it worse**: the same Lesson measures 6,152 px without them and 9,642 px with them at 900 px wide — ten Pictures add 57% to the scroll, and #131 allows ten.",
   },
   {
     tag: "theme",
@@ -661,6 +671,30 @@ export const findings = [
     claim: "The rule that a Split needs two meaningful parts is doing real work.",
     body:
       "`de verdediging` looks splittable — `ver-` + `dedig-` + `-ing` — and is not, because `dedig-` is not a Dutch word. It gets no Split and a Hook instead. Five of the sixteen Items in this prototype carry a Split; three were refused.",
+  },
+  {
+    tag: "pictures",
+    claim: "Twenty Pictures drew on the first attempt, and one of them was wrong in a way only a reader catches.",
+    body:
+      "19 of 20 drew correct Dutch first time. `s12-er-gebeurd` wrote `verpliht` for `verplicht`; #147's one retry fixed it, spent by naming the spelling letter by letter. So the read-and-retry rule works — but it is a *reading* rule, and Docent must actually look at twenty images to apply it. At about 100 seconds each, drawing a two-Session pair took 35 minutes of wall clock.",
+  },
+  {
+    tag: "picture-blind",
+    claim: "The retry rule only checks the Dutch, so a Hook whose scene is drawn wrong still ships.",
+    body:
+      "`s1-verdediging` was asked for two rows of defenders standing on two painted `DE` marks — the whole Hook. It drew one `DE` and one row. The Dutch was perfect, so the rule never fired. The same gap let `KIM` ship where Turkish needs `KİM`: #147 checks Dutch strings only, and a Turkish caption can be wrong without costing a retry.",
+  },
+  {
+    tag: "ascii",
+    claim: "Dodging the Turkish capitalisation bug puts broken Turkish in the picture instead.",
+    body:
+      "#147 found that `--language tr` applies Turkish capitalisation to Dutch words. The defence used here was to ASCII-fold the Turkish in the instruction — `uzerine`, `dusus`, `hucum`, `yargic`. The text rule then reproduced that ASCII letter for letter, so four images carry Turkish missing its diacritics. The rule that protects Dutch freezes whatever it is given.",
+  },
+  {
+    tag: "translate",
+    claim: "Without a standing rule, the generator translates Dutch into the output language.",
+    body:
+      "The first `lesson-header` drew the Dutch word `zondag` as the Turkish label `ZAMAN`, and buried the picture under two paragraphs of invented Turkish prose. #147's text rules did not cover this. One appended sentence — never translate a quoted string, add no prose of your own — fixed it and every image after it.",
   },
   {
     tag: "kwart",

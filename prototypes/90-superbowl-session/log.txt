@@ -9,3 +9,95 @@ Infographic saved to:
 lic/prototype/90-superbowl-session/s1-wedstrijd.png
 Artifact: Tribünde Heyecanlı Maç Coşkusu (latest of 3 artifacts)
 [17:28:12] s1-wedstrijd (sketch-note) OK attempt=1 93s 5618857 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-ploeg.png
+Artifact: Takım Çalışması ve Enerji Analojisi (latest of 4 artifacts)
+[17:30:03] s1-ploeg (sketch-note) OK attempt=1 103s 4581440 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-uitslag.png
+Artifact: Uitslag Kelimesinin Üç Farklı Kullanımı (latest of 5 artifacts)
+[17:32:06] s1-uitslag (scientific) OK attempt=1 115s 4125971 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-verdediging.png
+Artifact: Hollandaca Savunma Hattı Kelime Hafızası (latest of 6 artifacts)
+[17:33:34] s1-verdediging (sketch-note) OK attempt=1 81s 5122012 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-scheidsrechter.png
+Artifact: Scheidsrechter Kelimesinin Görsel Analizi (latest of 7 artifacts)
+[17:35:17] s1-scheidsrechter (sketch-note) OK attempt=1 93s 5836990 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-verslaan.png
+Artifact: "Verslaan" Kelime Anlamı Şeması (latest of 8 artifacts)
+[17:36:47] s1-verslaan (scientific) OK attempt=1 83s 2820205 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-aanval.png
+Artifact: Kelime Analizi ve Anlam Şeması (latest of 9 artifacts)
+[17:38:52] s1-aanval (scientific) OK attempt=1 117s 3294748 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-woordvolgorde.png
+Artifact: Hollandaca Beş Adım Cümle Kuralı (latest of 10 artifacts)
+[17:40:44] s1-woordvolgorde (instructional) OK attempt=1 104s 3707850 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s1-helft.png
+Artifact: Hollandaca Half ve Helft Ayrımı (latest of 11 artifacts)
+[17:42:58] s1-helft (scientific) OK attempt=1 127s 3424622 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/tekst-header.png
+Artifact: Amerikan Futbolu Finali Skor Tabelası (latest of 12 artifacts)
+[17:44:52] tekst-header (editorial) OK attempt=1 105s 8612193 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-uitslag-fout.png
+Artifact: Hollandaca Seçim Sonuçları Kelime Seçimi (latest of 13 artifacts)
+[17:46:46] s12-uitslag-fout (scientific) OK attempt=1 107s 3243243 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-ruim-fout.png
+Artifact: "Ruim" Kelimesinin İki Farklı Kullanımı (latest of 14 artifacts)
+[17:48:49] s12-ruim-fout (scientific) OK attempt=1 117s 2053828 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-verslagen.png
+Artifact: Hollandaca Düzensiz Fiil Çekimi (latest of 15 artifacts)
+[17:50:21] s12-verslagen (scientific) OK attempt=1 86s 2338551 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-scheids-s.png
+Artifact: Scheidsrechter Kelimesinin İnşası (latest of 16 artifacts)
+[17:52:05] s12-scheids-s (scientific) OK attempt=1 97s 2263229 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-er-gebeurd.png
+Artifact: Felemenkçede 'er' Kullanımı (latest of 17 artifacts)
+[17:53:59] s12-er-gebeurd (instructional) OK attempt=1 105s 3486267 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-optreden.png
+Artifact: Optreden Kelimesinin Görsel Anlatımı (latest of 18 artifacts)
+[17:55:32] s12-optreden (sketch-note) OK attempt=1 85s 4961461 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-verlenging.png
+Artifact: Uzatma Kelimesinin Görsel Tanımı (latest of 19 artifacts)
+[17:57:37] s12-verlenging (scientific) OK attempt=1 117s 3665538 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-toeschouwer.png
+Artifact: Seyirci Kelimesinin Görsel Anlatımı (latest of 20 artifacts)
+[17:59:10] s12-toeschouwer (sketch-note) OK attempt=1 86s 4376625 bytes
+Infographic saved to: 
+/home/neo/projects/atilileri.github.io/prototypes/90-superbowl-session/../../pub
+lic/prototype/90-superbowl-session/s12-record.png
+Artifact: "Record" Kelimesinin Farklı Anlamları (latest of 21 artifacts)
+[18:01:15] s12-record (scientific) OK attempt=1 119s 3607562 bytes
+[18:01:19] === done. drawn: 20 / 20 ===
+[retry] s12-er-gebeurd redrawn
