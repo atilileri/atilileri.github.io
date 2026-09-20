@@ -93,7 +93,10 @@ The notebook's own answer-language setting is left alone.
 - **Pin the client version.** `notebooklm-py 0.8.2` is what this lock was measured against. It is an
   unofficial client holding a Google master token, so an upgrade is a deliberate act — see
   [adr/0009](./adr/0009-the-shelf-rests-on-an-unofficial-client.md).
-- **Pass `--quiet`,** or the CLI prints a `Matched: …` banner into stdout and breaks JSON parsing.
+- **Pass `--quiet` before the command name,** or the CLI prints a `Matched: …` banner into stdout and breaks
+  JSON parsing. It is a global flag: `notebooklm --quiet source search "…" -n <id> --json` works, and the same
+  flag after the subcommand fails with *"No such option '--quiet'"*. Measured 2026-09-19 on
+  [#149](https://github.com/atilileri/atilileri.github.io/issues/149).
 - **Resolve a family to a set of notebooks, never to one.** The 100-source cap splits a family.
 
 ## The chat context is fresh every Session

@@ -13,11 +13,13 @@ credential sits at `~/.notebooklm/profiles/default/storage_state.json` — a **M
 
 Three rules bind every call:
 
-- **Expand the `OracleDutch` collection** — `notebooklm collection notebooks OracleDutch --json`. A collection
-  is a real container that the API expands, and the learner controls its membership in the interface. The
-  account holds notebooks from other projects, so **membership is never guessed from a title**.
+- **Expand the `OracleDutch` collection** — `notebooklm --quiet collection notebooks OracleDutch --json`. A
+  collection is a real container that the API expands, and the learner controls its membership in the
+  interface. The account holds notebooks from other projects, so **membership is never guessed from a title**.
 - **Address with `-n <id>`. Never use `notebooklm use`,** which is stateful and would let two Sessions collide.
-- **Pass `--quiet`.** Without it the CLI prints a `Matched: …` banner to stdout and breaks JSON parsing.
+- **Pass `--quiet` before the command name** — `notebooklm --quiet collection notebooks OracleDutch --json`.
+  Without it the CLI prints a `Matched: …` banner to stdout and breaks JSON parsing; after the subcommand the
+  same flag fails with *"No such option '--quiet'"*. The example above shows the position.
 
 ## Account limits
 
