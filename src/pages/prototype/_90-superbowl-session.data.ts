@@ -650,9 +650,9 @@ export const findings = [
   },
   {
     tag: "plan",
-    claim: "Docent cannot run at all without PLAN.md, and nothing on the map owns writing it.",
+    claim: "Docent cannot run at all without PLAN.md, so authoring it is the first build task.",
     body:
-      "The preflight's third step reads the Plan. There is no Plan. Every number in this prototype's Plan slice and inventory is invented. #85 locked the format and #100 locked the ladder, but no ticket seeds the file — which means the first real invocation of Docent stops at step 3.",
+      "The preflight's third step reads the Plan. There is no Plan, so every number in this prototype's Plan slice and inventory is invented. This is a **sequencing** find, not a gap: the map rules artifacts out of scope, so the Plan belongs to the build after `/to-spec` — it just has to come first, before any other artifact. Authoring is mechanical (**122 Objectives**, ids intact in the landed Taalprofielen text); placement is a separate Assess pass (#85), and #123's `unmapped` Scenario sentences convert in the same step.",
   },
   {
     tag: "trilingual",
