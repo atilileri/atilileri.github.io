@@ -84,12 +84,21 @@ derived from that text.**
   (map #74), so a stranger reading the repo must see the image the learner sees.
 - **Its `alt` text describes the drawn scene, in Turkish**, written with the image
   instruction. A Picture carries meaning; it is never marked decorative.
-- **At most six per Session.** Three unprompted, by the #122 trigger order, plus up
-  to three more that Docent draws on the learner's request or on its own judgement
-  when it helps the Session. Those three need no separate confirmation — a Picture
-  rides on its owner's approval and never asks for its own.
-- **The ceiling is the only stop.** A spent daily window falls to the #147 failure
-  rule: one retry, then no image, and the Lesson teaches the Hook as text.
+- **Ten per Session that Docent decides alone**, and **no limit on what the learner
+  asks for**. The three counts are separate on purpose:
+  - **Five unprompted**, on the #122 triggers — an Item answered wrong, an Item with
+    no Bridge, then a header.
+  - **Five more Docent offers on its own judgement**, when a Picture helps the
+    Session.
+  - **A learner request is uncapped.** Learning is the point, and a learner asking
+    for a picture is the strongest signal that one will help.
+  - None of the ten needs a separate confirmation. A Picture rides on its owner's
+    approval and never asks for its own.
+- **On a request, the daily window is the only stop**, and it stops honestly: a spent
+  window falls to the #147 failure rule — one retry, then no image, and the Lesson
+  teaches the Hook as text. Docent states what is missing rather than refusing to
+  teach, which is the degradation rule `AUTOMATION.md` already binds every Session
+  to.
 - **One disclosure line on `/nederlands/`** says the Pictures are AI-drawn. Not a
   caption under each one.
 
@@ -97,11 +106,15 @@ derived from that text.**
 
 - **The public pages need no new component.** `SITE.md` allows four, and an image is
   a plain `<img>`. Whatever a page shows still reads with JavaScript off.
-- **Storage stays small and bounded.** Six WebP images per Session at 60–200 KB is
-  roughly 60 MB a year in the worst case, in a `public/` that holds 5.4 MB today.
+- **Storage grows with use, and stays cheap.** Ten WebP images per Session at
+  60–200 KB is roughly 100 MB a year for Docent's own; a heavy requesting habit
+  costs about 2 MB a Session on top. `public/` holds 5.4 MB today, so this is the
+  repo's largest content by some way, and still small.
 - **The daily window has one consumer worth counting.** A Picture costs about 3–4%
   of the shared Gemini Notebook window (~25–30 images a day), which `ask` also draws
-  from. Six per Session is 18–24% of a day.
+  from. Ten per Session is 30–40% of a day, so **two or three Sessions fill it** —
+  and an uncapped request stream can fill it inside one. That is the intended
+  trade: the window is spent on what the learner asked to see.
 - **The idle capabilities stay installed.** Local synthesis, the video-capable
   client and Mermaid all remain in `tools/` and reachable. They are unused by
   decision, not by lack.
