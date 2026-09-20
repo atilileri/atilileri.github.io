@@ -50,7 +50,8 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Kitesurfed mostly in Urla, Turkey. Kitesurfed once in the Netherlands, at Ouddorp near the Natural High surf shop, in August 2026.
 - Plans to kitesurf wherever they travel, and enjoys talking about future kite spots.
 - Plays padel at Peakz Padel in Eindhoven, with a Peakz rating around 7–8. Also plays at Jack's Hustle.
-- Takes padel classes; ten taken so far, two weeks of classes remaining as of September 2026.
+- Plays the Super Sunday sessions at Peakz Padel, where the players rotate and mix.
+- Takes padel classes at Peakz Padel; ten taken so far, two weeks of classes remaining as of September 2026.
 - Belongs to two Dutch-language padel WhatsApp groups: "peakz padel rating 9/10 - Low Starters - Eindhoven" and "peakz padel rating 9/10 - High Starters - Eindhoven".
 - Plays football on Sunday with a club in the Netherlands. Sessions are sometimes cancelled for low attendance.
 - Plays street basketball occasionally, when the weather is good.
@@ -60,11 +61,14 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Played two further seasons with the Eindhoven Raptors after moving to the Netherlands.
 - Won the national league in 2010, 2011 and 2016.
 - No longer plays or watches American football, but knows the rules and the positions well.
-- Joins the David Lloyd gym in Eindhoven in September 2026, for padel, tennis, swimming, spa and group classes.
+- Is a member of David Lloyd Eindhoven since September 2026, and uses it for racket sports, group classes, swimming and spa.
+- Plays padel and tennis at David Lloyd Eindhoven.
+- Takes HIIT and yoga classes at David Lloyd Eindhoven.
 - Snowboards confidently on and off piste, and does jumps.
 - Owns a Korua Apollo 157 snowboard, Rome Katana bindings and Nidecker Kita boots.
-- Wakeboards at intermediate level, and rides with either foot forward.
+- Wakeboards at intermediate level, and rides with either foot forward. Wakeboards in season, for example at Kempervennen Waterski Center.
 - Learned to ski in 2025, and skis red pistes at intermediate level.
+- Snowboards and skis indoors when the opportunity comes, usually at Montana Snowcenter near Valkenswaard.
 
 ## Taste
 
