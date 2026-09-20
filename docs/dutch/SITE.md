@@ -254,13 +254,28 @@ Practising a Lesson alone leaves no record, and that is correct.
   and its answers never come back.
 - **A custom audio player** — a Clip is a link with its stated time range
   ([`LISTENING.md`](./LISTENING.md)); Drive and YouTube do not play in `<audio>` anyway.
-  Whatever media [#131](https://github.com/atilileri/atilileri.github.io/issues/131) commits
-  plays in the native element with no new decision.
+  The only media this site commits is the Picture, a plain `<img>`
+  ([`adr/0013`](./adr/0013-the-deliverable-is-text-and-the-picture-is-the-exception.md)).
 
-## What this ticket does not decide
+### Images on these pages
 
-- **Enrichment** — audio and images on these pages, owned by
-  [#131](https://github.com/atilileri/atilileri.github.io/issues/131).
+**A Picture is the only image a Lesson or a Session carries**, and it is the only
+artifact derived from their text —
+[`adr/0013`](./adr/0013-the-deliverable-is-text-and-the-picture-is-the-exception.md)
+states the whole boundary and the evidence behind it. On a page that means:
+
+- **A plain `<img>`, no component.** Nothing here needs a fifth component.
+- **`/images/dutch/<owner-id>.webp`**, committed under `public/`, converted from the
+  Oracle's 900×900 JPG at quality 75.
+- **Its `alt` text describes the drawn scene, in Turkish.** A Picture carries meaning
+  and is never marked decorative.
+- **No page depends on it.** A missing Picture costs no teaching; the Lesson teaches
+  the Hook as text and the Session names what is missing.
+- **`/nederlands/` carries one line** saying the Pictures are AI-drawn. No caption
+  repeats it under each image.
+
+A word recording stays a **link** to Wikimedia Commons, played by `<WordAudio>`
+([`PRONUNCIATION.md`](./PRONUNCIATION.md)). It is never copied into this repo.
 
 ## A limitation to state once
 
