@@ -9,8 +9,9 @@ may drive external tools at all is settled by [#130](https://github.com/atililer
 and written in [`AUTOMATION.md`](./AUTOMATION.md) — read that file for the named targets, the credentials and the
 write gate. Nothing here settles either.
 
-Where the material lives is [`MATERIAL.md`](./MATERIAL.md). What is in Drive, file by file, is
-[`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md). The scripts named below live in
+Where the material lives is [`MATERIAL.md`](./MATERIAL.md). What is in Drive is
+[`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md), and the path of every file is
+[`drive-files.txt`](./drive-files.txt). The scripts named below live in
 [`tools/media/`](../../tools/media/).
 
 ## What needs no tooling at all

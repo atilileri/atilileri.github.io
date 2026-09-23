@@ -3,8 +3,9 @@
 This is the source copy of the file at the top of `atili/Dutch` in Google Drive,
 `00 README - what is here and how files are named.md`. Edit it here; re-upload it after a change.
 The same rule, written for a reader in this repo rather than in Drive, is the "How files in Drive are named"
-section of [`MATERIAL.md`](./MATERIAL.md). What is in the folder, file by file, is
-[`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md).
+section of [`MATERIAL.md`](./MATERIAL.md). What the folder holds is
+[`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md), and the path of every file is
+[`drive-files.txt`](./drive-files.txt).
 
 ---
 

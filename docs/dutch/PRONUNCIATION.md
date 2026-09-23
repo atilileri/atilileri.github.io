@@ -68,16 +68,26 @@ node tools/dutch/pronounce.mjs --recheck
 node tools/dutch/pronounce.mjs --words "de kat" gezellig "uit elkaar gaan"
 
 # A different inventory.
-node tools/dutch/pronounce.mjs --file path/to/items.json
+node tools/dutch/pronounce.mjs --file path/to/items.yml
 ```
 
-The default inventory is `docs/dutch/items.json`. The file is a JSON array of Items, or an object with an
-`items` array. An Item needs an `nl` field; the script skips any Item without one.
+The default inventory is **`docs/dutch/items.yml`, YAML keyed by Item id** — the one file the site loads and
+`tools/dutch/items.mjs` owns ([`INVENTORY.md`](./INVENTORY.md)). An Item needs an `nl` field; the script skips
+any Item without one.
+
+**This document and the script both said `items.json` until
+[#152](https://github.com/atilileri/atilileri.github.io/issues/152).** The script was written before
+`SITE.md` locked YAML and was never updated. Both are corrected; nothing was lost, because the inventory did
+not exist yet.
 
 ## When it runs
 
-**Docent runs it at the end of a Session, right after it appends the new Items.** That is the only trigger. No
-schedule, no CI, no build step. CI is excluded by [`AUTOMATION.md`](./AUTOMATION.md) anyway.
+**Docent runs it at the end of a Session, right after `items.mjs add` appends the new Items.** That is the
+only trigger. No schedule, no CI, no build step. CI is excluded by [`AUTOMATION.md`](./AUTOMATION.md) anyway.
+
+**This is the one exception to the rule that `items.mjs` owns every write.** Docent still never edits the
+inventory by hand; `pronounce.mjs` stays a separate program because it is a network-facing, rate-limited job
+with its own tests. Both write the same YAML.
 
 One trigger is enough because **the script always scans the whole inventory, never only the new words**. So a
 Session that skips the step, or that meets a network failure, heals at the next Session. The gap closes by

@@ -5,6 +5,7 @@
 // Usage and rules: docs/dutch/PRONUNCIATION.md
 
 import { readFileSync, writeFileSync } from "node:fs";
+import yaml from "js-yaml";
 
 // The four fields this script owns. Rename here if the Item taxonomy renames them.
 const F = {
@@ -15,7 +16,11 @@ const F = {
   ipaChecked: "ipaChecked",
 };
 
-const DEFAULT_FILE = "docs/dutch/items.json";
+// YAML, and a map keyed by Item id — the same file the site loads and
+// tools/dutch/items.mjs owns. This said items.json until issue #152: the
+// script predated SITE.md's YAML lock and was never updated. Rules:
+// docs/dutch/INVENTORY.md.
+const DEFAULT_FILE = "docs/dutch/items.yml";
 const RECHECK_DAYS = 90;
 const BATCH = 50;
 const UA = "dutch-journey/1.0 (https://github.com/atilileri/atilileri.github.io)";
@@ -226,7 +231,7 @@ const HELP = `Fill Item pronunciation fields from Wikimedia Commons and nl.wikti
   node tools/dutch/pronounce.mjs [--file <path>] [--recheck] [--dry-run]
   node tools/dutch/pronounce.mjs --words <word> [<word> ...]
 
-  --file      Item inventory, a JSON array (default ${DEFAULT_FILE})
+  --file      Item inventory, YAML keyed by id (default ${DEFAULT_FILE})
   --recheck   Also retry misses older than ${RECHECK_DAYS} days
   --dry-run   Report the changes and write nothing
   --words     Look words up and print the result; touches no file`;
@@ -238,18 +243,24 @@ async function main() {
   if (opts.words) {
     const items = opts.words.map((nl) => ({ nl }));
     await enrich(items, { log: (m) => console.error(m) });
-    console.log(JSON.stringify(items, null, 2));
+    console.log(yaml.dump(items, { lineWidth: 100, noRefs: true, quotingType: '"' }));
     return;
   }
 
-  const raw = JSON.parse(readFileSync(opts.file, "utf8"));
-  const items = Array.isArray(raw) ? raw : raw.items;
-  if (!Array.isArray(items)) throw new Error(`${opts.file} holds no Item array`);
-  const before = JSON.stringify(raw);
+  const raw = yaml.load(readFileSync(opts.file, "utf8"), { filename: opts.file });
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new Error(`${opts.file} must be a map of Items keyed by id`);
+  }
+  // The values are the Items; the ids stay where they are, so writing back
+  // preserves the key order items.mjs sorted them into.
+  const items = Object.values(raw);
+  const dump = () => yaml.dump(raw, { lineWidth: 100, noRefs: true, quotingType: '"' });
+  const before = dump();
 
   const stats = await enrich(items, { recheck: opts.recheck, log: (m) => console.error(m) });
-  const changed = JSON.stringify(raw) !== before;
-  if (changed && !opts.dryRun) writeFileSync(opts.file, JSON.stringify(raw, null, 2) + "\n");
+  const after = dump();
+  const changed = after !== before;
+  if (changed && !opts.dryRun) writeFileSync(opts.file, after);
 
   console.error(
     `${opts.dryRun ? "would fill" : "filled"} ${stats.audio} audio, ${stats.ipa} IPA; ` +

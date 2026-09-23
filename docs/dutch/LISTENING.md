@@ -107,9 +107,18 @@ Three routes, in order, stopping at the first that answers:
 
 1. **Ask the Oracle.** It indexes the same Drive files and searches their content
    ([#134](https://github.com/atilileri/atilileri.github.io/issues/134)).
-2. **Read the filenames and [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md).** Both are in this
-   repo, so this route needs no network. Filenames describe themselves
-   ([#138](https://github.com/atilileri/atilileri.github.io/issues/138)).
+2. **Search [`drive-files.txt`](./drive-files.txt)** — the path of every file in Drive, one
+   per line, in this repo, so this route needs no network. Filenames describe themselves
+   ([#138](https://github.com/atilileri/atilileri.github.io/issues/138)), and
+   [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md) says what each body of material is.
+
+   **Search it; never read it whole.** It is about 2,250 lines, and the rule that governs it
+   is [`INVENTORY.md`](./INVENTORY.md). Refresh it with `node tools/dutch/drive-files.mjs`
+   when a Session needs Drive material, and commit the result with that Session.
+
+   ```
+   grep -i 'hunebedden' docs/dutch/drive-files.txt
+   ```
 3. **Download one transcript, once a candidate is named**, and read it whole — the questions
    and the time range come out of it.
 

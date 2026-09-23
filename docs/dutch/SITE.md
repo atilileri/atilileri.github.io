@@ -82,7 +82,20 @@ the Plan. Both files sit in `docs/dutch/`, outside `src/content/`.
 
 **The site reads those two files directly**, through Astro's `file()` loader with a base
 outside `src/`. **The Plan and the Item inventory are therefore YAML**, not prose — the
-same one file serves Docent and the page.
+same one file serves Docent and the page. The inventory is `docs/dutch/items.yml`, a map
+keyed by the Item id, and the loader throws `FileGlobNotSupported` on any path holding a
+`*`, so it is one file and never a shard set.
+
+**It is still two files, not three.** The Schedule
+([`docs/dutch/schedule.yml`](./INVENTORY.md)) holds every Rung, and the loader does not read
+it: the progress this page shows is the Horizon and Objectives per skill, which is Plan
+data. The Schedule stays a working file — public in the repo, rendered nowhere — and it is
+the file that changes most, so keeping it out of the build keeps the build still.
+
+**Docent does not read `items.yml` either.** It reaches 260,000 tokens at B1 size, so it is
+queried through `tools/dutch/items.mjs` and never opened
+([`adr/0014`](./adr/0014-the-inventory-is-never-read-only-queried.md),
+[`INVENTORY.md`](./INVENTORY.md)).
 
 Docent never writes a generated copy into `src/data/`. A second copy of state goes stale
 with an empty diff, which is the failure
@@ -239,8 +252,9 @@ the only measurement shaped like the real exam, and a visible key turns it into 
 
 **`localStorage` holds an unsent answer draft and nothing else** — never a score, never a
 result, never progress. A score Docent cannot see tells the learner they practised while no
-Rung moves; the Session and the schedule file
-([#100](https://github.com/atilileri/atilileri.github.io/issues/100)) stay the only record.
+Rung moves; the Session and the Schedule, `docs/dutch/schedule.yml`
+([#100](https://github.com/atilileri/atilileri.github.io/issues/100),
+[`INVENTORY.md`](./INVENTORY.md)), stay the only record.
 Practising a Lesson alone leaves no record, and that is correct.
 
 ### Cut, with the reason

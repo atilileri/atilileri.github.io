@@ -36,7 +36,7 @@ A dated record of one invocation — what was taught, what was asked, and what t
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
-One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory. It may also carry the pronunciation fields `say` — a link to a human recording on Wikimedia Commons — and `ipa`; they help the learner say the word, not recall it, so they are not Mnemonics. Their format is [`PRONUNCIATION.md`](./PRONUNCIATION.md). The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id.
+One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory, `docs/dutch/items.yml`. It may also carry the five pronunciation fields — `say`, a link to a human recording on Wikimedia Commons, with `sayCredit` for its author and licence and `sayChecked` for the day a **miss** was confirmed, plus `ipa` and `ipaChecked` on the same rule; they help the learner say the word, not recall it, so they are not Mnemonics. Their format is [`PRONUNCIATION.md`](./PRONUNCIATION.md). The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id. **Its id is its Dutch word, slugged** (`fiets`, `de-man-met-de-hoed`), with a numeric suffix on a collision (`bank-2`), so a diff, a Lesson reference and a Picture filename all read as the word they are about. **The inventory is queried, never read** — at B1 size it is larger than the agent that maintains it ([`INVENTORY.md`](./INVENTORY.md), [`adr/0014`](./adr/0014-the-inventory-is-never-read-only-queried.md)).
 _Avoid_: Note, card, word, entry
 
 **Direction**:
@@ -44,8 +44,12 @@ One of exactly two ways an Item is asked: `recognition` (Dutch → known languag
 _Avoid_: Card — the word is banned, because it invites storing the derived thing as a record of its own.
 
 **Rung**:
-The position of one Direction on the interval ladder — an integer from 1 to 5. It is the only scheduling state stored, beside the date of the last answer. The gap to the next ask is *derived* from the Rung and the Horizon, never stored, so changing the Horizon reschedules the whole inventory without rewriting a row.
+The position of one Direction on the interval ladder — an integer from 1 to 5, held in the Schedule as `rung`. Beside it sit `answered`, the day the learner answered, and `wrong`, present only while the last answer was wrong — the bit that makes "two wrong in a row drop to rung 1" implementable, added by [#152](https://github.com/atilileri/atilileri.github.io/issues/152). The gap to the next ask is *derived* from the Rung and the Horizon, never stored, so changing the Horizon reschedules the whole inventory without rewriting a row.
 _Avoid_: Level (means Tier here), stage, interval, ease
+
+**Schedule**:
+The churn half of the inventory, `docs/dutch/schedule.yml`, joined to the Item content by Item id. It holds `rung`, `answered` and `wrong` per Direction and nothing else, so it stays readable at two thousand Items while the content file it accompanies does not. Written on every Session, in the Session's commit; read by Docent through `items.mjs` and by nothing on the site.
+_Avoid_: The schedule file, the review file, state, progress
 
 **Horizon**:
 The date the learner is studying toward, held as one line in the Plan. It sets every gap below the Mastered Rung, because the best gap is a fraction of the delay you are studying for. It is a declared stand-in when no exam is booked, and it is always a real date — never "none".

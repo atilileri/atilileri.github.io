@@ -7,7 +7,8 @@ Decided by [#89](https://github.com/atilileri/atilileri.github.io/issues/89); co
 outside the agent's scope. **This file records locations and provenance. It is not a licence register.**
 
 The audio corpus has its own inventory: [`LISTENING-INVENTORY.md`](./LISTENING-INVENTORY.md).
-Everything in Drive, file by file, is listed in [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md).
+What is in Drive, and what each body of material is for, is [`DRIVE-INVENTORY.md`](./DRIVE-INVENTORY.md);
+the path of every file is [`drive-files.txt`](./drive-files.txt), which is searched and never read whole.
 **How the agent actually reads any of it — audio, video, scanned pages — is
 [`READING-MATERIAL.md`](./READING-MATERIAL.md).**
 
@@ -106,9 +107,6 @@ own content, so `LICENSE-CONTENT` (CC BY 4.0) does not describe them; each row n
 4.10.38, one `=== page N ===` marker per page; tables lost their column structure, the prose and the descriptor
 ids did not. `knm-eindtermen.txt` is the Bijlage 2 section of the regulation's HTML, stripped of markup.
 Re-extract from the source URL rather than hand-editing either file.
-
-**The KNM objectives carry a date.** DUO changed the KNM content in July, so anything generated from
-`knm-eindtermen.txt` states which consolidated text it used.
 
 ## What is deliberately not in the repo
 
