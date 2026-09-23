@@ -62,6 +62,13 @@
  *
  * THE SLIDE IS IDENTICAL ON BOTH ROUTES. One behaviour, so the presenter never
  * has to remember which route they are in (#92).
+ *
+ * THE SOURCE LINE (Atil, 2026-09-23). Every command on this row is an agent
+ * SKILL, and most of them started as Matt Pocock's open collection rather than
+ * here. The Slide names it, in the same mono metadata voice the benchmark
+ * Slide names its leaderboard: the room is being asked to adopt a way of
+ * working, so where that way came from is part of the argument, not a footnote
+ * the presenter has to remember to say out loud.
  */
 import { STOPS, SEAM } from "../../lib/asml-ai/pipeline";
 import StopGlyph from "./StopGlyph.astro";
@@ -114,5 +121,15 @@ const { section } = Astro.props;
       ))
     }
   </ol>
+  <p class="ch5-sum-src">
+    The commands are agent <b>skills</b>, most of them adapted from Matt
+    Pocock&rsquo;s open collection &mdash;
+    <a
+      class="mono"
+      href="https://github.com/mattpocock/skills"
+      target="_blank"
+      rel="noreferrer noopener">github.com/mattpocock/skills</a
+    >
+  </p>
   <slot />
 </section>

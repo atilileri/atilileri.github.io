@@ -7,7 +7,10 @@
  * Sourcing (wayfinder #21, verified against GitHub's published pricing):
  *   - `1 AIC = 1 US cent` is first-party and current.
  *   - The four rows below are the only ones the deck may show; the lineup is
- *     the models actually available at the company (#23), dated on purpose.
+ *     the models actually available at the company, refreshed 2026-09-23 from
+ *     the company's own model picker. Gemini 3 Flash is gone from that picker
+ *     and GPT-5 mini takes its place at the bottom of the ladder; Sonnet and
+ *     Opus moved to their 5 generation, and Sonnet got CHEAPER doing it.
  *   - Anthropic also bills cache *writes* at 1.25x input. Deliberately absent
  *     here and off-screen everywhere — presenter notes only (#23, #25).
  */
@@ -22,10 +25,10 @@ export type Model = {
 };
 
 export const MODELS: Model[] = [
-  { id: "flash", name: "Gemini 3 Flash", input: 50, cached: 5, output: 300 },
+  { id: "mini", name: "GPT-5 mini", input: 25, cached: 2, output: 200 },
+  { id: "sonnet", name: "Sonnet 5", input: 200, cached: 20, output: 1000 },
   { id: "gpt", name: "GPT-5.4", input: 250, cached: 25, output: 1500 },
-  { id: "sonnet", name: "Sonnet 4.5", input: 300, cached: 30, output: 1500 },
-  { id: "opus", name: "Opus 4.6", input: 500, cached: 50, output: 2500 },
+  { id: "opus", name: "Opus 5", input: 500, cached: 50, output: 2500 },
 ];
 
 /**

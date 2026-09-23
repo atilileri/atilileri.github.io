@@ -13,9 +13,32 @@
  * provider's own name — low, medium, high, xhigh, max — never a
  * position ("level 3 of 5"), because the name is what you type into an
  * API call. A model that publishes only one level gets one point.
- * Transcribed from the public leaderboard at
- * deepswe.datacurve.ai/blog/deepswe-v1-1 (113 tasks, 2026-08-25).
+ * THE LINEUP IS IN TWO GROUPS, and the group — not the vendor — is what the
+ * Slide's Legend filters on:
+ *
+ *   Copilot — the five models the company's own picker offers. This is the
+ *     Slide at rest, and the only group shown when the room arrives. Every
+ *     line here is a model somebody in the room can select this afternoon.
+ *   Others — five notable models from five other labs, off by default. They
+ *     are the answer to "what are we missing", asked once per room, and they
+ *     belong behind a click rather than in the first frame: a curve nobody
+ *     can select is decoration until somebody asks for it.
+ *
+ * Grouping by AVAILABILITY rather than by vendor is the point. gpt-6-astra is
+ * OpenAI's, the same vendor as three Copilot rows, and it still sits in
+ * Others — because what decides whether a curve is actionable here is the
+ * picker, not the logo.
+ *
+ * Transcribed from `artifacts/v1.1/leaderboard-live.json`, the file the
+ * board itself renders from, NOT from the rendered page: the page shows 21
+ * of the 28 scored models, and gpt-5.6-terra and gpt-5.4 are two it hides.
+ * 113 tasks, generated 2026-09-22, read 2026-09-23.
  */
+
+/** Which side of the picker a model sits on. The Legend filters on this. */
+export type Group = "Copilot" | "Others";
+/** Legend order, left to right. `Copilot` is the group shown at rest. */
+export const GROUPS: Group[] = ["Copilot", "Others"];
 
 export type Pt = {
   cost: number; // avg $ / task
@@ -28,6 +51,7 @@ export type Pt = {
 export type Curve = {
   name: string;
   fam: string;
+  group: Group;
   at: number; // index of the labelled point — the model's best score
   pts: Pt[]; // cheapest first
 };
@@ -35,6 +59,7 @@ export type Curve = {
 const curve = (
   name: string,
   fam: string,
+  group: Group,
   rows: [number, number, string, string, number, number][],
 ): Curve => {
   const pts = rows.map(([cost, rate, eff, tok, steps, ci]) => ({
@@ -47,49 +72,57 @@ const curve = (
   pts.forEach((pt, i) => {
     if (pt.rate > pts[at].rate) at = i;
   });
-  return { name, fam, at, pts };
+  return { name, fam, group, at, pts };
 };
 export const CURVES: Curve[] = [
-  curve("claude-opus-5", "Anthropic", [
+  // ── Copilot: what the picker offers ───────────────────────────────────
+  curve("claude-opus-5", "Anthropic", "Copilot", [
     [1.66, 58.1, "LOW", "20k", 36, 2.3], [3.29, 68.9, "MEDIUM", "37k", 52, 1.2],
     [6.08, 72.8, "HIGH", "64k", 73, 1.9], [9.07, 73.2, "XHIGH", "92k", 89, 3.1],
     [11.84, 73.6, "MAX", "118k", 99, 3.9]]),
-  curve("gpt-5.6-sol", "OpenAI", [
-    [0.82, 45.4, "LOW", "11k", 23, 2.4], [1.42, 61.1, "MEDIUM", "18k", 31, 1.6],
-    [2.66, 69.4, "HIGH", "28k", 37, 1.4], [3.6, 70.7, "XHIGH", "41k", 44, 0.8],
-    [6.46, 72.7, "MAX", "60k", 61, 2.8]]),
-  curve("claude-fable-5", "Anthropic", [
-    [3.76, 59.6, "LOW", "25k", 38, 2.8], [6.09, 65.4, "MEDIUM", "40k", 48, 4.4],
-    [9.18, 68.6, "HIGH", "57k", 59, 1.1], [13.41, 69.9, "XHIGH", "80k", 68, 3.2],
-    [21.63, 69.7, "MAX", "119k", 88, 4.0]]),
-  curve("glm-5.3", "Other", [[3.99, 69.0, "MAX", "80k", 124, 3.0]]),
-  curve("kimi-k3", "Moonshot", [[4.65, 68.5, "MAX", "81k", 98, 4.5]]),
-  curve("gpt-5.6-luna", "OpenAI", [
-    [0.01, 1.5, "LOW", "3k", 12, 0.8], [0.04, 11.3, "MEDIUM", "8k", 24, 0.8],
-    [0.16, 44.2, "HIGH", "26k", 49, 2.9], [0.31, 56.9, "XHIGH", "45k", 71, 2.2],
-    [0.61, 67.2, "MAX", "73k", 102, 4.0]]),
-  curve("gpt-5.5", "OpenAI", [
-    [1.2, 27.0, "LOW", "9k", 28, 2.3], [2.75, 54.0, "MEDIUM", "20k", 46, 2.6],
-    [5.1, 64.4, "HIGH", "31k", 62, 3.1], [7.23, 67.0, "XHIGH", "46k", 82, 6.5]]),
-  curve("grok-4.6", "Other", [
+  curve("gpt-5.6-terra", "OpenAI", "Copilot", [
+    [0.43, 24.1, "LOW", "9k", 21, 0.8], [0.58, 35.1, "MEDIUM", "12k", 25, 3.4],
+    [1.13, 53.8, "HIGH", "22k", 34, 4.3], [2.13, 60.2, "XHIGH", "40k", 43, 2.1],
+    [4.95, 69.6, "MAX", "72k", 76, 2.6]]),
+  curve("gpt-5.6-luna", "OpenAI", "Copilot", [
+    [0.07, 1.5, "LOW", "3k", 12, 0.8], [0.22, 11.3, "MEDIUM", "8k", 24, 0.8],
+    [0.78, 44.2, "HIGH", "26k", 49, 2.9], [1.54, 56.9, "XHIGH", "45k", 71, 2.2],
+    [3.03, 67.2, "MAX", "73k", 102, 4.0]]),
+  curve("gpt-5.4", "OpenAI", "Copilot", [
+    [5.65, 51.8, "XHIGH", "71k", 70, 1.5]]),
+  curve("claude-sonnet-5", "Anthropic", "Copilot", [
+    [2.19, 30.5, "LOW", "36k", 77, 1.1], [4.08, 39.8, "MEDIUM", "57k", 108, 3.1],
+    [7.43, 48.2, "HIGH", "87k", 147, 4.5], [11.89, 49.7, "XHIGH", "121k", 186, 3.5],
+    [26.4, 53.8, "MAX", "214k", 268, 4.2]]),
+
+  // ── Others: five labs the picker does not offer ───────────────────────
+  // One model per lab, each the lab's best scoring entry on this board, so
+  // the group answers "what are we missing" rather than re-running the
+  // effort-level argument the Copilot group already made.
+  curve("gpt-6-astra", "OpenAI", "Others", [
+    [1.6, 67.0, "LOW", "11k", 20, 1.3], [3.08, 72.8, "MEDIUM", "20k", 26, 2.6],
+    [3.92, 73.2, "HIGH", "27k", 27, 3.4], [4.43, 74.1, "XHIGH", "30k", 29, 2.9],
+    [7.5, 73.2, "MAX", "61k", 28, 0.8]]),
+  curve("gemini-3.8-flash", "Google", "Others", [
+    [1.97, 71.0, "MEDIUM", "125k", 147, 2.3], [2.36, 73.8, "HIGH", "143k", 166, 1.4]]),
+  curve("grok-4.6", "xAI", "Others", [
     [1.04, 41.6, "LOW", "16k", 44, 2.3], [3.45, 67.5, "MEDIUM", "50k", 70, 2.3],
     [4.38, 65.2, "HIGH", "61k", 79, 1.5], [5.5, 66.7, "XHIGH", "71k", 87, 2.2]]),
-  curve("gemini-3.7-flash", "Google", [
-    [1.83, 53.8, "LOW", "73k", 130, 2.6], [2.03, 65.5, "MEDIUM", "94k", 117, 3.1],
-    [2.18, 65.3, "HIGH", "107k", 125, 1.8]]),
-  curve("deepseek-v4-pro", "Other", [[1.67, 62.8, "MAX", "106k", 155, 6.3]]),
-  curve("claude-opus-4.8", "Anthropic", [
-    [2.29, 40.8, "LOW", "29k", 54, 1.5], [3.44, 48.7, "MEDIUM", "41k", 66, 2.2],
-    [4.28, 51.8, "HIGH", "50k", 72, 4.6], [8.01, 54.4, "XHIGH", "86k", 95, 3.7],
-    [13.22, 59.0, "MAX", "135k", 120, 1.8]]),
-  curve("qwen3.8-max", "Other", [[3.73, 57.5, "XHIGH", "95k", 111, 2.7]]),
-  curve("muse-spark-1.2", "Other", [[3.7, 54.9, "XHIGH", "99k", 101, 2.1]]),
-  curve("claude-sonnet-5", "Anthropic", [
-    [4.08, 39.8, "MEDIUM", "57k", 108, 3.1], [7.43, 48.2, "HIGH", "87k", 147, 4.5],
-    [11.89, 49.7, "XHIGH", "121k", 186, 3.5], [26.4, 53.8, "MAX", "214k", 268, 4.2]]),
-  curve("deepseek-v4-flash", "Other", [[0.46, 53.3, "MAX", "108k", 153, 3.6]]),
-  curve("gemini-3.6-flash", "Google", [[2.21, 46.7, "HIGH", "96k", 117, 3.7]]),
-  curve("glm-5.2", "Other", [
-    [2.84, 36.3, "HIGH", "54k", 122, 4.8], [3.92, 43.8, "MAX", "78k", 129, 1.7]]),
-  curve("gemini-3.5-flash", "Google", [[3.45, 36.1, "HIGH", "76k", 105, 4.0]]),
+  curve("kimi-k3", "Moonshot", "Others", [
+    [4.65, 68.5, "MAX", "81k", 98, 4.5]]),
+  curve("deepseek-v4-pro", "DeepSeek", "Others", [
+    [0.24, 62.8, "MAX", "106k", 155, 6.3]]),
 ];
+
+/** Every curve in one group, in the order transcribed. */
+export const inGroup = (g: Group) => CURVES.filter((c) => c.group === g);
+
+/**
+ * The best pass@1 anywhere on the FULL board — all 28 scored models, not just
+ * the ten drawn here. The Slide prints it beside the best selectable score, so
+ * the room is told what the picker costs them rather than left to assume the
+ * lineup is the frontier. It happens to be a model the `Others` group draws,
+ * so turning that group on shows the sentence rather than just asserting it.
+ * Re-transcribe it whenever the curves above are re-transcribed.
+ */
+export const BOARD_BEST = { name: "gpt-6-astra", rate: 74.1 };

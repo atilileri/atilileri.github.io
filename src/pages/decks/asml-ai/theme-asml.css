@@ -765,14 +765,15 @@
   stroke-width: 4;
   fill: none;
 }
-/* The turn-over: the last level is the argument, so it is inked, not implied. */
-.stop-line.is-down {
+/* The flat top: every level past the knee is the argument, so that whole
+   stretch is inked, not implied. */
+.stop-line.is-flat {
   stroke: var(--orange);
 }
 .stop-dot {
   fill: var(--signal);
 }
-.stop-dot.is-down {
+.stop-dot.is-flat {
   fill: var(--orange);
 }
 .stop-marker {
@@ -782,7 +783,7 @@
 }
 /* One label per level: what it cost ON TOP of the level before it. This is
    the walk the fragments used to perform, printed instead — the room reads
-   all five prices at once and finds the turn itself. The level names are
+   all five prices at once and finds the knee itself. The level names are
    spoken, not printed, so the numbers sit close to their own points. */
 .stop-label {
   font-family: var(--font-mono);
@@ -799,8 +800,8 @@
   letter-spacing: 0.02em;
   opacity: 0.72;
 }
-.stop-label.is-down .delta,
-.stop-label.is-down .why {
+.stop-label.is-flat .delta,
+.stop-label.is-flat .why {
   fill: var(--orange);
   opacity: 1;
 }
@@ -2138,27 +2139,54 @@
   color: var(--signal);
   font-size: 1.1em;
 }
-.tk-look-near {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+/* The neighbourhood as a picture: the rung asks for the positions NEAREST to
+   the word, and three chips in a row showed no nearness. Two hairline axes,
+   no ticks and no labels — a real embedding dimension has no readable meaning,
+   so the axes are there to say "this is a space" and nothing more. Everything
+   the slide claims is carried by the distance and by the dashed ring. */
+.tk-look-map {
+  display: block;
+  width: 100%;
+  max-width: 30rem;
 }
-.tk-look-near b {
-  font-weight: 500;
-  padding: 0.18rem 0.5rem;
-  border-radius: 3px;
-  background: #ff6b0014;
-  border: 1px solid #ff6b0038;
-  color: var(--navy);
-  font-size: clamp(0.72rem, 1vw, 0.95rem);
+/* The plot is the one value in the chain that is a BLOCK, not a line of type,
+   so this row cannot align on a baseline the picture does not have — the key
+   would drop to the foot of the drawing. Every other row keeps its baseline. */
+.tk-look-row:has(.tk-look-map) {
+  align-items: start;
 }
-
-/* ── The input-billing ladder ───────────────────────────────────────────
-   One stage per row, with the operator riding on the arrow between two
-   stages. Chosen over a receipt, a horizontal flow and an annotated equation:
-   it has room for a label per stage, and it is the only one that could later
-   reveal a stage at a time on →. Lives on the vocabulary slide; the credits
-   slide that once carried the second copy is gone. */
+.tk-look-map svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tk-map-axis {
+  stroke: #1b1b1b26;
+  stroke-width: 1;
+}
+.tk-map-ring {
+  fill: #ff6b000d;
+  stroke: #ff6b0059;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.tk-map-dot {
+  fill: var(--signal);
+}
+.tk-map-dot.is-self {
+  fill: var(--orange);
+}
+.tk-map-w {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: #1b1b1b;
+  dominant-baseline: middle;
+}
+.tk-map-w.is-self {
+  fill: var(--orange);
+  font-weight: 700;
+}
 .bill-ladder {
   list-style: none;
   margin: 0;
@@ -3942,6 +3970,44 @@
   gap: 1.5rem;
 }
 
+/* The note under the card. It is a FACT ABOUT THE TOOL, not a step in the
+   drawing, so it sits outside the stage rather than inside it — the tank keeps
+   its 1M scale and every mark on it, and the 200k cap is what the harness
+   hands you on top of that, never a second ruler.
+
+   IT IS SET LIKE THE OPENING LINE (Atil, 2026-09-23), not like chapter 4's
+   habit callout it was first built from. That callout is one of five items in
+   a two-column list and reads as a list item wherever it goes — under a
+   full-width card it looked like a stray bullet. The opening line above the
+   stage is the slide's own voice for "here is a thing to do about this", and
+   the note is the same voice at the other end of the drawing: same size, same
+   ink, same blue for the words that carry it. The two now bracket the stage. */
+.reveal .sz-note {
+  font-size: 1.08rem;
+  color: #1b1b1bc7;
+  /* Same reason as the opening line: `.reveal p` caps body copy at 40ch, which
+     would fold a one-line note into a column a quarter of the card's width. */
+  max-width: none;
+  /* The stage is deliberately loose, so the note stands well clear of it
+     rather than tucking under its shadow. */
+  margin: clamp(1.5rem, 4.5vh, 2.6rem) 0 0;
+}
+/* The lead clause, on its own line — the note is read as a heading plus a
+   reason, the same shape as "keep the session short" plus "cut the work". */
+.reveal .sz-note b {
+  display: block;
+  color: var(--signal);
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+/* The one word that carries the note. Blue, per the deck's `strong`
+   convention — ⚠ NOT orange: on this slide orange means YOUR prompt alone. */
+.reveal .sz-note em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--signal);
+}
+
 /* The fragment row: invisible fragments that drive the widget. None of reveal's
    own fragment styling should be visible — the widget IS the reveal. */
 .sz-frag-row {
@@ -4911,6 +4977,23 @@
    code appears. Type and detail lines now match the four before the seam
    exactly, and the whole difference sits in the RULE: light before, solid
    navy after. Do not restore a difference made of opacity. */
+/* Where the seven Stops came from. Mono and quiet, the same metadata voice the
+   benchmark Slide uses under its plot — it is provenance, not an eighth Stop. */
+.reveal .ch5-sum-src {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  max-width: none;
+  color: #00327d99;
+  margin: clamp(1.4rem, 4vh, 2.4rem) 0 0;
+}
+.reveal .ch5-sum-src b {
+  font-weight: 600;
+  color: #00327dcc;
+}
+.reveal .ch5-sum-src a {
+  color: var(--signal);
+}
 .reveal .ch5-sum-rail > li.after-seam {
   border-top-color: var(--navy);
 }

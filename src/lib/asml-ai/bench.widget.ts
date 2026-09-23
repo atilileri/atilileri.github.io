@@ -27,7 +27,7 @@
  * a Widget module may never import from another Widget's scope.
  */
 
-import { CURVES, type Curve, type Pt } from "./curves";
+import { CURVES, GROUPS, type Curve, type Group, type Pt } from "./curves";
 import type { Widget } from "./deck-widgets";
 import { q, slidesWith, svgEl } from "./dom";
 
@@ -45,8 +45,32 @@ const FAMS: { key: string; color: string }[] = [
   { key: "Moonshot", color: "#8a4fd0" },
   { key: "Other", color: "#c2185b" },
 ];
-const famColor = (f: string) =>
-  FAMS.find((x) => x.key === f)?.color ?? "#c2185b";
+
+/**
+ * ONE HUE FOR THE WHOLE `Others` GROUP, and it is a decision, not a shortcut.
+ *
+ * The five hues above are the validated set, and five is all there is. The
+ * `Others` group adds five more models from five more labs, so colouring it
+ * by vendor would mean either inventing hues the validation never covered or
+ * printing two curves in the same colour — and `gpt-6-astra` is OpenAI's, so
+ * a vendor hue would paint it the same blue as three curves the room CAN
+ * select, which is the one confusion this Slide must not create.
+ *
+ * So the Copilot group keeps its brand hues and the Others group is one
+ * muted slate: your five in colour, the rest of the world behind them. Each
+ * Others curve still carries its own name on the plot, which is what tells
+ * them apart — the hue was never doing that job.
+ */
+const OTHERS = "#5b6b7f";
+const GROUP_COLOR: Record<Group, string> = {
+  Copilot: "#00327d",
+  Others: OTHERS,
+};
+/** A curve's ink: its vendor's hue in Copilot, the group's slate in Others. */
+const curveColor = (cv: Curve) =>
+  cv.group === "Others"
+    ? OTHERS
+    : (FAMS.find((x) => x.key === cv.fam)?.color ?? "#c2185b");
 
 /**
  * The chart's four elements, found once in `init`.
@@ -59,16 +83,23 @@ const famColor = (f: string) =>
 type Refs = { svg: Element; tip: HTMLElement; legend: HTMLElement; plot: HTMLElement };
 let refs: Refs | undefined;
 
-/** Empty = show every family; otherwise only the picked ones. */
-const benchOn = new Set<string>();
-const shown = (fam: string) => benchOn.size === 0 || benchOn.has(fam);
+/**
+ * EXACTLY the groups on screen, never "empty means all".
+ *
+ * The Slide opens on `Copilot` alone: the room's own five, and nothing it
+ * cannot act on. `Others` is one click away. The set is never allowed to
+ * empty — a chart with no curves on a wall is a mistake, not a state — so
+ * the last lit chip refuses to go out.
+ */
+const benchOn = new Set<Group>(["Copilot"]);
+const shown = (cv: Curve) => benchOn.has(cv.group);
 
 function showTip(cv: Curve, pt: Pt, ev: MouseEvent) {
   if (!refs) return;
   // One point is one configuration, so every figure in the tip belongs to that
   // configuration — the effort level included, under its own provider's name.
   refs.tip.innerHTML =
-    `<b style="color:${famColor(cv.fam)}">${cv.name}</b>` +
+    `<b style="color:${curveColor(cv)}">${cv.name}</b>` +
     `<span class="e">${pt.eff.toLowerCase()}</span>` +
     `<span class="r">${pt.rate.toFixed(1)}%<i>±${pt.ci.toFixed(1)}</i></span>` +
     `<span class="k">avg cost<b>$${pt.cost.toFixed(2)}</b></span>` +
@@ -216,8 +247,13 @@ function drawCurves() {
   // stop-point, belongs to the next slide, so nothing here draws it.
   // Read off the data rather than typed in, so a re-transcription can never
   // leave the line under a point that now sits above it.
+  // Read off the COPILOT group alone, whatever the Legend is showing. The
+  // line answers "how good does this get for us", and the room's answer must
+  // not move when somebody clicks the Others chip — what moves is that a grey
+  // curve then rises through it, which is the Slide's closing sentence drawn.
   const CEIL = Math.max(
-    ...CURVES.flatMap((cv) => cv.pts.map((pt) => pt.rate)),
+    ...CURVES.filter((cv) => cv.group === "Copilot")
+      .flatMap((cv) => cv.pts.map((pt) => pt.rate)),
   );
   svg.append(
     svgEl("line", { x1: L, x2: R, y1: CY(CEIL), y2: CY(CEIL), class: "ceiling" }),
@@ -226,7 +262,10 @@ function drawCurves() {
   // and two annotations in one corner read as clutter. The expensive end of
   // the ceiling is also the more damning place to say it.
   const ceilLbl = svgEl("text", { x: R - 8, y: CY(CEIL) - 12, class: "ceiling-lbl end" });
-  ceilLbl.textContent = "nothing clears this";
+  // "you can select", not "anywhere": the line is the Copilot group's own
+  // ceiling, and one model on the full board sits above it. The Slide's
+  // closing sentence names that model, so the label must not claim more.
+  ceilLbl.textContent = "nothing you can select clears this";
   svg.append(ceilLbl);
   const xl = svgEl("text", { x: (L + R) / 2, y: B + 44, class: "axis-label mid" });
   xl.textContent = "avg cost per task (square-root axis)";
@@ -264,9 +303,15 @@ function drawCurves() {
   const labels = svgEl("g", { "pointer-events": "none" }) as SVGGElement;
 
   for (const cv of order) {
-    const on = shown(cv.fam);
-    const g = svgEl("g", { class: "curve", opacity: on ? 1 : 0.12 }) as SVGGElement;
-    const color = famColor(cv.fam);
+    // A group that is off is not drawn at all — not dimmed. Dimming was for
+    // a vendor filter, where the room compares what it kept against what it
+    // put aside. Here the off group is a different QUESTION, and ten ghost
+    // curves behind five real ones is noise. The redraw is total, so the
+    // callouts of the group that IS on get the whole plot to place into
+    // rather than working around slots five invisible labels reserved.
+    if (!shown(cv)) continue;
+    const g = svgEl("g", { class: "curve" }) as SVGGElement;
+    const color = curveColor(cv);
     if (cv.pts.length > 1) {
       g.append(
         svgEl("path", {
@@ -275,6 +320,13 @@ function drawCurves() {
             .join(" "),
           fill: "none", stroke: color, "stroke-width": 2.5,
           "stroke-linecap": "round", "stroke-linejoin": "round", opacity: 0.75,
+          // A painted stroke is a pointer target by default, so a curve
+          // drawn LATER steals the hover from any earlier curve's point
+          // its line happens to cross — and the two cheapest models here
+          // cross each other twice. The line is drawing, never a target:
+          // the dot and the hit circle over it are the only things the
+          // pointer may land on.
+          "pointer-events": "none",
         }),
       );
     }
@@ -287,7 +339,7 @@ function drawCurves() {
       );
     });
     // One generous hit target per point, over the top of the marks.
-    if (on) {
+    {
       cv.pts.forEach((pt) => {
         const hit = svgEl("circle", {
           cx: CX(pt.cost), cy: CY(pt.rate), r: 11, fill: "transparent",
@@ -304,7 +356,7 @@ function drawCurves() {
     const best = cv.pts[cv.at];
     const x = CX(best.cost), y = CY(best.rate);
     const { dx, dy, anchor } = placeLabel(cv, x, y, taken);
-    const lg = svgEl("g", { opacity: on ? 1 : 0.12 }) as SVGGElement;
+    const lg = svgEl("g", {}) as SVGGElement;
     lg.append(
       svgEl("line", {
         x1: x, y1: y,
@@ -366,23 +418,32 @@ export const benchWidget: Widget = {
     plot.addEventListener("mouseleave", hideTip);
 
     // Legend doubles as the family filter (click to isolate, click to release).
-    FAMS.forEach((f) => {
+    GROUPS.forEach((key) => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "chip";
-      b.style.setProperty("--c", f.color);
-      b.textContent = f.key;
+      b.style.setProperty("--c", GROUP_COLOR[key]);
+      b.textContent = key;
       b.addEventListener("click", () => {
-        if (benchOn.has(f.key)) benchOn.delete(f.key);
-        else benchOn.add(f.key);
+        // The last lit chip will not go out — see `benchOn`.
+        if (benchOn.has(key)) {
+          if (benchOn.size === 1) return;
+          benchOn.delete(key);
+        } else benchOn.add(key);
         refs?.legend
           .querySelectorAll<HTMLElement>(".chip")
-          .forEach((c) => c.classList.toggle("on", benchOn.has(c.textContent ?? "")));
-        refs?.legend.classList.toggle("filtered", benchOn.size > 0);
+          .forEach((c) =>
+            c.classList.toggle("on", benchOn.has((c.textContent ?? "") as Group)),
+          );
+        // "filtered" means SOMETHING IS PUT AWAY, which is now the resting
+        // state of the Slide rather than a state the room clicks into.
+        refs?.legend.classList.toggle("filtered", benchOn.size < GROUPS.length);
         drawBench();
       });
+      b.classList.toggle("on", benchOn.has(key));
       refs!.legend.append(b);
     });
+    refs!.legend.classList.toggle("filtered", benchOn.size < GROUPS.length);
 
     drawBench();
 

@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { CURVES } from "../../src/lib/asml-ai/curves";
+import { CURVES, GROUPS, inGroup } from "../../src/lib/asml-ai/curves";
 import { MODELS } from "../../src/lib/asml-ai/rates";
 
 /**
@@ -142,7 +142,7 @@ async function billColumn(slide: Locator, sel: string): Promise<number[]> {
 }
 
 test.describe("the benchmark chart, driven by the pointer", () => {
-  test("a legend chip filters the chart to one family, and a second click releases it", async ({
+  test("the chart opens on Copilot alone, and the Others chip adds the rest", async ({
     page,
   }) => {
     await openDeck(page);
@@ -150,49 +150,75 @@ test.describe("the benchmark chart, driven by the pointer", () => {
     const legend = slide.locator("[data-bench-legend]");
     const curves = slide.locator("[data-bench-svg] g.curve");
 
-    // Every family is shown at rest, so no curve is dimmed and the legend
-    // carries no filtered state.
-    await expect(legend).not.toHaveClass(/filtered/);
-    const total = await curves.count();
-    expect(total, "the chart draws one group per model").toBe(CURVES.length);
-
-    const anthropic = legend.getByRole("button", { name: "Anthropic" });
-    await anthropic.click();
-
-    await expect(legend, "the legend says a filter is on").toHaveClass(/filtered/);
-    await expect(anthropic, "the picked chip says it is picked").toHaveClass(/on/);
-    const lit = await slide
-      .locator('[data-bench-svg] g.curve[opacity="1"]')
-      .count();
-    const anthropicCurves = CURVES.filter((c) => c.fam === "Anthropic").length;
-    expect(lit, "only the picked family stays at full opacity").toBe(
-      anthropicCurves,
-    );
-    expect(lit, "the filter dims something").toBeLessThan(total);
-
-    // DOM proves the opacity was written. Only a picture proves the room sees
-    // a dimmed family — which is the whole job of the chip.
-    await expect(slide.locator(".bench-plot")).toHaveScreenshot(
-      "bench-filtered-anthropic.png",
-      {
-        animations: "disabled",
-        // The chart measures its own plot box and its viewBox rounds to 528 or
-        // 529 on a sub-pixel layout coin-flip, shifting every line and label by
-        // one pixel. `deck-walk.spec.ts` documents the measurement; this is the
-        // same jitter on a smaller crop.
-        maxDiffPixels: 4000,
-      },
-    );
-
-    await anthropic.click();
-    await expect(legend, "a second click releases the filter").not.toHaveClass(
-      /filtered/,
-    );
-    await expect(anthropic).not.toHaveClass(/on/);
+    // AT REST the Slide shows the Copilot group ALONE. A group that is off is
+    // not drawn at all, so the curve count is the assertion — there is no
+    // dimmed curve left behind to count separately.
+    await expect(legend, "something is put away at rest").toHaveClass(/filtered/);
+    const copilot = legend.getByRole("button", { name: "Copilot" });
+    const others = legend.getByRole("button", { name: "Others" });
+    await expect(copilot, "Copilot is lit at rest").toHaveClass(/on/);
+    await expect(others, "Others is out at rest").not.toHaveClass(/on/);
     expect(
-      await slide.locator('[data-bench-svg] g.curve[opacity="1"]').count(),
-      "releasing the filter brings every family back",
-    ).toBe(total);
+      await curves.count(),
+      "only the models the room can select are drawn",
+    ).toBe(inGroup("Copilot").length);
+
+    // NO PICTURE OF THE DEFAULT STATE HERE. `deck-walk.spec.ts` already
+    // photographs this Slide at rest, full-page, and the default IS the state
+    // at rest — a second golden of it is the same picture maintained twice.
+    //
+    // It was also the fragile one. The chart measures its own plot box and the
+    // box rounds to 475 or 476 CSS pixels tall on a sub-pixel coin-flip, so a
+    // crop of `.bench-plot` changes SIZE between runs. A size mismatch fails
+    // `toHaveScreenshot` outright, whatever `maxDiffPixels` says. The page
+    // screenshot below is 1600x900 by the viewport and cannot round.
+
+    await others.click();
+    await expect(others, "the picked chip says it is picked").toHaveClass(/on/);
+    await expect(
+      legend,
+      "with both groups on, nothing is put away",
+    ).not.toHaveClass(/filtered/);
+    expect(
+      await curves.count(),
+      "the second chip draws every model on the board",
+    ).toBe(CURVES.length);
+
+    // The one state the walk cannot reach: the walk is a clicker and this
+    // needs a pointer. DOM proves the curves were drawn; only a picture proves
+    // the room can still read ten labelled lines at once, and that the other
+    // labs come in as one muted group behind the room's own five.
+    await expect(page).toHaveScreenshot("bench-both-groups.png", {
+      animations: "disabled",
+      // Same one-pixel plot-box rounding, now inside a fixed-size frame where
+      // it shifts marks rather than resizing the image.
+      maxDiffPixels: 4000,
+    });
+
+    await others.click();
+    expect(
+      await curves.count(),
+      "a second click puts the other labs away again",
+    ).toBe(inGroup("Copilot").length);
+  });
+
+  test("the last lit chip refuses to go out", async ({ page }) => {
+    await openDeck(page);
+    const slide = await gotoWidget(page, "data-bench");
+    const legend = slide.locator("[data-bench-legend]");
+    const curves = slide.locator("[data-bench-svg] g.curve");
+    const copilot = legend.getByRole("button", { name: "Copilot" });
+
+    // A chart with no curves on a wall is a mistake, not a state. Copilot is
+    // the only lit chip at rest, so clicking it must change nothing.
+    expect(GROUPS.length, "the guard only matters with more than one group")
+      .toBeGreaterThan(1);
+    await copilot.click();
+    await expect(copilot, "the last chip stays lit").toHaveClass(/on/);
+    expect(
+      await curves.count(),
+      "the chart still has its curves",
+    ).toBe(inGroup("Copilot").length);
   });
 
   test("hovering a point raises the tip with that point's own figures", async ({
@@ -299,8 +325,8 @@ test.describe("the benchmark chart, driven by the pointer", () => {
     ).toBe(0);
     expect(
       await slide.locator("[data-bench-svg] g.curve").count(),
-      "the redraw puts every model back",
-    ).toBe(CURVES.length);
+      "the redraw puts every model of the shown group back",
+    ).toBe(inGroup("Copilot").length);
 
     // THE VIEWBOX DOES NOT MOVE, AND THAT IS CORRECT. `fitPlot` shapes the
     // coordinate box to the RATIO of the plot's measured box, and reveal.js

@@ -5,15 +5,24 @@
  * The bench chart reduced to one line and five prices. It reads off the
  * SAME `CURVES` array as the Slide before it, deliberately: there is no
  * second dataset to keep in sync, and if the chart's numbers ever move,
- * this Slide moves with them — labels, tooltip and turn-over included.
+ * this Slide moves with them — labels, tooltip and the knee included.
  * That array is `./curves.ts`, which this Widget's migration gave a module
  * of its own: the benchmark chart is still inline and a Widget module may
  * never import from another Widget's scope.
  *
  * The whole argument is MARGINAL, not cumulative — "this level cost you
  * €X more and bought you Y" — because cumulative spend is the claim the
- * previous Slide already made. The last level is the Slide: 61% more
- * money, 0.2 points less.
+ * previous Slide already made. The TOP of the curve is the Slide: from
+ * HIGH to MAX the price rises 95% and the score rises 0.8 points, which
+ * is smaller than the error bar on either point. The three top levels
+ * are one number the benchmark cannot tell apart, sold at three prices.
+ *
+ * It used to frame `claude-fable-5`, whose last level scored LOWER than
+ * the one before it. That model is not in the company's picker, and no
+ * model that is turns over at all — so the argument moved from "the last
+ * dot dips" to "the last dots are the same dot". That is the stronger
+ * version of the same lesson: a dip invites "then use xhigh", a tie
+ * invites "then stop paying for max".
  *
  * NOTHING HERE IS A BUILD AND NOTHING IS INTERACTIVE. The chart draws
  * once, complete, on entry, and the Slide holds still while the room
@@ -48,20 +57,41 @@ const SVG = "[data-stop-svg]";
  * `mountWidgets` — and every Widget with it — at module load.
  */
 const STOP_CURVE = (() => {
-  const c = CURVES.find((c) => c.name === "claude-fable-5");
-  if (!c) throw new Error("curves.ts has no claude-fable-5 curve");
+  const c = CURVES.find((c) => c.name === "claude-opus-5");
+  if (!c) throw new Error("curves.ts has no claude-opus-5 curve");
   return c;
+})();
+
+/**
+ * THE KNEE: the first level past which every further step buys less score
+ * than that step's own 95% confidence interval. Everything from the knee
+ * to the top is one number the benchmark cannot separate, so the Slide
+ * inks that stretch in the accent and parks the ring on the knee itself.
+ *
+ * Derived, never transcribed. A re-transcription that moves the knee moves
+ * the ink, the ring and the closing sentence with it — the Slide can never
+ * be left pointing at a level the data no longer supports.
+ */
+const KNEE = (() => {
+  const p = STOP_CURVE.pts;
+  for (let i = 1; i < p.length - 1; i++) {
+    let flat = true;
+    for (let j = i + 1; j < p.length; j++)
+      if (p[j].rate - p[j - 1].rate >= p[j].ci) flat = false;
+    if (flat) return i;
+  }
+  return p.length - 1;
 })();
 const STOP = {
   X0: 120, XN: 1194, Y0: 520, YN: 70,
   // The plot is framed on this curve alone, so the shape of ONE model's
   // diminishing return fills the Slide; the bench chart's shared scale
   // would squash it into the top-right corner. The y-range is tight on
-  // purpose — the whole Slide turns on a 0.2-point drop, and on the
-  // previous Slide's 0–80% axis that drop is under three pixels. The
+  // purpose — the whole Slide turns on a 0.8-point gain, and on the
+  // previous Slide's 0–80% axis that gain is under six pixels. The
   // axis is labelled and starts at a non-zero score, which is honest
   // here because the Slide compares levels of one curve, not models.
-  cMin: 0, cMax: 24, sMin: 58, sMax: 71,
+  cMin: 0, cMax: 13, sMin: 56, sMax: 80,
 };
 const SX = (c: number) =>
   STOP.X0 + ((c - STOP.cMin) / (STOP.cMax - STOP.cMin)) * (STOP.XN - STOP.X0);
@@ -101,12 +131,28 @@ function build(slide: HTMLElement): void {
   // The Slide is a shape, not a chart to read values off. The x ticks
   // carry ROUND EURO values and sit at their true dollar position, so
   // nothing on screen is a converted-and-rounded number.
-  for (const eur of [0, 5, 10, 15, 20]) {
+  // Both ladders are DERIVED from the frame, not typed. A re-transcription
+  // that moves the curve moves the frame, and a typed ladder would then draw
+  // marks the plot no longer reaches — or stop short of the curve's own top,
+  // which is how this Slide broke when it changed model.
+  const maxEur = STOP.cMax / USD_PER_EUR;
+  const eurStep = maxEur <= 15 ? 2 : 5;
+  const eurTicks: number[] = [];
+  for (let e = 0; e <= maxEur; e += eurStep) eurTicks.push(e);
+  const SCORE_STEP = 4;
+  const scoreTicks: number[] = [];
+  for (
+    let sc = Math.ceil(STOP.sMin / SCORE_STEP) * SCORE_STEP;
+    sc <= STOP.sMax;
+    sc += SCORE_STEP
+  ) scoreTicks.push(sc);
+
+  for (const eur of eurTicks) {
     const t = svgEl("text", { x: SX(eur * USD_PER_EUR), y: STOP.Y0 + 30, class: "tick mid" });
     t.textContent = "€" + eur;
     svg.append(t);
   }
-  for (const sc of [58, 60, 62, 64, 66, 68, 70]) {
+  for (const sc of scoreTicks) {
     svg.append(
       svgEl("line", { x1: STOP.X0, x2: STOP.XN, y1: SY(sc), y2: SY(sc), class: "grid" }),
     );
@@ -141,77 +187,96 @@ function build(slide: HTMLElement): void {
     `${STOP_CURVE.name} — one model, ${WORD[pts.length] ?? pts.length} levels of effort`;
   svg.append(xl, head);
 
-  // Two paths, not one: the climb, then the level that turns over. The
-  // dip is the Slide's whole argument, so it is inked in the accent
+  // Two paths, not one: the climb up to the knee, then the flat top. The
+  // flat is the Slide's whole argument, so it is inked in the accent
   // rather than left to the eye to find in a single-colour line.
   const dOf = (from: number, to: number) =>
     pts
       .slice(from, to + 1)
       .map((pt, i) => `${i ? "L" : "M"} ${SX(pt.cost)} ${SY(pt.rate)}`)
       .join(" ");
-  svg.append(svgEl("path", { d: dOf(0, last - 1), fill: "none", class: "stop-line",
+  svg.append(svgEl("path", { d: dOf(0, KNEE), fill: "none", class: "stop-line",
     "stroke-linecap": "round", "stroke-linejoin": "round" }));
-  svg.append(svgEl("path", { d: dOf(last - 1, last), fill: "none", class: "stop-line is-down",
+  svg.append(svgEl("path", { d: dOf(KNEE, last), fill: "none", class: "stop-line is-flat",
     "stroke-linecap": "round", "stroke-linejoin": "round" }));
 
-  // One label per point: what that level cost on top of the one before
-  // it. Level 0 has no "before", so it carries its absolute price and
-  // score instead — the baseline the rest is read against. The level's
-  // NAME is not on the wall (low/medium/high…): the room reads the
-  // shape and the prices, and the presenter says the names. Every label
-  // sits DOWN AND RIGHT of its point, the one quarter the curve never
-  // enters: it climbs left-to-right, so the space under the next
-  // segment is always empty. The last one turns back to the left,
-  // because there is no wall to its right.
-  pts.forEach((pt, i) => {
-    const down = i === last;
-    // The last label hangs off the RIGHT WALL rather than off its own
-    // point: the curve is flat by then, so a label under the point would
-    // sit on the one before it. Anchored right, it clears the block
-    // before it and still reads as the last point's own line.
-    const x = down ? STOP.XN : SX(pt.cost) + 18;
-    // Every number sits one short drop under its own dot — the name
-    // line used to push it further away, and the last label further
-    // still. The cheapest point sits low, close to the cost axis, so
-    // its label rides beside the dot instead of under it.
-    const y = SY(pt.rate) + (down ? 34 : i === 0 ? 26 : 34);
+  // ONE LABEL PER CLIMBING LEVEL, and ONE for the whole flat stretch.
+  //
+  // Every level used to carry its own marginal price, and on this curve that
+  // printed three near-identical lines on top of each other: past the knee
+  // the scores barely move, so the labels sit at the same height and their
+  // text runs together. The flat stretch is ONE claim, so it gets ONE label —
+  // which is also the honest shape of the argument. The room is not being
+  // asked to compare xhigh with max; it is being asked to stop before both.
+  //
+  // The level's NAME is not on the wall (low/medium/high…): the room reads
+  // the shape and the prices, and the presenter says the names.
+  pts.slice(0, KNEE + 1).forEach((pt, i) => {
+    // Up to the knee the curve climbs steeply, so the space DOWN AND RIGHT of
+    // each point is empty and the label rides there. The knee's own label is
+    // the exception twice over: it sits to the LEFT of its point, because the
+    // stretch label owns everything to the right, and ABOVE the line rather
+    // than under it, because the wedge under the knee is where the level
+    // before it already put its own label.
+    const atKnee = i === KNEE;
+    const x = atKnee ? SX(pt.cost) - 18 : SX(pt.cost) + 18;
+    // The cheapest point sits low, close to the cost axis, so its label rides
+    // beside the dot instead of a full drop under it.
+    const y = SY(pt.rate) + (atKnee ? -22 : i === 0 ? 26 : 34);
     const g = svgEl("text", {
-      x, y, class: "stop-label" + (down ? " is-down" : ""),
-      "text-anchor": down ? "end" : "start",
+      x, y, class: "stop-label", "text-anchor": atKnee ? "end" : "start",
     });
     const val = svgEl("tspan", { x, class: "delta" });
     val.textContent = i
       ? `+${fmtEur(stopStep(i).eur)} → ${stopPtsLabel(stopStep(i).pts)}`
       : `${fmtEur(eurOfUsd(pt.cost))} · ${pt.rate}%`;
     g.append(val);
-    // The turn is the Slide: the last level gets the sentence the other
-    // four don't need, so nobody has to do the arithmetic on the wall.
-    if (down) {
-      const why = svgEl("tspan", { x, dy: 26, class: "why" });
-      why.textContent = `${stopStep(i).pct}% more money, less score`;
-      g.append(why);
-    }
     svg.append(g);
   });
+
+  // The flat stretch, as one block ABOVE the line it describes. Above,
+  // because everything below the flat top belongs to the climb's own labels,
+  // and right-anchored to the wall, because the stretch ends there.
+  {
+    const k = pts[KNEE], top = pts[last];
+    const x = STOP.XN;
+    const y = SY(top.rate) - 58;
+    const g = svgEl("text", {
+      x, y, class: "stop-label is-flat", "text-anchor": "end",
+    });
+    const val = svgEl("tspan", { x, class: "delta" });
+    val.textContent =
+      `+${fmtEur(eurOfUsd(top.cost) - eurOfUsd(k.cost))} → ` +
+      stopPtsLabel(top.rate - k.rate);
+    const why = svgEl("tspan", { x, dy: 26, class: "why" });
+    why.textContent =
+      `${Math.round((top.cost / k.cost - 1) * 100)}% more money past the ring` +
+      ` — a gain inside the ±${top.ci} error bar`;
+    g.append(val, why);
+    svg.append(g);
+  }
 
   pts.forEach((pt, i) => {
     svg.append(svgEl("circle", {
       cx: SX(pt.cost), cy: SY(pt.rate), r: 7,
-      class: "stop-dot" + (i === last ? " is-down" : ""), "data-stop-dot": i,
+      class: "stop-dot" + (i >= KNEE ? " is-flat" : ""), "data-stop-dot": i,
     }));
   });
   // The ring marks WHERE THE SPENDING STOPS PAYING — the one point the
-  // Slide is about — so it is parked on the last level, not walked.
+  // Slide is about — so it is parked on the KNEE, not on the top. The top
+  // is where the money ends up; the knee is the level the room should buy,
+  // and a ring around the most expensive dot would say the opposite.
   svg.append(svgEl("circle", {
-    cx: SX(pts[last].cost), cy: SY(pts[last].rate), r: 14, class: "stop-marker",
+    cx: SX(pts[KNEE].cost), cy: SY(pts[KNEE].rate), r: 14, class: "stop-marker",
   }));
 
   svg.dataset.built = "1";
 }
 
-// Sanity net: this Slide's entire argument is that the LAST level costs
-// more and scores less. If the chart's data is ever re-transcribed and
-// that stops being true, the text is wrong and the Slide must be redone.
+// Sanity net: this Slide's entire argument is that the top of the curve
+// FLATTENS — that past the knee, more money buys a difference smaller
+// than the benchmark's own error bar. If the chart's data is ever
+// re-transcribed and that stops being true, the Slide must be redone.
 //
 // At module scope, not in `init`, because that is where it ran inline: the
 // Deck's script checked it as it loaded, long before the room reached the
@@ -224,14 +289,16 @@ function build(slide: HTMLElement): void {
 // not be true.
 if (import.meta.env.DEV) {
   const p = STOP_CURVE.pts;
-  const last = p[p.length - 1], prev = p[p.length - 2];
-  if (!(last.cost > prev.cost && last.rate < prev.rate))
-    console.warn("#33's stop-point slide: the curve no longer turns over");
+  const last = p[p.length - 1], knee = p[KNEE];
+  if (!(KNEE < p.length - 1 && last.cost > knee.cost))
+    console.warn("#33's stop-point slide: the curve no longer flattens");
+  if (last.rate - knee.rate >= last.ci)
+    console.warn("#33's stop-point slide: the flat top is no longer inside the error bar");
 }
 
 /**
- * The stop-point Widget: one model's spend curve, and the level where more
- * money bought less score.
+ * The stop-point Widget: one model's spend curve, and the level past which
+ * more money buys less than the error bar.
  */
 export const stopPointWidget: Widget = {
   attr: ATTR,

@@ -101,6 +101,7 @@ import TurnCard from "../../../components/deck/TurnCard.astro";
  * (#56 dec. 7); the answer stays in the presenter note either way.
  */
 import { MODELS, fmtInt } from "../../../lib/asml-ai/rates";
+import { BOARD_BEST } from "../../../lib/asml-ai/curves";
 import { hash32, tokenize } from "../../../lib/asml-ai/tokenize";
 
 /**
@@ -134,6 +135,47 @@ const embedWord = (word: string, near: string[]) => ({
 });
 /** The word is `budget`, because it is in the prompt the room is reading. */
 const EMBED_A = embedWord("budget", ["cost", "spend", "invoice"]);
+
+/**
+ * The neighbourhood, drawn (Atil 2026-09-23).
+ *
+ * The last rung of the chain asks the room to "find the positions nearest to
+ * it", and three chips in a row show no nearness at all. This is that rung as
+ * a picture: one cluster, one word far outside it, and a dashed ring that is
+ * literally the word "nearest".
+ *
+ * EVERY COORDINATE BELOW IS PLACED BY HAND, and that is the point. The
+ * rotating hash cloud this slide replaced derived its placement from `hash32`,
+ * so its distances meant nothing while looking like they meant something —
+ * and deriving x and y from a hash here would rebuild exactly that, now with
+ * axes to make the lie legible. A real embedding cannot help either: 1,536
+ * dimensions crushed into two is a projection you would still have to caption
+ * as approximate. So the picture is honest in the only way it can be — a
+ * diagram of a true relationship, captioned as a sketch, on the slide.
+ *
+ * The axes carry NO labels and NO ticks, deliberately. No dimension of a real
+ * embedding has a human-readable meaning, so naming them would be the same
+ * dishonesty one level down. The distance is the whole claim.
+ *
+ * `function` is the far word because it is already in the prompt on the left
+ * panel — the room recognises it, so the placement reads as the model's work
+ * rather than the designer's.
+ */
+const EMBED_PLOT = {
+  box: { w: 268, h: 148 },
+  axis: { x: 20, y: 130, top: 12, right: 260 },
+  /** Centred on `budget`, wide enough to hold its three neighbours and
+      nothing else. Drawn dashed: it is a reading aid, not a boundary the
+      model computes. */
+  ring: 42,
+  words: [
+    { w: "budget", x: 132, y: 60, self: true, dx: 9, anchor: "start" },
+    { w: "spend", x: 108, y: 34, dx: -9, anchor: "end" },
+    { w: "cost", x: 160, y: 42, dx: 9, anchor: "start" },
+    { w: "invoice", x: 152, y: 78, dx: 9, anchor: "start" },
+    { w: "function", x: 48, y: 114, dx: 9, anchor: "start" },
+  ],
+};
 
 /**
  * Slide 7 — the context primitives. Eight blocks in three groups, text taken
@@ -252,10 +294,14 @@ const baselineBlocks = BASELINE.length;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Getting the Most from AI · Atıl İlerialkan</title>
+    <title>How to better use COPILOT · Atıl İlerialkan</title>
+    {/* The old description belonged to the SHOWCASE deck next door and was
+        copied here — it advertised a slide-kind catalogue, which this deck is
+        not. This one says what the room actually gets: the three chapters that
+        do the work, and the promise underneath them. */}
     <meta
       name="description"
-      content="Reference capability deck — every slide kind this web-presentation system can build, exercised once."
+      content="Token literacy, model choice and a repeatable way of working — how to get more out of GitHub Copilot, and pay less for it."
     />
   </head>
   <body>
@@ -692,17 +738,46 @@ const baselineBlocks = BASELINE.length;
                       <i>&hellip;</i>
                       <b>{EMBED_A.vec.tail}</b> ]
                     </span>
-                    <span class="note">
-                      {fmtInt(EMBED_DIMS)} numbers &mdash; one position in space
-                    </span>
                   </div>
                   <div class="tk-look-arrow">
                     <span>find the positions nearest to it</span>
                   </div>
                   <div class="tk-look-row">
                     <span class="k">its neighbours</span>
-                    <span class="v tk-look-near">
-                      {EMBED_A.near.map((w) => <b>{w}</b>)}
+                    <span class="v tk-look-map">
+                      <svg
+                        viewBox={`0 0 ${EMBED_PLOT.box.w} ${EMBED_PLOT.box.h}`}
+                        role="img"
+                        aria-label="A plot with two unlabelled axes. The words budget, cost, spend and invoice sit close together inside a dashed ring; the word function sits far away from them, outside it."
+                      >
+                        <line
+                          x1={EMBED_PLOT.axis.x} y1={EMBED_PLOT.axis.y}
+                          x2={EMBED_PLOT.axis.right} y2={EMBED_PLOT.axis.y}
+                          class="tk-map-axis"
+                        />
+                        <line
+                          x1={EMBED_PLOT.axis.x} y1={EMBED_PLOT.axis.y}
+                          x2={EMBED_PLOT.axis.x} y2={EMBED_PLOT.axis.top}
+                          class="tk-map-axis"
+                        />
+                        <circle
+                          cx={EMBED_PLOT.words[0].x} cy={EMBED_PLOT.words[0].y}
+                          r={EMBED_PLOT.ring} class="tk-map-ring"
+                        />
+                        {EMBED_PLOT.words.map((p) => (
+                          <>
+                            <circle
+                              cx={p.x} cy={p.y} r={p.self ? 4.5 : 3.2}
+                              class={"tk-map-dot" + (p.self ? " is-self" : "")}
+                            />
+                            <text
+                              x={p.x + p.dx} y={p.y + 4}
+                              text-anchor={p.anchor}
+                              class={"tk-map-w" + (p.self ? " is-self" : "")}
+                            >{p.w}</text>
+                          </>
+                        ))}
+                      </svg>
                     </span>
                   </div>
                 </div>
@@ -764,7 +839,7 @@ const baselineBlocks = BASELINE.length;
             <tfoot>
               <tr>
                 <td colspan="10">
-                  AI credits per 1M tokens &middot; rates as of July 2026
+                  AI credits per 1M tokens &middot; rates as of September 2026
                 </td>
               </tr>
             </tfoot>
@@ -778,25 +853,26 @@ const baselineBlocks = BASELINE.length;
 
         <!-- 3.4 — .bench -->
         <section class="bench" data-section="03 — Tokenomics" data-bench>
-          <span class="eyebrow">capability vs. cost · hover a model, click a family</span>
+          <span class="eyebrow">capability vs. cost · hover a model, click a group</span>
           <h2 class="h-set">
             <span class="h-line"><span>DeepSWE v1.1</span></span>
           </h2>
           <p class="bench-what">
             Same 113 tickets, same tools, same step budget for every model.
-            Hidden tests decide pass or fail per ticket.
+            Hidden tests decide pass or fail per ticket. &mdash; The models you
+            can select are plotted; five other labs sit behind the second chip.
           </p>
           <div class="bench-bar">
             <div class="bench-legend" data-bench-legend></div>
           </div>
           <div class="bench-plot">
             <svg data-bench-svg viewBox="0 0 1400 560" role="img"
-              aria-label="DeepSWE v1.1 results: pass rate against average cost per task, one curve per model across reasoning-effort levels."
+              aria-label="DeepSWE v1.1 results: pass rate against average cost per task, one curve per model across reasoning-effort levels. The five models available here are shown by default — Opus 5 reaches the highest score, Terra comes close for less, Luna is by far the cheapest, Sonnet 5 costs the most for its score, and GPT-5.4 has a single scored level. A second legend chip adds five models from other labs, including gpt-6-astra, which scores above everything available here."
             ></svg>
             <div class="bench-tip" data-bench-tip hidden></div>
           </div>
           <p class="bench-note">
-            One line per model, one point per reasoning-effort level · source:
+            One line per model, one point per reasoning-effort level · scores from
             <a
               class="mono"
               href="https://deepswe.datacurve.ai/blog/deepswe-v1-1"
@@ -804,8 +880,9 @@ const baselineBlocks = BASELINE.length;
               rel="noreferrer noopener"
               >deepswe.datacurve.ai/blog/deepswe-v1-1</a
             ><br />
-            The best score anywhere on the board is 73.6% &mdash; no model, at any
-            effort, at any price, clears it.
+            The best score on the full board is {BOARD_BEST.rate}% &mdash;
+            <span class="mono">{BOARD_BEST.name}</span>, which you cannot
+            select. The best you can select is 73.6%. Nobody is near solved.
           </p>
         </section>
 
@@ -815,10 +892,12 @@ const baselineBlocks = BASELINE.length;
           <h2 class="h-set">
             <span class="h-line"><span>Diminishing Returns</span></span>
           </h2>
-          <p class="tk-body">Past a point, more effort buys nothing.</p>
+          <p class="tk-body">
+            Past a point, more effort buys less than the error bar.
+          </p>
           <div class="stop-plot">
             <svg data-stop-svg viewBox="0 0 1240 600" role="img"
-              aria-label="One model's spend curve from the previous chart. Each level of reasoning effort costs more per task; the score climbs steeply at first, then flattens, and the last and most expensive level scores slightly lower than the one before it."
+              aria-label="Opus 5's spend curve from the previous chart. Each level of reasoning effort costs more per task; the score climbs steeply at first, then flattens. A ring marks the level where it flattens, and from there to the most expensive level the price rises 95 percent while the score rises 0.8 points, which is less than the benchmark's own error bar."
             ></svg>
           </div>
         </section>
@@ -1029,6 +1108,12 @@ const baselineBlocks = BASELINE.length;
             </div>
 
           </div>
+
+          <p class="sz-note">
+            <b>Let the 200k cap catch you.</b> Copilot Chat holds 200k of the
+            model&rsquo;s 1M window when you pick a model &mdash; a
+            <em>fallback</em> for a session that ran long.
+          </p>
 
           <div class="sz-frag-row" data-sz-frag-row aria-hidden="true">
             <span class="fragment" />
@@ -1751,7 +1836,11 @@ const baselineBlocks = BASELINE.length;
       // — but the write stays a querySelectorAll, so a second copy would fill
       // itself.
       (() => {
-        const model = RATES[1]; // GPT-5.4 — the middle of the lineup
+        // GPT-5.4 — the middle of the lineup. Looked up by id, not by
+        // index: the lineup is re-ordered whenever the company's model
+        // picker changes, and a moved row must never silently re-price
+        // the ladder.
+        const model = RATES.find((m) => m.id === "gpt") ?? RATES[0];
         const tokens = 1240;
         const aic = (tokens * model.input) / 1e6;
         const eur = eurOfAic(aic);
