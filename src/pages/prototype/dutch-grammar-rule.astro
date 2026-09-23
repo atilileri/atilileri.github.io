@@ -1,0 +1,298 @@
+---
+// PROTOTYPE — throwaway. Ticket #153: does a diagram teach a grammar rule better than a Turkish paragraph?
+// Plan: five structurally different variants (A–E) of one mock Turkish Lesson, switchable via ?variant=.
+// Every variant draws the SAME four rules, so only the form differs. Teaching text lives in the data file.
+// Mermaid is pre-rendered to static SVG in public/prototype/dutch-grammar-rule/ — no Mermaid script on the page.
+// Not a real Lesson: the Lesson form is not built yet. Delete with the SVG folder once the verdict is captured.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { rules } from "./_dutch-grammar-rule.data.ts";
+
+const base = "/prototype/dutch-grammar-rule";
+const code = (s: string) => s.replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+const variants = [
+  {
+    key: "A", name: "Türkçe düzyazı, çizimsiz",
+    draws:
+      "The current deliverable, written to win: five short Turkish paragraphs per rule, then worked examples and the Trap. No image at all.",
+    fails:
+      "Nothing is drawn, so the learner holds the slot positions in their head. The V2 rule especially asks you to compare three sentences that sit one under another in running text.",
+    cost: "Zero. Written once by Docent, inside the Lesson, no render step, no asset, no commit outside the Lesson file.",
+  },
+  {
+    key: "B", name: "Satır içi HTML, resim yok",
+    draws:
+      "Coloured spans in the real sentence, a CSS slot grid for V2, a dashed border as the arrow that carries the prefix to the end, and a two-column de/het table.",
+    fails:
+      "Hand-built per rule — there is no generator. The prefix arrow is a CSS trick, not a drawing, so a long middle section pushes it out of shape.",
+    cost: "Pure HTML and CSS. One text size at any width, selectable and translatable. This is what beat Mermaid on #148.",
+  },
+  {
+    key: "C", name: "Mermaid flowchart",
+    draws:
+      "A decision tree for de/het, an inversie decision for V2, the split of opbellen with the yan-cümle branch, and the number mapping.",
+    fails:
+      "The reversal: three attempts could not make flowchart draw the crossing that IS the number rule, so it ended up drawing a mapping, which prose states in one sentence.",
+    cost: "Mermaid flowchart, generated. 3 rounds: an LR layout was unreadable at 390 px, italic tags leaked as literal text, and a subgraph pair stacked instead of crossing.",
+  },
+  {
+    key: "D", name: "Mermaid block",
+    draws:
+      "The sentence as a row of labelled slots. Four sentences share one slot header, so the fixed second column is visible without reading a word.",
+    fails:
+      "Column width follows the longest cell, so `De man met de hoed` shrinks every other row with it. The movement arrow crosses the row label and cannot be routed.",
+    cost: "Mermaid block, generated. 2 rounds: the separable-verb movement was colour-only until an edge was added.",
+  },
+  {
+    key: "E", name: "Mermaid railroad-ebnf",
+    draws:
+      "The permitted orders. Four different first slots funnel into one fixed `lees`; any unit plus `en` plus any ten makes a number. The choice column is the drawing.",
+    fails:
+      "Classification becomes a plain list of alternatives that a bulleted list draws equally well. It cannot label a slot, show a Turkish gloss, or mark anything wrong.",
+    cost: "Mermaid railroad-ebnf-beta, hand-written grammar lines. 2 rounds: abstract slot names taught nothing, so real words replaced them.",
+  },
+];
+
+const byId = Object.fromEntries(rules.map((r) => [r.id, r]));
+const v2 = byId.v2, dehet = byId.dehet, sch = byId.scheidbaar, get = byId.getallen;
+
+// B's slot table for V2 — the same four sentences the D diagram draws, as plain HTML
+const v2rows = [
+  { slots: ["Ik", "lees", "elke dag", "de krant"], inv: false },
+  { slots: ["Elke dag", "lees", "ik", "de krant"], inv: true },
+  { slots: ["De krant", "lees", "ik", "elke dag"], inv: true },
+  { slots: ["De man met de hoed", "loopt", "naar huis", ""], inv: false },
+];
+const schRows = [
+  ["Ik", "bel", "mijn moeder", "", "op"],
+  ["Hij", "komt", "om acht uur", "", "aan"],
+  ["Ik", "neem", "mijn broer", "morgen", "mee"],
+];
+const deList = ["çoğullar — `de huizen`", "tekillerin ~%75'i — `de man`"];
+const hetList = ["`-je` küçültme — `het huisje`", "`-ment` · `-isme` · `-sel` — `het argument`", "ad olmuş mastar — `het zwemmen`", "dil · renk · `ge-` — `het Nederlands`"];
+---
+
+<BaseLayout title="PROTOTYPE — grammar rule" description="Throwaway prototype for ticket #153" currentPath="/prototype/">
+  <div class="bg-[#fff3cd] text-[#664d03] text-xs font-bold uppercase tracking-widest text-center py-2 px-4">
+    Prototype · ticket #153 · not a real Lesson
+  </div>
+
+  <article class="max-w-3xl mx-auto w-full min-w-0 px-5 py-14 sm:px-8 pb-32">
+    <header class="mb-10">
+      <span class="bg-[var(--color-primary-container)]/10 text-[var(--color-primary-container)] text-xs font-bold px-3 py-1 uppercase tracking-widest">Ders · Nederlands</span>
+      <h1 class="font-[Space_Grotesk] text-[clamp(2rem,6vw,3rem)] font-bold tracking-tighter leading-[0.95] mt-6 mb-4">Dört kural, dört ayrı şekil</h1>
+      <p class="text-lg text-[var(--color-on-surface-variant)] font-light">
+        Bir dilbilgisi kuralı her zaman aynı şekilde durmaz. Biri karar ağacıdır, biri hareket, biri yuva dizisi, biri de ters çevirme.
+      </p>
+    </header>
+
+    <!-- ───────── A — Turkish prose, no diagram ───────── -->
+    <section data-variant="A" hidden>
+      {rules.map((r) => (
+        <div class="mb-14">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{r.shape}</p>
+          <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{r.title}</h2>
+          <div class="space-y-3 text-[16px] leading-relaxed">
+            {r.prose.map((p) => <p class="m-0" set:html={code(p)} />)}
+          </div>
+          <div class="mt-5 space-y-1 text-[15px]">
+            {r.examples.map((e) => (
+              <p class="m-0"><code class="font-bold">{e.nl}</code> — {e.tr}{e.note && <span class="text-[var(--color-outline)]" set:html={" · " + code(e.note)} />}</p>
+            ))}
+          </div>
+          {r.trap && <p class="mt-5 mb-0 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(r.trap)} />}
+        </div>
+      ))}
+    </section>
+
+    <!-- ───────── B — inline HTML, no image ───────── -->
+    <section data-variant="B" hidden>
+      <div class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{dehet.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{dehet.title}</h2>
+        <p class="mb-4" set:html={code(dehet.kernel)} />
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-lg border-2 border-[#1d4ed8] bg-[#dbeafe] p-3">
+            <p class="font-bold text-[#0b2a66] m-0 mb-2">de</p>
+            <ul class="m-0 pl-4 text-[15px] space-y-1 text-[#0b2a66]">{deList.map((x) => <li set:html={code(x)} />)}</ul>
+          </div>
+          <div class="rounded-lg border-2 border-[#c2410c] bg-[#ffedd5] p-3">
+            <p class="font-bold text-[#6b2308] m-0 mb-2">het</p>
+            <ul class="m-0 pl-4 text-[15px] space-y-1 text-[#6b2308]">{hetList.map((x) => <li set:html={code(x)} />)}</ul>
+          </div>
+        </div>
+        <p class="mt-4 mb-0 text-[15px]" set:html={code("Kalanı ezber — ve **adı hiçbir zaman yalın öğrenme**: `huis` değil, `het huis`.")} />
+        {dehet.trap && <p class="mt-4 mb-0 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(dehet.trap)} />}
+      </div>
+
+      <div class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{sch.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{sch.title}</h2>
+        <p class="mb-4" set:html={code(sch.kernel)} />
+        <p class="text-center text-2xl font-[Space_Grotesk] font-bold mb-1">
+          <span class="border-b-4 border-[#6d28d9] text-[#3b1d78]">op</span><span class="border-b-4 border-[#15803d] text-[#0f3d22]">bellen</span>
+        </p>
+        <p class="text-center text-sm text-[var(--color-outline)] mb-5">sözlükte bitişik</p>
+        <div class="space-y-2">
+          {schRows.map((s) => (
+            <div class="relative grid grid-cols-[auto_auto_1fr_auto] gap-2 items-center text-[15px]">
+              <span class="px-2 py-1">{s[0]}</span>
+              <span class="px-2 py-1 rounded border-2 border-[#15803d] bg-[#dcfce7] text-[#0f3d22] font-bold">{s[1]}</span>
+              <span class="px-2 py-1 border-t-2 border-dashed border-[#6d28d9] text-center text-[var(--color-outline)]">{[s[2], s[3]].filter(Boolean).join(" ")}</span>
+              <span class="px-2 py-1 rounded border-2 border-[#6d28d9] bg-[#f5f3ff] text-[#3b1d78] font-bold">{s[4]}</span>
+            </div>
+          ))}
+        </div>
+        <p class="mt-4 mb-0 text-[15px]" set:html={code("Yan cümlede ve mastarda geri yapışır: `... dat ik mijn moeder opbel` · `Ik wil mijn moeder opbellen`.")} />
+        {sch.trap && <p class="mt-4 mb-0 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(sch.trap)} />}
+      </div>
+
+      <div class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{v2.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{v2.title}</h2>
+        <p class="mb-4" set:html={code(v2.kernel)} />
+        <div class="overflow-x-auto">
+          <div class="grid gap-1 text-[15px] min-w-max" style="grid-template-columns: repeat(4, minmax(5rem, auto))">
+            <span class="text-xs text-[var(--color-outline)] uppercase tracking-widest px-2">1. yuva</span>
+            <span class="text-xs text-[#0f3d22] uppercase tracking-widest px-2 font-bold">2. yuva</span>
+            <span class="text-xs text-[var(--color-outline)] uppercase tracking-widest px-2">3.</span>
+            <span class="text-xs text-[var(--color-outline)] uppercase tracking-widest px-2">kalanı</span>
+            {v2rows.map((r) => r.slots.map((s, i) => (
+              <span class={`px-2 py-1 rounded ${i === 1 ? "border-2 border-[#15803d] bg-[#dcfce7] text-[#0f3d22] font-bold" : r.inv && i === 2 ? "border-2 border-[#6d28d9] bg-[#f5f3ff] text-[#3b1d78]" : r.inv && i === 0 ? "border-2 border-[#6d28d9] bg-[#f5f3ff] text-[#3b1d78]" : "bg-[#f3f4f6]"}`}>{s}</span>
+            )))}
+          </div>
+        </div>
+        <p class="mt-4 mb-0 text-[15px]"><span class="bg-[#f5f3ff] px-1 text-[#3b1d78] font-semibold">Mor</span> olan satırlarda 1. yuvayı özne doldurmuyor, bu yüzden özne eylemin arkasına geçti. İkinci sütun hiç kıpırdamadı.</p>
+        <p class="mt-2 mb-0 text-[15px] text-[#c2410c]"><code>Elke dag ik lees de krant</code> — bozuk.</p>
+        {v2.trap && <p class="mt-4 mb-0 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(v2.trap)} />}
+      </div>
+
+      <div class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{get.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{get.title}</h2>
+        <p class="mb-4" set:html={code(get.kernel)} />
+        <div class="grid grid-cols-3 gap-2 text-center max-w-md">
+          <span class="text-xs text-[var(--color-outline)] uppercase tracking-widest">4</span>
+          <span class="text-xs text-[var(--color-outline)] uppercase tracking-widest">ve</span>
+          <span class="text-xs text-[var(--color-outline)] uppercase tracking-widest">80</span>
+          <span class="px-2 py-2 rounded border-2 border-[#6d28d9] bg-[#f5f3ff] text-[#3b1d78] font-bold">vier</span>
+          <span class="px-2 py-2 rounded bg-[#f3f4f6]">en</span>
+          <span class="px-2 py-2 rounded border-2 border-[#6b7280] bg-[#f3f4f6]">tachtig</span>
+          <span class="col-span-3 px-2 py-2 rounded border-2 border-[#15803d] bg-[#dcfce7] text-[#0f3d22] font-bold">vierentachtig = 84</span>
+        </div>
+        <p class="mt-4 mb-0 text-[15px]">Türkçe <strong>seksen dört</strong> der — büyük basamak önce. Hollandaca tersini yapar.</p>
+        {get.trap && <p class="mt-4 mb-0 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(get.trap)} />}
+      </div>
+    </section>
+
+    <!-- ───────── C — Mermaid flowchart ───────── -->
+    <section data-variant="C" hidden>
+      {rules.map((r) => (
+        <figure class="mb-14">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{r.shape}</p>
+          <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{r.title}</h2>
+          <p class="mb-4" set:html={code(r.kernel)} />
+          <img src={`${base}/C-${r.id}.svg`} alt={`${r.title}: kural, akış şeması olarak`} class="mx-auto max-h-[40rem] w-auto max-w-full" loading="lazy" />
+          {r.trap && <figcaption class="mt-5 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(r.trap)} />}
+        </figure>
+      ))}
+    </section>
+
+    <!-- ───────── D — Mermaid block ───────── -->
+    <section data-variant="D" hidden>
+      {rules.map((r) => (
+        <figure class="mb-14">
+          <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{r.shape}</p>
+          <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{r.title}</h2>
+          <p class="mb-4" set:html={code(r.kernel)} />
+          <img src={`${base}/D-${r.id}.svg`} alt={`${r.title}: kural, yuva dizisi olarak`} class="max-w-full h-auto mx-auto" loading="lazy" />
+          {r.trap && <figcaption class="mt-5 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(r.trap)} />}
+        </figure>
+      ))}
+    </section>
+
+    <!-- ───────── E — Mermaid railroad-ebnf ───────── -->
+    <section data-variant="E" hidden>
+      <figure class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{v2.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{v2.title}</h2>
+        <p class="mb-4" set:html={code(v2.kernel)} />
+        <img src={`${base}/E-v2.svg`} alt="1. yuvaya ne gelirse gelsin, lees ikinci sırada" class="max-w-full h-auto mx-auto" />
+        <figcaption class="mt-3 text-[15px]">Soldaki sütun serbest. Ondan sonrası tek yol: <code>lees</code>.</figcaption>
+        <img src={`${base}/E-zin.svg`} alt="Yan cümlede eylem sona gider" class="max-w-full h-auto mx-auto mt-6" />
+        <figcaption class="mt-3 text-[15px]">Yan cümlede aynı eylem <strong>sona</strong> gider.</figcaption>
+        <figcaption class="mt-5 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(v2.trap!)} />
+      </figure>
+
+      <figure class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{sch.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{sch.title}</h2>
+        <p class="mb-4" set:html={code(sch.kernel)} />
+        <img src={`${base}/E-scheidbaar.svg`} alt="op her zaman sonda, arada ne olursa olsun" class="max-w-full h-auto mx-auto" />
+        <figcaption class="mt-3 text-[15px]">Ortadaki sütun ne kadar büyürse büyüsün, <code>op</code> son duraktır.</figcaption>
+        <figcaption class="mt-5 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(sch.trap!)} />
+      </figure>
+
+      <figure class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{dehet.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{dehet.title}</h2>
+        <p class="mb-4" set:html={code(dehet.kernel)} />
+        <div class="grid sm:grid-cols-2 gap-4 items-start">
+          <img src={`${base}/E-dehet.svg`} alt="de: çoğullar ve tekillerin çoğu" class="max-w-full h-auto" />
+          <img src={`${base}/E-dehet-regel.svg`} alt="het: -je, -ment, -isme, -sel, mastar, dil, renk" class="max-w-full h-auto" />
+        </div>
+        <figcaption class="mt-3 text-[15px] text-[var(--color-outline)]">Burada rayın çatalı düz bir listeden fazlasını söylemiyor.</figcaption>
+        <figcaption class="mt-5 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(dehet.trap!)} />
+      </figure>
+
+      <figure class="mb-14">
+        <p class="text-xs uppercase tracking-widest text-[var(--color-outline)] mb-1">{get.shape}</p>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-3">{get.title}</h2>
+        <p class="mb-4" set:html={code(get.kernel)} />
+        <img src={`${base}/E-getallen.svg`} alt="herhangi bir birler basamağı + en + herhangi bir onlar basamağı" class="max-w-full h-auto mx-auto" />
+        <figcaption class="mt-3 text-[15px]">Soldaki her sütun sağdaki her sütunla birleşir — kural bu, tek tek ezber değil.</figcaption>
+        <figcaption class="mt-5 border-l-4 border-[#c2410c] pl-3 text-[15px]" set:html={"<strong>Tuzak:</strong> " + code(get.trap!)} />
+      </figure>
+
+      <details class="text-sm text-[var(--color-outline)]">
+        <summary class="cursor-pointer">Karşılaştırma: aynı V2 kuralı, gerçek sözcükler yerine soyut yuva adlarıyla</summary>
+        <img src={`${base}/E-v2-abstract.svg`} alt="hoofdzin = voorveld, werkwoord, onderwerp?, rest" class="w-full mt-3" />
+      </details>
+    </section>
+
+    {variants.map((v) => (
+      <aside data-variant={v.key} hidden class="mt-12 rounded-lg bg-[#1b1b1b] text-[#f1f1f1] p-5 text-sm font-mono leading-relaxed">
+        <div class="text-[#ffd666] font-bold mb-2">{v.key} — {v.name}</div>
+        <div><span class="text-[#9aa4b8]">draws:</span> {v.draws}</div>
+        <div class="mt-1"><span class="text-[#9aa4b8]">fails at:</span> {v.fails}</div>
+        <div class="mt-1"><span class="text-[#9aa4b8]">cost:</span> {v.cost}</div>
+      </aside>
+    ))}
+  </article>
+
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-[#111] text-white shadow-2xl px-2 py-1.5 text-sm font-mono max-w-[95vw]">
+    <button id="proto-prev" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Previous variant">←</button>
+    <span id="proto-label" class="whitespace-nowrap overflow-hidden text-ellipsis text-center"></span>
+    <button id="proto-next" class="px-3 py-1 rounded-full hover:bg-white/15" aria-label="Next variant">→</button>
+  </div>
+
+  <script is:inline define:vars={{ keys: variants.map((v) => v.key), names: Object.fromEntries(variants.map((v) => [v.key, v.name])) }}>
+    const params = new URLSearchParams(location.search);
+    let i = Math.max(0, keys.indexOf((params.get("variant") ?? keys[0]).toUpperCase()));
+    function show() {
+      const k = keys[i];
+      document.querySelectorAll("[data-variant]").forEach((el) => (el.hidden = el.dataset.variant !== k));
+      document.getElementById("proto-label").textContent = `${k} — ${names[k]} (${i + 1}/${keys.length})`;
+      const u = new URL(location.href); u.searchParams.set("variant", k); history.replaceState(null, "", u);
+    }
+    const step = (d) => { i = (i + d + keys.length) % keys.length; show(); window.scrollTo({ top: 0 }); };
+    document.getElementById("proto-prev").onclick = () => step(-1);
+    document.getElementById("proto-next").onclick = () => step(1);
+    addEventListener("keydown", (e) => {
+      if (e.target.closest("input, textarea, [contenteditable]")) return;
+      if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "ArrowRight") step(1);
+    });
+    show();
+  </script>
+</BaseLayout>
