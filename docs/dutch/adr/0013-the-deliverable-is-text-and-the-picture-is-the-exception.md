@@ -68,8 +68,10 @@ derived from that text.**
 - **Generated speech stays banned**, per `adr/0008`. A single word may **link** a
   human recording on Wikimedia Commons, by link and never by copy
   ([`PRONUNCIATION.md`](../PRONUNCIATION.md)).
-- **No image-diagram anywhere.** A Split is HTML and CSS written in place
-  ([`SPLIT.md`](../SPLIT.md)), which makes it Lesson content, not derived media.
+- **No image-diagram anywhere** — not for a word, and not for a grammar rule. A
+  Split is HTML and CSS written in place ([`SPLIT.md`](../SPLIT.md)), which makes it
+  Lesson content, not derived media. A rule is written the same way: Turkish prose,
+  with coloured spans and a CSS slot grid where the shape helps.
 - **The grouping word "enrichment" is retired.** With one survivor it names nothing
   the glossary does not already name. The term is **Picture**.
 - **Nothing downstream may require a Picture or a word recording.** Every page
@@ -125,8 +127,17 @@ derived from that text.**
 - **Reopening this needs a teaching failure, not a better tool.** A sharper model, a
   faster renderer or a new Studio format changes nothing here. What would change it
   is a Lesson that demonstrably fails to teach in text.
-- **A grammar diagram is not settled, only unadmitted.**
-  `docs/research/dutch-media-automation-tooling.md` argues Mermaid is the right
-  answer for `de`/`het`, separable verbs and V2 word order, and #148 never tested
-  that case — it tested word parts. Admitting one needs a fresh prototype ticket,
-  not an appeal to this ADR.
+- **A grammar diagram is tested and rejected.**
+  `docs/research/dutch-media-automation-tooling.md` argued Mermaid was the right
+  answer for `de`/`het`, separable verbs and V2 word order, and #148 had tested only
+  word parts. [#153](https://github.com/atilileri/atilileri.github.io/issues/153)
+  tested the rule case directly: four rules picked for four different shapes —
+  classification, movement, slots, reversal — drawn five ways, with the teaching text
+  held constant so only the form varied. **The learner chose the inline HTML again,
+  and chose it because the diagrams taught less**, not because they cost more or
+  broke on the phone. So the reason here is the same as the paragraph above:
+  **reopening this needs a teaching failure, not a better renderer.** A sharper
+  Mermaid, a different diagram grammar or a hand-drawn SVG does not reopen it.
+  #153's own findings are secondary and recorded on the ticket: a rule holds no long
+  word, so the 390 px shrink that killed #148 mostly did not fire — the drawings lost
+  on their merits.
