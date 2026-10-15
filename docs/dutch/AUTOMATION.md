@@ -37,6 +37,7 @@ costs maintenance, because a page changes without warning, so the list grows on 
 | `etymologiebank.nl` | The origin of a Dutch word — the *Etymologisch Woordenboek van het Nederlands* and its sibling dictionaries. The first source for a Dutch origin | `fetch`, one entry page | 2026-09-19 |
 | `etymonline.com` | The origin of an English word | `fetch`, one entry page | 2026-09-19 |
 | `en.wiktionary.org` | The origin of an English word, and its relatives in other languages | MediaWiki API, no key | 2026-09-19 |
+| [NOS Journaal in Makkelijke Taal](https://www.youtube.com/@NOSJournaalinMakkelijkeTaal) on YouTube | The URL of a recent episode, and that episode's spoken Dutch | `fetch` of the channel's `/videos` page for the URL; the episode itself through the Oracle's `scratch` notebook ([`ORACLE.md`](./ORACLE.md)). `robots.txt` disallows the RSS feed and the caption path | 2026-10-15 |
 
 **Fetch on demand, one page at a time. Never crawl.** The agent takes the article a Session points at and
 nothing more. When the journey needs a whole corpus of a site, the human puts it in Drive by hand — the way
@@ -63,8 +64,8 @@ so it needs no row. Locked by [#135](https://github.com/atilileri/atilileri.gith
 - **Nothing extracted is kept.** The live web is the home. Docent's `read` comment holds a gist and word counts,
   never quoted Dutch, and a Session that uses the page reads it again.
 
-So YouTube and the DPG news sites (`nu.nl`, Volkskrant) get no row: they are reached when the learner sends a
-link, and not otherwise.
+So the rest of YouTube and the DPG news sites (`nu.nl`, Volkskrant) get no row: they are reached when the learner
+sends a link, and not otherwise. The one YouTube row above is a channel the learner named on 2026-10-15.
 
 ## Machine credentials
 

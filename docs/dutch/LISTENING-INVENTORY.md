@@ -103,8 +103,10 @@ Ordered by what each one is worth.
    JavaScript app, also browser-only. `staatsexamensnt2.nl` lists no downloadable files at all.
 4. **NOS Journaal in Makkelijke Taal** — [npo.nl/start/serie/nos-journaal-in-makkelijke-taal](https://npo.nl/start/serie/nos-journaal-in-makkelijke-taal/afleveringen).
    A daily 10-minute news bulletin in deliberately simple Dutch, three subjects, slow pace, hard words explained. It is
-   the single best level fit found. **Video on NPO Start only** — an account and a Dutch IP address; there is no podcast
-   feed (`podcast.npo.nl/feed/nos-journaal-in-makkelijke-taal.xml` returns 404).
+   the single best level fit found. On NPO Start it needs an account and a Dutch IP address, and there is no podcast
+   feed (`podcast.npo.nl/feed/nos-journaal-in-makkelijke-taal.xml` returns 404). **It is also free on YouTube**, no
+   account: [@NOSJournaalinMakkelijkeTaal](https://www.youtube.com/@NOSJournaalinMakkelijkeTaal), daily, checked
+   2026-10-15. Now a Named target in [`AUTOMATION.md`](./AUTOMATION.md); still not downloaded.
 5. **Zeg het in het Nederlands transcript PDFs** — [dutchidiom.com](https://dutchidiom.com/shownotes-zeg-het-in-het-nederlands/).
    Sold through Payloadz, episodes 1–40, in sets of ten. Price not shown on the public page. This would give 58 landed
    episodes a text pair.
