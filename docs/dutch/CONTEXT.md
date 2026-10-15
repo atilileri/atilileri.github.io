@@ -36,7 +36,7 @@ The latest *NOS Journaal in Makkelijke Taal* broadcast on YouTube — the only l
 _Avoid_: Clip, Body, recording, listening item, video
 
 **Session**:
-A dated record of one invocation — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many. It holds its own Prompts, and its state — planned, partial or complete — is read off them rather than declared.
+A dated record of one or more invocations — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many. It holds its own Prompts, and its state — planned, partial or complete — is read off them rather than declared. **It is done when everything its restatement promised exists and every Prompt is answered or skipped by the learner.** A Session the learner stops early stays `partial`; Docent resumes it into the same record only when the learner asks, and the record keeps the date of its first invocation. Set by [#157](https://github.com/atilileri/atilileri.github.io/issues/157).
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
