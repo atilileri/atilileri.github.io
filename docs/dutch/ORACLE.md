@@ -60,6 +60,13 @@ advice job — 4, 6, 7 and 11 — uses `ask`.
 
 **Budget: at most three `ask` calls in a Session**, about two minutes. Searches are unlimited.
 
+**The `ask` calls run before any Picture is drawn.** One daily window pays for both, and the client reports
+nothing about what is left ([#149](https://github.com/atilileri/atilileri.github.io/issues/149)), so the order
+is the whole protection. `ask` chooses the Angle and the Session cannot proceed without it; a Picture enriches a
+Session that already works. A full window then costs pictures, never the Lesson. Set on
+[#151](https://github.com/atilileri/atilileri.github.io/issues/151); the cost figures are in
+[`adr/0013`](./adr/0013-the-deliverable-is-text-and-the-picture-is-the-exception.md).
+
 ## When Docent asks
 
 **Session and Assess may ask. Review and Publish may not.** Review works over Items already taught, and
@@ -125,11 +132,22 @@ exists so **Docent** can check the claim, not so the learner can read the book.
 
 **A Studio output may be published** — a slide deck, a quiz, an audio or video overview, a data table, a
 Picture — on the site or in the repo, even when the Oracle made it from a purchased book, an exam paper or a
-course recording. **The material itself stays on the shelf**: no book, exam paper or recording is published,
-and no shelf notebook gets a public link. An output that repeats a source passage word for word counts as that
-passage. An output made from `course - nt2 taaldiensten` keeps that course's rule — it never names or quotes a
-classmate. Set by the learner on 2026-09-19, revising
-[#94](https://github.com/atilileri/atilileri.github.io/issues/94).
+course recording. **This permission is true and unused**: `adr/0013` rules that Docent generates no Studio
+output at all, so nothing currently exercises it. It is kept because the permission, not the capability, is
+what a future ticket would need.
+
+**The material itself stays on the shelf, with one exception.** No book and no course recording is published,
+and no shelf notebook gets a public link. An output that repeats a **book's or a recording's** passage word for
+word counts as that passage. An output made from `course - nt2 taaldiensten` keeps that course's rule — it
+never names or quotes a classmate, which is a privacy rule and not a licence one, so nothing reopens it.
+
+**The exception is the DUO exam papers**, which may be published **as they are — inline, linked, or
+rephrased**. Set by the learner on the final sweep,
+[#151](https://github.com/atilileri/atilileri.github.io/issues/151), narrowing the 2026-09-19 revision of
+[#94](https://github.com/atilileri/atilileri.github.io/issues/94) that had named an exam paper alongside the
+books. Third-party compliance sits with the learner, as #94 established, and the papers are DUO's own
+published *openbaar examen* set. So `SITE.md`'s *the Session that sits one renders the brief inline* stands,
+and `LISTENING.md` keeps an exam paper as a source of quoted Dutch.
 
 **Provenance is a mark, not a paragraph.** The Session record carries the smallest possible reference — a
 superscript number or star, whose hover text reads `Oracle: Nederlands in gang, ch. 7, 2026-09-08`, in the
@@ -162,10 +180,29 @@ Two roles, one tool.
 - **The learner curates.** Adding the books, the exams and the transcripts, renaming, deleting, and preparing
   the collection are the learner's acts. Preparing a notebook for the skill is curation, not a Session write,
   so it needs no gate here.
-- **A Session writes only to the `scratch` notebook,** and it empties that notebook when it finishes. So an
-  experiment can never damage the shelf, and scratch never quietly becomes a family of its own. The write
-  leaves the machine, so [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s gate applies
-  and the learner confirms it.
+- **A Session's teaching writes only to the `scratch` notebook,** and it empties that notebook when it
+  finishes. So an experiment can never damage the shelf, and scratch never quietly becomes a family of its
+  own. The write leaves the machine, so
+  [#130](https://github.com/atilileri/atilileri.github.io/issues/130)'s gate applies and the learner
+  confirms it.
+- **A preflight script may write to the shelf.** Set by the learner on the final sweep,
+  [#151](https://github.com/atilileri/atilileri.github.io/issues/151), which found this rule contradicted by
+  two pipelines already built and committed: the weekly course landing
+  ([#143](https://github.com/atilileri/atilileri.github.io/issues/143), which adds a lesson's mp3 and its two
+  transcripts to `course - nt2 taaldiensten`) and the course supplements
+  ([#145](https://github.com/atilileri/atilileri.github.io/issues/145)). The permission is narrow by shape,
+  not by promise: **a preflight script writes, a Session does not**, and it writes to the notebook its own
+  material belongs in. It runs detached and returns at once, so no Session ever blocks or polls, and it needs
+  no gate per batch — it is Docent's own bookkeeping on its own pipeline, the same carve-out
+  [#121](https://github.com/atilileri/atilileri.github.io/issues/121) made for the queue comments.
+- **A shelf write is verified by de-duplicating on `drive_document_id`, never by counting sources.** This is
+  the safeguard the old rule was really buying, and
+  [#144](https://github.com/atilileri/atilileri.github.io/issues/144) measured why it is needed: **one
+  `add-drive` call can create more than one source**, because the client retries internally and the retry
+  lands. 71 files produced **100** sources — the notebook cap — and 36 produced **72**. A notebook at the cap
+  cannot be converted in the safe order at all, so a run that counts instead of de-duplicating can wedge a
+  notebook permanently. **Docent never repairs the shelf**, so a wedged notebook is the learner's to fix, which
+  is exactly why the script must not create one.
 - **To make an output from shelf data, Docent copies the chosen sources into `scratch`** with `source copy`,
   generates there, and empties `scratch` afterwards. It never generates inside a shelf notebook. Chosen by the
   learner on 2026-09-19.

@@ -2,14 +2,22 @@
 
 A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); provenance by [#94](https://github.com/atilileri/atilileri.github.io/issues/94); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
 
-**Three skills, not four.** This journey teaches *lezen*, *schrijven* and *luisteren*, plus KNM. **Spreken** is a word the Plan uses and the system does not teach: nothing here judges an accent, so the speaking Objectives sit in the Plan marked `unsupported` and are never selected. Listening rests on human recordings only; generated speech is unused. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Which listening material is admitted, and what a Session makes from it, is [`LISTENING.md`](./LISTENING.md)**, locked by [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
+**Three skills, not five.** This journey teaches *lezen*, *schrijven* and *luisteren*, plus KNM. **Spreken** and **gesprekken voeren** are words the Plan uses and the system does not teach: nothing here judges an accent and nothing supplies a second speaker, so those Objectives sit in the Plan marked `unsupported` and are never selected. Taalprofielen counts five skills because it splits speech into a monologue and a conversation; the exam counts four. Listening rests on human recordings only; generated speech is unused. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Which listening material is admitted, and what a Session makes from it, is [`LISTENING.md`](./LISTENING.md)**, locked by [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
+
+**KNM is in; PVT and MAP are out.** Staatsexamen NT2 has four language parts and no KNM. KNM, PVT and MAP are
+*inburgering* obligations that a Staatsexamen pass does not discharge, so the learner owes them separately —
+which is why [#77](https://github.com/atilileri/atilileri.github.io/issues/77) listed all three. **KNM is in
+because it is teachable**: 78 written eindtermen and a 45-minute exam of questions. **PVT is a declaration
+meeting and MAP is a 40-hour labour-market course.** Neither is a body of knowledge, so nothing an agent writes
+moves the learner through them. They are out of scope by shape, not by importance. Set on
+[#151](https://github.com/atilileri/atilileri.github.io/issues/151).
 
 **Where all of it surfaces on the site — which form gets a URL, and for which reader — is [`SITE.md`](./SITE.md)**, locked by [#88](https://github.com/atilileri/atilileri.github.io/issues/88). The site-wide language mechanism it rests on has its own context, [`../site/CONTEXT.md`](../site/CONTEXT.md).
 
 ## Language
 
 **Lesson**:
-A durable teaching artifact — exposition on one thing, sized to about ten minutes of reading. It contains no prompts and bears no answers. One file, written in Turkish prose, quoting Dutch and English words.
+A durable teaching artifact — exposition on one thing, sized to about ten minutes of reading. It contains no prompts and bears no answers. One file, written in Turkish prose, quoting Dutch and English words. **A grammar rule lives in a Lesson**: no Item owns a rule, and there is no separate grammar document.
 _Avoid_: Explainer, chapter, module
 
 **Tekst**:

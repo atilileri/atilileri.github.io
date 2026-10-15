@@ -33,6 +33,13 @@ Three repairs were on the table:
 
 **A token that starts with `--` is a Flag. Everything else on the line is the Theme.**
 
+- **Only the learner starts Docent.** It is user-invoked — the skill sets
+  `disable-model-invocation: true` — so the agent can never begin a Session by itself,
+  and the skill costs no context until it is typed. Decided by
+  [#86](https://github.com/atilileri/atilileri.github.io/issues/86); recorded here on
+  [#151](https://github.com/atilileri/atilileri.github.io/issues/151), because this is the
+  invocation contract and it was the one line missing from it.
+
 - **The four Modes become Flags**: `--session`, `--review`, `--publish`, `--assess`.
   Session stays the default, so a line with no Flag still starts a Session and #86's
   north star runs unchanged.

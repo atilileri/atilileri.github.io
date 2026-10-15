@@ -82,6 +82,14 @@ derived from that text.**
 - **`public/images/dutch/<owner-id>.webp`**, converted from the Oracle's 900×900 JPG
   at quality 75 — 60–200 KB against 160–340 KB. The owner's id is already what
   triggers a redraw, so the path answers *which Picture is stale* by itself.
+- **A Picture is redrawn on two events only: its owner's id changes, or the learner
+  asks.** Editing the Lesson, the Hook or the Scenario the Picture was drawn from
+  changes nothing. The map parked this question under *regeneration and drift*;
+  [#151](https://github.com/atilileri/atilileri.github.io/issues/151) settled it. An
+  id is the Dutch word slugged ([`adr/0014`](./0014-the-inventory-is-never-read-only-queried.md)),
+  so it almost never changes, and a Picture that no longer matches its edited text is
+  a cost the learner accepts rather than a job Docent runs. Nothing scans for drift,
+  because a scan over 1,600–2,600 Items would cost more than the mismatch does.
 - **`public/`, not Drive and not the Oracle.** Everything on this map is public
   (map #74), so a stranger reading the repo must see the image the learner sees.
 - **Its `alt` text describes the drawn scene, in Turkish**, written with the image
@@ -96,6 +104,14 @@ derived from that text.**
     for a picture is the strongest signal that one will help.
   - None of the ten needs a separate confirmation. A Picture rides on its owner's
     approval and never asks for its own.
+- **The three `ask` calls run before any Picture is drawn.** One daily window pays for
+  both, and the client reports nothing about what is left
+  ([#149](https://github.com/atilileri/atilileri.github.io/issues/149)), so the order
+  is the whole protection — there is no reserve to count and no gauge to read. `ask`
+  chooses the Angle and the Session cannot proceed without it; a Picture is an
+  enrichment of a Session that already works. Spend the window in that order and a
+  full window costs pictures, never the Lesson. Set on
+  [#151](https://github.com/atilileri/atilileri.github.io/issues/151).
 - **On a request, the daily window is the only stop**, and it stops honestly: a spent
   window falls to the #147 failure rule — one retry, then no image, and the Lesson
   teaches the Hook as text. Docent states what is missing rather than refusing to
@@ -112,11 +128,12 @@ derived from that text.**
   60–200 KB is roughly 100 MB a year for Docent's own; a heavy requesting habit
   costs about 2 MB a Session on top. `public/` holds 5.4 MB today, so this is the
   repo's largest content by some way, and still small.
-- **The daily window has one consumer worth counting.** A Picture costs about 3–4%
-  of the shared Gemini Notebook window (~25–30 images a day), which `ask` also draws
-  from. Ten per Session is 30–40% of a day, so **two or three Sessions fill it** —
-  and an uncapped request stream can fill it inside one. That is the intended
-  trade: the window is spent on what the learner asked to see.
+- **The daily window has two consumers, and the order settles them.** A Picture costs
+  about 3–4% of the shared Gemini Notebook window (~25–30 images a day), which `ask`
+  also draws from. Ten per Session is 30–40% of a day, so **two or three Sessions fill
+  it** — and an uncapped request stream can fill it inside one. That is the intended
+  trade: the window is spent on what the learner asked to see, and because `ask` runs
+  first, spending it costs pictures and never the Lesson.
 - **The idle capabilities stay installed.** Local synthesis, the video-capable
   client and Mermaid all remain in `tools/` and reachable. They are unused by
   decision, not by lack.

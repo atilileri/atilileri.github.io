@@ -1,4 +1,4 @@
-# ADR 0008 — Speaking is out of scope; listening rests on human audio only
+# ADR 0008 — Speaking and conversation are out of scope; listening rests on human audio only
 
 **Status**: Accepted
 **Date**: 2026-09-06
@@ -48,7 +48,12 @@ Neither fact supplies a judge of the learner's own accent, and none ever will.
 ## Decision
 
 **This system teaches three skills plus KNM: lezen, schrijven and luisteren.
-Spreken is deliberately absent.**
+Spreken and gesprekken voeren are deliberately absent.**
+
+**Taalprofielen has five skills, not four.** It splits speech into `SPREKEN — PRODUCTIE`
+(descriptor code `SP`, a monologue) and `SPREKEN — INTERACTIE` (code `GS`, *gesprekken
+voeren*, a conversation). `GS` is the largest block in the source — 94 descriptors against
+47 for luisteren and 42 for lezen. Both are out, for the same reason and by name.
 
 **Listening is covered, on human recordings only.**
 
@@ -65,9 +70,11 @@ Spreken is deliberately absent.**
 - **A video is admissible only when the agent can read text about it.** Level and fit
   are judged from that text. Frames never decide level.
 
-**Speaking is out of scope.**
+**Speaking and conversation are out of scope.**
 
 - Nothing here judges an accent, and nothing scores a spoken answer.
+- **A conversation needs a second speaker as well as a judge**, so it is further out of
+  reach than a monologue, not nearer. Docent cannot supply either one.
 - The six DUO marking schemes are **not** used to let the learner mark themselves.
   A marking scheme with no marker is a criterion the learner applies to their own ear,
   which is the ear in question.
@@ -79,10 +86,11 @@ Spreken is deliberately absent.**
 
 ## Consequences
 
-- **The Plan keeps its spreken Objectives, marked `unsupported`**, pointing here. The
-  exam has four skills and the Plan shows the route to the exam, so deleting them
-  would make the Plan look complete when it is not. The hole stays visible on
-  purpose.
+- **The Plan keeps its spreken and gesprekken Objectives, marked `unsupported`**, pointing
+  here. They are two columns, not one, because the Plan is built on Taalprofielen and
+  Taalprofielen separates them. The exam has four skills and the Plan shows the route to
+  the exam, so deleting them would make the Plan look complete when it is not. The hole
+  stays visible on purpose.
 - **The risk this ADR buys off is false confidence.** #77 named it: partial coverage
   before an exam can persuade a candidate they are ready for a component nobody has
   ever assessed them on. Absence is legible; a fake score is not.
