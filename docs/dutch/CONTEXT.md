@@ -2,7 +2,7 @@
 
 A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); provenance by [#94](https://github.com/atilileri/atilileri.github.io/issues/94); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
 
-**Three skills, not five.** This journey teaches *lezen*, *schrijven* and *luisteren*, plus KNM. **Spreken** and **gesprekken voeren** are words the Plan uses and the system does not teach: nothing here judges an accent and nothing supplies a second speaker, so those Objectives sit in the Plan marked `unsupported` and are never selected. Taalprofielen counts five skills because it splits speech into a monologue and a conversation; the exam counts four. Listening rests on human recordings only; generated speech is unused. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Which listening material is admitted, and what a Session makes from it, is [`LISTENING.md`](./LISTENING.md)**, locked by [#97](https://github.com/atilileri/atilileri.github.io/issues/97).
+**Two skills taught, three not.** This journey teaches *lezen* and *schrijven*, plus KNM. **Spreken** and **gesprekken voeren** are words the Plan uses and the system does not teach: nothing here judges an accent and nothing supplies a second speaker, so those Objectives sit in the Plan marked `unsupported` and are never selected. Taalprofielen counts five skills because it splits speech into a monologue and a conversation; the exam counts four. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Luisteren is `unsupported` too, since [#155](https://github.com/atilileri/atilileri.github.io/issues/155)**: a Session still listens to one Episode for its words and its meaning, but no *luisteren* Objective is selected or moved by it.
 
 **KNM is in; PVT and MAP are out.** Staatsexamen NT2 has four language parts and no KNM. KNM, PVT and MAP are
 *inburgering* obligations that a Staatsexamen pass does not discharge, so the learner owes them separately —
@@ -31,20 +31,16 @@ agent and carries no marker; see [`adr/0010`](./adr/0010-published-dutch-is-unma
 _Avoid_: Reading, article, parallel text, Delft post — the method here is Delft (a text plus its
 word list), not parallel text (the same content written twice).
 
-**Journey post**:
-A blog entry written for a reader rather than for the learner — the one thing Publish Mode
-writes. It carries no Items and no Prompts, and it lives in `blog` beside the site's other
-posts, tagged `Nederlands`. A post built on a Tekst publishes that Tekst's Dutch alongside
-an English and a Turkish version; one built on a Lesson or on a Session's story has no
-Dutch to publish. Docent proposes one and the learner confirms it.
-_Avoid_: Post (means any blog entry), article, write-up, publication
+**Episode**:
+The latest *NOS Journaal in Makkelijke Taal* broadcast on YouTube — the only listening material a Session uses. Docent finds it on the channel's `/videos` page, the Oracle reads it in the Scratch notebook, and the Session links it, turns its new words into Items and asks Turkish `open` Prompts about it. It teaches words and understanding; it moves no *luisteren* Objective. Set by [#155](https://github.com/atilileri/atilileri.github.io/issues/155).
+_Avoid_: Clip, Body, recording, listening item, video
 
 **Session**:
 A dated record of one invocation — what was taught, what was asked, and what the learner answered. It is the only form that bears answers. It links to zero or more Lessons, many-to-many. It holds its own Prompts, and its state — planned, partial or complete — is read off them rather than declared.
 _Avoid_: Iteration, lesson (when the event is meant), practice log
 
 **Item**:
-One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory, `docs/dutch/items.yml`. It may also carry the five pronunciation fields — `say`, a link to a human recording on Wikimedia Commons, with `sayCredit` for its author and licence and `sayChecked` for the day a **miss** was confirmed, plus `ipa` and `ipaChecked` on the same rule; they help the learner say the word, not recall it, so they are not Mnemonics. Their format is [`PRONUNCIATION.md`](./PRONUNCIATION.md). The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id. **Its id is its Dutch word, slugged** (`fiets`, `de-man-met-de-hoed`), with a numeric suffix on a collision (`bank-2`), so a diff, a Lesson reference and a Picture filename all read as the word they are about. **The inventory is queried, never read** — at B1 size it is larger than the agent that maintains it ([`INVENTORY.md`](./INVENTORY.md), [`adr/0014`](./adr/0014-the-inventory-is-never-read-only-queried.md)).
+One lexical or grammatical thing held as sibling fields (`nl` / `tr` / `en`, plus the optional `bridge`, `hook`, `trap` and `split`), in a single central inventory, `docs/dutch/items.yml`. The unit the scheduler acts on. Never embedded in a Lesson — a Lesson references Items by id. **Its id is its Dutch word, slugged** (`fiets`, `de-man-met-de-hoed`), with a numeric suffix on a collision (`bank-2`), so a diff, a Lesson reference and a Picture filename all read as the word they are about. **The inventory is queried, never read** — at B1 size it is larger than the agent that maintains it ([`INVENTORY.md`](./INVENTORY.md), [`adr/0014`](./adr/0014-the-inventory-is-never-read-only-queried.md)).
 _Avoid_: Note, card, word, entry
 
 **Direction**:
@@ -74,10 +70,6 @@ _Avoid_: Question, exercise, quiz item, card
 **Verdict**:
 The judgement on one answer to an `item` Prompt, from a closed set of three: `correct`, `close` and `incorrect`. A `close` answer is right in substance and wrong in form — a misspelling — and moves no Rung. An `open` Prompt bears no Verdict, only prose feedback, because a written paragraph has no right answer.
 _Avoid_: Score, grade, mark, result, rating
-
-**Exam task**:
-An authored, kept, re-takeable artifact that mimics a real exam task — for example a *Schrijven* writing brief. Distinct from prompt sets, which are generated per Session and stored nowhere but that Session.
-_Avoid_: Drill, exercise, quiz, opdracht, task
 
 **Learning Record**:
 A rare, decision-grade insight that changes what to teach next. Append-only and supersedable. Format lifted from the `teach` skill.
@@ -118,14 +110,15 @@ A recurring situation in the learner's life that needs Dutch, held in one librar
 _Avoid_: Use-case, situation card, role-play
 
 **Theme**:
-The subject a Session is dressed in. It is chosen by a fixed priority — the theme the learner types, then an open intake issue, then a Scenario. A Theme decorates the next Plan objective and never replaces it. A Theme that reaches no Scenario is still used; Docent reports it in one line and names the new Items that reach none either, so the learner knows what stays inside the Theme. See [`SCENARIOS.md`](./SCENARIOS.md).
+The subject a Session is dressed in. Docent chooses it from the `/docent` line and the open Intakes, or picks one itself — often a Scenario — and shows it in the restatement. A Theme decorates the next Plan objective and never replaces it. A Theme that reaches no Scenario is still used; Docent reports it in one line and names the new Items that reach none either, so the learner knows what stays inside the Theme. See [`SCENARIOS.md`](./SCENARIOS.md).
 _Avoid_: Topic, context, subject
 
 **Intake**:
 An issue the learner files from a phone and labels `docent:intake`. It holds anything about their Dutch life,
 in any form and any language — a photo of a sign, a story from the day, a wish about what to study, a few typed
-words. It has no format. Docent reads every open one in the preflight, media included, and offers them; it is
-consumed over one or more Sessions and closes only on the learner's confirmation.
+words. It has no format. **Docent reads it as an instruction**, the same as the text on the `/docent` line: every
+open Intake is read and combined with that line, and the restatement shows the result before the learner says go.
+Once a Session has used them, Docent asks to close them, and closes only on the learner's confirmation. Simplified by [#155](https://github.com/atilileri/atilileri.github.io/issues/155).
 _Avoid_: Inbox, capture, submission, queue, backlog
 
 **Mnemonic**:
@@ -141,7 +134,7 @@ An invented Mnemonic — a Dutch word tied to a sound-alike keyword and one scen
 _Avoid_: Keyword, peg, association, story
 
 **Picture**:
-One image the Oracle draws of one scene, owned by exactly one thing — a Hook, a Trap, a Lesson, a Tekst or a Clip. It is drawn once and kept with its owner, and drawn again only when the owner changes. The owner's confirmation approves it; it never asks for its own. A Session draws at most ten on Docent's own initiative — five unprompted, in the order an Item answered wrong, an Item with no Bridge, then a header, plus five more Docent offers where one helps; **what the learner asks for is uncapped**, and the daily window is its only stop. It is the only artifact derived from a Lesson's text ([`adr/0013`](./adr/0013-the-deliverable-is-text-and-the-picture-is-the-exception.md)). A Picture is never a Mnemonic of its own — the Picture of a Hook is part of that Hook, shows where the Hook shows, and never in a Prompt. A failed Picture leaves its owner complete in text.
+One image the Oracle draws of one scene, owned by exactly one thing — a Hook, a Trap, a Lesson or a Tekst. It is drawn once and kept with its owner, and drawn again only when the owner changes. **Docent draws one where it judges a Picture helps, and whenever the learner asks** — no count and no order. It is the only artifact derived from a Lesson's text ([`adr/0013`](./adr/0013-the-deliverable-is-text-and-the-picture-is-the-exception.md)). A Picture is never a Mnemonic of its own — the Picture of a Hook is part of that Hook, shows where the Hook shows, and never in a Prompt. A failed Picture leaves its owner complete in text.
 _Avoid_: Image, drawing, visual, infographic, card
 
 **Split**:
@@ -153,57 +146,25 @@ A resemblance that misleads — an intuition from English or Turkish that produc
 _Avoid_: False friend, gotcha, warning, flag
 
 **Docent**:
-The single skill that runs this practice, invoked as `/docent`. It teaches, reviews, publishes and assesses; it is the only thing the learner types. Named for the Dutch and English word for a teacher, because it names the role rather than the subject.
-_Avoid_: The Dutch skill, the agent, the tutor
-
-**Mode**:
-One distinct way Docent runs, chosen by a Flag. Exactly four: *Session*, *Review*, *Publish*, *Assess*, and every one of them writes. Session is the default, so a line with no Flag is a Session. Sitting an Exam task is a Session, not a Mode of its own. A Mode is never a git branch.
-_Avoid_: Branch (means git here), command, subskill, route
-
-**Flag**:
-A token on the `/docent` line that starts with `--` and chooses what Docent does. Every other token is the Theme, so a Flag can never collide with a Theme. Exactly five: `--session`, `--review`, `--publish`, `--assess` and `--help`; the first four name a Mode and `--help` names none, because it only reads. Each Flag has three spellings — English, Turkish and Dutch — matched case-insensitively with diacritics folded, so `--yardim` reaches `--yardım`. An unrecognised `--flag` refuses and prints the Flag list. Locked by [#140](https://github.com/atilileri/atilileri.github.io/issues/140) and recorded in [`adr/0012-modes-are-flags-the-rest-is-the-theme.md`](./adr/0012-modes-are-flags-the-rest-is-the-theme.md).
-_Avoid_: Option, switch, argument (that is the whole line), command, mode (four of five are Modes)
-
-**Help**:
-What Docent reports about itself, printed by the `--help` Flag. Two halves in one output: a **Status** half, which is live state read off the Plan, the Items and the inbox, and a **Reference** half, which is the Flag table with generated examples. Help is strictly read-only — it runs no preflight, writes no file and leaves no trace — and it reports a broken journey without repairing it. Help is not a Mode.
-_Avoid_: Help mode, status mode, `--help` mode, usage, manual
+The single skill that runs this practice, invoked as `/docent`. **It runs Sessions and nothing else**, and the whole `/docent` line is free text: a Theme, a request, or *explain what you do* is said in plain words, never in a syntax. Before it acts, Docent restates what it understood and waits for a go. Named for the Dutch and English word for a teacher, because it names the role rather than the subject. Cut to this shape by [#155](https://github.com/atilileri/atilileri.github.io/issues/155): Review, Publish, Assess, the Flags and Help are gone, with no later version.
+_Avoid_: The Dutch skill, the agent, the tutor; Mode, Flag (both cut)
 
 **Provenance**:
 Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise. The string names one of the four homes in [`MATERIAL.md`](./MATERIAL.md), which also holds the form to write for each.
 _Avoid_: Source, attribution, reference (the cheat sheet), credit
 
-**Body**:
-One whole source folder of listening material — `eenbeetjenederlands/`, `DUO oefenexamens NT2/`. It is the unit an admission verdict judges, and the verdict is written once in [`LISTENING.md`](./LISTENING.md) and does not change. Level is never a Body's property, because one Body spans several levels.
-_Avoid_: Source (means the citation), collection, corpus, feed
-
-**Clip**:
-One recording the learner listens to, with its transcript — a whole file, or a **stated time range** inside one, named off the transcript's `[mm:ss]` marks. It is the unit a Session points at, and its level is judged live and stored nowhere. Audio is never cut to make one.
-_Avoid_: Listening item (the word Item is taken and means one lexical thing), track, episode, segment, excerpt
-
 **Register**:
 How formally a Scenario is conducted, held on the Scenario as one of exactly three values: `informal` (`je`; friends, teammates, a market stall), `neutral` (`je` or `u`; a shop, a class, a stranger) and `formal` (`u`; official letters, a doctor, a bank). A closed set, so Docent chooses a value rather than inventing one.
 _Avoid_: Formality, tone, politeness level, style
 
-**Named target**:
-A third party's website Docent checks first when it looks something up **on its own initiative** — without the learner handing it a link — listed as one row in [`AUTOMATION.md`](./AUTOMATION.md) with what the script takes from it. When no listed site answers, another site is fine, by fetch or by a browser script. Docent may offer a new row, and a human confirms it. A link the learner sends, in an Intake or as a Theme, needs no row: it is its own permission, for that one page and what it embeds. Either way the agent never crawls.
-_Avoid_: Allowed site, whitelist entry, scrape target, integration
-
 **Machine credential**:
-A secret that lives on this machine and never in this repo — the rclone token and the Oracle's login state. It is not an artifact, so the publicness lock does not reach it, but every capability it opens must degrade: with the credential missing the Session still runs and Docent names what it could not reach.
+A secret that lives on this machine and never in this repo — the Oracle's login state. It is not an artifact, so the publicness lock does not reach it, but every capability it opens must degrade: with the credential missing the Session still runs and Docent names what it could not reach.
 _Avoid_: Secret, key, token (each names one instance, not the class), config
 
 **Oracle**:
-The `OracleDutch` collection of Gemini Notebook notebooks, holding the course books, the practice exams and the listening corpus with its text — the shelf this repo may not hold. It is **a source, never a planner**: it answers and it proposes, and the Plan still holds the route. Docent resolves its membership through the collection, never through a name prefix. What it holds is [`ORACLE-INVENTORY.md`](./ORACLE-INVENTORY.md); what Docent may ask it is [`ORACLE.md`](./ORACLE.md).
+The `OracleDutch` collection of Gemini Notebook notebooks, holding the course books, the practice exams and the listening corpus with its text — the shelf this repo may not hold. It is **a source, never a planner**, and Docent gives it **exactly three jobs**: read the Episode, `source search` the books for a Lesson's topic, and `ask` for a grammar explanation ([#155](https://github.com/atilileri/atilileri.github.io/issues/155)). Docent resolves its membership through the collection, never through a name prefix. What it holds is [`ORACLE-INVENTORY.md`](./ORACLE-INVENTORY.md); what Docent may ask it is [`ORACLE.md`](./ORACLE.md).
 _Avoid_: NotebookLM, Gemini Notebook (each names the product, not the role), knowledge base, RAG, the notebooks
 
 **Scratch notebook**:
 The one notebook in the Oracle a Session may write to, emptied when that Session ends. Everything else in the collection is curated by the learner alone. The split exists so an experiment can never damage material that was paid for.
 _Avoid_: Sandbox, temp notebook, workspace, staging
-
-**NT2 course recording**:
-One live class of the NT2 course the learner attends — the teacher's video and everything derived from it, the mp3 and its two transcripts. Named by the date it was taught. It is private material: it shows identifiable people and is never published, and a Lesson never quotes a classmate.
-_Avoid_: Lesson (means the durable artifact), les, class video, lecture
-
-**NT2 course supplement**:
-Any material the NT2 course teacher hands out beside the recordings — a slide deck for a numbered course unit, or a one-page sheet on one topic. It carries no date, it may arrive before or after the recordings it belongs to, and nothing records which recordings those are: the Oracle finds the match by content. It is the school's material and the paid books', so it is never published; a Lesson may cite it as Provenance and never quotes it.
-_Avoid_: Chapter, slides, deck, handout, presentation, attachment
