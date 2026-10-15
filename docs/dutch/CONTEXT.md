@@ -1,6 +1,6 @@
 # Dutch learning journey
 
-A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); provenance by [#94](https://github.com/atilileri/atilileri.github.io/issues/94); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
+A repo-native, agent-run Dutch practice aimed at Staatsexamen NT2, published on the site. The vocabulary below is this context's ubiquitous language: these words appear in the skill, in Astro schemas, in URLs, and in every conversation about the work. Taxonomy locked by [#82](https://github.com/atilileri/atilileri.github.io/issues/82); the language rule by [#84](https://github.com/atilileri/atilileri.github.io/issues/84); the map is [#74](https://github.com/atilileri/atilileri.github.io/issues/74).
 
 **Two skills taught, three not.** This journey teaches *lezen* and *schrijven*, plus KNM. **Spreken** and **gesprekken voeren** are words the Plan uses and the system does not teach: nothing here judges an accent and nothing supplies a second speaker, so those Objectives sit in the Plan marked `unsupported` and are never selected. Taalprofielen counts five skills because it splits speech into a monologue and a conversation; the exam counts four. Locked by [#95](https://github.com/atilileri/atilileri.github.io/issues/95) and recorded in [`adr/0008-speaking-is-out-of-scope.md`](./adr/0008-speaking-is-out-of-scope.md). **Luisteren is `unsupported` too, since [#155](https://github.com/atilileri/atilileri.github.io/issues/155)**: a Session still listens to one Episode for its words and its meaning, but no *luisteren* Objective is selected or moved by it.
 
@@ -106,11 +106,11 @@ The standing description of who the learner is — work, life, sport, taste, peo
 _Avoid_: Bio, persona, about-me, memory
 
 **Scenario**:
-A recurring situation in the learner's life that needs Dutch, held in one library. It links to Plan objectives and carries a register; it never states an objective of its own. A Scenario is never consumed.
+A recurring situation in the learner's life that needs Dutch, held in one library. It holds a Setting and a Register, and nothing else: no Objective, no usage date. A Scenario is never consumed.
 _Avoid_: Use-case, situation card, role-play
 
 **Theme**:
-The subject a Session is dressed in. Docent chooses it from the `/docent` line and the open Intakes, or picks one itself — often a Scenario — and shows it in the restatement. A Theme decorates the next Plan objective and never replaces it. A Theme that reaches no Scenario is still used; Docent reports it in one line and names the new Items that reach none either, so the learner knows what stays inside the Theme. See [`SCENARIOS.md`](./SCENARIOS.md).
+The subject a Session is dressed in. Docent chooses it from the `/docent` line and the open Intakes, or picks one itself — often a Scenario — and shows it in the restatement. A Theme decorates the next Plan objective and never replaces it. A Theme that reaches no Scenario is still used, with no report.
 _Avoid_: Topic, context, subject
 
 **Intake**:
@@ -148,10 +148,6 @@ _Avoid_: False friend, gotcha, warning, flag
 **Docent**:
 The single skill that runs this practice, invoked as `/docent`. **It runs Sessions and nothing else**, and the whole `/docent` line is free text: a Theme, a request, or *explain what you do* is said in plain words, never in a syntax. Before it acts, Docent restates what it understood and waits for a go. Named for the Dutch and English word for a teacher, because it names the role rather than the subject. Cut to this shape by [#155](https://github.com/atilileri/atilileri.github.io/issues/155): Review, Publish, Assess, the Flags and Help are gone, with no later version.
 _Avoid_: The Dutch skill, the agent, the tutor; Mode, Flag (both cut)
-
-**Provenance**:
-Where a Lesson's material came from, held as one optional citation string on the Lesson — a book and chapter, or the Oracle and a date. It is a citation, never a copy. Items carry no Provenance: a word comes from everywhere, and the field would be noise. The string names one of the four homes in [`MATERIAL.md`](./MATERIAL.md), which also holds the form to write for each.
-_Avoid_: Source, attribution, reference (the cheat sheet), credit
 
 **Register**:
 How formally a Scenario is conducted, held on the Scenario as one of exactly three values: `informal` (`je`; friends, teammates, a market stall), `neutral` (`je` or `u`; a shop, a class, a stranger) and `formal` (`u`; official letters, a doctor, a bank). A closed set, so Docent chooses a value rather than inventing one.
