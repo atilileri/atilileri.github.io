@@ -1,0 +1,106 @@
+---
+// Draws an Item's Split: the word read from its parts, in text and colour.
+// The format is .agents/skills/docent/SPLIT-FORMAT.md. An Item with no Split
+// draws nothing, so no Lesson depends on one.
+import { getEntry } from "astro:content";
+import { inline } from "../../lib/dutch/session";
+
+interface Props {
+  item: string;
+}
+
+type Part = { nl: string; role: string; tr: string; en: string; base?: string; parts?: Part[] };
+
+const ROLE: Record<string, { fill: string; border: string; text: string; dashed?: boolean }> = {
+  stem: { fill: "#dbeafe", border: "#1d4ed8", text: "#0b2a66" },
+  stem2: { fill: "#dcfce7", border: "#15803d", text: "#0f3d22" },
+  link: { fill: "#f3f4f6", border: "#6b7280", text: "#374151", dashed: true },
+  affix: { fill: "#ffedd5", border: "#c2410c", text: "#6b2308" },
+};
+
+const entry = await getEntry("dutchItems", Astro.props.item);
+const item = entry?.data;
+const split = item?.split as
+  | {
+      parts: Part[];
+      literal: string;
+      why?: string;
+      spelling?: string;
+      origins?: { part: string; tr: string; source: string }[];
+      meaning?: string;
+    }
+  | undefined;
+
+// The grid has one column per leaf part; a part with parts of its own becomes
+// a bracket in the group row over its leaves.
+const leaves = (split?.parts ?? []).flatMap((p) => p.parts ?? [p]);
+const grouped = (split?.parts ?? []).some((p) => p.parts);
+const style = (role: string) => {
+  const r = ROLE[role] ?? ROLE.stem;
+  return `background:${r.fill};border:1px ${r.dashed ? "dashed" : "solid"} ${r.border};color:${r.text}`;
+};
+const bare = (s: string) => s.replace(/^-|-$/g, "");
+const sourceLabel = (s: string) =>
+  s === "docent" ? "Docent'in çıkarımı" : `kaynak: ${new URL(s).hostname.replace(/^www\./, "")} ↗`;
+---
+
+{
+  split && item && (
+    <figure class="dutch-split my-6 rounded-xl border border-[var(--color-outline-variant)]/40 p-4">
+      <p class="mb-3 text-2xl" lang="nl">
+        {item.article && <span class="mr-1 text-base text-[var(--color-outline)]">{item.article}</span>}
+        {leaves.map((p) => (
+          <span style={`border-bottom:3px solid ${(ROLE[p.role] ?? ROLE.stem).border}`}>{bare(p.nl)}</span>
+        ))}
+      </p>
+      <div class="overflow-x-auto">
+        <table class="text-sm">
+          <tbody>
+            {grouped && (
+              <tr>
+                <th />
+                {split.parts.map((p) => (
+                  <td colspan={p.parts?.length ?? 1} class="px-1 text-center text-xs text-[var(--color-outline)]" lang="nl">
+                    {p.parts ? `⎴ ${p.nl}` : ""}
+                  </td>
+                ))}
+              </tr>
+            )}
+            <tr>
+              <th class="pr-2 text-left font-bold">Hollandaca</th>
+              {leaves.map((p) => (
+                <td class="p-1">
+                  <span class="block rounded px-2 py-1 text-center" style={style(p.role)} lang="nl">
+                    {p.nl}
+                    {p.base && <span class="block text-xs">← {p.base}</span>}
+                  </span>
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th class="pr-2 text-left font-bold">Türkçe</th>
+              {leaves.map((p) => <td class="p-1 text-center">{p.tr}</td>)}
+            </tr>
+            <tr>
+              <th class="pr-2 text-left font-bold">English</th>
+              {leaves.map((p) => <td class="p-1 text-center" lang="en">{p.en}</td>)}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <dl class="mt-3 space-y-1 text-sm">
+        <div><dt class="inline font-bold" style="color:#6d28d9">Sözcüğü sözcüğüne:</dt> <dd class="inline italic">{split.literal}</dd></div>
+        {split.why && <div><dt class="inline font-bold">Neden?</dt> <dd class="inline" set:html={inline(split.why)} /></div>}
+        {split.spelling && <div><dt class="inline font-bold">Yazım:</dt> <dd class="inline" set:html={inline(split.spelling)} /></div>}
+        {split.origins?.map((o) => (
+          <div>
+            <dt class="inline font-bold">Köken ({o.part}):</dt> <dd class="inline"><span set:html={inline(o.tr)} />{" "}
+              {o.source === "docent" ? <em>{sourceLabel(o.source)}</em> : <a href={o.source}>{sourceLabel(o.source)}</a>}
+            </dd>
+          </div>
+        ))}
+        <div><dt class="inline rounded px-1 font-bold" style="background:#fef9c3">Anlamı:</dt> <dd class="inline">{split.meaning ?? item.tr}</dd></div>
+      </dl>
+    </figure>
+  )
+}

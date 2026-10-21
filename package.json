@@ -13,7 +13,7 @@
     "check": "astro check",
     "test:deck": "playwright test",
     "test:deck:goldens": "playwright test --update-snapshots",
-    "test": "node --test tools/**/*.test.mjs"
+    "test": "node --test .agents/skills/docent/scripts/*.test.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.0",

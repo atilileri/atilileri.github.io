@@ -1,0 +1,36 @@
+---
+// The frame every /nederlands/ leaf page shares: Turkish, a way back to the
+// index, a title, and a prose body.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  kicker: string;
+  lang?: string;
+}
+const { title, description, kicker, lang = "tr" } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} currentPath="/nederlands/" lang={lang}>
+  <article class="max-w-3xl mx-auto w-full min-w-0 overflow-x-clip px-6 py-16 sm:px-8">
+    <header class="mb-10">
+      <a href="/nederlands/" class="inline-flex items-center gap-2 text-[var(--color-primary-container)] font-bold tracking-widest text-xs uppercase mb-6 hover:opacity-80">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Nederlands
+      </a>
+      <p class="text-xs font-bold uppercase tracking-widest text-[var(--color-outline)] mb-3">{kicker}</p>
+      <h1 class="font-[Space_Grotesk] text-[clamp(2rem,6vw,3rem)] font-bold tracking-tighter leading-[0.95] mb-4 [overflow-wrap:break-word]">
+        {title}
+      </h1>
+      {description && <p class="text-lg text-[var(--color-on-surface-variant)] font-light">{description}</p>}
+    </header>
+    <div class="dutch-prose prose max-w-none min-w-0
+      prose-headings:font-[Space_Grotesk] prose-headings:font-bold prose-headings:tracking-tighter
+      prose-p:text-[var(--color-on-surface-variant)] prose-p:leading-relaxed
+      prose-a:text-[var(--color-primary-container)]
+      prose-code:text-[var(--color-primary-container)] prose-code:bg-[var(--color-primary-container)]/5 prose-code:px-1 prose-code:rounded">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

@@ -56,4 +56,4 @@ say "check"
 node -e "require('sherpa-onnx-node'); require('pdf-parse'); console.log('node packages load')" \
   --prefix "$HERE" 2>/dev/null || (cd "$HERE" && node -e "require('sherpa-onnx-node'); require('pdf-parse'); console.log('node packages load')")
 echo
-echo "Ready. See tools/media/README.md, and docs/dutch/READING-MATERIAL.md for when to use which."
+echo "Ready. See tools/media/README.md."

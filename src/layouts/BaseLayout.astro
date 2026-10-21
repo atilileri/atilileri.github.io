@@ -7,17 +7,20 @@ interface Props {
   title: string;
   description?: string;
   currentPath?: string;
+  // The page's own language; a Turkish page must not declare itself English.
+  lang?: string;
 }
 
 const {
   title,
   description = "A radical pursuit of objectivity and mathematical grid logic in software architecture.",
   currentPath = "/",
+  lang = "en",
 } = Astro.props;
 ---
 
 <!doctype html>
-<html class="light" lang="en">
+<html class="light" lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

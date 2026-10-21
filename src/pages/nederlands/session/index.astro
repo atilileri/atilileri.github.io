@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { formatDate } from "../../../lib/dutch/session";
+
+const entries = (await getCollection("dutchSessions")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title="Sessions — Nederlands" currentPath="/nederlands/">
+  <div class="max-w-3xl mx-auto w-full min-w-0 px-6 py-16 sm:px-8">
+    <a href="/nederlands/" class="text-xs font-bold uppercase tracking-widest text-[var(--color-primary-container)]">← Nederlands</a>
+    <h1 class="font-[Space_Grotesk] text-5xl font-bold tracking-tighter my-6">Sessions</h1>
+    <ul class="space-y-1">
+      {entries.map((e) => (
+        <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/session/${e.id}/`} lang="tr">{e.data.title}</a> · {formatDate(e.data.date, "en-GB")}</li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

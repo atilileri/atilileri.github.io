@@ -1,23 +1,6 @@
 # Profile
 
-Who the learner is, so that Docent can dress a lesson in a real life instead of a textbook one.
-
-This file is **current state, not a log**. It is replaced in place; git holds the history. Docent reads it whole at the start of every Session. It is written in **English**, because Docent reads it — the Turkish-first rule protects the study experience, not a configuration file. Locked by [#83](https://github.com/atilileri/atilileri.github.io/issues/83); filled by [#123](https://github.com/atilileri/atilileri.github.io/issues/123).
-
-**How it grows.** Docent proposes a change at the end of a Session and the learner confirms it. Docent never writes this file silently. A silent write to a public file is a publication.
-
-## What this file must never contain
-
-This is a rule, not a list of past removals. Apply it to every proposed line.
-
-- **No home address**, and nothing that gives one — street, postcode, building, floor.
-- **No employer-confidential detail.** The employer and the public job title are already published on the CV; anything learned inside the job is not.
-- **No health data.** Not a condition, not a medication, not an appointment.
-- **No private individual's name.** Not the partner, not a teacher, not a friend, not a teammate, not a doctor. Organisations, clubs, venues and teams may be named; people may not. Write the role instead: "partner", "the Dutch teacher", "a teammate".
-- **No birth date**, and no date that reveals one.
-- **No immigration-case detail.** The exam target is public; the case is not.
-
-**When a fact is unclear, omit it.** Then say in the same proposal that it was omitted and why. The learner adds it back if they want it. Do not stop a Session to ask.
+Who the learner is, so Docent can dress a Session in a real life. Current state, replaced in place; Docent offers a change and the learner confirms it.
 
 ## Work
 
@@ -51,7 +34,6 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Plans to kitesurf wherever they travel, and enjoys talking about future kite spots.
 - Plays padel at Peakz Padel in Eindhoven, with a Peakz rating around 7–8. Also plays at Jack's Hustle.
 - Plays the Super Sunday sessions at Peakz Padel, where the players rotate and mix.
-- Takes padel classes at Peakz Padel; ten taken so far, two weeks of classes remaining as of September 2026.
 - Belongs to two Dutch-language padel WhatsApp groups: "peakz padel rating 9/10 - Low Starters - Eindhoven" and "peakz padel rating 9/10 - High Starters - Eindhoven".
 - Plays football on Sunday with a club in the Netherlands. Sessions are sometimes cancelled for low attendance.
 - Plays street basketball occasionally, when the weather is good.
@@ -85,8 +67,6 @@ This is a rule, not a list of past removals. Apply it to every proposed line.
 - Has Dutch friends, and speaks English with them.
 - Has no situation that forces Dutch, because everyone around them speaks English.
 - Takes an online Dutch course on Monday and Thursday evenings, 18:15 to 19:15.
-- Uploads the recording of each online class to Drive, in the `NT2 Taaldiensten - A0-A2` folder, as shortcuts. Those recordings show identifiable people and are never published.
-- Misses the next two Monday classes because of padel, and watches the recordings instead.
 - Considers the taal café at Veldhoven library on Tuesday evenings, near the office, as a weekly speaking outlet.
 - Studies at home in the evening, most likely right after the online class on Monday and Thursday.
 - Uses public transport mostly at weekends, and can run a Docent Session from a phone then.

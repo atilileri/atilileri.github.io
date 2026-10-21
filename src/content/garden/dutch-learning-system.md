@@ -5,7 +5,7 @@ lastUpdated: 2026-09-05
 status: "seedling"
 kind: "project"
 tags: ["Agents", "Language Learning", "Astro", "Learning in Public"]
-link: "https://github.com/atilileri/atilileri.github.io/issues/74"
+link: "/nederlands/"
 featured: true
 order: 2
 ---

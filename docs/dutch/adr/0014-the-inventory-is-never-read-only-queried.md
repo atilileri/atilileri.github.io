@@ -24,8 +24,8 @@ comes back. [#151](https://github.com/atilileri/atilileri.github.io/issues/151) 
 
 **Docent never opens the inventory. It runs a script and reads the output.**
 
-One file, `docs/dutch/items.yml`. A committed program, `tools/dutch/items.mjs`, holds every read and every
-write. `items.mjs due` prints the queue; `items.mjs get <id>` prints a whole Item. Fifty Items arrive as a few
+One file, `docs/dutch/items.yml`. A committed program, `items.mjs` (now in the `docent` skill, at
+`.agents/skills/docent/scripts/`), holds every read and every write. `items.mjs due` prints the queue; `items.mjs get <id>` prints a whole Item. Fifty Items arrive as a few
 thousand tokens instead of a quarter of a million.
 
 The rule is absolute in both directions. Docent does not read the file, and **Docent does not edit it by
@@ -41,7 +41,7 @@ inventory, and nothing else prevents it.
   also buys a smaller read that the script already gives.
 - **One file per Item.** Turns a Session's single commit
   ([#99](https://github.com/atilileri/atilileri.github.io/issues/99)) into sixty file writes, and adds a home
-  the publicness rule (`MATERIAL.md:36`) did not ask for.
+  the publicness rule did not ask for.
 
 ## The cost, stated
 
@@ -54,10 +54,8 @@ enough to read** — not a tidier design, not a better YAML library. Measure the
 
 ## What follows
 
-- The same shape fixed `DRIVE-INVENTORY.md`: the judgement stays in a document a human reads, and the 1,418
-  lines of machine output became `drive-files.txt`, searched and never read whole.
 - The rule generalises, and is worth stating once: **a file that outgrows the agent stops being read and
   starts being queried.** The signal is the file's size in tokens, not its role.
 
 Details — the id rule, the YAML shape, the script's commands, the write rule — are
-[`INVENTORY.md`](../INVENTORY.md).
+[`ITEMS.md`](../../../.agents/skills/docent/ITEMS.md) in the skill.

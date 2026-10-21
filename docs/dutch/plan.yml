@@ -1,0 +1,1300 @@
+# The Plan — the route to the exam, and the position on it.
+# Docent reads it whole every Session. The format is .agents/skills/docent/PLAN-FORMAT.md.
+# Sources: Taalprofielen 2015 (SLO) for the language Objectives, Bijlage 2 of the
+# Regeling inburgering 2021 (consolidated 2026-04-18) for KNM.
+horizon: "2027-03-31"
+objectives:
+  - id: LEB1-1a
+    skill: lezen
+    tier: exam
+    status: active
+    text: >-
+      Kan persoonlijke brieven, e-mails en vormen van sociale media voldoende begrijpen om met iemand te
+      kunnen corresponderen.
+  - id: LEB1-1b
+    skill: lezen
+    tier: exam
+    status: todo
+    text: Kan een eenvoudige formele brief of e-mail voldoende begrijpen om adequaat te kunnen reageren.
+  - id: LEB1-2a
+    skill: lezen
+    tier: exam
+    status: todo
+    text: >-
+      Kan relevante informatie vinden en begrijpen in brochures en korte officiële documenten op internet of
+      in andere media.
+  - id: LEB1-2b
+    skill: lezen
+    tier: exam
+    status: todo
+    text: >-
+      Kan in langere teksten op internet of in andere media informatie zoeken over thema's binnen het eigen
+      interessegebied (B1+).
+  - id: LEB1-3a
+    skill: lezen
+    tier: exam
+    status: todo
+    text: Kan belangrijke feitelijke informatie begrijpen in korte verslagen en artikelen.
+  - id: LEB1-3b
+    skill: lezen
+    tier: exam
+    status: todo
+    text: Kan eenvoudige jeugdliteratuur lezen.
+  - id: LEB1-3c
+    skill: lezen
+    tier: exam
+    status: todo
+    text: Kan door meelezen alledaags audiovisueel materiaal begrijpen.
+  - id: LEB1-3d
+    skill: lezen
+    tier: exam
+    status: todo
+    text: >-
+      Kan hoofdthema en belangrijkste argumenten begrijpen in eenvoudige teksten in tijdschriften, kranten of
+      op internet (B1+).
+  - id: LEB1-4a
+    skill: lezen
+    tier: exam
+    status: todo
+    text: Kan helder geschreven, ondubbelzinnige instructies begrijpen.
+  - id: SCHB1-1a
+    skill: schrijven
+    tier: exam
+    status: active
+    text: >-
+      Kan persoonlijke brieven en e-mails schrijven of gebruikmaken van andere vormen van sociale media waarin
+      ervaringen, gevoelens en gebeurtenissen enigszins gedetailleerd worden beschreven.
+  - id: SCHB1-1b
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan op advertenties reageren.
+  - id: SCHB1-1c
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: >-
+      Kan deelnemen aan discussies over bekende thema's of over thema's uit het interessegebied via sociale
+      media zoals internet.
+  - id: SCHB1-1d
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: >-
+      Kan persoonlijke brieven schrijven waarin nieuws wordt overgebracht en gedachten over abstracte of
+      culturele onderwerpen worden uitgedrukt (B1+).
+  - id: SCHB1-2a
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: >-
+      Kan notities en berichten schrijven die eenvoudige informatie bevatten die van direct belang is voor
+      vrienden, dienstverleners, onderwijzers, en anderen die een rol in zijn/haar dagelijks leven spelen, en
+      daarbij begrijpelijk de punten overbrengen waarvan hij of zij vindt dat ze belangrijk zijn.
+  - id: SCHB1-2b
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan formulieren waarin meer informatie gevraagd wordt, gedetailleerd invullen.
+  - id: SCHB1-3a
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan een kort, eenvoudig verslag schrijven volgens een vast format.
+  - id: SCHB1-3b
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan korte, eenvoudige opstellen schrijven over belangwekkende onderwerpen (B1+).
+  - id: SCHB1-3c
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: >-
+      Kan met enig vertrouwen verzamelde feitelijke informatie over vertrouwde alledaagse en niet- alledaagse
+      zaken binnen zijn of haar vakgebied samenvatten, in een verslag opnemen en becommentariëren (B1+).
+  - id: SCHB1-4a
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan gedetailleerde beschrijvingen geven van bekende onderwerpen binnen het eigen interessegebied.
+  - id: SCHB1-4b
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan verslag doen van ervaringen en daarbij gevoelens en reacties op gebeurtenissen beschrijven.
+  - id: SCHB1-4c
+    skill: schrijven
+    tier: exam
+    status: todo
+    text: Kan een verhaal schrijven over een onderwerp dat hem/haar interesseert.
+  - id: KNM-1.1.1
+    skill: knm
+    tier: knm
+    status: active
+    theme: Werk en inkomen
+    text: Is op de hoogte van de Nederlandse regelingen voor werk en inkomen.
+  - id: KNM-1.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van de manieren waarop mensen in Nederland vacatures/ werk vinden.
+  - id: KNM-1.1.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van relevante beroepen in relatie tot de eigen kwalificaties en loopbaanmogelijkheden.
+  - id: KNM-1.1.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: >-
+      Is ervan op de hoogte hoe de waarde van een eerder behaald diploma en ervaring voor de Nederlandse
+      arbeidsmarkt kan worden achterhaald of kan worden gewaardeerd.
+  - id: KNM-1.1.5
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van het belang van (bij)scholing voor de kansen op de arbeidsmarkt.
+  - id: KNM-1.1.6
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte dat een werkgever eisen met betrekking tot competenties aan een sollicitant kan stellen.
+  - id: KNM-1.1.7
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van de voorzieningen van de gemeente en UWV voor werkzoekenden en arbeidsongeschikten.
+  - id: KNM-1.1.8
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van de belangrijkste rechten en plichten van uitkeringsgerechtigden.
+  - id: KNM-1.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: >-
+      Is ervan op de hoogte dat een arbeidsovereenkomst de rechten en plichten beschrijft van werknemer en
+      werkgever.
+  - id: KNM-1.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van mogelijkheden tot werknemersparticipatie.
+  - id: KNM-1.2.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is ervan op de hoogte dat werkgevers premies en belastingen voor hun werknemers afdragen.
+  - id: KNM-1.3.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is ervan op de hoogte dat discriminatie op de arbeidsmarkt en de werkvloer wettelijk verboden is.
+  - id: KNM-1.4.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Werk en inkomen
+    text: Is op de hoogte van een aantal belangrijke voorwaarden om een bedrijf te kunnen starten.
+  - id: KNM-2.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: >-
+      Is ervan op de hoogte dat omgangsvormen, waarden en normen kunnen verschillen per sociale groep, regio,
+      generatie en sociaaleconomische klasse.
+  - id: KNM-2.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: Weet dat veel mensen in Nederland zich direct kunnen uiten.
+  - id: KNM-2.1.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: >-
+      Is ervan op de hoogte dat het doorgaans belangrijk is om van tevoren afspraken te maken o.a. op het werk
+      en met instanties.
+  - id: KNM-2.1.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: >-
+      Is ervan op de hoogte dat in Nederland verschillende samenlevingsvormen bestaan, ook voor partners van
+      gelijk geslacht.
+  - id: KNM-2.1.5
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: >-
+      Kent de officiële feest- en gedenkdagen, zoals Pasen, Koningsdag, 4 en 5 mei, Kerst, Oud en Nieuw, en de
+      in sommige kringen relevante feestdagen, zoals bijvoorbeeld Sinterklaas, Carnaval, Suikerfeest en Keti
+      Koti.
+  - id: KNM-2.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: >-
+      Is ervan op de hoogte dat in Nederland veel maatschappelijke, culturele- en/of sportieve organisaties en
+      verenigingen actief zijn.
+  - id: KNM-2.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Omgangsvormen, waarden en normen
+    text: >-
+      Is op de hoogte van de belangrijkste gebruiken bij familiegebeurtenissen, zoals verjaardag, geboorte,
+      slagen voor examen, bruiloft en overlijden.
+  - id: KNM-3.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Wonen
+    text: >-
+      Is ervan op de hoogte dat hij voor zijn eerste huisvesting vaak afhankelijk is van het aanbod van de
+      gemeente (tenzij hij zich als gezinsmigrant bij familie voegt die al de beschikking over woonruimte
+      heeft).
+  - id: KNM-3.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Wonen
+    text: Is ervan op de hoogte dat huurders in Nederland wettelijke rechten hebben.
+  - id: KNM-3.1.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Wonen
+    text: >-
+      Is op de hoogte van waar en hoe hij informatie kan vinden ten behoeve van het verkrijgen van een andere
+      woning.
+  - id: KNM-3.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Wonen
+    text: Is ervan op de hoogte dat hij zelf verantwoordelijk is voor aansluiting van energie, water en internet
+  - id: KNM-3.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Wonen
+    text: >-
+      Is ervan op de hoogte dat aan het verbruik van energie en water kosten verbonden zijn die (sterk) kunnen
+      fluctueren.
+  - id: KNM-3.3.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Wonen
+    text: Is op de hoogte van regels met betrekking tot afvalinzameling en afvalscheiding.
+  - id: KNM-4.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: >-
+      Is op de hoogte van de rol van de huisarts en de praktijkondersteuner als eerste aanspreekpunt bij
+      gezondheidsvraagstukken.
+  - id: KNM-4.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Kan gebruik maken van de apotheek.
+  - id: KNM-4.1.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Is op de hoogte van hoe hij een tandarts kan vinden.
+  - id: KNM-4.1.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Is ervan op de hoogte hoe kraam- en geboortezorg in Nederland geregeld is.
+  - id: KNM-4.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: >-
+      Is ervan op de hoogte dat de huisarts doorverwijst naar specialistische zorg, psychische zorg- of
+      hulpverlening.
+  - id: KNM-4.3.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Is op de hoogte van de werking van de huisartsenpost
+  - id: KNM-4.3.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Weet dat bij levensbedreigende situaties het nummer 112 moet worden gebeld.
+  - id: KNM-4.4.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: >-
+      Is ervan op de hoogte dat de zorgverzekering verplicht is, waarbij vrijwillig aanvullend bijverzekerd
+      kan worden.
+  - id: KNM-4.4.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Is op de hoogte van hoe zorgkosten kunnen worden gedeclareerd.
+  - id: KNM-4.4.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Weet dat veel administratieve aspecten van de zorg digitaal geregeld worden.
+  - id: KNM-4.4.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Weet dat voor het aanvragen en declareren van veel zorgvoorzieningen een DigiD nodig is.
+  - id: KNM-4.5.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Gezondheid en gezondheidszorg
+    text: Is op de hoogte van welzijnsfaciliteiten waarvoor hij terecht kan bij een gemeenteloket of wijkteam.
+  - id: KNM-5.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Geschiedenis en geografie
+    text: >-
+      Kent enkele aspecten van de geschiedenis van Nederland en kan enkele overblijfselen uit dit verleden
+      aanwijzen.
+  - id: KNM-5.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Geschiedenis en geografie
+    text: >-
+      Kent enkele ontwikkelingen en thema’s uit de recente Nederlandse geschiedenis en weet dat dit nog
+      herkenbaar is in de samenleving.
+  - id: KNM-5.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Geschiedenis en geografie
+    text: Kent de belangrijkste plaatsen en gebieden.
+  - id: KNM-5.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Geschiedenis en geografie
+    text: Is op de hoogte van de werking van het Nederlandse openbaar vervoer.
+  - id: KNM-6.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is ervan op de hoogte dat informatie vanuit en contact met overheidsinstanties meestal digitaal
+      plaatsvindt.
+  - id: KNM-6.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is ervan op de hoogte dat er naast de overheid ook andere instanties en initiatieven zijn die kunnen
+      helpen bij het omgaan met wet- en regelgeving, financiële zelfstandigheid en gezondheid.
+  - id: KNM-6.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is ervan op de hoogte dat hij wijzigingen in de gezinssamenstelling moet doorgeven aan de gemeente
+      (BRP).
+  - id: KNM-6.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is op de hoogte van de regels en procedures voor het verkrijgen van officiële documenten als
+      verblijfsvergunning, paspoort en rijbewijs.
+  - id: KNM-6.2.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is op de hoogte van waar hij informatie kan krijgen over de regels voor verblijfsvergunningen en
+      naturalisatie.
+  - id: KNM-6.2.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: Is op de hoogte van een aantal taken van de gemeente.
+  - id: KNM-6.3.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: Is ervan op de hoogte dat hij van zijn inkomen een (digitale) salarisstrook en jaaropgave krijgt.
+  - id: KNM-6.3.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is ervan op de hoogte dat hij in sommige gevallen belasting moet betalen, maar in andere gevallen
+      belasting terug kan krijgen.
+  - id: KNM-6.3.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: Is ervan op de hoogte dat de Belastingdienst toeslagen verstrekt zoals voor zorg, huur en kinderopvang.
+  - id: KNM-6.4.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: Is op de hoogte van de taken die de politie heeft.
+  - id: KNM-6.5.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is ervan op de hoogte hoe hij bezwaar kan maken tegen een slechte behandeling door de overheid inclusief
+      de politie.
+  - id: KNM-6.5.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: Is ervan op de hoogte dat hij voor juridische hulp bij advocaten of een Juridisch Loket terecht kan.
+  - id: KNM-6.6.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Instanties
+    text: >-
+      Is ervan op de hoogte dat het gebruikelijk is om verzekerd te zijn tegen bepaalde risico’s en dat
+      sommige verzekeringen verplicht zijn.
+  - id: KNM-7.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Kent de belangrijkste zaken van de staatsinrichting van Nederland.
+  - id: KNM-7.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Is ervan op de hoogte dat Nederland deel uitmaakt van de Europese Unie (EU).
+  - id: KNM-7.1.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: >-
+      Is ervan op de hoogte dat de macht in Nederland gespreid is in wetgevende, uitvoerende en rechterlijke
+      macht.
+  - id: KNM-7.1.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Is op de hoogte van wat ‘kiesrecht’ inhoudt en wat het belang van stemmen is.
+  - id: KNM-7.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: >-
+      Is ervan op de hoogte dat vrouwen en mannen voor de wet gelijkwaardig zijn en gelijkwaardig behandeld
+      dienen te worden.
+  - id: KNM-7.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Is op de hoogte van wat ‘vrijheid van meningsuiting’ inhoudt.
+  - id: KNM-7.2.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Is ervan op de hoogte dat in Nederland godsdienstvrijheid geldt.
+  - id: KNM-7.2.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Is op de hoogte van wat ‘gelijke behandeling’ en ‘discriminatieverbod’ inhoudt.
+  - id: KNM-7.2.5
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Is ervan op de hoogte dat de privacy van de burger door de wet wordt beschermd.
+  - id: KNM-7.2.6
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: >-
+      Is ervan op de hoogte dat de wet de integriteit van het lichaam beschermt en dat alle ongewenste
+      intimiteit en geweld strafbaar zijn (huiselijk geweld, eerwraak, slaan van kinderen, besnijdenis van
+      meisjes, geweld op straat enzovoort).
+  - id: KNM-7.2.7
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: >-
+      Is ervan op de hoogte dat het bij wet geregeld is dat iedereen in Nederland na overlijden zijn organen
+      afstaat voor orgaandonatie, tenzij hij vastlegt hier niet of slechts ten dele aan te willen meewerken.
+  - id: KNM-7.2.8
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Staatsinrichting en rechtsstaat
+    text: Weet dat vrouwen in Nederland zelfbeschikkingsrecht hebben en wat dit betekent.
+  - id: KNM-8.1.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: Is op de hoogte van de opbouw van het Nederlands onderwijssysteem (van 0 tot 18+ jaar).
+  - id: KNM-8.1.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: Is ervan op de hoogte dat er in Nederland vrijheid van onderwijs bestaat.
+  - id: KNM-8.1.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: >-
+      Is ervan op de hoogte dat er een wettelijke verplichting is om kinderen van 5 tot 18 jaar onderwijs te
+      laten volgen.
+  - id: KNM-8.1.4
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: >-
+      Is op de hoogte van het bestaan van voorschoolse educatie en/of buitenschoolse opvang
+      (kinderopvangorganisatie).
+  - id: KNM-8.1.5
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: >-
+      Weet dat een school in het basis- en voortgezet onderwijs verplicht is lessen te verzorgen over
+      seksualiteit en seksuele diversiteit.
+  - id: KNM-8.2.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: Is ervan op de hoogte dat de ouders wettelijk verantwoordelijk zijn voor het gedrag van hun kind(eren).
+  - id: KNM-8.2.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: >-
+      Is ervan op de hoogte dat scholen betrokkenheid van de ouders verwachten t.a.v. de ontwikkeling van hun
+      kind(eren) op school.
+  - id: KNM-8.2.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: Is ervan op de hoogte dat er mogelijkheden azijn voor opvoedingsondersteuning.
+  - id: KNM-8.3.1
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: Is ervan op de hoogte dat er aan het volgen van onderwijs/opleiding/studie kosten zijn verbonden.
+  - id: KNM-8.3.2
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: >-
+      Is op de hoogte van de regelingen voor volledige dan wel gedeeltelijke vergoeding van onkosten voor
+      school, studie, zorg of opvang.
+  - id: KNM-8.3.3
+    skill: knm
+    tier: knm
+    status: todo
+    theme: Onderwijs en opvoeding
+    text: >-
+      Is ervan op de hoogte dat hij voor een tegemoetkoming in studiekosten een aanvraag bij Dienst Uitvoering
+      Onderwijs (DUO) kan indienen.
+  - id: LEB2-1a
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan correspondentie lezen met betrekking tot zijn of haar interessegebied en daarbij meteen de
+      wezenlijke betekenis vatten.
+  - id: LEB2-2a
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: Kan snel lange, complexe teksten doorlezen en de relevante details vinden.
+  - id: LEB2-2b
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan snel de inhoud en relevantie herkennen van nieuwsberichten, artikelen en verslagen over
+      uiteenlopende professionele onderwerpen en dan beslissen of nadere bestudering de moeite waard is.
+  - id: LEB2-2c
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: Kan meer complexe advertenties begrijpen.
+  - id: LEB2-3a
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan artikelen en verslagen over hedendaagse problemen begrijpen, waarin de schrijvers bepaalde
+      stellingen of standpunten innemen.
+  - id: LEB2-3b
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan literaire en non-fictie teksten lezen met een redelijke mate van begrip voor het geheel en voor
+      details.
+  - id: LEB2-3c
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan informatie, ideeën en meningen ophalen uit zeer gespecialiseerde bronnen binnen zijn of haar
+      vakgebied (B2+).
+  - id: LEB2-3d
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan gespecialiseerde artikelen buiten het eigen vakgebied begrijpen, mits hij of zij af en toe een
+      woordenboek kan gebruiken om zijn of haar interpretatie van terminologie te bevestigen (B2+).
+  - id: LEB2-4a
+    skill: lezen
+    tier: stretch
+    status: todo
+    text: >-
+      Kan lange, complexe aanwijzingen op het eigen vakgebied begrijpen, met inbegrip van details over
+      voorwaarden en waarschuwingen, mits hij of zij moeilijke passages kan herlezen.
+  - id: SCHB2-1a
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: Kan in correspondentie ingaan op de persoonlijke betekenis van ervaringen en gebeurtenissen.
+  - id: SCHB2-1b
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: >-
+      Kan in persoonlijke brieven, e-mails en in internetgroepen nieuws en standpunten van een ander
+      becommentariëren.
+  - id: SCHB2-2a
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: >-
+      Kan een helder gestructureerde lezing over een vertrouwd onderwerp begrijpen en aantekeningen maken van
+      punten die hem of haar belangrijk voorkomen, ook al neigt hij of zij ertoe zich te concentreren op de
+      woorden zelf en daardoor sommige informatie te missen.
+  - id: SCHB2-3a
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: Kan teksten schrijven waarin argumenten worden uitgewerkt en onderbouwd.
+  - id: SCHB2-3b
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: Kan informatie en argumenten uit verschillende bronnen bijeenvoegen.
+  - id: SCHB2-3c
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: >-
+      Kan een essay of tekst schrijven waarin stelselmatig een argument wordt opgebouwd met de juiste
+      benadrukking van belangrijke punten en relevante ondersteunende details (B2+).
+  - id: SCHB2-3d
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: Kan verschillende ideeën of oplossingen voor een probleem evalueren (B2+).
+  - id: SCHB2-4a
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: Kan duidelijke, gedetailleerde teksten schrijven over thema's gerelateerd aan het eigen interessegebied.
+  - id: SCHB2-4b
+    skill: schrijven
+    tier: stretch
+    status: todo
+    text: >-
+      Kan helder en gedetailleerd schrijven over waargebeurde of verzonnen gebeurtenissen en ervaringen, en
+      daarbij het verband tussen ideeën aangeven in heldere samenhangende tekst en zich houden aan de
+      aanvaarde conventies van het betrokken genre (B2+).
+  - id: LUB1-1a
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan helder uitgesproken spraak volgen die in alledaagse conversatie tot hem of haar gericht wordt, maar
+      zal soms moeten vragen om herhaling van bepaalde woorden en zinnen.
+  - id: LUB1-2a
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan over het algemeen de hoofdpunten volgen van een uitgebreide, informele discussie die rondom hem of
+      haar wordt gevoerd.
+  - id: LUB1-2b
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: Kan veel volgen van wat rondom hem of haar wordt gezegd over algemene onderwerpen (B1+).
+  - id: LUB1-3a
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: Kan een voordracht of toespraak volgen binnen het eigen vakgebied (B1+).
+  - id: LUB1-4a
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: Kan eenvoudige technische informatie begrijpen.
+  - id: LUB1-4b
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: Kan gedetailleerde aanwijzingen volgen.
+  - id: LUB1-5a
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan de hoofdpunten verstaan van nieuwsberichten op de radio en van eenvoudiger opgenomen materiaal over
+      vertrouwde onderwerpen.
+  - id: LUB1-5b
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan de inhoudelijke informatie van het meeste opgenomen of uitgezonden geluidsmateriaal over onderwerpen
+      van persoonlijk belang verstaan (B1+).
+  - id: LUB1-5c
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan veel films volgen waarin een groot deel van de verhaallijn wordt gedragen door visuele effecten en
+      actiescènes, en die helder worden gepresenteerd in directe taal.
+  - id: LUB1-5d
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan de hoofdpunten vatten van televisieprogramma’s over vertrouwde onderwerpen wanneer deze betrekkelijk
+      langzaam en helder worden gepresenteerd.
+  - id: LUB1-5e
+    skill: luisteren
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan een groot deel begrijpen van veel televisieprogramma’s over onderwerpen van persoonlijk belang,
+      zoals vraaggesprekken, korte voordrachten en nieuwsverslagen, wanneer deze betrekkelijk langzaam en
+      helder worden gepresenteerd (B1+).
+  - id: LUB2-1a
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan tot in de details begrijpen wat er tegen hem of haar gezegd wordt, zelfs in een lawaaierige
+      omgeving.
+  - id: LUB2-2a
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan met enige inspanning veel volgen van wat rond hem of haar gezegd wordt, maar kan het moeilijk vinden
+      effectief deel te nemen aan een gesprek met meerdere 'native speakers' die hun taal op geen enkele wijze
+      aanpassen.
+  - id: LUB2-2b
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: Kan een levendig gesprek tussen moedertaalsprekers volgen (B2+).
+  - id: LUB2-3a
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan de wezenlijke punten volgen van voordrachten, toespraken, verslagen en andere vormen van academische
+      of professionele presentaties die naar inhoud en vorm complex zijn.
+  - id: LUB2-4a
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: Kan mededelingen en berichten over concrete en abstracte onderwerpen verstaan.
+  - id: LUB2-5a
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: Kan de meeste nieuwsuitzendingen en actualiteitenprogramma’s op de televisie en via internet verstaan.
+  - id: LUB2-5b
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan documentaires, live uitgezonden vraaggesprekken, praatprogramma’s, toneelstukken en de meeste films
+      in standaarddialect verstaan op televisie of via internet.
+  - id: LUB2-5c
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan de meeste radiodocumentaires en het meeste andere opgenomen of uitgezonden geluidsmateriaal verstaan
+      en kan de stemming, toon enzovoort van de spreker herkennen.
+  - id: LUB2-5d
+    skill: luisteren
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan opnamen in standaardtaal verstaan die veel worden aangetroffen in het sociale, beroeps- of
+      onderwijsleven, en naast de inhoudelijke informatie ook standpunten en houdingen van sprekers herkennen
+      (B2+).
+  - id: SPB1-1a
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan eenvoudige beschrijvingen geven van diverse vertrouwde onderwerpen binnen zijn of haar
+      interessegebied.
+  - id: SPB1-1b
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan op een eenvoudige manier over gebeurtenissen berichten of beschrijvingen geven.
+  - id: SPB1-1c
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan gedetailleerd verslag doen van ervaringen en daarbij gevoelens en reacties beschrijven.
+  - id: SPB1-1d
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan details vertellen van onverwachte gebeurtenissen.
+  - id: SPB1-1e
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan de plot van een boek of film navertellen en daarbij zijn of haar reacties beschrijven.
+  - id: SPB1-1f
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan dromen, verwachtingen en ambities beschrijven.
+  - id: SPB1-1g
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan een verhaal vertellen.
+  - id: SPB1-2a
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan korte, ingestudeerde mededelingen doen over een onderwerp dat betrekking heeft op alledaagse
+      gebeurtenissen op zijn of haar gebied.
+  - id: SPB1-3a
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan een voorbereide presentatie of spreekbeurt houden over een vertrouwd onderwerp binnen zijn of haar
+      gebied, die helder genoeg is om het grootste deel van de tijd moeiteloos te worden gevolgd en waarin de
+      belangrijkste punten met een redelijke mate van nauwkeurigheid worden uitgelegd en kan vragen
+      beantwoorden naar aanleiding van de presentatie, maar moet soms om herhaling vragen als er snel is
+      gesproken.
+  - id: SPB1-3b
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan in het kort zaken uitleggen en toelichten.
+  - id: SPB1-1j
+    skill: spreken
+    tier: exam
+    status: unsupported
+    text: Kan een argument zo goed ontwikkelen dat het meestal probleemloos kan worden gevolgd.
+  - id: SPB2-1a
+    skill: spreken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan duidelijke, gedetailleerde beschrijvingen geven over een breed scala van onderwerpen die betrekking
+      hebben op zijn of haar interessegebied.
+  - id: SPB2-1b
+    skill: spreken
+    tier: stretch
+    status: unsupported
+    text: Kan duidelijke, samenhangende verhalen vertellen.
+  - id: SPB2-2a
+    skill: spreken
+    tier: stretch
+    status: unsupported
+    text: Kan over de meeste algemene onderwerpen op spontane wijze mededelingen doen.
+  - id: SPB2-3a
+    skill: spreken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een duidelijke, voorbereide presentatie geven, daarbij argumenten voor of tegen een bepaald
+      standpunt noemen en de voor- en nadelen van verschillende opties geven en kan een reeks vervolgvragen
+      beantwoorden.
+  - id: SPB2-3b
+    skill: spreken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een heldere argumentatie ontwikkelen en daarbij zijn of haar gezichtspunten uitvoerig uitwerken en
+      ondersteunen met aanvullende punten en relevante voorbeelden.
+  - id: SPB2-3c
+    skill: spreken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een duidelijke, systematisch ontwikkelde presentatie geven, met de nadruk op belangrijke punten en
+      ter zake doende ondersteunende details. (B2+)
+  - id: GSB1-1a
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan gevoelens uiten en op gevoelens van anderen reageren.
+  - id: GSB1-1b
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan persoonlijke standpunten, commentaar en meningen geven of er om vragen in discussies over
+      belangwekkende onderwerpen.
+  - id: GSB1-1c
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan zijn of haar meningen en reacties overbrengen met betrekking tot oplossingen voor problemen of
+      praktische vragen.
+  - id: GSB1-1d
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan op beleefde wijze een overtuiging, een mening, instemming en afkeuring uitdrukken.
+  - id: GSB1-1e
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan zijn of haar gedachten tot uiting brengen over abstracte of culturele onderwerpen zoals muziek en
+      films (B1+).
+  - id: GSB1-1f
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan uitleggen waarom iets een probleem is (B1+).
+  - id: GSB1-1g
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan beknopt commentaar geven op de standpunten van anderen (B1+).
+  - id: GSB1-1h
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan alternatieven vergelijken en tegenover elkaar stellen, bespreken wat er gedaan moet worden, welke
+      richting moet worden ingeslagen, wie of wat moet worden gekozen, enzovoort (B1+).
+  - id: GSB1-2a
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan een standpunt helder overbrengen, maar heeft er moeite mee om in debat te gaan.
+  - id: GSB1-2b
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan deelnemen aan een alledaagse formele discussie over vertrouwde onderwerpen die gaan om de
+      uitwisseling van feitelijke informatie, het ontvangen van en reageren op aanwijzingen of het bespreken
+      van oplossingen voor praktische problemen.
+  - id: GSB1-3a
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan zijn of haar mening geven en reacties overbrengen met betrekking tot mogelijke oplossingen van
+      problemen en het nemen van praktische beslissingen, en daarbij beknopte redenen en verklaringen geven.
+  - id: GSB1-4a
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan overweg met de meeste zaken die kunnen optreden tijdens reizen, bij het regelen van vervoer of
+      onderdak of in contacten met (openbare) instanties tijdens een buitenlands bezoek.
+  - id: GSB1-4b
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan zich redden in minder alledaagse situaties in winkels, restaurants, postkantoren en banken.
+  - id: GSB1-4c
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan een klacht uiten, afhandelen, doorgeven.
+  - id: GSB1-5a
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan eenduidige feitelijke informatie achterhalen en doorgeven.
+  - id: GSB1-5b
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan telefonisch informatie opvragen en/of doorgeven.
+  - id: GSB1-5c
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan gedetailleerde richtingaanwijzingen vragen en opvolgen.
+  - id: GSB1-5d
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan meer gedetailleerde informatie verkrijgen.
+  - id: GSB1-5e
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan enig initiatief nemen in een vraaggesprek of consult, maar is in de interactie erg afhankelijk van
+      de vragensteller.
+  - id: GSB1-5f
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan een voorbereide vragenlijst gebruiken om een gestructureerd vraaggesprek te voeren met enige
+      spontane vervolgvragen.
+  - id: GSB1-5g
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan met enig vertrouwen verzamelde feitelijke informatie over vertrouwde alledaagse en niet- alledaagse
+      zaken binnen zijn of haar vakgebied uitwisselen, controleren en bevestigen (B1+).
+  - id: GSB1-5h
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: Kan beschrijven en bespreken hoe iets gedaan moet worden, met gedetailleerde aanwijzingen (B1+).
+  - id: GSB1-5i
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan een kort verhaal, artikel, lezing, discussie, vraaggesprek of documentaire samenvatten, er zijn of
+      haar mening over geven en nadere vragen over details beantwoorden (B1+).
+  - id: GSB1-5j
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan concrete informatie verschaffen waarnaar in een vraaggesprek of consult gevraagd wordt, maar doet
+      dit met beperkte nauwkeurigheid (B1+).
+  - id: GSB1-5k
+    skill: gesprekken
+    tier: exam
+    status: unsupported
+    text: >-
+      Kan een voorbereid vraaggesprek voeren en daarbij informatie controleren en bevestigen, al moet hij of
+      zij zo nu en dan om herhaling vragen als de ander snel of uitvoerig antwoordt (B1+).
+  - id: GSB2-1a
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een uitgebreide conversatie voeren over de meeste algemene onderwerpen op duidelijk participerende
+      wijze, zelfs in een lawaaierige omgeving.
+  - id: GSB2-1b
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan contacten met sprekers van de vreemde taal onderhouden zonder hen onbedoeld te irriteren of te
+      amuseren en zonder dat zij zich anders moeten gedragen dan in gesprekken met native speakers.
+  - id: GSB2-1c
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan gevoelens genuanceerd uiten, adequaat reageren op gevoelsuitingen van anderen en het persoonlijke
+      belang van gebeurtenissen en ervaringen benadrukken.
+  - id: GSB2-1d
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan actief deelnemen aan informele discussies in een vertrouwde context en daarbij commentaar geven,
+      standpunten helder weergeven, alternatieve voorstellen beoordelen en hypothesen stellen en beantwoorden.
+  - id: GSB2-1e
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan zijn of haar meningen in een discussie verantwoorden en staande houden met ter zake doende
+      verklaringen, argumenten en commentaren.
+  - id: GSB2-1f
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan zijn of haar ideeën en meningen precies onder woorden brengen en op overtuigende wijze complexe
+      redeneringen presenteren en beantwoorden (B2+).
+  - id: GSB2-2a
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan actief deelnemen aan alledaagse en niet-alledaagse formele discussies.
+  - id: GSB2-2b
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan zijn of haar mening bijdragen, verantwoorden en staande houden, alternatieve voorstellen beoordelen
+      en hypothesen stellen en beantwoorden.
+  - id: GSB2-3a
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan de voortgang van het werk of van een gezamenlijke activiteit op weg helpen.
+  - id: GSB2-3b
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een zaak of probleem helder schetsen, speculeren over oorzaken of gevolgen, en voor- en nadelen van
+      verschillende benaderingen afwegen.
+  - id: GSB2-4a
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een probleem uitleggen en duidelijk maken dat de dienstverlener of de klant een concessie zal moeten
+      doen.
+  - id: GSB2-4b
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan onderhandelen.
+  - id: GSB2-4c
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan een klacht op adequate wijze afhandelen, telefonisch en face-to-face.
+  - id: GSB2-4d
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan zich talig redden om een oplossing te bereiken over een meningsverschil in onverwachte situaties
+      tijdens een reis.
+  - id: GSB2-4e
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan argumenten geven voor schadevergoeding, overredende taal gebruiken om genoegdoening te eisen en
+      helder aangeven wat de grenzen zijn van eventuele concessies waartoe hij of zij bereid is (B2+).
+  - id: GSB2-5a
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan op betrouwbare wijze gedetailleerde informatie doorgeven en bespreken.
+  - id: GSB2-5b
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan helder en gedetailleerd bespreken hoe een procedure moet worden uitgevoerd.
+  - id: GSB2-5c
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: Kan informatie en argumenten uit verschillende bronnen bijeenvoegen, rapporteren en bespreken.
+  - id: GSB2-5d
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan initiatief nemen in een vraaggesprek en ideeën uitwerken en ontwikkelen zonder veel hulp of
+      aansporing van een vragensteller.
+  - id: GSB2-5e
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan complexe informatie uitwisselen en advies geven over allerlei zaken met betrekking tot het eigen
+      vak- of interessegebied (B2+).
+  - id: GSB2-5f
+    skill: gesprekken
+    tier: stretch
+    status: unsupported
+    text: >-
+      Kan een doeltreffend, vloeiend vraaggesprek voeren, daarbij spontaan afwijken van voorbereide vragen en
+      ingaan op belangwekkende antwoorden (B2+).

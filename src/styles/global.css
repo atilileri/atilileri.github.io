@@ -176,3 +176,17 @@ main .grid > * {
   height: auto;
 }
 
+
+/* The /nederlands/ pages: the parts of a Lesson the blog's prose never needed. */
+.dutch-prose h2 { font-size: 1.75rem; }
+.dutch-prose h3 { font-size: 1.35rem; }
+.dutch-prose a { color: var(--color-primary-container); text-decoration: underline; text-underline-offset: 3px; }
+.dutch-prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+.dutch-prose ol.list-none { list-style-type: none; padding-left: 0; }
+.dutch-prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin-bottom: 1.5rem; }
+.dutch-prose :where(th, td) { padding: 0.35rem 0.75rem; border-bottom: 1px solid var(--color-outline-variant); text-align: left; }
+.dutch-prose th { color: var(--color-on-surface); }
+.dutch-prose .dutch-split table { display: table; }
+.dutch-prose .dutch-split :where(th, td) { border-bottom: 0; padding: 0.25rem; text-align: center; }
+.dutch-prose .dutch-split th { text-align: left; }
+.dutch-prose .dutch-split dt { margin-right: 0.35rem; }

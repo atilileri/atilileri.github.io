@@ -13,7 +13,7 @@
  * between two languages comes back mislabelled segment by segment.
  *
  * Measured on this machine: 96.1% of a human transcript's words recovered, at
- * about 4x realtime on 8 CPU cores. See docs/dutch/READING-MATERIAL.md.
+ * about 4x realtime on 8 CPU cores.
  */
 const { execFileSync } = require('child_process');
 const fs = require('fs');

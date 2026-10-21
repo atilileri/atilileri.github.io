@@ -33,7 +33,7 @@ a row.
 
 Cepeda et al. (2008) found the best gap is a fraction of the delay you are studying for — about 20% for a few
 weeks, falling to about 5% at a year. So a schedule with no horizon is a schedule tuned for nothing. There is
-no exam date, so `PLAN.md` carries a declared one — `2027-03-31` as of 2026-09-05, explicitly temporary. Every
+no exam date, so the Plan (`docs/dutch/plan.yml`) carries a declared one — `2027-03-31` as of 2026-09-05, explicitly temporary. Every
 gap below rung 5 is derived from it, so booking a real exam retunes the whole inventory with one edit.
 
 Rung 5 is deliberately **not** derived. It is a confirmation that a word is still held, not an attempt to

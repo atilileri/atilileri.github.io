@@ -1,0 +1,101 @@
+---
+// The front of the journey, for a stranger: English, and it explains.
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { readPlan } from "../../lib/dutch/plan";
+import { formatDate, status } from "../../lib/dutch/session";
+
+const plan = readPlan();
+const SKILLS = ["lezen", "schrijven", "knm", "luisteren", "spreken", "gesprekken"];
+const STATUSES = ["active", "todo", "done", "unsupported"] as const;
+const bySkill = SKILLS.map((skill) => {
+  const objectives = plan.objectives.filter((o) => o.skill === skill);
+  const count = Object.fromEntries(STATUSES.map((s) => [s, objectives.filter((o) => o.status === s).length]));
+  return { skill, total: objectives.length, count, active: objectives.find((o) => o.status === "active") };
+});
+
+const newest = <T extends { data: { date: Date } }>(a: T, b: T) => b.data.date.valueOf() - a.data.date.valueOf();
+const sessions = (await getCollection("dutchSessions")).sort(newest);
+const lessons = (await getCollection("dutchLessons")).sort(newest);
+const teksten = (await getCollection("dutchTeksten")).sort(newest);
+const items = await getCollection("dutchItems");
+const en = (d: Date) => formatDate(d, "en-GB");
+const repo = "https://github.com/atilileri/atilileri.github.io";
+---
+
+<BaseLayout title="Nederlands" description="A Dutch practice for the Staatsexamen NT2, run by an agent and published as it happens." currentPath="/nederlands/">
+  <div class="max-w-4xl mx-auto w-full min-w-0 overflow-x-clip px-6 py-16 sm:px-8 space-y-14">
+    <header>
+      <h1 class="font-[Space_Grotesk] text-[clamp(2.5rem,8vw,4.5rem)] font-bold tracking-tighter leading-[0.9] mb-6">Nederlands</h1>
+      <p class="text-lg text-[var(--color-on-surface-variant)] font-light max-w-2xl">
+        A Dutch practice aimed at the Staatsexamen NT2 (B1, with B2 as a stretch), run by an agent skill called
+        Docent and learned in public. Each Session teaches the next step of a fixed Plan, dressed in a theme from
+        the learner's own week. The pages below are in Turkish, the learner's language; the Dutch is quoted.
+      </p>
+    </header>
+
+    <section>
+      <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Progress</h2>
+      <p class="mb-4 text-[var(--color-on-surface-variant)]">Studying toward <strong>{en(new Date(plan.horizon))}</strong> · {items.length} words in the inventory</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-[var(--color-outline)]">
+            <tr><th class="py-1 pr-4">Skill</th><th class="pr-4">Active</th><th class="pr-4">To do</th><th class="pr-4">Done</th><th>Not taught</th></tr>
+          </thead>
+          <tbody>
+            {bySkill.map((s) => (
+              <tr class="border-t border-[var(--color-outline-variant)]/30">
+                <td class="py-1 pr-4 font-bold">{s.skill}</td>
+                <td class="pr-4">{s.active ? <code title={s.active.text}>{s.active.id}</code> : "—"}</td>
+                <td class="pr-4">{s.count.todo}</td>
+                <td class="pr-4">{s.count.done}</td>
+                <td>{s.count.unsupported}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-sm text-[var(--color-outline)]">Listening, speaking and conversation stay in the Plan but are not taught: nothing here can judge speech.</p>
+    </section>
+
+    <section>
+      <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Sessions</h2>
+      {sessions.length === 0 ? <p>No Session yet.</p> : (
+        <ul class="space-y-1">
+          {sessions.slice(0, 10).map((s) => (
+            <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/session/${s.id}/`} lang="tr">{s.data.title}</a> · {en(s.data.date)} · {status(s.data.prompts)}</li>
+          ))}
+        </ul>
+      )}
+      {sessions.length > 10 && <p class="mt-2"><a class="text-[var(--color-primary-container)]" href="/nederlands/session/">All Sessions →</a></p>}
+    </section>
+
+    <section class="grid gap-10 md:grid-cols-2">
+      <div>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Lessons</h2>
+        {lessons.length === 0 ? <p>No Lesson yet.</p> : (
+          <ul class="space-y-1">{lessons.slice(0, 10).map((l) => <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/lesson/${l.id}/`} lang="tr">{l.data.title}</a></li>)}</ul>
+        )}
+        {lessons.length > 10 && <p class="mt-2"><a class="text-[var(--color-primary-container)]" href="/nederlands/lesson/">All Lessons →</a></p>}
+      </div>
+      <div>
+        <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Teksten</h2>
+        {teksten.length === 0 ? <p>No Tekst yet.</p> : (
+          <ul class="space-y-1">{teksten.slice(0, 10).map((t) => <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/tekst/${t.id}/`} lang="nl">{t.data.title}</a></li>)}</ul>
+        )}
+        {teksten.length > 10 && <p class="mt-2"><a class="text-[var(--color-primary-container)]" href="/nederlands/tekst/">All Teksten →</a></p>}
+      </div>
+    </section>
+
+    <section class="text-sm text-[var(--color-on-surface-variant)] space-y-2">
+      <p>
+        The working files are public: <a class="text-[var(--color-primary-container)]" href={`${repo}/blob/main/docs/dutch/plan.yml`}>the Plan</a>,
+        <a class="text-[var(--color-primary-container)]" href={`${repo}/blob/main/docs/dutch/items.yml`}>the words</a> and
+        <a class="text-[var(--color-primary-container)]" href={`${repo}/tree/main/.agents/skills/docent`}>the skill</a>.
+        Every design decision is an issue: <a class="text-[var(--color-primary-container)]" href={`${repo}/issues/74`}>what the system is</a> and
+        <a class="text-[var(--color-primary-container)]" href={`${repo}/issues/154`}>how the skill was made</a>.
+      </p>
+      <p>The pictures on these pages are drawn by AI.</p>
+    </section>
+  </div>
+</BaseLayout>

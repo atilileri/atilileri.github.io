@@ -1,0 +1,13 @@
+---
+// Shows an answer only when the learner asks. A native <details>, so it works
+// with JavaScript off.
+interface Props {
+  summary?: string;
+}
+const { summary = "Cevabı göster" } = Astro.props;
+---
+
+<details class="my-4 rounded-lg border border-[var(--color-outline-variant)]/40 bg-[var(--color-surface-container-low)] px-4 py-2">
+  <summary class="cursor-pointer font-bold text-[var(--color-primary-container)]">{summary}</summary>
+  <div class="pt-2"><slot /></div>
+</details>

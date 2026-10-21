@@ -1,0 +1,68 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import Page from "../../../components/dutch/Page.astro";
+import Reveal from "../../../components/dutch/Reveal.astro";
+import { formatDate, inline, status, statusTr } from "../../../lib/dutch/session";
+
+export async function getStaticPaths() {
+  const sessions = await getCollection("dutchSessions");
+  return sessions.map((session) => ({ params: { id: session.id }, props: { session } }));
+}
+
+const { session } = Astro.props;
+const d = session.data;
+const items = new Map(
+  (await Promise.all(d.prompts.filter((p) => p.type === "item").map((p) => getEntry("dutchItems", p.item))))
+    .filter(Boolean)
+    .map((e) => [e!.id, e!.data]),
+);
+const VERDICT = { correct: "doğru", close: "yakın", incorrect: "yanlış" } as const;
+// The answer an item Prompt expects: the Turkish for recognition, the Dutch for production.
+const expected = (p: { item: string; direction: string }) => {
+  const it = items.get(p.item);
+  if (!it) return null;
+  return p.direction === "recognition" ? it.tr : `${it.article ? `${it.article} ` : ""}${it.nl}`;
+};
+---
+
+<Page title={d.title} kicker={`Session · ${formatDate(d.date)} · ${statusTr[status(d.prompts)]}`}>
+  <p>Tema: <code>{d.theme}</code> · Hedef: <code>{d.objective}</code></p>
+
+  <h2>Sorular</h2>
+  <ol class="list-none pl-0">
+    {d.prompts.map((p) => (
+      <li class="mb-6">
+        <p class="mb-1"><strong>{p.id}.</strong> <span set:html={inline(p.ask)} /></p>
+        {p.answer !== undefined && <p class="mb-1">Cevap: <span lang="nl">{p.answer}</span></p>}
+        {p.skipped && <p class="mb-1"><em>Atlandı.</em></p>}
+        {p.type === "item" && p.verdict && <p class="mb-1">Sonuç: <strong>{VERDICT[p.verdict]}</strong></p>}
+        {p.feedback && <p class="mb-1" set:html={inline(p.feedback)} />}
+        {p.type === "item" && expected(p) && <Reveal>{expected(p)}</Reveal>}
+      </li>
+    ))}
+  </ol>
+
+  {d.episode && (
+    <>
+      <h2>Episode</h2>
+      <p><a href={d.episode.url} lang="nl">{d.episode.title}</a> · {formatDate(d.episode.date)}</p>
+    </>
+  )}
+
+  {(d.lessons.length > 0 || d.teksten.length > 0) && (
+    <>
+      <h2>Malzeme</h2>
+      <ul>
+        {d.lessons.map((s) => <li><a href={`/nederlands/lesson/${s}/`}>Ders: {s}</a></li>)}
+        {d.teksten.map((s) => <li><a href={`/nederlands/tekst/${s}/`}>Tekst: {s}</a></li>)}
+      </ul>
+    </>
+  )}
+
+  {d.limits.length > 0 && (
+    <>
+      <h2>Eksikler</h2>
+      <ul>{d.limits.map((l) => <li set:html={inline(l)} />)}</ul>
+    </>
+  )}
+</Page>

@@ -6,13 +6,7 @@ Everything here runs **locally and offline** — no API key, no account, no per-
 because this machine has no `pip` and no password-free `sudo`, so Node and static binaries are the only things
 that install.
 
-**When to use which is [`docs/dutch/READING-MATERIAL.md`](../../docs/dutch/READING-MATERIAL.md).** That file
-carries the measured accuracy and speed, the limits, and the rules about publishing what you read. Read it first;
-this file only says how to run the scripts.
-
-These scripts are meant to be **lifted into the `docent` skill** when it is built
-([#86](https://github.com/atilileri/atilileri.github.io/issues/86)). They live here so the skill can copy a
-working, tested version rather than a described one.
+They are general tooling, not part of the Dutch journey: the `docent` skill does not use them.
 
 ## Install
 

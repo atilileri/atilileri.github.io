@@ -1,0 +1,31 @@
+---
+// Lets the learner hide one column of the table inside it — the Turkish of a
+// conjugation table, say. With JavaScript off, the button stays hidden and the
+// column shows.
+interface Props {
+  column?: number;
+  label?: string;
+}
+const { column = 2, label = "Sütunu gizle / göster" } = Astro.props;
+---
+
+<div class="hide-column" data-column={column}>
+  <button type="button" hidden class="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--color-primary-container)]">{label}</button>
+  <slot />
+</div>
+
+<script>
+  for (const box of document.querySelectorAll<HTMLElement>(".hide-column")) {
+    const button = box.querySelector("button");
+    if (!button) continue;
+    button.hidden = false;
+    let hidden = false;
+    button.addEventListener("click", () => {
+      hidden = !hidden;
+      const cells = box.querySelectorAll<HTMLElement>(
+        `tr > :nth-child(${box.dataset.column})`,
+      );
+      for (const cell of cells) cell.style.visibility = hidden ? "hidden" : "";
+    });
+  }
+</script>

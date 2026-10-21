@@ -47,7 +47,7 @@ Widgets are **self-check only** — reveal-the-answer, a hideable column in a
 conjugation table. Nothing on the page stores a result. The site is a pure static
 build and can never receive an answer
 ([#80](https://github.com/atilileri/atilileri.github.io/issues/80)); answers belong to
-the Session, captured in the terminal or through a `docent:answer` issue.
+the Session, captured in the terminal.
 
 The visual quality the learner asked for is bought with a stylesheet, not with a
 different storage model.

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Docent"
+  short_description: "Run one Dutch Session, dressed in a Theme"
+policy:
+  allow_implicit_invocation: false
