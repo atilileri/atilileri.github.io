@@ -32,5 +32,11 @@ const { title, description, kicker, lang = "tr" } = Astro.props;
       prose-code:text-[var(--color-primary-container)] prose-code:bg-[var(--color-primary-container)]/5 prose-code:px-1 prose-code:rounded">
       <slot />
     </div>
+    <footer class="mt-16 pt-8 border-t border-[var(--color-outline-variant)]/30">
+      <a href="/nederlands/" class="inline-flex items-center gap-2 text-[var(--color-primary-container)] font-bold tracking-widest text-xs uppercase hover:opacity-80">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Nederlands
+      </a>
+    </footer>
   </article>
 </BaseLayout>

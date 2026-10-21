@@ -95,7 +95,7 @@ const sourceLabel = (s: string) =>
         {split.origins?.map((o) => (
           <div>
             <dt class="inline font-bold">Köken ({o.part}):</dt> <dd class="inline"><span set:html={inline(o.tr)} />{" "}
-              {o.source === "docent" ? <em>{sourceLabel(o.source)}</em> : <a href={o.source}>{sourceLabel(o.source)}</a>}
+              {o.source === "docent" ? <em>{sourceLabel(o.source)}</em> : <a href={o.source} target="_blank" rel="noopener">{sourceLabel(o.source)}</a>}
             </dd>
           </div>
         ))}

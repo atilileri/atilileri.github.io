@@ -98,6 +98,8 @@ After the go, build the Session in this order. Each step ends when its file exis
 6. **Pictures**, wherever you judge one helps, and whenever the learner asks ([ORACLE.md](ORACLE.md#drawing-a-picture)).
 7. **The Session record**, with every Prompt: the due Items, the new Items, the Episode questions, the Tekst questions, and an `open` Prompt for a *schrijven* Objective or an Intake's wish.
 
+**Show the learner the pages, never the file paths.** Start the dev server in the background when it is not running (`npm run dev`), and give the learner the address it prints, plus `/nederlands/`. The index links the Session, its Lesson and its Tekst, and the Session page links the Episode. The learner reads there before the questions start.
+
 Then **ask the Prompts in the terminal**, one at a time. Record each answer **verbatim** — never correct the learner's words, because the answer is the only evidence of their Dutch. Give each `item` answer a Verdict and each answer Turkish feedback. When an answer is `incorrect`, explain it from `items.mjs get <id>` — the Bridge, Trap and Split. When an Item has no Bridge or a wrong answer shows it will not stick, offer a **Hook**; store it with `items.mjs update` once the learner accepts it. The learner may skip a Prompt.
 
 After the answers:
@@ -111,7 +113,7 @@ After the answers:
 
 1. Commit everything the Session wrote, in one commit.
 2. Ask the closing question, in Turkish: push, and close the Intakes it used — *"Push edip #170 ve #171'i kapatayım mı?"* When the Session showed a new fact about the learner, offer a Profile line in the same question. When `gh` is logged out, ask for `gh auth login` first.
-3. On a yes: push, then close each Intake with a one-line comment naming the Session.
+3. On a yes: push, then close each Intake with a one-line comment naming the Session. Give the learner the published page, `https://atilileri.github.io/nederlands/`, which is live a minute or two after the push.
 4. Delete every source you added to `scratch`.
 
 **When the learner stops early**, commit what exists; the Session stays `partial`. Never resume it on your own. When the learner asks to continue it, work in **the same record**: it keeps the date of its first run, and each answer keeps the real day it was given.

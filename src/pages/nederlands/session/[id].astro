@@ -45,7 +45,7 @@ const expected = (p: { item: string; direction: string }) => {
   {d.episode && (
     <>
       <h2>Episode</h2>
-      <p><a href={d.episode.url} lang="nl">{d.episode.title}</a> · {formatDate(d.episode.date)}</p>
+      <p><a href={d.episode.url} lang="nl" target="_blank" rel="noopener">{d.episode.title}</a> · {formatDate(d.episode.date)}</p>
     </>
   )}
 

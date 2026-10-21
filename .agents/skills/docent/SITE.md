@@ -8,7 +8,7 @@ Three forms render on the site under `/nederlands/`. Each is one file, written i
 | Tekst | `src/content/nederlands/teksten/<slug>.md` | `/nederlands/tekst/<slug>/` |
 | Session | `src/content/nederlands/sessions/<date>-<theme>.md` | `/nederlands/session/<date>-<theme>/` |
 
-A slug is lowercase ASCII words joined by hyphens. The site reads the Plan and the Items itself; never copy them into a page.
+A slug is lowercase ASCII words joined by hyphens. **An external link opens in a new tab**: in a Lesson or Tekst body, write it as `<a href="…" target="_blank" rel="noopener">…</a>`, never as a Markdown link. A link to another `/nederlands/` page stays a plain Markdown link. The site reads the Plan and the Items itself; never copy them into a page.
 
 ## Lesson
 
