@@ -1,1 +1,85 @@
-{}
+kennismaken:
+  nl: kennismaken
+  tr: tanışmak
+  en: to get acquainted
+  split:
+    parts:
+      - nl: kennis
+        tr: tanışıklık
+        en: acquaintance
+        role: stem
+      - nl: maken
+        tr: yapmak
+        en: to make
+        role: stem2
+    literal: tanışıklık yapmak
+plek:
+  nl: plek
+  article: de
+  tr: yer
+  en: spot
+verplicht:
+  nl: verplicht
+  tr: zorunlu
+  en: compulsory
+welkom:
+  nl: welkom
+  tr: hoş geldin
+  en: welcome
+  bridge: Hollandaca `welkom` ile İngilizce `welcome` neredeyse aynı yazılır ve aynı anlamdadır.
+wonen:
+  nl: wonen
+  tr: oturmak, yaşamak (bir yerde)
+  en: to live
+zich-voorstellen:
+  nl: zich voorstellen
+  tr: kendini tanıtmak
+  en: to introduce oneself
+  split:
+    parts:
+      - nl: voor
+        tr: ön
+        en: fore
+        role: stem
+      - nl: stellen
+        tr: koymak
+        en: to put
+        role: stem2
+    literal: kendini öne koymak
+    why: Kendini insanların önüne koyarsın, yani tanıtırsın.
+zin-hebben-in:
+  nl: zin hebben in
+  tr: canı istemek, can atmak
+  en: to look forward to
+zorgverzekering:
+  nl: zorgverzekering
+  article: de
+  tr: sağlık sigortası
+  en: health insurance
+  split:
+    parts:
+      - nl: zorg
+        tr: bakım
+        en: care
+        role: stem
+      - nl: verzekering
+        tr: sigorta
+        en: insurance
+        role: stem2
+        parts:
+          - nl: ver-
+            tr: fiil yapan ön ek
+            en: verb prefix
+            role: affix
+          - nl: zeker
+            tr: emin
+            en: sure
+            role: stem2
+          - nl: "-ing"
+            tr: "-me (isim yapar)"
+            en: "-ing"
+            role: affix
+    literal: bakımı emin kılma
+    why: >-
+      `verzekeren` ‘emin kılmak’, yani sigortalamak. Bakım masrafını güvenceye alan şey → sağlık
+      sigortası.

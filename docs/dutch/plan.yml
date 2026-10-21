@@ -11,6 +11,10 @@ objectives:
     text: >-
       Kan persoonlijke brieven, e-mails en vormen van sociale media voldoende begrijpen om met iemand te
       kunnen corresponderen.
+    angles:
+      - "lexicon: introducing yourself in a group chat"
+    sessions:
+      - 2026-10-21-padel-app
   - id: LEB1-1b
     skill: lezen
     tier: exam

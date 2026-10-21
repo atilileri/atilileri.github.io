@@ -1,1 +1,24 @@
-{}
+kennismaken:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+plek:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+verplicht:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+welkom:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+wonen:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+zich-voorstellen:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+zin-hebben-in:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
+zorgverzekering:
+  recognition: {rung: 2, answered: "2026-10-21"}
+  production: {rung: 1, answered: "2026-10-21"}
