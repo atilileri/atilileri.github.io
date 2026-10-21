@@ -154,7 +154,7 @@ How formally a Scenario is conducted, held on the Scenario as one of exactly thr
 _Avoid_: Formality, tone, politeness level, style
 
 **Machine credential**:
-A secret that lives on this machine and never in this repo — the Oracle's login state. It is not an artifact, so the publicness lock does not reach it, but every capability it opens must degrade: with the credential missing the Session still runs and Docent names what it could not reach.
+A secret that lives on this machine and never in this repo — exactly two: the Oracle's login state and the `gh` login. It is not an artifact, so the publicness lock does not reach it, but every capability it opens must degrade: with the credential missing the Session still runs, and the restatement names what it loses and the login command the learner runs. Docent checks both at the start of every Session, says nothing when they work, and never asks for a password. There is no separate setup ([#161](https://github.com/atilileri/atilileri.github.io/issues/161)).
 _Avoid_: Secret, key, token (each names one instance, not the class), config
 
 **Oracle**:
