@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { formatDate } from "../../../lib/dutch/session";
+import { formatDate, numbered } from "../../../lib/dutch/session";
 
 const entries = (await getCollection("dutchSessions")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
@@ -12,7 +12,7 @@ const entries = (await getCollection("dutchSessions")).sort((a, b) => b.data.dat
     <h1 class="font-[Space_Grotesk] text-5xl font-bold tracking-tighter my-6">Sessions</h1>
     <ul class="space-y-1">
       {entries.map((e) => (
-        <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/session/${e.id}/`} lang="tr">{e.data.title}</a> · {formatDate(e.data.date, "en-GB")}</li>
+        <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/session/${e.id}/`} lang="tr">{numbered(e.data.title, e.data.number)}</a> · {formatDate(e.data.date, "en-GB")}</li>
       ))}
     </ul>
   </div>

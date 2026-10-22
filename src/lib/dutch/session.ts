@@ -1,3 +1,25 @@
+import { getCollection } from "astro:content";
+
+// A title with its Session number in front: "002 – Berichten over uw buurt".
+export const numbered = (title: string, n?: number) => (n ? `${String(n).padStart(3, "0")} – ${title}` : title);
+
+// The number each Lesson and Tekst shares with the Session that lists it.
+// Two Sessions with one number break the build.
+export async function sessionNumbers() {
+  const sessions = await getCollection("dutchSessions");
+  const lesson = new Map<string, number>();
+  const tekst = new Map<string, number>();
+  const seen = new Map<number, string>();
+  for (const s of sessions) {
+    const n = s.data.number;
+    if (seen.has(n)) throw new Error(`Sessions ${seen.get(n)} and ${s.id} both have number ${n}`);
+    seen.set(n, s.id);
+    s.data.lessons.forEach((l) => lesson.set(l, n));
+    s.data.teksten.forEach((t) => tekst.set(t, n));
+  }
+  return { lesson, tekst };
+}
+
 // A Session's status is read off its Prompts, never declared.
 type Prompt = { answer?: string; skipped?: boolean };
 

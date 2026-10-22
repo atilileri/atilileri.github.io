@@ -92,6 +92,8 @@ const prompt = z.discriminatedUnion("type", [
 const dutchSessions = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/nederlands/sessions" }),
   schema: z.object({
+    // 1, 2, 3 … in the order the Sessions were run; its Lessons and Teksten show it too.
+    number: z.number().int().positive(),
     title: z.string(),
     // The day of the first run; a resumed Session keeps it.
     date: z.coerce.date(),

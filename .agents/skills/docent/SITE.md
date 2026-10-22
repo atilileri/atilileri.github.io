@@ -62,6 +62,7 @@ The record of one Session: what was asked and what the learner answered. Write i
 
 ```md
 ---
+number: 2
 title: "Padel: iptal mesajları"
 date: 2026-10-21
 theme: padel-app
@@ -99,6 +100,7 @@ prompts:
 ---
 ```
 
+- **`number` is the highest Session `number` plus one** (`grep -h '^number:' src/content/nederlands/sessions/*.md`). The site shows it as `002 – <title>` on the Session and on every Lesson and Tekst the Session lists, so a Lesson or Tekst holds no number of its own.
 - **`date` is the first run.** A resumed Session keeps it; each `answered` is the real day of that answer.
 - **An `item` Prompt** names one Item and one Direction. `recognition` shows the Dutch and asks for the meaning; `production` gives the Turkish and asks for the Dutch. It gets a `verdict`: `correct`, `close` or `incorrect`, plus `feedback` when it is not `correct`.
 - **An `open` Prompt** names an Objective, gets `feedback` and no Verdict.

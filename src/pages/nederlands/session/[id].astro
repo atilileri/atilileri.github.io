@@ -2,7 +2,7 @@
 import { getCollection, getEntry } from "astro:content";
 import Page from "../../../components/dutch/Page.astro";
 import Reveal from "../../../components/dutch/Reveal.astro";
-import { formatDate, inline, status, statusTr } from "../../../lib/dutch/session";
+import { formatDate, inline, numbered, status, statusTr } from "../../../lib/dutch/session";
 
 export async function getStaticPaths() {
   const sessions = await getCollection("dutchSessions");
@@ -25,7 +25,7 @@ const expected = (p: { item: string; direction: string }) => {
 };
 ---
 
-<Page title={d.title} kicker={`Session · ${formatDate(d.date)} · ${statusTr[status(d.prompts)]}`}>
+<Page title={numbered(d.title, d.number)} kicker={`Session · ${formatDate(d.date)} · ${statusTr[status(d.prompts)]}`}>
   <p>Tema: <code>{d.theme}</code> · Hedef: <code>{d.objective}</code></p>
 
   <h2>Sorular</h2>

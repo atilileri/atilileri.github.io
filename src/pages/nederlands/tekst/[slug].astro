@@ -1,7 +1,7 @@
 ---
 import { getCollection, getEntry, render } from "astro:content";
 import Page from "../../../components/dutch/Page.astro";
-import { formatDate, inline } from "../../../lib/dutch/session";
+import { formatDate, inline, numbered } from "../../../lib/dutch/session";
 
 export async function getStaticPaths() {
   const teksten = await getCollection("dutchTeksten");
@@ -15,7 +15,7 @@ const session = await getEntry("dutchSessions", tekst.data.session);
 const questions = (session?.data.prompts ?? []).filter((p) => tekst.data.prompts.includes(p.id));
 ---
 
-<Page title={tekst.data.title} kicker={`Tekst · ${formatDate(tekst.data.date)}`}>
+<Page title={numbered(tekst.data.title, session?.data.number)} kicker={`Tekst · ${formatDate(tekst.data.date)}`}>
   <h2>Kelimeler</h2>
   <table>
     <thead><tr><th>Hollandaca</th><th>Türkçe</th><th>English</th></tr></thead>

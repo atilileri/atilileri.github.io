@@ -1,9 +1,10 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import { formatDate } from "../../../lib/dutch/session";
+import { formatDate, numbered, sessionNumbers } from "../../../lib/dutch/session";
 
 const entries = (await getCollection("dutchLessons")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const numbers = await sessionNumbers();
 ---
 
 <BaseLayout title="Lessons — Nederlands" currentPath="/nederlands/">
@@ -12,7 +13,7 @@ const entries = (await getCollection("dutchLessons")).sort((a, b) => b.data.date
     <h1 class="font-[Space_Grotesk] text-5xl font-bold tracking-tighter my-6">Lessons</h1>
     <ul class="space-y-1">
       {entries.map((e) => (
-        <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/lesson/${e.id}/`} lang="tr">{e.data.title}</a> · {formatDate(e.data.date, "en-GB")}</li>
+        <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/lesson/${e.id}/`} lang="tr">{numbered(e.data.title, numbers.lesson.get(e.id))}</a> · {formatDate(e.data.date, "en-GB")}</li>
       ))}
     </ul>
   </div>

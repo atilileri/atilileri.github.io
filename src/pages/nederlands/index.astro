@@ -3,7 +3,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { readPlan } from "../../lib/dutch/plan";
-import { formatDate, status } from "../../lib/dutch/session";
+import { formatDate, numbered, sessionNumbers, status } from "../../lib/dutch/session";
 
 const plan = readPlan();
 const SKILLS = ["lezen", "schrijven", "knm", "luisteren", "spreken", "gesprekken"];
@@ -19,6 +19,7 @@ const sessions = (await getCollection("dutchSessions")).sort(newest);
 const lessons = (await getCollection("dutchLessons")).sort(newest);
 const teksten = (await getCollection("dutchTeksten")).sort(newest);
 const items = await getCollection("dutchItems");
+const numbers = await sessionNumbers();
 const en = (d: Date) => formatDate(d, "en-GB");
 const repo = "https://github.com/atilileri/atilileri.github.io";
 ---
@@ -63,7 +64,7 @@ const repo = "https://github.com/atilileri/atilileri.github.io";
       {sessions.length === 0 ? <p>No Session yet.</p> : (
         <ul class="space-y-1">
           {sessions.slice(0, 10).map((s) => (
-            <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/session/${s.id}/`} lang="tr">{s.data.title}</a> · {en(s.data.date)} · {status(s.data.prompts)}</li>
+            <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/session/${s.id}/`} lang="tr">{numbered(s.data.title, s.data.number)}</a> · {en(s.data.date)} · {status(s.data.prompts)}</li>
           ))}
         </ul>
       )}
@@ -74,14 +75,14 @@ const repo = "https://github.com/atilileri/atilileri.github.io";
       <div>
         <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Lessons</h2>
         {lessons.length === 0 ? <p>No Lesson yet.</p> : (
-          <ul class="space-y-1">{lessons.slice(0, 10).map((l) => <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/lesson/${l.id}/`} lang="tr">{l.data.title}</a></li>)}</ul>
+          <ul class="space-y-1">{lessons.slice(0, 10).map((l) => <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/lesson/${l.id}/`} lang="tr">{numbered(l.data.title, numbers.lesson.get(l.id))}</a></li>)}</ul>
         )}
         {lessons.length > 10 && <p class="mt-2"><a class="text-[var(--color-primary-container)]" href="/nederlands/lesson/">All Lessons →</a></p>}
       </div>
       <div>
         <h2 class="font-[Space_Grotesk] text-2xl font-bold mb-4">Teksten</h2>
         {teksten.length === 0 ? <p>No Tekst yet.</p> : (
-          <ul class="space-y-1">{teksten.slice(0, 10).map((t) => <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/tekst/${t.id}/`} lang="nl">{t.data.title}</a></li>)}</ul>
+          <ul class="space-y-1">{teksten.slice(0, 10).map((t) => <li><a class="text-[var(--color-primary-container)]" href={`/nederlands/tekst/${t.id}/`} lang="nl">{numbered(t.data.title, numbers.tekst.get(t.id))}</a></li>)}</ul>
         )}
         {teksten.length > 10 && <p class="mt-2"><a class="text-[var(--color-primary-container)]" href="/nederlands/tekst/">All Teksten →</a></p>}
       </div>
