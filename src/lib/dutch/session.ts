@@ -41,8 +41,11 @@ export const formatDate = (d: Date, locale = "tr-TR") =>
   d.toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 
 // Frontmatter text is plain YAML, so Markdown never runs on it. Docent quotes
-// Dutch in backticks there too; this turns those into <code>, and escapes the rest.
+// Dutch in backticks there too; this turns those into <code>, a bare URL into
+// a link that opens in a new tab, and escapes the rest.
 export function inline(text: string): string {
   const escaped = text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
-  return escaped.replace(/`([^`]+)`/g, '<code lang="nl">$1</code>');
+  return escaped
+    .replace(/`([^`]+)`/g, '<code lang="nl">$1</code>')
+    .replace(/https?:\/\/[^\s<]*[^\s<.,;:)]/g, (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
 }

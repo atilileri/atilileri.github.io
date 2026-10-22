@@ -1,0 +1,37 @@
+---
+// Everything that helps a new word stick: its Split, Bridge, Hook and Trap,
+// with the Hook's and the Trap's Pictures. A Picture is declared on the Item
+// (`pictures.hook`, `pictures.trap`: the Turkish alt text) before it is drawn,
+// so the page is ready first and the image appears once its file lands.
+import { getEntry } from "astro:content";
+import Split from "./Split.astro";
+import { inline } from "../../lib/dutch/session";
+
+interface Props {
+  item: string;
+}
+
+const id = Astro.props.item;
+const item = (await getEntry("dutchItems", id))?.data;
+const pictures = (item?.pictures ?? {}) as { hook?: string; trap?: string };
+const FROM = { en: "İngilizceden", tr: "Türkçeden" } as const;
+---
+
+{item && (
+  <div class="my-4">
+    <Split item={id} />
+    {item.bridge && <p><strong>Köprü:</strong> <span set:html={inline(item.bridge)} /></p>}
+    {item.hook && (
+      <>
+        <p><strong>Kanca:</strong> <span set:html={inline(item.hook)} /></p>
+        {pictures.hook && <img class="my-3 w-full max-w-sm rounded-lg" src={`/images/nederlands/hook-${id}.webp`} alt={pictures.hook} loading="lazy" />}
+      </>
+    )}
+    {item.trap && (
+      <>
+        <p><strong>Tuzak ({FROM[item.trap.from]}):</strong> <span set:html={inline(item.trap.text)} /></p>
+        {pictures.trap && <img class="my-3 w-full max-w-sm rounded-lg" src={`/images/nederlands/trap-${id}.webp`} alt={pictures.trap} loading="lazy" />}
+      </>
+    )}
+  </div>
+)}

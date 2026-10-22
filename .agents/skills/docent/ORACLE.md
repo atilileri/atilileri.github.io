@@ -27,13 +27,14 @@ The Oracle is the `OracleDutch` collection of the learner's NotebookLM notebooks
 
 A Picture is one image the Oracle draws, owned by one Hook, Trap, Lesson or Tekst. Draw one where you judge it helps, and whenever the learner asks. Draw it once; draw it again only when its owner changes or the learner asks. **Run every `ask` before the first Picture**: one daily quota pays for both, and each image costs about 3–4% of it.
 
-1. Add the scene as a text source to `scratch`: `source add --type text --title "<owner>" "<scene>" -n <scratch> --json`.
-2. Generate:
+**The page never waits for a Picture.** Draw in this order:
+
+1. **Declare it**, with its Turkish `alt` text, when you write its owner: `pictures: {hook: "<alt>"}` (or `trap`) on the Item, or the `<img>` in the Lesson or Tekst ([SITE.md](SITE.md#pictures)). The page is complete before the image exists; until then it shows the `alt`.
+2. **Draw it in the background**, from the repo root, one job per Picture:
    ```
-   notebooklm --quiet generate infographic "<instruction>" -n <scratch> -s <source-id> \
-     --style <style> --language tr --orientation square --detail concise --wait --json
+   .agents/skills/docent/scripts/draw.sh <scratch> <owner> <style> "<scene>" "<instruction>"
    ```
-3. Download it with `download infographic -n <scratch> -a <task-id>`, then convert it to `public/images/nederlands/<owner>.webp` at 900 px wide, quality 75 (`ffmpeg -i in.png -vf scale=900:-1 -quality 75 out.webp`).
+   It adds the scene to `scratch`, generates, downloads, deletes its source, and writes `public/images/nederlands/<owner>.webp`. The page shows it on the next reload.
 
 **Choose the style by what the Picture shows:**
 
@@ -52,4 +53,4 @@ A Picture is one image the Oracle draws, owned by one Hook, Trap, Lesson or Teks
 - **No famous name.** The image filter refuses it silently; the name stays in the Hook text.
 - Facts the public Profile already publishes may go in; the Profile file itself never does.
 
-**Read every image you draw.** A Dutch word written wrong costs one retry; a second failure leaves the owner in text and adds one line to `limits`. The `<img>` rule is in [SITE.md](SITE.md).
+**Read every image when its job ends.** A Dutch word written wrong costs one retry; a second failure deletes the file and the declaration, leaves the owner in text, and adds one line to `limits`. The `<img>` rule is in [SITE.md](SITE.md).

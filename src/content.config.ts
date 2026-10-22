@@ -125,6 +125,8 @@ const dutchItems = defineCollection({
       hook: z.string().optional(),
       trap: z.object({ from: z.enum(["en", "tr"]), text: z.string() }).optional(),
       split: z.any().optional(),
+      // A Picture the Hook or the Trap shows, as its Turkish alt text; set before it is drawn.
+      pictures: z.object({ hook: z.string().optional(), trap: z.string().optional() }).optional(),
     })
     .passthrough(),
 });

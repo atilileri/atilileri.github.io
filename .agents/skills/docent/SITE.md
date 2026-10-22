@@ -25,13 +25,13 @@ items: [afzeggen, plek, invaller]
 
 Turkish prose, Dutch quoted: `Ik moet helaas afzeggen.`
 
-<Split item="afzeggen" />
+<Word item="afzeggen" />
 
 <Reveal summary="Cevabı göster">`Wie wil mijn plek?`</Reveal>
 ```
 
 - **List every Item it teaches in `items`**, by id.
-- **Show a Split the first time the Lesson introduces a word that has one**, with `<Split item="<id>" />`.
+- **Introduce each new word with `<Word item="<id>" />`**: its Split, Bridge, Hook and Trap, with their Pictures.
 - **At most three Traps** in a Lesson.
 - A grammar rule is taught here, in prose and tables.
 
@@ -116,13 +116,14 @@ Lessons may use these, with no import line. Nothing else — never script code.
 | --- | --- |
 | `<Reveal summary="…">answer</Reveal>` | Hides an answer until the learner opens it |
 | `<HideColumn column={2}>` around a Markdown table | Lets the learner hide one column, e.g. the Turkish of a conjugation table |
-| `<Split item="<id>" />` | Draws the Item's Split ([SPLIT-FORMAT.md](SPLIT-FORMAT.md)) |
+| `<Word item="<id>" />` | Draws the Item's Split, Bridge, Hook and Trap, and their Pictures. The Session page shows it in each `item` Prompt's answer box |
+| `<Split item="<id>" />` | Draws the Item's Split alone ([SPLIT-FORMAT.md](SPLIT-FORMAT.md)) |
 
 Every page reads completely with JavaScript off.
 
 ## Pictures
 
 - **File**: `public/images/nederlands/<owner>.webp`, where `<owner>` is `hook-<item-id>`, `trap-<item-id>`, `lesson-<slug>` or `tekst-<slug>`. Drawing it is in [ORACLE.md](ORACLE.md#drawing-a-picture).
-- **On the page**: a plain `<img src="/images/nederlands/<owner>.webp" alt="…">`, whose `alt` describes the drawn scene in Turkish.
-- **A Hook's Picture shows beside the Hook**, after the answer — never inside a Prompt.
-- **No page depends on a Picture.** Its owner teaches in text without it.
+- **A Lesson's or Tekst's Picture**: a plain `<img src="/images/nederlands/<owner>.webp" alt="…">`, whose `alt` describes the drawn scene in Turkish. Write it with the page, before the file exists.
+- **A Hook's or Trap's Picture**: the Item's `pictures.hook` or `pictures.trap` holds the `alt`; `<Word>` draws the `<img>`. Never inside a Prompt.
+- **No page depends on a Picture.** Its owner teaches in text without it, and a missing file shows its `alt`.

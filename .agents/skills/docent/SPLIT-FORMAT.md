@@ -86,7 +86,7 @@ holds no English sentence, so English appears only as a quoted word.
 ## The fields
 
 A Split is one optional field, `split`, on the Item. The word and its article come from the Item itself, so the Split
-does not repeat them. A Lesson shows it with `<Split item="<id>" />` ([SITE.md](SITE.md)).
+does not repeat them. A Lesson shows it with `<Word item="<id>" />`, which draws the Split ([SITE.md](SITE.md)).
 
 | Field | Holds | Required |
 | --- | --- | --- |

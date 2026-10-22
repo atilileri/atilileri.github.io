@@ -4,6 +4,7 @@ import Page from "../../../components/dutch/Page.astro";
 import Reveal from "../../../components/dutch/Reveal.astro";
 import HideColumn from "../../../components/dutch/HideColumn.astro";
 import Split from "../../../components/dutch/Split.astro";
+import Word from "../../../components/dutch/Word.astro";
 import { formatDate, numbered, sessionNumbers } from "../../../lib/dutch/session";
 
 export async function getStaticPaths() {
@@ -17,5 +18,5 @@ const number = (await sessionNumbers()).lesson.get(lesson.id);
 ---
 
 <Page title={numbered(lesson.data.title, number)} description={lesson.data.description} kicker={`Ders · ${formatDate(lesson.data.date)}`}>
-  <Content components={{ Reveal, HideColumn, Split }} />
+  <Content components={{ Reveal, HideColumn, Split, Word }} />
 </Page>

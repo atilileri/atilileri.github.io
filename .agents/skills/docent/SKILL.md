@@ -91,16 +91,16 @@ The learner may change anything and restate again. **The go covers every write o
 After the go, build the Session in this order. Each step ends when its file exists.
 
 1. **The Oracle first**, before any Picture, because one daily quota pays for both: search the books for the Lesson's topic, and `ask` for a grammar explanation when the Lesson needs one ([ORACLE.md](ORACLE.md)).
-2. **The Lesson** — about ten minutes of Turkish reading on the Angle, with the new Items. A grammar rule lives here.
-3. **The Tekst**, only when the Objective is a *lezen* one — a short Dutch text in the Theme.
-4. **The Episode** — its link, its new words, three Turkish `open` Prompts ([EPISODE.md](EPISODE.md)).
-5. **The new Items**, at most ten in a Session across Lesson, Tekst and Episode — `items.mjs add`. When the queue is past three budgets overdue, add at most two; never skip the Lesson.
-6. **Pictures**, wherever you judge one helps, and whenever the learner asks ([ORACLE.md](ORACLE.md#drawing-a-picture)).
+2. **The new Items**, at most ten in a Session across Lesson, Tekst and Episode — `items.mjs add`, with a Hook and a Trap wherever one helps the word stick. When the queue is past three budgets overdue, add at most two; never skip the Lesson.
+3. **Pictures, in the background.** Wherever a Picture helps teaching, and whenever the learner asks — no minimum. Start each one as soon as its scene is known, and never wait for it: the pages go on ([ORACLE.md](ORACLE.md#drawing-a-picture)).
+4. **The Lesson** — about ten minutes of Turkish reading on the Angle, with the new Items. A grammar rule lives here.
+5. **The Tekst**, only when the Objective is a *lezen* one — a short Dutch text in the Theme.
+6. **The Episode** — its link, its new words, three Turkish `open` Prompts ([EPISODE.md](EPISODE.md)).
 7. **The Session record**, with every Prompt: the due Items, the new Items, the Episode questions, the Tekst questions, and an `open` Prompt for a *schrijven* Objective or an Intake's wish.
 
 **Show the learner the pages, never the file paths.** Start the dev server in the background when it is not running (`npm run dev`), and give the learner the address it prints, plus `/nederlands/`. The index links the Session, its Lesson and its Tekst, and the Session page links the Episode. The learner reads there before the questions start.
 
-Then **ask the Prompts in the terminal**, one at a time. Record each answer **verbatim** — never correct the learner's words, because the answer is the only evidence of their Dutch. Give each `item` answer a Verdict and each answer Turkish feedback. When an answer is `incorrect`, explain it from `items.mjs get <id>` — the Bridge, Trap and Split. When an Item has no Bridge or a wrong answer shows it will not stick, offer a **Hook**; store it with `items.mjs update` once the learner accepts it. The learner may skip a Prompt.
+Then **ask the Prompts in the terminal**, one at a time. Record each answer **verbatim** — never correct the learner's words, because the answer is the only evidence of their Dutch. Give each `item` answer a Verdict and each answer Turkish feedback. When an answer is `incorrect`, explain it from `items.mjs get <id>` — the Bridge, Trap and Split. When a wrong answer shows an Item will not stick and it has no **Hook**, offer one; store it with `items.mjs update` once the learner accepts it. The learner may skip a Prompt.
 
 After the answers:
 

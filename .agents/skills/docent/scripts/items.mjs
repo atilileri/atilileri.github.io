@@ -149,7 +149,7 @@ function loadYaml(path, what) {
  */
 const FIELD_ORDER = [
   "nl", "article", "tr", "en",
-  "bridge", "hook", "split", "trap",
+  "bridge", "hook", "split", "trap", "pictures",
   "recognition", "production",
   "rung", "answered", "wrong",
 ];
