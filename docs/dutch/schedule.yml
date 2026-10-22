@@ -1,9 +1,39 @@
+aanvraag:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+apotheek:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+bekendmaking:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+besluit:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+buurt:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+buurtbewoner:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+douane:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+kappen:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
 kennismaken:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
 plek:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+recept:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
+vergunning:
+  recognition: {rung: 1, answered: "2026-10-22"}
+  production: {rung: 1, answered: "2026-10-22"}
 verplicht:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}

@@ -1,3 +1,138 @@
+aanvraag:
+  nl: aanvraag
+  article: de
+  tr: başvuru, talep
+  en: application, request
+  split:
+    parts:
+      - nl: aan
+        tr: "-e, -a"
+        en: on, to
+        role: stem
+      - nl: vraag
+        tr: soru
+        en: question
+        role: stem2
+        istek: null
+    literal: birine sorma
+    why: "`aanvragen` bir kurumdan resmî olarak bir şey istemek. O isteğin kendisi → başvuru."
+apotheek:
+  nl: apotheek
+  article: de
+  tr: eczane
+  en: pharmacy
+  bridge: İngilizce `apothecary` (eski usul eczacı) ile aynı kelime.
+  trap:
+    from: en
+    text: >-
+      İngilizcedeki `drugstore` aklıyla Kruidvat'a ya da Etos'a `apotheek` dersin. Onlar `drogist`:
+      reçetesiz ürün satar. `de apotheek` reçeteli ilacı veren yer; huisarts'ın yazdığı reçeteyle
+      oraya gidersin.
+  pictures:
+    trap: >-
+      Bir Hollanda sokağında iki dükkân: yeşil haçlı ‘Apotheek’ (reçeteli ilaç) ve şampuan, vitamin
+      satan ‘Drogist’.
+bekendmaking:
+  nl: bekendmaking
+  article: de
+  tr: resmî duyuru, ilan
+  en: public notice
+  split:
+    parts:
+      - nl: bekend
+        tr: bilinen
+        en: known
+        role: stem
+      - nl: mak
+        tr: yapmak
+        en: make
+        base: maak
+        role: stem2
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: bilinir yapma
+    why: >-
+      `bekendmaken` ‘bilinir yapmak’, yani herkese duyurmak. Belediyenin herkese duyurduğu karar →
+      resmî ilan.
+    spelling: >-
+      `maak` burada `mak` yazılır: `ma-king` hecesi açık, ve açık hecede uzun ünlü tek harfle
+      yazılır.
+besluit:
+  nl: besluit
+  article: het
+  tr: karar
+  en: decision
+  split:
+    parts:
+      - nl: be-
+        tr: fiil yapan ön ek
+        en: verb prefix
+        role: affix
+      - nl: sluit
+        tr: kapatmak
+        en: close
+        role: stem
+    literal: kapatma
+    why: Bir konuyu kapatmak, yani onu karara bağlamak. Türkçede de bir tartışmayı ‘kapatırız’.
+buurt:
+  nl: buurt
+  article: de
+  tr: mahalle, civar
+  en: neighbourhood
+  bridge: >-
+    İngilizce `neighbour` kelimesi ‘yakın’ + ‘oturan’ demekti; sonundaki `-bour`, Hollandaca `buur`
+    (komşu) ile aynı kökten gelir. `de buurt` komşuların olduğu yer, yani mahalle. Kaynak:
+    https://en.wiktionary.org/wiki/neighbour
+buurtbewoner:
+  nl: buurtbewoner
+  article: de
+  tr: mahalle sakini
+  en: local resident
+  split:
+    parts:
+      - nl: buurt
+        tr: mahalle
+        en: neighbourhood
+        role: stem
+      - nl: bewoner
+        tr: sakin, oturan
+        en: resident
+        role: stem2
+        parts:
+          - nl: be-
+            tr: fiil yapan ön ek
+            en: verb prefix
+            role: affix
+          - nl: won
+            tr: oturmak
+            en: live
+            base: woon
+            role: stem2
+          - nl: "-er"
+            tr: "-an, -en (kişi)"
+            en: "-er"
+            role: affix
+    literal: mahallede oturan
+    spelling: >-
+      `woon` burada `won` yazılır: `wo-ner` hecesi açık, ve açık hecede uzun ünlü tek harfle
+      yazılır.
+douane:
+  nl: douane
+  article: de
+  tr: gümrük
+  en: customs
+  bridge: >-
+    `douane` Fransızca üzerinden Arapça `dīwān`dan, o da Farsça `divân`dan gelir. Türkçe `divan`
+    aynı kelime: Osmanlıda devlet kurulu. Kaynak: https://en.wiktionary.org/wiki/douane
+kappen:
+  nl: kappen
+  tr: (ağaç) kesmek
+  en: to chop, to fell
+  bridge: >-
+    `kappen` kulağa İngilizce `chop` gibi gelir, ve aynı işi anlatır: baltayla kesmek. Gündelik
+    dilde bir anlamı daha var: `Ik kap ermee`, ‘bunu bırakıyorum’.
 kennismaken:
   nl: kennismaken
   tr: tanışmak
@@ -18,6 +153,62 @@ plek:
   article: de
   tr: yer
   en: spot
+recept:
+  nl: recept
+  article: het
+  tr: reçete; yemek tarifi
+  en: prescription; recipe
+  bridge: >-
+    Türkçe `reçete` ile aynı kelime: ikisi de doktorun yazdığı kâğıt. Mutfakta da kullanılır: yemek
+    tarifi de `recept`.
+  trap:
+    from: en
+    text: >-
+      İngilizce `receipt` (fiş) gibi görünür. Ama kasada aldığın fiş `de bon` ya da `de kassabon`.
+      Mağazada `Mag ik het recept?` dersen ilaç reçetesi istemiş olursun.
+  pictures:
+    trap: >-
+      Yan yana iki kâğıt: solda doktorun yazdığı ‘het recept’ (reçete) ve eczaneye giden bir ok;
+      sağda bir market fişi ‘de bon’. Aralarında ‘≠’ işareti.
+vergunning:
+  nl: vergunning
+  article: de
+  tr: izin, ruhsat
+  en: permit
+  hook: >-
+    `vergunning` kulağa Türkçe ‘ver gün’ gibi gelir. Sahne: belediyede bir memur izin kâğıdına koca
+    damgayı basıyor ve bağırıyor: ‘Ver! Gün: 15 Ekim!’ İzin verildi, günü de belli: `de vergunning`,
+    ruhsat.
+  split:
+    parts:
+      - nl: ver-
+        tr: fiil yapan ön ek
+        en: verb prefix
+        role: affix
+      - nl: gunn
+        tr: layık görmek
+        en: grant
+        base: gun
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: layık görme
+    why: "`vergunnen` ‘birine bir şeyi layık görmek, izin vermek’. Resmî olarak verilen izin → ruhsat."
+    spelling: >-
+      `gun` burada `gunn` yazılır: kısa ünlüden sonra ek gelince ünsüz ikilenir, yoksa `u` uzun
+      okunurdu.
+  trap:
+    from: tr
+    text: >-
+      Türkçede her izne ‘izin’ deriz. Ama işten izin `vrij` ya da `verlof`, bir şey yapmaya izin
+      `toestemming`. `de vergunning` yalnızca resmî kurumun verdiği ruhsat: inşaat, ağaç kesme,
+      alkol satışı. `Ik heb morgen vergunning` diye bir cümle yoktur.
+  pictures:
+    hook: >-
+      Belediyede bir memur VERGUNNING yazan bir kâğıda büyük bir damga basıyor; konuşma balonunda
+      ‘Ver! Gün: 15 Ekim!’ yazıyor.
 verplicht:
   nl: verplicht
   tr: zorunlu
