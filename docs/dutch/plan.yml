@@ -68,6 +68,10 @@ objectives:
     text: >-
       Kan persoonlijke brieven en e-mails schrijven of gebruikmaken van andere vormen van sociale media waarin
       ervaringen, gevoelens en gebeurtenissen enigszins gedetailleerd worden beschreven.
+    angles:
+      - "lexicon: telling a neighbour about a change in the neighbourhood"
+    sessions:
+      - 2026-10-22-post-in-de-bus
   - id: SCHB1-1b
     skill: schrijven
     tier: exam
