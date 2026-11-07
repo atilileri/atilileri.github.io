@@ -55,7 +55,7 @@ Who the learner is, so Docent can dress a Session in a real life. Current state,
 ## Taste
 
 - Likes science fiction, mystery and comedy in film and television.
-- Named favourites, across genres: *Friends*, *How I Met Your Mother*, *Silo*, *Westworld*, *Breaking Bad*, *House*, *Fringe*, *Stranger Things*.
+- Named favourites, across genres: *Friends*, *How I Met Your Mother*, *Silo*, *Westworld*, *Breaking Bad*, *House*, *Fringe*, *Stranger Things*, *Dark Matter*.
 - Wants Dutch-language viewing material that matches these tastes, watched with English subtitles.
 - Follows basketball. Follows the NBA as a viewer, not as an analyst.
 - Wants to learn to ride a motorcycle, and to get a licence. Does not ride one today.
