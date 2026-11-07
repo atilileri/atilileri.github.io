@@ -7,7 +7,7 @@
  * a name edited here changes every appearance at once — the same contract
  * `roadmap.ts` holds for the four Factors.
  *
- * VOCABULARY (docs/asml-ai/CONTEXT.md, written by #101). A **Stop** is one of
+ * VOCABULARY (docs/asml-ai/GLOSSARY.md, written by #101). A **Stop** is one of
  * the seven parts of the operating model — the practice itself and the mark the
  * Rail draws for it, one thing seen twice. A **Span** is two neighbouring Stops
  * lit together because one Slide carries both. The word *stage* is retired: the

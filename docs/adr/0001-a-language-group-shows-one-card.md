@@ -5,7 +5,7 @@ because there were two. [#88](https://github.com/atilileri/atilileri.github.io/i
 added Dutch, so the rule is replaced with one that holds for any subset of `en`, `tr` and
 `nl`: **a language group shows exactly one entry — the reader's language when the group
 holds it, otherwise the first present in the order `en` → `tr` → `nl`.** The vocabulary is
-[`../site/CONTEXT.md`](../site/CONTEXT.md).
+[`../site/GLOSSARY.md`](../site/GLOSSARY.md).
 
 This ADR sits in the root `docs/adr/` rather than under a context, because it binds every
 listing surface on the site and not only the Dutch journey.

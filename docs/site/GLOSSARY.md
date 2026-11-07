@@ -4,7 +4,7 @@ The site's own domain — the collections in
 [`src/content.config.ts`](../../src/content.config.ts), the routes under
 [`src/pages/`](../../src/pages/), and the chrome around them.
 
-[`CONTEXT-MAP.md`](../../CONTEXT-MAP.md) said to write this glossary **only when a real
+[`GLOSSARY-MAP.md`](../../GLOSSARY-MAP.md) said to write this glossary **only when a real
 ambiguity appears**. One appeared in
 [#88](https://github.com/atilileri/atilileri.github.io/issues/88): `lang` reads like a
 language label and is not one, and the pairing mechanism turned out to be a *set* rather
