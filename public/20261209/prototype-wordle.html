@@ -1,0 +1,663 @@
+<!doctype html>
+<!--
+  PROTOTYPE (#188) — throwaway. "How does Turkish Wordle fit words and phrases of mixed length?"
+  Not the real site. Answers: grid shape per answer, how spaces show, which letters the
+  on-screen keyboard has, whether guesses must be real words, how she learns the length.
+  The guessing mechanic is plain JS; the screens around it (start, HUD, result) follow
+  stageshow's craft rules in plain CSS, because the kit is React/TS and this must be one
+  self-contained file. F2 opens the settings panel (for Atıl, not Çağla).
+-->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Prototip: Kelime Avı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ss-canvas:#f6f5f2; --ss-surface:#ffffff; --ss-chrome:#efeee9; --ss-well:#e9e7e1;
+  --ss-line:rgba(0,0,0,.10); --ss-line-strong:rgba(0,0,0,.22); --ss-line-faint:rgba(0,0,0,.06);
+  --ss-text-strong:#1d1d1f; --ss-text:#4a4a4f; --ss-text-faint:#8a8a90;
+  --ss-accent:#e8743b; --ss-accent-soft:#fdebe1;
+  --ss-danger:#d6453d; --ss-danger-soft:#fbe5e3;
+  --ss-success:#2f9e5b; --ss-success-soft:#e1f4e8;
+  --w-correct:#3a9d5d; --w-present:#d4a72c; --w-absent:#8b8a86; --w-key:#e4e2dc;
+  --ss-radius-sm:6px; --ss-radius-md:8px; --ss-radius-lg:12px; --ss-radius-pill:999px;
+  --ss-shadow-float:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.12);
+  --ss-font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ss-mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ss-canvas:#16171a; --ss-surface:#202226; --ss-chrome:#1b1c1f; --ss-well:#2a2c31;
+    --ss-line:rgba(255,255,255,.10); --ss-line-strong:rgba(255,255,255,.28); --ss-line-faint:rgba(255,255,255,.06);
+    --ss-text-strong:#f2f2f3; --ss-text:#c4c4c8; --ss-text-faint:#85858c;
+    --ss-accent-soft:#3a2418; --ss-danger-soft:#3a1d1b; --ss-success-soft:#173322;
+    --w-absent:#4a4b50; --w-key:#34363c;
+  }
+}
+:root[data-theme="dark"]{
+  --ss-canvas:#16171a; --ss-surface:#202226; --ss-chrome:#1b1c1f; --ss-well:#2a2c31;
+  --ss-line:rgba(255,255,255,.10); --ss-line-strong:rgba(255,255,255,.28); --ss-line-faint:rgba(255,255,255,.06);
+  --ss-text-strong:#f2f2f3; --ss-text:#c4c4c8; --ss-text-faint:#85858c;
+  --ss-accent-soft:#3a2418; --ss-danger-soft:#3a1d1b; --ss-success-soft:#173322;
+  --w-absent:#4a4b50; --w-key:#34363c;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--ss-canvas);color:var(--ss-text);font:14px/1.4 var(--ss-font);display:flex;overflow:hidden}
+#game{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;padding:20px 16px 24px}
+
+/* HUD */
+.hud{width:min(980px,100%);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px}
+.hud .l{justify-self:start}.hud .r{justify-self:end;text-align:right}
+.pill{background:var(--ss-surface);border-radius:var(--ss-radius-lg);box-shadow:var(--ss-shadow-float);padding:10px 14px}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--ss-text-faint);line-height:1.3}
+.val{font-weight:700;color:var(--ss-text-strong);font-variant-numeric:tabular-nums;line-height:1.15}
+.title{font-size:22px;font-weight:800;color:var(--ss-text-strong);letter-spacing:-.01em;text-align:center}
+.shape{font-size:13px;color:var(--ss-text-faint);text-align:center;margin-top:2px;font-variant-numeric:tabular-nums}
+#hGuess .val{font-size:22px}
+.pips{display:flex;gap:4px;margin-top:6px}
+.pips i{width:14px;height:5px;border-radius:3px;background:var(--ss-well)}
+.pips i.used{background:var(--ss-text-faint)}
+.pips i.cut{outline:1.5px solid var(--ss-accent);outline-offset:1px}
+#hNow .val{font-size:22px}
+#hNow.win .val{color:var(--ss-success)}
+
+/* Board */
+#boardWrap{flex:1;display:grid;place-items:center;width:100%;min-height:0;position:relative}
+#board{display:flex;flex-direction:column;gap:var(--gap,7px)}
+.row{display:flex;gap:var(--gap,7px);justify-content:center;align-items:center;position:relative}
+.cell{width:var(--cs,58px);height:var(--cs,58px);border:2px solid var(--ss-line);border-radius:var(--ss-radius-md);display:grid;place-items:center;
+  font-weight:800;font-size:calc(var(--cs,58px)*.5);color:var(--ss-text-strong);background:var(--ss-surface);text-transform:none;user-select:none}
+.cell.filled{border-color:var(--ss-line-strong);animation:pop .1s ease-out}
+.cell.caret{border-color:var(--ss-accent)}
+.cell.sp{color:var(--ss-text-faint);font-weight:500}
+.cell.gap{width:calc(var(--cs,58px)*var(--gapw,.42));border:0;background:none}
+.cell.gap::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--ss-line-strong)}
+.cell.gap.nodot::after{display:none}
+.cell.ghost{border-style:dashed;border-color:var(--ss-line)}
+.cell.correct,.cell.present,.cell.absent{color:#fff;border-color:transparent}
+.cell.correct{background:var(--w-correct)}.cell.present{background:var(--w-present)}.cell.absent{background:var(--w-absent)}
+.cell.reveal{animation:flip .5s ease-in-out both;animation-delay:var(--d,0ms);transition:background-color 0s var(--dh,250ms),color 0s var(--dh,250ms),border-color 0s var(--dh,250ms)}
+.cell.win{animation:bounce .5s ease-out both;animation-delay:var(--d,0ms)}
+.row.shake{animation:shake .4s}
+.row .tag{margin-left:8px;white-space:nowrap;font-size:12px;font-weight:600;color:var(--ss-text-faint);background:var(--ss-surface);border-radius:var(--ss-radius-pill);padding:4px 10px;box-shadow:var(--ss-shadow-float)}
+.row .tag.ok{color:var(--ss-success)}
+#board.free .row{justify-content:flex-start}
+.row.emptyfree{height:var(--cs,58px);width:100%;border:2px dashed var(--ss-line);border-radius:var(--ss-radius-md)}
+@keyframes pop{50%{transform:scale(1.08)}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}70%{transform:translateY(3px)}}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+#toasts{position:absolute;top:0;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:5}
+.toast{background:var(--ss-text-strong);color:var(--ss-surface);font-weight:600;border-radius:var(--ss-radius-pill);padding:8px 16px;box-shadow:var(--ss-shadow-float);animation:tin .2s ease-out, tout .3s ease-in 1.6s forwards}
+@keyframes tin{from{opacity:0;transform:translateY(-6px)}}
+@keyframes tout{to{opacity:0}}
+
+/* On-screen keyboard */
+#kb{display:flex;flex-direction:column;gap:7px;align-items:center;margin-top:14px;user-select:none}
+#kb[hidden]{display:none}
+.krow{display:flex;gap:6px}
+.key{min-width:46px;height:54px;padding:0 6px;border:0;border-radius:var(--ss-radius-md);background:var(--w-key);color:var(--ss-text-strong);font:700 18px var(--ss-font);cursor:pointer;display:grid;place-items:center}
+.key:active{transform:translateY(1px)}
+.key.wide{min-width:84px;font-size:13px}
+.key.space{min-width:300px;font-size:13px;font-weight:600;color:var(--ss-text)}
+.key.correct{background:var(--w-correct);color:#fff}.key.present{background:var(--w-present);color:#fff}.key.absent{background:var(--w-absent);color:#fff;opacity:.75}
+.key.tr{box-shadow:inset 0 -3px 0 var(--ss-accent-soft)}
+
+/* Screens */
+.screen{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--ss-canvas) 60%,transparent);backdrop-filter:blur(4px);padding:16px;z-index:10}
+.screen[hidden]{display:none}
+.card{background:var(--ss-surface);border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08),0 24px 60px rgba(0,0,0,.18);width:min(580px,100%);padding:28px;color:var(--ss-text)}
+.card .h{font-size:28px;font-weight:800;color:var(--ss-text-strong);letter-spacing:-.01em}
+.card p{margin:6px 0 0}
+.demo{display:flex;gap:6px;margin:18px 0 6px}
+.demo .cell{--cs:44px}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:13px;margin-top:10px}
+.legend b{width:18px;height:18px;border-radius:5px;display:inline-block}
+.stable{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:18px}
+.stable > div{background:var(--ss-canvas);border-radius:var(--ss-radius-md);padding:8px 6px;text-align:center}
+.stable > div.goal{background:var(--ss-success-soft)}
+.stable .lbl{font-size:11px}.stable .val{font-size:17px}
+.stable > div.goal .val{color:var(--ss-success)}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:center;margin:18px 0 0;padding:14px 16px;background:var(--ss-canvas);border-radius:var(--ss-radius-lg);font-size:13px}
+.kbd{display:inline-flex;gap:4px}
+.kbd span{min-width:28px;height:26px;padding:0 7px;border-radius:6px;background:var(--ss-surface);border:1px solid var(--ss-line);box-shadow:0 1px 0 var(--ss-line);display:inline-grid;place-items:center;font-size:12px;font-weight:700;color:var(--ss-text-strong)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px}
+.goaltxt{font-size:13px;color:var(--ss-text-faint)}
+.btn{border:0;border-radius:10px;background:var(--ss-accent);color:#fff;font:600 15px var(--ss-font);padding:11px 18px;cursor:pointer;display:inline-flex;gap:10px;align-items:center}
+.btn small{opacity:.8;font-weight:500;font-size:12px}
+.btn.ghost{background:var(--ss-canvas);color:var(--ss-text-strong)}
+.big{font-size:72px;font-weight:800;color:var(--ss-text-strong);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.big.win{color:var(--ss-success)}
+.meta{display:flex;gap:16px;margin-top:10px;font-size:13px;color:var(--ss-text-faint)}
+.meta b{color:var(--ss-text-strong);font-weight:600}
+.verdict{margin-top:14px;padding:10px 14px;border-radius:var(--ss-radius-lg);background:var(--ss-canvas);font-weight:500}
+.verdict.win{background:var(--ss-success-soft);color:var(--ss-success);font-weight:700}
+.answer{display:flex;gap:5px;margin-top:16px;flex-wrap:wrap}
+.answer .cell{--cs:38px}
+.mini{display:flex;flex-direction:column;gap:3px;margin-top:14px}
+.mini div{display:flex;gap:3px}
+.mini i{width:12px;height:12px;border-radius:3px;background:var(--ss-well)}
+.mini i.correct{background:var(--w-correct)}.mini i.present{background:var(--w-present)}.mini i.absent{background:var(--w-absent)}
+.mini i.g{background:none;width:6px}
+
+/* Debug panel (for Atıl, not Çağla) */
+#dbg{width:340px;flex-shrink:0;height:100%;overflow:auto;background:var(--ss-surface);border-left:1px solid var(--ss-line);font-size:12.5px}
+#dbg[hidden]{display:none}
+#dbg header{position:sticky;top:0;background:var(--ss-surface);padding:12px 14px;border-bottom:1px solid var(--ss-line);display:flex;justify-content:space-between;align-items:center;z-index:1}
+#dbg header b{font-size:12px;letter-spacing:.06em;color:var(--ss-accent)}
+#dbg header span{color:var(--ss-text-faint);font-size:11px}
+#dbg section{padding:10px 14px;border-bottom:1px solid var(--ss-line-faint)}
+#dbg h3{margin:0 0 8px;font-size:11px;font-weight:700;color:var(--ss-text-faint);letter-spacing:.04em;text-transform:uppercase}
+.opt{margin-bottom:10px}
+.opt > span{display:block;color:var(--ss-text-strong);font-weight:600;margin-bottom:4px}
+.opt label{display:flex;gap:7px;align-items:flex-start;margin:3px 0;color:var(--ss-text);cursor:pointer}
+.opt input{accent-color:var(--ss-accent);margin-top:2px}
+#dbg select{width:100%;font:12.5px var(--ss-font);padding:5px 6px;border-radius:6px;border:1px solid var(--ss-line);background:var(--ss-canvas);color:var(--ss-text-strong)}
+#dbg .btn{font-size:12.5px;padding:7px 12px;margin-top:8px}
+#state{font-family:var(--ss-mono);font-size:11.5px;white-space:pre-wrap;margin:0;color:var(--ss-text-strong);line-height:1.5}
+.note{color:var(--ss-text-faint);font-size:11.5px;margin:4px 0 0}
+#toggleDbg{position:absolute;right:16px;bottom:16px;border:1px solid var(--ss-line);background:var(--ss-surface);color:var(--ss-text);border-radius:8px;font:600 11px var(--ss-font);padding:5px 8px;cursor:pointer;z-index:11}
+</style>
+</head>
+<body>
+<div id="game">
+  <div class="hud">
+    <div class="pill l" id="hGuess"><div class="lbl">Tahmin</div><div class="val" id="vGuess">1 / 6</div><div class="pips" id="vPips"></div></div>
+    <div><div class="title">Kelime Avı</div><div class="shape" id="vShape"></div></div>
+    <div class="pill r" id="hNow"><div class="lbl" id="vNowL">Şimdi bilirsen</div><div class="val" id="vNow">%100</div></div>
+  </div>
+  <div id="boardWrap"><div id="toasts"></div><div id="board"></div></div>
+  <div id="kb"></div>
+  <button id="toggleDbg" title="Ayarlar paneli (F2)">Ayarlar · F2</button>
+
+  <div class="screen" id="sStart">
+    <div class="card">
+      <div class="h">Kelime Avı</div>
+      <p>Gizli kelimeyi ya da sözü 6 tahminde bul. Hepsi bizden: isimler, sözler, anılar.</p>
+      <div class="demo" id="demo"></div>
+      <div class="legend">
+        <b style="background:var(--w-correct)"></b><span>Harf doğru yerde</span>
+        <b style="background:var(--w-present)"></b><span>Harf var, başka yerde</span>
+        <b style="background:var(--w-absent)"></b><span>Harf yok</span>
+      </div>
+      <div class="stable">
+        <div><div class="lbl">1–3 tahmin</div><div class="val">%100</div></div>
+        <div class="goal"><div class="lbl">4 tahmin</div><div class="val">%95</div></div>
+        <div><div class="lbl">5 tahmin</div><div class="val">%80</div></div>
+        <div><div class="lbl">6 tahmin</div><div class="val">%65</div></div>
+        <div><div class="lbl">Bulamazsan</div><div class="val">%0</div></div>
+      </div>
+      <div class="keys">
+        <div class="kbd"><span>A</span><span>Ç</span><span>Ğ</span><span>…</span></div><div>Harf yaz (klavyeden ya da ekrandan)</div>
+        <div class="kbd"><span>⌫</span></div><div>Harf sil</div>
+        <div class="kbd"><span>Enter</span></div><div>Tahmini gönder</div>
+        <div class="kbd"><span>Esc</span></div><div>Salona dön</div>
+      </div>
+      <div class="foot"><div class="goaltxt">%95 ve üstü: Küçük ödül</div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sEnd" hidden>
+    <div class="card">
+      <div class="lbl" id="eHead">Tur bitti</div>
+      <div class="big" id="eScore">%100</div>
+      <div class="meta"><span>Rekor <b id="eBest">%0</b></span><span>Hedef <b>%95</b></span><span>Tur <b id="eTry">1</b></span></div>
+      <div class="verdict" id="eVerdict"></div>
+      <div class="answer" id="eAnswer"></div>
+      <div class="mini" id="eMini"></div>
+      <div class="foot"><button class="btn ghost" id="bHub">Salona dön <small>Esc</small></button><button class="btn" id="bAgain">Yeni tur <small>Enter</small></button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sConfirm" hidden>
+    <div class="card" style="width:min(420px,100%)">
+      <div class="h" style="font-size:22px">Turdan çıkılsın mı?</div>
+      <p>Yarım kalan tur skor vermez.</p>
+      <div class="foot"><button class="btn ghost" id="bStay">Devam et <small>Esc</small></button><button class="btn" id="bLeave">Çık <small>Enter</small></button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sHub" hidden>
+    <div class="card" style="width:min(420px,100%);text-align:center">
+      <div class="h" style="font-size:22px">Oyun salonu</div>
+      <p>Prototipte salon yok. Enter ile yeni tura başla.</p>
+    </div>
+  </div>
+</div>
+
+<aside id="dbg">
+  <header><b>PROTOTİP #188</b><span>Değişiklik yeni turda · F2 gizler</span></header>
+  <section><h3>Cevap</h3>
+    <select id="oAnswer"></select>
+    <button class="btn" id="bNew">Bu cevapla yeni tur</button>
+    <label class="chk" style="display:flex;gap:7px;margin-top:8px"><input type="checkbox" id="oShow"> Cevabı durumda göster</label>
+  </section>
+  <section><h3>Izgara ve uzunluk</h3><div id="optGrid"></div></section>
+  <section><h3>Geçerli tahmin</h3><div id="optValid"></div><p class="note" id="dictNote"></p></section>
+  <section><h3>Klavye</h3><div id="optKb"></div></section>
+  <section><h3>Durum</h3><pre id="state"></pre></section>
+</aside>
+
+<script>
+"use strict";
+// ---------- data ----------
+const ANSWERS = ['Çağla', 'Atıl', 'aşkım', 'sevdicek', 'kendi dilimde', 'iyi ki doğdun', 'seni seviyorum', 'spa', 'şarap', 'otuz beş'];
+const up = s => s.toLocaleUpperCase('tr');
+const TR_LETTERS = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ';
+const EXTRA = 'QWX';                 // on a Turkish Q keyboard, never in an answer
+const VOWELS = new Set('AEIİOÖUÜ');
+const FOLD = { 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+
+// Small dictionary: common Turkish words, 2–9 letters, plus every word of the answers.
+// Deliberately small, to show how a list check feels.
+const DICT_RAW = `
+ve ki de da bu şu o ben sen biz siz ne ah oh ay su el ev at ot ip iş üç on yüz bin iki dört beş altı yedi sekiz dokuz otuz kırk elli
+an ad ak al aç ağ ar as aş az baş boş buz dağ dil diş göz gün kız kol köy kum kar kış yaz kuş yol yer yıl tuz taş saç süt söz ses
+gel git ver al bak sev öp yap koş dur gör bil iyi kötü güzel çirkin sıcak soğuk büyük küçük uzun kısa yeni eski genç hızlı yavaş
+anne baba abla abi kardeş teyze dayı amca hala dede nine eş sevgili aşk aşkım canım tatlım bebeğim sevdicek balım hayatım
+kalp gönül ruh hayat dünya güneş deniz nehir göl orman çiçek gül lale ağaç yaprak toprak bulut yağmur rüzgar kar fırtına
+kedi köpek balık kuş inek koyun keçi tavuk ördek aslan kaplan ayı kurt tilki tavşan fare
+ekmek peynir zeytin çay kahve şarap bira rakı meyve elma armut kiraz üzüm muz portakal limon çilek karpuz kavun domates
+sabah akşam gece öğle bugün yarın dün hafta ay yıl saat dakika zaman şimdi sonra önce hemen
+okul ev oda kapı pencere masa sandalye yatak kitap defter kalem resim müzik şarkı film tiyatro sinema dans oyun spor
+spa banyo havuz otel tatil yolculuk tren uçak araba bisiklet gemi yürüyüş dağcılık kayak kamp harita fotoğraf kamera
+mutlu üzgün yorgun aç tok hasta sağlıklı zengin fakir akıllı deli güçlü zayıf sakin tatlı acı tuzlu ekşi
+sevgi umut hayal rüya düş anı mutluluk huzur barış neşe kahkaha gülüş öpücük sarılmak
+doğum gün doğdun doğum günü kutlu olsun nice yıllara pasta mum hediye parti
+seni beni onu bizi sizi seviyorum seviyor sevdim severim gidiyorum geliyorum biliyorum istiyorum yapıyorum özledim
+kendi dilim dilimde dilinde evimde kalbimde içimde yanımda yanında
+ama fakat çünkü eğer belki hep hiç çok az daha en gibi kadar için ile göre
+merhaba selam günaydın iyi geceler teşekkür lütfen evet hayır tamam peki
+çağla atıl hollanda türkiye istanbul ankara izmir eindhoven amsterdam paris
+renk mavi kırmızı yeşil sarı mor pembe siyah beyaz gri turuncu
+baş yüz göz kulak burun ağız dudak saç el kol bacak ayak parmak omuz sırt
+gelmek gitmek bakmak görmek sevmek yapmak etmek olmak almak vermek demek bilmek
+şarkıcı oyuncu yazar ressam doktor öğretmen mühendis aşçı
+sevimli harika muhteşem nefis şahane süper inanılmaz
+`;
+const DICT = new Set(DICT_RAW.split(/\s+/).filter(Boolean).map(up));
+for (const a of ANSWERS) for (const w of up(a).split(' ')) DICT.add(w);
+
+const SCORE = n => n <= 3 ? 100 : n === 4 ? 95 : n === 5 ? 80 : n === 6 ? 65 : 0;
+const MAXG = 6, FREE_MAX = 15;
+
+// ---------- settings (defaults) ----------
+const S = {
+  answer: 'random',   // 'random' or index into ANSWERS
+  space: 'gap',       // 'gap' fixed gap cells · 'typed' space is a cell she types · 'none' spaces removed
+  length: 'shape',    // 'shape' grid shows the answer shape · 'count' only "N harf" text, cells appear as she types · 'free' no length given
+  lenTag: true,       // free mode: tag each guess "kısa / uzun / tam"
+  valid: 'any',       // 'any' · 'vowel' each word has a vowel · 'dict' each word in the small list
+  kb: 'trq',          // 'trq' Turkish Q · 'abc' alphabet · 'none' hidden
+  fold: false,        // c=ç, g=ğ, ı=i, o=ö, s=ş, u=ü
+};
+const OPTS = {
+  space: { host: 'optGrid', label: 'Boşluk', items: [
+    ['gap', 'Sabit boşluk hücresi (yazılmaz, imleç atlar)'],
+    ['typed', 'Boşluk da bir hücre, Space ile yazılır'],
+    ['none', 'Boşluk yok, söz tek parça (İYİKİDOĞDUN)']] },
+  length: { host: 'optGrid', label: 'Uzunluğu nasıl öğrenir', items: [
+    ['shape', 'Izgara baştan görünür (şekil = ipucu)'],
+    ['count', 'Sadece "N harf" yazısı; hücreler yazdıkça çıkar'],
+    ['free', 'Hiç söylenmez; her uzunlukta tahmin (en çok 15)']] },
+  valid: { host: 'optValid', label: 'Tahmin kuralı', items: [
+    ['any', 'Serbest: her harf dizisi geçer'],
+    ['vowel', 'Her kelimede en az bir sesli harf'],
+    ['dict', 'Her kelime küçük sözlükte olmalı']] },
+  kb: { host: 'optKb', label: 'Ekran klavyesi', items: [
+    ['trq', 'Türkçe Q (laptop tuşlarıyla aynı sıra, Q W X dahil)'],
+    ['abc', 'Alfabe sırası (29 harf)'],
+    ['none', 'Gizli (sadece fiziksel klavye)']] },
+};
+
+// ---------- round state ----------
+let G = null, state = 'start', best = 0, rounds = 0, lastIdx = -1, busy = false;
+
+function pickIndex() {
+  if (S.answer !== 'random') return +S.answer;
+  let i; do { i = Math.floor(Math.random() * ANSWERS.length); } while (i === lastIdx && ANSWERS.length > 1);
+  return i;
+}
+function newRound() {
+  const idx = pickIndex(); lastIdx = idx;
+  const ans = up(ANSWERS[idx]);
+  // template: list of cells; {gap:true} or {t:index into target}
+  let target, template = null;
+  if (S.length === 'free') {
+    target = [...ans];                                  // spaces are characters she may type
+  } else if (S.space === 'gap') {
+    target = []; template = [];
+    for (const ch of ans) { if (ch === ' ') template.push({ gap: true }); else { template.push({ t: target.length }); target.push(ch); } }
+  } else if (S.space === 'typed') {
+    target = [...ans]; template = target.map((_, i) => ({ t: i }));
+  } else {
+    target = [...ans.replace(/ /g, '')]; template = target.map((_, i) => ({ t: i }));
+  }
+  G = { idx, ans, target, template, guesses: [], results: [], tags: [], cur: [], done: false, won: false, keys: {}, mode: { ...S } };
+  rounds++;
+  state = 'play'; busy = false;
+  show(null);
+  renderAll();
+}
+
+// ---------- rules ----------
+const key = ch => (G && G.mode.fold) ? (FOLD[ch] || ch) : ch;
+function evaluate(guess, target) {
+  const res = guess.map(() => 'absent'), left = {};
+  for (let i = 0; i < target.length; i++) {
+    if (i < guess.length && key(guess[i]) === key(target[i])) res[i] = 'correct';
+    else left[key(target[i])] = (left[key(target[i])] || 0) + 1;
+  }
+  for (let i = 0; i < guess.length; i++) {
+    if (res[i] === 'correct') continue;
+    const k = key(guess[i]);
+    if (left[k] > 0) { res[i] = 'present'; left[k]--; }
+  }
+  return res;
+}
+function words(guess) {
+  // split the guess into words the way the current grid does
+  if (G.mode.length !== 'free' && G.mode.space === 'gap') {
+    const out = [[]]; for (const c of G.template) { if (c.gap) out.push([]); else out[out.length - 1].push(guess[c.t]); }
+    return out.map(w => w.join(''));
+  }
+  return guess.join('').split(' ');
+}
+function segmentable(s) {             // 'none' mode: can the run be split into dictionary words?
+  const ok = [true]; for (let i = 1; i <= s.length; i++) { ok[i] = false; for (let j = Math.max(0, i - 15); j < i; j++) if (ok[j] && DICT.has(s.slice(j, i))) { ok[i] = true; break; } }
+  return ok[s.length];
+}
+function invalidReason(guess) {
+  const need = G.mode.length === 'free' ? 0 : G.target.length;
+  if (need && guess.length < need) return 'Eksik harf var';
+  if (G.mode.length === 'free' && guess.filter(c => c !== ' ').length < 2) return 'En az 2 harf yaz';
+  const ws = words(guess);
+  if (ws.some(w => w === '') && (G.mode.length === 'free' || G.mode.space === 'typed')) return 'Boşluklar yanlış yerde';
+  if (G.mode.valid === 'vowel' && ws.some(w => ![...w].some(c => VOWELS.has(c)))) return 'Her kelimede bir sesli harf olmalı';
+  if (G.mode.valid === 'dict') {
+    const raw = guess.join('');
+    if (G.mode.length !== 'free' && G.mode.space === 'none') { if (!segmentable(raw)) return 'Sözlükte yok'; }
+    else if (ws.some(w => !DICT.has(w))) return 'Sözlükte yok: ' + ws.filter(w => !DICT.has(w)).join(', ');
+  }
+  return null;
+}
+function submit() {
+  if (!G || G.done || busy) return;
+  const guess = G.cur.slice();
+  const why = invalidReason(guess);
+  if (why) { toast(why); shake(); return; }
+  const res = evaluate(guess, G.target);
+  G.guesses.push(guess); G.results.push(res); G.cur = [];
+  const n = G.guesses.length;
+  G.won = guess.length === G.target.length && res.every(r => r === 'correct');
+  G.tags.push(G.mode.length === 'free' && G.mode.lenTag ? (guess.length < G.target.length ? 'kısa' : guess.length > G.target.length ? 'uzun' : 'uzunluk tam') : null);
+  if (G.won || n >= MAXG) G.done = true;
+  busy = true;
+  renderBoard(n - 1);
+  const dur = revealMs(guess.length);
+  setTimeout(() => {
+    guess.forEach((ch, i) => { const k = key(ch), r = res[i], o = G.keys[k]; if (ch !== ' ' && (o !== 'correct') && !(o === 'present' && r === 'absent')) G.keys[k] = r; });
+    busy = false; renderKb(); renderHud();
+    if (G.won) { bounceRow(n - 1); setTimeout(endRound, 900); }
+    else if (G.done) setTimeout(endRound, 500);
+  }, dur);
+  renderHud(); renderState();
+}
+function revealMs(len) { return stagger(len) * (len - 1) + 500; }
+function stagger(len) { return Math.min(160, Math.round(1100 / Math.max(len, 1))); }
+
+// ---------- input ----------
+const allowed = ch => TR_LETTERS.includes(ch) || EXTRA.includes(ch);
+function typeChar(ch) {
+  if (!G || G.done || busy || state !== 'play') return;
+  const max = G.mode.length === 'free' ? FREE_MAX : G.target.length;
+  if (ch === ' ') {
+    if (!(G.mode.length === 'free' || G.mode.space === 'typed')) return;   // gap / none: Space does nothing
+    if (G.cur.length === 0 || G.cur[G.cur.length - 1] === ' ') return;
+  }
+  if (G.cur.length >= max) return;
+  G.cur.push(ch); renderBoard(); renderState();
+}
+function backspace() { if (!G || G.done || busy) return; G.cur.pop(); renderBoard(); renderState(); }
+
+window.addEventListener('keydown', e => {
+  const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'SELECT') return;
+  if (e.key === 'F2') { e.preventDefault(); toggleDbg(); return; }
+  if (e.ctrlKey || e.metaKey) return;
+  if (e.altKey && !e.getModifierState('AltGraph')) return;
+  if (state === 'start' || state === 'end' || state === 'hub') {
+    if (e.key === 'Enter') { e.preventDefault(); newRound(); }
+    else if (e.key === 'Escape' && state === 'end') { goHub(); }
+    return;
+  }
+  if (state === 'confirm') {
+    if (e.key === 'Enter') { e.preventDefault(); goHub(); }
+    else if (e.key === 'Escape') { state = 'play'; show(null); }
+    return;
+  }
+  if (e.key === 'Escape') { state = 'confirm'; show('sConfirm'); return; }
+  if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+  if (e.key === 'Backspace') { e.preventDefault(); backspace(); return; }
+  if (e.key === ' ') { e.preventDefault(); typeChar(' '); return; }
+  if (e.key.length === 1) {
+    const ch = up(e.key);                // i → İ, ı → I (Turkish rules)
+    if (allowed(ch)) { e.preventDefault(); typeChar(ch); }
+  }
+});
+
+// ---------- render ----------
+const $ = id => document.getElementById(id);
+function cellsFor(rowIdx) {
+  // returns array of {ch, cls, gap}
+  const sub = rowIdx < G.guesses.length, active = rowIdx === G.guesses.length && !G.done;
+  const g = sub ? G.guesses[rowIdx] : active ? G.cur : [];
+  const res = sub ? G.results[rowIdx] : null;
+  const shown = (ch, i) => {
+    if (sub && G.mode.fold && res[i] === 'correct' && G.target[i]) return G.target[i];   // loose mode: a green cell shows the real letter
+    return ch;
+  };
+  if (G.mode.length === 'free') {
+    const out = g.map((ch, i) => ({ ch: shown(ch, i), cls: (res ? res[i] : 'filled') + (ch === ' ' ? ' sp' : ''), sp: ch === ' ' }));
+    if (active && g.length < FREE_MAX) out.push({ ch: '', cls: 'caret' });
+    return out;
+  }
+  if (G.mode.length === 'count' && !sub) {
+    const out = g.map((ch, i) => ({ ch, cls: 'filled' + (ch === ' ' ? ' sp' : ''), sp: ch === ' ' }));
+    if (active && g.length < G.target.length) out.push({ ch: '', cls: 'caret' });
+    return out;
+  }
+  return G.template.map(c => {
+    if (c.gap) return { gap: true };
+    const ch = g[c.t];
+    if (ch === undefined) return { ch: '', cls: (active && c.t === g.length) ? 'caret' : '' };
+    return { ch: shown(ch, c.t), cls: (res ? res[c.t] : 'filled') + (ch === ' ' ? ' sp' : ''), sp: ch === ' ' };
+  });
+}
+function sizeBoard() {
+  const wrap = $('boardWrap');
+  let n;
+  if (G.mode.length === 'free') n = FREE_MAX + 2;   // room for the length tag
+  else if (G.mode.space === 'gap') n = G.template.reduce((a, c) => a + (c.gap ? 0.42 : 1), 0);
+  else n = G.target.length;
+  const W = wrap.clientWidth - (G.mode.length === 'free' ? 200 : 40), H = wrap.clientHeight - 10;
+  const gap = 7;
+  const cs = Math.floor(Math.min(68, (W - gap * (Math.ceil(n) - 1)) / n, (H - gap * (MAXG - 1)) / MAXG));
+  const b = $('board'), c = Math.max(28, cs); b.style.setProperty('--cs', c + 'px'); b.style.setProperty('--gap', gap + 'px');
+  b.classList.toggle('free', G.mode.length === 'free');
+  b.style.width = G.mode.length === 'free' ? (c * FREE_MAX + gap * (FREE_MAX - 1)) + 'px' : '';
+}
+function renderBoard(revealRow = -1) {
+  if (!G) return;
+  sizeBoard();
+  const b = $('board'); b.innerHTML = '';
+  for (let r = 0; r < MAXG; r++) {
+    const row = document.createElement('div'); row.className = 'row';
+    const cells = cellsFor(r);
+    const empty = cells.length === 0;
+    if (empty && (G.mode.length === 'free' || G.mode.length === 'count')) {
+      // future row with no length info: a quiet placeholder band
+      if (G.mode.length === 'count') { for (let i = 0; i < G.target.length; i++) { const c = document.createElement('div'); c.className = 'cell ghost'; row.appendChild(c); } }
+      else row.classList.add('emptyfree');
+    }
+    const len = cells.filter(c => !c.gap).length, st = stagger(len);
+    let k = 0;
+    for (const c of cells) {
+      const d = document.createElement('div');
+      if (c.gap) { d.className = 'cell gap'; row.appendChild(d); continue; }
+      d.className = 'cell ' + (c.cls || '');
+      d.textContent = c.sp ? '␣' : c.ch;
+      if (r === revealRow) { d.classList.add('reveal'); d.style.setProperty('--d', (k * st) + 'ms'); d.style.setProperty('--dh', (k * st + 250) + 'ms'); d.classList.remove('filled'); }
+      row.appendChild(d); k++;
+    }
+    if (G.tags[r]) { const t = document.createElement('span'); t.className = 'tag' + (G.tags[r] === 'uzunluk tam' ? ' ok' : ''); t.textContent = G.tags[r]; row.appendChild(t); }
+    b.appendChild(row);
+  }
+}
+function bounceRow(r) {
+  const row = $('board').children[r]; if (!row) return;
+  [...row.querySelectorAll('.cell:not(.gap)')].forEach((c, i) => { c.classList.remove('reveal'); c.style.setProperty('--d', (i * 60) + 'ms'); c.classList.add('win'); });
+}
+function shake() { const row = $('board').children[G.guesses.length]; if (!row) return; row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); }
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('toasts').appendChild(t); setTimeout(() => t.remove(), 2000); }
+
+const LAYOUTS = {
+  trq: ['QWERTYUIOPĞÜ', 'ASDFGHJKLŞİ', 'ZXCVBNMÖÇ'],
+  abc: ['ABCÇDEFGĞHI', 'İJKLMNOÖPRS', 'ŞTUÜVYZ'],
+};
+const TR_SPECIAL = new Set('ÇĞIİÖŞÜ');
+function renderKb() {
+  const kb = $('kb'); kb.innerHTML = '';
+  const mode = G ? G.mode : S;
+  kb.hidden = mode.kb === 'none'; if (kb.hidden) return;
+  const rows = LAYOUTS[mode.kb];
+  rows.forEach((r, ri) => {
+    const row = document.createElement('div'); row.className = 'krow';
+    if (ri === 2) row.appendChild(mkKey('Tahmin', 'wide', submit));
+    for (const ch of r) row.appendChild(mkKey(ch, (G && G.keys[key(ch)] || '') + (TR_SPECIAL.has(ch) ? ' tr' : ''), () => typeChar(ch)));
+    if (ri === 2) row.appendChild(mkKey('⌫', 'wide', backspace));
+    kb.appendChild(row);
+  });
+  if (mode.length === 'free' || mode.space === 'typed') { const row = document.createElement('div'); row.className = 'krow'; row.appendChild(mkKey('Boşluk', 'space', () => typeChar(' '))); kb.appendChild(row); }
+}
+function mkKey(label, cls, fn) { const b = document.createElement('button'); b.className = 'key ' + cls; b.textContent = label; b.tabIndex = -1; b.onclick = e => { fn(); e.currentTarget.blur(); }; return b; }
+
+function shapeText() {
+  if (!G) return '';
+  const ws = G.ans.split(' ');
+  if (G.mode.length === 'free') return 'Uzunluk gizli · en çok 15 hücre';
+  const letters = ws.join('').length;
+  if (G.mode.length === 'count') {
+    if (G.mode.space === 'typed') return `${G.target.length} hücre (boşluklar dahil)`;
+    return `${letters} harf`;
+  }
+  if (G.mode.space === 'none') return `${letters} harf`;
+  return ws.length > 1 ? `${ws.length} kelime · ${ws.map(w => w.length).join(' + ')} harf` : `${letters} harf`;
+}
+function renderHud() {
+  if (!G) return;
+  const n = G.guesses.length, nextN = Math.min(n + 1, MAXG);
+  $('vGuess').textContent = (G.done ? n : nextN) + ' / ' + MAXG;
+  $('vPips').innerHTML = Array.from({ length: MAXG }, (_, i) => `<i class="${i < n ? 'used' : ''} ${i === 3 ? 'cut' : ''}"></i>`).join('');
+  $('vShape').textContent = shapeText();
+  const hn = $('hNow');
+  if (G.done) { $('vNowL').textContent = 'Skor'; $('vNow').textContent = '%' + (G.won ? SCORE(n) : 0); hn.classList.toggle('win', G.won && SCORE(n) >= 95); }
+  else { $('vNowL').textContent = 'Şimdi bilirsen'; $('vNow').textContent = '%' + SCORE(n + 1); hn.classList.toggle('win', SCORE(n + 1) >= 95); }
+}
+function renderAll() { renderBoard(); renderKb(); renderHud(); renderState(); }
+
+function endRound() {
+  const n = G.guesses.length, sc = G.won ? SCORE(n) : 0;
+  best = Math.max(best, sc);
+  state = 'end';
+  $('eHead').textContent = G.won ? `${n}. tahminde buldun` : 'Bu sefer olmadı';
+  $('eScore').textContent = '%' + sc; $('eScore').classList.toggle('win', sc >= 95);
+  $('eBest').textContent = '%' + best; $('eTry').textContent = rounds;
+  const v = $('eVerdict');
+  v.className = 'verdict' + (best >= 95 ? ' win' : '');
+  v.textContent = best >= 95 ? 'Rekorun %95 ve üstü: Küçük ödül senin!' : sc > 0 ? '%95 için 4 tahminde bul.' : 'Cevap aşağıda. Yeni turda başka bir söz gelir.';
+  // the answer, in tiles
+  const a = $('eAnswer'); a.innerHTML = '';
+  for (const ch of G.ans) { const d = document.createElement('div'); d.className = ch === ' ' ? 'cell gap nodot' : 'cell ' + (G.won ? 'correct' : 'absent'); d.textContent = ch === ' ' ? '' : ch; a.appendChild(d); }
+  // mini grid of colors
+  $('eMini').innerHTML = G.results.map((res, r) => '<div>' + res.map((x, i) => G.guesses[r][i] === ' ' ? '<i class="g"></i>' : `<i class="${x}"></i>`).join('') + '</div>').join('');
+  show('sEnd'); renderState();
+}
+function goHub() { state = 'hub'; G && (G.done = true); show('sHub'); }
+function show(id) { for (const s of ['sStart', 'sEnd', 'sConfirm', 'sHub']) $(s).hidden = s !== id; }
+
+function renderState() {
+  const lines = [];
+  lines.push(`durum        ${state}`);
+  lines.push(`ayarlar      boşluk=${S.space} uzunluk=${S.length} kural=${S.valid} klavye=${S.kb} gevşek=${S.fold}`);
+  if (G) {
+    lines.push(`tur ayarı    boşluk=${G.mode.space} uzunluk=${G.mode.length} kural=${G.mode.valid} gevşek=${G.mode.fold}`);
+    lines.push(`cevap        ${$('oShow').checked ? '"' + G.ans + '"' : '(gizli — kutuyu işaretle)'}`);
+    lines.push(`hedef dizisi ${$('oShow').checked ? JSON.stringify(G.target.join('')) + ' (' + G.target.length + ')' : '—'}`);
+    lines.push(`yazılan      "${G.cur.join('')}" (${G.cur.length})`);
+    G.guesses.forEach((g, i) => lines.push(`tahmin ${i + 1}     ${g.join('').replace(/ /g, '␣')}  ${G.results[i].map(r => r === 'correct' ? 'Y' : r === 'present' ? 's' : '.').join('')}${G.tags[i] ? '  ' + G.tags[i] : ''}`));
+    lines.push(`bitti        ${G.done}${G.done ? ' · ' + (G.won ? 'bulundu' : 'bulunamadı') : ''}`);
+  }
+  lines.push(`rekor        %${best} · tur sayısı ${rounds}`);
+  lines.push(`sözlük       ${DICT.size} kelime`);
+  $('state').textContent = lines.join('\n');
+}
+
+// ---------- start screen demo ----------
+(function demo() {
+  // a sample guess PARKA against the answer ŞARAP: P and the last A are elsewhere, A R in place, K absent
+  const guess = 'PARKA', res = ['present', 'correct', 'correct', 'absent', 'present'];
+  const d = $('demo');
+  [...guess].forEach((ch, i) => { const c = document.createElement('div'); c.className = 'cell ' + res[i]; c.textContent = ch; d.appendChild(c); });
+})();
+
+// ---------- debug panel ----------
+function radio(name) {
+  const o = OPTS[name], host = $(o.host);
+  const wrap = document.createElement('div'); wrap.className = 'opt';
+  wrap.innerHTML = `<span>${o.label}</span>` + o.items.map(([v, l]) => `<label><input type="radio" name="${name}" value="${v}" ${S[name] === v ? 'checked' : ''}> ${l}</label>`).join('');
+  wrap.querySelectorAll('input').forEach(i => i.addEventListener('change', () => { S[name] = i.value; i.blur(); applyLive(name); }));
+  host.appendChild(wrap);
+}
+function check(hostId, k, label) {
+  const l = document.createElement('label'); l.style.cssText = 'display:flex;gap:7px;margin:3px 0;cursor:pointer';
+  l.innerHTML = `<input type="checkbox" ${S[k] ? 'checked' : ''}> ${label}`;
+  const i = l.querySelector('input'); i.addEventListener('change', () => { S[k] = i.checked; i.blur(); applyLive(k); });
+  $(hostId).appendChild(l);
+}
+function applyLive(name) {
+  // keyboard and validation switch live; grid shape switches on the next round
+  if (G && !G.done && (name === 'kb' || name === 'valid')) { G.mode[name] = S[name]; renderKb(); }
+  if (G && name === 'lenTag') G.mode.lenTag = S.lenTag;
+  if (!G) renderKb();
+  if (['space', 'length', 'fold'].includes(name) && G && !G.done) toast('Yeni turda geçerli');
+  renderState();
+}
+(function buildDebug() {
+  const sel = $('oAnswer');
+  sel.innerHTML = '<option value="random">Rastgele (art arda aynısı gelmez)</option>' + ANSWERS.map((a, i) => `<option value="${i}">${up(a)} · ${up(a).replace(/ /g, '').length} harf</option>`).join('');
+  sel.onchange = () => { S.answer = sel.value; sel.blur(); };
+  $('bNew').onclick = e => { e.currentTarget.blur(); newRound(); };
+  $('oShow').onchange = e => { e.target.blur(); renderState(); };
+  radio('space'); radio('length'); check('optGrid', 'lenTag', 'Serbest uzunlukta "kısa / uzun / tam" etiketi');
+  radio('valid'); radio('kb'); check('optKb', 'fold', 'Gevşek harf: c=ç, g=ğ, ı=i, o=ö, s=ş, u=ü (US klavye için)');
+  $('dictNote').textContent = `Sözlük ${DICT.size} kelime, cevapların tüm kelimeleri dahil. Türkçe tam sözlük çevrimdışı yok; bu liste yalnızca hissini göstermek için.`;
+})();
+function toggleDbg() { const d = $('dbg'); d.hidden = !d.hidden; if (G) renderBoard(); }
+$('toggleDbg').onclick = e => { e.currentTarget.blur(); toggleDbg(); };
+$('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = goHub;
+$('bLeave').onclick = goHub; $('bStay').onclick = () => { state = 'play'; show(null); };
+window.addEventListener('resize', () => { if (G) renderBoard(); });
+
+// Pre-round: the start screen sits over an empty board
+renderKb(); renderState();
+window.__proto = { S, G: () => G, newRound, evaluate: (g, t) => { const save = G; G = G || { mode: S }; const r = evaluate([...up(g)], [...up(t)]); G = save; return r; }, get state() { return state; } };
+</script>
+</body>
+</html>
