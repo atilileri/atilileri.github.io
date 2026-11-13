@@ -46,6 +46,11 @@ The printable page that lists the Gifts she holds and the Small prizes she won. 
 what the Proof lists.
 _Avoid_: Receipt, certificate
 
+**Subject point** (_Odak noktası_):
+The one point Atıl marks on a photo in the photo framing Game: the thing the photo is about. Her
+crop scores by how close it puts this point to a rule-of-thirds point.
+_Avoid_: Focus, center, target
+
 **Save code** (_Yedek kodu_):
 A line of text that holds all her progress. She copies it to back up, pastes it to restore or to
 move to another device, and the Proof prints it. Its last characters are a check code that
