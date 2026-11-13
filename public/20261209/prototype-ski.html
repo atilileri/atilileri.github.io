@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kayak Prototipi</title>
+<!--
+  PROTOTYPE — throwaway. Issue #179 "Prototype: how does the ski platformer feel?"
+  Answers: keys, jump, speed, course length, spacing of rocks / flags / checkpoints,
+  so that 95% ("nearly all flags") takes about 5 focused plays.
+  The play is plain canvas code; the UI around it (start screen, HUD, score screen)
+  follows stageshow's rules (quiet surfaces, few real words) in plain CSS, because the
+  stageshow kit is React and this must stay one self-contained file.
+  No persistence: everything lives in memory and is gone on reload.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3f8; --surface:#ffffff; --surface-2:#f5f8fb; --line:#dde5ee; --ink:#1d2a3a; --ink-2:#5b6b7f; --ink-3:#93a1b2;
+  --accent:#e8573f; --accent-ink:#ffffff; --blue:#2f6fd6; --good:#1f9d6a; --warn:#d98a12;
+  --radius:14px; --shadow:0 1px 2px rgba(20,40,70,.06),0 8px 24px rgba(20,40,70,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1621; --surface:#18212e; --surface-2:#1f2a39; --line:#2a3748; --ink:#e7eef7; --ink-2:#a3b1c3; --ink-3:#6c7c90;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1621; --surface:#18212e; --surface-2:#1f2a39; --line:#2a3748; --ink:#e7eef7; --ink-2:#a3b1c3; --ink-3:#6c7c90;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:14px;min-height:100vh}
+.app{display:flex;gap:16px;padding:16px;align-items:flex-start;max-width:1400px;margin:0 auto}
+.main{flex:1;min-width:0}
+.topline{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.topline h1{font-size:18px;margin:0;font-weight:900;letter-spacing:-.01em}
+.badge{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 8px;border-radius:999px;background:#fde7e3;color:#b83a25}
+.topline .hint{margin-left:auto;color:var(--ink-3);font-size:12px}
+
+/* stage */
+.stage-wrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);background:#cfe3f5}
+.stage{position:absolute;left:0;top:0;width:960px;height:540px;transform-origin:0 0}
+canvas{display:block;width:960px;height:540px}
+
+/* HUD */
+.hud{position:absolute;inset:0;pointer-events:none;font-weight:800}
+.hud .bar{position:absolute;left:16px;right:16px;top:14px;display:flex;align-items:center;gap:10px}
+.pill{background:rgba(255,255,255,.92);color:#1d2a3a;border-radius:999px;padding:7px 14px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(20,40,70,.12);font-size:16px;white-space:nowrap}
+.pill small{font-size:12px;color:#6b7a8c;font-weight:700}
+.pill .flagic{width:12px;height:16px;position:relative}
+.pill .flagic:before{content:"";position:absolute;left:0;top:0;width:2px;height:16px;background:#1d2a3a;border-radius:1px}
+.pill .flagic:after{content:"";position:absolute;left:2px;top:1px;border-left:10px solid var(--accent);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.prog{flex:1;height:10px;border-radius:999px;background:rgba(255,255,255,.7);position:relative;box-shadow:inset 0 0 0 1px rgba(20,40,70,.08)}
+.prog .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:#2f6fd6;width:0}
+.prog .tick{position:absolute;top:-3px;width:4px;height:16px;border-radius:2px;background:#9fb5cf;transform:translateX(-2px)}
+.prog .tick.on{background:#2f6fd6}
+.prog .end{position:absolute;right:-2px;top:-5px;width:6px;height:20px;border-radius:2px;background:repeating-linear-gradient(#1d2a3a 0 4px,#fff 4px 8px)}
+.pct.ok{color:var(--good)}
+.toast{position:absolute;left:50%;top:70px;transform:translate(-50%,-8px);opacity:0;transition:opacity .2s,transform .2s;background:#1d2a3a;color:#fff;padding:9px 16px;border-radius:999px;font-size:15px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* overlays */
+.ov{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(214,230,245,.55);backdrop-filter:blur(3px)}
+.ov.show{display:flex}
+.card{background:#fff;color:#1d2a3a;border-radius:20px;box-shadow:0 20px 60px rgba(20,40,70,.25);padding:28px 32px;width:430px;text-align:center}
+.card h2{margin:0 0 4px;font-size:30px;font-weight:900;letter-spacing:-.02em}
+.card p.sub{margin:0 0 18px;color:#5b6b7f;font-size:15px;font-weight:600}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:9px 14px;text-align:left;margin:0 auto 20px;width:max-content;font-size:15px;font-weight:700;align-items:center}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;padding:0 8px;border-radius:7px;background:#f3f6fa;border:1px solid #d5dee8;border-bottom-width:3px;font-size:13px;font-weight:800;color:#1d2a3a;margin-right:4px}
+.btn{pointer-events:auto;font:inherit;font-weight:800;font-size:16px;border:0;border-radius:12px;padding:12px 22px;background:var(--accent);color:var(--accent-ink);cursor:pointer;box-shadow:0 4px 0 #b9412d}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #b9412d}
+.btn .kbd{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35);color:#fff;height:22px;min-width:auto;margin:0 0 0 8px}
+.big{font-size:64px;font-weight:900;letter-spacing:-.03em;line-height:1;margin:6px 0 4px}
+.big.ok{color:var(--good)}
+.verdict{display:inline-block;margin:6px 0 16px;padding:6px 14px;border-radius:999px;font-weight:800;font-size:14px;background:#eef2f6;color:#5b6b7f}
+.verdict.ok{background:#dcf5ea;color:#13734c}
+.rows{border-top:1px solid #e6ecf2;margin:0 0 20px}
+.rows div{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #e6ecf2;font-size:15px;font-weight:700}
+.rows span:first-child{color:#5b6b7f}
+
+/* debug panel */
+.panel{width:330px;flex:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;max-height:calc(100vh - 32px);overflow:auto;position:sticky;top:16px}
+.panel h3{margin:14px 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:800}
+.panel h3:first-child{margin-top:0}
+.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.presets button{font:inherit;font-weight:800;font-size:13px;padding:8px 4px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.presets button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.knob{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:0 0 9px}
+.knob label{font-weight:700;font-size:13px}
+.knob output{font-weight:800;font-size:13px;color:var(--blue);font-variant-numeric:tabular-nums}
+.knob input[type=range]{grid-column:1/3;width:100%;accent-color:var(--blue);margin:2px 0 0}
+.knob .note{grid-column:1/3;font-size:11px;color:var(--ink-3)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;margin:0 0 8px}
+.chk input{accent-color:var(--blue);margin-top:2px}
+.seedrow{display:flex;gap:6px;align-items:center;margin:0 0 9px}
+.seedrow input{width:90px;font:inherit;font-weight:700;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink)}
+.seedrow button,.smallbtn{font:inherit;font-weight:800;font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.kv{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:13px;font-variant-numeric:tabular-nums}
+.kv span:nth-child(odd){color:var(--ink-2);font-weight:600}
+.kv span:nth-child(even){font-weight:800;text-align:right}
+table.log{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+table.log th{text-align:left;color:var(--ink-3);font-weight:800;padding:3px 4px;border-bottom:1px solid var(--line)}
+table.log td{padding:3px 4px;border-bottom:1px solid var(--line);font-weight:700}
+table.log td.ok{color:var(--good)}
+.empty{color:var(--ink-3);font-size:12px}
+.pend{font-size:11px;color:var(--warn);font-weight:800;margin:-2px 0 8px;display:none}
+.pend.show{display:block}
+
+@media (max-width: 980px){
+  .app{flex-direction:column;padding:16px}
+  .panel{width:100%;position:static;max-height:none}
+  .topline .hint{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <div class="topline">
+      <h1>Kayak Macerası</h1><span class="badge">PROTOTİP</span>
+      <span class="hint">Oyun alanı klavyeyle oynanır; ayarlar sağdaki panelde</span>
+    </div>
+    <div class="stage-wrap" id="wrap">
+      <div class="stage" id="stage">
+        <canvas id="cv" width="960" height="540"></canvas>
+        <div class="hud" id="hud">
+          <div class="bar">
+            <div class="pill"><span class="flagic"></span><span id="hFlags">0 / 0</span></div>
+            <div class="prog" id="prog"><div class="fill" id="progFill"></div><div class="end"></div></div>
+            <div class="pill"><span class="pct" id="hPct">%0</span></div>
+            <div class="pill"><span id="hTime">0:00</span></div>
+          </div>
+          <div class="toast" id="toast"></div>
+        </div>
+        <div class="ov show" id="ovStart">
+          <div class="card">
+            <h2>Kayak Macerası</h2>
+            <p class="sub">Kayaların üstünden atla, bayrakları topla, bitişe ulaş.</p>
+            <div class="keys">
+              <span><span class="kbd">Boşluk</span><span class="kbd">↑</span></span><span>Zıpla (basılı tut: daha yüksek)</span>
+              <span><span class="kbd">→</span></span><span>Hızlan</span>
+              <span><span class="kbd">←</span></span><span>Yavaşla</span>
+              <span><span class="kbd">P</span><span class="kbd">R</span></span><span>Duraklat · Baştan başla</span>
+            </div>
+            <button class="btn" id="bStart">Başla<span class="kbd">Enter</span></button>
+          </div>
+        </div>
+        <div class="ov" id="ovPause">
+          <div class="card">
+            <h2>Duraklatıldı</h2>
+            <p class="sub">Devam etmek için P'ye bas.</p>
+            <button class="btn" id="bResume">Devam et<span class="kbd">P</span></button>
+          </div>
+        </div>
+        <div class="ov" id="ovDone">
+          <div class="card">
+            <p class="sub" style="margin:0">Bitiş!</p>
+            <div class="big" id="dPct">%0</div>
+            <div class="verdict" id="dVerdict">Küçük ödül için %95 gerekli</div>
+            <div class="rows">
+              <div><span>Bayraklar</span><span id="dFlags">0 / 0</span></div>
+              <div><span>Süre</span><span id="dTime">0:00</span></div>
+              <div><span>Düşüş</span><span id="dFalls">0</span></div>
+              <div><span>Rekor (bu oturum)</span><span id="dBest">%0</span></div>
+            </div>
+            <button class="btn" id="bAgain">Tekrar oyna<span class="kbd">Enter</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <h3>Hazır ayarlar</h3>
+    <div class="presets" id="presets"></div>
+
+    <h3>Hareket (anında uygulanır)</h3>
+    <div id="knobsLive"></div>
+    <label class="chk"><input type="checkbox" id="cVar" checked> Değişken zıplama (kısa bas: alçak, basılı tut: yüksek)</label>
+
+    <h3>Parkur (yeni oyunda uygulanır)</h3>
+    <div class="pend" id="pend">Parkur ayarı değişti: R ile yeni oyunda uygulanır</div>
+    <div id="knobsCourse"></div>
+    <div class="seedrow"><label for="iSeed" style="font-weight:700;font-size:13px">Parkur no</label><input id="iSeed" type="number" value="7"><button id="bNewSeed">Yeni parkur</button></div>
+    <label class="chk"><input type="checkbox" id="cReset" checked> Düşünce son kontrol noktasından sonraki bayraklar geri alınır</label>
+
+    <h3>Türetilen değerler</h3>
+    <div class="kv" id="derived"></div>
+
+    <h3>Anlık durum</h3>
+    <div class="kv" id="state"></div>
+
+    <h3>Bu oturumdaki oyunlar</h3>
+    <div id="log"><div class="empty">Henüz oyun yok. Kayıt tutulmaz; sayfa yenilenince silinir.</div></div>
+  </aside>
+</div>
+
+<script>
+(() => {
+'use strict';
+const W = 960, H = 540;
+
+// ---------- tuning ----------
+const PRESETS = {
+  'Yumuşak': {speed:280, range:35, jump:640, gravity:1700, flagD:0.55, rockD:0.30, gapD:0.05, lengthSec:75,  cpSec:15, radius:30},
+  'Dengeli': {speed:330, range:35, jump:660, gravity:1950, flagD:0.65, rockD:0.45, gapD:0.12, lengthSec:105, cpSec:20, radius:24},
+  'Sert':    {speed:400, range:30, jump:680, gravity:2300, flagD:0.80, rockD:0.55, gapD:0.18, lengthSec:150, cpSec:30, radius:20},
+};
+const DEFAULT_PRESET = 'Dengeli';
+const KNOBS_LIVE = [
+  ['speed','Taban hız','px/sn',180,520,10],
+  ['range','Hız aralığı (← / →)','±%',0,70,5],
+  ['jump','Zıplama gücü','px/sn',400,950,10],
+  ['gravity','Yerçekimi','px/sn²',1000,3400,50],
+  ['radius','Bayrak yakalama yarıçapı','px',12,48,1],
+];
+const KNOBS_COURSE = [
+  ['lengthSec','Parkur uzunluğu','sn',30,240,5],
+  ['cpSec','Kontrol noktası aralığı','sn',8,60,1],
+  ['flagD','Bayrak sıklığı','',0,1,0.05],
+  ['rockD','Kaya sıklığı','',0,1,0.05],
+  ['gapD','Yarık sıklığı','',0,0.5,0.01],
+];
+const P = Object.assign({}, PRESETS[DEFAULT_PRESET]);
+let presetName = DEFAULT_PRESET;
+let coursePending = false;
+
+// ---------- helpers ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+const ground = x => 380 + 0.17*x + 30*Math.sin(x/310) + 16*Math.sin(x/127+1);
+const slope = x => 0.17 + (30/310)*Math.cos(x/310) + (16/127)*Math.cos(x/127+1);
+const fmtTime = t => { const m = Math.floor(t/60), s = t - m*60; return m + ':' + (s<10?'0':'') + s.toFixed(1); };
+const pctOf = (a,b) => b ? Math.floor(100*a/b) : 100;
+const need95 = n => Math.ceil(0.95*n - 1e-9);
+function hash(i){ const x = Math.sin(i*127.1+311.7)*43758.5453; return x - Math.floor(x); }
+const apex = () => P.jump*P.jump/(2*P.gravity);
+const airtime = () => 2*P.jump/P.gravity;
+
+// ---------- course ----------
+let course = null;
+function buildCourse(seed){
+  const rng = mulberry32(seed);
+  const v = P.speed, A = apex(), T = airtime(), jd = T*v;
+  const len = P.lengthSec*v, slotPx = 1.15*v;
+  const startPad = 2.2*v, endPad = 2.0*v;
+  const cps = [];
+  for (let t = P.cpSec; t < P.lengthSec - P.cpSec*0.4; t += P.cpSec) cps.push({x:t*v, reached:false});
+  const rocks = [], gaps = [], flags = [];
+  const traj = (x0, f) => { const t = f*T; const x = x0 + v*t; let y = ground(x0) - 22 - (P.jump*t - P.gravity*t*t/2); y = Math.min(y, ground(x) - 24); return {x, y}; };
+  const addFlag = (x, y) => flags.push({x, y, got:false, pop:0});
+  for (let sx = startPad; sx + slotPx < len - endPad; sx += slotPx){
+    const mid = sx + slotPx/2;
+    if (cps.some(c => Math.abs(mid - c.x) < slotPx*0.9)) continue;
+    const center = mid + (rng()-0.5)*slotPx*0.3;
+    const r = rng();
+    let kind = 'empty';
+    if (r < P.gapD) kind = 'gap'; else if (r < P.gapD + P.rockD*(1-P.gapD)) kind = 'rock';
+    let gapX = 0;
+    if (kind === 'rock'){
+      const w = 26 + rng()*22, h = Math.min(24 + rng()*18, A*0.55);
+      rocks.push({x:center - w/2, w, h, s:[rng(),rng(),rng(),rng()]});
+    } else if (kind === 'gap'){
+      const gw = jd*(0.32 + rng()*0.25); gapX = center - gw/2;
+      gaps.push({x:gapX, w:gw});
+    }
+    if (rng() < P.flagD){
+      if (kind === 'rock'){
+        const x0 = center - jd/2; const p = traj(x0, 0.5); addFlag(p.x, p.y);
+      } else if (kind === 'gap'){
+        const x0 = gapX - jd*0.2; for (const f of [0.3,0.5,0.7]) { const p = traj(x0, f); addFlag(p.x, p.y); }
+      } else {
+        const k = rng();
+        if (k < 0.4){ const n = 1 + Math.floor(rng()*3); for (let i=0;i<n;i++){ const x = center - (n-1)*30 + i*60; addFlag(x, ground(x) - 24); } }
+        else if (k < 0.7){ const p = traj(center - jd/2, 0.25 + rng()*0.25); addFlag(p.x, p.y); }
+        else { const x0 = center - jd/2; for (const f of [0.25,0.5,0.75]) { const p = traj(x0, f); addFlag(p.x, p.y); } }
+      }
+    }
+  }
+  flags.sort((a,b)=>a.x-b.x);
+  return {seed, len, finishX:len, cps, rocks, gaps, flags, jd, gapMax: gaps.reduce((m,g)=>Math.max(m,g.w),0)};
+}
+const inGap = x => course.gaps.find(g => x > g.x && x < g.x + g.w);
+
+// ---------- game state ----------
+const S = {mode:'start', x:0, y:0, vx:0, vy:0, onGround:true, coyote:0, jumpBuf:0, crash:0, time:0, falls:0, lastCp:null, camX:0, camY:0, tuck:0, spin:0};
+const keys = {};
+let particles = [];
+let bestPct = 0;
+const plays = [];
+
+function newRun(){
+  if (presetName && !samePreset()) presetName = null;
+  course = buildCourse(+document.getElementById('iSeed').value || 1);
+  coursePending = false; refreshPending();
+  Object.assign(S, {x:0, vx:P.speed, vy:0, onGround:true, coyote:0, jumpBuf:0, crash:0, time:0, falls:0, lastCp:null, tuck:0, spin:0});
+  S.y = ground(0); S.camX = S.x - 260; S.camY = S.y - 330;
+  particles = [];
+  buildTicks();
+  renderDerived();
+}
+function startPlay(){ newRun(); S.mode = 'play'; showOv(null); }
+function showOv(id){ for (const o of ['ovStart','ovPause','ovDone']) document.getElementById(o).classList.toggle('show', o === id); }
+
+let toastT = 0;
+function toast(msg, t=1.4){ const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); toastT = t; }
+
+function fall(){
+  if (S.crash > 0) return;
+  S.crash = 0.9; S.falls++; S.spin = 0;
+  for (let i=0;i<18;i++) particles.push({x:S.x, y:S.y-10, vx:(Math.random()-0.3)*260, vy:-Math.random()*260, life:0.8, r:2+Math.random()*3});
+  toast('Düştün! Kontrol noktasına dönülüyor');
+}
+function respawn(){
+  const cx = S.lastCp ? S.lastCp.x : 0;
+  if (document.getElementById('cReset').checked) for (const f of course.flags) if (f.got && f.x > cx) { f.got = false; f.pop = 0; }
+  Object.assign(S, {x:cx, y:ground(cx), vx:P.speed, vy:0, onGround:true, coyote:0, jumpBuf:0, crash:0});
+}
+function finish(){
+  S.mode = 'done';
+  const got = course.flags.filter(f=>f.got).length, tot = course.flags.length, pct = pctOf(got, tot);
+  bestPct = Math.max(bestPct, pct);
+  plays.push({n:plays.length+1, preset:presetName || 'Özel', seed:course.seed, got, tot, pct, time:S.time, falls:S.falls});
+  const ok = pct >= 95;
+  const big = document.getElementById('dPct'); big.textContent = '%' + pct; big.classList.toggle('ok', ok);
+  const v = document.getElementById('dVerdict'); v.classList.toggle('ok', ok);
+  v.textContent = ok ? 'Küçük ödül kazanıldı!' : `Küçük ödül için %95 gerekli (${need95(tot)} bayrak)`;
+  document.getElementById('dFlags').textContent = got + ' / ' + tot;
+  document.getElementById('dTime').textContent = fmtTime(S.time);
+  document.getElementById('dFalls').textContent = S.falls;
+  document.getElementById('dBest').textContent = '%' + bestPct;
+  showOv('ovDone');
+  renderLog();
+}
+
+// ---------- physics ----------
+function step(dt){
+  S.time += dt;
+  if (S.crash > 0){ S.crash -= dt; S.spin += dt*14; if (S.crash <= 0) respawn(); return; }
+  const right = keys.ArrowRight || keys.KeyD, left = keys.ArrowLeft || keys.KeyA;
+  const held = keys.Space || keys.ArrowUp || keys.KeyW;
+  const target = P.speed * (1 + (right ? P.range/100 : left ? -P.range/100 : 0));
+  const acc = S.onGround ? 520 : 200;
+  S.vx += Math.sign(target - S.vx) * Math.min(Math.abs(target - S.vx), acc*dt);
+  S.tuck += ((right || !S.onGround ? 1 : 0) - S.tuck) * Math.min(1, dt*10);
+  S.jumpBuf -= dt; S.coyote -= dt;
+  if (S.jumpBuf > 0 && (S.onGround || S.coyote > 0)){
+    S.vy = -P.jump; S.onGround = false; S.coyote = 0; S.jumpBuf = 0;
+  }
+  const px = S.x;
+  S.x += S.vx*dt;
+  if (S.onGround){
+    if (inGap(S.x)){ S.onGround = false; S.vy = 0; S.coyote = 0.08; }
+    else { S.y = ground(S.x); if (S.vx > P.speed*1.05 && Math.random() < 0.5) particles.push({x:S.x-18, y:S.y, vx:-80-Math.random()*80, vy:-60-Math.random()*80, life:0.4, r:1.5+Math.random()*2}); }
+  }
+  if (!S.onGround){
+    if (document.getElementById('cVar').checked && !held && S.vy < -P.jump*0.45) S.vy = -P.jump*0.45;
+    S.vy += P.gravity*dt; S.y += S.vy*dt;
+    const g = inGap(S.x);
+    if (!g && S.y >= ground(S.x)){
+      // hit the far wall of a gap?
+      const crossed = course.gaps.find(q => px <= q.x + q.w && S.x >= q.x + q.w);
+      if (crossed && S.y > ground(S.x) + 14) { fall(); return; }
+      S.y = ground(S.x); S.vy = 0; S.onGround = true;
+      for (let i=0;i<6;i++) particles.push({x:S.x, y:S.y, vx:(Math.random()-0.5)*160, vy:-Math.random()*90, life:0.35, r:1.5+Math.random()*2});
+    }
+    if (g && S.y > ground(S.x) + 140) { fall(); return; }
+  }
+  // rocks
+  for (const r of course.rocks){
+    if (S.x + 9 < r.x + 4 || S.x - 9 > r.x + r.w - 4) continue;
+    const top = ground(r.x + r.w/2) - r.h + 6;
+    if (S.y > top) { fall(); return; }
+  }
+  // flags
+  const cy = S.y - 22, rr = P.radius*P.radius;
+  for (const f of course.flags){
+    if (f.got || Math.abs(f.x - S.x) > P.radius + 4) continue;
+    const dx = f.x - S.x, dy = f.y - cy;
+    if (dx*dx + dy*dy < rr){ f.got = true; f.pop = 0.5; for (let i=0;i<8;i++) particles.push({x:f.x, y:f.y, vx:(Math.random()-0.5)*200, vy:(Math.random()-0.7)*200, life:0.5, r:2, c:'#ffb020'}); }
+  }
+  // checkpoints
+  for (const c of course.cps){
+    if (!c.reached && S.x >= c.x){ c.reached = true; S.lastCp = c; toast(`Kontrol noktası ${course.cps.indexOf(c)+1} / ${course.cps.length}`, 1.1); }
+  }
+  if (S.x >= course.finishX) finish();
+}
+
+// ---------- drawing ----------
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+function drawBg(){
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#8ec5f0'); g.addColorStop(0.6,'#cfe6f8'); g.addColorStop(1,'#eef6fc');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,255,255,.85)';
+  ctx.beginPath(); ctx.arc(820, 90, 34, 0, Math.PI*2); ctx.fill();
+  // far mountains
+  const layers = [[0.08,260,'#a9c4de','#f4f9ff',260,170],[0.18,320,'#86a8c8','#eaf2fb',200,130]];
+  for (const [par, base, col, cap, span, hmax] of layers){
+    const off = (S.camX*par) % span, i0 = Math.floor(S.camX*par / span);
+    for (let i=-1;i<W/span+2;i++){
+      const k = i0 + i, h = hmax*(0.6 + 0.4*hash(k + par*100)), x = i*span - off + span*0.2*hash(k*3);
+      ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x - span*0.8, base + 120); ctx.lineTo(x, base - h); ctx.lineTo(x + span*0.8, base + 120); ctx.fill();
+      ctx.fillStyle = cap; ctx.beginPath(); ctx.moveTo(x - h*0.28, base - h*0.66); ctx.lineTo(x, base - h); ctx.lineTo(x + h*0.28, base - h*0.66);
+      ctx.lineTo(x + h*0.1, base - h*0.6); ctx.lineTo(x, base - h*0.68); ctx.lineTo(x - h*0.12, base - h*0.6); ctx.fill();
+    }
+  }
+}
+function drawTree(x, y, s, col){
+  ctx.fillStyle = '#6b4a35'; ctx.fillRect(x - 3*s, y - 10*s, 6*s, 12*s);
+  ctx.fillStyle = col;
+  for (let i=0;i<3;i++){ const w = (26 - i*6)*s, t = y - 10*s - i*16*s; ctx.beginPath(); ctx.moveTo(x - w, t); ctx.lineTo(x, t - 26*s); ctx.lineTo(x + w, t); ctx.fill(); }
+  ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.moveTo(x - 6*s, y - 68*s); ctx.lineTo(x, y - 84*s); ctx.lineTo(x + 6*s, y - 68*s); ctx.fill();
+}
+const sxw = x => x - S.camX, syw = y => y - S.camY;
+function drawGround(){
+  // trees behind the slope
+  const span = 90, i0 = Math.floor(S.camX / span);
+  for (let i=-1;i<W/span+2;i++){
+    const k = i0 + i; if (hash(k) < 0.45) continue;
+    const wx = k*span + 40*hash(k*7), s = 0.8 + 0.5*hash(k*11);
+    drawTree(sxw(wx), syw(ground(wx)) - 26 - 30*hash(k*5), s, hash(k*13) < 0.5 ? '#2f7a5a' : '#3a8c66');
+  }
+  // snow, broken at gaps
+  const runs = []; let cur = null;
+  for (let sx = -8; sx <= W + 8; sx += 6){
+    const wx = S.camX + sx;
+    if (inGap(wx)) { if (cur) { runs.push(cur); cur = null; } continue; }
+    if (!cur) cur = []; cur.push([sx, syw(ground(wx))]);
+  }
+  if (cur) runs.push(cur);
+  for (const run of runs){
+    if (run.length < 2) continue;
+    // exact gap edges
+    const first = run[0], last = run[run.length-1];
+    const g0 = course.gaps.find(g => Math.abs(sxw(g.x + g.w) - first[0]) < 7);
+    const g1 = course.gaps.find(g => Math.abs(sxw(g.x) - last[0]) < 7);
+    if (g0) run.unshift([sxw(g0.x + g0.w), syw(ground(g0.x + g0.w))]);
+    if (g1) run.push([sxw(g1.x), syw(ground(g1.x))]);
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(run[0][0], H + 10);
+    for (const [x,y] of run) ctx.lineTo(x, y);
+    ctx.lineTo(run[run.length-1][0], H + 10); ctx.fill();
+    ctx.strokeStyle = '#bcd6ee'; ctx.lineWidth = 3; ctx.beginPath();
+    run.forEach(([x,y],i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y)); ctx.stroke();
+    ctx.strokeStyle = 'rgba(160,195,225,.35)'; ctx.lineWidth = 10; ctx.beginPath();
+    run.forEach(([x,y],i) => i ? ctx.lineTo(x,y+26) : ctx.moveTo(x,y+26)); ctx.stroke();
+  }
+  // gaps (crevasse)
+  for (const g of course.gaps){
+    const a = sxw(g.x), b = sxw(g.x + g.w); if (b < -10 || a > W + 10) continue;
+    const ya = syw(ground(g.x)), yb = syw(ground(g.x + g.w));
+    const gr = ctx.createLinearGradient(0, Math.min(ya,yb), 0, H); gr.addColorStop(0,'#5a86b8'); gr.addColorStop(1,'#1d3557');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(a, ya); ctx.lineTo(a, H+10); ctx.lineTo(b, H+10); ctx.lineTo(b, yb); ctx.lineTo(b - 6, yb + 30); ctx.lineTo(a + 6, ya + 30); ctx.closePath(); ctx.fill();
+  }
+}
+function drawRock(r){
+  const x = sxw(r.x), cx = r.x + r.w/2; if (x > W + 60 || x + r.w < -60) return;
+  const gy = syw(ground(cx)), s = r.s;
+  ctx.fillStyle = '#7d8794';
+  ctx.beginPath(); ctx.moveTo(x - 2, gy + 6);
+  ctx.lineTo(x + 2, gy - r.h*(0.55 + 0.2*s[0])); ctx.lineTo(x + r.w*0.35, gy - r.h); ctx.lineTo(x + r.w*0.7, gy - r.h*(0.85 + 0.1*s[1]));
+  ctx.lineTo(x + r.w + 2, gy - r.h*(0.4 + 0.2*s[2])); ctx.lineTo(x + r.w + 4, gy + 6); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#626c78'; ctx.beginPath(); ctx.moveTo(x + r.w*0.55, gy + 6); ctx.lineTo(x + r.w*0.7, gy - r.h*(0.85 + 0.1*s[1])); ctx.lineTo(x + r.w + 2, gy - r.h*(0.4 + 0.2*s[2])); ctx.lineTo(x + r.w + 4, gy + 6); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(x + 3, gy - r.h*(0.55 + 0.2*s[0]) + 2); ctx.lineTo(x + r.w*0.35, gy - r.h - 1); ctx.lineTo(x + r.w*0.7, gy - r.h*(0.85 + 0.1*s[1]) - 1); ctx.lineTo(x + r.w*0.6, gy - r.h*0.72); ctx.lineTo(x + r.w*0.3, gy - r.h*0.8); ctx.closePath(); ctx.fill();
+}
+function drawFlag(f, dt){
+  const x = sxw(f.x), y = syw(f.y); if (x < -40 || x > W + 40) return;
+  if (f.got){ if (f.pop <= 0) return; f.pop -= dt; const k = f.pop/0.5; ctx.globalAlpha = k; ctx.fillStyle = '#e8573f'; ctx.font = '800 16px Nunito, sans-serif'; ctx.fillText('+1', x - 8, y - 20 - (1-k)*24); ctx.globalAlpha = 1; return; }
+  const t = performance.now()/1000, w = Math.sin(t*6 + f.x)*2;
+  ctx.fillStyle = 'rgba(255,200,80,.25)'; ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#2b3645'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(x - 5, y + 13); ctx.lineTo(x - 5, y - 13); ctx.stroke();
+  ctx.fillStyle = '#e8573f'; ctx.beginPath(); ctx.moveTo(x - 4, y - 13); ctx.lineTo(x + 12, y - 7 + w); ctx.lineTo(x - 4, y - 1); ctx.fill();
+}
+function drawGate(x, label, color, reached){
+  const sx = sxw(x); if (sx < -80 || sx > W + 80) return;
+  const gy = syw(ground(x));
+  ctx.strokeStyle = '#2b3645'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(sx - 34, gy + 4); ctx.lineTo(sx - 34, gy - 92); ctx.moveTo(sx + 34, gy + 4); ctx.lineTo(sx + 34, gy - 92); ctx.stroke();
+  ctx.fillStyle = reached ? '#9fb5cf' : color; ctx.beginPath(); ctx.roundRect(sx - 46, gy - 118, 92, 30, 8); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '900 13px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(label, sx, gy - 98); ctx.textAlign = 'left';
+}
+function drawSkier(){
+  const sx = sxw(S.x), sy = syw(S.y);
+  const ang = S.onGround ? Math.atan(slope(S.x)) : Math.atan(slope(S.x))*0.6 + Math.max(-0.35, Math.min(0.35, S.vy/2200));
+  const c = S.tuck*7;
+  ctx.save(); ctx.translate(sx, sy);
+  if (S.crash > 0) { ctx.translate(0, -18); ctx.rotate(S.spin); ctx.translate(0, 18); } else ctx.rotate(ang);
+  // skis
+  ctx.strokeStyle = '#1d3557'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-26, -1); ctx.lineTo(22, -1); ctx.quadraticCurveTo(30, -1, 31, -8); ctx.stroke();
+  // pole
+  ctx.strokeStyle = '#8a97a8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(6, -24 + c); ctx.lineTo(-18, -2); ctx.stroke();
+  // legs
+  ctx.strokeStyle = '#2b3d5c'; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.moveTo(-2, -4); ctx.lineTo(6, -16 + c*0.6); ctx.lineTo(-5, -26 + c); ctx.stroke();
+  // torso
+  ctx.strokeStyle = '#e8573f'; ctx.lineWidth = 12;
+  ctx.beginPath(); ctx.moveTo(-5, -27 + c); ctx.lineTo(1 + c*0.6, -42 + c*1.4); ctx.stroke();
+  // arm
+  ctx.strokeStyle = '#c94532'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(0 + c*0.5, -38 + c*1.3); ctx.lineTo(7, -25 + c); ctx.stroke();
+  // scarf
+  ctx.fillStyle = '#ffd34d'; ctx.beginPath(); ctx.moveTo(-1 + c*0.6, -44 + c*1.4); ctx.lineTo(-14 - Math.sin(S.time*14)*2, -42 + c*1.4); ctx.lineTo(-1 + c*0.6, -40 + c*1.4); ctx.fill();
+  // head
+  const hx = 4 + c*0.9, hy = -51 + c*1.5;
+  ctx.fillStyle = '#f2c9a5'; ctx.beginPath(); ctx.arc(hx, hy, 7, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1f9d8a'; ctx.beginPath(); ctx.arc(hx, hy - 1, 7.5, Math.PI, 0); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(hx - 2, hy - 10, 3.2, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1d2a3a'; ctx.fillRect(hx + 1, hy - 1, 7, 3);
+  ctx.restore();
+}
+function drawParticles(dt){
+  for (const p of particles){ p.life -= dt; p.x += p.vx*dt; p.y += p.vy*dt; p.vy += 600*dt; }
+  particles = particles.filter(p => p.life > 0);
+  for (const p of particles){ ctx.globalAlpha = Math.min(1, p.life*3); ctx.fillStyle = p.c || '#ffffff'; ctx.beginPath(); ctx.arc(sxw(p.x), syw(p.y), p.r, 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = 1;
+}
+function draw(dt){
+  drawBg();
+  if (!course) return;
+  drawGround();
+  course.cps.forEach((c,i) => drawGate(c.x, 'KONTROL ' + (i+1), '#2f6fd6', c.reached));
+  drawGate(course.finishX, 'BİTİŞ', '#e8573f', false);
+  for (const r of course.rocks) drawRock(r);
+  for (const f of course.flags) drawFlag(f, dt);
+  drawSkier();
+  drawParticles(dt);
+}
+
+// ---------- HUD + panel ----------
+function buildTicks(){
+  const prog = document.getElementById('prog');
+  prog.querySelectorAll('.tick').forEach(t => t.remove());
+  for (const c of course.cps){ const t = document.createElement('div'); t.className = 'tick'; t.style.left = (100*c.x/course.finishX) + '%'; prog.appendChild(t); }
+}
+let hudCache = '';
+function renderHud(){
+  const got = course.flags.filter(f=>f.got).length, tot = course.flags.length, pct = pctOf(got, tot);
+  const key = got + '|' + tot + '|' + Math.floor(S.time*10) + '|' + Math.floor(S.x/20) + '|' + course.cps.filter(c=>c.reached).length;
+  if (key === hudCache) return; hudCache = key;
+  document.getElementById('hFlags').textContent = got + ' / ' + tot;
+  const p = document.getElementById('hPct'); p.textContent = '%' + pct; p.classList.toggle('ok', pct >= 95);
+  document.getElementById('hTime').textContent = fmtTime(S.time);
+  document.getElementById('progFill').style.width = Math.min(100, 100*S.x/course.finishX) + '%';
+  const ticks = document.querySelectorAll('#prog .tick'); course.cps.forEach((c,i) => ticks[i] && ticks[i].classList.toggle('on', c.reached));
+}
+function kv(el, pairs){ document.getElementById(el).innerHTML = pairs.map(([k,v]) => `<span>${k}</span><span>${v}</span>`).join(''); }
+function renderDerived(){
+  const tot = course.flags.length, n = need95(tot);
+  kv('derived', [
+    ['Zıplama yüksekliği (tepe)', Math.round(apex()) + ' px'],
+    ['Havada kalma', airtime().toFixed(2) + ' sn'],
+    ['Zıplama mesafesi (taban hızda)', Math.round(airtime()*P.speed) + ' px'],
+    ['En geniş yarık', course.gapMax ? Math.round(course.gapMax) + ' px' : '—'],
+    ['Toplam bayrak', tot],
+    ['%95 eşiği', n + ' bayrak'],
+    ['Kaçırma hakkı', (tot - n) + ' bayrak'],
+    ['Kaya / yarık', course.rocks.length + ' / ' + course.gaps.length],
+    ['Kontrol noktası', course.cps.length],
+    ['Bayrak sıklığı (gerçek)', (tot / P.lengthSec * 10).toFixed(1) + ' / 10 sn'],
+  ]);
+}
+let stateT = 0;
+function renderState(){
+  const got = course.flags.filter(f=>f.got).length, tot = course.flags.length;
+  const passed = course.flags.filter(f => f.x < S.x - P.radius).length;
+  const missed = course.flags.filter(f => !f.got && f.x < S.x - P.radius).length;
+  const modeTr = {start:'Başlangıç', play: S.crash > 0 ? 'Düştü' : 'Oyunda', paused:'Duraklatıldı', done:'Bitti'}[S.mode];
+  kv('state', [
+    ['Durum', modeTr],
+    ['Bayrak', got + ' / ' + tot + ' (%' + pctOf(got, tot) + ')'],
+    ['Kaçırılan (geride kalan)', missed + ' / ' + passed],
+    ['Süre', fmtTime(S.time)],
+    ['Düşüş', S.falls],
+    ['Kontrol noktası', course.cps.filter(c=>c.reached).length + ' / ' + course.cps.length],
+    ['Hız', Math.round(S.vx) + ' px/sn'],
+    ['Yerde mi', S.onGround ? 'evet' : 'havada'],
+    ['İlerleme', Math.min(100, Math.round(100*S.x/course.finishX)) + '%'],
+  ]);
+}
+function renderLog(){
+  if (!plays.length) return;
+  const rows = plays.slice().reverse().map(p => `<tr><td>${p.n}</td><td>${p.preset} #${p.seed}</td><td class="${p.pct>=95?'ok':''}">%${p.pct}</td><td>${p.got}/${p.tot}</td><td>${fmtTime(p.time)}</td><td>${p.falls}</td></tr>`).join('');
+  document.getElementById('log').innerHTML = `<table class="log"><tr><th>#</th><th>Ayar</th><th>Skor</th><th>Bayrak</th><th>Süre</th><th>Düş.</th></tr>${rows}</table>`;
+}
+function samePreset(){ const p = PRESETS[presetName]; return p && Object.keys(p).every(k => p[k] === P[k]); }
+function renderPresets(){
+  const box = document.getElementById('presets'); box.innerHTML = '';
+  for (const name of Object.keys(PRESETS)){
+    const b = document.createElement('button'); b.textContent = name; b.className = (presetName === name && samePreset()) ? 'on' : '';
+    b.onclick = () => { Object.assign(P, PRESETS[name]); presetName = name; syncKnobs(); renderPresets(); b.blur(); restart(); };
+    box.appendChild(b);
+  }
+}
+const knobEls = {};
+function makeKnobs(list, boxId, isCourse){
+  const box = document.getElementById(boxId);
+  for (const [key, label, unit, min, max, stepv] of list){
+    const d = document.createElement('div'); d.className = 'knob';
+    d.innerHTML = `<label for="k_${key}">${label}</label><output id="o_${key}"></output><input id="k_${key}" type="range" min="${min}" max="${max}" step="${stepv}">`;
+    box.appendChild(d);
+    const inp = d.querySelector('input'), out = d.querySelector('output');
+    const show = () => out.textContent = (stepv < 1 ? (+P[key]).toFixed(2) : P[key]) + (unit ? ' ' + unit : '');
+    inp.addEventListener('input', () => {
+      P[key] = +inp.value; show(); renderPresets();
+      if (isCourse){ coursePending = true; refreshPending(); }
+      if (course) renderDerived();
+    });
+    inp.addEventListener('change', () => inp.blur());
+    knobEls[key] = {inp, show};
+  }
+}
+function syncKnobs(){ for (const k in knobEls){ knobEls[k].inp.value = P[k]; knobEls[k].show(); } }
+function refreshPending(){ document.getElementById('pend').classList.toggle('show', coursePending && S.mode === 'play'); }
+function restart(){ if (S.mode === 'start') { newRun(); return; } startPlay(); }
+
+// ---------- input ----------
+const GAME_KEYS = ['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+addEventListener('keydown', e => {
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' && e.target.type === 'number') return;
+  if (tag === 'INPUT' || tag === 'BUTTON') e.target.blur();
+  if (GAME_KEYS.includes(e.code)) e.preventDefault();
+  keys[e.code] = true;
+  if (e.repeat) return;
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW'){ if (S.mode === 'play') S.jumpBuf = 0.12; }
+  if (e.code === 'Enter' && (S.mode === 'start' || S.mode === 'done')) startPlay();
+  if (e.code === 'KeyR') startPlay();
+  if ((e.code === 'KeyP' || e.code === 'Escape') && (S.mode === 'play' || S.mode === 'paused')) togglePause();
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; if (S.mode === 'play') togglePause(); });
+function togglePause(){ S.mode = S.mode === 'play' ? 'paused' : 'play'; showOv(S.mode === 'paused' ? 'ovPause' : null); }
+document.getElementById('bStart').onclick = e => { e.target.blur(); startPlay(); };
+document.getElementById('bAgain').onclick = e => { e.target.blur(); startPlay(); };
+document.getElementById('bResume').onclick = e => { e.target.blur(); togglePause(); };
+document.getElementById('bNewSeed').onclick = e => { e.target.blur(); document.getElementById('iSeed').value = 1 + Math.floor(Math.random()*9999); restart(); };
+document.getElementById('iSeed').addEventListener('change', e => { e.target.blur(); restart(); });
+
+// ---------- scale ----------
+const wrap = document.getElementById('wrap'), stage = document.getElementById('stage');
+function fit(){ stage.style.transform = `scale(${wrap.clientWidth / W})`; }
+new ResizeObserver(fit).observe(wrap); fit();
+
+// ---------- loop ----------
+makeKnobs(KNOBS_LIVE, 'knobsLive', false);
+makeKnobs(KNOBS_COURSE, 'knobsCourse', true);
+syncKnobs(); renderPresets(); newRun();
+let last = performance.now(), accT = 0;
+const FIX = 1/120;
+function frame(now){
+  const dt = Math.min(0.05, (now - last)/1000); last = now;
+  if (S.mode === 'play'){ accT += dt; while (accT >= FIX && S.mode === 'play'){ step(FIX); accT -= FIX; } }
+  else accT = 0;
+  if (S.crash <= 0 || S.mode !== 'play'){ S.camX += ((S.x - 260) - S.camX) * Math.min(1, dt*12); S.camY += ((S.y - 330) - S.camY) * Math.min(1, dt*5); }
+  draw(S.mode === 'play' ? dt : 0);
+  renderHud();
+  if (toastT > 0){ toastT -= dt; if (toastT <= 0) document.getElementById('toast').classList.remove('show'); }
+  stateT -= dt; if (stateT <= 0){ renderState(); refreshPending(); stateT = 0.15; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// test hook for headless checks (no effect on play)
+window.__ski = {S, P, get course(){ return course; }, startPlay, step};
+})();
+</script>
+</body>
+</html>
