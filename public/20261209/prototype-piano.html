@@ -331,7 +331,7 @@ SONGS.forEach(s => Object.assign(s, parseSong(s), { defSpeed: s.speed }));
 // ===================== state =====================
 const params = new URLSearchParams(location.search);
 const cfg = {
-  layout: LAYOUTS[params.get('duzen')] ? params.get('duzen') : 'A',
+  layout: LAYOUTS[params.get('duzen')] ? params.get('duzen') : 'B',
   song: 2,
   win: 170,       // ± ms (tuned by Atıl on the hard song)
   lat: 30,        // ms subtracted from press times (tuned by Atıl)
