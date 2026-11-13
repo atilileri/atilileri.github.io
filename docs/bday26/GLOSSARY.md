@@ -7,17 +7,22 @@ labelled `wayfinder:map`.
 ## Language
 
 **Game** (_Oyun_):
-One playable activity on the site. A Game gives a score from 0% to 100% on each play.
+One playable activity on the site. A Game gives a score from 0% to 100% on each Round.
 _Avoid_: Level, challenge
 
+**Round** (_Tur_):
+One try at a Game, from its start to its result. Each Round gives one score. One spin of the
+slot machine is one Round.
+_Avoid_: Play, game, try, turn
+
 **Best score** (_Rekor_):
-The highest score she ever reached in one Game. Only the Best score counts; other plays leave
+The highest score she ever reached in one Game. Only the Best score counts; other Rounds leave
 no trace in her Points.
 _Avoid_: High score, total score
 
 **Points** (_Puan_):
 The currency of the site. She earns Points from her Best scores and spends them on Gifts.
-_Avoid_: Credits, coins, score (a score belongs to one play)
+_Avoid_: Credits, coins, score (a score belongs to one Round)
 
 **Balance** (_Bakiye_):
 The Points she can spend now: Points earned, minus the price of each Gift she holds.
