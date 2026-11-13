@@ -240,15 +240,15 @@ table.est tr.me td{color:var(--accent-text);font-weight:600}
 
     <fieldset>
       <legend>Seçili şarkı: <span id="pSong"></span></legend>
-      <div class="ctl"><label for="speed">Düşüş hızı</label><output id="speedOut"></output><input type="range" id="speed" min="150" max="900" step="10"></div>
-      <div class="ctl"><label for="tempo">Tempo</label><output id="tempoOut"></output><input type="range" id="tempo" min="50" max="160" step="2"></div>
+      <div class="ctl"><label for="speed">Düşüş hızı</label><output id="speedOut"></output><input type="range" id="speed" min="150" max="450" step="5"></div>
+      <div class="ctl"><label for="tempo">Tempo</label><output id="tempoOut"></output><input type="range" id="tempo" min="20" max="100" step="2"></div>
       <div class="hint" id="speedsAll"></div>
     </fieldset>
 
     <fieldset>
       <legend>Vuruş penceresi (tüm şarkılar)</legend>
-      <div class="ctl"><label for="win">± pencere</label><output id="winOut"></output><input type="range" id="win" min="30" max="200" step="5"></div>
-      <div class="ctl"><label for="lat">Gecikme düzeltme</label><output id="latOut"></output><input type="range" id="lat" min="-120" max="120" step="5"></div>
+      <div class="ctl"><label for="win">± pencere</label><output id="winOut"></output><input type="range" id="win" min="70" max="270" step="5"></div>
+      <div class="ctl"><label for="lat">Gecikme düzeltme</label><output id="latOut"></output><input type="range" id="lat" min="-90" max="150" step="5"></div>
       <label class="check"><input type="checkbox" id="strayPen"> Boş basış isabeti düşürsün</label>
       <label class="check"><input type="checkbox" id="guide"> Notaları önden çal (kılavuz ses)</label>
     </fieldset>
@@ -274,7 +274,7 @@ table.est tr.me td{color:var(--accent-text);font-weight:600}
     <fieldset>
       <legend>Test botu</legend>
       <label class="check"><input type="checkbox" id="bot"> Bot çalsın</label>
-      <div class="ctl"><label for="botSigma">Bot σ</label><output id="botSigmaOut"></output><input type="range" id="botSigma" min="0" max="120" step="5"></div>
+      <div class="ctl"><label for="botSigma">Bot σ</label><output id="botSigmaOut"></output><input type="range" id="botSigma" min="0" max="80" step="5"></div>
     </fieldset>
   </aside>
 </div>
@@ -326,7 +326,7 @@ function parseSong(song){
   }
   return { notes: out, beats: beat };
 }
-SONGS.forEach(s => Object.assign(s, parseSong(s)));
+SONGS.forEach(s => Object.assign(s, parseSong(s), { defSpeed: s.speed }));
 
 // ===================== state =====================
 const params = new URLSearchParams(location.search);
@@ -631,7 +631,7 @@ function renderEst(){
 function refreshPanel(){
   const s = curSong();
   document.getElementById('pSong').textContent = s.lvl;
-  const sp = document.getElementById('speed'); sp.value = s.speed; document.getElementById('speedOut').textContent = `${s.speed} px/sn`;
+  const sp = document.getElementById('speed'); sp.min = s.defSpeed / 2; sp.max = s.defSpeed * 1.5; sp.value = s.speed; document.getElementById('speedOut').textContent = `${s.speed} px/sn`;
   const tp = document.getElementById('tempo'); tp.value = cfg.tempoPct[s.id];
   document.getElementById('tempoOut').textContent = `%${cfg.tempoPct[s.id]} · ${Math.round(s.bpm*cfg.tempoPct[s.id]/100)} vuruş/dk`;
   const reaction = (sp.value ? (460/ s.speed) : 0); // seconds a note is visible on a ~460px tall field
