@@ -1,0 +1,136 @@
+[
+  {
+    "file": "p01.webp",
+    "square": "p01-sq.webp",
+    "place": "Philips de Jong Park",
+    "inside": "Eindhoven",
+    "subject": {
+      "x": 0.33,
+      "y": 0.8
+    }
+  },
+  {
+    "file": "p02.webp",
+    "square": "p02-sq.webp",
+    "place": "Antalya",
+    "inside": "Türkiye",
+    "subject": {
+      "x": 0.75,
+      "y": 0.39
+    }
+  },
+  {
+    "file": "p03.webp",
+    "square": "p03-sq.webp",
+    "place": "Ankara",
+    "inside": "Türkiye"
+  },
+  {
+    "file": "p04.webp",
+    "square": "p04-sq.webp",
+    "place": "Veldhoven"
+  },
+  {
+    "file": "p05.webp",
+    "square": "p05-sq.webp",
+    "place": "Valencia"
+  },
+  {
+    "file": "p06.webp",
+    "square": "p06-sq.webp",
+    "place": "Vrijstaat, Eindhoven",
+    "inside": "Eindhoven"
+  },
+  {
+    "file": "p07.webp",
+    "square": "p07-sq.webp",
+    "place": "Eindhoven Kanalı",
+    "inside": "Eindhoven"
+  },
+  {
+    "file": "p08.webp",
+    "square": "p08-sq.webp",
+    "place": "Lahey"
+  },
+  {
+    "file": "p09.webp",
+    "square": "p09-sq.webp",
+    "place": "Eindhoven"
+  },
+  {
+    "file": "p10.webp",
+    "square": "p10-sq.webp",
+    "place": "Amsterdam"
+  },
+  {
+    "file": "p11.webp",
+    "square": "p11-sq.webp",
+    "place": "Dommel",
+    "inside": "Eindhoven"
+  },
+  {
+    "file": "p12.webp",
+    "square": "p12-sq.webp",
+    "place": "Montana Snowcenter",
+    "subject": {
+      "x": 0.26,
+      "y": 0.33
+    }
+  },
+  {
+    "file": "p13.webp",
+    "square": "p13-sq.webp",
+    "place": "Monschau"
+  },
+  {
+    "file": "p14.webp",
+    "square": "p14-sq.webp",
+    "place": "Brugge",
+    "inside": "Belçika"
+  },
+  {
+    "file": "p15.webp",
+    "square": "p15-sq.webp",
+    "place": "Antalya",
+    "inside": "Türkiye",
+    "subject": {
+      "x": 0.53,
+      "y": 0.47
+    }
+  },
+  {
+    "file": "p16.webp",
+    "square": "p16-sq.webp",
+    "place": "Türkiye"
+  },
+  {
+    "file": "p17.webp",
+    "square": "p17-sq.webp",
+    "place": "Valencia"
+  },
+  {
+    "file": "p18.webp",
+    "square": "p18-sq.webp",
+    "place": "Düsseldorf"
+  },
+  {
+    "file": "p19.webp",
+    "square": "p19-sq.webp",
+    "place": "Belçika"
+  },
+  {
+    "file": "p20.webp",
+    "square": "p20-sq.webp",
+    "place": "Gent",
+    "inside": "Belçika",
+    "subject": {
+      "x": 0.51,
+      "y": 0.37
+    }
+  },
+  {
+    "file": "p21.webp",
+    "square": "p21-sq.webp",
+    "place": "Veldhoven"
+  }
+]
