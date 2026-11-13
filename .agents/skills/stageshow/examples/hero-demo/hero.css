@@ -258,7 +258,8 @@
   .hd-dragbox {
     position: absolute;
     z-index: 45;
-    border: 1.5px dashed #22c55e;
+    /* Solid while it resizes: a dashed edge would crawl. The dashed area fades in at its final size. */
+    border: 1.5px solid #22c55e;
     border-radius: 8px;
     background: rgba(34, 197, 94, 0.08);
     opacity: 0;
@@ -283,12 +284,16 @@
     opacity: 1;
   }
 
-  .hd-selection {
-    position: absolute;
-    z-index: 35;
-    height: 16px;
+  /* The selection is the title's own text, so it stays under the I-beam; it fades on release */
+  .hd-sel {
     border-radius: 2px;
+    background: transparent;
+    transition: background-color 0.3s ease;
+  }
+
+  .hd-sel[data-show="true"] {
     background: rgba(59, 130, 246, 0.25);
+    transition: none;
   }
 
   .hd-marker {
@@ -368,7 +373,8 @@
     display: flex;
     justify-content: flex-end;
     gap: 5px;
-    margin-top: 6px;
+    /* 8 to 12px from the field; 10 stays clear of 8 while the popup scales in */
+    margin-top: 10px;
   }
 
   .hd-popup-btn {
@@ -427,15 +433,16 @@
 
   /* A narrower dashboard, with two metrics and the same readable controls. */
   & .ss-stage[data-layout='compact'] { --gutter: 16px; }
-  & .ss-stage[data-layout='compact'] .hd-browser { width: 326px; height: 400px; }
+  /* Compact: 326 wide shown, so the stage is short enough that the window still reads landscape, and it runs well past the bottom */
+  & .ss-stage[data-layout='compact'] .hd-browser { width: 326px; height: 360px; }
   & .ss-stage[data-layout='compact'] .hd-main { padding: 12px; }
   & .ss-stage[data-layout='compact'] .hd-header-left { gap: 6px; }
   & .ss-stage[data-layout='compact'] .hd-logo { display: none; }
   & .ss-stage[data-layout='compact'] .hd-metrics { gap: 8px; }
   & .ss-stage[data-layout='compact'] .hd-card:nth-child(3) { display: none; }
   & .ss-stage[data-layout='compact'] .hd-row { gap: 14px; padding-inline: 12px; }
-  & .ss-stage[data-layout='compact'] .hd-terminal { left: 32px; right: 16px; width: 310px; top: 72px; height: 296px; }
-  & .ss-stage[data-layout='compact'] .hd-toolbar { right: 12px; bottom: 48px; }
+  & .ss-stage[data-layout='compact'] .hd-terminal { left: 32px; right: 16px; width: 310px; top: 56px; height: 268px; }
+  & .ss-stage[data-layout='compact'] .hd-toolbar { right: 12px; bottom: 52px; }
   .hd-popup-btn[data-hover] { filter: brightness(1.15); }
   .hd-popup-btn[data-pressed] { filter: brightness(0.9); }
 

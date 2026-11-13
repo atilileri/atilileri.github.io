@@ -18,7 +18,9 @@ type S = {
   dragging: boolean
   area: { r: Rect; show: boolean }
   picked: string[]
-  selection: Rect | null
+  /** Characters of the title under the selection, and whether it shows */
+  sel: number
+  selShow: boolean
   m3: Marker
   m4: Marker
   m5: Marker
@@ -38,7 +40,8 @@ const initial: S = {
   dragging: false,
   area: { r: { x: 0, y: 0, width: 0, height: 0 }, show: false },
   picked: [],
-  selection: null,
+  sel: 0,
+  selShow: false,
   m3: { at: { x: 0, y: 0 }, show: false },
   m4: { at: { x: 0, y: 0 }, show: false },
   m5: { at: { x: 0, y: 0 }, show: false },
@@ -58,13 +61,21 @@ const REST = { wide: { x: 432, y: 212 }, compact: { x: 280, y: 270 } }
 const POSTER: S = { ...initial, toolbar: true, copied: true, terminal: true, pasted: OUTPUT }
 
 async function annotate(a: Act<S>, header: string, tone: Tone, at: Point, text: string) {
-  const width = a.layout === 'compact' ? 358 : 720
-  const placed = { x: Math.max(116, Math.min(width - 116, at.x)), y: at.y }
+  // The popup is a satellite: it keeps the stage's one gutter, or sits well inside it
+  const compact = a.layout === 'compact'
+  const width = compact ? 358 : 720
+  const gutter = compact ? 16 : 32
+  const half = 100
+  let x = Math.max(gutter + half, Math.min(width - gutter - half, at.x))
+  if (x - half < gutter * 1.6) x = gutter + half
+  if (width - x - half < gutter * 1.6) x = width - gutter - half
+  const placed = { x, y: at.y }
   await a.set((s) => ({ popup: { ...s.popup, show: true, header, at: placed, tone }, typed: '' }))
   await a.wait(300)
   await a.type('typed', text)
   await a.wait(300)
-  await a.click('add')
+  // Press beside the label, so the cursor never covers the word it clicks
+  await a.click({ at: 'add', x: 0.85, y: 0.6 })
   await a.set((s) => ({ popup: { ...s.popup, show: false } }))
   await a.wait(200)
 }
@@ -114,12 +125,11 @@ async function script(a: Act<S>) {
   const y = title.y + title.height / 2
   await a.move({ x: title.x, y })
   await a.wait(150)
-  await a.drag({ x: title.x + title.width, y }, (at) =>
-    a.put({ selection: { x: title.x, y: title.y - 2, width: at.x - title.x, height: 16 } }),
-  )
+  await a.drag({ x: title.x + title.width, y }, (at) => a.put({ sel: a.caret('title', at), selShow: true }))
+  a.put({ sel: TITLE.length })
   await a.wait(200)
   await annotate(a, `"${TITLE}"`, 'orange', { x: Math.max(100, title.x + title.width / 2), y: title.y + title.height + 7 }, 'Make this more prominent')
-  await a.set({ selection: null, m5: { at: { x: title.x + title.width + 2, y }, show: true } })
+  await a.set({ selShow: false, m5: { at: { x: title.x + title.width + 2, y }, show: true } })
   await a.wait(400)
 
   // Copy, then paste into the agent
@@ -145,7 +155,7 @@ async function script(a: Act<S>) {
 
 export function HeroDemo() {
   return (
-    <Stage width={720} height={340} compact={{ below: 600, width: 358, height: 400 }} initial={initial} poster={POSTER} script={script} cursor={{ at: REST }} className="hd">
+    <Stage width={720} height={340} compact={{ below: 600, width: 358, height: 340 }} initial={initial} poster={POSTER} script={script} cursor={{ at: REST }} className="hd">
       {(s, rect, layout) => (
         <>
           <Window url="localhost:3000" className="hd-browser" data-cursor={s.toolbar ? 'crosshair' : 'pointer'} receded={s.terminal}>
@@ -176,7 +186,8 @@ export function HeroDemo() {
                   <div className="hd-header-left">
                     <span className="hd-logo" />
                     <span className="hd-title" data-target="title" data-cursor="ibeam">
-                      {TITLE}
+                      <span className="hd-sel" data-show={s.selShow}>{TITLE.slice(0, s.sel)}</span>
+                      {TITLE.slice(s.sel)}
                     </span>
                   </div>
                   <Bar data-target="export" w={55} h={26} r={5} tone={3} />
@@ -224,7 +235,6 @@ export function HeroDemo() {
           <div className="hd-highlight" data-show={s.highlight} style={box(inset(rect('export'), 4))} />
           <div className="hd-dragbox" data-show={s.dragging || undefined} style={s.drag ? box(s.drag) : undefined} />
           <div className="hd-area" data-show={s.area.show} style={box(s.area.r)} />
-          {s.selection && <div className="hd-selection" style={{ left: s.selection.x, top: s.selection.y, width: s.selection.width }} />}
 
           <div className="hd-marker" data-show style={{ left: rect('metric-0').x + 28, top: rect('metric-0').y + 14 }}>
             1
@@ -245,8 +255,9 @@ export function HeroDemo() {
           <div className="hd-popup" data-show={s.popup.show} data-tone={s.popup.tone} style={{ left: s.popup.at.x, top: s.popup.at.y }}>
             <div className="hd-popup-header">{s.popup.header}</div>
             <div className="hd-popup-input" data-cursor="ibeam">
-              {s.typed}
-              <span className="hd-caret" style={{ opacity: 0.4 }}>|</span>
+              {/* Typing feedback: the text and caret step with each key on purpose */}
+              <span data-typing>{s.typed}</span>
+              <span className="hd-caret" data-snap style={{ opacity: 0.4 }}>|</span>
             </div>
             <div className="hd-popup-actions">
               <div className="hd-popup-btn">Cancel</div>

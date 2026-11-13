@@ -629,7 +629,8 @@ export function createAct<S>(signal: AbortSignal, env: ActEnv<S>): Act<S> {
         })
         // A selection grown by time or a word count drifts off the I-beam,
         // ahead of it on one line and behind on the next
-        if (selects && onMove && carets === caretsBefore) warn('selection drift: a text selection drag never read a.caret(), so the highlight is not under the I-beam; set it from a.caret(name, at) in onMove')
+        // Only text has a caret: a crosshair marquee selects shapes, not characters
+        if (before === 'ibeam' && onMove && carets === caretsBefore) warn('selection drift: a text selection drag never read a.caret(), so the highlight is not under the I-beam; set it from a.caret(name, at) in onMove')
         check()
         if (closesHand && !finger) setKind(before === 'grab' ? 'pointer' : before)
       } finally {
