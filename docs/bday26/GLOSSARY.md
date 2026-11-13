@@ -40,3 +40,9 @@ _Avoid_: Refund, cancel
 The printable page that lists the Gifts she holds and the Small prizes she won. Atıl hands over
 what the Proof lists.
 _Avoid_: Receipt, certificate
+
+**Save code** (_Yedek kodu_):
+A line of text that holds all her progress. She copies it to back up, pastes it to restore or to
+move to another device, and the Proof prints it. Its last characters are a check code that
+catches a typo; it does not stop an edit made on purpose.
+_Avoid_: Password, export, token
