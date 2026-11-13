@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Piyano Prototipi</title>
+<!--
+  PROTOTYPE for issue #180 (child of map #171) — throwaway, never ship.
+  Question: which keys map to the lanes, what fall speed per song, and what hit
+  window make 95% accuracy on the hard song take about 5 focused plays?
+  - Gameplay (canvas + Web Audio) is plain prototype code.
+  - Start screen, HUD and score screen follow the stageshow look (its tokens,
+    restraint and keycaps), rebuilt in plain CSS because the deliverable is one
+    self-contained HTML file and the stageshow kit is React/TSX.
+  - Songs are public-domain placeholders; song choice is still open on #171.
+  - Layout switch: floating bottom bar or ?duzen=A|B|C. No persistence.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#f6f5f4; --surface:#fff; --well:#efeeec;
+  --ink-1:rgba(0,0,0,.04); --ink-2:rgba(0,0,0,.06); --ink-3:rgba(0,0,0,.08); --ink-5:rgba(0,0,0,.15);
+  --line:rgba(0,0,0,.07);
+  --text:#7a7a7d; --text-strong:#262628; --text-faint:#9a9a9d;
+  --accent:#3b82f6; --accent-soft:rgba(59,130,246,.12); --accent-text:#2563c9;
+  --success:#22c55e; --success-text:#15803d; --success-soft:rgba(34,197,94,.12);
+  --danger:#ef4444; --danger-text:#b91c1c; --danger-soft:rgba(239,68,68,.1);
+  --warning:#f59e0b; --warning-text:#b45309;
+  --shadow-window:0 0 0 1px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08);
+  --shadow-hero:0 0 0 1px rgba(0,0,0,.06),0 30px 60px -12px rgba(50,50,93,.25),0 18px 36px -18px rgba(0,0,0,.3);
+  --font:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --lane-bg:#fbfbfa;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --canvas:#141416; --surface:#1d1d20; --well:#18181b;
+    --ink-1:rgba(255,255,255,.04); --ink-2:rgba(255,255,255,.06); --ink-3:rgba(255,255,255,.09); --ink-5:rgba(255,255,255,.16);
+    --line:rgba(255,255,255,.08);
+    --text:#a1a1a6; --text-strong:#f2f2f3; --text-faint:#76767b;
+    --accent-text:#7fb0ff; --success-text:#4ade80; --danger-text:#f87171; --warning-text:#fbbf24;
+    --shadow-window:0 0 0 1px rgba(255,255,255,.07),0 4px 16px rgba(0,0,0,.4);
+    --shadow-hero:0 0 0 1px rgba(255,255,255,.07),0 30px 60px -12px rgba(0,0,0,.6);
+    --lane-bg:#19191c;
+  }
+}
+:root[data-theme="dark"]{
+  --canvas:#141416; --surface:#1d1d20; --well:#18181b;
+  --ink-1:rgba(255,255,255,.04); --ink-2:rgba(255,255,255,.06); --ink-3:rgba(255,255,255,.09); --ink-5:rgba(255,255,255,.16);
+  --line:rgba(255,255,255,.08);
+  --text:#a1a1a6; --text-strong:#f2f2f3; --text-faint:#76767b;
+  --accent-text:#7fb0ff; --success-text:#4ade80; --danger-text:#f87171; --warning-text:#fbbf24;
+  --shadow-window:0 0 0 1px rgba(255,255,255,.07),0 4px 16px rgba(0,0,0,.4);
+  --shadow-hero:0 0 0 1px rgba(255,255,255,.07),0 30px 60px -12px rgba(0,0,0,.6);
+  --lane-bg:#19191c;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:var(--canvas);color:var(--text-strong);font:14px/1.4 var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 340px;min-height:100vh}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+
+/* ---------- play area ---------- */
+.stagewrap{display:flex;justify-content:center;align-items:flex-start;padding:24px 16px 96px}
+.game{position:relative;width:min(100%,620px);height:min(78vh,640px);min-height:440px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow-hero);overflow:hidden}
+canvas#field{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* HUD */
+.hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:12px;padding:12px 14px;pointer-events:none;background:linear-gradient(var(--surface) 70%,transparent)}
+.hud .song{font-weight:600;white-space:nowrap}
+.hud .song small{font-weight:500;color:var(--text);margin-left:6px}
+.prog{flex:1;height:4px;border-radius:2px;background:var(--ink-3);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);border-radius:2px}
+.hud .acc{font:600 20px/1 var(--font);font-variant-numeric:tabular-nums;min-width:4.2ch;text-align:right}
+.hud .acc small{font-size:12px;color:var(--text);font-weight:500;margin-left:2px}
+.hud .counts{display:flex;gap:10px;font-variant-numeric:tabular-nums;color:var(--text);font-size:12px}
+.hud .counts b{color:var(--text-strong);font-weight:600}
+.judge{position:absolute;left:50%;transform:translate(-50%,0);font:700 22px/1 var(--font);pointer-events:none;opacity:0;transition:opacity .25s, transform .25s}
+.judge.show{opacity:1;transform:translate(-50%,-6px);transition:none}
+.countdown{position:absolute;inset:0;display:grid;place-items:center;font:700 72px/1 var(--font);color:var(--accent);pointer-events:none}
+
+/* overlay screens */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;padding:28px 28px 24px;background:var(--surface);overflow:auto}
+.screen.on{display:flex}
+.eyebrow{font-size:12px;font-weight:600;color:var(--accent-text);letter-spacing:.02em}
+.title{font:700 30px/1.15 var(--font);margin:6px 0 4px}
+.sub{color:var(--text);margin:0 0 20px}
+.songs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.songs{grid-template-columns:1fr}}
+.songcard{position:relative;text-align:left;border:0;border-radius:12px;padding:14px;background:var(--canvas);box-shadow:0 0 0 1px var(--line);cursor:pointer;display:flex;flex-direction:column;gap:6px;min-height:118px}
+.songcard[aria-pressed="true"]{background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent)}
+.songcard .lvl{font-weight:600}
+.songcard .name{color:var(--text);font-size:13px;line-height:1.3}
+.songcard .cap{margin-top:auto;font-size:12px;color:var(--text)}
+.songcard .cap b{color:var(--text-strong)}
+.songcard .num{position:absolute;top:12px;right:12px}
+.goal{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--warning-text);color:#fff;width:max-content}
+.keys{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.kbd{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 8px;border-radius:7px;background:rgba(24,24,27,.88);box-shadow:inset 0 -2px 0 rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.14);color:#fff;font:500 13px/1 var(--font)}
+.kbd.sm{min-width:22px;height:22px;font-size:11px;padding:0 6px;border-radius:5px}
+.kbd.gap{margin-left:14px}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.spacer{flex:1}
+.btn{border:0;border-radius:9px;padding:10px 16px;font-weight:600;cursor:pointer;background:var(--ink-2);display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn .kbd.sm{background:rgba(255,255,255,.22);box-shadow:none}
+.section{margin-top:22px}
+.label{font-size:12px;color:var(--text);margin-bottom:8px}
+
+/* result */
+.big{font:700 64px/1 var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.big small{font-size:28px;color:var(--text);font-weight:600}
+.verdict{font-weight:600}
+.verdict.win{color:var(--success-text)} .verdict.lose{color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:18px}
+.stat{background:var(--canvas);border-radius:10px;padding:10px 12px}
+.stat .k{font-size:12px;color:var(--text)}
+.stat .v{font:600 18px/1.3 var(--font);font-variant-numeric:tabular-nums}
+canvas#hist{width:100%;height:210px;display:block;margin-top:8px;border-radius:10px;background:var(--canvas)}
+
+/* ---------- debug panel ---------- */
+.panel{background:var(--surface);border-left:1px solid var(--line);padding:18px 18px 96px;overflow:auto;max-height:100vh;position:sticky;top:0}
+@media (max-width:900px){.panel{position:static;max-height:none;border-left:0;border-top:1px solid var(--line)}}
+.panel h2{font-size:13px;margin:0 0 2px}
+.panel .tag{font-size:11px;font-weight:600;color:var(--warning-text)}
+.panel fieldset{border:0;padding:0;margin:16px 0 0}
+.panel legend{font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;padding:0}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;margin-bottom:10px}
+.ctl label{font-size:13px}
+.ctl output{font:500 12px/1 var(--mono);color:var(--text-strong)}
+.ctl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.check{display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:8px}
+.check input{accent-color:var(--accent)}
+.state{font:500 12px/1.55 var(--mono);background:var(--canvas);border-radius:10px;padding:10px 12px;white-space:pre-wrap;color:var(--text-strong)}
+table.est{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+table.est th,table.est td{text-align:right;padding:4px 4px;border-bottom:1px solid var(--line)}
+table.est th:first-child,table.est td:first-child{text-align:left}
+table.est th{color:var(--text);font-weight:500}
+table.est tr.me td{color:var(--accent-text);font-weight:600}
+.errs{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.errs span{font:500 11px/1 var(--mono);padding:3px 4px;border-radius:4px;background:var(--ink-2)}
+.errs span.m{background:var(--danger-soft);color:var(--danger-text)}
+.errs span.p{background:var(--success-soft);color:var(--success-text)}
+.log{font-size:12px;width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.log td,.log th{padding:3px 4px;border-bottom:1px solid var(--line);text-align:left}
+.log th{color:var(--text);font-weight:500}
+.hint{font-size:12px;color:var(--text);margin:6px 0 0}
+
+/* floating switcher (prototype UI convention) */
+.switcher{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:6px;border-radius:12px;background:rgba(24,24,27,.92);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:50;max-width:calc(100vw - 32px);overflow-x:auto}
+.switcher .lbl{font-size:12px;font-weight:600;padding:0 8px;white-space:nowrap;color:#d4d4d8}
+.switcher button{border:0;border-radius:8px;padding:7px 10px;background:transparent;color:#d4d4d8;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
+.switcher button[aria-pressed="true"]{background:#fff;color:#18181b}
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="stagewrap">
+    <div class="game" id="game">
+      <canvas id="field"></canvas>
+
+      <div class="hud" id="hud" hidden>
+        <div class="song" id="hudSong"></div>
+        <div class="prog"><i id="hudProg"></i></div>
+        <div class="counts"><span>Vuruş <b id="hudHits">0</b></span><span>Kaçan <b id="hudMiss">0</b></span></div>
+        <div class="acc" id="hudAcc">100<small>%</small></div>
+      </div>
+      <div class="judge" id="judge"></div>
+      <div class="countdown" id="countdown" hidden></div>
+
+      <!-- start screen -->
+      <section class="screen on" id="start">
+        <div class="eyebrow">Oyun · Piyano</div>
+        <div class="title">Notalar düşerken çal</div>
+        <p class="sub">Nota çizgiye değdiği anda tuşuna bas. Zor şarkıda %95 isabet Küçük ödülü kazandırır.</p>
+        <div class="songs" id="songs"></div>
+        <div class="section">
+          <div class="label">Tuşların</div>
+          <div class="keys" id="startKeys"></div>
+        </div>
+        <div class="section">
+          <div class="label">Puan</div>
+          <div class="stats" style="margin-top:0;grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div class="stat"><div class="k">Bir oyunun puanı</div><div class="v" style="font-size:15px">İsabet × tavan</div></div>
+            <div class="stat"><div class="k">Sayılan</div><div class="v" style="font-size:15px">Yalnızca Rekor</div></div>
+            <div class="stat"><div class="k">Küçük ödül</div><div class="v" style="font-size:15px">Zor şarkıda %95</div></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="row section">
+          <span class="hint">Şarkıyı <span class="kbd sm">1</span> <span class="kbd sm">2</span> <span class="kbd sm">3</span> ile seç</span>
+          <span class="spacer"></span>
+          <button class="btn primary" id="startBtn">Başla <span class="kbd sm">Enter</span></button>
+        </div>
+      </section>
+
+      <!-- score screen -->
+      <section class="screen" id="result">
+        <div class="eyebrow" id="resSong"></div>
+        <div class="row" style="align-items:flex-end;margin-top:8px">
+          <div class="big" id="resScore">0<small>%</small></div>
+          <div style="padding-bottom:8px">
+            <div class="verdict" id="resVerdict"></div>
+            <div class="hint" id="resFormula"></div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">İsabet</div><div class="v" id="rAcc">–</div></div>
+          <div class="stat"><div class="k">Vuruş</div><div class="v" id="rHits">–</div></div>
+          <div class="stat"><div class="k">Kaçan</div><div class="v" id="rMiss">–</div></div>
+          <div class="stat"><div class="k">Boş basış</div><div class="v" id="rStray">–</div></div>
+        </div>
+        <div class="section">
+          <div class="label" id="histLabel">Zamanlama hatası, nota nota (yukarı = geç, aşağı = erken)</div>
+          <canvas id="hist"></canvas>
+        </div>
+        <div class="spacer"></div>
+        <div class="row section">
+          <button class="btn" id="backBtn">Şarkı seç <span class="kbd sm" style="background:var(--ink-3);color:var(--text-strong)">Esc</span></button>
+          <span class="spacer"></span>
+          <button class="btn primary" id="againBtn">Tekrar oyna <span class="kbd sm">Enter</span></button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <aside class="panel">
+    <div class="tag">PROTOTİP · #180 · kaydedilmez</div>
+    <h2>Ayar paneli</h2>
+
+    <fieldset>
+      <legend>Tuş düzeni</legend>
+      <div class="check"><select id="layoutSel" style="width:100%;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--canvas);color:var(--text-strong)"></select></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Seçili şarkı: <span id="pSong"></span></legend>
+      <div class="ctl"><label for="speed">Düşüş hızı</label><output id="speedOut"></output><input type="range" id="speed" min="150" max="900" step="10"></div>
+      <div class="ctl"><label for="tempo">Tempo</label><output id="tempoOut"></output><input type="range" id="tempo" min="50" max="160" step="2"></div>
+      <div class="hint" id="speedsAll"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vuruş penceresi (tüm şarkılar)</legend>
+      <div class="ctl"><label for="win">± pencere</label><output id="winOut"></output><input type="range" id="win" min="30" max="200" step="5"></div>
+      <div class="ctl"><label for="lat">Gecikme düzeltme</label><output id="latOut"></output><input type="range" id="lat" min="-120" max="120" step="5"></div>
+      <label class="check"><input type="checkbox" id="strayPen"> Boş basış isabeti düşürsün</label>
+      <label class="check"><input type="checkbox" id="guide"> Notaları önden çal (kılavuz ses)</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Canlı durum</legend>
+      <div class="state" id="state"></div>
+      <div class="hint">Son notaların hatası (ms, + geç / − erken)</div>
+      <div class="errs" id="errs"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Kalibrasyon tahmini (zor şarkı, bu ayarlarla)</legend>
+      <table class="est" id="est"></table>
+      <p class="hint">σ: bir oyuncunun basış zamanlamasındaki sapma. Model yalnızca zamanlamayı sayar; yanlış şerit ve ezber hataları ayrıca gelir. Hedef: odaklı oyuncu ~5 oyunda %95.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Bu oturumdaki oyunlar</legend>
+      <table class="log" id="log"><tr><th>#</th><th>Şarkı</th><th>Düzen</th><th>±ms</th><th>İsabet</th><th>σ</th></tr></table>
+    </fieldset>
+
+    <fieldset>
+      <legend>Test botu</legend>
+      <label class="check"><input type="checkbox" id="bot"> Bot çalsın</label>
+      <div class="ctl"><label for="botSigma">Bot σ</label><output id="botSigmaOut"></output><input type="range" id="botSigma" min="0" max="120" step="5"></div>
+    </fieldset>
+  </aside>
+</div>
+
+<div class="switcher" id="switcher"><span class="lbl">PROTOTİP · Tuş düzeni</span></div>
+
+<script>
+// ===================== data =====================
+const LAYOUTS = {
+  A: { name: '4 şerit · D F J K', codes: ['KeyD','KeyF','KeyJ','KeyK'] },
+  B: { name: '6 şerit · S D F J K L', codes: ['KeyS','KeyD','KeyF','KeyJ','KeyK','KeyL'] },
+  C: { name: '7 şerit · A S D F J K L', codes: ['KeyA','KeyS','KeyD','KeyF','KeyJ','KeyK','KeyL'] },
+};
+// Physical keys (event.code), so Turkish-Q and US layouts both work. Semicolon is Ş on Turkish-Q.
+const KEYLABEL = c => c === 'Semicolon' ? 'Ş' : c.replace('Key','');
+
+// Public-domain placeholders. "note:beats", R = rest. Default 1 beat.
+const SONGS = [
+  { id:'kolay', lvl:'Kolay', name:'Twinkle Twinkle (halk ezgisi)', cap:0.70, bpm:96, speed:300,
+    src:`C4 C4 G4 G4 A4 A4 G4:2 F4 F4 E4 E4 D4 D4 C4:2 G4 G4 F4 F4 E4 E4 D4:2 G4 G4 F4 F4 E4 E4 D4:2
+         C4 C4 G4 G4 A4 A4 G4:2 F4 F4 E4 E4 D4 D4 C4:2` },
+  { id:'orta', lvl:'Orta', name:'Neşeye Övgü (Beethoven)', cap:0.85, bpm:124, speed:380,
+    src:`E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4:1.5 D4:.5 D4:2
+         E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4:1.5 C4:.5 C4:2
+         D4 D4 E4 C4 D4 E4:.5 F4:.5 E4 C4 D4 E4:.5 F4:.5 E4 D4 C4 D4 G3:2
+         E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4:1.5 C4:.5 C4:2` },
+  { id:'zor', lvl:'Zor', name:'Türk Marşı (Mozart)', cap:1.00, bpm:96, speed:480,
+    src:`B4:.25 A4:.25 G#4:.25 A4:.25 C5:.5 R:.5 D5:.25 C5:.25 B4:.25 C5:.25 E5:.5 R:.5
+         F5:.25 E5:.25 D#5:.25 E5:.25 B5:.25 A5:.25 G#5:.25 A5:.25 B5:.25 A5:.25 G#5:.25 A5:.25 C6:1
+         A5:.5 C6:.5 B5:.5 A5:.5 G5:.5 A5:.5 B5:.5 A5:.5 G5:.5 A5:.5 B5:.5 A5:.5 G5:.5 F#5:.5 E5:1 R:1
+         B4:.25 A4:.25 G#4:.25 A4:.25 C5:.5 R:.5 D5:.25 C5:.25 B4:.25 C5:.25 E5:.5 R:.5
+         F5:.25 E5:.25 D#5:.25 E5:.25 B5:.25 A5:.25 G#5:.25 A5:.25 B5:.25 A5:.25 G#5:.25 A5:.25 C6:1
+         A5:.25 B5:.25 C6:.25 B5:.25 A5:.25 G#5:.25 A5:.25 E5:.25 F5:.25 D5:.25 C5:.25 B4:.25 A4:1 R:1
+         C5:.5 D5:.5 E5:.5 E5:.5 F5:.25 E5:.25 D5:.25 C5:.25 B4:1 A4:.5 B4:.5 C5:.5 C5:.5 D5:.25 C5:.25 B4:.25 A4:.25 G#4:1
+         C5:.5 D5:.5 E5:.5 E5:.5 F5:.25 E5:.25 D5:.25 C5:.25 B4:.25 A4:.25 G#4:.25 B4:.25 A4:2` },
+];
+const LETTER = {C:0,D:1,E:2,F:3,G:4,A:5,B:6};
+const SEMI = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function parseSong(song){
+  const out = []; let beat = 0;
+  for (const tok of song.src.trim().split(/\s+/)){
+    const [n, d] = tok.split(':'); const dur = d ? parseFloat(d) : 1;
+    if (n !== 'R'){
+      const m = n.match(/^([A-G])(#?)(\d)$/);
+      const oct = +m[3];
+      out.push({ beat, midi: 12*(oct+1) + SEMI[m[1]] + (m[2]?1:0), step: oct*7 + LETTER[m[1]] });
+    }
+    beat += dur;
+  }
+  return { notes: out, beats: beat };
+}
+SONGS.forEach(s => Object.assign(s, parseSong(s)));
+
+// ===================== state =====================
+const params = new URLSearchParams(location.search);
+const cfg = {
+  layout: LAYOUTS[params.get('duzen')] ? params.get('duzen') : 'A',
+  song: 2,
+  win: 90,        // ± ms
+  lat: 0,         // ms subtracted from press times
+  strayPen: false,
+  guide: false,
+  bot: false, botSigma: 40,
+  tempoPct: { kolay:100, orta:100, zor:100 },
+};
+let phase = 'start';  // start | count | play | result
+let run = null;       // the current play
+const sessionLog = [];
+
+// ===================== audio =====================
+let ac = null, master = null;
+function audio(){
+  if (!ac){
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    master = ac.createGain(); master.gain.value = 0.35;
+    const comp = ac.createDynamicsCompressor(); master.connect(comp); comp.connect(ac.destination);
+  }
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function pluck(midi, vel=1, when=0){
+  if (!ac) return;
+  const t = ac.currentTime + when, f = 440 * Math.pow(2, (midi-69)/12);
+  const g = ac.createGain(); const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.setValueAtTime(Math.min(8000, f*8), t); lp.frequency.exponentialRampToValueAtTime(Math.max(400,f*2), t+0.6);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5*vel, t+0.006); g.gain.exponentialRampToValueAtTime(0.0001, t+1.4);
+  [[1,'triangle',1],[2,'sine',.35],[3,'sine',.12]].forEach(([h,type,a])=>{
+    const o = ac.createOscillator(), og = ac.createGain(); o.type = type; o.frequency.value = f*h; og.gain.value = a;
+    o.connect(og); og.connect(lp); o.start(t); o.stop(t+1.5);
+  });
+  lp.connect(g); g.connect(master);
+}
+function tick(hi){
+  if (!ac) return;
+  const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.value = hi ? 1320 : 880; g.gain.setValueAtTime(0.25,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.08);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+0.1);
+}
+function thud(){
+  if (!ac) return;
+  const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(140,t); o.frequency.exponentialRampToValueAtTime(70,t+0.08);
+  g.gain.setValueAtTime(0.18,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.1);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+0.12);
+}
+
+// ===================== play =====================
+const curSong = () => SONGS[cfg.song];
+const lanesN = () => LAYOUTS[cfg.layout].codes.length;
+function laneOf(step, song, L){
+  const steps = song.notes.map(n=>n.step); const lo = Math.min(...steps), hi = Math.max(...steps);
+  if (hi === lo) return 0;
+  return Math.round((step-lo)/(hi-lo)*(L-1));  // contour kept: higher pitch = lane further right
+}
+function newRun(){
+  const song = curSong(), L = lanesN();
+  const spb = 60 / (song.bpm * cfg.tempoPct[song.id] / 100);
+  const lead = 4 * spb; // 4-beat count-in
+  const notes = song.notes.map((n,i)=>({ i, t: lead + n.beat*spb, midi:n.midi, lane: laneOf(n.step, song, L),
+    state:'wait', err:null, botAt:null, guided:false }));
+  notes.forEach(n => { n.botAt = n.t + gauss()*cfg.botSigma/1000; });
+  return { song, L, spb, lead, notes, end: lead + song.beats*spb + 1.2, t0: performance.now(),
+    hits:0, misses:0, strays:0, perfect:0, flashes: new Array(L).fill(-9), down: new Array(L).fill(false),
+    lastBeat:-1, layout: cfg.layout, win: cfg.win, speed: song.speed };
+}
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+const songTime = (ms) => (ms - run.t0)/1000;
+
+function startPlay(){
+  audio();
+  run = newRun();
+  phase = 'play';
+  show(null);
+  document.getElementById('hud').hidden = false;
+  document.getElementById('hudSong').innerHTML = `${run.song.lvl}<small>${run.song.name}</small>`;
+  refreshHud();
+}
+function press(lane, ms){
+  if (phase !== 'play') return;
+  const t = songTime(ms) - cfg.lat/1000;
+  run.flashes[lane] = songTime(ms);
+  const w = cfg.win/1000;
+  let best = null;
+  for (const n of run.notes){
+    if (n.state !== 'wait' || n.lane !== lane) continue;
+    if (n.t - t > w) break;              // later notes are even further away
+    if (Math.abs(n.t - t) <= w){ best = n; break; }
+  }
+  if (best){
+    best.state = 'hit'; best.err = (t - best.t)*1000; run.hits++;
+    if (Math.abs(best.err) <= cfg.win/2) run.perfect++;
+    if (!cfg.guide) pluck(best.midi);
+    judge(Math.abs(best.err) <= cfg.win/2 ? 'Tam!' : (best.err < 0 ? 'Erken' : 'Geç'), Math.abs(best.err) <= cfg.win/2 ? 'var(--success-text)' : 'var(--accent-text)');
+  } else {
+    run.strays++; thud();
+  }
+  refreshHud();
+}
+function judge(text, color){
+  const j = document.getElementById('judge');
+  j.textContent = text; j.style.color = color; j.style.top = (hitY()/devicePixelRatio - 70) + 'px';
+  j.classList.remove('show'); void j.offsetWidth; j.classList.add('show');
+  clearTimeout(judge._t); judge._t = setTimeout(()=>j.classList.remove('show'), 60);
+}
+function accuracy(r){
+  const judged = r.notes.length;
+  const denom = judged + (cfg.strayPen ? r.strays : 0);
+  return denom ? r.hits/denom : 0;
+}
+function liveAccuracy(r){
+  const done = r.hits + r.misses + (cfg.strayPen ? r.strays : 0);
+  return done ? r.hits/done : 1;
+}
+function update(now){
+  if (phase !== 'play') return;
+  const t = songTime(now);
+  // count-in ticks
+  const beat = Math.floor(t / run.spb);
+  if (t < run.lead && beat !== run.lastBeat){ run.lastBeat = beat; tick(beat===0); countdown(4-beat); }
+  if (t >= run.lead) countdown(null);
+  const w = cfg.win/1000;
+  for (const n of run.notes){
+    if (n.state === 'wait' && t - n.t > w){ n.state = 'miss'; run.misses++; judge('Kaçtı', 'var(--danger-text)'); refreshHud(); }
+    if (cfg.guide && !n.guided && t >= n.t){ n.guided = true; pluck(n.midi, .8); }
+    if (cfg.bot && !n.botDone && n.state === 'wait' && t >= n.botAt){ n.botDone = true; press(n.lane, run.t0 + n.botAt*1000 + cfg.lat); }
+  }
+  document.getElementById('hudProg').style.width = Math.min(100, Math.max(0,(t-run.lead)/(run.end-1.2-run.lead))*100) + '%';
+  if (t > run.end) finish();
+}
+function countdown(n){
+  const el = document.getElementById('countdown');
+  if (n == null){ el.hidden = true; return; }
+  el.hidden = false; el.textContent = n;
+}
+function finish(){
+  phase = 'result';
+  const acc = accuracy(run), score = acc * run.song.cap;
+  const errs = run.notes.filter(n=>n.state==='hit').map(n=>n.err);
+  const mean = errs.length ? errs.reduce((a,b)=>a+b,0)/errs.length : 0;
+  const sd = errs.length > 1 ? Math.sqrt(errs.reduce((a,b)=>a+(b-mean)**2,0)/(errs.length-1)) : 0;
+  run.acc = acc; run.score = score; run.mean = mean; run.sd = sd;
+  sessionLog.push({ n: sessionLog.length+1, song: run.song.lvl, layout: run.layout, win: run.win, acc, sd });
+  document.getElementById('hud').hidden = true;
+  document.getElementById('resSong').textContent = `${run.song.lvl} · ${run.song.name}`;
+  document.getElementById('resScore').innerHTML = `${Math.floor(score*100)}<small>%</small>`;
+  const isHard = run.song.id === 'zor';
+  const v = document.getElementById('resVerdict');
+  if (isHard && acc >= 0.95){ v.textContent = 'Küçük ödül kazanıldı!'; v.className = 'verdict win'; }
+  else if (isHard){ v.textContent = `Küçük ödül için %95 gerek · ${95 - Math.floor(acc*100)} puan kaldı`; v.className = 'verdict lose'; }
+  else { v.textContent = `Bu şarkının tavanı %${Math.round(run.song.cap*100)}`; v.className = 'verdict lose'; }
+  document.getElementById('resFormula').textContent = `%${(acc*100).toFixed(1)} isabet × %${Math.round(run.song.cap*100)} tavan`;
+  document.getElementById('rAcc').textContent = `%${(acc*100).toFixed(1)}`;
+  document.getElementById('rHits').textContent = `${run.hits}/${run.notes.length}`;
+  document.getElementById('rMiss').textContent = run.misses;
+  document.getElementById('rStray').textContent = run.strays;
+  document.getElementById('histLabel').textContent = `Zamanlama hatası, nota nota · ortalama ${mean>=0?'+':''}${mean.toFixed(0)} ms (${mean>=0?'geç':'erken'}) · σ ${sd.toFixed(0)} ms`;
+  show('result');
+  drawHist();
+  refreshPanel(); renderLog();
+}
+function backToStart(){ phase = 'start'; run = null; document.getElementById('hud').hidden = true; countdown(null); show('start'); renderStart(); }
+
+// ===================== rendering =====================
+const field = document.getElementById('field'), fx = field.getContext('2d');
+const hitY = () => field.height - 74*devicePixelRatio;
+function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || getComputedStyle(document.body).getPropertyValue(name).trim(); }
+function resize(){
+  const r = field.getBoundingClientRect(), d = devicePixelRatio;
+  field.width = Math.round(r.width*d); field.height = Math.round(r.height*d);
+}
+function rr(x,y,w,h,r){ fx.beginPath(); fx.roundRect ? fx.roundRect(x,y,w,h,r) : fx.rect(x,y,w,h); }
+function draw(now){
+  const d = devicePixelRatio, W = field.width, H = field.height;
+  const L = run ? run.L : lanesN();
+  const codes = LAYOUTS[run ? run.layout : cfg.layout].codes;
+  const pad = 16*d, laneW = Math.min(90*d, (W - pad*2)/L), x0 = (W - laneW*L)/2, hy = hitY();
+  fx.clearRect(0,0,W,H);
+  const accent = css('--accent'), line = css('--line'), laneBg = css('--lane-bg'), textStrong = css('--text-strong'), text = css('--text');
+  // lanes
+  for (let i=0;i<L;i++){
+    const x = x0 + i*laneW;
+    fx.fillStyle = i%2 ? laneBg : 'transparent'; fx.fillRect(x, 0, laneW, H);
+    if (run){
+      const age = songTime(now) - run.flashes[i];
+      if (age >= 0 && age < 0.18){
+        const g = fx.createLinearGradient(0, hy, 0, hy - 220*d);
+        g.addColorStop(0, `rgba(59,130,246,${0.22*(1-age/0.18)})`); g.addColorStop(1,'rgba(59,130,246,0)');
+        fx.fillStyle = g; fx.fillRect(x, hy-220*d, laneW, 220*d);
+      }
+    }
+  }
+  fx.strokeStyle = line; fx.lineWidth = d;
+  for (let i=0;i<=L;i++){ const x = Math.round(x0 + i*laneW)+.5; fx.beginPath(); fx.moveTo(x,0); fx.lineTo(x,H); fx.stroke(); }
+  // hit window band
+  const speed = (run ? run.speed : curSong().speed) * d;
+  const wpx = cfg.win/1000*speed;
+  fx.fillStyle = 'rgba(59,130,246,0.07)'; fx.fillRect(x0, hy - wpx, laneW*L, wpx*2);
+  fx.fillStyle = accent; fx.fillRect(x0, hy - d, laneW*L, 2*d);
+  // notes
+  if (run){
+    const t = songTime(now);
+    const nh = 16*d;
+    for (const n of run.notes){
+      const y = hy - (n.t - t)*speed;
+      if (y < -nh || y > H + nh) { if (y < -nh) break; continue; }
+      if (n.state === 'hit') continue;
+      const x = x0 + n.lane*laneW + 6*d;
+      rr(x, y - nh/2, laneW - 12*d, nh, 5*d);
+      fx.fillStyle = n.state === 'miss' ? 'rgba(239,68,68,0.35)' : accent; fx.fill();
+    }
+    // hit sparks
+    for (const n of run.notes){
+      if (n.state !== 'hit') continue;
+      const age = t - (n.t + n.err/1000);
+      if (age < 0 || age > 0.25) continue;
+      const x = x0 + n.lane*laneW + laneW/2;
+      fx.beginPath(); fx.arc(x, hy, (10 + age*120)*d, 0, Math.PI*2);
+      fx.strokeStyle = `rgba(34,197,94,${1-age/0.25})`; fx.lineWidth = 3*d; fx.stroke();
+    }
+  }
+  // keycaps
+  for (let i=0;i<L;i++){
+    const cx = x0 + i*laneW + laneW/2, ky = hy + 22*d, kw = Math.min(40*d, laneW-12*d), kh = 32*d;
+    const down = run && run.down[i];
+    rr(cx-kw/2, ky + (down?2*d:0), kw, kh, 7*d);
+    fx.fillStyle = down ? accent : 'rgba(24,24,27,.88)'; fx.fill();
+    fx.fillStyle = '#fff'; fx.font = `500 ${13*d}px Inter, system-ui, sans-serif`; fx.textAlign='center'; fx.textBaseline='middle';
+    fx.fillText(KEYLABEL(codes[i]), cx, ky + kh/2 + (down?2*d:0));
+  }
+}
+function drawHist(){
+  const c = document.getElementById('hist'), d = devicePixelRatio, r = c.getBoundingClientRect();
+  c.width = r.width*d; c.height = r.height*d; const g = c.getContext('2d'), W = c.width, H = c.height;
+  const range = Math.max(cfg.win, run.win) * 1.3, mid = H/2, sy = (H/2 - 10*d)/range;
+  g.fillStyle = 'rgba(59,130,246,0.08)'; g.fillRect(0, mid - run.win*sy, W, run.win*2*sy);
+  g.strokeStyle = css('--line'); g.lineWidth = d; g.beginPath(); g.moveTo(0,mid); g.lineTo(W,mid); g.stroke();
+  const N = run.notes.length, step = (W - 20*d)/Math.max(1,N-1);
+  run.notes.forEach((n,i)=>{
+    const x = 10*d + i*step;
+    if (n.state === 'hit'){
+      g.fillStyle = Math.abs(n.err) <= run.win/2 ? '#22c55e' : '#3b82f6';
+      g.beginPath(); g.arc(x, mid + n.err*sy, 2.6*d, 0, Math.PI*2); g.fill();
+    } else {
+      g.strokeStyle = '#ef4444'; g.lineWidth = 1.5*d; const s = 3*d, y = 8*d;
+      g.beginPath(); g.moveTo(x-s,y-s); g.lineTo(x+s,y+s); g.moveTo(x+s,y-s); g.lineTo(x-s,y+s); g.stroke();
+    }
+  });
+  g.fillStyle = css('--text'); g.font = `500 ${10*d}px Inter, system-ui`; g.textAlign = 'left';
+  g.fillText(`+${run.win} ms`, 4*d, mid - run.win*sy - 3*d); g.fillText(`−${run.win} ms`, 4*d, mid + run.win*sy + 11*d);
+}
+
+// ===================== UI =====================
+function show(id){ for (const s of document.querySelectorAll('.screen')) s.classList.toggle('on', s.id === id); }
+function keycaps(codes){ return codes.map((c,i)=>`<span class="kbd${i===Math.ceil(codes.length/2)&&codes.length%2===0||(codes.length===7&&i===4)?' gap':''}">${KEYLABEL(c)}</span>`).join(''); }
+function renderStart(){
+  document.getElementById('songs').innerHTML = SONGS.map((s,i)=>`
+    <button class="songcard" aria-pressed="${i===cfg.song}" data-i="${i}">
+      <span class="kbd sm num">${i+1}</span>
+      <span class="lvl">${s.lvl}</span>
+      <span class="name">${s.name}</span>
+      ${s.id==='zor' ? '<span class="goal">%95 → Küçük ödül</span>' : ''}
+      <span class="cap">Tavan <b>%${Math.round(s.cap*100)}</b> · ${s.notes.length} nota</span>
+    </button>`).join('');
+  document.querySelectorAll('.songcard').forEach(b => b.onclick = () => { cfg.song = +b.dataset.i; renderStart(); refreshPanel(); });
+  document.getElementById('startKeys').innerHTML = keycaps(LAYOUTS[cfg.layout].codes) + `<span class="hint" style="margin:0 0 0 8px">${LAYOUTS[cfg.layout].name}</span>`;
+}
+function refreshHud(){
+  if (!run) return;
+  document.getElementById('hudHits').textContent = run.hits;
+  document.getElementById('hudMiss').textContent = run.misses;
+  document.getElementById('hudAcc').innerHTML = `${Math.floor(liveAccuracy(run)*100)}<small>%</small>`;
+  refreshPanel();
+}
+function erf(x){ const s = Math.sign(x); x = Math.abs(x); const t = 1/(1+0.3275911*x);
+  const y = 1 - (((((1.061405429*t - 1.453152027)*t) + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t*Math.exp(-x*x); return s*y; }
+function pAtLeast(N, p, k){ // P(Binomial(N,p) >= k)
+  let lg = [0]; for (let i=1;i<=N;i++) lg[i] = lg[i-1] + Math.log(i);
+  let s = 0; for (let j=k;j<=N;j++){ if (p<=0) break; s += Math.exp(lg[N]-lg[j]-lg[N-j] + j*Math.log(p) + (N-j)*Math.log(Math.max(1e-12,1-p))); }
+  return Math.min(1, s);
+}
+function renderEst(){
+  const N = SONGS[2].notes.length, k = Math.ceil(0.95*N);
+  const lastHard = [...sessionLog].reverse().find(l => l.song === 'Zor');
+  const sigmas = [25,35,45,55,70];
+  let rows = `<tr><th>σ</th><th>nota isabeti</th><th>ort. isabet</th><th>P(≥%95)</th><th>≈ oyun</th></tr>`;
+  const row = (s, cls) => { const p = erf(cfg.win/(s*Math.SQRT2)), q = pAtLeast(N,p,k);
+    return `<tr class="${cls||''}"><td>${cls?'senin ':''}${Math.round(s)} ms</td><td>%${(p*100).toFixed(1)}</td><td>%${(p*100).toFixed(0)}</td><td>%${(q*100).toFixed(0)}</td><td>${q>0.005? (1/q).toFixed(1) : '∞'}</td></tr>`; };
+  sigmas.forEach(s => rows += row(s));
+  if (lastHard && lastHard.sd > 0) rows += row(lastHard.sd, 'me');
+  document.getElementById('est').innerHTML = rows;
+}
+function refreshPanel(){
+  const s = curSong();
+  document.getElementById('pSong').textContent = s.lvl;
+  const sp = document.getElementById('speed'); sp.value = s.speed; document.getElementById('speedOut').textContent = `${s.speed} px/sn`;
+  const tp = document.getElementById('tempo'); tp.value = cfg.tempoPct[s.id];
+  document.getElementById('tempoOut').textContent = `%${cfg.tempoPct[s.id]} · ${Math.round(s.bpm*cfg.tempoPct[s.id]/100)} vuruş/dk`;
+  const reaction = (sp.value ? (460/ s.speed) : 0); // seconds a note is visible on a ~460px tall field
+  document.getElementById('speedsAll').textContent = SONGS.map(x=>`${x.lvl} ${x.speed}`).join(' · ') + ` px/sn · nota ekranda ~${reaction.toFixed(1)} sn görünür`;
+  document.getElementById('win').value = cfg.win; document.getElementById('winOut').textContent = `±${cfg.win} ms`;
+  document.getElementById('lat').value = cfg.lat; document.getElementById('latOut').textContent = `${cfg.lat>0?'+':''}${cfg.lat} ms`;
+  document.getElementById('botSigma').value = cfg.botSigma; document.getElementById('botSigmaOut').textContent = `${cfg.botSigma} ms`;
+  document.getElementById('layoutSel').value = cfg.layout;
+  // live state
+  let st;
+  if (run){
+    const errs = run.notes.filter(n=>n.state==='hit').map(n=>n.err);
+    const mean = errs.length ? errs.reduce((a,b)=>a+b,0)/errs.length : 0;
+    st = `aşama        ${phase}
+şarkı        ${run.song.lvl} (${run.notes.length} nota)
+düzen        ${run.layout} · ${run.L} şerit
+vuruş        ${run.hits}  (tam ${run.perfect})
+kaçan        ${run.misses}
+boş basış    ${run.strays}
+isabet       %${(liveAccuracy(run)*100).toFixed(1)} canlı / %${(accuracy(run)*100).toFixed(1)} toplam
+ort. hata    ${mean>=0?'+':''}${mean.toFixed(1)} ms` + (run.score!=null ? `\nσ            ${run.sd.toFixed(1)} ms\npuan         %${(run.score*100).toFixed(1)}` : '');
+    const last = run.notes.filter(n=>n.state!=='wait').slice(-24);
+    document.getElementById('errs').innerHTML = last.map(n => n.state==='miss' ? '<span class="m">×</span>' :
+      `<span class="${Math.abs(n.err)<=run.win/2?'p':''}">${n.err>=0?'+':''}${n.err.toFixed(0)}</span>`).join('');
+  } else {
+    st = `aşama        ${phase}\nşarkı        ${s.lvl} (${s.notes.length} nota)\ndüzen        ${cfg.layout} · ${lanesN()} şerit`;
+    document.getElementById('errs').innerHTML = '';
+  }
+  document.getElementById('state').textContent = st;
+  renderEst();
+}
+function renderLog(){
+  document.getElementById('log').innerHTML = `<tr><th>#</th><th>Şarkı</th><th>Düzen</th><th>±ms</th><th>İsabet</th><th>σ</th></tr>` +
+    sessionLog.map(l=>`<tr><td>${l.n}</td><td>${l.song}</td><td>${l.layout}</td><td>${l.win}</td><td>%${(l.acc*100).toFixed(1)}</td><td>${l.sd.toFixed(0)}</td></tr>`).join('');
+}
+function setLayout(k){
+  if (phase === 'play') return;
+  cfg.layout = k; const u = new URL(location.href); u.searchParams.set('duzen', k); history.replaceState(null,'',u);
+  renderSwitcher(); renderStart(); refreshPanel();
+}
+function renderSwitcher(){
+  const sw = document.getElementById('switcher');
+  sw.querySelectorAll('button').forEach(b=>b.remove());
+  for (const [k,l] of Object.entries(LAYOUTS)){
+    const b = document.createElement('button'); b.textContent = `${k} · ${l.name}`; b.setAttribute('aria-pressed', k===cfg.layout);
+    b.onclick = () => { setLayout(k); b.blur(); }; sw.appendChild(b);
+  }
+}
+
+// controls
+const sel = document.getElementById('layoutSel');
+sel.innerHTML = Object.entries(LAYOUTS).map(([k,l])=>`<option value="${k}">${k} · ${l.name}</option>`).join('');
+sel.onchange = () => { setLayout(sel.value); sel.blur(); };
+document.getElementById('speed').oninput = e => { curSong().speed = +e.target.value; if (run && phase==='play' && run.song===curSong()) run.speed = curSong().speed; refreshPanel(); };
+document.getElementById('tempo').oninput = e => { cfg.tempoPct[curSong().id] = +e.target.value; refreshPanel(); };
+document.getElementById('win').oninput = e => { cfg.win = +e.target.value; refreshPanel(); };
+document.getElementById('lat').oninput = e => { cfg.lat = +e.target.value; refreshPanel(); };
+document.getElementById('strayPen').onchange = e => { cfg.strayPen = e.target.checked; refreshHud(); refreshPanel(); };
+document.getElementById('guide').onchange = e => { cfg.guide = e.target.checked; };
+document.getElementById('bot').onchange = e => { cfg.bot = e.target.checked; };
+document.getElementById('botSigma').oninput = e => { cfg.botSigma = +e.target.value; refreshPanel(); };
+// sliders keep focus otherwise and eat arrow keys / steal game keys
+document.querySelectorAll('.panel input').forEach(i => i.addEventListener('change', () => i.blur()));
+document.getElementById('startBtn').onclick = () => startPlay();
+document.getElementById('againBtn').onclick = () => startPlay();
+document.getElementById('backBtn').onclick = () => backToStart();
+
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT') return;
+  const codes = LAYOUTS[run ? run.layout : cfg.layout].codes;
+  const lane = codes.indexOf(e.code);
+  if (phase === 'play'){
+    if (lane >= 0){ e.preventDefault(); if (!e.repeat){ run.down[lane] = true; press(lane, e.timeStamp); } }
+    else if (e.code === 'Escape') backToStart();
+    return;
+  }
+  if (phase === 'start'){
+    if (['Digit1','Digit2','Digit3'].includes(e.code)){ cfg.song = +e.code.slice(-1)-1; renderStart(); refreshPanel(); }
+    if (e.code === 'Enter' || e.code === 'Space'){ e.preventDefault(); startPlay(); }
+  } else if (phase === 'result'){
+    if (e.code === 'Enter' || e.code === 'Space'){ e.preventDefault(); startPlay(); }
+    if (e.code === 'Escape') backToStart();
+  }
+});
+window.addEventListener('keyup', e => {
+  if (!run) return; const lane = LAYOUTS[run.layout].codes.indexOf(e.code); if (lane >= 0) run.down[lane] = false;
+});
+window.addEventListener('resize', () => { resize(); if (phase==='result') drawHist(); });
+
+function loop(now){ update(now); draw(now); requestAnimationFrame(loop); }
+resize(); renderSwitcher(); renderStart(); refreshPanel(); renderLog();
+requestAnimationFrame(loop);
+window.__piano = { cfg, get run(){ return run; }, get phase(){ return phase; }, sessionLog, startPlay };
+</script>
+</body>
+</html>
