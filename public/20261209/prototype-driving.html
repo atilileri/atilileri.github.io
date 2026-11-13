@@ -139,7 +139,7 @@ body{background:var(--ss-canvas);color:var(--ss-text);font:14px/1.4 var(--ss-fon
 <div id="game">
   <canvas id="cv" tabindex="0"></canvas>
   <div class="hud" id="hud" hidden>
-    <div class="pill" id="hTime"><div class="lbl">Süre</div><div class="val"><span id="vTime">0:00</span> <small id="vLimit">/ 2:00</small></div></div>
+    <div class="pill" id="hTime"><div class="lbl">Süre</div><div class="val"><span id="vTime">0:00</span> <small id="vLimit">/ 2:30</small></div></div>
     <div class="pill" id="hScore"><div class="lbl">Skor</div><div class="val" id="vScore">%100</div><div class="tally"><span class="tH" id="vH">0 ağır</span><span class="tL" id="vL">0 hafif</span></div></div>
     <div class="pill" id="hSpeed"><div><div class="lbl">Hız</div><div class="val"><span id="vSpeed">0</span> <small>km/sa</small></div></div><div class="sign" id="vSign">30</div></div>
     <div class="pill" id="hMap"><canvas id="mini" width="200" height="160"></canvas></div>
@@ -208,7 +208,7 @@ const R1 = 2.0 * C, R2 = 4.2 * C, R3 = 5 * C, R4 = 6 * C, RZ = 7.5 * C;
 const K = {
   vmax: 50, accel: 3.2, brake: 8, steer: 0.6, steerRate: 4,
   limit: 30, tol: 3, speedHold: 1.5, laneHold: 0.8,
-  timeLimit: 120, timeRepeat: 20, yieldDist: 10, hardHit: 20,
+  timeLimit: 150, timeRepeat: 20, yieldDist: 6, hardHit: 20,
   cycDensity: 1, cycSpeed: 15,
   zoom: 1.5, rotCam: false, routeLine: true, stopAtFinish: false,
 };
