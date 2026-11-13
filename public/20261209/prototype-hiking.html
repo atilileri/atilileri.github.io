@@ -1,0 +1,693 @@
+<!doctype html>
+<!--
+  PROTOTYPE (#183) — throwaway. "How does the hiking map Game feel?"
+  Not the real site. Answers: what a trail map looks like, node-to-node click
+  vs. snapped drawing, how the shortest route is revealed, how many maps are in
+  the set, and how the maps are sized so "at most ~5% longer than the
+  shortest" (score >= 95%) takes about 5 focused Rounds.
+  Score (from #174): shortest length / her length.
+  The playable mechanic is plain canvas JS; the screens around it (start,
+  HUD, result) follow stageshow's craft rules in plain CSS, because the kit is
+  React/TS and this must be one self-contained file. F2 opens the tweak panel.
+-->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Prototip: Yürüyüş Haritası</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ss-canvas:#f6f5f2; --ss-surface:#ffffff; --ss-chrome:#efeee9; --ss-well:#e9e7e1;
+  --ss-line:rgba(0,0,0,.10); --ss-line-faint:rgba(0,0,0,.06);
+  --ss-text-strong:#1d1d1f; --ss-text:#4a4a4f; --ss-text-faint:#8a8a90;
+  --ss-accent:#e8743b; --ss-accent-soft:#fdebe1;
+  --ss-danger:#d6453d; --ss-success:#2f9e5b; --ss-success-soft:#e1f4e8;
+  --ss-radius-sm:6px; --ss-radius-md:8px; --ss-radius-lg:12px; --ss-radius-pill:999px;
+  --ss-shadow-float:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.12);
+  --ss-font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ss-mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ss-canvas:#16171a; --ss-surface:#202226; --ss-chrome:#1b1c1f; --ss-well:#2a2c31;
+    --ss-line:rgba(255,255,255,.10); --ss-line-faint:rgba(255,255,255,.06);
+    --ss-text-strong:#f2f2f3; --ss-text:#c4c4c8; --ss-text-faint:#85858c;
+    --ss-accent-soft:#3a2418; --ss-success-soft:#173322;
+  }
+}
+:root[data-theme="dark"]{
+  --ss-canvas:#16171a; --ss-surface:#202226; --ss-chrome:#1b1c1f; --ss-well:#2a2c31;
+  --ss-line:rgba(255,255,255,.10); --ss-line-faint:rgba(255,255,255,.06);
+  --ss-text-strong:#f2f2f3; --ss-text:#c4c4c8; --ss-text-faint:#85858c;
+  --ss-accent-soft:#3a2418; --ss-success-soft:#173322;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--ss-canvas);color:var(--ss-text);font:14px/1.4 var(--ss-font);display:flex;overflow:hidden}
+#game{position:relative;flex:1;min-width:0;background:#e6e9d6}
+#cv{display:block;width:100%;height:100%;outline:none}
+
+/* HUD */
+.hud{position:absolute;inset:0;pointer-events:none}
+.hud[hidden]{display:none}
+.pill{position:absolute;background:var(--ss-surface);border-radius:var(--ss-radius-lg);box-shadow:var(--ss-shadow-float);padding:10px 14px}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--ss-text-faint);line-height:1.3}
+.val{font-weight:700;color:var(--ss-text-strong);font-variant-numeric:tabular-nums;line-height:1.2}
+#hMap{left:16px;top:16px}
+#hMap .val{font-size:18px}
+#hMap .val small{font-size:12px;font-weight:500;color:var(--ss-text-faint);margin-left:6px}
+#hRoute{left:50%;top:16px;transform:translateX(-50%);text-align:center;min-width:150px}
+#hRoute .val{font-size:22px}
+#hBest{right:16px;top:16px;display:flex;gap:18px}
+#hBest .val{font-size:18px}
+#hHint{left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;pointer-events:auto;white-space:nowrap}
+#hHint .msg{font-weight:600;color:var(--ss-text-strong)}
+#hHint.ready{box-shadow:0 0 0 2px var(--ss-success),var(--ss-shadow-float)}
+
+/* buttons, keys */
+.btn{pointer-events:auto;border:0;border-radius:10px;background:var(--ss-accent);color:#fff;font:600 15px var(--ss-font);padding:10px 16px;cursor:pointer;display:inline-flex;gap:10px;align-items:center;white-space:nowrap}
+.btn small{opacity:.8;font-weight:500;font-size:12px}
+.btn.sec{background:var(--ss-well);color:var(--ss-text-strong)}
+.btn.sm{font-size:13px;padding:7px 12px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:default}
+.kbd{display:inline-flex;gap:4px;align-items:center}
+.kbd span{min-width:28px;height:28px;padding:0 7px;border-radius:6px;background:var(--ss-surface);border:1px solid var(--ss-line);box-shadow:0 1px 0 var(--ss-line);display:inline-grid;place-items:center;font-size:12px;font-weight:700;color:var(--ss-text-strong)}
+.kbd i{font-style:normal;color:var(--ss-text-faint);font-size:12px}
+
+/* screens */
+.screen{position:absolute;inset:0;display:grid;place-items:center;background:rgba(30,34,24,.30);backdrop-filter:blur(3px);padding:16px}
+.screen[hidden]{display:none}
+.card{background:var(--ss-surface);border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08),0 24px 60px rgba(0,0,0,.25);width:min(540px,100%);padding:28px;color:var(--ss-text)}
+.card .title{font-size:26px;font-weight:800;color:var(--ss-text-strong);letter-spacing:-.01em}
+.card p{margin:6px 0 0}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;margin:20px 0 0;padding:16px;background:var(--ss-canvas);border-radius:var(--ss-radius-lg)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px}
+.foot .grp{display:flex;gap:8px}
+.goal{font-size:13px;color:var(--ss-text-faint)}
+.goal b{color:var(--ss-text-strong)}
+
+/* result: a side card, so the map and both routes stay visible */
+#sEnd{background:transparent;backdrop-filter:none;place-items:center end;padding:24px;pointer-events:none}
+#sEnd .card{pointer-events:auto;width:400px;animation:cin .35s ease-out}
+@keyframes cin{from{opacity:0;transform:translateX(16px)}}
+.big{font-size:72px;font-weight:800;color:var(--ss-text-strong);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;margin-top:6px}
+.big.win{color:var(--ss-success)}
+.cmp{margin-top:16px;display:grid;gap:8px}
+.cmp div{display:flex;align-items:center;gap:10px;font-size:14px}
+.cmp i{width:22px;height:5px;border-radius:3px;flex-shrink:0}
+.cmp b{margin-left:auto;color:var(--ss-text-strong);font-variant-numeric:tabular-nums}
+.meta{display:flex;gap:16px;margin-top:14px;font-size:13px;color:var(--ss-text-faint)}
+.meta b{color:var(--ss-text-strong);font-weight:600}
+.verdict{margin-top:14px;padding:10px 14px;border-radius:var(--ss-radius-lg);background:var(--ss-canvas);font-weight:500}
+.verdict.win{background:var(--ss-success-soft);color:var(--ss-success);font-weight:700}
+
+/* tweak panel (for Atıl, not Çağla) */
+#dbg{width:340px;flex-shrink:0;height:100%;overflow:auto;background:var(--ss-surface);border-left:1px solid var(--ss-line);font-size:12.5px}
+#dbg[hidden]{display:none}
+#dbg header{position:sticky;top:0;background:var(--ss-surface);padding:12px 14px;border-bottom:1px solid var(--ss-line);display:flex;justify-content:space-between;align-items:center;z-index:1}
+#dbg header b{font-size:12px;letter-spacing:.06em;color:var(--ss-accent)}
+#dbg header span{color:var(--ss-text-faint);font-size:11px}
+#dbg section{padding:10px 14px;border-bottom:1px solid var(--ss-line-faint)}
+#dbg h3{margin:0 0 8px;font-size:11px;font-weight:700;color:var(--ss-text-faint);letter-spacing:.04em;text-transform:uppercase}
+.knob{display:grid;grid-template-columns:1fr 64px;gap:2px 8px;align-items:center;margin-bottom:6px}
+.knob output{text-align:right;font-family:var(--ss-mono);font-size:12px;color:var(--ss-text-strong)}
+.knob input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--ss-accent);margin:0}
+.sel{display:grid;grid-template-columns:1fr 150px;gap:8px;align-items:center;margin-bottom:6px}
+.sel select{font:12px var(--ss-font);padding:3px 4px;border-radius:6px;border:1px solid var(--ss-line);background:var(--ss-canvas);color:var(--ss-text-strong)}
+.chk{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.chk input{accent-color:var(--ss-accent)}
+table.maps{width:100%;border-collapse:collapse;font-family:var(--ss-mono);font-size:11px}
+table.maps th{text-align:right;font-weight:600;color:var(--ss-text-faint);padding:2px 3px}
+table.maps td{text-align:right;padding:3px;border-top:1px solid var(--ss-line-faint);color:var(--ss-text-strong)}
+table.maps th:first-child,table.maps td:first-child{text-align:left}
+table.maps tr.cur td{background:var(--ss-accent-soft)}
+table.maps tr{cursor:pointer}
+#state{font-family:var(--ss-mono);font-size:11.5px;white-space:pre-wrap;margin:0;color:var(--ss-text-strong);line-height:1.5}
+#log{font-family:var(--ss-mono);font-size:11.5px;margin:0;padding:0;list-style:none}
+#log li{padding:3px 0;border-top:1px solid var(--ss-line-faint)}
+#log .win{color:var(--ss-success)}
+.note{color:var(--ss-text-faint);font-size:11.5px;margin:4px 0 0}
+.sum{margin-top:8px;padding:8px 10px;background:var(--ss-canvas);border-radius:8px;font-size:12px;color:var(--ss-text-strong)}
+#toggleDbg{position:absolute;right:16px;bottom:18px;pointer-events:auto;border:1px solid var(--ss-line);background:var(--ss-surface);color:var(--ss-text);border-radius:8px;font:600 11px var(--ss-font);padding:5px 8px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="cv" tabindex="0"></canvas>
+  <div class="hud" id="hud" hidden>
+    <div class="pill" id="hMap"><div class="lbl">Harita</div><div class="val"><span id="vMap">—</span><small id="vMapN"></small></div></div>
+    <div class="pill" id="hRoute"><div class="lbl" id="vRouteL">Rotan</div><div class="val" id="vRoute">0 kavşak</div></div>
+    <div class="pill" id="hBest"><div><div class="lbl">Rekor</div><div class="val" id="vBest">—</div></div><div><div class="lbl">Hedef</div><div class="val">%95</div></div></div>
+    <div class="pill" id="hHint"><span class="msg" id="vHint"></span><button class="btn sec sm" id="bUndo">Geri al <small>⌫</small></button><button class="btn sm" id="bOk">Onayla <small>Enter</small></button></div>
+  </div>
+  <button id="toggleDbg" title="Ayarlar paneli (F2)">Ayarlar · F2</button>
+
+  <div class="screen" id="sStart">
+    <div class="card">
+      <div class="title">Yürüyüş Haritası</div>
+      <p>Otoparktan zirveye giden en kısa patikayı bul. Patikalar kıvrımlı; göz kararı dikkatli seç.</p>
+      <div class="keys" id="keys"></div>
+      <div class="foot"><div class="goal">Skor = en kısa ÷ senin rotan. <b>%95</b> ve üstü: Küçük ödül</div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sExit" hidden>
+    <div class="card" style="width:420px">
+      <div class="title" style="font-size:20px">Turdan çıkılsın mı?</div>
+      <p>Yarım bırakılan tur skor vermez.</p>
+      <div class="foot"><span></span><div class="grp"><button class="btn sec" id="bStay">Devam et <small>Esc</small></button><button class="btn" id="bLeave">Çık <small>Enter</small></button></div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sEnd" hidden>
+    <div class="card">
+      <div class="lbl" id="eHead">Tur bitti</div>
+      <div class="big" id="eScore">%100</div>
+      <div class="cmp">
+        <div><i style="background:#e8743b"></i>Senin rotan<b id="eHers">0 km</b></div>
+        <div id="eShortRow"><i style="background:#2f9e5b"></i>En kısa rota<b id="eShort">0 km</b></div>
+      </div>
+      <div class="meta"><span>Rekor <b id="eBest">%0</b></span><span>Hedef <b>%95</b></span><span>Tur <b id="eTry">1</b></span></div>
+      <div class="verdict" id="eVerdict"></div>
+      <div class="foot"><span></span><div class="grp"><button class="btn sec" id="bHub">Salona dön <small>Esc</small></button><button class="btn" id="bAgain">Yeni tur <small>Enter</small></button></div></div>
+    </div>
+  </div>
+</div>
+
+<aside id="dbg">
+  <header><b>PROTOTİP #183</b><span>F2 gizler</span></header>
+  <section><h3>Giriş</h3><div id="kInput"></div></section>
+  <section><h3>Gösterim</h3><div id="kShow"></div></section>
+  <section><h3>Harita seti</h3><div id="kSet"></div><p class="note">Değişince set yeniden üretilir (sabit tohumlar: aynı ayar = aynı haritalar).</p></section>
+  <section><h3>Ayar: %95 kaç turda?</h3><div id="kSim"></div>
+    <p class="note">Simüle oyuncu her patikayı (kiriş + farkındalık × kıvrım) × e^(σ·N) uzunlukta algılar ve algısına göre en kısa rotayı seçer. p = bir turda %95+ olasılığı (300 deneme). Set kurulurken p bandı dışındaki haritalar atlanır.</p>
+    <table class="maps" id="mapTable"></table><div class="sum" id="simSum"></div>
+  </section>
+  <section><h3>Durum</h3><pre id="state"></pre></section>
+  <section><h3>Tur kaydı</h3><ul id="log"></ul></section>
+</aside>
+
+<script>
+"use strict";
+// ---------- knobs ----------
+const K = {
+  mode: 'click',        // click | draw | both
+  numbers: true,        // number badges on reachable junctions (keys 1–9)
+  autoFinish: false,    // reaching the summit ends the Round without Enter
+  runLen: 'off',        // live length in HUD: off | on
+  labels: 'off',        // trail length labels on the map: off | on
+  reveal: 'anim',       // anim | instant | none
+  revealSpeed: 1,
+  nMaps: 5, setSeed: 1, nodes: 26, wiggle: 0.3, prune: 0.15, noRepeat: true,
+  sigma: 0.35, bias: 0.25, pMin: 0.12, pMax: 0.30,
+};
+const W = 1600, H = 900, MPU = 5;    // world units; metres per unit
+const NAMES = ['Kartal Tepesi', 'Çam Sırtı', 'Sisli Doruk', 'Kızılkaya', 'Ayı Yaylası', 'Rüzgârlı Sırt', 'Yıldız Doruğu', 'Göl Tepe'];
+const ORANGE = '#e8743b', GREEN = '#2f9e5b', TRAIL = '#b0462e';
+const km = m => (m / 1000).toFixed(1).replace('.', ',') + ' km';
+const pct = x => '%' + x;
+
+// ---------- rng ----------
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0, v = 0; while (!u) u = r(); v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+// ---------- map generation ----------
+function connected(n, edges, skip) {
+  const adj = Array.from({ length: n }, () => []);
+  edges.forEach((e, i) => { if (i !== skip && !e.dead) { adj[e.a].push(e.b); adj[e.b].push(e.a); } });
+  const seen = new Uint8Array(n), st = [0]; seen[0] = 1; let c = 1;
+  while (st.length) { const u = st.pop(); for (const v of adj[u]) if (!seen[v]) { seen[v] = 1; c++; st.push(v); } }
+  return c === n;
+}
+function genMap(seed) {
+  const r = mulberry32(seed), m = 70;
+  const flip = r() < .5, fx = x => flip ? W - x : x;
+  const pts = [
+    { x: fx(m + r() * 80), y: H * .58 + r() * H * .3 },       // 0 = start (parking)
+    { x: fx(W - m - r() * 80), y: m + r() * H * .3 },          // 1 = summit
+  ];
+  const minD = Math.sqrt(W * H / K.nodes) * .72;
+  for (let t = 0; t < 6000 && pts.length < K.nodes; t++) {
+    const p = { x: m + r() * (W - 2 * m), y: m + r() * (H - 2 * m) };
+    if (pts.every(q => (q.x - p.x) ** 2 + (q.y - p.y) ** 2 >= minD * minD)) pts.push(p);
+  }
+  const n = pts.length; let edges = [];
+  // Gabriel graph: planar, natural-looking junction network
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+    const mx = (pts[i].x + pts[j].x) / 2, my = (pts[i].y + pts[j].y) / 2;
+    const r2 = ((pts[i].x - pts[j].x) ** 2 + (pts[i].y - pts[j].y) ** 2) / 4;
+    let ok = true;
+    for (let k = 0; k < n && ok; k++) if (k !== i && k !== j && (pts[k].x - mx) ** 2 + (pts[k].y - my) ** 2 < r2) ok = false;
+    if (ok) edges.push({ a: i, b: j, chordU: Math.sqrt(r2) * 2 });
+  }
+  const deg = new Array(n).fill(0); edges.forEach(e => { deg[e.a]++; deg[e.b]++; });
+  const med = edges.map(e => e.chordU).sort((a, b) => a - b)[edges.length >> 1];
+  const tryDrop = (i, minDeg) => { const e = edges[i]; if (deg[e.a] <= minDeg || deg[e.b] <= minDeg || !connected(n, edges, i)) return; e.dead = true; deg[e.a]--; deg[e.b]--; };
+  edges.map((e, i) => i).sort((a, b) => edges[b].chordU - edges[a].chordU).forEach(i => { if (edges[i].chordU > 1.8 * med) tryDrop(i, 1); });
+  edges.forEach((e, i) => { if (!e.dead && r() < K.prune) tryDrop(i, 2); });
+  edges = edges.filter(e => !e.dead);
+  // wiggly trail polylines; true length = polyline length
+  for (const e of edges) {
+    const A = pts[e.a], B = pts[e.b], L = e.chordU, nx = -(B.y - A.y) / L, ny = (B.x - A.x) / L;
+    const a1 = r() * 2 - 1, a2 = (r() * 2 - 1) * .55, a3 = (r() * 2 - 1) * .3, amp = K.wiggle * Math.min(L, 320) * Math.pow(r(), .6);
+    e.pts = []; let len = 0;
+    for (let s = 0; s <= 32; s++) {
+      const t = s / 32, o = amp * (a1 * Math.sin(Math.PI * t) + a2 * Math.sin(2 * Math.PI * t) + a3 * Math.sin(3 * Math.PI * t));
+      const p = { x: A.x + (B.x - A.x) * t + nx * o, y: A.y + (B.y - A.y) * t + ny * o };
+      if (s) len += Math.hypot(p.x - e.pts[s - 1].x, p.y - e.pts[s - 1].y);
+      e.pts.push(p);
+    }
+    e.len = len * MPU; e.chord = L * MPU;
+  }
+  const adj = Array.from({ length: n }, () => []);
+  edges.forEach((e, i) => { adj[e.a].push({ to: e.b, e: i }); adj[e.b].push({ to: e.a, e: i }); });
+  // terrain: the summit is the highest hill
+  const hills = [{ x: pts[1].x, y: pts[1].y, h: 1, s: 360 }];
+  for (let i = 0; i < 6; i++) hills.push({ x: r() * W, y: r() * H, h: .25 + r() * .4, s: 120 + r() * 200 });
+  const ph = r() * 10;
+  const height = (x, y) => hills.reduce((s, h) => s + h.h * Math.exp(-((x - h.x) ** 2 + (y - h.y) ** 2) / (2 * h.s * h.s)), 0) + .05 * Math.sin(x / 170 + ph) * Math.cos(y / 130 - ph);
+  const map = { seed, pts, edges, adj, height, start: 0, summit: 1 };
+  analyse(map);
+  return map;
+}
+function dijkstra(map, from, w) {
+  const n = map.pts.length, d = new Array(n).fill(Infinity), prev = new Array(n).fill(-1), done = new Uint8Array(n);
+  d[from] = 0;
+  for (let it = 0; it < n; it++) {
+    let u = -1; for (let i = 0; i < n; i++) if (!done[i] && (u < 0 || d[i] < d[u])) u = i;
+    if (u < 0 || d[u] === Infinity) break; done[u] = 1;
+    for (const { to, e } of map.adj[u]) { const nd = d[u] + w(e); if (nd < d[to]) { d[to] = nd; prev[to] = u; } }
+  }
+  return { d, prev };
+}
+function pathTo(prev, t) { const p = []; for (let v = t; v >= 0; v = prev[v]) p.unshift(v); return p; }
+function edgeBetween(map, a, b) { const x = map.adj[a].find(o => o.to === b); return x ? x.e : -1; }
+function routeLen(map, route) { let s = 0; for (let i = 1; i < route.length; i++) s += map.edges[edgeBetween(map, route[i - 1], route[i])].len; return s; }
+const scoreOf = (best, hers) => Math.floor(100 * best / hers + 1e-9);
+function analyse(map) {
+  const { d, prev } = dijkstra(map, map.start, e => map.edges[e].len);
+  map.best = d[map.summit]; map.bestRoute = pathTo(prev, map.summit);
+  // count distinct simple routes up to +15%
+  const dT = dijkstra(map, map.summit, e => map.edges[e].len).d, lim = map.best * 1.15;
+  const seen = new Uint8Array(map.pts.length); let w5 = 0, w15 = 0, steps = 0;
+  (function dfs(u, cur) {
+    if (++steps > 40000) return;
+    if (u === map.summit) { if (scoreOf(map.best, cur) >= 95) w5++; else w15++; return; }
+    seen[u] = 1;
+    for (const { to, e } of map.adj[u]) if (!seen[to] && cur + map.edges[e].len + dT[to] <= lim) dfs(to, cur + map.edges[e].len);
+    seen[u] = 0;
+  })(map.start, 0);
+  map.w5 = w5; map.w15 = w15;
+  // simulated focused player
+  const r = mulberry32(map.seed ^ 0x9e37), N = 300; let ok = 0;
+  for (let t = 0; t < N; t++) {
+    const per = map.edges.map(e => (e.chord + K.bias * (e.len - e.chord)) * Math.exp(K.sigma * gauss(r)));
+    const res = dijkstra(map, map.start, e => per[e]);
+    if (scoreOf(map.best, routeLen(map, pathTo(res.prev, map.summit))) >= 95) ok++;
+  }
+  map.p = ok / N;
+}
+let SET = [];
+function buildSet() {
+  SET = [];
+  for (let i = 0; i < K.nMaps; i++) {
+    let pick = null, bestGap = Infinity;
+    for (let k = 0; k < 60; k++) {
+      const m = genMap(K.setSeed * 7919 + i * 101 + k);
+      const good = m.p >= K.pMin && m.p <= K.pMax && m.w5 <= 3 && m.bestRoute.length >= 5;
+      if (good) { pick = m; break; }
+      const gap = Math.abs(m.p - (K.pMin + K.pMax) / 2); if (gap < bestGap) { bestGap = gap; pick = m; }
+    }
+    pick.name = NAMES[i % NAMES.length]; pick.idx = i;
+    SET.push(pick);
+  }
+  for (const m of SET) renderStatic(m);
+  renderMapTable();
+}
+
+// ---------- static map layer (world space, cached per map) ----------
+const SS = 1.25;
+function lerpC(c1, c2, t) { return c1.map((v, i) => Math.round(v + (c2[i] - v) * t)); }
+const RAMP = [[0, [222, 230, 200]], [.3, [206, 222, 184]], [.55, [196, 214, 172]], [.75, [226, 220, 196]], [1, [244, 240, 230]]];
+function rampAt(h) { for (let i = 1; i < RAMP.length; i++) if (h <= RAMP[i][0]) { const [a, ca] = RAMP[i - 1], [b, cb] = RAMP[i]; return lerpC(ca, cb, (h - a) / (b - a)); } return RAMP[RAMP.length - 1][1]; }
+function renderStatic(map) {
+  const c = document.createElement('canvas'); c.width = W * SS; c.height = H * SS;
+  const g = c.getContext('2d'); g.scale(SS, SS);
+  // height grid
+  const G = 16, cols = W / G + 1, rows = Math.ceil(H / G) + 1, hg = [];
+  let hmax = -1e9, hmin = 1e9;
+  for (let j = 0; j < rows; j++) { hg.push([]); for (let i = 0; i < cols; i++) { const v = map.height(i * G, j * G); hg[j].push(v); hmax = Math.max(hmax, v); hmin = Math.min(hmin, v); } }
+  for (const row of hg) for (let i = 0; i < row.length; i++) row[i] = (row[i] - hmin) / (hmax - hmin);
+  const small = document.createElement('canvas'); small.width = cols; small.height = rows;
+  const sg = small.getContext('2d'), img = sg.createImageData(cols, rows);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const [R, Gc, B] = rampAt(hg[j][i]), o = (j * cols + i) * 4; img.data[o] = R; img.data[o + 1] = Gc; img.data[o + 2] = B; img.data[o + 3] = 255; }
+  sg.putImageData(img, 0, 0);
+  g.imageSmoothingEnabled = true; g.drawImage(small, 0, 0, (cols - 1) * G + G, (rows - 1) * G + G);
+  // contours (marching squares)
+  const T = [[], [[3, 2]], [[2, 1]], [[3, 1]], [[0, 1]], [[3, 0], [2, 1]], [[0, 2]], [[3, 0]], [[3, 0]], [[0, 2]], [[3, 2], [0, 1]], [[0, 1]], [[3, 1]], [[2, 1]], [[3, 2]], []];
+  for (let lv = 1; lv < 20; lv++) {
+    const l = lv / 20;
+    g.beginPath();
+    for (let j = 0; j < rows - 1; j++) for (let i = 0; i < cols - 1; i++) {
+      const a = hg[j][i], b = hg[j][i + 1], cc = hg[j + 1][i + 1], d = hg[j + 1][i];
+      const idx = (a > l) << 3 | (b > l) << 2 | (cc > l) << 1 | (d > l);
+      if (!idx || idx === 15) continue;
+      const x = i * G, y = j * G, f = (p, q) => (l - p) / (q - p);
+      const P = [[x + G * f(a, b), y], [x + G, y + G * f(b, cc)], [x + G * f(d, cc), y + G], [x, y + G * f(a, d)]];
+      for (const [s, t] of T[idx]) { g.moveTo(...P[s]); g.lineTo(...P[t]); }
+    }
+    g.strokeStyle = lv % 5 ? 'rgba(130,95,60,.28)' : 'rgba(130,95,60,.5)';
+    g.lineWidth = lv % 5 ? .9 : 1.5; g.stroke();
+  }
+  // trails: white casing + dashed red, like a printed hiking map
+  for (const e of map.edges) {
+    g.beginPath(); e.pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y));
+    g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 6; g.lineCap = 'round'; g.lineJoin = 'round'; g.setLineDash([]); g.stroke();
+    g.strokeStyle = TRAIL; g.lineWidth = 2.6; g.setLineDash([9, 6]); g.stroke();
+  }
+  g.setLineDash([]);
+  map.layer = c;
+}
+
+// ---------- canvas, view ----------
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let dpr = 1, view = { s: 1, x: 0, y: 0 }, viewT = { s: 1, x: 0, y: 0 };
+function fitView(rightInset) {
+  const pad = 28, top = 84, bottom = 76, w = cv.clientWidth - rightInset, h = cv.clientHeight;
+  const s = Math.min((w - 2 * pad) / W, (h - top - bottom) / H);
+  return { s, x: (w - W * s) / 2, y: top + (h - top - bottom - H * s) / 2 };
+}
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  cv.width = cv.clientWidth * dpr; cv.height = cv.clientHeight * dpr;
+  viewT = fitView(phase === 'result' || phase === 'reveal' ? 450 : 0); view = { ...viewT };
+}
+const toS = p => ({ x: view.x + p.x * view.s, y: view.y + p.y * view.s });
+const toW = (x, y) => ({ x: (x - view.x) / view.s, y: (y - view.y) / view.s });
+
+// ---------- game state ----------
+let phase = 'start', map = null, route = [], best = null, tries = 0, lastIdx = -1, forced = -1;
+let hover = -1, drawing = false, reveal = null, result = null, t0 = performance.now();
+const logRows = [];
+function pickMap() {
+  if (forced >= 0) return SET[forced];
+  let i; do { i = Math.floor(Math.random() * SET.length); } while (K.noRepeat && SET.length > 1 && i === lastIdx);
+  return SET[i];
+}
+function newRound() {
+  map = pickMap(); lastIdx = map.idx; route = [map.start]; reveal = null; result = null; hover = -1; drawing = false;
+  phase = 'play'; show(); resize(); renderMapTable();
+}
+const end = () => route[route.length - 1];
+const atSummit = () => end() === map.summit;
+function neighbours(u) {
+  // sorted clockwise from north, so number badges are stable
+  return map.adj[u].map(o => o.to).sort((a, b) => ang(u, a) - ang(u, b));
+}
+function ang(u, v) { const A = map.pts[u], B = map.pts[v]; return (Math.atan2(B.x - A.x, -(B.y - A.y)) + 2 * Math.PI) % (2 * Math.PI); }
+function step(v) {
+  if (phase !== 'play') return;
+  const at = route.indexOf(v);
+  if (at >= 0) { route.length = at + 1; changed(); return; }  // click a junction on the route = cut back to it
+  if (atSummit()) return;
+  if (edgeBetween(map, end(), v) < 0) return;
+  route.push(v); changed();
+  if (atSummit() && K.autoFinish) confirmRoute();
+}
+function undo() { if (phase === 'play' && route.length > 1) { route.pop(); changed(); } }
+function changed() { updateHud(); updateState(); }
+function confirmRoute() {
+  if (phase !== 'play' || !atSummit()) return;
+  tries++;
+  const hers = routeLen(map, route), score = scoreOf(map.best, hers);
+  best = best == null ? score : Math.max(best, score);
+  result = { hers, score, short: map.best, same: route.join() === map.bestRoute.join() };
+  logRows.unshift({ n: tries, map: map.name, score, hers, short: map.best });
+  phase = 'reveal'; viewT = fitView(450);
+  reveal = { t: 0, a: polyOf(route), b: polyOf(map.bestRoute) };
+  if (K.reveal !== 'anim') reveal.t = 99;
+  show(); updateState();
+}
+function polyOf(r) {
+  const out = []; let cum = 0;
+  for (let i = 1; i < r.length; i++) {
+    const e = map.edges[edgeBetween(map, r[i - 1], r[i])], ps = e.a === r[i - 1] ? e.pts : [...e.pts].reverse();
+    for (let k = i === 1 ? 0 : 1; k < ps.length; k++) { if (out.length) cum += Math.hypot(ps[k].x - out[out.length - 1].x, ps[k].y - out[out.length - 1].y); out.push({ ...ps[k], c: cum }); }
+  }
+  return { pts: out, total: cum };
+}
+function finishReveal() { if (phase === 'reveal') { phase = 'result'; reveal.t = 99; show(); updateState(); } }
+
+// ---------- input ----------
+function nodeAt(mx, my, rad) {
+  const w = toW(mx, my); let bi = -1, bd = (rad / view.s) ** 2;
+  map.pts.forEach((p, i) => { const d = (p.x - w.x) ** 2 + (p.y - w.y) ** 2; if (d < bd) { bd = d; bi = i; } });
+  return bi;
+}
+cv.addEventListener('pointerdown', ev => {
+  if (phase !== 'play') return;
+  const v = nodeAt(ev.offsetX, ev.offsetY, 24);
+  if (K.mode !== 'click' && v === end()) { drawing = true; cv.setPointerCapture(ev.pointerId); return; }
+  if (K.mode !== 'draw' && v >= 0) step(v);
+});
+cv.addEventListener('pointermove', ev => {
+  if (!map) return;
+  hover = phase === 'play' ? nodeAt(ev.offsetX, ev.offsetY, 24) : -1;
+  if (drawing && hover >= 0) {
+    if (route.length > 1 && hover === route[route.length - 2]) undo();       // drag back = erase
+    else if (hover !== end() && !route.includes(hover) && edgeBetween(map, end(), hover) >= 0) step(hover);
+  }
+  cv.style.cursor = phase === 'play' && hover >= 0 && (hover === end() || route.includes(hover) || edgeBetween(map, end(), hover) >= 0) ? 'pointer' : 'default';
+});
+cv.addEventListener('pointerup', () => { drawing = false; });
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'F2') { ev.preventDefault(); toggleDbg(); return; }
+  if (ev.target.closest && ev.target.closest('#dbg')) return;
+  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } return; }
+  if (phase === 'exit') { if (ev.key === 'Enter') leave(); else if (ev.key === 'Escape') stay(); return; }
+  if (phase === 'reveal') { ev.preventDefault(); finishReveal(); return; }
+  if (phase === 'result') { if (ev.key === 'Enter') newRound(); else if (ev.key === 'Escape') toHub(); return; }
+  if (phase === 'play') {
+    if (ev.key === 'Escape') { phase = 'exit'; show(); return; }
+    if (ev.key === 'Enter') { ev.preventDefault(); confirmRoute(); return; }
+    if (ev.key === 'Backspace' || ev.key === 'z' || ev.key === 'Z') { ev.preventDefault(); undo(); return; }
+    if (K.numbers && /^[1-9]$/.test(ev.key)) { const nb = numbered(); const v = nb[+ev.key - 1]; if (v != null) step(v); }
+  }
+});
+function numbered() { return atSummit() ? [] : neighbours(end()).filter(v => !route.includes(v)); }
+function leave() { phase = 'start'; route = []; show(); }
+function stay() { phase = 'play'; show(); }
+function toHub() { phase = 'start'; show(); }  // the prototype has no hub; the start screen stands in for it
+
+// ---------- screens / HUD ----------
+const $ = id => document.getElementById(id);
+function show() {
+  $('sStart').hidden = phase !== 'start';
+  $('sExit').hidden = phase !== 'exit';
+  $('sEnd').hidden = phase !== 'result';
+  $('hud').hidden = !(phase === 'play' || phase === 'exit' || phase === 'reveal');
+  $('hHint').style.visibility = phase === 'play' ? 'visible' : 'hidden';
+  if (phase === 'result') fillResult();
+  updateHud(); renderKeys();
+}
+function updateHud() {
+  if (!map) return;
+  $('vMap').textContent = map.name; $('vMapN').textContent = (map.idx + 1) + ' / ' + SET.length;
+  $('vBest').textContent = best == null ? '—' : pct(best);
+  const hops = route.length - 1;
+  if (K.runLen === 'on') { $('vRouteL').textContent = 'Rotan'; $('vRoute').textContent = km(routeLen(map, route)); }
+  else { $('vRouteL').textContent = 'Rotan'; $('vRoute').textContent = hops + ' patika'; }
+  const ready = atSummit();
+  $('hHint').classList.toggle('ready', ready);
+  $('vHint').textContent = ready ? 'Zirvedesin. Rotan hazır mı?' : hops === 0
+    ? (K.mode === 'draw' ? 'Otoparktan basılı tutup patikalar boyunca sürükle' : 'Otoparktan bir sonraki kavşağa tıkla')
+    : 'Zirveye kadar devam et';
+  $('bUndo').disabled = hops === 0; $('bOk').disabled = !ready;
+  $('bOk').style.display = K.autoFinish ? 'none' : '';
+}
+function renderKeys() {
+  const rows = [];
+  if (K.mode !== 'draw') rows.push(['<span>Tık</span>', 'Komşu kavşağa ilerle']);
+  if (K.mode !== 'click') rows.push(['<span>Sürükle</span>', 'Uçtan başlayıp patikalar boyunca çiz, geri sürükleyince silinir']);
+  if (K.numbers) rows.push(['<span>1</span><i>–</i><span>9</span>', 'Numaralı kavşağa ilerle']);
+  rows.push(['<span>⌫</span><i>ya da</i><span>Z</span>', 'Son adımı geri al']);
+  if (!K.autoFinish) rows.push(['<span>Enter</span>', 'Zirvedeyken rotayı onayla']);
+  rows.push(['<span>Esc</span>', 'Turdan çık']);
+  $('keys').innerHTML = rows.map(([k, t]) => `<div class="kbd">${k}</div><div>${t}</div>`).join('');
+}
+function fillResult() {
+  const r = result, win = r.score >= 95;
+  $('eHead').textContent = 'Tur bitti · ' + map.name;
+  $('eScore').textContent = pct(r.score); $('eScore').classList.toggle('win', win);
+  $('eHers').textContent = km(r.hers); $('eShort').textContent = km(r.short);
+  $('eBest').textContent = pct(best); $('eTry').textContent = tries;
+  const more = ((r.hers / r.short - 1) * 100).toFixed(1).replace('.', ',');
+  const v = $('eVerdict'); v.classList.toggle('win', win);
+  v.textContent = r.same ? 'En kısa rotayı buldun!' : win ? `Sadece %${more} daha uzun. %95 tamam!`
+    : `%${more} daha uzun. %95 için en fazla ${km(r.short / 0.95)} gerekiyordu.`;
+}
+$('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = toHub;
+$('bUndo').onclick = undo; $('bOk').onclick = confirmRoute; $('bStay').onclick = stay; $('bLeave').onclick = leave;
+$('toggleDbg').onclick = toggleDbg;
+function toggleDbg() { $('dbg').hidden = !$('dbg').hidden; requestAnimationFrame(resize); }
+
+// ---------- draw ----------
+function strokePoly(pts, upto, color, w) {
+  ctx.beginPath(); let started = false;
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i];
+    if (p.c > upto) {
+      if (i && started) { const q = pts[i - 1], f = (upto - q.c) / (p.c - q.c), s = toS({ x: q.x + (p.x - q.x) * f, y: q.y + (p.y - q.y) * f }); ctx.lineTo(s.x, s.y); }
+      break;
+    }
+    const s = toS(p); started ? ctx.lineTo(s.x, s.y) : ctx.moveTo(s.x, s.y); started = true;
+  }
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = w + 4; ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = w; ctx.stroke();
+}
+function badge(x, y, text, bg, fg, r = 10) {
+  ctx.font = '700 12px Inter, system-ui, sans-serif';
+  const w = Math.max(2 * r, ctx.measureText(text).width + 12);
+  ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(x - w / 2, y - r, w, 2 * r, r); ctx.fill();
+  ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x, y + .5);
+}
+function frame(now) {
+  const dt = Math.min(.05, (now - t0) / 1000); t0 = now;
+  // ease view towards target (the map slides left to make room for the result card)
+  for (const k of ['s', 'x', 'y']) view[k] += (viewT[k] - view[k]) * Math.min(1, dt * 8);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#e6e9d6'; ctx.fillRect(0, 0, cv.clientWidth, cv.clientHeight);
+  if (!map) map = SET[0];
+  ctx.drawImage(map.layer, view.x, view.y, W * view.s, H * view.s);
+  const rs = Math.max(.75, Math.min(1.2, view.s));   // marker size follows zoom, within limits
+  // trail length labels
+  if (K.labels === 'on') for (const e of map.edges) { const s = toS(e.pts[16]); badge(s.x, s.y, (e.len / 1000).toFixed(1).replace('.', ','), 'rgba(255,255,255,.92)', '#5a3a26', 9); }
+  // hover preview in play
+  if (phase === 'play' && hover >= 0 && !atSummit() && !route.includes(hover)) {
+    const ei = edgeBetween(map, end(), hover);
+    if (ei >= 0) { const e = map.edges[ei]; ctx.globalAlpha = .55; strokePoly(polyOf([end(), hover]).pts, Infinity, ORANGE, 6 * rs); ctx.globalAlpha = 1; }
+  }
+  // routes
+  if (phase === 'play' || phase === 'exit') { if (route.length > 1) strokePoly(polyOf(route).pts, Infinity, ORANGE, 6 * rs); }
+  if (reveal) {
+    const sp = 900 * K.revealSpeed;  // world units per second
+    if (phase === 'reveal') reveal.t += dt;
+    const ta = reveal.a.total / sp, tb = K.reveal === 'none' ? 0 : reveal.b.total / sp;
+    const ua = Math.min(reveal.a.total, reveal.t * sp);
+    const ub = K.reveal === 'none' ? 0 : Math.max(0, Math.min(reveal.b.total, (reveal.t - ta - .35) * sp));
+    if (K.reveal !== 'none' && result.same) {
+      strokePoly(reveal.a.pts, ua, GREEN, 7 * rs);
+    } else {
+      strokePoly(reveal.a.pts, ua, ORANGE, 6 * rs);
+      if (ub > 0) { ctx.setLineDash([2, 10 * rs]); strokePoly(reveal.b.pts, ub, GREEN, 6 * rs); ctx.setLineDash([]); }
+    }
+    if (phase === 'reveal' && reveal.t > ta + tb + .8) finishReveal();
+  }
+  // junctions
+  const nb = phase === 'play' ? numbered() : [];
+  map.pts.forEach((p, i) => {
+    if (i === map.start || i === map.summit) return;
+    const s = toS(p), on = route.includes(i) && phase !== 'start';
+    ctx.beginPath(); ctx.arc(s.x, s.y, (on ? 6 : 5) * rs, 0, 7);
+    ctx.fillStyle = on ? ORANGE : '#fff'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = on ? '#fff' : '#5a4636'; ctx.stroke();
+    if (nb.includes(i) && hover === i) { ctx.beginPath(); ctx.arc(s.x, s.y, 12 * rs, 0, 7); ctx.strokeStyle = ORANGE; ctx.lineWidth = 2; ctx.stroke(); }
+  });
+  // start (parking) and summit
+  const S = toS(map.pts[map.start]), Z = toS(map.pts[map.summit]);
+  ctx.fillStyle = '#2f6fd6'; ctx.beginPath(); ctx.roundRect(S.x - 13 * rs, S.y - 13 * rs, 26 * rs, 26 * rs, 6 * rs); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = `800 ${15 * rs}px Inter, system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('P', S.x, S.y + 1);
+  ctx.fillStyle = '#3b2a1e'; ctx.beginPath(); ctx.moveTo(Z.x, Z.y - 15 * rs); ctx.lineTo(Z.x + 14 * rs, Z.y + 10 * rs); ctx.lineTo(Z.x - 14 * rs, Z.y + 10 * rs); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(Z.x, Z.y - 15 * rs); ctx.lineTo(Z.x + 5 * rs, Z.y - 5 * rs); ctx.lineTo(Z.x - 5 * rs, Z.y - 5 * rs); ctx.closePath(); ctx.fill();
+  const tag = (s, txt, dy) => { ctx.font = '700 13px Inter, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.strokeText(txt, s.x, s.y + dy); ctx.fillStyle = '#2b2118'; ctx.fillText(txt, s.x, s.y + dy); };
+  tag(S, 'Otopark', 26 * rs); tag(Z, 'Zirve', 24 * rs);
+  // current end: pulsing ring
+  if (phase === 'play' && !atSummit()) { const e = toS(map.pts[end()]), k = (now / 900) % 1; ctx.beginPath(); ctx.arc(e.x, e.y, (10 + 10 * k) * rs, 0, 7); ctx.strokeStyle = `rgba(232,116,59,${1 - k})`; ctx.lineWidth = 2.5; ctx.stroke(); }
+  // number badges on reachable junctions
+  if (K.numbers && phase === 'play') nb.slice(0, 9).forEach((v, i) => { const s = toS(map.pts[v]); badge(s.x + 14 * rs, s.y - 14 * rs, String(i + 1), ORANGE, '#fff', 9); });
+  requestAnimationFrame(frame);
+}
+
+// ---------- tweak panel ----------
+function knob(host, key, label, min, max, stp, fmt, onchange) {
+  const d = document.createElement('div'); d.className = 'knob';
+  d.innerHTML = `<label>${label}</label><output></output><input type="range" min="${min}" max="${max}" step="${stp}" value="${K[key]}">`;
+  const out = d.querySelector('output'), inp = d.querySelector('input'); out.textContent = fmt(K[key]);
+  inp.oninput = () => { K[key] = +inp.value; out.textContent = fmt(K[key]); };
+  inp.onchange = () => onchange && onchange();
+  $(host).appendChild(d);
+}
+function sel(host, key, label, opts, onchange) {
+  const d = document.createElement('div'); d.className = 'sel';
+  d.innerHTML = `<label>${label}</label><select>${opts.map(([v, t]) => `<option value="${v}" ${K[key] == v ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+  d.querySelector('select').onchange = e => { K[key] = e.target.value; onchange && onchange(); show(); };
+  $(host).appendChild(d);
+}
+function chk(host, key, label, onchange) {
+  const d = document.createElement('label'); d.className = 'chk';
+  d.innerHTML = `<input type="checkbox" ${K[key] ? 'checked' : ''}> ${label}`;
+  d.querySelector('input').onchange = e => { K[key] = e.target.checked; onchange && onchange(); show(); };
+  $(host).appendChild(d);
+}
+function rebuild() {
+  const keepIdx = map ? map.idx : 0; buildSet(); forced = Math.min(forced, SET.length - 1);
+  map = SET[Math.min(keepIdx, SET.length - 1)];
+  if (phase === 'play') { route = [map.start]; changed(); }
+  if (phase === 'result' || phase === 'reveal') { phase = 'start'; show(); }
+  updateState();
+}
+sel('kInput', 'mode', 'Rota girişi', [['click', 'Kavşağa tıkla'], ['draw', 'Sürükleyerek çiz'], ['both', 'İkisi de']]);
+chk('kInput', 'numbers', 'Klavye: komşulara 1–9 numara');
+chk('kInput', 'autoFinish', 'Zirveye varınca otomatik bitir (Enter yok)');
+sel('kShow', 'labels', 'Patika uzunlukları', [['off', 'Gizli (göz kararı)'], ['on', 'Haritada yazılı']]);
+sel('kShow', 'runLen', 'Canlı rota uzunluğu', [['off', 'Gizli (patika sayısı)'], ['on', 'HUD\'da km']], updateHud);
+sel('kShow', 'reveal', 'En kısa rota gösterimi', [['anim', 'Çizilerek (önce seninki)'], ['instant', 'Anında ikisi birden'], ['none', 'Gösterme, sadece km']]);
+knob('kShow', 'revealSpeed', 'Çizim hızı', .3, 3, .1, v => v.toFixed(1) + '×');
+knob('kSet', 'nMaps', 'Harita sayısı', 1, 8, 1, v => v, rebuild);
+knob('kSet', 'nodes', 'Kavşak sayısı', 14, 40, 1, v => v, rebuild);
+knob('kSet', 'wiggle', 'Patika kıvrımı', 0, .45, .01, v => v.toFixed(2), rebuild);
+knob('kSet', 'prune', 'Patika seyreltme', 0, .5, .01, v => v.toFixed(2), rebuild);
+knob('kSet', 'setSeed', 'Set tohumu', 1, 30, 1, v => v, rebuild);
+chk('kSet', 'noRepeat', 'Aynı harita üst üste gelmesin');
+knob('kSim', 'sigma', 'Algı hatası σ', .05, .4, .01, v => v.toFixed(2), rebuild);
+knob('kSim', 'bias', 'Kıvrım farkındalığı', 0, 1, .05, v => v.toFixed(2), rebuild);
+knob('kSim', 'pMin', 'Hedef p alt', 0, .6, .01, v => v.toFixed(2), rebuild);
+knob('kSim', 'pMax', 'Hedef p üst', .05, 1, .01, v => v.toFixed(2), rebuild);
+function renderMapTable() {
+  const rows = SET.map(m => `<tr data-i="${m.idx}" class="${map === m ? 'cur' : ''}"><td>${m.idx + 1}. ${m.name}${forced === m.idx ? ' ●' : ''}</td><td>${m.pts.length}</td><td>${(m.best / 1000).toFixed(1)}</td><td>${m.bestRoute.length - 1}</td><td>${m.w5}</td><td>${m.w15}</td><td>${m.p.toFixed(2)}</td><td>${m.p ? (1 / m.p).toFixed(1) : '∞'}</td></tr>`).join('');
+  $('mapTable').innerHTML = `<tr><th>harita</th><th>kvş</th><th>km</th><th>adım</th><th>≤5%</th><th>5–15</th><th>p</th><th>1/p</th></tr>` + rows;
+  $('mapTable').querySelectorAll('tr[data-i]').forEach(tr => tr.onclick = () => { const i = +tr.dataset.i; forced = forced === i ? -1 : i; if (phase !== 'play') map = SET[i]; renderMapTable(); });
+  const p = SET.reduce((s, m) => s + m.p, 0) / SET.length;
+  const by5 = 1 - SET.reduce((s, m) => s * (1 - m.p), 1) ** (5 / SET.length);
+  $('simSum').innerHTML = `Ortalama p = <b>${p.toFixed(2)}</b> → beklenen ~<b>${p ? (1 / p).toFixed(1) : '∞'}</b> tur.<br>5 turda en az bir %95: <b>${Math.round(by5 * 100)}%</b> (öğrenme hesaba katılmadı; aynı haritayı tekrar görmek işi kolaylaştırır).<br><span class="note">Satıra tıkla: o haritayı sabitle (●). ≤5% = %95 veren farklı rota sayısı.</span>`;
+}
+function updateState() {
+  if (!map) return;
+  const hers = route.length > 1 ? routeLen(map, route) : 0;
+  $('state').textContent = [
+    `phase      ${phase}`,
+    `map        ${map.name} (seed ${map.seed})`,
+    `route      ${route.join(' → ') || '—'}`,
+    `length     ${km(hers)}  (${route.length - 1} patika)`,
+    `shortest   ${km(map.best)}  ${map.bestRoute.join(' → ')}`,
+    `≤95% cap   ${km(map.best / 0.95)}`,
+    `score now  ${atSummit() ? pct(scoreOf(map.best, hers)) : '— (zirvede değil)'}`,
+    `best       ${best == null ? '—' : pct(best)}   tur ${tries}`,
+  ].join('\n');
+  $('log').innerHTML = logRows.map(r => `<li class="${r.score >= 95 ? 'win' : ''}">#${r.n} ${r.map}: ${pct(r.score)}  (${km(r.hers)} / ${km(r.short)})</li>`).join('');
+}
+
+// ---------- boot ----------
+buildSet(); map = SET[0];
+window.addEventListener('resize', resize);
+show(); resize(); updateState();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
