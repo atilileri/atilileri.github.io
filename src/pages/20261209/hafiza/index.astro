@@ -1,0 +1,237 @@
+---
+/**
+ * /20261209/hafiza/ — the memory match, "Hafıza kartları" (#194; spec #192
+ * "Memory match", stories 68–70). The first Game, and the worked example of
+ * a Game inside the Game shell.
+ *
+ * WHAT SHE SEES. A 4×4 grid of our photos, all face down, no preview. She
+ * turns two; alike stay up with a green ring, different stay up for a second
+ * or until her next card. The HUD counts her moves ("Hamle 7"). When the 8
+ * pairs are matched the shell shows the result: ≤14 moves is %100, every
+ * move past that costs 5 (`memoryScore` in `src/lib/bday26/scores.ts`), so
+ * 15 moves is the %95 that wins Mei Wah'da akşam yemeği.
+ *
+ * KEYS. Arrows move a gold ring over the cards, Enter or Space turns the
+ * card under it, a click turns any card and moves the ring there. Esc is the
+ * shell's (it asks first). The shell takes Enter only on its own screens, so
+ * here Enter is simply "turn the card".
+ *
+ * HOW IT IS BUILT. Three layers, each a module of its own:
+ *   - `src/lib/bday26/memory.ts` is the board: the deal (8 of the 21
+ *     squares, each twice, shuffled) and the flip rules. It has no DOM and
+ *     is pinned under `node --test`.
+ *   - `GameShell` (`src/components/bday26/GameShell.astro` + `mountGameShell`
+ *     in `src/lib/bday26/shell.ts`) is everything around the Round, and the
+ *     one call that records it.
+ *   - This page is the painter: 16 buttons rendered at build time, each with
+ *     a back and a front face; the script sets the photos at each deal, flips
+ *     classes from the board's state, runs the 1 s settle timer and the
+ *     cursor, and hands the finished Round to the shell.
+ * The script owns no rule: "which cards are up" and "how many moves" are
+ * always read off the board, and the score is the pure function's.
+ *
+ * Photos come from `src/lib/bday26/photos.ts` (the typed `photos.json`); the
+ * 400 px squares are served from `/20261209/photos/`.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { GAME_ICON } from "../../../lib/bday26/icons";
+
+const game = gameById("hafiza");
+
+const KEYS = [
+  { key: "← ↑ → ↓", does: "Kartlar arasında gez" },
+  { key: "Enter / Boşluk", does: "Kartı çevir" },
+  { key: "Tık", does: "Fareyle de çevirebilirsin" },
+  { key: "Esc", does: "Salona dön" },
+];
+
+const CARDS = Array.from({ length: 16 }, (_, i) => i);
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="hafiza" keys={KEYS}>
+    <span slot="hud">Hamle <b data-moves>0</b></span>
+    <ul class="board" data-board aria-label="Kartlar">
+      {
+        CARDS.map((i) => (
+          <li>
+            <button class="card" type="button" tabindex="-1" data-card={i} aria-label={`Kart ${i + 1}`}>
+              <span class="face back" aria-hidden="true">
+                {GAME_ICON.hafiza}
+              </span>
+              <span class="face front">
+                <img alt="" draggable="false" />
+              </span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { createBoard, dealBoard, type Board } from "../../../lib/bday26/memory";
+  import { memoryScore } from "../../../lib/bday26/scores";
+  import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
+
+  const COLS = 4;
+  const SQUARES = PHOTOS.map((p) => p.square);
+  const cards = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-card]"));
+  const movesEl = document.querySelector<HTMLElement>("[data-moves]");
+  const boardEl = document.querySelector<HTMLElement>("[data-board]");
+  if (!movesEl || !boardEl || cards.length !== 16) throw new Error("bday26 hafiza: the board markup is missing");
+
+  let board: Board = createBoard([]);
+  let cursor = 0;
+  /** The 1 s a wrong pair stays up (spec: "1 s or until the next click"). */
+  let settleTimer = 0;
+
+  function paint() {
+    board.cards.forEach((c, i) => {
+      const el = cards[i]!;
+      el.classList.toggle("up", c.faceUp);
+      el.classList.toggle("matched", c.matched);
+      el.classList.toggle("cursor", i === cursor);
+      el.setAttribute("aria-label", `Kart ${i + 1}${c.matched ? ", eşleşti" : c.faceUp ? ", açık" : ""}`);
+    });
+    movesEl!.textContent = String(board.moves);
+  }
+
+  function startRound() {
+    window.clearTimeout(settleTimer);
+    board = createBoard(dealBoard(SQUARES, Math.random));
+    cursor = 0;
+    board.cards.forEach((c, i) => {
+      const img = cards[i]!.querySelector("img");
+      if (img) img.src = photoUrl(c.photo);
+    });
+    paint();
+  }
+
+  function turn(i: number) {
+    cursor = i;
+    board.flip(i);
+    window.clearTimeout(settleTimer);
+    const loose = board.cards.filter((c) => c.faceUp && !c.matched).length;
+    if (loose === 2) {
+      settleTimer = window.setTimeout(() => {
+        board.settle();
+        paint();
+      }, 1000);
+    }
+    paint();
+    if (board.done) shell.finish(memoryScore(board.moves), { detail: `${board.moves} hamle` });
+  }
+
+  const shell = mountGameShell({
+    game: "hafiza",
+    ledger: openLedger(),
+    hooks: { startRound, abandonRound: () => window.clearTimeout(settleTimer) },
+  });
+
+  boardEl.addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLElement>("[data-card]");
+    if (button) turn(Number(button.dataset.card));
+  });
+
+  // The shell has already taken Esc, and every key on its own screens; what
+  // arrives here is hers to play with.
+  const STEP: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -COLS, ArrowDown: COLS };
+  window.addEventListener("keydown", (event) => {
+    const step = STEP[event.key];
+    if (step != null) {
+      event.preventDefault();
+      const next = cursor + step;
+      const sameRow = Math.floor(next / COLS) === Math.floor(cursor / COLS);
+      if (next < 0 || next >= cards.length || (Math.abs(step) === 1 && !sameRow)) return;
+      cursor = next;
+      paint();
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      turn(cursor);
+    }
+  });
+</script>
+
+<style>
+  .board {
+    --size: min(calc(100vh - 130px), calc(100vw - 80px), 900px);
+    --gap: 14px;
+    width: var(--size);
+    height: var(--size);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: var(--gap);
+  }
+  .board li {
+    min-width: 0;
+    min-height: 0;
+  }
+  .card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    border-radius: 18px;
+    cursor: pointer;
+    perspective: 1000px;
+    outline: none;
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    backface-visibility: hidden;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .back {
+    background:
+      radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.18), transparent 55%),
+      linear-gradient(135deg, var(--bd-accent), var(--bd-accent-deep));
+    color: rgb(255 255 255 / 0.85);
+    font-size: 54px;
+    box-shadow: inset 0 0 0 5px rgb(255 255 255 / 0.22);
+  }
+  .card:hover .back {
+    filter: brightness(1.06);
+  }
+  .front {
+    transform: rotateY(180deg);
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1px var(--bd-line);
+  }
+  .front img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card.up .back {
+    transform: rotateY(180deg);
+  }
+  .card.up .front {
+    transform: rotateY(360deg);
+  }
+  .card.matched .front {
+    box-shadow: 0 0 0 5px var(--bd-won);
+  }
+  .card.cursor::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 25px;
+    border: 4px solid var(--bd-gold);
+    pointer-events: none;
+  }
+</style>
