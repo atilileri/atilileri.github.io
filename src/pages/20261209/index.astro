@@ -618,19 +618,33 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   .gift:hover .gdesc {
     -webkit-line-clamp: 4;
   }
+  /* Price and "N eksik" stacked, the button beside them: two lines at most,
+     so 13 Gifts and a held block fit the column at 1080 without scrolling. */
   .buy {
     flex: none;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 3px;
-    min-width: 72px;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 2px;
+    align-items: center;
+    justify-items: end;
   }
   .price {
+    grid-column: 1;
+    grid-row: 1;
     font-family: var(--bd-display);
     font-weight: 800;
     font-size: 16px;
     line-height: 1;
+  }
+  .short {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .buy .bd-btn {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
   .gift[data-held] .price {
     color: var(--bd-won-ink);
@@ -638,6 +652,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   .short {
     font-size: 11px;
     color: var(--bd-muted-3);
+    white-space: nowrap;
   }
 
   /* ── toast ───────────────────────────────────────────────────── */

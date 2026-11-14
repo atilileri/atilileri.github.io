@@ -187,6 +187,25 @@ test("a Return asks first; confirmed, half the price comes back and the Gift is 
   await expect(returnButton).toBeVisible();
 });
 
+test("the whole hub fits her 1920×1080 screen: no scroll, the shop in view", async ({ page }) => {
+  // A held Gift adds the "Sende olanlar" block, the taller case for the shop.
+  await seed(page, A_LATER_EVENING);
+  await page.goto(HUB);
+  await expect(page.getByText("Sende olanlar")).toBeVisible();
+
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+
+  // The far corners, whole and unscrolled: the last tile, the held Gift at
+  // the top of the shop, and the cheapest Gift still for sale at its bottom.
+  await expect(row(page, "Slot makinesi")).toBeInViewport({ ratio: 1 });
+  await expect(row(page, "Rocky Horror film gecesi")).toBeInViewport({ ratio: 1 });
+  await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
+});
+
 // #195 adds here: "the welcome screen shows once by itself and reopens from
 // the hub". Its seen flag is a separate localStorage key, so seeding progress
 // below must not make it appear.
