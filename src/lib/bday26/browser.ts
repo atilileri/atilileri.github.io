@@ -25,8 +25,14 @@
  * an empty start"). `persist()` is asked once per `navigator.storage` object
  * — in practice once per page load — and never awaited: its answer changes
  * nothing we do.
+ *
+ * THE WELCOME FLAG RIDES ALONG (#195). `openWelcome()` hands the same
+ * guarded `localStorage` to `./welcome.ts`, so the welcome screen's "seen"
+ * flag meets the browser in this one place too. It is a separate key, not
+ * the ledger's, and the two never read each other.
  */
 import { createLedger, type KeyValueStore, type Ledger } from "./ledger.ts";
+import { createWelcome, type Welcome } from "./welcome.ts";
 
 /** What this module reads off `window`. Any of it may be missing or throw. */
 export type BrowserLike = {
@@ -41,6 +47,11 @@ const persistAsked = new WeakSet<object>();
 export function openLedger(win: BrowserLike = window): Ledger {
   askToPersist(win);
   return createLedger(storageOf(win));
+}
+
+/** The welcome screen's "seen" flag on this browser (#195). */
+export function openWelcome(win: BrowserLike = window): Welcome {
+  return createWelcome(storageOf(win));
 }
 
 function askToPersist(win: BrowserLike) {

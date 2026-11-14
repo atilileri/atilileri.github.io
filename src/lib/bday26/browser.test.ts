@@ -9,11 +9,12 @@
  * test opens a ledger the way the hub does and reads what she would see on
  * the next visit. What the spec pins (#193): progress lives in `localStorage`,
  * `navigator.storage.persist()` is asked once, and a browser that blocks
- * storage still gets a working hub.
+ * storage still gets a working hub. #195 adds the welcome screen's flag,
+ * opened on the same browser the same way.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { openLedger, type BrowserLike } from "./browser.ts";
+import { openLedger, openWelcome, type BrowserLike } from "./browser.ts";
 
 /** A browser with working storage. `persisted` counts the persist() calls. */
 function fakeBrowser(): BrowserLike & { persisted: number } {
@@ -63,4 +64,19 @@ test("a browser that blocks storage and has no persist still opens a working hub
   ledger.recordRound("wordle", 96);
   assert.equal(ledger.earned(), 96);
   assert.ok(ledger.buy("rocky").ok === false, "260 is more than 96, so the buy is refused");
+});
+
+test("the welcome she closed on one visit stays closed on the next; a blocked browser shows it again", () => {
+  const browser = fakeBrowser();
+  const firstVisit = openWelcome(browser);
+  assert.equal(firstVisit.shouldShow(), true);
+  firstVisit.markSeen();
+  assert.equal(openWelcome(browser).shouldShow(), false);
+
+  const blocked: BrowserLike = {
+    get localStorage(): never {
+      throw new Error("SecurityError: storage is disabled");
+    },
+  };
+  assert.equal(openWelcome(blocked).shouldShow(), true);
 });
