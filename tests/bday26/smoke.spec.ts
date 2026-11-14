@@ -10,6 +10,9 @@ import { expect, test } from "@playwright/test";
  * Turkish, and that the ledger is really wired to the page — a buy she clicks
  * lowers the Balance she sees, a Return she confirms gives half back. It
  * plays no Game; Game feel is Atıl's by hand (spec, "Testing Decisions").
+ * The last case (#196) walks the Save code the way she would: copy it from
+ * Yedekle, buy, meet the backup prompt, paste a typo and the real code into
+ * Geri yükle, confirm, and find the restore on the next visit.
  *
  * Every assertion reads what she would see or what a crawler would get.
  * Nothing here looks at the ledger's storage shape or the page's DOM
@@ -247,6 +250,57 @@ test("the welcome screen greets her once by itself, and \"Hoş geldin\" reopens 
 
   // Her progress was never touched: still a fresh start behind the welcome.
   await expect(balance(page)).toHaveText(["0", "0"]);
+});
+
+test("Yedekle shows a Save code; a typo is refused; the right code restores her progress after she sees both", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const tools = page.getByRole("navigation", { name: "Araçlar" });
+
+  // Yedekle: one line of URL-safe text in a field she can copy from.
+  await tools.getByRole("button", { name: "Yedekle" }).click();
+  const yedekle = page.getByRole("dialog", { name: "Yedekle" });
+  const codeField = yedekle.getByRole("textbox");
+  await expect(codeField).toHaveValue(/^[A-Za-z0-9_-]{20,}$/);
+  const code = await codeField.inputValue();
+  await yedekle.getByRole("button", { name: "Kapat" }).click();
+  await expect(yedekle).toBeHidden();
+
+  // A buy is followed by the backup prompt, and its button opens Yedekle.
+  await row(page, "Rocky Horror film gecesi").getByRole("button", { name: "Al", exact: true }).click();
+  await expect(balance(page)).toHaveText(["23", "23"]);
+  const prompt = page.getByRole("status").filter({ hasText: "Yedek kodunu" });
+  await expect(prompt).toBeVisible();
+  await prompt.getByRole("button", { name: "Yedekle" }).click();
+  await expect(yedekle).toBeVisible();
+  await yedekle.getByRole("button", { name: "Kapat" }).click();
+
+  // Geri yükle: one character changed is caught, in Turkish.
+  await tools.getByRole("button", { name: "Geri yükle" }).click();
+  const geriYukle = page.getByRole("dialog", { name: "Geri yükle" });
+  const pasteField = geriYukle.getByRole("textbox");
+  const confirm = geriYukle.getByRole("button", { name: "Bununla değiştir" });
+  await pasteField.fill(code.slice(0, 5) + (code[5] === "A" ? "B" : "A") + code.slice(6));
+  await expect(geriYukle.getByText("Bu kod tutmuyor")).toBeVisible();
+  await expect(confirm).toBeDisabled();
+
+  // The code from before the buy: both summaries side by side, then replace.
+  await pasteField.fill(code);
+  await expect(geriYukle.getByText("Bu kod tutmuyor")).toBeHidden();
+  const compare = geriYukle.getByRole("table");
+  await expect(compare.getByRole("row", { name: /^Bakiye/ }).getByRole("cell")).toHaveText(["23", "283"]);
+  await expect(compare.getByRole("row", { name: /^Sendeki hediyeler/ }).getByRole("cell")).toHaveText([
+    "Rocky Horror film gecesi",
+    "—",
+  ]);
+  await confirm.click();
+  await expect(geriYukle).toBeHidden();
+  await expect(balance(page)).toHaveText(["283", "283"]);
+  await expect(page.getByText("Sende olanlar")).toBeHidden();
+
+  // Restored progress is what the next visit finds.
+  await page.reload();
+  await expect(balance(page)).toHaveText(["283", "283"]);
 });
 
 test("a Game opens on its start screen, and a Round she leaves scores nothing (#194)", async ({ page }) => {
