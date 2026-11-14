@@ -52,13 +52,22 @@ const A_LATER_EVENING = {
 };
 
 /** Plant progress for her FIRST visit only: the script runs on every
- *  navigation, and a reload must find what she did, not the seed again. */
+ *  navigation, and a reload must find what she did, not the seed again.
+ *  Progress is not a first visit, so the welcome screen (#195) is planted as
+ *  already seen too — in its own key, as the spec has it — or the modal
+ *  would sit over every tile and button these cases click. */
 async function seed(page: import("@playwright/test").Page, progress: object) {
   await page.addInitScript((p) => {
     if (localStorage.getItem("bday26:v1") == null) {
       localStorage.setItem("bday26:v1", JSON.stringify(p));
     }
+    localStorage.setItem("bday26:welcome", "seen");
   }, progress);
+}
+
+/** The welcome screen, found by the line it opens with (#191, #195). */
+function welcome(page: import("@playwright/test").Page) {
+  return page.getByRole("dialog", { name: "Nice yıllara güzel sevgilim" });
 }
 
 /** The Balance as she sees it: in the strip and in the shop head, agreeing. */
@@ -206,7 +215,36 @@ test("the whole hub fits her 1920×1080 screen: no scroll, the shop in view", as
   await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
 });
 
-// #195 adds here: "the welcome screen shows once by itself and reopens from
-// the hub". Its seen flag is a separate localStorage key, so seeding progress
-// below must not make it appear.
-test.fixme("the welcome screen shows once (#195)", async () => {});
+test("the welcome screen greets her once by itself, and \"Hoş geldin\" reopens it", async ({ page }) => {
+  // A fresh browser, no seed: the first visit. It opens by itself, whole on
+  // her screen, with the one line #191 fixed and a sentence each on Games,
+  // Points and Gifts (the glossary's words; the sentences are Atıl's call).
+  await page.goto(HUB);
+  await expect(welcome(page)).toBeVisible();
+  await expect(welcome(page)).toBeInViewport({ ratio: 1 });
+  await expect(welcome(page).getByRole("heading")).toHaveText("Nice yıllara güzel sevgilim");
+  await expect(welcome(page)).toContainText(/oyun/i);
+  await expect(welcome(page)).toContainText(/puan/i);
+  await expect(welcome(page)).toContainText(/hediye/i);
+
+  // Closed with its button; the second visit does not open it.
+  await welcome(page).getByRole("button").click();
+  await expect(welcome(page)).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "İyi ki doğdun, Çağla!" })).toBeVisible();
+  await expect(welcome(page)).toBeHidden();
+
+  // The hub's link brings it back any time; Esc and Enter both close it.
+  const reopen = page.getByRole("button", { name: "Hoş geldin" });
+  await reopen.click();
+  await expect(welcome(page)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(welcome(page)).toBeHidden();
+  await reopen.click();
+  await expect(welcome(page)).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(welcome(page)).toBeHidden();
+
+  // Her progress was never touched: still a fresh start behind the welcome.
+  await expect(balance(page)).toHaveText(["0", "0"]);
+});
