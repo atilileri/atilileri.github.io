@@ -1,0 +1,532 @@
+---
+/**
+ * /20261209/ — the hub, "Oyun salonu" (#193; spec #192 "Hub"; the look is
+ * the hub prototype's variant A, verdict on #178).
+ *
+ * WHAT SHE SEES. A top strip with her totals (Points earned, Balance, Small
+ * prizes won) and the tools; a 3-column grid of the 11 Game tiles; the Gift
+ * shop as a right column that is always in view, Gifts held at the top.
+ * Each tile: Game name, one-line rule, Best score, the Points it earns, a
+ * progress bar with the 95% mark, and the Small prize on its foot — a lock
+ * and "Rekorun %N · %95 yapınca senin" until it is won, green "Kazandın!"
+ * after. The whole page fits 1920×1080 with no scroll (spec story 12): the
+ * page is a viewport-high grid and only the shop column may scroll inside
+ * itself, in the unlikely state where she holds nearly every Gift.
+ *
+ * HOW IT IS BUILT. Everything that comes from the catalogue is rendered at
+ * build time from `src/lib/bday26/catalogue.ts`: names, rules, prizes,
+ * descriptions, prices. Everything that comes from HER progress is filled by
+ * the client script below, which reads and writes only through the ledger
+ * (`openLedger()` in `src/lib/bday26/browser.ts`) and never computes a rule
+ * of its own: Best scores, Points, bar widths, prize states, the strip, which
+ * Gifts sit in "Sende olanlar", which "Al" buttons are enabled. The script
+ * owns no state; after every buy or Return it re-renders from the ledger.
+ *
+ * The buy button is disabled, not hidden, when the Balance is short (spec
+ * story 20), with "N eksik" beside the price (the prototype's hint). A Return
+ * asks "Emin misin? …" with the Gift's name and the half that comes back
+ * (story 23) through the browser's own confirm(): one dialog, no custom
+ * modal to keep in step with the keyboard.
+ *
+ * PLACEHOLDERS, on purpose: "Hoş geldin" (the welcome screen, #195),
+ * "Yedekle" and "Geri yükle" (the Save code panels, #196) are disabled
+ * buttons until their tickets land; "Belge" links to the Proof page (#197)
+ * and every "Oyna" links to its Game's route, which exists once that Game is
+ * built. The Turkish Game names and one-line rules are the prototype's draft
+ * and are approved or edited by Atıl on #193 — edit them in the catalogue,
+ * not here.
+ */
+import BdayLayout from "../../layouts/BdayLayout.astro";
+import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
+import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
+
+const fmt = (n: number) => n.toLocaleString("tr-TR");
+---
+
+<BdayLayout title="İyi ki doğdun Çağla!">
+  <div class="page">
+    <header class="top">
+      <div class="title-block">
+        <h1 class="title">İyi ki doğdun, Çağla!</h1>
+        <p class="sub">Oyna, rekor kır, puanlarını hediyeye çevir.</p>
+      </div>
+      <dl class="stats">
+        <div class="stat">
+          <dt class="label">Kazandığın</dt>
+          <dd class="stat-value" data-earned>0</dd>
+        </div>
+        <div class="stat" data-main>
+          <dt class="label">Bakiye</dt>
+          <dd class="stat-value"><span data-balance>0</span> <small>puan</small></dd>
+        </div>
+        <div class="stat">
+          <dt class="label">Küçük ödül</dt>
+          <dd class="stat-value"><span data-prizes>0</span><small>/{GAMES.length}</small></dd>
+        </div>
+      </dl>
+      <nav class="tools" aria-label="Araçlar">
+        <button class="bd-btn ghost small" type="button" data-tool="welcome" disabled title="Yakında">Hoş geldin</button>
+        <button class="bd-btn ghost small" type="button" data-tool="yedekle" disabled title="Yakında">Yedekle</button>
+        <button class="bd-btn ghost small" type="button" data-tool="geri-yukle" disabled title="Yakında">Geri yükle</button>
+        <a class="bd-btn ghost small" href="/20261209/belge/">Belge</a>
+      </nav>
+    </header>
+
+    <div class="main">
+      <section class="games" aria-labelledby="games-heading">
+        <h2 class="h2" id="games-heading">
+          Oyunlar <span class="badge"><span data-played>0</span>/{GAMES.length} oynandı</span>
+        </h2>
+        <ul class="grid">
+          {
+            GAMES.map((g) => (
+              <li class="tile" data-game={g.id} data-luck={g.luck || undefined}>
+                <div class="tile-head">
+                  <span class="icon" aria-hidden="true">{GAME_ICON[g.id]}</span>
+                  <div class="tile-name">
+                    <h3 class="name">{g.name}</h3>
+                    <p class="rule">{g.rule}</p>
+                  </div>
+                </div>
+                <div class="score">
+                  <div>
+                    <span class="label">Rekor</span>
+                    <b class="best" data-best>—</b>
+                  </div>
+                  <span class="pts" data-points>{g.luck ? "Puan vermez" : "Henüz oynamadın"}</span>
+                </div>
+                {!g.luck && (
+                  <div class="track" aria-hidden="true">
+                    <div class="fill" data-fill style="width: 0%" />
+                    <div class="mark" style={`left: ${PRIZE_BAR}%`} />
+                  </div>
+                )}
+                <div class="prize">
+                  <span class="prize-icon" aria-hidden="true" data-prize-icon>{PRIZE_LOCKED_ICON}</span>
+                  <div class="prize-text">
+                    <b class="prize-name">{g.prize.name}</b>
+                    <span class="prize-sub" data-prize-sub>
+                      {g.luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`}
+                    </span>
+                  </div>
+                  <a class="bd-btn primary small" href={`/20261209/${g.id}/`}>Oyna</a>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <aside class="shop" aria-labelledby="shop-heading">
+        <div class="shop-head">
+          <h2 class="h2" id="shop-heading">Hediye dükkânı</h2>
+          <span class="shop-bal">Bakiye <b data-balance>0</b></span>
+        </div>
+        <div class="mine" data-mine hidden>
+          <span class="label">Sende olanlar</span>
+          <ul class="gifts" data-mine-list></ul>
+        </div>
+        <ul class="gifts" data-shop-list>
+          {
+            GIFTS.map((g) => (
+              <li class="gift" data-gift={g.id}>
+                <span class="gicon" aria-hidden="true">{GIFT_ICON[g.id]}</span>
+                <div class="gtext">
+                  <b class="gname">{g.name}</b>
+                  <p class="gdesc">{g.desc}</p>
+                </div>
+                <div class="buy">
+                  <b class="price">{fmt(g.price)}</b>
+                  <span class="short" data-short hidden></span>
+                  <button class="bd-btn primary small" type="button" data-buy disabled>Al</button>
+                  <button class="bd-btn secondary small" type="button" data-return hidden>İade et</button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </aside>
+    </div>
+
+    <p class="toast" role="status" aria-live="polite" data-toast></p>
+  </div>
+</BdayLayout>
+
+<style>
+  .page {
+    height: 100vh;
+    padding: 20px 28px 20px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  /* ── top strip ───────────────────────────────────────────────── */
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px dashed var(--bd-dash);
+  }
+  .title {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 34px;
+    line-height: 1.05;
+    color: var(--bd-accent-deep);
+  }
+  .sub {
+    color: var(--bd-muted);
+    font-size: 15px;
+    margin-top: 4px;
+  }
+  .stats {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .stat {
+    background: var(--bd-paper);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow:
+      0 1px 0 #f0dfd9,
+      0 0 0 1px var(--bd-line);
+    min-width: 110px;
+  }
+  .stat[data-main] {
+    background: var(--bd-accent);
+    color: #fff;
+    box-shadow: 0 6px 16px -6px var(--bd-accent);
+  }
+  .stat[data-main] .label {
+    color: var(--bd-accent-pale);
+  }
+  .stat-value {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+  .stat-value small {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.75;
+    margin-left: 2px;
+  }
+  .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bd-muted-2);
+    font-weight: 700;
+  }
+  .tools {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2px 4px;
+  }
+
+  /* ── main: tiles + shop ──────────────────────────────────────── */
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 24px;
+    align-items: stretch;
+    min-height: 0;
+  }
+  .games {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-height: 0;
+  }
+  .h2 {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 21px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: var(--bd-ink);
+  }
+  .badge {
+    font-family: var(--bd-font);
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--bd-accent-deep);
+    background: var(--bd-accent-soft);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 12px;
+    min-height: 0;
+  }
+
+  /* ── tile ────────────────────────────────────────────────────── */
+  .tile {
+    background: var(--bd-paper);
+    border-radius: var(--bd-radius);
+    padding: 12px 14px 0;
+    box-shadow:
+      0 0 0 1px var(--bd-line),
+      0 2px 0 var(--bd-line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+  }
+  .tile[data-won] {
+    box-shadow:
+      0 0 0 2px var(--bd-won),
+      0 4px 14px -6px var(--bd-won);
+  }
+  .tile-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .icon {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 19px;
+    background: var(--bd-accent-soft);
+  }
+  .tile[data-won] .icon {
+    background: var(--bd-won-bg-2);
+  }
+  .tile-name {
+    min-width: 0;
+  }
+  .name {
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1.2;
+  }
+  .rule {
+    font-size: 12px;
+    color: var(--bd-muted);
+    line-height: 1.3;
+  }
+  .score {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+  }
+  .best {
+    display: block;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--bd-ink);
+  }
+  .pts {
+    font-size: 12px;
+    color: var(--bd-muted);
+    font-weight: 700;
+    padding-bottom: 3px;
+  }
+  .track {
+    position: relative;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--bd-track);
+  }
+  .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--bd-gold), var(--bd-accent));
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tile[data-won] .fill {
+    background: linear-gradient(90deg, var(--bd-won-soft), var(--bd-won));
+  }
+  .mark {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--bd-ink);
+    border-radius: 1px;
+  }
+  .prize {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px -14px 0;
+    padding: 9px 14px;
+    border-top: 1px dashed var(--bd-line-dash);
+    border-radius: 0 0 var(--bd-radius) var(--bd-radius);
+    color: var(--bd-muted-2);
+  }
+  .tile[data-won] .prize {
+    background: var(--bd-won-bg);
+    border-top-color: var(--bd-won-line);
+    color: var(--bd-won-ink);
+  }
+  .prize-icon {
+    flex: none;
+    font-size: 16px;
+  }
+  .prize-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .prize-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--bd-ink-soft);
+    line-height: 1.25;
+  }
+  .tile[data-won] .prize-name {
+    color: var(--bd-won-deep);
+  }
+  .prize-sub {
+    font-size: 11.5px;
+  }
+  .tile[data-won] .prize-sub {
+    font-weight: 800;
+  }
+
+  /* ── shop ────────────────────────────────────────────────────── */
+  .shop {
+    background: var(--bd-paper);
+    border-radius: 18px;
+    padding: 14px 16px;
+    box-shadow: 0 0 0 1px var(--bd-line);
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .shop-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .shop-head .h2 {
+    margin-bottom: 6px;
+  }
+  .shop-bal {
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .shop-bal b {
+    color: var(--bd-accent-deep);
+    font-size: 16px;
+  }
+  .mine {
+    background: var(--bd-won-bg);
+    border-radius: 12px;
+    padding: 8px 10px 4px;
+    margin-bottom: 6px;
+  }
+  .mine .label {
+    color: var(--bd-won-ink);
+    margin-bottom: 2px;
+  }
+  .gift {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--bd-line-soft);
+  }
+  .mine .gift {
+    border-bottom: 0;
+  }
+  .gifts > .gift:last-child {
+    border-bottom: 0;
+  }
+  .gicon {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--bd-radius-sm);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+    background: var(--bd-gift-bg);
+  }
+  .gtext {
+    flex: 1;
+    min-width: 0;
+  }
+  .gname {
+    display: block;
+    font-weight: 800;
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+  .gdesc {
+    font-size: 11.5px;
+    color: var(--bd-muted);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .gift:hover .gdesc {
+    -webkit-line-clamp: 4;
+  }
+  .buy {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    min-width: 72px;
+  }
+  .price {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .gift[data-held] .price {
+    color: var(--bd-won-ink);
+  }
+  .short {
+    font-size: 11px;
+    color: var(--bd-muted-3);
+  }
+
+  /* ── toast ───────────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translate(-50%, 8px);
+    background: var(--bd-ink);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+  .toast[data-show] {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+/**
+ * BdayLayout — the one page shell of the birthday games site (/20261209/,
+ * spec #192 "Route and page shell", built on #193). The hub, every Game and
+ * the Proof sit inside it. It deliberately does NOT use `BaseLayout`: no
+ * TopBar, no Footer, no site CSS, no Google Fonts link — the pages are a
+ * hidden present, not part of the site's navigation, and nothing on the
+ * site links to them.
+ *
+ * What the shell decides, once, for all of them:
+ *   - `lang="tr"`: everything she reads is Turkish (glossary, "All text she
+ *     sees is in Turkish").
+ *   - `<meta name="robots" content="noindex, nofollow">`: only people with
+ *     the link find the pages (spec story 13). The sitemap filter in
+ *     `astro.config.mjs` keeps the URLs out of the sitemap too, and the RSS
+ *     feed is built from the blog collection alone, so it never sees them.
+ *   - `src/styles/bday26.css`: the fonts (Nunito, Baloo 2, self-hosted), the
+ *     tokens (pink accent on cream) and the shared buttons.
+ *
+ * The page passes its `<title>`; its own layout lives in its own scoped
+ * <style>, and its client code in its own <script>, which Astro bundles.
+ * The `head` slot is for the odd page that needs more in <head> (the Proof's
+ * print rules, #197).
+ */
+import "../styles/bday26.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

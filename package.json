@@ -11,8 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "test:deck": "playwright test",
-    "test:deck:goldens": "playwright test --update-snapshots",
+    "test:deck": "playwright test --project=chromium",
+    "test:deck:goldens": "playwright test --project=chromium --update-snapshots",
+    "test:smoke": "playwright test --project=bday26",
     "test": "node --test .agents/skills/docent/scripts/*.test.mjs src/lib/bday26/*.test.ts"
   },
   "dependencies": {

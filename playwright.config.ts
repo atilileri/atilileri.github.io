@@ -55,9 +55,25 @@ export default defineConfig({
     video: "off",
   },
   projects: [
+    // The Deck walk and the pointer spec. Scoped by folder so the birthday
+    // smoke below never drags the 20-minute walk along: `npm run test:deck`
+    // runs this project only.
     {
       name: "chromium",
+      testMatch: /asml-ai\/.*\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1600, height: 900 } },
+    },
+    // The birthday games smoke (#193, spec #192 "Testing Decisions", seam 2).
+    // Same preview build, its own project: `npm run test:smoke`. The viewport
+    // is the screen the hub is laid out for, 1920×1080, so "fits with no
+    // scroll" is asserted at the size it was promised for. Each test is a
+    // page load and a few clicks, so the walk's 20-minute budget would only
+    // hide a hang; one minute is plenty.
+    {
+      name: "bday26",
+      testMatch: /bday26\/.*\.spec\.ts/,
+      timeout: 60_000,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 } },
     },
   ],
   webServer: {
