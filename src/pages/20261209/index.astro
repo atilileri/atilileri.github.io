@@ -28,15 +28,19 @@
  * (story 23) through the browser's own confirm(): one dialog, no custom
  * modal to keep in step with the keyboard.
  *
- * PLACEHOLDERS, on purpose: "Hoş geldin" (the welcome screen, #195),
- * "Yedekle" and "Geri yükle" (the Save code panels, #196) are disabled
- * buttons until their tickets land; "Belge" links to the Proof page (#197)
- * and every "Oyna" links to its Game's route, which exists once that Game is
- * built. The Turkish Game names and one-line rules are the prototype's draft
- * and are approved or edited by Atıl on #193 — edit them in the catalogue,
- * not here.
+ * THE WELCOME SCREEN (#195) is `src/components/bday26/Welcome.astro`,
+ * dropped in at the foot of the page: it opens by itself on her first visit
+ * and from the "Hoş geldin" button here (`data-open-welcome`) after that.
+ *
+ * PLACEHOLDERS, on purpose: "Yedekle" and "Geri yükle" (the Save code
+ * panels, #196) are disabled buttons until their ticket lands; "Belge" links
+ * to the Proof page (#197) and every "Oyna" links to its Game's route, which
+ * exists once that Game is built. The Turkish Game names and one-line rules
+ * are the prototype's draft and are approved or edited by Atıl on #193 —
+ * edit them in the catalogue, not here.
  */
 import BdayLayout from "../../layouts/BdayLayout.astro";
+import Welcome from "../../components/bday26/Welcome.astro";
 import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
 import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
 
@@ -65,7 +69,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         </div>
       </dl>
       <nav class="tools" aria-label="Araçlar">
-        <button class="bd-btn ghost small" type="button" data-tool="welcome" disabled title="Yakında">Hoş geldin</button>
+        <button class="bd-btn ghost small" type="button" data-open-welcome>Hoş geldin</button>
         <button class="bd-btn ghost small" type="button" data-tool="yedekle" disabled title="Yakında">Yedekle</button>
         <button class="bd-btn ghost small" type="button" data-tool="geri-yukle" disabled title="Yakında">Geri yükle</button>
         <a class="bd-btn ghost small" href="/20261209/belge/">Belge</a>
@@ -150,6 +154,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
 
     <p class="toast" role="status" aria-live="polite" data-toast></p>
   </div>
+  <Welcome />
 </BdayLayout>
 
 <script>

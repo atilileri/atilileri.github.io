@@ -4,10 +4,10 @@
  * evening grilling).
  *
  * WHAT IT ANSWERS. One question the hub asks on every load — should the
- * welcome screen open by itself? — and one fact the hub reports when she
- * closes it. The first visit shows it; from then on the "Hoş geldin" button
- * on the hub is the only way it opens. No date lock: the first visit is the
- * first visit, whenever it happens (#191).
+ * welcome screen open by itself? — and one fact the hub reports the moment
+ * it has: it opened once. The first visit shows it; from then on the "Hoş
+ * geldin" button on the hub is the only way it opens. No date lock: the
+ * first visit is the first visit, whenever it happens (#191).
  *
  * IT IS NOT PROGRESS. The flag is UI state, so it lives in its own
  * `localStorage` key, `bday26:welcome`, never inside the progress state
@@ -33,9 +33,9 @@ export const WELCOME_KEY = "bday26:welcome";
 const SEEN = "seen";
 
 export type Welcome = {
-  /** True until she has closed the welcome screen once on this browser. */
+  /** True until the welcome screen has opened by itself once on this browser. */
   shouldShow(): boolean;
-  /** She closed it: from now on only the hub's button opens it. */
+  /** It has opened: from now on only the hub's button opens it. */
   markSeen(): void;
 };
 
