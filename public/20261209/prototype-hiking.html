@@ -5,7 +5,9 @@
   vs. snapped drawing, how the shortest route is revealed, how many maps are in
   the set, and how the maps are sized so "at most ~5% longer than the
   shortest" (score >= 95%) takes about 5 focused Rounds.
-  Score (from #174): shortest length / her length.
+  Score: #174 said shortest / her length; after Atil's first play it became
+  forgiving: up to 10% longer = 100%, then -1 point per 1% over (panel knobs).
+  Defaults after that play: trail km printed on the map, live km in the HUD.
   The playable mechanic is plain canvas JS; the screens around it (start,
   HUD, result) follow stageshow's craft rules in plain CSS, because the kit is
   React/TS and this must be one self-contained file. F2 opens the tweak panel.
@@ -149,9 +151,9 @@ table.maps tr{cursor:pointer}
   <div class="screen" id="sStart">
     <div class="card">
       <div class="title">Yürüyüş Haritası</div>
-      <p>Otoparktan zirveye giden en kısa patikayı bul. Patikalar kıvrımlı; göz kararı dikkatli seç.</p>
+      <p id="intro"></p>
       <div class="keys" id="keys"></div>
-      <div class="foot"><div class="goal">Skor = en kısa ÷ senin rotan. <b>%95</b> ve üstü: Küçük ödül</div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
+      <div class="foot"><div class="goal" id="goalTxt"></div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
     </div>
   </div>
 
@@ -171,6 +173,7 @@ table.maps tr{cursor:pointer}
         <div><i style="background:#e8743b"></i>Senin rotan<b id="eHers">0 km</b></div>
         <div id="eShortRow"><i style="background:#2f9e5b"></i>En kısa rota<b id="eShort">0 km</b></div>
       </div>
+      <div class="note" id="eRule" style="margin-top:10px;font-size:12.5px"></div>
       <div class="meta"><span>Rekor <b id="eBest">%0</b></span><span>Hedef <b>%95</b></span><span>Tur <b id="eTry">1</b></span></div>
       <div class="verdict" id="eVerdict"></div>
       <div class="foot"><span></span><div class="grp"><button class="btn sec" id="bHub">Salona dön <small>Esc</small></button><button class="btn" id="bAgain">Yeni tur <small>Enter</small></button></div></div>
@@ -183,8 +186,9 @@ table.maps tr{cursor:pointer}
   <section><h3>Giriş</h3><div id="kInput"></div></section>
   <section><h3>Gösterim</h3><div id="kShow"></div></section>
   <section><h3>Harita seti</h3><div id="kSet"></div><p class="note">Değişince set yeniden üretilir (sabit tohumlar: aynı ayar = aynı haritalar).</p></section>
+  <section><h3>Skor kuralı</h3><div id="kRule"></div></section>
   <section><h3>Ayar: %95 kaç turda?</h3><div id="kSim"></div>
-    <p class="note">Simüle oyuncu her patikayı (kiriş + farkındalık × kıvrım) × e^(σ·N) uzunlukta algılar ve algısına göre en kısa rotayı seçer. p = bir turda %95+ olasılığı (300 deneme). Set kurulurken p bandı dışındaki haritalar atlanır.</p>
+    <p class="note">Simüle oyuncu her patikanın uzunluğunu bir hatayla algılar ve algısına göre en kısa rotayı seçer (300 deneme). Yazılı km: uzunluk × e^(σ·N), toplama hatası. Göz kararı: (kiriş + farkındalık × kıvrım) × e^(σ·N). p = bir turda %95+ olasılığı, açık olan gösterime göre. «Düz» = hep zirveye en yakın kavşağa giden oyuncunun skoru. Harita seçimi: en az 5 patika, «düz» %95'in altında (kutu açıksa), göz kararında ayrıca p bandı.</p>
     <table class="maps" id="mapTable"></table><div class="sum" id="simSum"></div>
   </section>
   <section><h3>Durum</h3><pre id="state"></pre></section>
@@ -198,12 +202,13 @@ const K = {
   mode: 'click',        // click | draw | both
   numbers: true,        // number badges on reachable junctions (keys 1–9)
   autoFinish: false,    // reaching the summit ends the Round without Enter
-  runLen: 'off',        // live length in HUD: off | on
-  labels: 'off',        // trail length labels on the map: off | on
+  runLen: 'on',         // live length in HUD: off | on
+  labels: 'on',         // trail length labels on the map: off | on
+  margin: 10, rate: 1,  // score: 100% up to margin % longer, then -rate points per 1% over
   reveal: 'anim',       // anim | instant | none
   revealSpeed: 1,
   nMaps: 5, setSeed: 1, nodes: 26, wiggle: 0.3, prune: 0.15, noRepeat: true,
-  sigma: 0.35, bias: 0.25, pMin: 0.12, pMax: 0.30,
+  sigma: 0.35, bias: 0.25, sigmaLab: 0.10, noGreedy: true, pMin: 0.12, pMax: 0.30,
 };
 const W = 1600, H = 900, MPU = 5;    // world units; metres per unit
 const NAMES = ['Kartal Tepesi', 'Çam Sırtı', 'Sisli Doruk', 'Kızılkaya', 'Ayı Yaylası', 'Rüzgârlı Sırt', 'Yıldız Doruğu', 'Göl Tepe'];
@@ -287,41 +292,66 @@ function dijkstra(map, from, w) {
 function pathTo(prev, t) { const p = []; for (let v = t; v >= 0; v = prev[v]) p.unshift(v); return p; }
 function edgeBetween(map, a, b) { const x = map.adj[a].find(o => o.to === b); return x ? x.e : -1; }
 function routeLen(map, route) { let s = 0; for (let i = 1; i < route.length; i++) s += map.edges[edgeBetween(map, route[i - 1], route[i])].len; return s; }
-const scoreOf = (best, hers) => Math.floor(100 * best / hers + 1e-9);
+// Score rule (Atıl, after playing): up to K.margin % longer than the shortest = 100%;
+// past that, -K.rate points per 1% over the margin, rounded down, floor 0.
+const overPct = (best, hers) => (hers / best - 1) * 100;
+const scoreOf = (best, hers) => { const o = overPct(best, hers) - K.margin; return o <= 1e-9 ? 100 : Math.max(0, Math.floor(100 - K.rate * o + 1e-9)); };
+const cap95 = best => best * (1 + (K.margin + 5 / K.rate) / 100);   // longest route that still scores 95%
+function greedyRoute(map) {
+  // a player who always heads for the junction closest to the summit (straight line)
+  const Z = map.pts[map.summit], r = [map.start], dead = new Set();
+  for (let g = 0; g < 200 && r[r.length - 1] !== map.summit; g++) {
+    const u = r[r.length - 1], nb = map.adj[u].map(o => o.to).filter(v => !r.includes(v) && !dead.has(v));
+    if (!nb.length) { dead.add(r.pop()); if (!r.length) return null; continue; }
+    nb.sort((a, b) => Math.hypot(map.pts[a].x - Z.x, map.pts[a].y - Z.y) - Math.hypot(map.pts[b].x - Z.x, map.pts[b].y - Z.y));
+    r.push(nb[0]);
+  }
+  return r;
+}
+function simP(map, perceive, salt) {
+  const r = mulberry32(map.seed ^ salt), N = 300; let ok = 0;
+  for (let t = 0; t < N; t++) {
+    const per = map.edges.map(e => perceive(e, r));
+    const res = dijkstra(map, map.start, e => per[e]);
+    if (scoreOf(map.best, routeLen(map, pathTo(res.prev, map.summit))) >= 95) ok++;
+  }
+  return ok / N;
+}
 function analyse(map) {
   const { d, prev } = dijkstra(map, map.start, e => map.edges[e].len);
   map.best = d[map.summit]; map.bestRoute = pathTo(prev, map.summit);
-  // count distinct simple routes up to +15%
-  const dT = dijkstra(map, map.summit, e => map.edges[e].len).d, lim = map.best * 1.15;
-  const seen = new Uint8Array(map.pts.length); let w5 = 0, w15 = 0, steps = 0;
+  // count distinct simple routes that still score 95%+
+  const dT = dijkstra(map, map.summit, e => map.edges[e].len).d, lim = cap95(map.best);
+  const seen = new Uint8Array(map.pts.length); let w95 = 0, steps = 0;
   (function dfs(u, cur) {
-    if (++steps > 40000) return;
-    if (u === map.summit) { if (scoreOf(map.best, cur) >= 95) w5++; else w15++; return; }
+    if (++steps > 60000) return;
+    if (u === map.summit) { w95++; return; }
     seen[u] = 1;
     for (const { to, e } of map.adj[u]) if (!seen[to] && cur + map.edges[e].len + dT[to] <= lim) dfs(to, cur + map.edges[e].len);
     seen[u] = 0;
   })(map.start, 0);
-  map.w5 = w5; map.w15 = w15;
-  // simulated focused player
-  const r = mulberry32(map.seed ^ 0x9e37), N = 300; let ok = 0;
-  for (let t = 0; t < N; t++) {
-    const per = map.edges.map(e => (e.chord + K.bias * (e.len - e.chord)) * Math.exp(K.sigma * gauss(r)));
-    const res = dijkstra(map, map.start, e => per[e]);
-    if (scoreOf(map.best, routeLen(map, pathTo(res.prev, map.summit))) >= 95) ok++;
-  }
-  map.p = ok / N;
+  map.w95 = w95;
+  const gr = greedyRoute(map); map.greedy = gr ? scoreOf(map.best, routeLen(map, gr)) : 0;
+  // simulated focused players: one reading the printed km (sums with slips), one judging by eye
+  map.pLab = simP(map, (e, r) => e.len * Math.exp(K.sigmaLab * gauss(r)), 0x51ab);
+  map.pEye = simP(map, (e, r) => (e.chord + K.bias * (e.len - e.chord)) * Math.exp(K.sigma * gauss(r)), 0x9e37);
+  map.p = K.labels === 'on' ? map.pLab : map.pEye;
 }
 let SET = [];
+let bandMiss = 0;
 function buildSet() {
-  SET = [];
+  SET = []; bandMiss = 0;
+  const band = K.labels === 'off';   // with printed km p is ~1 everywhere, so the band cannot apply
   for (let i = 0; i < K.nMaps; i++) {
     let pick = null, bestGap = Infinity;
     for (let k = 0; k < 60; k++) {
       const m = genMap(K.setSeed * 7919 + i * 101 + k);
-      const good = m.p >= K.pMin && m.p <= K.pMax && m.w5 <= 3 && m.bestRoute.length >= 5;
-      if (good) { pick = m; break; }
-      const gap = Math.abs(m.p - (K.pMin + K.pMax) / 2); if (gap < bestGap) { bestGap = gap; pick = m; }
+      // "reasonable": a real walk (5+ trails), and heading straight for the summit does not win by itself
+      const sane = m.bestRoute.length >= 6 && (!K.noGreedy || m.greedy < 95);
+      if (sane && (!band || (m.p >= K.pMin && m.p <= K.pMax))) { pick = m; bestGap = 0; break; }
+      const gap = (band ? Math.abs(m.p - (K.pMin + K.pMax) / 2) : 0) + (sane ? 0 : 1); if (gap < bestGap) { bestGap = gap; pick = m; }
     }
+    if (bestGap > 0) bandMiss++;
     pick.name = NAMES[i % NAMES.length]; pick.idx = i;
     SET.push(pick);
   }
@@ -509,7 +539,10 @@ function updateHud() {
   $('bUndo').disabled = hops === 0; $('bOk').disabled = !ready;
   $('bOk').style.display = K.autoFinish ? 'none' : '';
 }
+function ruleText() { return `Skor: en kısanın %${K.margin} fazlasına kadar %100, sonrası her %1 için −${K.rate} puan.`; }
 function renderKeys() {
+  $('intro').textContent = 'Otoparktan zirveye giden en kısa patikayı bul. ' + (K.labels === 'on' ? 'Her patikanın uzunluğu haritada yazılı.' : 'Patikalar kıvrımlı; göz kararı dikkatli seç.');
+  $('goalTxt').innerHTML = ruleText() + ' <b>%95</b> ve üstü: Küçük ödül';
   const rows = [];
   if (K.mode !== 'draw') rows.push(['<span>Tık</span>', 'Komşu kavşağa ilerle']);
   if (K.mode !== 'click') rows.push(['<span>Sürükle</span>', 'Uçtan başlayıp patikalar boyunca çiz, geri sürükleyince silinir']);
@@ -527,8 +560,9 @@ function fillResult() {
   $('eBest').textContent = pct(best); $('eTry').textContent = tries;
   const more = ((r.hers / r.short - 1) * 100).toFixed(1).replace('.', ',');
   const v = $('eVerdict'); v.classList.toggle('win', win);
-  v.textContent = r.same ? 'En kısa rotayı buldun!' : win ? `Sadece %${more} daha uzun. %95 tamam!`
-    : `%${more} daha uzun. %95 için en fazla ${km(r.short / 0.95)} gerekiyordu.`;
+  v.textContent = r.same ? 'En kısa rotayı buldun!' : r.score === 100 ? `%${more} daha uzun, pay içinde: %100!` : win ? `%${more} daha uzun. %95 tamam!`
+    : `%${more} daha uzun. %95 için en fazla ${km(Math.floor(cap95(r.short) / 100) * 100)} gerekiyordu.`;
+  $('eRule').textContent = ruleText();
 }
 $('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = toHub;
 $('bUndo').onclick = undo; $('bOk').onclick = confirmRoute; $('bStay').onclick = stay; $('bLeave').onclick = leave;
@@ -565,8 +599,6 @@ function frame(now) {
   if (!map) map = SET[0];
   ctx.drawImage(map.layer, view.x, view.y, W * view.s, H * view.s);
   const rs = Math.max(.75, Math.min(1.2, view.s));   // marker size follows zoom, within limits
-  // trail length labels
-  if (K.labels === 'on') for (const e of map.edges) { const s = toS(e.pts[16]); badge(s.x, s.y, (e.len / 1000).toFixed(1).replace('.', ','), 'rgba(255,255,255,.92)', '#5a3a26', 9); }
   // hover preview in play
   if (phase === 'play' && hover >= 0 && !atSummit() && !route.includes(hover)) {
     const ei = edgeBetween(map, end(), hover);
@@ -588,6 +620,8 @@ function frame(now) {
     }
     if (phase === 'reveal' && reveal.t > ta + tb + .8) finishReveal();
   }
+  // trail length labels (over the routes, so they stay readable)
+  if (K.labels === 'on') for (const e of map.edges) { const s = toS(e.pts[16]); badge(s.x, s.y, (e.len / 1000).toFixed(1).replace('.', ','), 'rgba(255,255,255,.92)', '#5a3a26', 9); }
   // junctions
   const nb = phase === 'play' ? numbered() : [];
   map.pts.forEach((p, i) => {
@@ -645,7 +679,7 @@ function rebuild() {
 sel('kInput', 'mode', 'Rota girişi', [['click', 'Kavşağa tıkla'], ['draw', 'Sürükleyerek çiz'], ['both', 'İkisi de']]);
 chk('kInput', 'numbers', 'Klavye: komşulara 1–9 numara');
 chk('kInput', 'autoFinish', 'Zirveye varınca otomatik bitir (Enter yok)');
-sel('kShow', 'labels', 'Patika uzunlukları', [['off', 'Gizli (göz kararı)'], ['on', 'Haritada yazılı']]);
+sel('kShow', 'labels', 'Patika uzunlukları', [['off', 'Gizli (göz kararı)'], ['on', 'Haritada yazılı']], rebuild);
 sel('kShow', 'runLen', 'Canlı rota uzunluğu', [['off', 'Gizli (patika sayısı)'], ['on', 'HUD\'da km']], updateHud);
 sel('kShow', 'reveal', 'En kısa rota gösterimi', [['anim', 'Çizilerek (önce seninki)'], ['instant', 'Anında ikisi birden'], ['none', 'Gösterme, sadece km']]);
 knob('kShow', 'revealSpeed', 'Çizim hızı', .3, 3, .1, v => v.toFixed(1) + '×');
@@ -655,17 +689,21 @@ knob('kSet', 'wiggle', 'Patika kıvrımı', 0, .45, .01, v => v.toFixed(2), rebu
 knob('kSet', 'prune', 'Patika seyreltme', 0, .5, .01, v => v.toFixed(2), rebuild);
 knob('kSet', 'setSeed', 'Set tohumu', 1, 30, 1, v => v, rebuild);
 chk('kSet', 'noRepeat', 'Aynı harita üst üste gelmesin');
-knob('kSim', 'sigma', 'Algı hatası σ', .05, .4, .01, v => v.toFixed(2), rebuild);
+knob('kRule', 'margin', 'Pay: %100 kalan fazlalık', 0, 25, 1, v => '%' + v, () => { rebuild(); show(); });
+knob('kRule', 'rate', 'Pay sonrası düşüş (puan / %1)', .5, 5, .5, v => v.toFixed(1), () => { rebuild(); show(); });
+knob('kSim', 'sigmaLab', 'Hesap hatası σ (yazılı km)', 0, .5, .01, v => v.toFixed(2), rebuild);
+knob('kSim', 'sigma', 'Algı hatası σ (göz kararı)', .05, .6, .01, v => v.toFixed(2), rebuild);
 knob('kSim', 'bias', 'Kıvrım farkındalığı', 0, 1, .05, v => v.toFixed(2), rebuild);
-knob('kSim', 'pMin', 'Hedef p alt', 0, .6, .01, v => v.toFixed(2), rebuild);
-knob('kSim', 'pMax', 'Hedef p üst', .05, 1, .01, v => v.toFixed(2), rebuild);
+chk('kSim', 'noGreedy', 'Zirveye düz gitmek %95 vermesin', rebuild);
+knob('kSim', 'pMin', 'Hedef p alt (sadece göz kararı)', 0, .6, .01, v => v.toFixed(2), rebuild);
+knob('kSim', 'pMax', 'Hedef p üst (sadece göz kararı)', .05, 1, .01, v => v.toFixed(2), rebuild);
 function renderMapTable() {
-  const rows = SET.map(m => `<tr data-i="${m.idx}" class="${map === m ? 'cur' : ''}"><td>${m.idx + 1}. ${m.name}${forced === m.idx ? ' ●' : ''}</td><td>${m.pts.length}</td><td>${(m.best / 1000).toFixed(1)}</td><td>${m.bestRoute.length - 1}</td><td>${m.w5}</td><td>${m.w15}</td><td>${m.p.toFixed(2)}</td><td>${m.p ? (1 / m.p).toFixed(1) : '∞'}</td></tr>`).join('');
-  $('mapTable').innerHTML = `<tr><th>harita</th><th>kvş</th><th>km</th><th>adım</th><th>≤5%</th><th>5–15</th><th>p</th><th>1/p</th></tr>` + rows;
+  const rows = SET.map(m => `<tr data-i="${m.idx}" class="${map === m ? 'cur' : ''}"><td>${m.idx + 1}. ${m.name}${forced === m.idx ? ' ●' : ''}</td><td>${(m.best / 1000).toFixed(1)}</td><td>${m.bestRoute.length - 1}</td><td>${m.w95}</td><td>${m.greedy}</td><td>${m.pLab.toFixed(2)}</td><td>${m.pEye.toFixed(2)}</td></tr>`).join('');
+  $('mapTable').innerHTML = `<tr><th>harita</th><th>km</th><th>adım</th><th>≥95 rota</th><th>düz</th><th>p yazılı</th><th>p göz</th></tr>` + rows;
   $('mapTable').querySelectorAll('tr[data-i]').forEach(tr => tr.onclick = () => { const i = +tr.dataset.i; forced = forced === i ? -1 : i; if (phase !== 'play') map = SET[i]; renderMapTable(); });
   const p = SET.reduce((s, m) => s + m.p, 0) / SET.length;
   const by5 = 1 - SET.reduce((s, m) => s * (1 - m.p), 1) ** (5 / SET.length);
-  $('simSum').innerHTML = `Ortalama p = <b>${p.toFixed(2)}</b> → beklenen ~<b>${p ? (1 / p).toFixed(1) : '∞'}</b> tur.<br>5 turda en az bir %95: <b>${Math.round(by5 * 100)}%</b> (öğrenme hesaba katılmadı; aynı haritayı tekrar görmek işi kolaylaştırır).<br><span class="note">Satıra tıkla: o haritayı sabitle (●). ≤5% = %95 veren farklı rota sayısı.</span>`;
+  $('simSum').innerHTML = `Ortalama p = <b>${p.toFixed(2)}</b> → beklenen ~<b>${p ? (1 / p).toFixed(1) : '∞'}</b> tur.<br>5 turda en az bir %95: <b>${Math.round(by5 * 100)}%</b> (öğrenme hesaba katılmadı).${bandMiss ? `<br><b>${bandMiss}/${SET.length}</b> harita hedef bandına ya da düz kuralına uymadı; en yakın aday alındı.` : ''}${p > .6 ? '<br><b>%95 ilk turda neredeyse kesin:</b> bu ayarlarla «~5 tur» tutmuyor.' : ''}<br><span class="note">Satıra tıkla: o haritayı sabitle (●). ≥95 rota = %95 veren farklı rota sayısı.</span>`;
 }
 function updateState() {
   if (!map) return;
@@ -676,7 +714,7 @@ function updateState() {
     `route      ${route.join(' → ') || '—'}`,
     `length     ${km(hers)}  (${route.length - 1} patika)`,
     `shortest   ${km(map.best)}  ${map.bestRoute.join(' → ')}`,
-    `≤95% cap   ${km(map.best / 0.95)}`,
+    `95% cap    ${km(cap95(map.best))}  (100% up to ${km(map.best * (1 + K.margin / 100))})`,
     `score now  ${atSummit() ? pct(scoreOf(map.best, hers)) : '— (zirvede değil)'}`,
     `best       ${best == null ? '—' : pct(best)}   tur ${tries}`,
   ].join('\n');
