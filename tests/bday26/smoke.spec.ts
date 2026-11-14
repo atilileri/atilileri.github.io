@@ -39,12 +39,23 @@ const AN_EVENING = {
   log: [],
 };
 
+/** Plant progress for her FIRST visit only: the script runs on every
+ *  navigation, and a reload must find what she did, not the seed again. */
 async function seed(page: import("@playwright/test").Page, progress: object) {
-  await page.addInitScript((p) => localStorage.setItem("bday26:v1", JSON.stringify(p)), progress);
+  await page.addInitScript((p) => {
+    if (localStorage.getItem("bday26:v1") == null) {
+      localStorage.setItem("bday26:v1", JSON.stringify(p));
+    }
+  }, progress);
 }
 
-/** The tile of one Game, found the way she finds it: by its name. */
-function tile(page: import("@playwright/test").Page, name: string) {
+/** The Balance as she sees it: in the strip and in the shop head, agreeing. */
+function balance(page: import("@playwright/test").Page) {
+  return page.locator('[data-stat="balance"]');
+}
+
+/** A Game's tile or a Gift's row, found the way she finds it: by its name. */
+function row(page: import("@playwright/test").Page, name: string) {
   return page.getByRole("listitem").filter({ hasText: name });
 }
 
@@ -77,27 +88,56 @@ test("her progress shows on the tiles and in the strip", async ({ page }) => {
   await expect(page.getByText("4/11 oynandı")).toBeVisible();
 
   // A won Small prize is green and says so; a locked one names the gap.
-  await expect(tile(page, "Hafıza kartları")).toContainText("%100");
-  await expect(tile(page, "Hafıza kartları")).toContainText("100 puan");
-  await expect(tile(page, "Hafıza kartları")).toContainText("Kazandın!");
-  await expect(tile(page, "Milyoner")).toContainText("%88");
-  await expect(tile(page, "Milyoner")).toContainText("88 puan");
-  await expect(tile(page, "Milyoner")).toContainText("Rekorun %88 · %95 yapınca senin");
+  await expect(row(page, "Hafıza kartları")).toContainText("%100");
+  await expect(row(page, "Hafıza kartları")).toContainText("100 puan");
+  await expect(row(page, "Hafıza kartları")).toContainText("Kazandın!");
+  await expect(row(page, "Milyoner")).toContainText("%88");
+  await expect(row(page, "Milyoner")).toContainText("88 puan");
+  await expect(row(page, "Milyoner")).toContainText("Rekorun %88 · %95 yapınca senin");
 
   // 95.5 is written as %95 and earns 95 Points; it is over the bar.
-  await expect(tile(page, "Kelime avı")).toContainText("%95");
-  await expect(tile(page, "Kelime avı")).toContainText("95 puan");
-  await expect(tile(page, "Kelime avı")).toContainText("Kazandın!");
+  await expect(row(page, "Kelime avı")).toContainText("%95");
+  await expect(row(page, "Kelime avı")).toContainText("95 puan");
+  await expect(row(page, "Kelime avı")).toContainText("Kazandın!");
 
   // The slot machine: a score but no Points, the prize from the jackpot.
-  await expect(tile(page, "Slot makinesi")).toContainText("%40");
-  await expect(tile(page, "Slot makinesi")).toContainText("Puan vermez");
-  await expect(tile(page, "Slot makinesi")).toContainText("Kazandın!");
+  await expect(row(page, "Slot makinesi")).toContainText("%40");
+  await expect(row(page, "Slot makinesi")).toContainText("Puan vermez");
+  await expect(row(page, "Slot makinesi")).toContainText("Kazandın!");
 
   // Never played.
-  await expect(tile(page, "Piyano")).toContainText("Henüz oynamadın");
-  await expect(tile(page, "Piyano")).toContainText("%95 yapınca senin");
-  await expect(tile(page, "Piyano")).not.toContainText("Rekorun");
+  await expect(row(page, "Piyano")).toContainText("Henüz oynamadın");
+  await expect(row(page, "Piyano")).toContainText("%95 yapınca senin");
+  await expect(row(page, "Piyano")).not.toContainText("Rekorun");
+});
+
+test("a buy she can afford lowers the Balance at once, and survives a reload", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  await expect(balance(page)).toHaveText(["283", "283"]);
+
+  // 290 > 283: the button is there, but cannot be pressed, and says why.
+  const kurs = row(page, "Online fotoğraf kursu");
+  await expect(kurs.getByRole("button", { name: "Al", exact: true })).toBeDisabled();
+  await expect(kurs).toContainText("7 eksik");
+
+  // 260 ≤ 283: bought. The price leaves the Balance now, the Gift moves up.
+  const rocky = row(page, "Rocky Horror film gecesi");
+  await rocky.getByRole("button", { name: "Al", exact: true }).click();
+  await expect(balance(page)).toHaveText(["23", "23"]);
+  await expect(page.getByText("Sende olanlar")).toBeVisible();
+  await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
+  await expect(rocky.getByRole("button", { name: "Al", exact: true })).toBeHidden();
+
+  // 23 buys nothing: every "Al" left is disabled.
+  for (const al of await page.getByRole("button", { name: "Al", exact: true }).all()) {
+    await expect(al).toBeDisabled();
+  }
+
+  // The next visit finds the buy, not the seed.
+  await page.reload();
+  await expect(balance(page)).toHaveText(["23", "23"]);
+  await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
 });
 
 // #195 adds here: "the welcome screen shows once by itself and reopens from

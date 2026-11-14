@@ -117,7 +117,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         </ul>
       </section>
 
-      <aside class="shop" aria-labelledby="shop-heading">
+      <aside class="shop" aria-labelledby="shop-heading" data-shop>
         <div class="shop-head">
           <h2 class="h2" id="shop-heading">Hediye dükkânı</h2>
           <span class="shop-bal">Bakiye <b data-stat="balance">0</b></span>
@@ -158,7 +158,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // here (spec #192 "Modules": the hub reads and writes progress only through
   // the ledger). `render()` is idempotent and runs after every change.
   import { openLedger } from "../../lib/bday26/browser";
-  import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
+  import { GAMES, GIFTS, PRIZE_BAR, giftById, isGiftId } from "../../lib/bday26/catalogue";
   import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "../../lib/bday26/icons";
 
   const ledger = openLedger();
@@ -245,6 +245,31 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     renderTiles();
     renderShop();
   }
+
+  // ── the one line of feedback ─────────────────────────────────────────
+  const toast = $(document, "[data-toast]");
+  let toastTimer = 0;
+  function say(text: string) {
+    toast.textContent = text;
+    toast.setAttribute("data-show", "");
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast.removeAttribute("data-show"), 3200);
+  }
+
+  // ── the shop's two actions ───────────────────────────────────────────
+  // One listener on the shop: rows move between lists, so the buttons are
+  // found at click time, not bound once. The ledger decides; a refused buy
+  // changes nothing on screen, since the button for it is already disabled.
+  $(document, "[data-shop]").addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>("button[data-buy]");
+    const row = button?.closest<HTMLElement>("[data-gift]");
+    const id = row?.dataset.gift;
+    if (!button || button.disabled || !id || !isGiftId(id)) return;
+    const gift = giftById(id);
+
+    if (ledger.buy(id).ok) say(`${gift.name} senin!`);
+    render();
+  });
 
   render();
 </script>
