@@ -12,11 +12,22 @@
  * Expected numbers come from the spec's rules, not from the code: 1% of a
  * Best score = 1 Point rounded down, the slot machine gives none, 1,000 is
  * the most, a Gift's price leaves the Balance at once, a Return gives half of
- * the price that was PAID back, and 95% wins the Small prize.
+ * the price that was PAID back, and 95% wins the Small prize. The Save code
+ * tests at the end (#196) read a code back the way "Geri yükle" does and
+ * never look at its text beyond the one character they change.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createLedger, STORAGE_KEY, type KeyValueStore } from "./ledger.ts";
+import {
+  balanceOf,
+  createLedger,
+  earnedOf,
+  heldOf,
+  prizesWonOf,
+  STORAGE_KEY,
+  type KeyValueStore,
+} from "./ledger.ts";
+import { encodeSaveCode } from "./savecode.ts";
 
 /** An in-memory stand-in for `localStorage`. */
 function memoryStore(seed?: Record<string, string>): KeyValueStore & { data: Map<string, string> } {
@@ -275,4 +286,66 @@ test("replace swaps every fact, with no merge", () => {
   assert.equal(ledger.bestOf("hafiza"), undefined);
   assert.equal(ledger.holds("rocky"), false);
   assert.deepEqual(ledger.prizesWon(), ["slot"]);
+});
+
+// ------------------------------------------------------------ Save code
+
+test("her progress comes back whole from its own Save code: Best scores, Points, Gifts held, Small prizes", async () => {
+  const ledger = ledgerWith353Points();
+  ledger.recordRound("slot", 30, { jackpot: true });
+  ledger.buy("rocky");
+  const { code } = await ledger.toSaveCode();
+
+  const read = await ledger.fromSaveCode(code);
+  assert.ok(read.ok);
+  assert.equal(read.progress.best.milyoner, 58.3);
+  assert.equal(earnedOf(read.progress), 353);
+  assert.equal(balanceOf(read.progress), 93);
+  assert.deepEqual([...heldOf(read.progress).entries()], [["rocky", 260]]);
+  assert.deepEqual(prizesWonOf(read.progress), ["nerede", "hafiza", "wordle", "slot"]);
+});
+
+test("a Save code made in one browser restores the same progress in another, replacing what was there", async () => {
+  const hers = ledgerWith353Points();
+  hers.recordRound("slot", 30, { jackpot: true });
+  hers.buy("rocky");
+  const { code } = await hers.toSaveCode();
+
+  // The other browser had progress of its own: a Best score she would lose
+  // and a Gift she would not hold any more. Restore replaces, it never merges.
+  const otherStore = memoryStore();
+  const other = createLedger(otherStore);
+  for (const id of ["kayak", "surus", "yuruyus"] as const) other.recordRound(id, 100);
+  other.buy("kurs");
+
+  const outcome = await other.restore(code);
+  assert.equal(outcome.ok, true);
+  assert.equal(other.bestOf("kayak"), undefined);
+  assert.equal(other.holds("kurs"), false);
+  assert.equal(other.earned(), 353);
+  assert.equal(other.balance(), 93);
+  assert.deepEqual([...other.held().entries()], [["rocky", 260]]);
+  assert.deepEqual(other.prizesWon(), ["nerede", "hafiza", "wordle", "slot"]);
+
+  // And it is written down: the next visit on that browser finds it.
+  assert.equal(createLedger(otherStore).balance(), 93);
+});
+
+test("a Save code with a typo is refused and her progress stays as it was", async () => {
+  const ledger = ledgerWith353Points();
+  const { code } = await ledger.toSaveCode();
+  ledger.buy("rocky");
+  const typo = code.slice(0, 10) + (code[10] === "A" ? "B" : "A") + code.slice(11);
+
+  assert.deepEqual(await ledger.fromSaveCode(typo), { ok: false, reason: "check" });
+  assert.deepEqual(await ledger.restore(typo), { ok: false, reason: "check" });
+  assert.equal(ledger.balance(), 93);
+  assert.equal(ledger.holds("rocky"), true);
+});
+
+test("a well-formed code that does not carry progress is refused too", async () => {
+  const ledger = ledgerWith353Points();
+  const { code } = await encodeSaveCode("not progress at all");
+  assert.deepEqual(await ledger.restore(code), { ok: false, reason: "payload" });
+  assert.equal(ledger.earned(), 353);
 });

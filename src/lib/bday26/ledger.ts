@@ -42,12 +42,18 @@
  * welcome screen's "seen" flag is UI state and lives in its own key (#195),
  * outside this state and outside the Save code.
  *
- * THE SAVE CODE (#196) ADDS TO THIS INTERFACE, it does not change it:
- * `toSaveCode()`, `fromSaveCode(text)` and `restore(text)` arrive as more
- * methods on `Ledger`; `parseProgress` below is the validator they share
- * with `load`, and `replace` is the one write they need. The pure
- * `*Of(progress)` helpers are exported so #196 can summarise a pasted code
- * (Points, Gifts held) before it is restored.
+ * THE SAVE CODE (#196) IS THIS STATE AS ONE LINE OF TEXT. `toSaveCode()`
+ * seals `JSON.stringify` of the facts into the format of `./savecode.ts`
+ * (base64url + a 6-character check code); `fromSaveCode(text)` opens a
+ * pasted code and runs it through the same `parseProgress` that `load`
+ * uses, without touching her progress, so the "Geri yükle" panel can show
+ * both summaries first; `restore(text)` is `fromSaveCode` followed by
+ * `replace`: every fact swapped, no merge. The pure `*Of(progress)` helpers
+ * are exported so the panel can summarise a pasted code (Points, Balance,
+ * Gifts held, Small prizes) the way the hub summarises hers. The format
+ * module knows nothing of `Progress`; this module knows nothing of hashes.
+ * The Proof (#197) calls `toSaveCode()` and prints `check` large and `code`
+ * small.
  */
 import {
   GAMES,
@@ -59,6 +65,7 @@ import {
   type GameId,
   type GiftId,
 } from "./catalogue.ts";
+import { decodeSaveCode, encodeSaveCode, type SaveCode, type SaveCodeProblem } from "./savecode.ts";
 
 /** The `localStorage` key. See the header on `v1`. */
 export const STORAGE_KEY = "bday26:v1";
@@ -145,6 +152,13 @@ export type ReturnOutcome =
   | { ok: true; refund: number }
   | { ok: false; reason: "not-held" };
 
+/** What a pasted Save code holds, or why it was refused (see `./savecode.ts`
+ *  for the three reasons; "payload" also covers text that is not a
+ *  `Progress`, which no code made here can carry). */
+export type SaveCodeOutcome =
+  | { ok: true; progress: Progress }
+  | { ok: false; reason: SaveCodeProblem };
+
 export type Ledger = {
   /** A copy of the facts. For the Save code and the Proof, not for rules. */
   progress(): Progress;
@@ -164,8 +178,17 @@ export type Ledger = {
   buy(id: GiftId): BuyOutcome;
   /** Refused when not held. Gives back half of the price paid. */
   returnGift(id: GiftId): ReturnOutcome;
-  /** Replace every fact, no merge. The write behind #196's `restore`. */
+  /** Replace every fact, no merge. The write behind `restore`. */
   replace(next: Progress): void;
+  /** Her progress as one line of text to copy, with its check code on its
+   *  own for the Proof. Same facts, same code. */
+  toSaveCode(): Promise<SaveCode>;
+  /** Open a pasted Save code without touching her progress: what "Geri
+   *  yükle" shows beside hers before she confirms. */
+  fromSaveCode(text: string): Promise<SaveCodeOutcome>;
+  /** Replace her progress with a pasted Save code's. Refused, and nothing
+   *  changes, for the same reasons `fromSaveCode` refuses. */
+  restore(text: string): Promise<SaveCodeOutcome>;
 };
 
 export function createLedger(store: KeyValueStore): Ledger {
@@ -221,7 +244,25 @@ export function createLedger(store: KeyValueStore): Ledger {
     replace(next) {
       commit(clone(next));
     },
+
+    toSaveCode: () => encodeSaveCode(JSON.stringify(p)),
+
+    fromSaveCode: (text) => openSaveCode(text),
+
+    async restore(text) {
+      const outcome = await openSaveCode(text);
+      if (outcome.ok) commit(clone(outcome.progress));
+      return outcome;
+    },
   };
+}
+
+/** A pasted Save code, opened and read as a `Progress`. */
+async function openSaveCode(text: string): Promise<SaveCodeOutcome> {
+  const opened = await decodeSaveCode(text);
+  if (!opened.ok) return opened;
+  const progress = parseProgress(opened.payload);
+  return progress ? { ok: true, progress } : { ok: false, reason: "payload" };
 }
 
 // ------------------------------------------------------- load and parse
