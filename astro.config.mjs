@@ -6,7 +6,14 @@ import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
   site: "https://atilileri.github.io",
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    // The birthday games (/20261209/, spec #192) are a hidden present: the
+    // pages carry noindex and nothing links to them, and this keeps every one
+    // of their URLs out of the sitemap too. The RSS feed is built from the
+    // blog collection alone, so it never saw them.
+    sitemap({ filter: (page) => !page.includes("/20261209/") }),
+  ],
   vite: {
     // @ts-expect-error two copies of Vite's types are installed — Astro
     // bundles its own under `astro/node_modules/vite`, and `@tailwindcss/vite`

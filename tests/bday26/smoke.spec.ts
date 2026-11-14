@@ -30,6 +30,16 @@ test("the hub is hidden from robots and speaks Turkish", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Hediye dükkânı" })).toBeVisible();
 });
 
+test("no /20261209/ URL reaches the sitemap or the RSS feed", async ({ request }) => {
+  const sitemap = await request.get("/sitemap-0.xml");
+  expect(sitemap.ok()).toBe(true);
+  expect(await sitemap.text()).not.toContain("/20261209/");
+
+  const rss = await request.get("/rss.xml");
+  expect(rss.ok()).toBe(true);
+  expect(await rss.text()).not.toContain("/20261209/");
+});
+
 // #195 adds here: "the welcome screen shows once by itself and reopens from
 // the hub". Its seen flag is a separate localStorage key, so seeding progress
 // below must not make it appear.
