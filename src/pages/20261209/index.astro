@@ -53,15 +53,15 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       <dl class="stats">
         <div class="stat">
           <dt class="label">Kazandığın</dt>
-          <dd class="stat-value" data-earned>0</dd>
+          <dd class="stat-value" data-stat="earned">0</dd>
         </div>
         <div class="stat" data-main>
           <dt class="label">Bakiye</dt>
-          <dd class="stat-value"><span data-balance>0</span> <small>puan</small></dd>
+          <dd class="stat-value"><span data-stat="balance">0</span> <small>puan</small></dd>
         </div>
         <div class="stat">
           <dt class="label">Küçük ödül</dt>
-          <dd class="stat-value"><span data-prizes>0</span><small>/{GAMES.length}</small></dd>
+          <dd class="stat-value"><span data-stat="prizes">0</span><small>/{GAMES.length}</small></dd>
         </div>
       </dl>
       <nav class="tools" aria-label="Araçlar">
@@ -120,7 +120,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       <aside class="shop" aria-labelledby="shop-heading">
         <div class="shop-head">
           <h2 class="h2" id="shop-heading">Hediye dükkânı</h2>
-          <span class="shop-bal">Bakiye <b data-balance>0</b></span>
+          <span class="shop-bal">Bakiye <b data-stat="balance">0</b></span>
         </div>
         <div class="mine" data-mine hidden>
           <span class="label">Sende olanlar</span>
@@ -151,6 +151,103 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     <p class="toast" role="status" aria-live="polite" data-toast></p>
   </div>
 </BdayLayout>
+
+<script>
+  // The hub's one job on the client: paint what the ledger says. Every
+  // number and state below is read from the ledger; nothing is computed
+  // here (spec #192 "Modules": the hub reads and writes progress only through
+  // the ledger). `render()` is idempotent and runs after every change.
+  import { openLedger } from "../../lib/bday26/browser";
+  import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
+  import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "../../lib/bday26/icons";
+
+  const ledger = openLedger();
+
+  /** Whole Points, written the Turkish way: 1.000. */
+  const fmt = (n: number) => Math.round(n).toLocaleString("tr-TR");
+  /** A score as she reads it: %88. Rounded down, like the Points it earns. */
+  const pct = (score: number) => `%${Math.floor(score)}`;
+
+  function $(root: ParentNode, selector: string): HTMLElement {
+    const el = root.querySelector<HTMLElement>(selector);
+    if (!el) throw new Error(`bday26 hub: missing ${selector}`);
+    return el;
+  }
+
+  function renderStrip() {
+    const stats: Record<string, string> = {
+      earned: fmt(ledger.earned()),
+      balance: fmt(ledger.balance()),
+      prizes: String(ledger.prizesWon().length),
+    };
+    for (const el of document.querySelectorAll<HTMLElement>("[data-stat]")) {
+      el.textContent = stats[el.dataset.stat ?? ""] ?? el.textContent;
+    }
+    $(document, "[data-played]").textContent = String(
+      GAMES.filter((g) => ledger.bestOf(g.id) != null).length,
+    );
+  }
+
+  function renderTiles() {
+    for (const game of GAMES) {
+      const tile = $(document, `[data-game="${game.id}"]`);
+      const best = ledger.bestOf(game.id);
+      const won = ledger.prizeWon(game.id);
+      tile.toggleAttribute("data-won", won);
+      $(tile, "[data-best]").textContent = best == null ? "—" : pct(best);
+      $(tile, "[data-points]").textContent = game.luck
+        ? "Puan vermez"
+        : best == null
+          ? "Henüz oynamadın"
+          : `${fmt(ledger.pointsOf(game.id))} puan`;
+      const fill = tile.querySelector<HTMLElement>("[data-fill]");
+      if (fill) fill.style.width = `${best ?? 0}%`;
+      $(tile, "[data-prize-icon]").textContent = won ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON;
+      $(tile, "[data-prize-sub]").textContent = won
+        ? "Kazandın!"
+        : game.luck
+          ? "Jackpot'ta senin"
+          : best == null
+            ? `%${PRIZE_BAR} yapınca senin`
+            : `Rekorun ${pct(best)} · %${PRIZE_BAR} yapınca senin`;
+    }
+  }
+
+  function renderShop() {
+    const held = ledger.held();
+    const balance = ledger.balance();
+    const mineList = $(document, "[data-mine-list]");
+    const shopList = $(document, "[data-shop-list]");
+    // Rows are moved, not rebuilt: a held Gift's row goes up into "Sende
+    // olanlar", a Returned one comes back down, catalogue order kept.
+    for (const gift of GIFTS) {
+      const row = $(document, `[data-gift="${gift.id}"]`);
+      const paid = held.get(gift.id);
+      const isHeld = paid != null;
+      const short = gift.price - balance;
+      row.toggleAttribute("data-held", isHeld);
+      const shortEl = $(row, "[data-short]");
+      shortEl.hidden = isHeld || short <= 0;
+      shortEl.textContent = `${fmt(short)} eksik`;
+      const buy = $(row, "[data-buy]") as HTMLButtonElement;
+      buy.hidden = isHeld;
+      buy.disabled = short > 0;
+      const ret = $(row, "[data-return]");
+      ret.hidden = !isHeld;
+      if (isHeld) ret.textContent = `İade et · +${fmt(paid / 2)}`;
+      (isHeld ? mineList : shopList).appendChild(row);
+    }
+    $(document, "[data-mine]").hidden = held.size === 0;
+  }
+
+  function render() {
+    renderStrip();
+    renderTiles();
+    renderShop();
+  }
+
+  render();
+</script>
 
 <style>
   .page {
