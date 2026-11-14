@@ -220,3 +220,116 @@ export function createGameShell(options: ShellOptions): GameShell {
   show();
   return shell;
 }
+
+// ------------------------------------------------------ the browser binding
+
+export type MountOptions = {
+  game: GameId;
+  ledger: Ledger;
+  hooks: GameHooks;
+  /** See `ShellOptions.resultScreen`. */
+  resultScreen?: boolean;
+  /** Where `GameShell.astro` rendered. Default: the document. */
+  root?: ParentNode;
+  /** Default: navigate to the hub. */
+  leave?: () => void;
+};
+
+/**
+ * Binds the controller to the markup of `GameShell.astro` (found by its
+ * `data-shell-*` attributes), paints every screen from the ledger, and
+ * routes her keys and clicks. Call it once per page and keep the result.
+ */
+export function mountGameShell(options: MountOptions): GameShell {
+  const root = options.root ?? document;
+  const main = one(root, "[data-shell]");
+  const screens = Array.from(root.querySelectorAll<HTMLElement>("[data-shell-screen]"));
+  const playfield = one(root, "[data-shell-playfield]");
+  const { prize } = gameById(options.game);
+
+  /** A score as she reads it: %88, rounded down like the Points it earns. */
+  const pct = (score: number) => `%${Math.floor(score)}`;
+  const fill = (selector: string, text: string) => {
+    for (const el of root.querySelectorAll<HTMLElement>(selector)) el.textContent = text;
+  };
+
+  function paint(screen: ShellScreen) {
+    main.dataset.shellPhase = screen.phase;
+    // The playfield takes no clicks or focus while a screen is over it.
+    playfield.inert = screen.phase !== "playing";
+
+    fill("[data-shell-best]", screen.best == null ? "—" : pct(screen.best));
+    fill("[data-shell-prize-icon]", screen.prizeWon ? "🎁" : "🔒");
+    fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : `%${PRIZE_BAR} yapınca senin`);
+
+    const r = screen.result;
+    if (r) {
+      fill("[data-shell-score]", pct(r.score));
+      const detail = one(root, "[data-shell-detail]");
+      detail.textContent = r.detail ?? "";
+      detail.hidden = !r.detail;
+      one(root, "[data-shell-improved]").hidden = !r.improved;
+      const now = one(root, "[data-shell-prize-now]");
+      now.hidden = !r.prizeWonNow;
+      now.textContent = `Küçük ödül kazandın: ${prize.name}!`;
+    }
+
+    let shown: HTMLElement | undefined;
+    for (const s of screens) {
+      s.hidden = s.dataset.shellScreen !== screen.phase;
+      if (!s.hidden) shown = s;
+    }
+    // Focus the screen itself, away from any button, so Enter is the
+    // shell's alone and no button fires a second time.
+    shown?.focus({ preventScroll: true });
+  }
+
+  const shell = createGameShell({
+    game: options.game,
+    ledger: options.ledger,
+    hooks: options.hooks,
+    resultScreen: options.resultScreen,
+    view: paint,
+    leave: options.leave ?? (() => window.location.assign(HUB_URL)),
+  });
+
+  // Keys: capture phase on window, so a key the shell takes never reaches a
+  // Game's own listener. Browser shortcuts (Ctrl/Alt/Meta) are left alone.
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.repeat && shell.phase !== "playing") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      if (shell.key(event.key)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    },
+    { capture: true },
+  );
+
+  // Clicks: one listener, the buttons name their action.
+  const actions: Record<string, () => void> = {
+    start: () => shell.start(),
+    leave: () => shell.leave(),
+    stay: () => shell.stay(),
+    "leave-round": () => shell.leaveRound(),
+  };
+  main.addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLElement>("[data-shell-action]");
+    const action = button?.dataset.shellAction;
+    if (action && actions[action]) actions[action]();
+  });
+
+  return shell;
+}
+
+function one(root: ParentNode, selector: string): HTMLElement {
+  const el = root.querySelector<HTMLElement>(selector);
+  if (!el) throw new Error(`bday26 shell: GameShell.astro is missing ${selector}`);
+  return el;
+}
