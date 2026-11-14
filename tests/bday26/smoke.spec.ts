@@ -39,6 +39,18 @@ const AN_EVENING = {
   log: [],
 };
 
+/**
+ * A later evening: two more Games played (nerede 90, kadraj 100 → 473 Points
+ * earned) and the Rocky Horror night already bought at its price, 260. So
+ * the Balance is 213, and a Return brings back half of 260 = 130 → 343,
+ * enough to buy it again.
+ */
+const A_LATER_EVENING = {
+  best: { ...AN_EVENING.best, nerede: 90, kadraj: 100 },
+  jackpot: true,
+  log: [{ kind: "buy", gift: "rocky", paid: 260 }],
+};
+
 /** Plant progress for her FIRST visit only: the script runs on every
  *  navigation, and a reload must find what she did, not the seed again. */
 async function seed(page: import("@playwright/test").Page, progress: object) {
@@ -138,6 +150,41 @@ test("a buy she can afford lowers the Balance at once, and survives a reload", a
   await page.reload();
   await expect(balance(page)).toHaveText(["23", "23"]);
   await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
+});
+
+test("a Return asks first; confirmed, half the price comes back and the Gift is buyable again", async ({ page }) => {
+  await seed(page, A_LATER_EVENING);
+  await page.goto(HUB);
+  await expect(balance(page)).toHaveText(["213", "213"]);
+  const rocky = row(page, "Rocky Horror film gecesi");
+  const returnButton = rocky.getByRole("button", { name: "İade et · +130" });
+
+  // She changes her mind at the question: nothing moves.
+  const asked: string[] = [];
+  page.on("dialog", (dialog) => {
+    asked.push(dialog.message());
+    void dialog.dismiss();
+  });
+  await returnButton.click();
+  expect(asked).toHaveLength(1);
+  expect(asked[0]).toContain("Emin misin?");
+  expect(asked[0]).toContain("130 puan geri gelir");
+  await expect(balance(page)).toHaveText(["213", "213"]);
+  await expect(returnButton).toBeVisible();
+
+  // She confirms: half of what she paid is back, the Gift is in the shop again.
+  page.removeAllListeners("dialog");
+  page.on("dialog", (dialog) => void dialog.accept());
+  await returnButton.click();
+  await expect(balance(page)).toHaveText(["343", "343"]);
+  await expect(page.getByText("Sende olanlar")).toBeHidden();
+  const buyAgain = rocky.getByRole("button", { name: "Al", exact: true });
+  await expect(buyAgain).toBeEnabled();
+
+  // And a Return is not final: she buys it back.
+  await buyAgain.click();
+  await expect(balance(page)).toHaveText(["83", "83"]);
+  await expect(returnButton).toBeVisible();
 });
 
 // #195 adds here: "the welcome screen shows once by itself and reopens from

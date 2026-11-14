@@ -260,14 +260,26 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // One listener on the shop: rows move between lists, so the buttons are
   // found at click time, not bound once. The ledger decides; a refused buy
   // changes nothing on screen, since the button for it is already disabled.
+  // A Return asks first (spec story 23) with the browser's own confirm():
+  // the half that comes back is the ledger's number, read before asking.
   $(document, "[data-shop]").addEventListener("click", (event) => {
-    const button = (event.target as Element).closest<HTMLButtonElement>("button[data-buy]");
+    const button = (event.target as Element).closest<HTMLButtonElement>(
+      "button[data-buy], button[data-return]",
+    );
     const row = button?.closest<HTMLElement>("[data-gift]");
     const id = row?.dataset.gift;
     if (!button || button.disabled || !id || !isGiftId(id)) return;
     const gift = giftById(id);
 
-    if (ledger.buy(id).ok) say(`${gift.name} senin!`);
+    if (button.hasAttribute("data-buy")) {
+      if (ledger.buy(id).ok) say(`${gift.name} senin!`);
+    } else {
+      const paid = ledger.held().get(id);
+      if (paid == null) return;
+      const half = fmt(paid / 2);
+      if (!window.confirm(`Emin misin? ${gift.name} iade edilecek, ${half} puan geri gelir.`)) return;
+      if (ledger.returnGift(id).ok) say(`${gift.name} iade edildi, ${half} puan geri geldi.`);
+    }
     render();
   });
 
