@@ -59,6 +59,13 @@ body{background:var(--ss-canvas);color:var(--ss-text);font:14px/1.4 var(--ss-fon
 .val{font-weight:700;color:var(--ss-text-strong);font-variant-numeric:tabular-nums;line-height:1.15}
 .title{font-size:22px;font-weight:800;color:var(--ss-text-strong);letter-spacing:-.01em;text-align:center}
 .shape{font-size:13px;color:var(--ss-text-faint);text-align:center;margin-top:2px;font-variant-numeric:tabular-nums}
+#hint{margin:10px auto 0;max-width:560px;display:flex;gap:8px;align-items:center;justify-content:center;background:var(--ss-accent-soft);color:var(--ss-text-strong);border-radius:var(--ss-radius-pill);padding:7px 16px;font-size:15px;font-weight:500;text-align:center}
+#hint[hidden]{display:none}
+#hint b{color:var(--ss-accent);font-weight:700;font-size:12px;letter-spacing:.02em;white-space:nowrap}
+#hint.locked{background:var(--ss-well);color:var(--ss-text-faint)}
+#hint.locked span{font-size:13px}
+#hint.new{animation:pop .3s ease-out}
+#hint .kbd span{min-width:22px;height:20px;font-size:11px}
 #hGuess .val{font-size:22px}
 .pips{display:flex;gap:4px;margin-top:6px}
 .pips i{width:14px;height:5px;border-radius:3px;background:var(--ss-well)}
@@ -170,7 +177,7 @@ body{background:var(--ss-canvas);color:var(--ss-text);font:14px/1.4 var(--ss-fon
 <div id="game">
   <div class="hud">
     <div class="pill l" id="hGuess"><div class="lbl">Tahmin</div><div class="val" id="vGuess">1 / 6</div><div class="pips" id="vPips"></div></div>
-    <div><div class="title">Kelime Avı</div><div class="shape" id="vShape"></div></div>
+    <div><div class="title">Kelime Avı</div><div class="shape" id="vShape"></div><div id="hint" hidden></div></div>
     <div class="pill r" id="hNow"><div class="lbl" id="vNowL">Şimdi bilirsen</div><div class="val" id="vNow">%100</div></div>
   </div>
   <div id="boardWrap"><div id="toasts"></div><div id="board"></div></div>
@@ -241,12 +248,29 @@ body{background:var(--ss-canvas);color:var(--ss-text);font:14px/1.4 var(--ss-fon
   </section>
   <section><h3>Izgara ve uzunluk</h3><div id="optGrid"></div></section>
   <section><h3>Geçerli tahmin</h3><div id="optValid"></div><p class="note" id="dictNote"></p></section>
+  <section><h3>İpucu</h3><div id="optHint"></div><p class="note">İpucu metinleri betiğin başındaki HINTS sabitinde. H harfi de bir harf: ipucu modunda H, ancak satır boşken ve ipucu kapalıyken ipucunu açar.</p></section>
   <section><h3>Klavye</h3><div id="optKb"></div></section>
   <section><h3>Durum</h3><pre id="state"></pre></section>
 </aside>
 
 <script>
 "use strict";
+// ======================================================================
+// İPUÇLARI — Atıl, edit freely. One short hint per answer, same order as ANSWERS below.
+// ======================================================================
+const HINTS = {
+  'Çağla':          'Bugünün yıldızı: doğum günü kızının adı',
+  'Atıl':           'Bu oyunu senin için yapan adamın adı',
+  'aşkım':          'Sana en çok seslendiğim tatlı söz, "sevgilim"in kardeşi',
+  'sevdicek':       'Sevgiliye şirin, biraz da cilveli bir sesleniş',
+  'kendi dilimde':  'Yabancı dilde değil; içimden geldiği gibi, anadilimde (iki kelime)',
+  'iyi ki doğdun':  'Bugün sana söylenecek en güzel üç kelime',
+  'seni seviyorum': 'Her gün söylerim, iki kelime, kalpten',
+  'spa':            'Sıcak su, buhar, masaj: rahatlamanın üç harfli adı',
+  'şarap':          'Üzümden yapılır, akşam yemeğinde kadehe dökülür',
+  'otuz beş':       'Bu yıl pastadaki mum sayısı, yazıyla',
+};
+// ======================================================================
 // ---------- data ----------
 const ANSWERS = ['Çağla', 'Atıl', 'aşkım', 'sevdicek', 'kendi dilimde', 'iyi ki doğdun', 'seni seviyorum', 'spa', 'şarap', 'otuz beş'];
 const up = s => s.toLocaleUpperCase('tr');
@@ -297,6 +321,7 @@ const S = {
   valid: 'any',       // 'any' · 'vowel' each word has a vowel · 'dict' each word in the small list
   kb: 'trq',          // 'trq' Turkish Q · 'abc' alphabet · 'none' hidden
   fold: false,        // c=ç, g=ğ, ı=i, o=ö, s=ş, u=ü
+  hint: 'start',      // 'start' shown from the start · 'after2' after guess 2 · 'key' on H (or a click)
 };
 const OPTS = {
   space: { host: 'optGrid', label: 'Boşluk', items: [
@@ -311,6 +336,10 @@ const OPTS = {
     ['any', 'Serbest: her harf dizisi geçer'],
     ['vowel', 'Her kelimede en az bir sesli harf'],
     ['dict', 'Her kelime küçük sözlükte olmalı']] },
+  hint: { host: 'optHint', label: 'İpucu ne zaman görünür', items: [
+    ['start', 'Turun başından itibaren'],
+    ['after2', '2. tahminden sonra'],
+    ['key', 'İsteyince: H tuşu ya da tıklama (satır boşken)']] },
   kb: { host: 'optKb', label: 'Ekran klavyesi', items: [
     ['trq', 'Türkçe Q (laptop tuşlarıyla aynı sıra, Q W X dahil)'],
     ['abc', 'Alfabe sırası (29 harf)'],
@@ -340,7 +369,8 @@ function newRound() {
   } else {
     target = [...ans.replace(/ /g, '')]; template = target.map((_, i) => ({ t: i }));
   }
-  G = { idx, ans, target, template, guesses: [], results: [], tags: [], cur: [], done: false, won: false, keys: {}, mode: { ...S } };
+  G = { idx, ans, target, template, guesses: [], results: [], tags: [], cur: [], done: false, won: false, keys: {}, hintOpen: false, mode: { ...S } };
+  hintWasVisible = false;
   rounds++;
   state = 'play'; busy = false;
   show(null);
@@ -444,6 +474,7 @@ window.addEventListener('keydown', e => {
   }
   if (e.key === 'Escape') { state = 'confirm'; show('sConfirm'); return; }
   if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
+  if ((e.key === 'h' || e.key === 'H') && G.mode.hint === 'key' && !G.hintOpen && G.cur.length === 0 && !busy) { e.preventDefault(); openHint(); return; }
   if (e.key === 'Backspace') { e.preventDefault(); backspace(); return; }
   if (e.key === ' ') { e.preventDefault(); typeChar(' '); return; }
   if (e.key.length === 1) {
@@ -560,8 +591,35 @@ function shapeText() {
   if (G.mode.space === 'none') return `${letters} harf`;
   return ws.length > 1 ? `${ws.length} kelime · ${ws.map(w => w.length).join(' + ')} harf` : `${letters} harf`;
 }
+function hintVisible() {
+  if (!G) return false;
+  const m = G.mode.hint;
+  return m === 'start' || G.done || (m === 'after2' && G.guesses.length >= 2) || (m === 'key' && G.hintOpen);
+}
+function openHint() { if (!G || G.hintOpen) return; G.hintOpen = true; renderHud(); renderState(); }
+let hintWasVisible = false;
+function renderHint() {
+  const h = $('hint');
+  if (!G) { h.hidden = true; return; }
+  h.hidden = false;
+  const vis = hintVisible();
+  h.classList.toggle('locked', !vis);
+  h.onclick = null; h.style.cursor = '';
+  if (vis) {
+    h.innerHTML = `<b>İPUCU</b><span>${HINTS[ANSWERS[G.idx]] || ''}</span>`;
+    if (!hintWasVisible) { h.classList.remove('new'); void h.offsetWidth; h.classList.add('new'); }
+  } else if (G.mode.hint === 'after2') {
+    const left = 2 - G.guesses.length;
+    h.innerHTML = `<b>İPUCU</b><span>${left} tahmin sonra açılır</span>`;
+  } else {
+    h.innerHTML = `<b>İPUCU</b><span>Görmek için</span><span class="kbd"><span>H</span></span><span>ya da tıkla</span>`;
+    h.onclick = openHint; h.style.cursor = 'pointer';
+  }
+  hintWasVisible = vis;
+}
 function renderHud() {
   if (!G) return;
+  renderHint();
   const n = G.guesses.length, nextN = Math.min(n + 1, MAXG);
   $('vGuess').textContent = (G.done ? n : nextN) + ' / ' + MAXG;
   $('vPips').innerHTML = Array.from({ length: MAXG }, (_, i) => `<i class="${i < n ? 'used' : ''} ${i === 3 ? 'cut' : ''}"></i>`).join('');
@@ -600,6 +658,7 @@ function renderState() {
     lines.push(`tur ayarı    boşluk=${G.mode.space} uzunluk=${G.mode.length} kural=${G.mode.valid} gevşek=${G.mode.fold}`);
     lines.push(`cevap        ${$('oShow').checked ? '"' + G.ans + '"' : '(gizli — kutuyu işaretle)'}`);
     lines.push(`hedef dizisi ${$('oShow').checked ? JSON.stringify(G.target.join('')) + ' (' + G.target.length + ')' : '—'}`);
+    lines.push(`ipucu        ${G.mode.hint} · ${hintVisible() ? 'görünür' : 'kapalı'}`);
     lines.push(`yazılan      "${G.cur.join('')}" (${G.cur.length})`);
     G.guesses.forEach((g, i) => lines.push(`tahmin ${i + 1}     ${g.join('').replace(/ /g, '␣')}  ${G.results[i].map(r => r === 'correct' ? 'Y' : r === 'present' ? 's' : '.').join('')}${G.tags[i] ? '  ' + G.tags[i] : ''}`));
     lines.push(`bitti        ${G.done}${G.done ? ' · ' + (G.won ? 'bulundu' : 'bulunamadı') : ''}`);
@@ -633,7 +692,7 @@ function check(hostId, k, label) {
 }
 function applyLive(name) {
   // keyboard and validation switch live; grid shape switches on the next round
-  if (G && !G.done && (name === 'kb' || name === 'valid')) { G.mode[name] = S[name]; renderKb(); }
+  if (G && !G.done && (name === 'kb' || name === 'valid' || name === 'hint')) { G.mode[name] = S[name]; renderKb(); renderHud(); }
   if (G && name === 'lenTag') G.mode.lenTag = S.lenTag;
   if (!G) renderKb();
   if (['space', 'length', 'fold'].includes(name) && G && !G.done) toast('Yeni turda geçerli');
@@ -646,7 +705,7 @@ function applyLive(name) {
   $('bNew').onclick = e => { e.currentTarget.blur(); newRound(); };
   $('oShow').onchange = e => { e.target.blur(); renderState(); };
   radio('space'); radio('length'); check('optGrid', 'lenTag', 'Serbest uzunlukta "kısa / uzun / tam" etiketi');
-  radio('valid'); radio('kb'); check('optKb', 'fold', 'Gevşek harf: c=ç, g=ğ, ı=i, o=ö, s=ş, u=ü (US klavye için)');
+  radio('valid'); radio('hint'); radio('kb'); check('optKb', 'fold', 'Gevşek harf: c=ç, g=ğ, ı=i, o=ö, s=ş, u=ü (US klavye için)');
   $('dictNote').textContent = `Sözlük ${DICT.size} kelime, cevapların tüm kelimeleri dahil. Türkçe tam sözlük çevrimdışı yok; bu liste yalnızca hissini göstermek için.`;
 })();
 function toggleDbg() { const d = $('dbg'); d.hidden = !d.hidden; if (G) renderBoard(); }
