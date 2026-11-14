@@ -248,3 +248,43 @@ test("the welcome screen greets her once by itself, and \"Hoş geldin\" reopens 
   // Her progress was never touched: still a fresh start behind the welcome.
   await expect(balance(page)).toHaveText(["0", "0"]);
 });
+
+test("a Game opens on its start screen, and a Round she leaves scores nothing (#194)", async ({ page }) => {
+  // A fresh start, welcome already seen: the tile must still say "never
+  // played" when she comes back from a Round she left.
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/hafiza/");
+
+  // The start screen: name, one-line rule, the keys, Enter to begin.
+  const start = page.getByRole("dialog", { name: "Hafıza kartları" });
+  await expect(start).toBeVisible();
+  await expect(start).toContainText("8 çift fotoğrafı eşle");
+  await expect(start).toContainText("Kartı çevir");
+  await expect(start.getByRole("button", { name: /Başla/ })).toBeVisible();
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+
+  // Enter: the Round is on, the HUD counts moves from zero.
+  await page.keyboard.press("Enter");
+  await expect(start).toBeHidden();
+  await expect(page.getByText("Hamle 0")).toBeVisible();
+
+  // Esc asks first; Esc again goes on with the Round.
+  const question = page.getByRole("dialog", { name: "Turdan çıkılsın mı?" });
+  await page.keyboard.press("Escape");
+  await expect(question).toBeVisible();
+  await expect(question).toContainText("Yarım bırakılan tur skor vermez.");
+  await page.keyboard.press("Escape");
+  await expect(question).toBeHidden();
+
+  // Esc, Enter: back on the hub, and the Round she left changed nothing.
+  await page.keyboard.press("Escape");
+  await expect(question).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Hafıza kartları")).toContainText("Henüz oynamadın");
+  await expect(page.getByText("0/11 oynandı")).toBeVisible();
+});
