@@ -24,7 +24,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildRound, halve, parsePool } from "./milyoner.ts";
+import { askAudience, buildRound, halve, parsePool, type Question } from "./milyoner.ts";
 
 /** A small seeded generator (mulberry32): [0, 1) like Math.random. */
 function seeded(seed: number): () => number {
@@ -140,4 +140,60 @@ test("Yarı yarıya takes away two wrong choices and leaves the right one and on
   }
   // Which wrong choice survives is drawn: it can sit under any letter.
   assert.deepEqual([...kept].sort(), [0, 1, 2, 3]);
+});
+
+/** True when bar `i` is strictly the largest of the four. */
+function leads(bars: readonly number[], i: number): boolean {
+  return bars.every((b, j) => j === i || b < bars[i]!);
+}
+
+/** Four whole percentages that add up to 100. */
+function assertBars(bars: readonly number[]) {
+  assert.equal(bars.length, 4);
+  for (const b of bars) assert.ok(Number.isInteger(b) && b >= 0, `bar ${b}`);
+  assert.equal(bars.reduce((a, b) => a + b, 0), 100);
+}
+
+test("Seyirciye sor on Q1–10: four bars adding up to 100, the right answer always the largest", () => {
+  for (let seed = 1; seed <= 300; seed++) {
+    const rng = seeded(seed);
+    for (const q of buildRound(POOL, rng).slice(0, 10)) {
+      const bars = askAudience(q, rng);
+      assertBars(bars);
+      assert.ok(leads(bars, q.answer), `seed ${seed}, Q${q.number}: ${bars} (answer ${q.answer})`);
+    }
+  }
+});
+
+test("Seyirciye sor on Q11–12: the right answer leads only about 70% of the time, a wrong one otherwise", () => {
+  let right = 0;
+  let total = 0;
+  for (let seed = 1; seed <= 1000; seed++) {
+    const rng = seeded(seed);
+    for (const q of buildRound(POOL, rng).slice(10)) {
+      assert.ok(q.number === 11 || q.number === 12);
+      const bars = askAudience(q, rng);
+      assertBars(bars);
+      // Some one choice always leads clearly, so the chart still says something.
+      assert.equal([0, 1, 2, 3].filter((i) => leads(bars, i)).length, 1, `${bars}`);
+      if (leads(bars, q.answer)) right += 1;
+      total += 1;
+    }
+  }
+  const share = right / total;
+  assert.ok(share > 0.65 && share < 0.75, `right answer led ${(share * 100).toFixed(1)}% of 2000 hard questions`);
+});
+
+test("Seyirciye sor after Yarı yarıya: the two choices taken away get no votes", () => {
+  for (let seed = 1; seed <= 200; seed++) {
+    const rng = seeded(seed);
+    const round = buildRound(POOL, rng);
+    for (const q of [round[seed % 10]!, round[10 + (seed % 2)]!] as Question[]) {
+      const gone = halve(q, rng);
+      const bars = askAudience(q, rng, gone);
+      assertBars(bars);
+      for (const i of gone) assert.equal(bars[i], 0, `seed ${seed}, Q${q.number}: ${bars}`);
+      if (q.number <= 10) assert.ok(leads(bars, q.answer), `seed ${seed}, Q${q.number}: ${bars}`);
+    }
+  }
 });

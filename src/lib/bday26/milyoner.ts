@@ -115,6 +115,38 @@ export function halve(question: Question, rng: () => number): number[] {
   return shuffle(wrong, rng).slice(0, 2);
 }
 
+/** Questions up to this number get an honest audience (#185: Q1–10). */
+const HONEST_UP_TO = 10;
+/** How often the audience is right on the questions after that (~70%). */
+const HARD_HONESTY = 0.7;
+
+/**
+ * "Seyirciye sor": four whole percentages, A to D, adding up to 100. One
+ * choice leads clearly — the right one on Q1–10, the right one about 70% of
+ * the time on Q11–12 and a wrong one otherwise. Choices in `gone` (taken
+ * away by "Yarı yarıya") get 0.
+ *
+ * How the bars are made: the leader takes 45–70% (55–80% when only two
+ * choices are left), and the others share the rest by random weights of
+ * 0.2–1, which keeps every other bar below 40% and so below the leader.
+ */
+export function askAudience(question: Question, rng: () => number, gone: readonly number[] = []): number[] {
+  const open = [0, 1, 2, 3].filter((i) => !gone.includes(i));
+  const wrong = open.filter((i) => i !== question.answer);
+  const honest = question.number <= HONEST_UP_TO || rng() < HARD_HONESTY;
+  const leader = honest ? question.answer : wrong[Math.floor(rng() * wrong.length)]!;
+  const others = open.filter((i) => i !== leader);
+
+  const low = others.length === 1 ? 55 : 45;
+  const rest = 100 - (low + rng() * 25);
+  const weights = others.map(() => 0.2 + rng() * 0.8);
+  const sum = weights.reduce((a, b) => a + b, 0);
+  const bars = [0, 0, 0, 0];
+  others.forEach((i, k) => (bars[i] = Math.round((rest * weights[k]!) / sum)));
+  bars[leader] = 100 - bars.reduce((a, b) => a + b, 0);
+  return bars;
+}
+
 /** Fisher–Yates, in place, with the given random source. */
 function shuffle<T>(items: T[], rng: () => number): T[] {
   for (let i = items.length - 1; i > 0; i--) {
