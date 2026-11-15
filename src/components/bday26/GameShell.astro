@@ -28,6 +28,10 @@
  *   buttons, for a choice made before the Round (the piano's song, #205).
  *   The start screen is visible in the static HTML, so the page never flashes
  *   an empty playfield before the script runs.
+ *   `resultAside` docks the result card at the right edge with no veil, so
+ *   the playfield stays in plain sight beside it (the hiking map's reveal,
+ *   #202: her route and the shortest drawn on the map while the card shows).
+ *   The Game makes room for the card itself, on `data-shell-phase="result"`.
  *
  * THE CONTRACT WITH `mountGameShell`. The script finds everything here by
  * `data-shell-*` attributes and nothing else — classes are free to change:
@@ -52,9 +56,11 @@ interface Props {
   game: GameId;
   /** The start screen's key legend, in reading order: what she presses, what it does. */
   keys: { key: string; does: string }[];
+  /** Dock the result card at the right, no veil: the playfield stays visible. */
+  resultAside?: boolean;
 }
 
-const { game: id, keys } = Astro.props;
+const { game: id, keys, resultAside = false } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
 const target = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
@@ -147,7 +153,7 @@ const hasStartSlot = Astro.slots.has("start");
   </div>
 
   <div
-    class="screen veil late"
+    class:list={["screen", "late", resultAside ? "aside" : "veil"]}
     data-shell-screen="result"
     tabindex="-1"
     role="dialog"
@@ -304,6 +310,15 @@ const hasStartSlot = Astro.slots.has("start");
   }
   .screen.late .card {
     animation-delay: 0.5s;
+  }
+  /* Docked at the right, no veil: the playfield stays in view beside it. */
+  .screen.aside {
+    background: transparent;
+    place-items: center end;
+    padding: 72px 36px 20px;
+  }
+  .screen.aside .card {
+    width: 480px;
   }
   .card {
     background: var(--bd-paper);
