@@ -63,3 +63,20 @@ export function slotScore(reels: readonly [string, string, string]): number {
   if (a === b || b === c || a === c) return 50;
   return 0;
 }
+
+/**
+ * Turkish Wordle, "Kelime avı" (#201; spec row "1–3 guesses = 100, 4 = 95,
+ * 5 = 80, 6 = 65, unsolved = 0"). `guesses` is how many rows she used,
+ * 1..6; `solved` is whether the last of them was the answer. Four guesses
+ * is the Small prize edge. The Wordle page also calls this with the NEXT
+ * guess number for its "Şimdi bilirsen %N" line, so the HUD and the result
+ * can never disagree.
+ */
+export function wordleScore(guesses: number, solved: boolean): number {
+  if (!solved) return 0;
+  if (guesses <= 3) return 100;
+  if (guesses === 4) return 95;
+  if (guesses === 5) return 80;
+  if (guesses === 6) return 65;
+  return 0;
+}

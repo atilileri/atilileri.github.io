@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore, milyonerScore, missScore, slotScore } from "./scores.ts";
+import { memoryScore, milyonerScore, missScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -96,4 +96,30 @@ test("slot machine: two alike is 50, wherever the odd one sits", () => {
 
 test("slot machine: three different is 0", () => {
   assert.equal(slotScore(["camera", "ski", "note"]), 0);
+});
+
+// ---------------------------------------------------------- Turkish Wordle
+// Spec: 1–3 guesses = 100, 4 = 95, 5 = 80, 6 = 65, unsolved = 0; 95% means
+// solved in at most 4 guesses (#201, #188, #174).
+
+test("Wordle: solved in 1, 2 or 3 guesses is a perfect 100", () => {
+  assert.equal(wordleScore(1, true), 100);
+  assert.equal(wordleScore(2, true), 100);
+  assert.equal(wordleScore(3, true), 100);
+});
+
+test("Wordle: solved in 4 guesses is exactly 95, the Small prize edge", () => {
+  assert.equal(wordleScore(4, true), 95);
+});
+
+test("Wordle: solved in 5 guesses is 80", () => {
+  assert.equal(wordleScore(5, true), 80);
+});
+
+test("Wordle: solved on the sixth and last guess is 65", () => {
+  assert.equal(wordleScore(6, true), 65);
+});
+
+test("Wordle: six guesses without the answer score 0", () => {
+  assert.equal(wordleScore(6, false), 0);
 });
