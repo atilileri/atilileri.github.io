@@ -367,6 +367,20 @@ test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo u
   expect(overflow).toEqual({ down: 0, across: 0 });
 });
 
+test("\"Şarkıyı bil\" opens on its start screen with its keys, its prize and the piano's credit (#204)", async ({ page }) => {
+  // No Round here: Enter would start the piano, and Game feel is Atıl's by hand.
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/sarki/");
+
+  const start = page.getByRole("dialog", { name: "Şarkıyı bil" });
+  await expect(start).toBeVisible();
+  await expect(start).toContainText("Şarkıyı seç");
+  await expect(start).toContainText("Bir daha dinle");
+  await expect(start).toContainText("Dodo'da kahvaltı");
+  await expect(start.getByRole("button", { name: /Başla/ })).toBeVisible();
+  await expect(page.getByText(/FluidR3 GM.*CC BY 3\.0/)).toBeAttached();
+});
+
 test("Milyoner: Esc on \"Son kararın mı?\" takes the answer back without leaving, and Yarı yarıya leaves two choices (#198)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/milyoner/");
