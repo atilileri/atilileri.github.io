@@ -51,10 +51,14 @@ export type Proof = {
   prizes: ProofPrize[];
   /** The day it is printed, the Turkish way: "9 Aralık 2026". */
   date: string;
+  /** The check code, in large letters: the last 6 characters of `code`. */
+  check: string;
+  /** The full Save code, in small letters: the paper is the last backup. */
+  code: string;
 };
 
 /** What the ledger must answer for a Proof; the full `Ledger` does. */
-export type ProofSource = Pick<Ledger, "held" | "prizesWon">;
+export type ProofSource = Pick<Ledger, "held" | "prizesWon" | "toSaveCode">;
 
 /** Day, month spelt out, year — "9 Aralık 2026" — in the reader's own time zone. */
 const TURKISH_DATE = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -63,6 +67,7 @@ const TURKISH_DATE = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "
 export async function proofOf(ledger: ProofSource, today: Date): Promise<Proof> {
   const held = ledger.held();
   const won = new Set(ledger.prizesWon());
+  const { code, check } = await ledger.toSaveCode();
   return {
     gifts: GIFTS.filter((g) => held.has(g.id)).map((g) => ({ id: g.id, name: g.name, desc: g.desc })),
     prizes: GAMES.filter((g) => won.has(g.id)).map((g) => ({
@@ -72,5 +77,7 @@ export async function proofOf(ledger: ProofSource, today: Date): Promise<Proof> 
       desc: g.prize.desc,
     })),
     date: TURKISH_DATE.format(today),
+    check,
+    code,
   };
 }
