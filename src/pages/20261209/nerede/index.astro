@@ -1,0 +1,347 @@
+---
+/**
+ * /20261209/nerede/ — "Bu nerede?" (#199; spec #192 "Bu nerede?", stories
+ * 65–67). One of our travel photos fills most of the screen; four place
+ * names stand under it, A to D; she picks the one the photo was taken at.
+ *
+ * WHAT SHE SEES. Ten photos a Round, the HUD counting "Fotoğraf 3/10 · Hata
+ * 1". She answers with 1–4, A–D or a click (the shared keys of the simple
+ * Games, #182). Her pick turns green or red at once; on a miss the right
+ * place is marked green beside her red one. The next photo comes after 1.5 s,
+ * or at once on any key or click. After the tenth the shell shows the
+ * result: no miss is %100, one miss %95 (`missScore` in
+ * `src/lib/bday26/scores.ts`) — so one slip still wins Paleis Het Loo
+ * gezisi, and the second costs the prize.
+ *
+ * HOW IT IS BUILT. Three layers, each a module of its own:
+ *   - `src/lib/bday26/nerede.ts` is the Round: which 10 photos, which 4
+ *     places under each and which is right, with the fairness rule of #189
+ *     (never the same place, never one that contains the answer or sits
+ *     inside it). It has no DOM and is pinned under `node --test`.
+ *   - `GameShell` (`src/components/bday26/GameShell.astro` + `mountGameShell`
+ *     in `src/lib/bday26/shell.ts`) is everything around the Round, and the
+ *     one call that records it.
+ *   - This page is the painter: one <img> and four buttons rendered at build
+ *     time; the script sets the photo and the names for each question,
+ *     colours the buttons from the Round's answer, runs the 1.5 s pause and
+ *     counts the misses, and hands the finished Round to the shell.
+ * The script owns no rule about places: "which choice is right" is always
+ * read off the Round, and the score is the pure function's.
+ *
+ * Photos come from `src/lib/bday26/photos.ts` (the typed `photos.json`); the
+ * 1600 px files are served from `/20261209/photos/`. The next photo is
+ * fetched while she looks at the current one, so the swap is instant.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+
+const game = gameById("nerede");
+
+const KEYS = [
+  { key: "1 2 3 4", does: "Yeri seç" },
+  { key: "A B C D", does: "Harfle de seçebilirsin" },
+  { key: "Tık", does: "Fareyle de seçebilirsin" },
+  { key: "Herhangi bir tuş", does: "Sonraki fotoğrafa geç" },
+  { key: "Esc", does: "Salona dön" },
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="nerede" keys={KEYS}>
+    <span slot="hud">Fotoğraf <b data-index>0</b>/10 · Hata <b data-misses>0</b></span>
+    <div class="stage" data-stage>
+      <figure class="photo">
+        <img data-photo alt="" draggable="false" />
+      </figure>
+      <ol class="choices" aria-label="Yerler">
+        {
+          LETTERS.map((letter, i) => (
+            <li>
+              <button class="choice" type="button" tabindex="-1" data-choice={i}>
+                <kbd aria-hidden="true">{letter}</kbd>
+                <span class="place" data-place></span>
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="hint">Sonraki fotoğraf için bir tuşa bas</p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { buildRound, type Question } from "../../../lib/bday26/nerede";
+  import { missScore } from "../../../lib/bday26/scores";
+  import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
+
+  /** Photos in a Round (spec story 66). */
+  const COUNT = 10;
+  /** How long her marked answer stays before the next photo (#182: ~1.5 s). */
+  const PAUSE_MS = 1500;
+
+  const stage = document.querySelector<HTMLElement>("[data-stage]");
+  const img = document.querySelector<HTMLImageElement>("[data-photo]");
+  const indexEl = document.querySelector<HTMLElement>("[data-index]");
+  const missesEl = document.querySelector<HTMLElement>("[data-misses]");
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-choice]"));
+  if (!stage || !img || !indexEl || !missesEl || buttons.length !== 4) {
+    throw new Error("bday26 nerede: the stage markup is missing");
+  }
+
+  let round: Question[] = [];
+  let current = 0;
+  let misses = 0;
+  /** True from her answer until the next photo: keys skip the wait. */
+  let answered = false;
+  let nextTimer = 0;
+
+  function paintQuestion() {
+    const q = round[current]!;
+    img!.src = photoUrl(q.photo.file);
+    stage!.classList.remove("answered");
+    buttons.forEach((button, i) => {
+      button.classList.remove("right", "wrong");
+      const place = button.querySelector<HTMLElement>("[data-place]");
+      if (place) place.textContent = q.choices[i] ?? "";
+    });
+    indexEl!.textContent = String(current + 1);
+    missesEl!.textContent = String(misses);
+    preload(round[current + 1]);
+  }
+
+  /** Fetch a photo into the cache before it is shown. */
+  function preload(q: Question | undefined) {
+    if (q) new Image().src = photoUrl(q.photo.file);
+  }
+
+  function startRound() {
+    window.clearTimeout(nextTimer);
+    round = buildRound(PHOTOS, Math.random, COUNT);
+    current = 0;
+    misses = 0;
+    answered = false;
+    paintQuestion();
+  }
+
+  function answer(i: number) {
+    if (answered) return;
+    const q = round[current]!;
+    answered = true;
+    const hit = i === q.answer;
+    if (!hit) misses += 1;
+    // The right place is green either way; on a miss her pick is red beside it.
+    buttons[q.answer]!.classList.add("right");
+    if (!hit) buttons[i]!.classList.add("wrong");
+    stage!.classList.add("answered");
+    missesEl!.textContent = String(misses);
+    nextTimer = window.setTimeout(next, PAUSE_MS);
+  }
+
+  function next() {
+    window.clearTimeout(nextTimer);
+    if (!answered) return;
+    answered = false;
+    current += 1;
+    if (current >= round.length) {
+      shell.finish(missScore(misses), { detail: misses === 0 ? "Hatasız tur!" : `${misses} hata` });
+      return;
+    }
+    paintQuestion();
+  }
+
+  const shell = mountGameShell({
+    game: "nerede",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => window.clearTimeout(nextTimer),
+      // The confirm card over a marked answer: the photo waits for her.
+      pause: () => window.clearTimeout(nextTimer),
+      resume: () => {
+        if (answered) nextTimer = window.setTimeout(next, PAUSE_MS);
+      },
+    },
+  });
+
+  stage.addEventListener("click", (event) => {
+    if (answered) return next();
+    const button = (event.target as Element).closest<HTMLElement>("[data-choice]");
+    if (button) answer(Number(button.dataset.choice));
+  });
+
+  // The shell has already taken Esc, and every key on its own screens; what
+  // arrives here is hers to answer with. 1–4 and A–D both pick (#182); after
+  // an answer any key moves on.
+  const CHOICE_KEY: Record<string, number> = { "1": 0, "2": 1, "3": 2, "4": 3, a: 0, b: 1, c: 2, d: 3 };
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
+    if (answered) {
+      event.preventDefault();
+      next();
+      return;
+    }
+    const i = CHOICE_KEY[event.key.toLowerCase()];
+    if (i != null) {
+      event.preventDefault();
+      answer(i);
+    }
+  });
+</script>
+
+<style>
+  /* The two answer colours. Green is the site's "won" token; red has no
+     token yet because nothing on the hub is ever wrong. */
+  .stage {
+    --right: var(--bd-won);
+    --right-bg: var(--bd-won-bg-2);
+    --right-ink: var(--bd-won-deep);
+    --wrong: #d9453d;
+    --wrong-bg: #fdeae8;
+    --wrong-ink: #8e2420;
+
+    /* The height is spelled in viewport units, like the memory board's,
+       because the shell's playfield is a grid whose one row is `auto`: a
+       percentage height here would be read against the content and the
+       1600 px photo would set the size instead of taking it. 104 px is the
+       HUD (64) and the playfield's padding (20 + 20). */
+    width: 100%;
+    height: calc(100vh - 104px);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    gap: 16px;
+    justify-items: center;
+  }
+
+  /* ── the photo ───────────────────────────────────────────────── */
+  .photo {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 18px;
+    box-shadow:
+      0 0 0 1px var(--bd-line),
+      0 24px 60px -30px rgb(58 45 42 / 0.5);
+    background: var(--bd-paper);
+  }
+
+  /* ── the four places ─────────────────────────────────────────── */
+  .choices {
+    /* An <ol> for the A–D order; the letters are the markers, not "1." */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: min(100%, 1560px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .choices li {
+    min-width: 0;
+  }
+  .choice {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    transition:
+      box-shadow 0.12s ease,
+      background 0.12s ease,
+      opacity 0.2s ease,
+      transform 0.12s ease;
+  }
+  .choice:hover {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .choice:active {
+    transform: translateY(1px);
+  }
+  .choice kbd {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 22px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .place {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--bd-ink);
+  }
+
+  /* After her answer: the right one green, her miss red, the rest step back. */
+  .stage.answered .choice {
+    cursor: default;
+    opacity: 0.5;
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+  }
+  .stage.answered .choice.right,
+  .stage.answered .choice.wrong {
+    opacity: 1;
+  }
+  .choice.right {
+    background: var(--right-bg);
+    box-shadow: 0 0 0 3px var(--right);
+  }
+  .choice.right kbd {
+    background: var(--right);
+    color: #fff;
+  }
+  .choice.right .place {
+    color: var(--right-ink);
+  }
+  .choice.wrong {
+    background: var(--wrong-bg);
+    box-shadow: 0 0 0 3px var(--wrong);
+  }
+  .choice.wrong kbd {
+    background: var(--wrong);
+    color: #fff;
+  }
+  .choice.wrong .place {
+    color: var(--wrong-ink);
+  }
+
+  /* The skip hint keeps its line, so nothing jumps when it appears. */
+  .hint {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bd-muted);
+    visibility: hidden;
+  }
+  .stage.answered .hint {
+    visibility: visible;
+  }
+</style>

@@ -21,6 +21,18 @@
  */
 
 /**
+ * "Bu nerede?" (#199) and name the song (#204, spec row "as Bu nerede?"):
+ * "0 misses = 100, 1 = 95, each further miss −10". A miss is one question of
+ * the ten answered wrong. The first miss costs 5, so one slip still wins the
+ * Small prize; the second costs 10 more (85), and from 11 misses the score
+ * is 0 — a Round has only 10 questions, so that row is the clamp.
+ */
+export function missScore(misses: number): number {
+  if (misses <= 0) return 100;
+  return Math.max(0, 95 - 10 * (misses - 1));
+}
+
+/**
  * Memory match (#194; spec row "≤14 moves = 100, −5 per extra move"). A move
  * is one pair of cards turned. Eight pairs need at least 8 moves, so 8..14
  * is perfect; 15 is the Small prize edge at 95; 34 and more is 0.

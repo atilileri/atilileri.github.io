@@ -343,6 +343,30 @@ test("a Game opens on its start screen, and a Round she leaves scores nothing (#
   await expect(page.getByText("0/11 oynandı")).toBeVisible();
 });
 
+test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo up with four places (#199)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/nerede/");
+
+  // The start screen: name, rule, the answer keys, the Small prize, Enter to begin.
+  const start = page.getByRole("dialog", { name: "Bu nerede?" });
+  await expect(start).toBeVisible();
+  await expect(start).toContainText("Fotoğraftaki yeri bul");
+  await expect(start).toContainText("Yeri seç");
+  await expect(start).toContainText("Paleis Het Loo gezisi");
+  await expect(start.getByRole("button", { name: /Başla/ })).toBeVisible();
+
+  // Enter: photo 1 of 10, no miss yet, four places under it, all on one screen.
+  await page.keyboard.press("Enter");
+  await expect(start).toBeHidden();
+  await expect(page.getByText("Fotoğraf 1/10 · Hata 0")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Yerler" }).getByRole("button")).toHaveCount(4);
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+});
+
 test("the slot machine: a spin lands its score on the machine, no result screen, and Esc is the hub (#200)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/slot/");
@@ -380,6 +404,7 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await expect(row(page, "Slot makinesi")).toContainText("Puan vermez");
   await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
   await expect(page.getByText("1/11 oynandı")).toBeVisible();
+});
 
 test("the Proof lists what she holds and won, and its check code is the tail of the Save code Yedekle shows (#197)", async ({ page }) => {
   // Rocky Horror held; hafiza, wordle, kadraj won at the bar, the slot by its
