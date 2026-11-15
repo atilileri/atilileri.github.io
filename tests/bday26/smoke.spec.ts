@@ -366,3 +366,49 @@ test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo u
   }));
   expect(overflow).toEqual({ down: 0, across: 0 });
 });
+
+test("the Proof lists what she holds and won, and its check code is the tail of the Save code Yedekle shows (#197)", async ({ page }) => {
+  // Rocky Horror held; hafiza, wordle, kadraj won at the bar, the slot by its
+  // jackpot. First the code Yedekle shows, to compare the paper against.
+  await seed(page, A_LATER_EVENING);
+  await page.goto(HUB);
+  const tools = page.getByRole("navigation", { name: "Araçlar" });
+  await tools.getByRole("button", { name: "Yedekle" }).click();
+  const yedekle = page.getByRole("dialog", { name: "Yedekle" });
+  const code = await yedekle.getByRole("textbox").inputValue();
+  await yedekle.getByRole("button", { name: "Kapat" }).click();
+
+  // The hub's "Belge" link opens the Proof, Turkish like the rest.
+  await tools.getByRole("link", { name: "Belge" }).click();
+  await expect(page).toHaveURL(/\/20261209\/belge\/$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+
+  // The Gift she holds with its line; the Small prizes she won, in the hub's
+  // order, each with the Game that gave it; today's date, written out.
+  const gifts = page.getByRole("list", { name: "Sendeki hediyeler" });
+  await expect(gifts.getByRole("listitem")).toHaveText([/Rocky Horror film gecesi/]);
+  await expect(gifts).toContainText("The Rocky Horror Picture Show ile şarkılı, danslı bir film gecesi.");
+  const prizes = page.getByRole("list", { name: "Kazandığın küçük ödüller" });
+  await expect(prizes.getByRole("listitem")).toHaveText([
+    /Mei Wah'da akşam yemeği/,
+    /Paper Apps: The Games/,
+    /Sage bottomless portafiltre/,
+    /Kazımalı dünya haritası/,
+  ]);
+  await expect(prizes).toContainText("Hafıza kartları");
+  await expect(page.getByText(/^\d{1,2} \S+ \d{4}$/)).toBeVisible();
+
+  // The check code is the code's last six characters; the whole code is on
+  // the paper too, so the paper is the last backup.
+  await expect(page.getByText(code.slice(-6), { exact: true })).toBeVisible();
+  await expect(page.getByText(code, { exact: true })).toBeVisible();
+
+  // On paper the UI goes away; the one-page fit is Atıl's to check by hand.
+  const print = page.getByRole("button", { name: "Yazdır" });
+  const back = page.getByRole("link", { name: /Salona dön/ });
+  await expect(print).toBeVisible();
+  await expect(back).toBeVisible();
+  await page.emulateMedia({ media: "print" });
+  await expect(print).toBeHidden();
+  await expect(back).toBeHidden();
+});
