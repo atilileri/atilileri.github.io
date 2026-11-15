@@ -28,3 +28,16 @@
 export function memoryScore(moves: number): number {
   return Math.max(0, 100 - 5 * Math.max(0, moves - 14));
 }
+
+/**
+ * "Bu nerede?" (#199) and name the song (#204); spec row "0 misses = 100,
+ * 1 = 95, each further miss −10". Ten questions a Round: a perfect Round is
+ * 100, one slip is the Small prize edge at 95, ten misses leave 5, and the
+ * floor is 0. The one function serves both Games on purpose: the spec
+ * scores name the song "as Bu nerede?", so a change to one is a change to
+ * both.
+ */
+export function missScore(misses: number): number {
+  if (misses <= 0) return 100;
+  return Math.max(0, 95 - 10 * (misses - 1));
+}
