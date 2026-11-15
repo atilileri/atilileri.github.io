@@ -1,0 +1,469 @@
+---
+/**
+ * /20261209/sarki/ — "Şarkıyı bil", name the song (#204; spec #192 "Name the
+ * song", stories 74–76; simple Games' keys #182; song pool #187). The piano
+ * plays a song's hook by itself; four titles stand under it, A to D; she
+ * picks the song.
+ *
+ * WHAT SHE SEES. Ten songs a Round, drawn from the 20 of the pool, the HUD
+ * counting "Şarkı 3/10 · Hata 1". The hook starts on its own when a question
+ * appears; Space or R plays it again, as often as she likes. She answers
+ * with 1–4, A–D or a click: green or red at once, the right title marked
+ * green beside her red one on a miss. The next song comes after 1.5 s, or at
+ * once on any key or click. No timer, no reveal of the recording (#187).
+ * After the tenth the shell shows the result: `missScore` (no miss %100,
+ * one miss %95), so one slip still wins Dodo'da kahvaltı.
+ *
+ * SOUND ONLY AFTER HER GESTURE (spec; Chrome's autoplay rule, #186). Her
+ * first key is Enter (or a click on Başla) on the shell's start screen; the
+ * shell calls `startRound` inside that event, and `startRound` unlocks the
+ * piano there. The first hook waits for the samples (2.6 MB, once), and the
+ * stage says "Piyano hazırlanıyor…" until they are in.
+ *
+ * HOW IT IS BUILT. `src/lib/bday26/sarki.ts` is the Round (the deal, the
+ * answer state, which key means which choice), `src/lib/bday26/songs.ts` the
+ * hooks, `src/lib/bday26/piano.ts` the sound, and the shell everything
+ * around the Round. This page only paints and wires them; it owns no rule.
+ * The samples are CC BY 3.0, so the stage carries `PIANO_CREDIT`.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { PIANO_CREDIT } from "../../../lib/bday26/piano";
+
+const game = gameById("sarki");
+
+const KEYS = [
+  { key: "1 2 3 4", does: "Şarkıyı seç" },
+  { key: "A B C D", does: "Harfle de seçebilirsin" },
+  { key: "Tık", does: "Fareyle de seçebilirsin" },
+  { key: "Boşluk  R", does: "Bir daha dinle" },
+  { key: "Herhangi bir tuş", does: "Sonraki şarkıya geç" },
+  { key: "Esc", does: "Salona dön" },
+];
+
+const LETTERS = ["A", "B", "C", "D"];
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="sarki" keys={KEYS}>
+    <span slot="hud">Şarkı <b data-index>0</b>/10 · Hata <b data-misses>0</b></span>
+    <div class="stage" data-stage data-piano="locked">
+      <div class="listen">
+        <button class="speaker" type="button" tabindex="-1" data-replay aria-label="Bir daha dinle">
+          <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+        <p class="status">
+          <span class="when-loading">Piyano hazırlanıyor…</span>
+          <span class="when-failed">Piyano sesi yüklenemedi. Sayfayı yenileyip tekrar dene.</span>
+          <span class="when-ready">Bu hangi şarkı? <kbd>Boşluk</kbd> ya da <kbd>R</kbd> ile bir daha dinle</span>
+        </p>
+      </div>
+      <ol class="choices" aria-label="Şarkılar">
+        {
+          LETTERS.map((letter, i) => (
+            <li>
+              <button class="choice" type="button" tabindex="-1" data-choice={i}>
+                <kbd aria-hidden="true">{letter}</kbd>
+                <span class="title" data-title />
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="hint">Sonraki şarkı için bir tuşa bas</p>
+      <p class="credit">{PIANO_CREDIT}</p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { choiceOfKey, createQuiz, dealQuiz, type Quiz } from "../../../lib/bday26/sarki";
+  import { SONGS, type PoolSong } from "../../../lib/bday26/songs";
+  import { createPiano } from "../../../lib/bday26/piano";
+  import { parseSong, timeSong, type Song } from "../../../lib/bday26/song";
+  import { missScore } from "../../../lib/bday26/scores";
+
+  /** How long her marked answer stays before the next song (#182: ~1.5 s). */
+  const PAUSE_MS = 1500;
+
+  const stage = document.querySelector<HTMLElement>("[data-stage]");
+  const indexEl = document.querySelector<HTMLElement>("[data-index]");
+  const missesEl = document.querySelector<HTMLElement>("[data-misses]");
+  const replayEl = document.querySelector<HTMLElement>("[data-replay]");
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-choice]"));
+  if (!stage || !indexEl || !missesEl || !replayEl || buttons.length !== 4) {
+    throw new Error("bday26 sarki: the stage markup is missing");
+  }
+
+  /** Every hook parsed once, by title; the Round deals titles. */
+  const HOOKS = new Map<string, { song: PoolSong; parsed: Song; seconds: number }>(
+    SONGS.map((s) => {
+      const parsed = parseSong(s.hook);
+      return [s.title, { song: s, parsed, seconds: timeSong(parsed, s.bpm).seconds }];
+    }),
+  );
+  const TITLES = SONGS.map((s) => s.title);
+
+  const piano = createPiano({
+    onState: (state) => (stage!.dataset.piano = state),
+  });
+
+  let quiz: Quiz | undefined;
+  let nextTimer = 0;
+  let playingTimer = 0;
+
+  /** Play the current question's hook from the top; the speaker moves while it sounds. */
+  async function playHook() {
+    if (!quiz) return;
+    const hook = HOOKS.get(quiz.question.title)!;
+    const round = quiz;
+    const asked = quiz.index;
+    await piano.play(hook.parsed, { bpm: hook.song.bpm });
+    // Superseded while the samples loaded (the next question, or another Round).
+    if (quiz !== round || round.index !== asked || piano.state !== "ready") return;
+    window.clearTimeout(playingTimer);
+    stage!.classList.add("playing");
+    playingTimer = window.setTimeout(() => stage!.classList.remove("playing"), hook.seconds * 1000 + piano.latencyMs);
+  }
+
+  function silence() {
+    piano.stop();
+    window.clearTimeout(playingTimer);
+    stage!.classList.remove("playing");
+  }
+
+  function paintQuestion() {
+    const q = quiz!.question;
+    stage!.classList.remove("answered");
+    buttons.forEach((button, i) => {
+      button.classList.remove("right", "wrong");
+      const title = button.querySelector<HTMLElement>("[data-title]");
+      if (title) title.textContent = q.choices[i] ?? "";
+    });
+    indexEl!.textContent = String(quiz!.index + 1);
+    missesEl!.textContent = String(quiz!.misses);
+  }
+
+  function startRound() {
+    window.clearTimeout(nextTimer);
+    quiz = createQuiz(dealQuiz(TITLES, Math.random));
+    paintQuestion();
+    // Inside her Enter or Başla click: the gesture that may start sound.
+    piano.unlock();
+    playHook();
+  }
+
+  function answer(i: number) {
+    if (!quiz || quiz.picked !== undefined) return;
+    const hit = quiz.pick(i);
+    const right = quiz.question.answer;
+    // The right title is green either way; on a miss her pick is red beside it.
+    buttons[right]!.classList.add("right");
+    if (!hit) buttons[i]!.classList.add("wrong");
+    stage!.classList.add("answered");
+    missesEl!.textContent = String(quiz.misses);
+    nextTimer = window.setTimeout(next, PAUSE_MS);
+  }
+
+  function next() {
+    window.clearTimeout(nextTimer);
+    if (!quiz || quiz.picked === undefined) return;
+    if (quiz.done) {
+      silence();
+      const misses = quiz.misses;
+      quiz = undefined;
+      shell.finish(missScore(misses), { detail: misses === 0 ? "Hatasız tur!" : `${misses} hata` });
+      return;
+    }
+    quiz.next();
+    paintQuestion();
+    playHook();
+  }
+
+  const shell = mountGameShell({
+    game: "sarki",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => {
+        window.clearTimeout(nextTimer);
+        silence();
+        quiz = undefined;
+      },
+      // The confirm card: the music stops and a marked answer waits for her.
+      pause: () => {
+        window.clearTimeout(nextTimer);
+        silence();
+      },
+      resume: () => {
+        if (quiz?.picked !== undefined) nextTimer = window.setTimeout(next, PAUSE_MS);
+      },
+    },
+  });
+
+  stage.addEventListener("click", (event) => {
+    piano.unlock();
+    if (quiz?.picked !== undefined) return next();
+    const target = event.target as Element;
+    const button = target.closest<HTMLElement>("[data-choice]");
+    if (button) return answer(Number(button.dataset.choice));
+    if (target.closest("[data-replay]")) playHook();
+  });
+
+  // The shell has already taken Esc, and every key on its own screens; what
+  // arrives here is hers. 1–4 and A–D pick (#182), Space and R replay for
+  // free, and after an answer any key moves on.
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.repeat || !quiz) return;
+    piano.unlock();
+    if (quiz.picked !== undefined) {
+      event.preventDefault();
+      next();
+      return;
+    }
+    if (event.key === " " || event.key.toLowerCase() === "r") {
+      event.preventDefault();
+      playHook();
+      return;
+    }
+    const i = choiceOfKey(event.key);
+    if (i !== undefined) {
+      event.preventDefault();
+      answer(i);
+    }
+  });
+</script>
+
+<style>
+  /* The two answer colours, as on "Bu nerede?". */
+  .stage {
+    --right: var(--bd-won);
+    --right-bg: var(--bd-won-bg-2);
+    --right-ink: var(--bd-won-deep);
+    --wrong: #d9453d;
+    --wrong-bg: #fdeae8;
+    --wrong-ink: #8e2420;
+
+    /* Viewport units, as on "Bu nerede?": 104 px is the HUD (64) and the
+       playfield's padding (20 + 20). */
+    width: 100%;
+    height: calc(100vh - 104px);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto auto;
+    gap: 20px;
+    justify-items: center;
+  }
+
+  /* ── the speaker ─────────────────────────────────────────────── */
+  .listen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+  }
+  .speaker {
+    width: 260px;
+    height: 260px;
+    border: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--bd-paper);
+    box-shadow:
+      0 0 0 1.5px var(--bd-line),
+      0 24px 60px -30px rgb(58 45 42 / 0.5);
+    cursor: pointer;
+    outline: none;
+    transition: box-shadow 0.15s ease;
+  }
+  .speaker:hover {
+    box-shadow:
+      0 0 0 3px var(--bd-accent),
+      0 24px 60px -30px rgb(58 45 42 / 0.5);
+  }
+  .bars {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 110px;
+  }
+  .bars i {
+    width: 18px;
+    height: 30%;
+    border-radius: 9px;
+    background: var(--bd-accent);
+    transition: height 0.3s ease;
+  }
+  .stage.playing .bars i {
+    animation: bar 0.9s ease-in-out infinite alternate;
+  }
+  .stage.playing .bars i:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .stage.playing .bars i:nth-child(3) {
+    animation-delay: -0.6s;
+  }
+  .stage.playing .bars i:nth-child(4) {
+    animation-delay: -0.15s;
+  }
+  .stage.playing .bars i:nth-child(5) {
+    animation-delay: -0.45s;
+  }
+  @keyframes bar {
+    from {
+      height: 20%;
+    }
+    to {
+      height: 100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage.playing .bars i {
+      animation: none;
+      height: 70%;
+    }
+  }
+
+  .status {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--bd-ink);
+    text-align: center;
+  }
+  .status kbd {
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-family: var(--bd-display);
+    font-size: 20px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .status > span {
+    display: none;
+  }
+  .stage[data-piano="locked"] .when-loading,
+  .stage[data-piano="loading"] .when-loading,
+  .stage[data-piano="failed"] .when-failed,
+  .stage[data-piano="ready"] .when-ready {
+    display: inline;
+  }
+  .when-failed {
+    color: var(--wrong-ink);
+  }
+
+  /* ── the four titles ─────────────────────────────────────────── */
+  .choices {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: min(100%, 1400px);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .choices li {
+    min-width: 0;
+  }
+  .choice {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 24px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    transition:
+      box-shadow 0.12s ease,
+      background 0.12s ease,
+      opacity 0.2s ease,
+      transform 0.12s ease;
+  }
+  .choice:hover {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .choice:active {
+    transform: translateY(1px);
+  }
+  .choice kbd {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 24px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--bd-ink);
+  }
+
+  .stage.answered .choice {
+    cursor: default;
+    opacity: 0.5;
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+  }
+  .stage.answered .choice.right,
+  .stage.answered .choice.wrong {
+    opacity: 1;
+  }
+  .choice.right {
+    background: var(--right-bg);
+    box-shadow: 0 0 0 3px var(--right);
+  }
+  .choice.right kbd {
+    background: var(--right);
+    color: #fff;
+  }
+  .choice.right .title {
+    color: var(--right-ink);
+  }
+  .choice.wrong {
+    background: var(--wrong-bg);
+    box-shadow: 0 0 0 3px var(--wrong);
+  }
+  .choice.wrong kbd {
+    background: var(--wrong);
+    color: #fff;
+  }
+  .choice.wrong .title {
+    color: var(--wrong-ink);
+  }
+
+  .hint {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bd-muted);
+    visibility: hidden;
+  }
+  .stage.answered .hint {
+    visibility: visible;
+  }
+
+  /* The samples' licence asks for the credit; it stays small and quiet. */
+  .credit {
+    margin: 0;
+    font-size: 12px;
+    color: var(--bd-muted);
+  }
+</style>
