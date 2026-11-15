@@ -1,6 +1,41 @@
 /**
  * Turkish Wordle, "Kelime avı" (/20261209/wordle/, #201; spec #192 "Turkish
- * Wordle", stories 77–80; rules decided on the prototype, #188).
+ * Wordle", stories 77–80). The rules are the verdict of the prototype,
+ * #188, which Atıl played: "defaults as built, plus a hint per answer".
+ * This module is the whole Game without a screen; the page
+ * (`src/pages/20261209/wordle/index.astro`) paints what it says, and
+ * `wordleScore` in `./scores.ts` turns a finished Round into its score.
+ *
+ * WHAT IT HOLDS.
+ *   - `ANSWERS`: the ten words and phrases with their one İpucu each, word
+ *     for word the #188 table. She turns 34, so OTUZ DÖRT, not OTUZ BEŞ.
+ *   - `pickAnswer`: the next Round's answer, never the last Round's. The
+ *     random number is an argument, so the tests can pin every outcome; the
+ *     page keeps "the last one" across reloads itself.
+ *   - `typedLetter`: a key as she pressed it → a Turkish capital, through
+ *     `toLocaleUpperCase("tr")`, so i → İ and ı → I (plain `toUpperCase`
+ *     would make both I, and İYİ Kİ DOĞDUN could never be typed). Q, W and
+ *     X type, because they are on her keyboard, but are in no answer. No
+ *     loose letters: C is not Ç, G is not Ğ (#188).
+ *   - `colour`: Wordle colouring. Greens first; then yellows only up to the
+ *     copies of that letter the answer has left; the rest grey.
+ *   - `createRound`: one Round. Its grid row is the answer's shape: a
+ *     letter cell per letter and a fixed gap cell per space, which she
+ *     never types and the caret skips. Any letters go (no dictionary, no
+ *     vowel rule, #188), but Enter wants every letter cell filled. Six
+ *     guesses; the keyboard keeps each letter's best colour (green over
+ *     yellow over grey).
+ *
+ * WHAT IT LEAVES OUT. No DOM, no timers, no storage, no ledger: the turn-
+ * over animation, the "Eksik harf var" toast, the HUD and the result card
+ * are the page's, the score is `./scores.ts`'s, recording it is the Game
+ * shell's (`./shell.ts`). So `wordle.test.ts` pins every rule under
+ * `node --test`.
+ *
+ * LETTERS, NOT CHARACTERS. A guess and the answer are compared as arrays of
+ * letters with the spaces taken out; `Cell.at` maps a grid cell to its
+ * place in that array. Every Turkish capital is one UTF-16 unit (İ is
+ * U+0130), so a letter is one string element.
  */
 
 /** One answer and its one İpucu. */
