@@ -1,0 +1,565 @@
+---
+/**
+ * /20261209/slot/ — the slot machine, "Slot makinesi" (#200; spec #192 "Slot
+ * machine", stories 50–55; rules decided on #182). The one luck Game, and the
+ * one Game without a result screen.
+ *
+ * WHAT SHE SEES. A cabinet with three reel windows, a lever on its right and
+ * a display under the reels. Space, or a click on the lever, pulls it: the
+ * reels roll for about a second and a half and stop one by one, left to
+ * right; the display then says what came up and the score — "Jackpot!" and
+ * %100 for three alike, "İkili!" and %50 for two, "Bu sefer olmadı" and %0
+ * for none — and she can spin again at once, as often as she likes. Free and
+ * unlimited; the slot gives no Points (story 55). Under the display sits the
+ * Small prize line: locked until a jackpot, "Kazandın!" after.
+ *
+ * ONE SPIN IS ONE ROUND (glossary). The shell is mounted with
+ * `resultScreen: false` (story 54): `shell.finish` records the spin and
+ * hands the machine straight back, so the score lives on the machine. A
+ * jackpot calls `finish(100, { jackpot: true })`, which sets the ledger's
+ * jackpot flag — the slot's Small prize — and nothing else. Between spins
+ * nothing is half done, so the page answers `roundInProgress: false` and Esc
+ * is the hub at once; while the reels turn, Esc asks as in every Game, and
+ * the animation freezes under the question.
+ *
+ * HOW IT IS BUILT. The odds are not here: `spin(Math.random)` in
+ * `src/lib/bday26/slot.ts` draws the outcome first (jackpot at exactly 1 in
+ * 30) and dresses three reels to match; `slotScore` in `scores.ts` prices
+ * them. This page is the animation and the painter: each reel is a strip of
+ * the six symbols three times over, moved by one CSS variable `--pos` (in
+ * cells) from a requestAnimationFrame loop that runs the strip at a blur
+ * until that reel's stop time, then eases it onto the drawn symbol. A
+ * visitor who asked for reduced motion gets the stops without the run.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { PRIZE_LOCKED_ICON, SLOT_SYMBOL_ICON } from "../../../lib/bday26/icons";
+import { SLOT_SYMBOLS } from "../../../lib/bday26/slot";
+
+const game = gameById("slot");
+
+const KEYS = [
+  { key: "Boşluk", does: "Çevir" },
+  { key: "Tık", does: "Kolu çek" },
+  { key: "Esc", does: "Salona dön" },
+];
+
+/** Three reels; each strip carries the six symbols three times, so any
+ *  landing position has a full window of cells below it. */
+const REELS = [0, 1, 2];
+const STRIP = [...SLOT_SYMBOLS, ...SLOT_SYMBOLS, ...SLOT_SYMBOLS];
+const LIGHTS = Array.from({ length: 15 });
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="slot" keys={KEYS}>
+    <span slot="hud">Tur <b data-spins>0</b></span>
+    <div class="machine" data-machine data-state="ready">
+      <div class="cabinet">
+        <div class="lights" aria-hidden="true">{LIGHTS.map(() => <i />)}</div>
+        <div class="reels" aria-hidden="true">
+          {
+            REELS.map((k) => (
+              <div class="window">
+                <div class="strip" data-strip style={`--pos: ${k * 2}`}>
+                  {STRIP.map((s) => (
+                    <span class="cell">{SLOT_SYMBOL_ICON[s]}</span>
+                  ))}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div class="display" role="status" aria-live="polite">
+          <p class="outcome" data-outcome>Boşluk'a bas ya da kolu çek</p>
+          <p class="score" data-score hidden></p>
+        </div>
+        <p class="prize">
+          <span data-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
+          Küçük ödül: <b>{game.prize.name}</b> · <span data-prize-sub>Jackpot'ta senin</span>
+        </p>
+      </div>
+      <button class="lever" type="button" data-lever aria-label="Kolu çek" tabindex="-1">
+        <span class="arm" aria-hidden="true">
+          <span class="rod"></span>
+          <span class="knob"></span>
+        </span>
+        <span class="base" aria-hidden="true"></span>
+      </button>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { spin, SLOT_SYMBOLS, type Spin, type SpinOutcome } from "../../../lib/bday26/slot";
+  import { slotScore } from "../../../lib/bday26/scores";
+  import { PRIZE_WON_ICON } from "../../../lib/bday26/icons";
+
+  function one<T extends HTMLElement>(selector: string): T {
+    const el = document.querySelector<T>(selector);
+    if (!el) throw new Error(`bday26 slot: the machine markup is missing ${selector}`);
+    return el;
+  }
+  const machine = one("[data-machine]");
+  const strips = Array.from(document.querySelectorAll<HTMLElement>("[data-strip]"));
+  const outcomeEl = one("[data-outcome]");
+  const scoreEl = one("[data-score]");
+  const prizeIcon = one("[data-prize-icon]");
+  const prizeSub = one("[data-prize-sub]");
+  const spinsEl = one("[data-spins]");
+  const lever = one<HTMLButtonElement>("[data-lever]");
+  if (strips.length !== 3) throw new Error("bday26 slot: three reels expected");
+
+  const N = SLOT_SYMBOLS.length;
+  /** Cells per second while a reel runs. Fast enough to blur. */
+  const RUN_SPEED = 18;
+  /** When each reel starts to settle, ms after the pull: left to right. */
+  const STOP_AT = [500, 850, 1200];
+  /** How long the ease onto the drawn symbol takes. */
+  const SETTLE_MS = 320;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const OUTCOME_TEXT: Record<SpinOutcome, string> = {
+    jackpot: "Jackpot! Üçü aynı",
+    pair: "İkili! İkisi aynı",
+    none: "Bu sefer olmadı",
+  };
+
+  type Reel = {
+    /** Where the strip is, in cells; the centre row shows cell `pos + 1`. */
+    pos: number;
+    /** `pos` at the pull: the run is measured from here. */
+    start: number;
+    /** Set when the reel begins to settle: from where, to where. */
+    from?: number;
+    to?: number;
+    settled: boolean;
+  };
+  const reels: Reel[] = strips.map((_, k) => ({ pos: k * 2, start: k * 2, settled: true }));
+  let current: Spin | undefined;
+  let spinning = false;
+  let raf = 0;
+  /** The pull's time base; shifted forward by however long a pause lasted. */
+  let t0 = 0;
+  let pausedAt = 0;
+  let spins = 0;
+
+  function paintReel(k: number) {
+    strips[k]!.style.setProperty("--pos", String(reels[k]!.pos));
+  }
+
+  /** The strip position that puts `symbol` on the centre row, at least a
+   *  cell and a half further on than `from`, so every stop is a roll in. */
+  function landingFor(symbol: Spin["reels"][number], from: number): number {
+    let to = (SLOT_SYMBOLS.indexOf(symbol) - 1 + N) % N;
+    while (to < from + 1.5) to += N;
+    return to;
+  }
+
+  const easeOut = (u: number) => 1 - (1 - u) ** 3;
+
+  function pull() {
+    if (spinning) return;
+    current = spin(Math.random);
+    spinning = true;
+    machine.dataset.state = "spinning";
+    delete machine.dataset.outcome;
+    machine.classList.remove("won-now");
+    outcomeEl.textContent = "Dönüyor…";
+    // Empty, not just hidden: the display holds no score until this spin lands.
+    scoreEl.textContent = "";
+    scoreEl.hidden = true;
+    lever.classList.remove("pulled");
+    void lever.offsetWidth; // restart the pull animation
+    lever.classList.add("pulled");
+    reels.forEach((r, k) => {
+      r.start = r.pos;
+      r.from = undefined;
+      r.to = undefined;
+      r.settled = false;
+      strips[k]!.classList.add("running");
+    });
+    t0 = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function frame(now: number) {
+    const t = now - t0;
+    let done = true;
+    reels.forEach((r, k) => {
+      if (r.settled) return;
+      const stopAt = reduceMotion ? 0 : STOP_AT[k]!;
+      if (t < stopAt) {
+        r.pos = (r.start + (RUN_SPEED * t) / 1000) % N;
+        done = false;
+      } else {
+        if (r.from == null) {
+          r.from = r.pos;
+          r.to = landingFor(current!.reels[k]!, r.pos);
+          strips[k]!.classList.remove("running");
+        }
+        const u = Math.min(1, (t - stopAt) / SETTLE_MS);
+        r.pos = r.from + (r.to! - r.from) * easeOut(u);
+        if (u >= 1) {
+          r.settled = true;
+          r.pos = r.to! % N; // the same cells, a strip-length earlier
+        } else {
+          done = false;
+        }
+      }
+      paintReel(k);
+    });
+    if (done) land();
+    else raf = requestAnimationFrame(frame);
+  }
+
+  /** All three reels stand still: price the spin, record it, show it. */
+  function land() {
+    spinning = false;
+    const drawn = current!;
+    const score = slotScore(drawn.reels);
+    const outcome = shell.finish(score, { jackpot: drawn.outcome === "jackpot" });
+    spins += 1;
+    spinsEl.textContent = String(spins);
+    machine.dataset.state = "landed";
+    machine.dataset.outcome = drawn.outcome;
+    outcomeEl.textContent = OUTCOME_TEXT[drawn.outcome];
+    scoreEl.textContent = `%${score}`;
+    scoreEl.hidden = false;
+    paintPrize();
+    machine.classList.toggle("won-now", outcome?.prizeWonNow === true);
+  }
+
+  function paintPrize() {
+    if (!ledger.prizeWon("slot")) return;
+    prizeIcon.textContent = PRIZE_WON_ICON;
+    prizeSub.textContent = "Kazandın!";
+  }
+
+  function stopLoop() {
+    cancelAnimationFrame(raf);
+    spinning = false;
+  }
+
+  const ledger = openLedger();
+  const shell = mountGameShell({
+    game: "slot",
+    ledger,
+    resultScreen: false,
+    hooks: {
+      // The machine is always ready: a Round begins with the pull, not here,
+      // and after a spin the display keeps what came up.
+      startRound() {},
+      abandonRound: stopLoop,
+      pause() {
+        if (!spinning) return;
+        pausedAt = performance.now();
+        cancelAnimationFrame(raf);
+      },
+      resume() {
+        if (!spinning) return;
+        t0 += performance.now() - pausedAt;
+        raf = requestAnimationFrame(frame);
+      },
+      roundInProgress: () => spinning,
+    },
+  });
+  reels.forEach((_, k) => paintReel(k));
+  paintPrize();
+
+  lever.addEventListener("click", pull);
+  // The shell has already taken Esc, and every key on its own screens; a
+  // held-down Space is one pull, not a stream.
+  window.addEventListener("keydown", (event) => {
+    if (event.key === " " && !event.repeat) {
+      event.preventDefault();
+      pull();
+    }
+  });
+</script>
+
+<style>
+  .machine {
+    --cell: min(150px, 17vh);
+    --cell-w: min(190px, 12vw);
+    --cabinet: #8e1a3a;
+    --cabinet-deep: #5e0f27;
+    --screen: #2a1a20;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+  }
+
+  /* ── cabinet ─────────────────────────────────────────────────── */
+  .cabinet {
+    background: linear-gradient(180deg, var(--bd-accent) 0%, var(--cabinet) 55%, var(--cabinet-deep) 100%);
+    border: 6px solid var(--bd-gold);
+    border-radius: 30px;
+    padding: 20px 26px 22px;
+    box-shadow:
+      0 0 0 1px var(--cabinet-deep),
+      0 34px 70px -30px rgb(94 15 39 / 0.7);
+  }
+  .lights {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6px;
+    margin-bottom: 16px;
+  }
+  .lights i {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--bd-gold);
+    box-shadow: 0 0 8px rgb(255 183 3 / 0.75);
+  }
+  .lights i:nth-child(even) {
+    opacity: 0.45;
+  }
+  .machine[data-state="spinning"] .lights i {
+    animation: chase 0.5s steps(1) infinite;
+  }
+  .machine[data-state="spinning"] .lights i:nth-child(even) {
+    animation-delay: 0.25s;
+  }
+  .machine[data-outcome="jackpot"] .lights i {
+    animation: chase 0.18s steps(1) infinite;
+  }
+  .machine[data-outcome="jackpot"] .lights i:nth-child(3n + 1) {
+    animation-delay: 0.06s;
+  }
+  .machine[data-outcome="jackpot"] .lights i:nth-child(3n + 2) {
+    animation-delay: 0.12s;
+  }
+
+  /* ── reels ───────────────────────────────────────────────────── */
+  .reels {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background: var(--screen);
+    box-shadow: inset 0 6px 18px rgb(0 0 0 / 0.45);
+  }
+  .window {
+    position: relative;
+    width: var(--cell-w);
+    height: calc(3 * var(--cell));
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--bd-bg);
+    box-shadow: inset 0 0 0 2px rgb(0 0 0 / 0.12);
+  }
+  /* The rows above and below the payline fade; the payline is ringed. */
+  .window::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      rgb(42 26 32 / 0.55) 0%,
+      rgb(42 26 32 / 0) 30%,
+      rgb(42 26 32 / 0) 70%,
+      rgb(42 26 32 / 0.55) 100%
+    );
+  }
+  .window::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--cell);
+    height: var(--cell);
+    z-index: 3;
+    pointer-events: none;
+    border-top: 3px solid rgb(255 183 3 / 0.85);
+    border-bottom: 3px solid rgb(255 183 3 / 0.85);
+  }
+  .strip {
+    transform: translateY(calc(var(--pos, 0) * var(--cell) * -1));
+    will-change: transform;
+  }
+  .strip.running {
+    filter: blur(1.5px);
+  }
+  .cell {
+    display: grid;
+    place-items: center;
+    height: var(--cell);
+    font-size: calc(var(--cell) * 0.58);
+    line-height: 1;
+  }
+
+  /* ── display ─────────────────────────────────────────────────── */
+  .display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 96px;
+    margin-top: 18px;
+    padding: 14px 24px;
+    border-radius: 18px;
+    background: var(--screen);
+    color: #fff;
+    box-shadow: inset 0 4px 14px rgb(0 0 0 / 0.45);
+  }
+  .outcome {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #ffd9e2;
+  }
+  .score {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 60px;
+    line-height: 1;
+    color: var(--bd-gold);
+  }
+  .machine[data-outcome="jackpot"] .display {
+    background: linear-gradient(180deg, #ffd56b, var(--bd-gold));
+    color: var(--cabinet-deep);
+    animation: glow 0.9s ease-in-out infinite alternate;
+  }
+  .machine[data-outcome="jackpot"] .outcome,
+  .machine[data-outcome="jackpot"] .score {
+    color: var(--cabinet-deep);
+  }
+  .machine[data-outcome="none"] .score {
+    color: #ffd9e2;
+  }
+
+  /* ── Small prize line ────────────────────────────────────────── */
+  .prize {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 15px;
+    color: rgb(255 255 255 / 0.82);
+  }
+  .prize b {
+    color: #fff;
+  }
+  .machine.won-now .prize {
+    animation: pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* ── lever ───────────────────────────────────────────────────── */
+  .lever {
+    position: relative;
+    flex: none;
+    width: 76px;
+    height: calc(3 * var(--cell) + 40px);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+  }
+  .arm {
+    position: absolute;
+    inset: 0 0 56px;
+    transform-origin: 50% 100%;
+  }
+  .lever.pulled .arm {
+    animation: pull 0.5s cubic-bezier(0.3, 0.9, 0.4, 1) both;
+  }
+  .rod {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 14px;
+    height: calc(100% - 28px);
+    transform: translateX(-50%);
+    border-radius: 7px;
+    background: linear-gradient(90deg, #a9aeb6, #eceef1 45%, #9ba1aa);
+  }
+  .knob {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 56px;
+    height: 56px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 32%, #ff9fb6, var(--bd-accent) 55%, var(--bd-accent-deep));
+    box-shadow: 0 8px 16px -8px rgb(0 0 0 / 0.6);
+  }
+  .lever:hover .knob {
+    filter: brightness(1.08);
+  }
+  .lever:focus-visible .knob {
+    outline: 3px solid var(--bd-gold);
+    outline-offset: 3px;
+  }
+  .base {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 48px;
+    height: 64px;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--cabinet), var(--cabinet-deep));
+    border: 4px solid var(--bd-gold);
+  }
+
+  @keyframes pull {
+    0% {
+      transform: translateY(0);
+    }
+    38% {
+      transform: translateY(42%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes chase {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes glow {
+    from {
+      box-shadow: inset 0 4px 14px rgb(0 0 0 / 0.2);
+    }
+    to {
+      box-shadow:
+        inset 0 4px 14px rgb(0 0 0 / 0.2),
+        0 0 36px rgb(255 183 3 / 0.9);
+    }
+  }
+  @keyframes pop {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lights i,
+    .display {
+      animation: none !important;
+    }
+    .strip.running {
+      filter: none;
+    }
+  }
+</style>

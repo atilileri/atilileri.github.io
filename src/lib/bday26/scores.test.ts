@@ -10,7 +10,51 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore, missScore } from "./scores.ts";
+import { memoryScore, milyonerScore, missScore, slotScore } from "./scores.ts";
+
+// ---------------------------------------------------------- Milyoner quiz
+// Spec: correct answers before the first miss ÷ 12; 95% means all 12
+// correct (#198, #182). Read as a percent and rounded down, so 11 of 12 is
+// 91 — below the Small prize bar — and only a full ladder wins Yemek Kartı.
+
+test("Milyoner: all 12 correct is a perfect 100, the only score over 95", () => {
+  assert.equal(milyonerScore(12), 100);
+});
+
+test("Milyoner: 11 correct is 91, short of the Small prize", () => {
+  assert.equal(milyonerScore(11), 91);
+});
+
+test("Milyoner: half the ladder is 50", () => {
+  assert.equal(milyonerScore(6), 50);
+});
+
+test("Milyoner: a miss on the first question scores 0", () => {
+  assert.equal(milyonerScore(0), 0);
+});
+
+// ------------------------------------------- "Bu nerede?" and name the song
+// Spec: 0 misses = 100, 1 = 95, each further miss −10; 95% means at most one
+// miss (#199; #204 scores "as Bu nerede?").
+
+test("miss score: a Round without a miss is a perfect 100", () => {
+  assert.equal(missScore(0), 100);
+});
+
+test("miss score: one miss is exactly 95, the Small prize edge", () => {
+  assert.equal(missScore(1), 95);
+});
+
+test("miss score: every miss after the first costs 10", () => {
+  assert.equal(missScore(2), 85);
+  assert.equal(missScore(3), 75);
+  assert.equal(missScore(10), 5);
+});
+
+test("miss score: eleven misses and more score 0, never less", () => {
+  assert.equal(missScore(11), 0);
+  assert.equal(missScore(12), 0);
+});
 
 // ------------------------------------------------------------ memory match
 // Spec: ≤14 moves = 100, −5 per extra move; 95% means ≤15 moves (#194).
@@ -36,24 +80,20 @@ test("memory match: very many moves score 0, never less", () => {
   assert.equal(memoryScore(100), 0);
 });
 
-// ------------------------------------------------------ name the song (#204)
-// Spec: scored "as Bu nerede?": 0 misses = 100, 1 = 95, each further −10,
-// floor 0. Ten questions a Round, so 11 misses cannot happen but 10 can.
+// ------------------------------------------------------------ slot machine
+// Spec: triple = 100 (the jackpot), pair = 50, none = 0 (#200, #182). The
+// reels are what she sees; the score reads them and nothing else.
 
-test("name the song: no miss in ten questions is 100", () => {
-  assert.equal(missScore(0), 100);
+test("slot machine: three alike is the jackpot, 100", () => {
+  assert.equal(slotScore(["heart", "heart", "heart"]), 100);
 });
 
-test("name the song: one miss is exactly 95, the Small prize edge", () => {
-  assert.equal(missScore(1), 95);
+test("slot machine: two alike is 50, wherever the odd one sits", () => {
+  assert.equal(slotScore(["camera", "camera", "ski"]), 50);
+  assert.equal(slotScore(["camera", "ski", "camera"]), 50);
+  assert.equal(slotScore(["ski", "camera", "camera"]), 50);
 });
 
-test("name the song: every miss after the first costs 10", () => {
-  assert.equal(missScore(2), 85);
-  assert.equal(missScore(3), 75);
-  assert.equal(missScore(10), 5);
-});
-
-test("name the song: eleven misses would be below zero and score 0", () => {
-  assert.equal(missScore(11), 0);
+test("slot machine: three different is 0", () => {
+  assert.equal(slotScore(["camera", "ski", "note"]), 0);
 });

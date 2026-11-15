@@ -342,3 +342,143 @@ test("a Game opens on its start screen, and a Round she leaves scores nothing (#
   await expect(row(page, "Hafıza kartları")).toContainText("Henüz oynamadın");
   await expect(page.getByText("0/11 oynandı")).toBeVisible();
 });
+
+test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo up with four places (#199)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/nerede/");
+
+  // The start screen: name, rule, the answer keys, the Small prize, Enter to begin.
+  const start = page.getByRole("dialog", { name: "Bu nerede?" });
+  await expect(start).toBeVisible();
+  await expect(start).toContainText("Fotoğraftaki yeri bul");
+  await expect(start).toContainText("Yeri seç");
+  await expect(start).toContainText("Paleis Het Loo gezisi");
+  await expect(start.getByRole("button", { name: /Başla/ })).toBeVisible();
+
+  // Enter: photo 1 of 10, no miss yet, four places under it, all on one screen.
+  await page.keyboard.press("Enter");
+  await expect(start).toBeHidden();
+  await expect(page.getByText("Fotoğraf 1/10 · Hata 0")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Yerler" }).getByRole("button")).toHaveCount(4);
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+});
+
+test("Milyoner: Esc on \"Son kararın mı?\" takes the answer back without leaving, and Yarı yarıya leaves two choices (#198)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/milyoner/");
+  await expect(page.getByRole("dialog", { name: "Milyoner" })).toContainText("Yemek Kartı");
+
+  // Enter: question 1 of 12, four choices; B marked, Enter asks.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Soru 1/12")).toBeVisible();
+  const choices = page.getByRole("list", { name: "Şıklar" }).getByRole("button");
+  await expect(choices).toHaveCount(4);
+  await page.keyboard.press("b");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Son kararın mı?")).toBeVisible();
+
+  // Esc here is "Vazgeç": the question stays, no leave question, no hub.
+  await page.keyboard.press("Escape");
+  await expect(page.getByText("Son kararın mı?")).toBeHidden();
+  await expect(page.getByText("Turdan çıkılsın mı?")).toBeHidden();
+  await expect(page.getByText("Soru 1/12")).toBeVisible();
+
+  // Y takes away two wrong choices; the joker is spent for the Round.
+  await page.keyboard.press("y");
+  await expect(page.getByRole("list", { name: "Şıklar" }).getByRole("button", { disabled: false })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /Yarı yarıya/ })).toBeDisabled();
+});
+
+test("the slot machine: a spin lands its score on the machine, no result screen, and Esc is the hub (#200)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/slot/");
+
+  // The start screen of the luck Game: its rule, Space to spin, and the Small
+  // prize line as the hub's tile has it — the jackpot, not a 95%.
+  const start = page.getByRole("dialog", { name: "Slot makinesi" });
+  await expect(start).toBeVisible();
+  await expect(start).toContainText("Çevir, şansını dene");
+  await expect(start).toContainText("Boşluk");
+  await expect(start).toContainText("Kazımalı dünya haritası");
+  await expect(start).toContainText("Jackpot'ta senin");
+  await expect(start).not.toContainText("%95 yapınca senin");
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+
+  // Enter: the machine waits for her. Space: the reels turn and stop, and
+  // the score shows on the machine itself; no "Tur bitti" card.
+  await page.keyboard.press("Enter");
+  await expect(start).toBeHidden();
+  const display = page.getByRole("status");
+  await expect(display).toContainText("Boşluk");
+  await page.keyboard.press(" ");
+  await expect(display).toContainText(/%(0|50|100)/, { timeout: 5000 });
+  await expect(page.getByRole("dialog", { name: "Tur bitti" })).toBeHidden();
+
+  // A click on the lever spins too: a second Round, landed on the machine.
+  await page.getByRole("button", { name: "Kolu çek" }).click();
+  await expect(page.locator("[data-spins]")).toHaveText("2", { timeout: 5000 });
+  await expect(display).toContainText(/%(0|50|100)/);
+
+  // Esc between spins is the hub at once, with no question. The Round was
+  // recorded (a Best score on the tile) and gave no Points.
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Slot makinesi")).toContainText(/%(0|50|100)/);
+  await expect(row(page, "Slot makinesi")).toContainText("Puan vermez");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+  await expect(page.getByText("1/11 oynandı")).toBeVisible();
+});
+
+test("the Proof lists what she holds and won, and its check code is the tail of the Save code Yedekle shows (#197)", async ({ page }) => {
+  // Rocky Horror held; hafiza, wordle, kadraj won at the bar, the slot by its
+  // jackpot. First the code Yedekle shows, to compare the paper against.
+  await seed(page, A_LATER_EVENING);
+  await page.goto(HUB);
+  const tools = page.getByRole("navigation", { name: "Araçlar" });
+  await tools.getByRole("button", { name: "Yedekle" }).click();
+  const yedekle = page.getByRole("dialog", { name: "Yedekle" });
+  const code = await yedekle.getByRole("textbox").inputValue();
+  await yedekle.getByRole("button", { name: "Kapat" }).click();
+
+  // The hub's "Belge" link opens the Proof, Turkish like the rest.
+  await tools.getByRole("link", { name: "Belge" }).click();
+  await expect(page).toHaveURL(/\/20261209\/belge\/$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+
+  // The Gift she holds with its line; the Small prizes she won, in the hub's
+  // order, each with the Game that gave it; today's date, written out.
+  const gifts = page.getByRole("list", { name: "Sendeki hediyeler" });
+  await expect(gifts.getByRole("listitem")).toHaveText([/Rocky Horror film gecesi/]);
+  await expect(gifts).toContainText("The Rocky Horror Picture Show ile şarkılı, danslı bir film gecesi.");
+  const prizes = page.getByRole("list", { name: "Kazandığın küçük ödüller" });
+  await expect(prizes.getByRole("listitem")).toHaveText([
+    /Mei Wah'da akşam yemeği/,
+    /Paper Apps: The Games/,
+    /Sage bottomless portafiltre/,
+    /Kazımalı dünya haritası/,
+  ]);
+  await expect(prizes).toContainText("Hafıza kartları");
+  await expect(page.getByText(/^\d{1,2} \S+ \d{4}$/)).toBeVisible();
+
+  // The check code is the code's last six characters; the whole code is on
+  // the paper too, so the paper is the last backup.
+  await expect(page.getByText(code.slice(-6), { exact: true })).toBeVisible();
+  await expect(page.getByText(code, { exact: true })).toBeVisible();
+
+  // On paper the UI goes away; the one-page fit is Atıl's to check by hand.
+  const print = page.getByRole("button", { name: "Yazdır" });
+  const back = page.getByRole("link", { name: /Salona dön/ });
+  await expect(print).toBeVisible();
+  await expect(back).toBeVisible();
+  await page.emulateMedia({ media: "print" });
+  await expect(print).toBeHidden();
+  await expect(back).toBeHidden();
+});

@@ -40,6 +40,8 @@
  * The wording of the confirm and result cards is the hiking prototype's
  * (#183), which Atıl played and approved; the look is the hub's (#178): the
  * shared tokens from `src/styles/bday26.css`, Baloo 2 for the big numbers.
+ * For the luck Game (#200) the target is the jackpot, not %95, so "Hedef"
+ * and the Small prize line say so, in the hub tile's words.
  */
 import { gameById, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
 import { GAME_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
@@ -52,6 +54,8 @@ interface Props {
 
 const { game: id, keys } = Astro.props;
 const game = gameById(id);
+/** What a Round aims at: %95, or the jackpot for the luck Game. */
+const target = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
 const hasResultSlot = Astro.slots.has("result");
 ---
 
@@ -69,7 +73,7 @@ const hasResultSlot = Astro.slots.has("result");
       </div>
       <div>
         <dt class="label">Hedef</dt>
-        <dd>%{PRIZE_BAR}</dd>
+        <dd>{target}</dd>
       </div>
     </dl>
     <span class="hud-esc"><kbd>Esc</kbd> çık</span>
@@ -101,11 +105,11 @@ const hasResultSlot = Astro.slots.has("result");
         }
       </ul>
       <p class="line">
-        Rekorun <b data-shell-best>—</b> · Hedef <b>%{PRIZE_BAR}</b>
+        Rekorun <b data-shell-best>—</b> · Hedef <b>{target}</b>
       </p>
       <p class="line">
         <span data-shell-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
-        Küçük ödül: <b>{game.prize.name}</b> · <span data-shell-prize-sub>%{PRIZE_BAR} yapınca senin</span>
+        Küçük ödül: <b>{game.prize.name}</b> · <span data-shell-prize-sub>{game.luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`}</span>
       </p>
       <div class="actions">
         <button class="bd-btn primary" type="button" data-shell-action="start">Başla <kbd>Enter</kbd></button>
@@ -158,7 +162,7 @@ const hasResultSlot = Astro.slots.has("result");
         </div>
         <div>
           <dt class="label">Hedef</dt>
-          <dd>%{PRIZE_BAR}</dd>
+          <dd>{target}</dd>
         </div>
       </dl>
       <p class="flash" data-shell-improved hidden>Yeni rekor!</p>

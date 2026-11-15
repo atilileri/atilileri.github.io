@@ -40,8 +40,11 @@
  *      pass `resultScreen: false`. Then `finish(score, { jackpot })` records
  *      the Round, calls `startRound` again at once and returns the ledger's
  *      `RoundOutcome` (Best score, improved, prizeWonNow) so the machine can
- *      say "Jackpot!" itself. The start screen still shows once; Esc during
- *      play still asks.
+ *      say "Jackpot!" itself. The start screen still shows once. Its
+ *      "playing" phase is mostly a machine waiting for her, and one spin is
+ *      one Round, so it also passes `roundInProgress: () => spinning`: Esc
+ *      between spins leaves at once, as on the start screen, and asks only
+ *      while the reels turn.
  *
  *   5. Extra result content. `detail` is one line under the score ("15
  *      hamle", "Senin rotan 9,2 km · en kısa 8,8 km"). A Game that wants
@@ -114,6 +117,10 @@ export type GameHooks = {
   pause?(): void;
   /** The card closed and the Round goes on. */
   resume?(): void;
+  /** Is there a Round to lose right now? Esc during play asks only when this
+   *  says true (default: always). The slot machine (#200) says false between
+   *  spins, where nothing is half done, so Esc leaves at once. */
+  roundInProgress?(): boolean;
 };
 
 export type ShellOptions = {
@@ -180,6 +187,10 @@ export function createGameShell(options: ShellOptions): GameShell {
     },
     askLeave() {
       if (phase !== "playing") return;
+      if (hooks.roundInProgress?.() === false) {
+        leave();
+        return;
+      }
       phase = "confirm";
       show();
       hooks.pause?.();
@@ -245,7 +256,9 @@ export function mountGameShell(options: MountOptions): GameShell {
   const main = one(root, "[data-shell]");
   const screens = Array.from(root.querySelectorAll<HTMLElement>("[data-shell-screen]"));
   const playfield = one(root, "[data-shell-playfield]");
-  const { prize } = gameById(options.game);
+  const { prize, luck } = gameById(options.game);
+  /** How the Small prize is won, as the hub's tile says it. */
+  const prizeHow = luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`;
 
   /** A score as she reads it: %88, rounded down like the Points it earns. */
   const pct = (score: number) => `%${Math.floor(score)}`;
@@ -260,7 +273,7 @@ export function mountGameShell(options: MountOptions): GameShell {
 
     fill("[data-shell-best]", screen.best == null ? "—" : pct(screen.best));
     fill("[data-shell-prize-icon]", screen.prizeWon ? "🎁" : "🔒");
-    fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : `%${PRIZE_BAR} yapınca senin`);
+    fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : prizeHow);
 
     const r = screen.result;
     if (r) {
