@@ -28,3 +28,16 @@
 export function memoryScore(moves: number): number {
   return Math.max(0, 100 - 5 * Math.max(0, moves - 14));
 }
+
+/**
+ * Slot machine (#200; spec row "triple = 100 (jackpot), pair = 50, none =
+ * 0"). The three reels as they stopped, by symbol; three alike is the
+ * jackpot. The only Game whose Points are never counted (`luck` in the
+ * catalogue), so 100 here wins the Small prize and nothing else.
+ */
+export function slotScore(reels: readonly [string, string, string]): number {
+  const [a, b, c] = reels;
+  if (a === b && b === c) return 100;
+  if (a === b || b === c || a === c) return 50;
+  return 0;
+}

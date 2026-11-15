@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore } from "./scores.ts";
+import { memoryScore, slotScore } from "./scores.ts";
 
 // ------------------------------------------------------------ memory match
 // Spec: ≤14 moves = 100, −5 per extra move; 95% means ≤15 moves (#194).
@@ -34,4 +34,22 @@ test("memory match: every move past 14 costs 5", () => {
 test("memory match: very many moves score 0, never less", () => {
   assert.equal(memoryScore(34), 0);
   assert.equal(memoryScore(100), 0);
+});
+
+// ------------------------------------------------------------ slot machine
+// Spec: triple = 100 (the jackpot), pair = 50, none = 0 (#200, #182). The
+// reels are what she sees; the score reads them and nothing else.
+
+test("slot machine: three alike is the jackpot, 100", () => {
+  assert.equal(slotScore(["heart", "heart", "heart"]), 100);
+});
+
+test("slot machine: two alike is 50, wherever the odd one sits", () => {
+  assert.equal(slotScore(["camera", "camera", "ski"]), 50);
+  assert.equal(slotScore(["camera", "ski", "camera"]), 50);
+  assert.equal(slotScore(["ski", "camera", "camera"]), 50);
+});
+
+test("slot machine: three different is 0", () => {
+  assert.equal(slotScore(["camera", "ski", "note"]), 0);
 });
