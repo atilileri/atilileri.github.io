@@ -1,0 +1,786 @@
+---
+/**
+ * /20261209/kadraj/ — photo framing, "Kadraj" (#203; spec #192 "Photo
+ * framing", stories 71–73; feel from the prototype #184, which Atıl played:
+ * "defaults as built, forgiving radius").
+ *
+ * WHAT SHE SEES. Five of our photos, always the same five in the same order
+ * (the ones with a Subject point, `subject` in `photos.json`). Each fills a
+ * dark stage with a white crop box over it, the whole photo at first, the
+ * rule-of-thirds lines on. She moves and sizes the box and confirms with
+ * Enter or "Kırp". There is no live score: the Subject point (*Odak
+ * noktası*) stays hidden while she crops. On confirm the crop zooms to fill
+ * the stage and the reveal draws the Subject point (orange dot), the
+ * nearest thirds point (white ring) and the green 95% ring around it, with
+ * the photo's score under the stage. Enter goes on; after the fifth, the
+ * shell's result card shows the Round score and the five crops, each with
+ * its score, the weakest tagged as the one that counts only 5%.
+ *
+ * KEYS (keyboard-first; the mouse works too):
+ *   - arrows move the box (Shift: 5× faster);
+ *   - Q or − shrinks, E or + grows, around the box's centre (Shift: faster);
+ *   - X turns the box between landscape and portrait;
+ *   - T hides or shows the thirds lines; R puts the whole photo back;
+ *   - Enter crops; on the reveal, Enter or Space goes to the next photo;
+ *   - mouse: drag inside the box to move it, a corner or an edge to resize
+ *     it, the wheel zooms around its centre.
+ *   Esc is the shell's (it asks first; a left Round scores nothing).
+ *
+ * HOW IT IS BUILT. Three layers:
+ *   - `src/lib/bday26/kadraj.ts`: the crop box (every move, resize, turn and
+ *     the 30% floor) and the score of one crop, pure and pinned under
+ *     `node --test`. `framingScore` in `src/lib/bday26/scores.ts` makes the
+ *     Round of five: 0.95 × mean of the best four + 0.05 × the worst.
+ *   - `GameShell`: the start, confirm-leave and result screens, and the one
+ *     `recordRound`. The five crops go in its `result` slot.
+ *   - This page: one <img> placed in stage pixels, and an SVG overlay over
+ *     it repainted from the core's box on every change (shade, thirds,
+ *     handles; on the reveal the Subject point and rings). The script maps
+ *     screen pixels to photo pixels and back and owns no rule.
+ *
+ * Photos come from `src/lib/bday26/photos.ts`; all five are fetched when the
+ * page opens, so a photo is ready the moment it is needed. Sizes are read
+ * off the loaded images, never hardcoded.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+
+const game = gameById("kadraj");
+
+const KEYS = [
+  { key: "Fare", does: "İçinden sürükle: taşı · köşe ve kenardan: boyutlandır" },
+  { key: "Tekerlek", does: "Büyüt / küçült" },
+  { key: "← ↑ → ↓", does: "Taşı (Shift ile hızlı)" },
+  { key: "Q / −  ·  E / +", does: "Küçült · büyüt" },
+  { key: "X", does: "Yatay / dikey çevir" },
+  { key: "T", does: "Üçte bir çizgileri" },
+  { key: "R", does: "Kutuyu sıfırla" },
+  { key: "Enter", does: "Kırp" },
+];
+
+/** The Round formula, as she reads it on both cards. */
+const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşük fotoğrafın %5'i.";
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="kadraj" keys={KEYS}>
+    <span slot="hud" class="hud-line"><span>Fotoğraf <b data-index>1</b>/5</span><span class="dots" data-dots></span></span>
+
+    <div slot="start" class="note">
+      <p>
+        Beş fotoğrafımızı kırp. Her fotoğrafın bir <b>odak noktası</b> var: fotoğrafın asıl konusu. Onu üçte bir
+        çizgilerinin dört kesişiminden birine ne kadar yaklaştırırsan puanın o kadar yüksek.
+      </p>
+      <p class="formula">{RULE}</p>
+    </div>
+
+    <div class="kadraj" data-kadraj>
+      <div class="stage" data-stage>
+        <img class="photo" data-photo alt="" draggable="false" />
+        <svg class="overlay" data-overlay aria-hidden="true"></svg>
+      </div>
+
+      <div class="bar">
+        <div class="legend" data-legend>
+          <span><kbd>← ↑ → ↓</kbd> taşı</span>
+          <span><kbd>Q</kbd> <kbd>E</kbd> boyut</span>
+          <span><kbd>X</kbd> çevir</span>
+          <span><kbd>T</kbd> çizgiler</span>
+          <span><kbd>R</kbd> sıfırla</span>
+        </div>
+        <div class="reveal" data-reveal hidden>
+          <b class="photo-score" data-photo-score>%0</b>
+          <p class="why" data-why></p>
+        </div>
+        <button class="bd-btn primary" type="button" tabindex="-1" data-go>Kırp <kbd>Enter</kbd></button>
+      </div>
+    </div>
+
+    <div slot="result" class="note">
+      <div class="thumbs" data-thumbs></div>
+      <p class="verdict" data-verdict></p>
+      <p class="formula">{RULE}</p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { framingScore } from "../../../lib/bday26/scores";
+  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
+  import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
+  import {
+    drag,
+    grabAt,
+    grow,
+    moveBy,
+    nudge,
+    reset,
+    ringRadius,
+    scoreCrop,
+    shrink,
+    startFraming,
+    thirdsPoints,
+    turn,
+    zoom,
+    type Crop,
+    type CropScore,
+    type Framing,
+    type Handle,
+    type Point,
+    type Size,
+  } from "../../../lib/bday26/kadraj";
+
+  /** The wheel's zoom per notch (the prototype's). */
+  const WHEEL_ZOOM = 1.03;
+  /** How near a corner or edge a press must be to grab it, in screen pixels. */
+  const CORNER_REACH = 16;
+  const EDGE_REACH = 10;
+  /** The space kept around the photo inside the stage, in screen pixels. */
+  const MARGIN = 24;
+  /** The reveal's zoom takes this long (CSS `.photo.zooming` matches). */
+  const ZOOM_MS = 460;
+  const SUBJECT = "#e8743b";
+
+  /** The five framing photos, fixed, in `photos.json` order (spec). */
+  const ROUND = PHOTOS.flatMap((p) => (p.subject ? [{ file: p.file, subject: p.subject }] : []));
+
+  const $ = <T extends Element = HTMLElement>(sel: string): T => {
+    const el = document.querySelector<T>(sel);
+    if (!el) throw new Error(`bday26 kadraj: the page is missing ${sel}`);
+    return el;
+  };
+  const stage = $("[data-stage]");
+  const img = $<HTMLImageElement>("[data-photo]");
+  const overlay = $<SVGSVGElement>("[data-overlay]");
+  const legend = $("[data-legend]");
+  const revealBox = $("[data-reveal]");
+  const photoScore = $("[data-photo-score]");
+  const why = $("[data-why]");
+  const go = $<HTMLButtonElement>("[data-go]");
+  const indexEl = $("[data-index]");
+  const dots = $("[data-dots]");
+  const thumbs = $("[data-thumbs]");
+  const verdict = $("[data-verdict]");
+
+  // ---------------------------------------------------------- the photos
+  // All five load as the page opens; a photo's size is its natural size.
+
+  const loaded = new Map<string, Promise<Size>>();
+  for (const { file } of ROUND) {
+    const pre = new Image();
+    pre.src = photoUrl(file);
+    loaded.set(
+      file,
+      pre.decode().then(
+        () => ({ w: pre.naturalWidth, h: pre.naturalHeight }),
+        () => new Promise<Size>((ok) => (pre.onload = () => ok({ w: pre.naturalWidth, h: pre.naturalHeight }))),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------ the Round
+
+  type Done = { file: string; photo: Size; crop: Crop; subject: Point; scored: CropScore };
+
+  let idx = 0;
+  let results: Done[] = [];
+  /** The box on the current photo; undefined while the photo loads. */
+  let framing: Framing | undefined;
+  /** The current photo's Subject point, in its pixels. */
+  let subject: Point = { x: 0, y: 0 };
+  /** Confirmed: the reveal is up and the box takes no input. */
+  let revealing = false;
+  let thirdsOn = true;
+  /** Bumped by every new photo and Round, so a late image load is dropped. */
+  let ticket = 0;
+  let zoomTimer = 0;
+
+  async function beginPhoto() {
+    const mine = ++ticket;
+    const { file, subject: s } = ROUND[idx]!;
+    framing = undefined;
+    revealing = false;
+    window.clearTimeout(zoomTimer);
+    overlay.classList.remove("hidden");
+    revealBox.hidden = true;
+    legend.hidden = false;
+    go.innerHTML = "Kırp <kbd>Enter</kbd>";
+    paintHud();
+    const photo = await loaded.get(file)!;
+    if (mine !== ticket) return;
+    img.src = photoUrl(file);
+    subject = { x: s.x * photo.w, y: s.y * photo.h };
+    framing = startFraming(photo);
+    layout(false);
+    paint();
+  }
+
+  function startRound() {
+    idx = 0;
+    results = [];
+    thirdsOn = true;
+    void beginPhoto();
+  }
+
+  function set(next: Framing) {
+    if (revealing || !framing) return;
+    framing = next;
+    paint();
+  }
+
+  function confirmCrop() {
+    if (revealing || !framing || shell.phase !== "playing") return;
+    const scored = scoreCrop(framing.crop, subject);
+    results[idx] = { file: ROUND[idx]!.file, photo: framing.photo, crop: framing.crop, subject, scored };
+    revealing = true;
+    dragging = undefined;
+
+    // The crop zooms to fill the stage; the marks come back once it lands.
+    overlay.classList.add("hidden");
+    layout(true);
+    zoomTimer = window.setTimeout(() => {
+      overlay.classList.remove("hidden");
+      paint();
+    }, ZOOM_MS);
+
+    photoScore.textContent = `%${scored.score}`;
+    photoScore.classList.toggle("win", scored.score >= PRIZE_BAR);
+    why.innerHTML = `<b>${words(scored.score)}.</b> ${
+      scored.inside
+        ? "Turuncu nokta odak noktası, beyaz halka en yakın kesişim. Yeşil alanın içi %95 ve üstü."
+        : "Odak noktası kadrajın dışında kaldı."
+    }`;
+    legend.hidden = true;
+    revealBox.hidden = false;
+    go.innerHTML = `${idx + 1 < ROUND.length ? "Sonraki" : "Sonuç"} <kbd>Enter</kbd>`;
+    paint();
+  }
+
+  function next() {
+    if (!revealing || shell.phase !== "playing") return;
+    if (idx + 1 < ROUND.length) {
+      idx += 1;
+      void beginPhoto();
+      return;
+    }
+    revealing = false;
+    const scores = results.map((r) => r.scored.score);
+    const total = framingScore(scores);
+    const n95 = scores.filter((s) => s >= PRIZE_BAR).length;
+    paintThumbs(scores);
+    verdict.textContent =
+      total >= PRIZE_BAR
+        ? "Dört kare neredeyse kusursuz: %95 tamam!"
+        : `%95 için dört fotoğrafın neredeyse kusursuz olmalı (şimdi ${n95} tane %95 ve üstü).`;
+    verdict.classList.toggle("win", total >= PRIZE_BAR);
+    shell.finish(total, { detail: `${n95}/5 fotoğraf %95 ve üstü` });
+  }
+
+  /** The prototype's one-word verdict on a photo's score. */
+  function words(score: number): string {
+    if (score >= 97) return "Kusursuz";
+    if (score >= 90) return "Çok iyi";
+    if (score >= 70) return "İyi";
+    if (score >= 40) return "Fena değil";
+    return "Odak noktası uzakta";
+  }
+
+  // ------------------------------------------------- photo ↔ stage pixels
+
+  /** Stage pixels per photo pixel, and where the photo's (0, 0) sits. */
+  let map = { s: 1, ox: 0, oy: 0 };
+  const sx = (x: number) => map.ox + x * map.s;
+  const sy = (y: number) => map.oy + y * map.s;
+
+  /** Fit the whole photo (cropping) or the crop (reveal) into the stage. */
+  function layout(animate: boolean) {
+    if (!framing) return;
+    const { width, height } = stage.getBoundingClientRect();
+    const view = revealing ? framing.crop : { x: 0, y: 0, ...framing.photo };
+    const aw = width - 2 * MARGIN;
+    const ah = height - 2 * MARGIN;
+    const s = Math.min(aw / view.w, ah / view.h);
+    map = { s, ox: MARGIN + (aw - view.w * s) / 2 - view.x * s, oy: MARGIN + (ah - view.h * s) / 2 - view.y * s };
+    img.classList.toggle("zooming", animate);
+    img.style.left = `${map.ox}px`;
+    img.style.top = `${map.oy}px`;
+    img.style.width = `${framing.photo.w * s}px`;
+    img.style.height = `${framing.photo.h * s}px`;
+  }
+
+  function toPhoto(event: PointerEvent | WheelEvent): Point {
+    const r = stage.getBoundingClientRect();
+    return { x: (event.clientX - r.left - map.ox) / map.s, y: (event.clientY - r.top - map.oy) / map.s };
+  }
+
+  // ----------------------------------------------------------- the paint
+
+  function paintHud() {
+    indexEl.textContent = String(idx + 1);
+    dots.innerHTML = ROUND.map((_, i) => {
+      const r = results[i];
+      const cls = r ? (r.scored.score >= PRIZE_BAR ? "dot hi" : "dot done") : i === idx ? "dot now" : "dot";
+      return `<span class="${cls}">${r ? r.scored.score : i + 1}</span>`;
+    }).join("");
+  }
+
+  function paint() {
+    paintHud();
+    if (!framing) {
+      overlay.innerHTML = "";
+      return;
+    }
+    const { width, height } = stage.getBoundingClientRect();
+    const c = framing.crop;
+    const x0 = sx(c.x);
+    const y0 = sy(c.y);
+    const w = c.w * map.s;
+    const h = c.h * map.s;
+    let g =
+      `<defs><mask id="kadraj-hole"><rect width="100%" height="100%" fill="#fff"/>` +
+      `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#000"/></mask></defs>` +
+      `<rect width="${width}" height="${height}" style="fill:var(--darkroom)" fill-opacity="${revealing ? 1 : 0.62}" mask="url(#kadraj-hole)"/>`;
+    if (thirdsOn || revealing) {
+      for (const f of [1 / 3, 2 / 3]) {
+        g += `<line x1="${x0 + w * f}" y1="${y0}" x2="${x0 + w * f}" y2="${y0 + h}" class="third"/>`;
+        g += `<line x1="${x0}" y1="${y0 + h * f}" x2="${x0 + w}" y2="${y0 + h * f}" class="third"/>`;
+      }
+    }
+    g += `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" class="frame"/>`;
+
+    if (!revealing) {
+      // Corner L-marks and edge ticks: where the mouse can take hold.
+      const L = Math.min(24, w / 4, h / 4);
+      const t = 4;
+      for (const [cx, cy, dx, dy] of [
+        [x0, y0, 1, 1],
+        [x0 + w, y0, -1, 1],
+        [x0, y0 + h, 1, -1],
+        [x0 + w, y0 + h, -1, -1],
+      ] as const) {
+        g += `<path d="M${cx - (dx * t) / 2} ${cy + dy * L} V${cy - (dy * t) / 2} H${cx + dx * L}" class="handle"/>`;
+      }
+      const E = Math.min(18, w / 6, h / 6);
+      g += `<line x1="${x0 + w / 2 - E}" y1="${y0}" x2="${x0 + w / 2 + E}" y2="${y0}" class="handle"/>`;
+      g += `<line x1="${x0 + w / 2 - E}" y1="${y0 + h}" x2="${x0 + w / 2 + E}" y2="${y0 + h}" class="handle"/>`;
+      g += `<line x1="${x0}" y1="${y0 + h / 2 - E}" x2="${x0}" y2="${y0 + h / 2 + E}" class="handle"/>`;
+      g += `<line x1="${x0 + w}" y1="${y0 + h / 2 - E}" x2="${x0 + w}" y2="${y0 + h / 2 + E}" class="handle"/>`;
+    } else {
+      // The reveal: thirds points, the nearest ringed, its 95% zone, the Subject point.
+      const r = results[idx]!.scored;
+      const nx = sx(r.nearest.x);
+      const ny = sy(r.nearest.y);
+      for (const p of thirdsPoints(c)) {
+        const isNear = p.x === r.nearest.x && p.y === r.nearest.y;
+        g += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="${isNear ? 10 : 5}" class="point${isNear ? " near" : ""}"/>`;
+      }
+      g += `<circle cx="${nx}" cy="${ny}" r="${ringRadius(c) * map.s}" class="ring"/>`;
+      const px = sx(subject.x);
+      const py = sy(subject.y);
+      g += `<line x1="${nx}" y1="${ny}" x2="${px}" y2="${py}" stroke="${SUBJECT}" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+      g += `<circle cx="${px}" cy="${py}" r="11" fill="${SUBJECT}" stroke="#fff" stroke-width="3"/>`;
+    }
+    overlay.innerHTML = g;
+  }
+
+  /** The five crops on the result card, each cut as she cut it. */
+  function paintThumbs(scores: number[]) {
+    const worst = scores.indexOf(Math.min(...scores));
+    thumbs.innerHTML = results
+      .map((r, i) => {
+        const c = r.crop;
+        const lines = [1 / 3, 2 / 3]
+          .map(
+            (f) =>
+              `<line x1="${c.x + c.w * f}" y1="${c.y}" x2="${c.x + c.w * f}" y2="${c.y + c.h}"/>` +
+              `<line x1="${c.x}" y1="${c.y + c.h * f}" x2="${c.x + c.w}" y2="${c.y + c.h * f}"/>`,
+          )
+          .join("");
+        const dot = Math.hypot(c.w, c.h) * 0.03;
+        return (
+          `<figure class="thumb${i === worst ? " worst" : ""}">` +
+          `<svg viewBox="${c.x} ${c.y} ${c.w} ${c.h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Fotoğraf ${i + 1}">` +
+          `<image href="${photoUrl(r.file)}" width="${r.photo.w}" height="${r.photo.h}"/>` +
+          `<g class="thumb-thirds">${lines}</g>` +
+          `<circle cx="${r.subject.x}" cy="${r.subject.y}" r="${dot}" class="thumb-dot"/></svg>` +
+          `<figcaption><b class="${r.scored.score >= PRIZE_BAR ? "win" : ""}">%${r.scored.score}</b>` +
+          `<span>${i === worst ? "en düşük · %5" : ""}</span></figcaption></figure>`
+        );
+      })
+      .join("");
+  }
+
+  const shell = mountGameShell({
+    game: "kadraj",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => {
+        ticket += 1;
+        window.clearTimeout(zoomTimer);
+      },
+    },
+  });
+
+  // ---------------------------------------------------------------- mouse
+
+  let dragging: { grab: Handle | "move"; start: Point; from: Framing } | undefined;
+  const CURSOR: Record<string, string> = {
+    "1,1": "nwse-resize",
+    "-1,-1": "nwse-resize",
+    "1,-1": "nesw-resize",
+    "-1,1": "nesw-resize",
+    "1,0": "ew-resize",
+    "-1,0": "ew-resize",
+    "0,1": "ns-resize",
+    "0,-1": "ns-resize",
+  };
+  const grabbing = (p: Point) =>
+    framing && !revealing ? grabAt(framing.crop, p, CORNER_REACH / map.s, EDGE_REACH / map.s) : null;
+
+  stage.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || !framing) return;
+    const p = toPhoto(event);
+    const grab = grabbing(p);
+    if (!grab) return;
+    event.preventDefault();
+    stage.setPointerCapture(event.pointerId);
+    dragging = { grab, start: p, from: framing };
+  });
+  stage.addEventListener("pointermove", (event) => {
+    const p = toPhoto(event);
+    if (!dragging) {
+      const grab = grabbing(p);
+      stage.style.cursor = !grab ? "default" : grab === "move" ? "move" : CURSOR[`${grab.dx},${grab.dy}`]!;
+      return;
+    }
+    const { grab, start, from } = dragging;
+    set(grab === "move" ? moveBy(from, p.x - start.x, p.y - start.y) : drag(from, from.crop, grab, p));
+  });
+  const endDrag = () => (dragging = undefined);
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener(
+    "wheel",
+    (event) => {
+      if (!framing || revealing) return;
+      event.preventDefault();
+      set(zoom(framing, event.deltaY < 0 ? WHEEL_ZOOM : 1 / WHEEL_ZOOM));
+    },
+    { passive: false },
+  );
+  go.addEventListener("click", () => (revealing ? next() : confirmCrop()));
+
+  window.addEventListener("resize", () => {
+    layout(false);
+    paint();
+  });
+
+  // ----------------------------------------------------------------- keys
+  // The shell has taken Esc, and every key on its own screens; what arrives
+  // here during a Round is hers.
+
+  const ARROWS: Record<string, [number, number]> = {
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
+    ArrowUp: [0, -1],
+    ArrowDown: [0, 1],
+  };
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (shell.phase !== "playing" || !framing) return;
+    const key = event.key;
+    if (revealing) {
+      if ((key === "Enter" || key === " ") && !event.repeat) {
+        event.preventDefault();
+        next();
+      }
+      return;
+    }
+    const arrow = ARROWS[key];
+    const k = key.toLowerCase();
+    const fast = event.shiftKey;
+    let handled = true;
+    if (arrow) set(nudge(framing, arrow[0], arrow[1], fast));
+    else if (k === "e" || k === "+" || k === "=") set(grow(framing, fast));
+    else if (k === "q" || k === "-" || k === "_") set(shrink(framing, fast));
+    else if (k === "x") set(turn(framing));
+    else if (k === "r") set(reset(framing));
+    else if (k === "t") {
+      thirdsOn = !thirdsOn;
+      paint();
+    } else if (key === "Enter" && !event.repeat) confirmCrop();
+    else handled = false;
+    if (handled) event.preventDefault();
+  });
+</script>
+
+<style>
+  .kadraj {
+    /* Viewport units, like the other photo Games: the playfield's grid row is
+       `auto`, so a percentage height would let the photo set the size. 104 px
+       is the HUD (64) and the playfield's padding (20 + 20). */
+    width: 100%;
+    height: calc(100vh - 104px);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+
+  /* ── the darkroom ────────────────────────────────────────────── */
+  .stage {
+    --darkroom: #221c1b;
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--darkroom);
+    user-select: none;
+    touch-action: none;
+  }
+  .photo {
+    position: absolute;
+    display: block;
+    max-width: none;
+    pointer-events: none;
+  }
+  .photo.zooming {
+    transition:
+      left 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+      top 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+      width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+      height 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.2s;
+  }
+  .overlay.hidden {
+    opacity: 0;
+  }
+  /* The overlay is drawn by script, so these reach it through :global. */
+  .overlay :global(.third) {
+    stroke: #fff;
+    stroke-opacity: 0.6;
+    stroke-width: 1.2;
+  }
+  .overlay :global(.frame) {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.5;
+  }
+  .overlay :global(.handle) {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 4;
+    stroke-linecap: square;
+  }
+  .overlay :global(.point) {
+    fill: none;
+    stroke: #fff;
+    stroke-opacity: 0.6;
+    stroke-width: 2;
+  }
+  .overlay :global(.point.near) {
+    stroke-opacity: 1;
+    stroke-width: 3;
+  }
+  .overlay :global(.ring) {
+    fill: var(--bd-won);
+    fill-opacity: 0.2;
+    stroke: var(--bd-won-soft);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+  }
+
+  /* ── the bar under the stage ─────────────────────────────────── */
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-height: 64px;
+  }
+  .legend {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bd-ink-soft);
+  }
+  .reveal {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    animation: rise 0.3s ease-out both;
+  }
+  .legend[hidden],
+  .reveal[hidden] {
+    display: none;
+  }
+  .photo-score {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--bd-accent-deep);
+  }
+  .photo-score.win {
+    color: var(--bd-won-ink);
+  }
+  .why {
+    font-size: 17px;
+    color: var(--bd-ink-soft);
+  }
+  .why :global(b) {
+    color: var(--bd-ink);
+  }
+  .bar .bd-btn {
+    padding: 14px 26px;
+    font-size: 18px;
+  }
+  /* :global because the button's label (with its kbd) is rewritten by script. */
+  .bar :global(kbd) {
+    font: inherit;
+    font-size: 0.85em;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 6px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .bar .bd-btn.primary :global(kbd) {
+    background: rgb(255 255 255 / 0.25);
+    color: #fff;
+  }
+
+  /* ── HUD ─────────────────────────────────────────────────────── */
+  .hud-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .dots {
+    display: inline-flex;
+    gap: 6px;
+  }
+  .dots :global(.dot) {
+    min-width: 40px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 999px;
+    display: inline-grid;
+    place-items: center;
+    font-family: var(--bd-font);
+    font-size: 13px;
+    font-weight: 800;
+    background: var(--bd-track);
+    color: var(--bd-muted);
+  }
+  .dots :global(.dot.now) {
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+    box-shadow: inset 0 0 0 2px var(--bd-accent);
+  }
+  .dots :global(.dot.done) {
+    background: var(--bd-line);
+    color: var(--bd-ink);
+  }
+  .dots :global(.dot.hi) {
+    background: var(--bd-won-bg-2);
+    color: var(--bd-won-deep);
+  }
+
+  /* ── the cards' notes ────────────────────────────────────────── */
+  .note {
+    display: grid;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--bd-ink-soft);
+  }
+  .formula {
+    font-size: 14px;
+    color: var(--bd-muted);
+    padding: 8px 12px;
+    border-radius: var(--bd-radius-sm);
+    background: var(--bd-track);
+  }
+  .verdict {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--bd-ink);
+  }
+  .verdict.win {
+    color: var(--bd-won-ink);
+  }
+  .thumbs {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .thumbs :global(.thumb) {
+    margin: 0;
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+  }
+  .thumbs :global(svg) {
+    width: 100%;
+    height: 112px;
+    border-radius: 8px;
+    background: var(--darkroom, #221c1b);
+  }
+  .thumbs :global(.thumb-thirds line) {
+    stroke: #fff;
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .thumbs :global(.thumb-dot) {
+    fill: #e8743b;
+    stroke: #fff;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  .thumbs :global(figcaption) {
+    display: grid;
+    justify-items: center;
+    line-height: 1.2;
+  }
+  .thumbs :global(figcaption b) {
+    font-family: var(--bd-display);
+    font-size: 20px;
+    color: var(--bd-ink);
+  }
+  .thumbs :global(figcaption b.win) {
+    color: var(--bd-won-ink);
+  }
+  .thumbs :global(figcaption span) {
+    min-height: 15px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bd-muted-2);
+  }
+  .thumbs :global(.worst figcaption b) {
+    color: var(--bd-muted);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .photo.zooming {
+      transition: none;
+    }
+  }
+</style>
