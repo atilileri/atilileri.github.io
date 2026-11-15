@@ -82,6 +82,19 @@ export function wordleScore(guesses: number, solved: boolean): number {
 }
 
 /**
+ * Driving in the Netherlands, "Hollanda'da sürüş" (#206; spec row "100 −
+ * 10 × heavy − 3 × light"). `heavy` and `light` are the mistakes of one
+ * Round, as `./surus.ts` counts them: a heavy one (cyclist hit, canal, wrong
+ * way in the roundabout, hard crash) costs 10, a light one (no yield, curb,
+ * speeding, bike lane, each step over the soft time limit) costs 3. So the
+ * 95% bar means no heavy mistake and at most one light one: one light is 97,
+ * two are 94. The weights are the prototype's (#181), which Atıl played.
+ */
+export function drivingScore(heavy: number, light: number): number {
+  return Math.min(100, Math.max(0, 100 - 10 * heavy - 3 * light));
+}
+
+/**
  * Piano (#205; spec row "hit accuracy × song cap (Kolay 0.70, Orta 0.85,
  * Zor 1.00)"). `hits` of the `notes` the song dropped, both counted by the
  * Round in `./piyano.ts`; stray presses are not an argument because they

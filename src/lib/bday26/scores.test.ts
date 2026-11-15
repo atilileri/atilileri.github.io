@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { framingScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
+import { drivingScore, framingScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -220,4 +220,34 @@ test("photo framing: five crops at 94 stay under the bar", () => {
 
 test("photo framing: five misses score 0", () => {
   assert.equal(framingScore([0, 0, 0, 0, 0]), 0);
+});
+
+// ------------------------------------------------- driving in the Netherlands
+// Spec: 100 − 10 × heavy − 3 × light, floor 0; 95% means no heavy mistake and
+// at most one light one (#206, #181). The soft time limit's −3 at 150 s and
+// again every 20 s are light mistakes like any other; `surus.test.ts` counts
+// them, this only prices them.
+
+test("driving: a clean drive is a perfect 100", () => {
+  assert.equal(drivingScore(0, 0), 100);
+});
+
+test("driving: one light mistake is 97, still over the Small prize bar", () => {
+  assert.equal(drivingScore(0, 1), 97);
+});
+
+test("driving: one heavy mistake is 90, short of the Small prize", () => {
+  assert.equal(drivingScore(1, 0), 90);
+});
+
+test("driving: the 95% edge sits between one light mistake (97) and two (94)", () => {
+  assert.ok(drivingScore(0, 1) >= 95);
+  assert.equal(drivingScore(0, 2), 94); // over time by 25 s: −3 at 150 s and at 170 s
+  assert.ok(drivingScore(0, 2) < 95);
+});
+
+test("driving: heavy and light add up, and the score never drops below 0", () => {
+  assert.equal(drivingScore(2, 3), 71);
+  assert.equal(drivingScore(10, 0), 0);
+  assert.equal(drivingScore(9, 5), 0);
 });
