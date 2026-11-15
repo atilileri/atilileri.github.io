@@ -518,9 +518,16 @@ test("Kelime avı: a short row is refused, the answer from its İpucu wins %100,
   await expect(page.getByText("Eksik harf var")).toBeVisible();
   await expect(page.getByText("Tahmin 1/6")).toBeVisible();
 
-  // Take it back and type the answer, in small letters (i → İ, ı → I).
+  // Take it back and type the answer: plain letters on the physical keys,
+  // in small letters (so a dotted i must come up İ), and Ç Ğ I Ö Ş Ü on the
+  // on-screen keyboard — Playwright has no keydown for those.
   await page.keyboard.press("Backspace");
-  await page.keyboard.type(answer!.replace(/ /g, "").toLocaleLowerCase("tr"));
+  const keyboard = page.getByRole("group", { name: "Klavye" });
+  for (const letter of answer!.replace(/ /g, "")) {
+    const small = letter.toLocaleLowerCase("tr");
+    if (/^[a-z]$/.test(small)) await page.keyboard.press(small);
+    else await keyboard.getByRole("button", { name: letter, exact: true }).click();
+  }
   await page.keyboard.press("Enter");
   const result = page.getByRole("dialog", { name: "Tur bitti" });
   await expect(result).toBeVisible();
