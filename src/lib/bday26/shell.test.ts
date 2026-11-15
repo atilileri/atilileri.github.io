@@ -221,3 +221,40 @@ test("the slot machine has no result screen: a finish is recorded and the next R
   assert.equal(g.screen.prizeWon, true);
   assert.equal(g.ledger.prizeWon("slot"), true);
 });
+
+test("between spins there is no Round to lose: Esc leaves at once; mid-spin it asks (#200)", () => {
+  // The slot machine answers `roundInProgress` itself: false while the
+  // machine waits for her, true while the reels turn.
+  let spinning = false;
+  const ran = { abandonRound: 0 };
+  let left = 0;
+  let screen: ShellScreen | undefined;
+  const shell = createGameShell({
+    game: "slot",
+    ledger: createLedger(memoryStore()),
+    hooks: {
+      startRound: () => {},
+      abandonRound: () => void (ran.abandonRound += 1),
+      roundInProgress: () => spinning,
+    },
+    resultScreen: false,
+    view: (s) => void (screen = s),
+    leave: () => void (left += 1),
+  });
+  shell.key("Enter");
+
+  // Idle: Esc is the hub, no question, nothing to abandon.
+  assert.equal(shell.key("Escape"), true);
+  assert.equal(left, 1);
+  assert.equal(screen?.phase, "playing", "no confirm card was shown");
+  assert.equal(ran.abandonRound, 0);
+
+  // Mid-spin: the usual question, and Enter on it abandons the spin.
+  spinning = true;
+  shell.key("Escape");
+  assert.equal(screen?.phase, "confirm");
+  assert.equal(left, 1);
+  shell.key("Enter");
+  assert.equal(left, 2);
+  assert.equal(ran.abandonRound, 1);
+});
