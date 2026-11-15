@@ -1,0 +1,714 @@
+---
+/**
+ * /20261209/yuruyus/ — the hiking map, "Yürüyüş haritası" (#202; spec #192
+ * "Hiking map", stories 81–83; feel from the prototype #183, which Atıl
+ * played). An easy Game on purpose (spec story 40).
+ *
+ * WHAT SHE SEES. A printed trail map: green valleys, contour lines, red
+ * dashed trails with their length in km on each, a car park (P, "Otopark")
+ * low on one side and the summit ("Zirve") high on the other. She builds a
+ * route junction by junction; the HUD shows the map's name and her route's
+ * length as it grows. At the summit Enter confirms it, and the reveal draws
+ * her route in orange and the shortest in green dots on the map, which
+ * slides left to make room for the result card docked at the right
+ * (`resultAside` on the shell). ≤10% longer than the shortest is %100, then
+ * one point off per 1% (`hikingScore` in `src/lib/bday26/scores.ts`), so
+ * 15% over is the %95 that wins Piknik günü. The formula is on the start
+ * card and on the result card.
+ *
+ * KEYS (keyboard-first; a mouse works too):
+ *   - a click on a junction one trail away goes there; hovering one previews
+ *     the trail in pale orange;
+ *   - 1–9 pick a neighbour, numbered clockwise from north by orange badges;
+ *   - Backspace or Z undoes one step; a click on a junction already on the
+ *     route cuts the route back to it;
+ *   - Enter at the summit confirms. Esc is the shell's (it asks first).
+ *
+ * HOW IT IS BUILT. Three layers:
+ *   - `src/lib/bday26/yuruyus.ts`: the five maps (the prototype's generator
+ *     and seeds), the shortest route, the route rules, the map picker. No
+ *     DOM, pinned under `node --test`.
+ *   - `src/lib/bday26/yuruyus-art.ts`: the printed-map art as strings — land
+ *     colours, contour paths, trail lines, label spots.
+ *   - This page: one SVG in the world's own units (viewBox 1600×900). The
+ *     static layers (land, contours, trails, km labels, junctions) are built
+ *     once per map and cached; the route, hover preview, number badges and
+ *     reveal are repainted from the route array on every change. The script
+ *     owns no rule: every click and key goes through `stepRoute`,
+ *     `undoRoute` or `choices`, and the score is the pure function's.
+ * The next map is never the one just played (`pickMap`).
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { HIKING_MARGIN } from "../../../lib/bday26/scores";
+import { WORLD } from "../../../lib/bday26/yuruyus";
+
+const game = gameById("yuruyus");
+
+const KEYS = [
+  { key: "Tık", does: "Komşu kavşağa ilerle" },
+  { key: "1 – 9", does: "Numaralı kavşağa ilerle" },
+  { key: "⌫ / Z", does: "Son adımı geri al" },
+  { key: "Tık rotada", does: "Rotayı o kavşağa kadar kısalt" },
+  { key: "Enter", does: "Zirvedeyken rotayı onayla" },
+  { key: "Esc", does: "Turdan çık" },
+];
+
+/** The formula, word for word the prototype's (#183), on both cards. */
+const RULE = `Skor: en kısanın %${HIKING_MARGIN} fazlasına kadar %100, sonrası her %1 için −1 puan.`;
+
+const VIEWBOX = `0 0 ${WORLD.width} ${WORLD.height}`;
+/** The scale bar: 1 km is 200 world units (5 m per unit). */
+const KM_UNITS = 200;
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="yuruyus" keys={KEYS} resultAside>
+    <span slot="hud"
+      ><b data-hud-map>—</b> · Rotan <b data-hud-km>0,0 km</b> · <span data-hud-trails>0 patika</span></span
+    >
+
+    <div slot="start" class="note">
+      <p>Otoparktan zirveye giden en kısa patikayı bul. Her patikanın uzunluğu haritada yazılı.</p>
+      <p class="formula">{RULE}</p>
+    </div>
+
+    <div class="trip" data-trip>
+      <div class="sheet">
+        <svg class="map" data-map viewBox={VIEWBOX} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Yürüyüş haritası">
+          <defs>
+            <clipPath id="yuruyus-sheet"><rect width={WORLD.width} height={WORLD.height} rx="18"></rect></clipPath>
+            <mask id="yuruyus-best-mask" maskUnits="userSpaceOnUse" x="0" y="0" width={WORLD.width} height={WORLD.height}>
+              <path class="draw best-draw" data-best-mask pathLength="1"></path>
+            </mask>
+          </defs>
+          <g clip-path="url(#yuruyus-sheet)">
+            <image data-land x="0" y="0" preserveAspectRatio="none"></image>
+            <path class="contour" data-contour-minor></path>
+            <path class="contour major" data-contour-major></path>
+            <g data-trails></g>
+            <g data-preview></g>
+            <g data-route></g>
+            <g class="reveal" data-reveal display="none">
+              <g data-reveal-hers></g>
+              <g data-reveal-best mask="url(#yuruyus-best-mask)"></g>
+            </g>
+            <g data-labels></g>
+            <g data-junctions></g>
+            <g data-badges></g>
+            <!-- Compass and scale bar: placed per map in the corners the car park and summit leave free. -->
+            <g class="furniture" aria-hidden="true">
+              <g data-compass transform="translate(44 44)">
+                <circle r="24" class="compass"></circle>
+                <path d="M0 -19 L7 5 L0 0 L-7 5 Z" class="needle"></path>
+                <text y="17" class="compass-k">K</text>
+              </g>
+              <g data-scale transform={`translate(36 ${WORLD.height - 24})`}>
+                <rect width={KM_UNITS / 2} height="8" class="scale dark"></rect>
+                <rect x={KM_UNITS / 2} width={KM_UNITS / 2} height="8" class="scale"></rect>
+                <text x="0" y="-8" class="scale-text">0</text>
+                <text x={KM_UNITS} y="-8" class="scale-text">1 km</text>
+              </g>
+            </g>
+          </g>
+          <rect class="frame" width={WORLD.width} height={WORLD.height} rx="18"></rect>
+        </svg>
+      </div>
+
+      <div class="bar">
+        <p class="hint" data-hint>Otoparktan bir sonraki kavşağa tıkla</p>
+        <button class="bd-btn ghost" type="button" tabindex="-1" data-undo disabled>Geri al <kbd>⌫</kbd></button>
+        <button class="bd-btn primary" type="button" tabindex="-1" data-confirm disabled>Onayla <kbd>Enter</kbd></button>
+      </div>
+    </div>
+
+    <div slot="result" class="note">
+      <p class="verdict" data-verdict></p>
+      <p class="formula">{RULE}</p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { hikingScore, HIKING_MARGIN } from "../../../lib/bday26/scores";
+  import {
+    MAPS,
+    WORLD,
+    atSummit,
+    choices,
+    formatKm,
+    pickMap,
+    routeLength,
+    shortestRoute,
+    startRoute,
+    stepRoute,
+    undoRoute,
+    type HikingMap,
+  } from "../../../lib/bday26/yuruyus";
+  import { contours, labelPoint, landPixels, linePath, routeLine } from "../../../lib/bday26/yuruyus-art";
+
+  /** The scale bar's 1 km in world units (5 m per unit), as in the markup. */
+  const KM_UNITS = 200;
+
+  const $ = <T extends Element = HTMLElement>(sel: string): T => {
+    const el = document.querySelector<T>(sel);
+    if (!el) throw new Error(`bday26 yuruyus: the page is missing ${sel}`);
+    return el;
+  };
+  const svg = $<SVGSVGElement>("[data-map]");
+  const land = $<SVGImageElement>("[data-land]");
+  const contourMinor = $<SVGPathElement>("[data-contour-minor]");
+  const contourMajor = $<SVGPathElement>("[data-contour-major]");
+  const trailsG = $<SVGGElement>("[data-trails]");
+  const labelsG = $<SVGGElement>("[data-labels]");
+  const junctionsG = $<SVGGElement>("[data-junctions]");
+  const previewG = $<SVGGElement>("[data-preview]");
+  const routeG = $<SVGGElement>("[data-route]");
+  const badgesG = $<SVGGElement>("[data-badges]");
+  const revealG = $<SVGGElement>("[data-reveal]");
+  const revealHers = $<SVGGElement>("[data-reveal-hers]");
+  const revealBest = $<SVGGElement>("[data-reveal-best]");
+  const bestMask = $<SVGPathElement>("[data-best-mask]");
+  const compass = $<SVGGElement>("[data-compass]");
+  const scaleBar = $<SVGGElement>("[data-scale]");
+  const hudMap = $("[data-hud-map]");
+  const hudKm = $("[data-hud-km]");
+  const hudTrails = $("[data-hud-trails]");
+  const hint = $("[data-hint]");
+  const undoBtn = $<HTMLButtonElement>("[data-undo]");
+  const confirmBtn = $<HTMLButtonElement>("[data-confirm]");
+  const verdictEl = $("[data-verdict]");
+
+  /** Turkish one-decimal number: 4,2. */
+  const dec = (x: number) => x.toFixed(1).replace(".", ",");
+
+  // ------------------------------------------------------- the static art
+  // Built once per map, kept as strings: a map change is five assignments.
+
+  type Art = { land: string; landW: number; landH: number; minor: string; major: string; trails: string; labels: string; junctions: string };
+  const artCache = new Map<number, Art>();
+
+  /** The land colours as a tiny image the SVG stretches over the world. */
+  function landImage(map: HikingMap): { land: string; landW: number; landH: number } {
+    const px = landPixels(map);
+    const canvas = document.createElement("canvas");
+    canvas.width = px.cols;
+    canvas.height = px.rows;
+    const ctx = canvas.getContext("2d");
+    const img = ctx?.createImageData(px.cols, px.rows);
+    if (ctx && img) {
+      img.data.set(px.rgba);
+      ctx.putImageData(img, 0, 0);
+    }
+    return { land: canvas.toDataURL(), landW: px.cols * px.cell, landH: px.rows * px.cell };
+  }
+
+  function artOf(index: number): Art {
+    const cached = artCache.get(index);
+    if (cached) return cached;
+    const map = MAPS[index]!;
+    const { minor, major } = contours(map);
+    const trails = map.trails
+      .map((t) => {
+        const d = linePath(t.pts);
+        return `<path class="trail-casing" d="${d}"/><path class="trail" d="${d}"/>`;
+      })
+      .join("");
+    const labels = map.trails
+      .map((t) => {
+        const p = labelPoint(t);
+        const text = dec(t.length / 1000);
+        const w = 10 + text.length * 7.5;
+        return `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})"><rect class="km" x="${-w / 2}" y="-10" width="${w}" height="20" rx="10"/><text class="km-text">${text}</text></g>`;
+      })
+      .join("");
+    const S = map.junctions[map.start]!;
+    const Z = map.junctions[map.summit]!;
+    const plain = map.junctions
+      .map((p, i) =>
+        i === map.start || i === map.summit
+          ? ""
+          : `<g class="junction" data-j="${i}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})"><circle class="hit" r="24"/><circle class="dot" r="6"/></g>`,
+      )
+      .join("");
+    const start = `<g class="junction start" data-j="${map.start}" transform="translate(${S.x.toFixed(1)} ${S.y.toFixed(1)})"><circle class="hit" r="26"/><rect class="park" x="-14" y="-14" width="28" height="28" rx="7"/><text class="park-p" y="1">P</text><text class="place" y="34">Otopark</text></g>`;
+    const summit = `<g class="junction summit" data-j="${map.summit}" transform="translate(${Z.x.toFixed(1)} ${Z.y.toFixed(1)})"><circle class="hit" r="26"/><path class="peak" d="M0 -17 L16 11 L-16 11 Z"/><path class="snow" d="M0 -17 L5.5 -7.5 L-5.5 -7.5 Z"/><text class="place" y="32">Zirve</text></g>`;
+    const art: Art = { ...landImage(map), minor, major, trails, labels, junctions: plain + start + summit };
+    artCache.set(index, art);
+    return art;
+  }
+
+  function drawMap(index: number) {
+    const art = artOf(index);
+    land.setAttribute("href", art.land);
+    land.setAttribute("width", String(art.landW));
+    land.setAttribute("height", String(art.landH));
+    contourMinor.setAttribute("d", art.minor);
+    contourMajor.setAttribute("d", art.major);
+    trailsG.innerHTML = art.trails;
+    labelsG.innerHTML = art.labels;
+    junctionsG.innerHTML = art.junctions;
+    // The car park is low on one side and the summit high on the other, so
+    // the compass goes top on the car park's side, the scale bottom on the summit's.
+    const parkLeft = MAPS[index]!.junctions[MAPS[index]!.start]!.x < WORLD.width / 2;
+    compass.setAttribute("transform", `translate(${parkLeft ? 44 : WORLD.width - 44} 44)`);
+    scaleBar.setAttribute("transform", `translate(${parkLeft ? WORLD.width - 36 - KM_UNITS : 36} ${WORLD.height - 24})`);
+  }
+
+  // ------------------------------------------------------------ the Round
+
+  let mapIndex: number | undefined;
+  let map: HikingMap = MAPS[0]!;
+  let best = shortestRoute(map);
+  let route: number[] = startRoute(map);
+  let hover = -1;
+  /** Her route is confirmed and the reveal is on: the map takes no input. */
+  let confirmed = false;
+
+  /** A route drawn as a white casing under a coloured line. */
+  function routeMarkup(d: string, cls: string): string {
+    return `<path class="casing" d="${d}"/><path class="${cls}" d="${d}"/>`;
+  }
+
+  function paint() {
+    const nums = confirmed ? [] : choices(map, route);
+    const end = route.at(-1)!;
+
+    routeG.innerHTML = !confirmed && route.length > 1 ? routeMarkup(linePath(routeLine(map, route)), "walk") : "";
+    previewG.innerHTML = !confirmed && nums.includes(hover) ? routeMarkup(linePath(routeLine(map, [end, hover])), "walk preview") : "";
+
+    for (const g of junctionsG.querySelectorAll<SVGGElement>("[data-j]")) {
+      const j = Number(g.dataset.j);
+      g.classList.toggle("on", !confirmed && route.includes(j));
+      g.classList.toggle("end", !confirmed && j === end && !atSummit(map, route));
+      g.classList.toggle("next", nums.includes(j));
+      g.classList.toggle("back", !confirmed && route.includes(j) && j !== end);
+      g.classList.toggle("hover", j === hover && (nums.includes(j) || route.includes(j)) && !confirmed);
+    }
+
+    badgesG.innerHTML = nums
+      .slice(0, 9)
+      .map((v, i) => {
+        const p = map.junctions[v]!;
+        return `<g class="badge" transform="translate(${(p.x + 16).toFixed(1)} ${(p.y - 16).toFixed(1)})"><circle r="11"/><text>${i + 1}</text></g>`;
+      })
+      .join("");
+
+    const km = routeLength(map, route);
+    const hops = route.length - 1;
+    hudMap.textContent = map.name;
+    hudKm.textContent = formatKm(km);
+    hudTrails.textContent = `${hops} patika`;
+    const ready = atSummit(map, route);
+    hint.textContent = ready ? "Zirvedesin. Rotan hazır mı?" : hops === 0 ? "Otoparktan bir sonraki kavşağa tıkla" : "Zirveye kadar devam et";
+    hint.classList.toggle("ready", ready);
+    undoBtn.disabled = confirmed || hops === 0;
+    confirmBtn.disabled = confirmed || !ready;
+  }
+
+  function startRound() {
+    mapIndex = pickMap(mapIndex, Math.random);
+    map = MAPS[mapIndex]!;
+    best = shortestRoute(map);
+    route = startRoute(map);
+    hover = -1;
+    confirmed = false;
+    revealG.setAttribute("display", "none");
+    revealHers.innerHTML = "";
+    revealBest.innerHTML = "";
+    drawMap(mapIndex);
+    paint();
+  }
+
+  function go(next: number[]) {
+    if (confirmed || shell.phase !== "playing") return;
+    route = next;
+    paint();
+  }
+
+  function confirmRoute() {
+    if (confirmed || shell.phase !== "playing" || !atSummit(map, route)) return;
+    confirmed = true;
+    hover = -1;
+    const hers = routeLength(map, route);
+    const score = hikingScore(hers, best.length);
+    const same = route.join() === best.route.join();
+    const more = dec((hers / best.length - 1) * 100);
+
+    // The reveal: her route draws itself in orange, then the shortest in green dots.
+    const hersD = linePath(routeLine(map, route));
+    const bestD = linePath(routeLine(map, best.route));
+    revealHers.innerHTML = `<path class="casing draw" pathLength="1" d="${hersD}"/><path class="walk draw${same ? " same" : ""}" pathLength="1" d="${hersD}"/>`;
+    revealBest.innerHTML = same ? "" : `<path class="shortest" d="${bestD}"/>`;
+    bestMask.setAttribute("d", bestD);
+    // Restart the CSS draw animations from the first frame.
+    for (const el of [...revealG.querySelectorAll<SVGPathElement>(".draw"), bestMask]) {
+      el.style.animation = "none";
+      void el.getBoundingClientRect();
+      el.style.animation = "";
+    }
+    revealG.removeAttribute("display");
+
+    const cap = formatKm(Math.floor((best.length * (1 + (HIKING_MARGIN + 5) / 100)) / 100) * 100);
+    verdictEl.textContent = same
+      ? `${map.name}: en kısa rotayı buldun!`
+      : score === 100
+        ? `${map.name}: %${more} daha uzun, pay içinde: %100!`
+        : score >= 95
+          ? `${map.name}: %${more} daha uzun. %95 tamam!`
+          : `${map.name}: %${more} daha uzun. %95 için en fazla ${cap} gerekiyordu.`;
+    verdictEl.classList.toggle("win", score >= 95);
+    paint();
+    shell.finish(score, { detail: `Senin rotan ${formatKm(hers)} · en kısa ${formatKm(best.length)}` });
+  }
+
+  const shell = mountGameShell({
+    game: "yuruyus",
+    ledger: openLedger(),
+    hooks: { startRound },
+  });
+
+  // ---------------------------------------------------------------- input
+
+  const junctionOf = (target: EventTarget | null) => {
+    const g = (target as Element | null)?.closest?.<SVGGElement>("[data-j]");
+    return g ? Number(g.dataset.j) : -1;
+  };
+
+  svg.addEventListener("click", (event) => {
+    const j = junctionOf(event.target);
+    if (j >= 0) go(stepRoute(map, route, j));
+  });
+  svg.addEventListener("pointerover", (event) => {
+    const j = junctionOf(event.target);
+    if (j !== hover) {
+      hover = j;
+      paint();
+    }
+  });
+  svg.addEventListener("pointerleave", () => {
+    hover = -1;
+    paint();
+  });
+  undoBtn.addEventListener("click", () => go(undoRoute(route)));
+  confirmBtn.addEventListener("click", confirmRoute);
+
+  // The shell has taken Esc, and every key on its own screens; what arrives
+  // here during a Round is hers.
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (shell.phase !== "playing" || confirmed) return;
+    const key = event.key;
+    if (key === "Enter") {
+      event.preventDefault();
+      confirmRoute();
+    } else if (key === "Backspace" || key === "z" || key === "Z") {
+      event.preventDefault();
+      go(undoRoute(route));
+    } else if (/^[1-9]$/.test(key)) {
+      const v = choices(map, route)[Number(key) - 1];
+      if (v != null) {
+        event.preventDefault();
+        hover = -1;
+        go(stepRoute(map, route, v));
+      }
+    }
+  });
+</script>
+
+<style>
+  .trip {
+    position: absolute;
+    inset: 20px 28px;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 12px;
+    transition: padding-right 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* The result card docks at the right; the map slides over to make room. */
+  :global([data-shell-phase="result"]) .trip {
+    padding-right: 540px;
+  }
+  :global([data-shell-phase="result"]) .bar {
+    visibility: hidden;
+  }
+  .sheet {
+    min-height: 0;
+    display: grid;
+    place-items: center;
+  }
+  .map {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 18px 30px rgb(58 45 42 / 0.18));
+    user-select: none;
+  }
+
+  /* ── the printed map (classes set by the script's markup) ────── */
+  .map :global(.contour) {
+    fill: none;
+    stroke: rgb(130 95 60 / 0.28);
+    stroke-width: 0.9;
+  }
+  .map :global(.contour.major) {
+    stroke: rgb(130 95 60 / 0.5);
+    stroke-width: 1.5;
+  }
+  .map :global(.trail-casing) {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.75);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .map :global(.trail) {
+    fill: none;
+    stroke: #b0462e;
+    stroke-width: 2.6;
+    stroke-dasharray: 9 6;
+    stroke-linecap: round;
+  }
+  .map :global(.km) {
+    fill: rgb(255 255 255 / 0.92);
+    stroke: rgb(90 58 38 / 0.25);
+    stroke-width: 1;
+  }
+  .map :global(.km-text) {
+    font: 800 13px var(--bd-font);
+    fill: #5a3a26;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .map :global(.casing) {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.95);
+    stroke-width: 11;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .map :global(.walk) {
+    fill: none;
+    stroke: #e8743b;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .map :global(.walk.same) {
+    stroke: #2f9e5b;
+  }
+  .map :global(.preview) {
+    opacity: 0.5;
+  }
+  .map :global(.shortest) {
+    fill: none;
+    stroke: #2f9e5b;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-dasharray: 0.1 13;
+  }
+  /* Draw-in: the path grows from the car park (pathLength="1"). */
+  .map :global(.draw) {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 1;
+    animation: draw 1.1s ease-in-out forwards;
+  }
+  .map .best-draw {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 24;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation-delay: 1.3s;
+  }
+
+  .map :global(.junction) {
+    cursor: default;
+  }
+  .map :global(.junction .hit) {
+    fill: transparent;
+  }
+  .map :global(.junction.next),
+  .map :global(.junction.back) {
+    cursor: pointer;
+  }
+  .map :global(.dot) {
+    fill: #fff;
+    stroke: #5a4636;
+    stroke-width: 2;
+    transition: r 0.15s ease;
+  }
+  .map :global(.junction.on .dot) {
+    fill: #e8743b;
+    stroke: #fff;
+    r: 7;
+  }
+  .map :global(.junction.hover .dot) {
+    r: 9;
+  }
+  .map :global(.junction.end .dot) {
+    animation: pulse 0.9s ease-in-out infinite alternate;
+  }
+  .map :global(.park) {
+    fill: #2f6fd6;
+    stroke: #fff;
+    stroke-width: 2.5;
+  }
+  .map :global(.junction.end .park) {
+    animation: pulse-park 0.9s ease-in-out infinite alternate;
+  }
+  .map :global(.park-p) {
+    font: 900 17px var(--bd-font);
+    fill: #fff;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .map :global(.peak) {
+    fill: #3b2a1e;
+    stroke: #fff;
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+  }
+  .map :global(.junction.next .peak),
+  .map :global(.junction.hover .peak) {
+    fill: #e8743b;
+  }
+  .map :global(.snow) {
+    fill: #fff;
+  }
+  .map :global(.place) {
+    font: 800 15px var(--bd-font);
+    fill: #2b2118;
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: rgb(255 255 255 / 0.9);
+    stroke-width: 4;
+    stroke-linejoin: round;
+  }
+  .map :global(.badge circle) {
+    fill: #e8743b;
+    stroke: #fff;
+    stroke-width: 2;
+  }
+  .map :global(.badge text) {
+    font: 900 13px var(--bd-font);
+    fill: #fff;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .map :global(.badge) {
+    pointer-events: none;
+  }
+
+  .compass {
+    fill: rgb(255 255 255 / 0.8);
+    stroke: rgb(90 58 38 / 0.4);
+  }
+  .needle {
+    fill: #5a3a26;
+  }
+  .compass-k,
+  .scale-text {
+    font: 800 12px var(--bd-font);
+    fill: #5a3a26;
+    text-anchor: middle;
+  }
+  .scale {
+    fill: #fff;
+    stroke: #5a3a26;
+  }
+  .scale.dark {
+    fill: #5a3a26;
+  }
+  .frame {
+    fill: none;
+    stroke: rgb(90 58 38 / 0.35);
+    stroke-width: 2;
+  }
+
+  /* ── the bar under the map ───────────────────────────────────── */
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .hint {
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--bd-muted);
+    margin-right: 8px;
+  }
+  .hint.ready {
+    color: var(--bd-won-ink);
+  }
+  .bar .bd-btn {
+    padding: 9px 18px;
+    font-size: 15px;
+  }
+  .bar .bd-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .bar kbd {
+    font: inherit;
+    font-size: 0.85em;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 6px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .bar .primary kbd {
+    background: rgb(255 255 255 / 0.25);
+    color: #fff;
+  }
+
+  /* ── start and result card text ──────────────────────────────── */
+  .note {
+    display: grid;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--bd-ink-soft);
+  }
+  .formula {
+    font-size: 14px;
+    color: var(--bd-muted);
+    padding: 8px 12px;
+    border-radius: var(--bd-radius-sm);
+    background: var(--bd-track);
+  }
+  .verdict {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--bd-ink);
+  }
+  .verdict.win {
+    color: var(--bd-won-ink);
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes pulse {
+    from {
+      r: 7;
+    }
+    to {
+      r: 10;
+    }
+  }
+  @keyframes pulse-park {
+    from {
+      stroke-width: 2.5;
+    }
+    to {
+      stroke-width: 6;
+    }
+  }
+</style>
