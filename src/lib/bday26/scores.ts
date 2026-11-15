@@ -80,3 +80,18 @@ export function wordleScore(guesses: number, solved: boolean): number {
   if (guesses === 6) return 65;
   return 0;
 }
+
+/**
+ * Piano (#205; spec row "hit accuracy × song cap (Kolay 0.70, Orta 0.85,
+ * Zor 1.00)"). `hits` of the `notes` the song dropped, both counted by the
+ * Round in `./piyano.ts`; stray presses are not an argument because they
+ * cost nothing (#180). `cap` is the song's (`./piano-songs.ts`), so a
+ * flawless Kolay is 70 and a flawless Orta 85: only Zor reaches the 95% bar,
+ * at exactly 95% accuracy. Rounded down; the tiny lift keeps 0.85 × 100
+ * from landing on 84.999… in floating point.
+ */
+export function pianoScore(hits: number, notes: number, cap: number): number {
+  if (notes <= 0) return 0;
+  const score = Math.floor((hits * 100 * cap) / notes + 1e-9);
+  return Math.min(100, Math.max(0, score));
+}

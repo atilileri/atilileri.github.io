@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore, milyonerScore, missScore, slotScore, wordleScore } from "./scores.ts";
+import { memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -122,4 +122,41 @@ test("Wordle: solved on the sixth and last guess is 65", () => {
 
 test("Wordle: six guesses without the answer score 0", () => {
   assert.equal(wordleScore(6, false), 0);
+});
+
+// ------------------------------------------------------------------ piano
+// Spec: hit accuracy × song cap (Kolay 0.70, Orta 0.85, Zor 1.00); 95% means
+// 95% accuracy on Zor (#205, #180). Accuracy is the notes she hit out of all
+// the notes the song dropped; stray presses cost nothing. Read as a percent
+// and rounded down, like every score she sees.
+
+test("piano: every note hit on Zor is a perfect 100", () => {
+  assert.equal(pianoScore(240, 240, 1.0), 100);
+});
+
+test("piano: 95% accuracy on Zor is exactly 95, the Small prize edge", () => {
+  assert.equal(pianoScore(95, 100, 1.0), 95);
+  assert.equal(pianoScore(228, 240, 1.0), 95);
+});
+
+test("piano: just under 95% accuracy on Zor falls to 94, short of the Small prize", () => {
+  assert.equal(pianoScore(227, 240, 1.0), 94); // 94.58%
+});
+
+test("piano: every note hit on Kolay is capped at 70", () => {
+  assert.equal(pianoScore(90, 90, 0.7), 70);
+});
+
+test("piano: every note hit on Orta is capped at 85", () => {
+  assert.equal(pianoScore(120, 120, 0.85), 85);
+});
+
+test("piano: the cap scales a partial Round too, rounded down", () => {
+  assert.equal(pianoScore(80, 100, 0.85), 68); // 80% × 0.85
+  assert.equal(pianoScore(50, 90, 0.7), 38); // 55.6% × 0.70 = 38.9
+});
+
+test("piano: no note hit scores 0, and so does a song without notes", () => {
+  assert.equal(pianoScore(0, 120, 1.0), 0);
+  assert.equal(pianoScore(0, 0, 1.0), 0);
 });
