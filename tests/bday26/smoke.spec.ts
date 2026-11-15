@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ANSWERS } from "../../src/lib/bday26/wordle.ts";
 
 /**
  * The birthday games smoke — ticket #193, spec #192 ("Testing Decisions",
@@ -495,4 +496,45 @@ test("the Proof lists what she holds and won, and its check code is the tail of 
   await page.emulateMedia({ media: "print" });
   await expect(print).toBeHidden();
   await expect(back).toBeHidden();
+});
+
+test("Kelime avı: a short row is refused, the answer from its İpucu wins %100, and the hub tile shows it (#201)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/wordle/");
+  const start = page.getByRole("dialog", { name: "Kelime avı" });
+  await expect(start).toContainText("Paper Apps: The Games");
+
+  // Enter: the HUD, the hint from the first second, the whole grid of six rows.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Tahmin 1/6 · Şimdi bilirsen %100")).toBeVisible();
+  const hint = (await page.locator("[data-hint]").innerText()).trim();
+  const answer = ANSWERS.find((a) => a.hint === hint)?.answer;
+  expect(answer, `no answer has the hint "${hint}"`).toBeDefined();
+  await expect(page.getByRole("row")).toHaveCount(6);
+
+  // One letter and Enter: refused, nothing sent.
+  await page.keyboard.press("a");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Eksik harf var")).toBeVisible();
+  await expect(page.getByText("Tahmin 1/6")).toBeVisible();
+
+  // Take it back and type the answer, in small letters (i → İ, ı → I).
+  await page.keyboard.press("Backspace");
+  await page.keyboard.type(answer!.replace(/ /g, "").toLocaleLowerCase("tr"));
+  await page.keyboard.press("Enter");
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  await expect(result).toContainText("%100");
+  await expect(result).toContainText("1. tahminde buldun");
+  await expect(result).toContainText("Küçük ödül kazandın: Paper Apps: The Games!");
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Kelime avı")).toContainText("%100");
+  await expect(row(page, "Kelime avı")).toContainText("Kazandın!");
 });
