@@ -117,3 +117,100 @@ export function chartSong(source: ChartSource): Chart {
   }
   return { notes, repeats, lengthMs: repeats * onceMs };
 }
+
+/** ± how far from a note a press still hits it, ms (#180). */
+export const HIT_WINDOW_MS = 170;
+
+/** ± how close a hit must be to say "Tam!", ms (#180: half the window). */
+export const PERFECT_MS = 85;
+
+/** What she reads over the hit line. */
+export type Verdict = "Tam!" | "Erken" | "Geç";
+
+/** What one key press was worth. */
+export type Judgement =
+  | {
+      kind: "hit";
+      note: ChartNote;
+      /** Press minus note, after the offset: negative = early. */
+      errorMs: number;
+      verdict: Verdict;
+    }
+  | { kind: "stray" };
+
+export type Round = {
+  /** She pressed `lane`'s key at `ms` on the song clock. */
+  press(lane: number, ms: number): Judgement;
+  /** The clock reached `ms`: unhit notes whose window closed become misses; the new ones come back. */
+  advance(ms: number): ChartNote[];
+  /** Every note judged and the song over at `ms` (no offset: the song ends when it ends). */
+  done(ms: number): boolean;
+  readonly hits: number;
+  readonly misses: number;
+  readonly strays: number;
+  /** Hits that were "Tam!". */
+  readonly perfect: number;
+};
+
+/** One Round on a chart; `latencyMs` comes off every time she hands in. */
+export function createRound(chart: Chart, latencyMs: number): Round {
+  const { notes } = chart;
+  /** Per note: still falling, hit, or missed. */
+  const state: ("wait" | "hit" | "miss")[] = notes.map(() => "wait");
+  /** Notes before this index are all judged; `advance` and `press` start here. */
+  let first = 0;
+  let hits = 0;
+  let misses = 0;
+  let strays = 0;
+  let perfect = 0;
+
+  return {
+    press(lane, ms) {
+      const t = ms - latencyMs;
+      for (let i = first; i < notes.length; i++) {
+        const note = notes[i]!;
+        if (note.at - t > HIT_WINDOW_MS) break; // later notes are further still
+        if (state[i] !== "wait" || note.lane !== lane) continue;
+        const errorMs = t - note.at;
+        if (Math.abs(errorMs) > HIT_WINDOW_MS) continue;
+        state[i] = "hit";
+        hits += 1;
+        const exact = Math.abs(errorMs) <= PERFECT_MS;
+        if (exact) perfect += 1;
+        return { kind: "hit", note, errorMs, verdict: exact ? "Tam!" : errorMs < 0 ? "Erken" : "Geç" };
+      }
+      strays += 1;
+      return { kind: "stray" };
+    },
+    advance(ms) {
+      const t = ms - latencyMs;
+      const missed: ChartNote[] = [];
+      for (let i = first; i < notes.length; i++) {
+        const note = notes[i]!;
+        if (t - note.at <= HIT_WINDOW_MS) break; // notes are in time order
+        if (state[i] === "wait") {
+          state[i] = "miss";
+          misses += 1;
+          missed.push(note);
+        }
+        first = i + 1;
+      }
+      return missed;
+    },
+    done(ms) {
+      return hits + misses === notes.length && ms >= chart.lengthMs;
+    },
+    get hits() {
+      return hits;
+    },
+    get misses() {
+      return misses;
+    },
+    get strays() {
+      return strays;
+    },
+    get perfect() {
+      return perfect;
+    },
+  };
+}
