@@ -73,7 +73,7 @@ const LIGHTS = Array.from({ length: 15 });
         </div>
         <div class="display" role="status" aria-live="polite">
           <p class="outcome" data-outcome>Boşluk'a bas ya da kolu çek</p>
-          <p class="score" data-score hidden>%0</p>
+          <p class="score" data-score hidden></p>
         </div>
         <p class="prize">
           <span data-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
@@ -169,6 +169,8 @@ const LIGHTS = Array.from({ length: 15 });
     delete machine.dataset.outcome;
     machine.classList.remove("won-now");
     outcomeEl.textContent = "Dönüyor…";
+    // Empty, not just hidden: the display holds no score until this spin lands.
+    scoreEl.textContent = "";
     scoreEl.hidden = true;
     lever.classList.remove("pulled");
     void lever.offsetWidth; // restart the pull animation
