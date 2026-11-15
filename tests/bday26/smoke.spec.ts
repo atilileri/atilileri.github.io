@@ -367,6 +367,32 @@ test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo u
   expect(overflow).toEqual({ down: 0, across: 0 });
 });
 
+test("Milyoner: Esc on \"Son kararın mı?\" takes the answer back without leaving, and Yarı yarıya leaves two choices (#198)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/milyoner/");
+  await expect(page.getByRole("dialog", { name: "Milyoner" })).toContainText("Yemek Kartı");
+
+  // Enter: question 1 of 12, four choices; B marked, Enter asks.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Soru 1/12")).toBeVisible();
+  const choices = page.getByRole("list", { name: "Şıklar" }).getByRole("button");
+  await expect(choices).toHaveCount(4);
+  await page.keyboard.press("b");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Son kararın mı?")).toBeVisible();
+
+  // Esc here is "Vazgeç": the question stays, no leave question, no hub.
+  await page.keyboard.press("Escape");
+  await expect(page.getByText("Son kararın mı?")).toBeHidden();
+  await expect(page.getByText("Turdan çıkılsın mı?")).toBeHidden();
+  await expect(page.getByText("Soru 1/12")).toBeVisible();
+
+  // Y takes away two wrong choices; the joker is spent for the Round.
+  await page.keyboard.press("y");
+  await expect(page.getByRole("list", { name: "Şıklar" }).getByRole("button", { disabled: false })).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /Yarı yarıya/ })).toBeDisabled();
+});
+
 test("the slot machine: a spin lands its score on the machine, no result screen, and Esc is the hub (#200)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/slot/");
