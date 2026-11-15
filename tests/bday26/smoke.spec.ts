@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { ANSWERS } from "../../src/lib/bday26/wordle.ts";
+import { MAPS, choices, shortestRoute } from "../../src/lib/bday26/yuruyus.ts";
 
 /**
  * The birthday games smoke — ticket #193, spec #192 ("Testing Decisions",
@@ -563,4 +564,41 @@ test("Kelime avı: a short row is refused, the answer from its İpucu wins %100,
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Kelime avı")).toContainText("%100");
   await expect(row(page, "Kelime avı")).toContainText("Kazandın!");
+});
+
+test("Yürüyüş haritası: walked by number keys along the shortest route, it scores %100 and the hub tile shows it (#202)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/yuruyus/");
+  const start = page.getByRole("dialog", { name: "Yürüyüş haritası" });
+  await expect(start).toContainText("Piknik günü");
+  await expect(start).toContainText("en kısanın %10 fazlasına kadar %100");
+
+  // The map is dealt at random; the HUD names it, and the core knows its shortest route.
+  await page.keyboard.press("Enter");
+  const name = (await page.locator("[data-hud-map]").innerText()).trim();
+  const map = MAPS.find((m) => m.name === name);
+  expect(map, `no map is called "${name}"`).toBeDefined();
+  const best = shortestRoute(map!);
+
+  // One step and Backspace: back at the car park.
+  await page.keyboard.press("1");
+  await expect(page.getByText("1 patika")).toBeVisible();
+  await page.keyboard.press("Backspace");
+  await expect(page.getByText("0 patika")).toBeVisible();
+
+  // The badges number the choices clockwise from north; press the one on the shortest route.
+  for (let i = 1; i < best.route.length; i++) {
+    const key = choices(map!, best.route.slice(0, i)).indexOf(best.route[i]!) + 1;
+    await page.keyboard.press(String(key));
+  }
+  await expect(page.getByText("Zirvedesin. Rotan hazır mı?")).toBeVisible();
+  await page.keyboard.press("Enter");
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toContainText("%100");
+  await expect(result).toContainText("en kısa rotayı buldun!");
+  await expect(result).toContainText("Küçük ödül kazandın: Piknik günü!");
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Yürüyüş haritası")).toContainText("%100");
 });
