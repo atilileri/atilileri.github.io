@@ -42,7 +42,7 @@ const KEYS = [
   { key: "1 2 3 4", does: "Yeri seç" },
   { key: "A B C D", does: "Harfle de seçebilirsin" },
   { key: "Tık", does: "Fareyle de seçebilirsin" },
-  { key: "Herhangi bir tuş", does: "Beklemeden sonraki fotoğrafa geç" },
+  { key: "Herhangi bir tuş", does: "Sonraki fotoğrafa geç" },
   { key: "Esc", does: "Salona dön" },
 ];
 
@@ -205,8 +205,13 @@ const LETTERS = ["A", "B", "C", "D"];
     --wrong-bg: #fdeae8;
     --wrong-ink: #8e2420;
 
+    /* The height is spelled in viewport units, like the memory board's,
+       because the shell's playfield is a grid whose one row is `auto`: a
+       percentage height here would be read against the content and the
+       1600 px photo would set the size instead of taking it. 104 px is the
+       HUD (64) and the playfield's padding (20 + 20). */
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 104px);
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto auto;
     gap: 16px;
@@ -236,6 +241,10 @@ const LETTERS = ["A", "B", "C", "D"];
 
   /* ── the four places ─────────────────────────────────────────── */
   .choices {
+    /* An <ol> for the A–D order; the letters are the markers, not "1." */
+    list-style: none;
+    padding: 0;
+    margin: 0;
     width: min(100%, 1560px);
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
