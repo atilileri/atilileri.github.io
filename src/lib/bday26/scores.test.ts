@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
+import { hikingScore, memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -159,4 +159,37 @@ test("piano: the cap scales a partial Round too, rounded down", () => {
 test("piano: no note hit scores 0, and so does a song without notes", () => {
   assert.equal(pianoScore(0, 120, 1.0), 0);
   assert.equal(pianoScore(0, 0, 1.0), 0);
+});
+
+// ------------------------------------------------------------- hiking map
+// Spec: ≤10% over the shortest = 100, then −1 per 1% over, rounded down,
+// floor 0; 95% means at most 15% over (#202, #183). Lengths in metres, her
+// route first. The shortest here is a round 10 km so each row reads plainly.
+
+test("hiking map: the shortest route itself is a perfect 100", () => {
+  assert.equal(hikingScore(10_000, 10_000), 100);
+});
+
+test("hiking map: exactly 10% over the shortest is still 100, the free margin", () => {
+  assert.equal(hikingScore(11_000, 10_000), 100);
+  assert.equal(hikingScore(8_775 * 1.1, 8_775), 100); // Kartal Tepesi's shortest
+});
+
+test("hiking map: 15% over is exactly 95, the Small prize edge", () => {
+  assert.equal(hikingScore(11_500, 10_000), 95);
+  assert.equal(hikingScore(8_775 * 1.15, 8_775), 95);
+});
+
+test("hiking map: just past 15% over falls to 94, rounded down", () => {
+  assert.equal(hikingScore(11_510, 10_000), 94); // 15.1% over
+});
+
+test("hiking map: 20% over is 90, one point per 1% past the margin", () => {
+  assert.equal(hikingScore(12_000, 10_000), 90);
+  assert.equal(hikingScore(15_000, 10_000), 60);
+});
+
+test("hiking map: 110% over and further scores 0, never less", () => {
+  assert.equal(hikingScore(21_000, 10_000), 0);
+  assert.equal(hikingScore(40_000, 10_000), 0);
 });

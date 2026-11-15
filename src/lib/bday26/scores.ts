@@ -95,3 +95,22 @@ export function pianoScore(hits: number, notes: number, cap: number): number {
   const score = Math.floor((hits * 100 * cap) / notes + 1e-9);
   return Math.min(100, Math.max(0, score));
 }
+
+/** The hiking map's free margin: this many percent over the shortest is still 100. */
+export const HIKING_MARGIN = 10;
+
+/**
+ * Hiking map, "Yürüyüş haritası" (#202; spec row "≤10% over the shortest =
+ * 100, then −1 per 1% over, rounded down"). `route` is the length of the
+ * route she confirmed and `shortest` the map's shortest route, both in
+ * metres (`./yuruyus.ts`). The margin is Atıl's, after playing the
+ * prototype (#183): an easy Game on purpose (spec story 40). 15% over is
+ * the 95 edge, 110% over is 0. The tiny lifts keep 1.10 × shortest, which
+ * floating point puts a hair past 10%, on the right side of each line.
+ */
+export function hikingScore(route: number, shortest: number): number {
+  if (shortest <= 0) return 0;
+  const past = ((route / shortest - 1) * 100) - HIKING_MARGIN;
+  if (past <= 1e-9) return 100;
+  return Math.max(0, Math.floor(100 - past + 1e-9));
+}
