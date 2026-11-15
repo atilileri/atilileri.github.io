@@ -88,3 +88,23 @@ test("the Proof carries the day it is printed, written the Turkish way", async (
   // A casual Round months later, printed then: a month with Turkish letters.
   assert.equal((await proofOf(anEvening(), new Date(2027, 7, 1))).date, "1 Ağustos 2027");
 });
+
+test("the Proof prints the Save code Yedekle shows, with its last 6 characters as the check code; the paper restores her progress", async () => {
+  const ledger = anEvening();
+  const proof = await proofOf(ledger, BIRTHDAY);
+
+  // The same facts, the same code, character for character (story 94).
+  assert.equal(proof.code, (await ledger.toSaveCode()).code);
+  assert.match(proof.code, /^[A-Za-z0-9_-]+$/);
+
+  // The check code Atıl reads off the paper and off her screen (#175): six
+  // uppercase hex characters, the tail of the code itself.
+  assert.match(proof.check, /^[0-9A-F]{6}$/);
+  assert.equal(proof.check, proof.code.slice(-6));
+
+  // The paper is the last backup: typed back in, it holds the same Gifts.
+  const another = createLedger(memoryStore());
+  assert.equal((await another.restore(proof.code)).ok, true);
+  assert.deepEqual([...another.held().keys()], ["rocky", "resim"]);
+  assert.deepEqual(another.prizesWon(), ["nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "slot"]);
+});
