@@ -24,6 +24,8 @@
  *     the Game's `detail` line, the optional `<slot name="result">`, "Rekor"
  *     and "Hedef %95", the "Yeni rekor!" and "Küçük ödül kazandın: …!"
  *     flashes, "Yeni tur · Enter", "Salona dön · Esc").
+ *   An optional `<slot name="start">` sits on the start card above the
+ *   buttons, for a choice made before the Round (the piano's song, #205).
  *   The start screen is visible in the static HTML, so the page never flashes
  *   an empty playfield before the script runs.
  *
@@ -57,6 +59,7 @@ const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
 const target = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
 const hasResultSlot = Astro.slots.has("result");
+const hasStartSlot = Astro.slots.has("start");
 ---
 
 <main class="shell" data-shell data-shell-phase="start">
@@ -111,6 +114,13 @@ const hasResultSlot = Astro.slots.has("result");
         <span data-shell-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
         Küçük ödül: <b>{game.prize.name}</b> · <span data-shell-prize-sub>{game.luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`}</span>
       </p>
+      {
+        hasStartSlot && (
+          <div class="extra">
+            <slot name="start" />
+          </div>
+        )
+      }
       <div class="actions">
         <button class="bd-btn primary" type="button" data-shell-action="start">Başla <kbd>Enter</kbd></button>
         <button class="bd-btn ghost" type="button" data-shell-action="leave">Salona dön <kbd>Esc</kbd></button>

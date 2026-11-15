@@ -258,3 +258,44 @@ test("between spins there is no Round to lose: Esc leaves at once; mid-spin it a
   assert.equal(left, 2);
   assert.equal(ran.abandonRound, 1);
 });
+
+// ------------------------------------------------------- a choice on a screen
+
+test("a Game may take a key on its start and result screens (the piano's 1 2 3); Enter and Esc stay the shell's", () => {
+  // The piano Game (#205) picks its song on the start screen and again on
+  // the result screen, before Enter starts the Round.
+  const offered: [string, string][] = [];
+  let rounds = 0;
+  let left = 0;
+  let screen: ShellScreen | undefined;
+  const shell = createGameShell({
+    game: "piyano",
+    ledger: createLedger(memoryStore()),
+    hooks: {
+      startRound: () => void (rounds += 1),
+      screenKey: (key, phase) => {
+        offered.push([key, phase]);
+        return key === "2";
+      },
+    },
+    view: (s) => void (screen = s),
+    leave: () => void (left += 1),
+  });
+
+  assert.equal(shell.key("2"), true);
+  assert.equal(shell.key("x"), true, "a key the Game declines is still the screen's");
+  assert.equal(screen?.phase, "start");
+  shell.key("Enter");
+  assert.equal(rounds, 1);
+  // During the Round the hook is not asked: keys go to the Game as usual.
+  assert.equal(shell.key("2"), false);
+  shell.finish(50);
+  shell.key("2");
+  shell.key("Escape");
+  assert.equal(left, 1);
+  assert.deepEqual(offered, [
+    ["2", "start"],
+    ["x", "start"],
+    ["2", "result"],
+  ]);
+});

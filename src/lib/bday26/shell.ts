@@ -51,6 +51,12 @@
  *      more (framing's 5 thumbnails, #203) puts it in `<div slot="result">`
  *      and fills it before calling `finish`; the card shows the slot.
  *
+ *   6. A choice before the Round (the piano's song, #205). Markup in
+ *      `<div slot="start">` shows on the start card above "Başla"; the
+ *      `screenKey(key, phase)` hook gets every key on the start and result
+ *      screens except Enter and Esc, so 1 2 3 can pick a song there and
+ *      Enter still starts. Clicks on that markup are the Game's own.
+ *
  * WHAT THE SCREENS SAY (Turkish only; wording from the hiking prototype's
  * cards, verdict on #183, and the hub's tiles, #193):
  *   - Start: name, rule, keys, "Başla · Enter", "Salona dön · Esc", her Best
@@ -121,6 +127,10 @@ export type GameHooks = {
    *  says true (default: always). The slot machine (#200) says false between
    *  spins, where nothing is half done, so Esc leaves at once. */
   roundInProgress?(): boolean;
+  /** A key on the start or result screen other than Enter and Esc (the
+   *  piano's song choice, #205). The key stays the screen's: the Game's own
+   *  listeners never see it. */
+  screenKey?(key: string, phase: "start" | "result"): void;
 };
 
 export type ShellOptions = {
@@ -223,6 +233,8 @@ export function createGameShell(options: ShellOptions): GameShell {
       } else if (key === "Escape") {
         if (phase === "confirm") shell.stay();
         else shell.leave();
+      } else if (phase === "start" || phase === "result") {
+        hooks.screenKey?.(key, phase);
       }
       return true;
     },
