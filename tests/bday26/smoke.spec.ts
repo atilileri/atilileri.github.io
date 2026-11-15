@@ -602,3 +602,34 @@ test("Yürüyüş haritası: walked by number keys along the shortest route, it 
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Yürüyüş haritası")).toContainText("%100");
 });
+
+test("Kadraj: five crops by keys, a reveal after each, the five on the result card and its score on the hub tile (#203)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/kadraj/");
+  const start = page.getByRole("dialog", { name: "Kadraj" });
+  await expect(start).toContainText("Sage bottomless portafiltre");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Fotoğraf 1/5")).toBeVisible();
+
+  // Each photo: shrink and turn the box, crop it, see the reveal, go on.
+  for (let i = 1; i <= 5; i++) {
+    await expect(page.getByText(`Fotoğraf ${i}/5`)).toBeVisible();
+    await expect(page.getByRole("button", { name: /Kırp/ })).toBeEnabled(); // the photo is in
+    await page.keyboard.press("q");
+    await page.keyboard.press("x");
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: i < 5 ? /Sonraki/ : /Sonuç/ })).toBeVisible();
+    await page.keyboard.press("Enter");
+  }
+
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result.getByRole("img", { name: /^Fotoğraf \d$/ })).toHaveCount(5);
+  await expect(result).toContainText("en düşük · %5");
+  const score = (await result.locator("[data-shell-score]").innerText()).trim();
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Kadraj")).toContainText(score);
+});

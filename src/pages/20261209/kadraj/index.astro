@@ -208,12 +208,16 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
     revealBox.hidden = true;
     legend.hidden = false;
     go.innerHTML = "Kırp <kbd>Enter</kbd>";
+    // Until the photo is in, there is no box: keys are dropped, and the
+    // button says so by being disabled.
+    go.disabled = true;
     paintHud();
     const photo = await loaded.get(file)!;
     if (mine !== ticket) return;
     img.src = photoUrl(file);
     subject = { x: s.x * photo.w, y: s.y * photo.h };
     framing = startFraming(photo);
+    go.disabled = false;
     layout(false);
     paint();
   }
