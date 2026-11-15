@@ -16,6 +16,142 @@ aanvraag:
         istek: null
     literal: birine sorma
     why: "`aanvragen` bir kurumdan resmî olarak bir şey istemek. O isteğin kendisi → başvuru."
+achter:
+  nl: achter
+  tr: arkasında, arkada
+  en: behind
+  bridge: Futbolda ‘ahter’ (savunma, arka) kelimesini hatırlatır. Tersi `voor` (önünde).
+afgesloten:
+  nl: afgesloten
+  tr: (yol) kapalı, kapatılmış
+  en: closed off
+  trap:
+    from: en
+    text: >-
+      İngilizce `closed` aklıyla her kapalı şeye `afgesloten` dersin: `De winkel is afgesloten.`
+      Dükkân için `gesloten` ya da `dicht` denir. `afgesloten` bir yolun, bir alanın erişime
+      kapatılması: `De weg is afgesloten.`
+  pictures:
+    trap: >-
+      Solda kırmızı beyaz bariyerlerle kapatılmış bir yol, üstünde ‘De weg is afgesloten’; sağda
+      kapısında ‘Gesloten’ tabelası olan bir dükkân.
+afspraak:
+  nl: afspraak
+  article: de
+  tr: randevu; anlaşma
+  en: appointment; agreement
+  split:
+    parts:
+      - nl: af-
+        tr: bitirme, kesinleştirme
+        en: off, done
+        role: affix
+      - nl: spraak
+        tr: konuşma
+        en: speech
+        role: stem
+    literal: konuşulup kesinleşen şey
+    why: >-
+      `afspreken` ‘konuşup kesinleştirmek, anlaşmak’. Kesinleşen buluşma → randevu; kesinleşen karar
+      → anlaşma.
+  trap:
+    from: tr
+    text: >-
+      Türkçede randevu ‘alınır’. Bu yüzden `een afspraak nemen` dersin ve bir şey yanlış duyulmaz.
+      Ama Hollandacada randevu ‘yapılır’: `een afspraak maken`. Doktordan istersen: `Ik wil graag
+      een afspraak maken.`
+  pictures:
+    trap: >-
+      İki konuşma balonu: üstü çizili ‘een afspraak nemen’ ve yanında yeşil tik ile ‘een afspraak
+      maken’; arkada bir takvim ve bir doktor muayenehanesi kapısı.
+afstand:
+  nl: afstand
+  article: de
+  tr: mesafe
+  en: distance
+  split:
+    parts:
+      - nl: af
+        tr: uzağa
+        en: off, away
+        role: affix
+      - nl: stand
+        tr: duruş
+        en: stand
+        role: stem
+    literal: uzakta duruş
+    why: "Otobüs etiketi: `Houd drie meter afstand.` Üç metre mesafe bırak."
+allemaal:
+  nl: allemaal
+  tr: hepsi, herkes (hep birlikte)
+  en: all, everybody
+  bridge: "`al` (bütün) + `maal` (kere) gibi okunur: ‘hep birden’. Grup selamı: `Hoi allemaal!`"
+alles:
+  nl: alles
+  tr: her şey
+  en: everything
+  trap:
+    from: en
+    text: >-
+      İngilizce `all` aklıyla insanlara da `alles` dersin: `Hoi alles!` Ama `alles` yalnızca şeyler
+      için: her şey. İnsanlar için `allemaal`: `Hoi allemaal!` Pazarda: `Dat is alles` (hepsi bu,
+      başka bir şey yok).
+  pictures:
+    trap: >-
+      Solda bir grup insana el sallayan bir kişi, konuşma balonunda ‘Hoi allemaal!’ ve yeşil tik;
+      sağda üstü çizili ‘Hoi alles!’; altta dolu bir pazar sepeti ve ‘Dat is alles’.
+altijd:
+  nl: altijd
+  tr: her zaman
+  en: always
+  split:
+    parts:
+      - nl: al
+        tr: bütün
+        en: all
+        role: stem
+      - nl: tijd
+        tr: zaman
+        en: time
+        role: stem2
+    literal: bütün zaman
+anders-nog-iets:
+  nl: anders nog iets
+  tr: başka bir şey (ister misiniz)?
+  en: anything else?
+  split:
+    parts:
+      - nl: anders
+        tr: başka
+        en: else
+        role: stem
+      - nl: nog
+        tr: daha
+        en: still
+        role: stem2
+      - nl: iets
+        tr: bir şey
+        en: something
+        role: stem2
+    literal: başka daha bir şey
+    why: >-
+      Pazarda satıcının sorusu: `Anders nog iets?` Cevap: `Nee, dat was het` ya da `Dat is alles,
+      dank je.`
+annuleren:
+  nl: annuleren
+  tr: iptal etmek
+  en: to cancel
+  bridge: >-
+    İngilizce `annul` (geçersiz kılmak) ve Fransızca `annuler` ile neredeyse aynı kelime. Geçmiş
+    zaman sıfatı: `geannuleerd` (iptal edilmiş).
+aow:
+  nl: AOW
+  article: de
+  tr: devletin emekli aylığı
+  en: state pension
+  bridge: >-
+    `AOW` = `Algemene Ouderdomswet`, Genel Yaşlılık Yasası. Hollanda'da yaşadığın her yıl için biraz
+    birikir.
 apotheek:
   nl: apotheek
   article: de
@@ -32,6 +168,50 @@ apotheek:
     trap: >-
       Bir Hollanda sokağında iki dükkân: yeşil haçlı ‘Apotheek’ (reçeteli ilaç) ve şampuan, vitamin
       satan ‘Drogist’.
+baan:
+  nl: baan
+  article: de
+  tr: iş (bir pozisyon)
+  en: job
+  trap:
+    from: tr
+    text: >-
+      Türkçede ‘iş’ hem yaptığın şey hem de pozisyonun. Hollandacada pozisyon `de baan`, işe gitmek
+      ise `werk`: `Ik heb een nieuwe baan`, ama `Ik ga naar mijn werk`. `Ik ga naar mijn baan`
+      yanlış duyulur. Dikkat: padel'de `de baan` kort demek. Onu Session 4'te göreceğiz.
+  pictures:
+    trap: >-
+      Solda bir iş sözleşmesi ve bir masa, üstünde ‘een nieuwe baan’; sağda işe bisikletle giden bir
+      kişi, üstünde ‘naar mijn werk’; altta üstü çizili ‘naar mijn baan’.
+baan-2:
+  nl: baan
+  article: de
+  tr: kort, saha, pist
+  en: court, track
+  bridge: >-
+    `baan`ın temel anlamı ‘şerit, pist’: `rijbaan` (araç şeridi), `ijsbaan` (buz pisti), `startbaan`
+    (uçak pisti). Padel'de kort, hayatta ise bir kariyer yolu, yani iş (`de baan`, Session 3).
+bedrijfsarts:
+  nl: bedrijfsarts
+  article: de
+  tr: işyeri doktoru
+  en: company doctor, occupational physician
+  split:
+    parts:
+      - nl: bedrijf
+        tr: şirket
+        en: company
+        role: stem
+      - nl: "-s-"
+        tr: bağlayıcı ses
+        en: linking sound
+        role: link
+      - nl: arts
+        tr: doktor
+        en: doctor
+        role: stem2
+    literal: şirket doktoru
+    why: Seni tedavi etmez; ne zaman ve nasıl işe dönebileceğine bakar. Tedavi `huisarts`ın işi.
 bekendmaking:
   nl: bekendmaking
   article: de
@@ -59,6 +239,52 @@ bekendmaking:
     spelling: >-
       `maak` burada `mak` yazılır: `ma-king` hecesi açık, ve açık hecede uzun ünlü tek harfle
       yazılır.
+belasting:
+  nl: belasting
+  article: de
+  tr: vergi
+  en: tax
+  hook: >-
+    `belasting` = 'bela' + 'sting'. Sahne: her yıl mayısta posta kutundan bir zarf çıkıyor, bir arı
+    gibi seni sokuyor (İngilizce `sting`): 'Bela!' Bela gibi sokan şey: `de belasting`.
+  split:
+    parts:
+      - nl: be-
+        tr: fiil yapan ön ek
+        en: verb prefix
+        role: affix
+      - nl: last
+        tr: yük
+        en: load
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: yük bindirme
+    why: >-
+      `belasten` ‘birine yük bindirmek’. Devletin vatandaşa bindirdiği yük → vergi. `de
+      Belastingdienst` vergi dairesi.
+  pictures:
+    hook: >-
+      Bir posta kutusundan çıkan, iğneli bir arıya dönüşmüş bir zarf bir kişiyi sokuyor; kişi
+      ‘Bela!’ diye bağırıyor; zarfın üstünde ‘belasting’ yazıyor.
+beschikbaar:
+  nl: beschikbaar
+  tr: müsait, mevcut, boş
+  en: available
+  split:
+    parts:
+      - nl: beschik
+        tr: elinde bulundurmak
+        en: dispose
+        role: stem
+      - nl: "-baar"
+        tr: "-ılabilir"
+        en: "-able"
+        role: affix
+    literal: elde bulundurulabilir
+    why: "`beschikken over` ‘bir şeye sahip olmak’. Kullanılabilecek durumda → mevcut, boş."
 besluit:
   nl: besluit
   article: het
@@ -76,6 +302,98 @@ besluit:
         role: stem
     literal: kapatma
     why: Bir konuyu kapatmak, yani onu karara bağlamak. Türkçede de bir tartışmayı ‘kapatırız’.
+bestaand:
+  nl: bestaand
+  tr: mevcut, var olan
+  en: existing
+  bridge: "`bestaan` (var olmak) fiilinden: `een bestaand gebouw` var olan bir bina."
+betreffen:
+  nl: betreffen
+  tr: ilgilendirmek, hakkında olmak
+  en: to concern
+  bridge: >-
+    Mektupların başında `Betreft:` = ‘Konu:’. Sözlük biçimi `betreffen`, ama mektupta hep `betreft`
+    görürsün.
+blauw:
+  nl: blauw
+  tr: mavi
+  en: blue
+  bridge: İngilizce `blue`, Almanca `blau`. Peakz'ın en üst üyeliği `Blue`, kendi renkleri de mavi.
+blijven:
+  nl: blijven
+  tr: kalmak
+  en: to stay, to remain
+  hook: >-
+    `blijven` kulağa 'bil, yeğen!' gibi gelir. Sahne: bisiklete binen yeğenine otobüsün arkasından
+    sesleniyorsun: 'Bil, yeğen: sağda kal!' Etiket de aynısını söyler: `Blijf rechts achter mij.`
+  pictures:
+    hook: >-
+      Bir otobüsün arkasında sağ şeritte duran genç bir bisikletli; kaldırımdaki bir yetişkin el
+      sallıyor, konuşma balonunda ‘Bil, yeğen!’; otobüsün arkasında ‘Blijf rechts achter mij’
+      etiketi.
+boeken:
+  nl: boeken
+  tr: rezervasyon yapmak
+  en: to book
+  trap:
+    from: en
+    text: >-
+      `boeken` aynı zamanda `boek` (kitap) kelimesinin çoğulu: kitaplar. Peakz'daki `Boek een baan`
+      düğmesini ‘bir kitap’ diye okuyabilirsin. Burada `boek` fiildir, emir: ‘bir kort ayırt!’
+      Bağlam karar verir: `de boeken` kitaplar, `ik boek` rezervasyon yapıyorum.
+  pictures:
+    trap: >-
+      Solda bir padel kortu ve büyük bir ‘Boek een baan’ düğmesi, yeşil tik; sağda üstü çizili bir
+      kitap yığını; ortada bir soru işareti.
+bom:
+  nl: bom
+  article: de
+  tr: bomba
+  en: bomb
+  bridge: İngilizce `bomb`. Kısa `o`.
+boom:
+  nl: boom
+  article: de
+  tr: ağaç
+  en: tree
+  bridge: >-
+    İngilizce `beam` (kiriş, eskiden ağaç gövdesi) ile akraba görünür. Uzun `oo`. Çoğulu tek `o`
+    ile: `bomen`.
+  trap:
+    from: en
+    text: >-
+      `boom` İngilizcede ‘bum!’ patlama sesi. `De boom van Eindhoven` levhasını ‘Eindhoven
+      patlaması’ diye okumak kolay. Hollandacada `de boom` ağaç; patlama `de knal` ya da `boem!`.
+  pictures:
+    trap: >-
+      Solda büyük yeşil bir ağaç, altında ‘de boom’ ve yeşil tik; sağda üstü çizili bir patlama
+      bulutu ‘BOOM!’.
+boot:
+  nl: boot
+  article: de
+  tr: tekne, gemi
+  en: boat
+  bridge: "İngilizce `boat`. Uzun `oo`. Çoğulu `boten`: açık hecede tek `o` yeter."
+  trap:
+    from: en
+    text: >-
+      `boot` İngilizcede çizme. `We gaan met de boot naar Engeland` cümlesinde bir an çizme
+      düşünürsün. Hollandacada `de boot` tekne; çizme `de laars`.
+  pictures:
+    trap: >-
+      Solda denizde bir tekne ve altında yeşil tik ile ‘de boot’; sağda üstü çizili bir lastik
+      çizme; tekne üstünde bir bisiklet.
+bot:
+  nl: bot
+  article: het
+  tr: kemik
+  en: bone
+  bridge: Kısa `o`. Çoğulu `botten`. `boot` (tekne) ile karıştırma.
+bruin:
+  nl: bruin
+  tr: kahverengi
+  en: brown
+  bridge: "İngilizce `brown`, Almanca `braun`. `ui` Türkçede olmayan bir ses: ‘öy’e yakın."
 buurt:
   nl: buurt
   article: de
@@ -118,6 +436,65 @@ buurtbewoner:
     spelling: >-
       `woon` burada `won` yazılır: `wo-ner` hecesi açık, ve açık hecede uzun ünlü tek harfle
       yazılır.
+deelname:
+  nl: deelname
+  article: de
+  tr: katılım
+  en: participation
+  split:
+    parts:
+      - nl: deel
+        tr: pay
+        en: part
+        role: stem
+      - nl: name
+        tr: almak
+        en: take
+        base: nemen
+        role: stem2
+    literal: pay alma
+    spelling: "`nemen` burada `name` olur: fiilden isim yapılırken ünlü değişir (`nemen` → `name`)."
+deelnemer:
+  nl: deelnemer
+  article: de
+  tr: katılımcı
+  en: participant
+  split:
+    parts:
+      - nl: deel
+        tr: pay
+        en: part
+        role: stem
+      - nl: nemer
+        tr: alan
+        en: taker
+        role: stem2
+    literal: pay alan
+    why: "`deelname` (katılım, Session 4) ile aynı kökler. `werknemer` (Session 3) gibi `-nemer`."
+doorbetalen:
+  nl: doorbetalen
+  tr: ödemeye devam etmek
+  en: to continue paying
+  split:
+    parts:
+      - nl: door
+        tr: devam, sürdürme
+        en: on, through
+        role: affix
+      - nl: betalen
+        tr: ödemek
+        en: pay
+        role: stem
+    literal: ödemeyi sürdürmek
+    why: >-
+      `door` fiilin önünde ‘devam et’ demek: `doorgaan` (devam etmek), `doorwerken` (çalışmaya devam
+      etmek).
+dorp:
+  nl: dorp
+  article: het
+  tr: köy, kasaba
+  en: village
+  bridge: İngilizce yer adlarındaki `-thorpe` ve Almanca `Dorf` ile benzer.
 douane:
   nl: douane
   article: de
@@ -126,6 +503,289 @@ douane:
   bridge: >-
     `douane` Fransızca üzerinden Arapça `dīwān`dan, o da Farsça `divân`dan gelir. Türkçe `divan`
     aynı kelime: Osmanlıda devlet kurulu. Kaynak: https://en.wiktionary.org/wiki/douane
+drukte:
+  nl: drukte
+  article: de
+  tr: kalabalık, yoğunluk
+  en: crowds, busyness
+  split:
+    parts:
+      - nl: druk
+        tr: kalabalık
+        en: busy
+        role: stem
+      - nl: "-te"
+        tr: "-lık (isim yapar)"
+        en: "-ness"
+        role: affix
+    literal: kalabalıklık
+    why: "`druk` kalabalık, yoğun: `Het is druk.` Ondan isim: `de drukte`."
+duidelijk:
+  nl: duidelijk
+  tr: açık, net, anlaşılır
+  en: clear
+  split:
+    parts:
+      - nl: duide
+        tr: işaret etmek
+        en: point out
+        base: duiden
+        role: stem
+      - nl: "-lijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: işaret edilebilir
+    why: >-
+      Parmakla gösterilebilecek kadar belli olan → açık, net. Episode'larda sık: `Het is nog niet
+      duidelijk.`
+dus:
+  nl: dus
+  tr: yani, bu yüzden
+  en: so, therefore
+  hook: >-
+    `dus` kulağa 'duş' gibi gelir. Sahne: HIIT dersinden sırılsıklam çıkıyorsun: `Ik heb gesport,
+    dus ik ga douchen.` Spor yaptım, bu yüzden duş. Sebepten sonuca giden köprü: `dus`.
+  pictures:
+    hook: >-
+      Spor salonundan terli çıkmış bir kişi doğrudan bir duşa yürüyor; duşun üstünde büyük harflerle
+      ‘DUS’ yazıyor; arkada bir spor salonu.
+eerlijk:
+  nl: eerlijk
+  tr: dürüst; adil
+  en: honest; fair
+  split:
+    parts:
+      - nl: eer
+        tr: onur
+        en: honour
+        role: stem
+      - nl: "-lijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: onurlu
+    why: Onurlu davranan → dürüst, adil. `Eerlijk gezegd…` Açıkçası…
+ergens:
+  nl: ergens
+  tr: bir yerde, bir yere
+  en: somewhere
+  bridge: "`n` alınca `nergens` (hiçbir yerde) olur. `Ergens in de markt…` Pazarda bir yerde…"
+evenement:
+  nl: evenement
+  article: het
+  tr: etkinlik, organizasyon
+  en: event
+  bridge: "İngilizce `event`, Fransızca `événement`. Vurgu sonda: ‘e-ve-ne-MENT’."
+geel:
+  nl: geel
+  tr: sarı
+  en: yellow
+  hook: >-
+    `geel` kulağa Türkçe 'gel!' gibi gelir. Sahne: sarı bir ANWB arabası yolda bozulan bir arabanın
+    yanında durur ve sürücü camdan el sallar: 'Gel, gel!' Sarı araba 'gel' der: `geel`.
+  pictures:
+    hook: >-
+      Yol kenarında sarı bir yol yardım arabası duruyor; sürücü el sallıyor, konuşma balonunda
+      ‘Gel!’ yazıyor; arabanın yanında büyük harflerle ‘GEEL’ yazıyor.
+gevaarlijk:
+  nl: gevaarlijk
+  tr: tehlikeli
+  en: dangerous
+  split:
+    parts:
+      - nl: gevaar
+        tr: tehlike
+        en: danger
+        role: stem
+      - nl: "-lijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: tehlikeli
+goud:
+  nl: goud
+  article: het
+  tr: altın
+  en: gold
+  bridge: "İngilizce `gold`. Sıfatı `gouden`: `een gouden lidmaatschap`, `Gold`. Peakz'daki seviyen."
+  trap:
+    from: en
+    text: >-
+      İngilizcede `gold medal`, `gold card` dersin; madde adı aynı zamanda sıfat. Hollandacada sıfat
+      `-en` alır: `een gouden medaille`, `een zilveren kaart`. `een goud medaille` yanlış duyulur.
+  pictures:
+    trap: >-
+      Altın bir madalya, üstünde ‘een gouden medaille’ ve yeşil tik; yanında üstü çizili ‘een goud
+      medaille’; altta gümüş bir kart ‘een zilveren kaart’.
+graag:
+  nl: graag
+  tr: memnuniyetle; severek; lütfen (istekte)
+  en: gladly, with pleasure; please
+  hook: >-
+    `graag` kulağa bir karganın 'grak!' sesi gibi gelir. Sahne: çok kibar bir karga taal café'de
+    tezgâha konuyor ve 'Een koffie, grak… graag!' diyor. Kibar karga hep `graag` der.
+  trap:
+    from: en
+    text: >-
+      İngilizcede ‘sevmek’ için hep `like` kullanırsın, bu yüzden `Ik like padel` ya da `Ik vind
+      padel graag` gibi bir şey kurarsın. Hollandacada bir şeyi severek yapmak: fiil + `graag`: `Ik
+      speel graag padel.` `graag` fiilin hemen arkasına gelir, ayrı bir ‘sevmek’ fiili yoktur.
+  pictures:
+    hook: >-
+      Bir kafede tezgâhın üstüne konmuş kibar bir karga, papyon takmış; konuşma balonunda ‘Een
+      koffie, graag!’ yazıyor.
+graag-gedaan:
+  nl: graag gedaan
+  tr: rica ederim
+  en: you're welcome
+  split:
+    parts:
+      - nl: graag
+        tr: memnuniyetle
+        en: gladly
+        role: stem
+      - nl: gedaan
+        tr: yapılmış
+        en: done
+        role: stem2
+        base: doen
+    literal: memnuniyetle yapıldı
+    why: "‘Teşekkür ederim’e cevap: ‘memnuniyetle yaptım’, yani rica ederim."
+    spelling: "`gedaan`, `doen` fiilinin geçmiş zaman sıfatı."
+grijs:
+  nl: grijs
+  tr: gri
+  en: grey
+  bridge: "İngilizce `grey` ile benzer. `ij` ‘ey’ gibi okunur: ‘greys’."
+groen:
+  nl: groen
+  tr: yeşil
+  en: green
+  bridge: "İngilizce `green`, Almanca `grün`. `oe` Hollandacada ‘u’ gibi okunur: ‘grun’."
+grondrecht:
+  nl: grondrecht
+  article: het
+  tr: temel hak (anayasal)
+  en: fundamental right
+  split:
+    parts:
+      - nl: grond
+        tr: zemin
+        en: ground
+        role: stem
+      - nl: recht
+        tr: hak
+        en: right
+        role: stem2
+    literal: zemin hakkı
+    why: "Her şeyin üstüne kurulduğu hak → temel hak. Anayasa: `de Grondwet`."
+half:
+  nl: half
+  tr: yarım; (saatte) bir sonraki saatin yarımı
+  en: half; (clock) half before the next hour
+  trap:
+    from: en
+    text: >-
+      İngilizcede `half eight` (İngiliz kullanımı) 8:30 demek; Türkçede de ‘sekiz buçuk’. Bu yüzden
+      `half acht` 8:30 dersin ve maça bir saat geç kalırsın. Hollandacada `half acht` = 7:30:
+      ‘sekize yarım kala’. Saat sonraki saate göre söylenir.
+  pictures:
+    trap: >-
+      Büyük bir duvar saati 7:30'u gösteriyor, altında yeşil tik ile ‘half acht = 7:30’; yanında
+      üstü çizili ‘8:30’ ve koşarak geç kalmış bir padel oyuncusu.
+herinnering:
+  nl: herinnering
+  article: de
+  tr: hatırlatma; anı
+  en: reminder; memory
+  hook: >-
+    `herinnering` kulağa 'her iner ring' gibi gelir. Sahne: her sabah telefonunun ekranına yukarıdan
+    bir bildirim iner ve 'ring!' diye çalar: "Yarın 08:00 doktor." Her sabah inen ring: `de
+    herinnering`.
+  split:
+    parts:
+      - nl: her-
+        tr: yeniden
+        en: re-
+        role: affix
+      - nl: inner
+        tr: iç
+        en: inner
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: yeniden içe getirme
+    why: >-
+      `herinneren` ‘bir şeyi yeniden akla, içe getirmek’, yani hatırlatmak. Hatırlatılan şey →
+      hatırlatma, anı.
+    origins:
+      - tr: Bugünkü `weer` (yeniden) ile aynı görevde eski bir ön ek.
+        part: her-
+        source: docent
+  pictures:
+    hook: >-
+      Bir telefonun ekranına yukarıdan bir bildirim iniyor, yanında bir zil ‘ring!’ diye çalıyor;
+      bildirimde ‘Herinnering afspraak 08:00’ yazıyor.
+het-liefst:
+  nl: het liefst
+  tr: en çok (tercih ederek)
+  en: most of all, preferably
+  bridge: "`Ik drink graag thee, liever koffie, maar het liefst warme chocolademelk.`"
+houden:
+  nl: houden
+  tr: tutmak; korumak
+  en: to hold, to keep
+  bridge: "İngilizce `hold`. Emir hali `Houd …!`: `Houd afstand!` Mesafeni koru! `houden van` ise sevmek."
+iedereen:
+  nl: iedereen
+  tr: herkes
+  en: everyone
+  split:
+    parts:
+      - nl: ieder
+        tr: her
+        en: every
+        role: stem
+      - nl: een
+        tr: bir
+        en: one
+        role: stem2
+    literal: her bir
+    why: "Türkçe ‘her bir’ ile aynı yapı. Tekil fiil alır: `Iedereen is welkom.`"
+iemand:
+  nl: iemand
+  tr: biri, birisi
+  en: someone
+  hook: >-
+    `iemand`in sonunda `mand` var: Hollandaca sepet. Sahne: pazarda büyük bir hasır sepetin (`mand`)
+    içinden birinin kafası çıkıyor. Sepetteki biri: `iemand`. Sepet boşsa: `niemand`, kimse.
+  pictures:
+    hook: >-
+      Bir pazar tezgâhının yanında büyük bir hasır sepetten gülümseyen birinin kafası çıkıyor;
+      sepetin üstünde ‘mand’ yazıyor, kafanın üstünde ‘iemand’ yazıyor.
+iets:
+  nl: iets
+  tr: bir şey
+  en: something
+  hook: >-
+    `iets` kulağa 'iç!' gibi gelir. Sahne: pazarda bir satıcı sana küçük bir bardak uzatıyor: 'İç!'
+    Elinde bir şey var ama ne olduğunu bilmiyorsun. Bir şey: `iets`. Başına `n` gelirse: `niets`,
+    hiçbir şey.
+  pictures:
+    hook: >-
+      Bir pazar tezgâhında satıcı gizemli bir bardak uzatıyor, bardağın üstünde bir soru işareti;
+      konuşma balonunda ‘İç!’ yazıyor; tezgâhta ‘iets’ yazan bir etiket.
+ijs:
+  nl: ijs
+  article: het
+  tr: buz; dondurma
+  en: ice; ice cream
+  bridge: >-
+    İngilizce `ice`. Aynı kelime dondurma da demek: yazın `een ijsje`, kışın `natuurijs` (doğal
+    buz).
 kappen:
   nl: kappen
   tr: (ağaç) kesmek
@@ -133,6 +793,23 @@ kappen:
   bridge: >-
     `kappen` kulağa İngilizce `chop` gibi gelir, ve aynı işi anlatır: baltayla kesmek. Gündelik
     dilde bir anlamı daha var: `Ik kap ermee`, ‘bunu bırakıyorum’.
+kennisgeving:
+  nl: kennisgeving
+  article: de
+  tr: (resmî) bildirim
+  en: notice, notification
+  split:
+    parts:
+      - nl: kennis
+        tr: bilgi
+        en: knowledge
+        role: stem
+      - nl: geving
+        tr: verme
+        en: giving
+        base: geven
+        role: stem2
+    literal: bilgi verme
 kennismaken:
   nl: kennismaken
   tr: tanışmak
@@ -148,11 +825,495 @@ kennismaken:
         en: to make
         role: stem2
     literal: tanışıklık yapmak
+kiezen:
+  nl: kiezen
+  tr: seçmek
+  en: to choose
+  hook: >-
+    `kiezen` kulağa 'kiraz'ın başı gibi gelir: 'kiez…'. Sahne: pazarda kiraz tezgâhı; satıcı 'Kies
+    maar!' diyor, sen de kirazları tek tek seçiyorsun. Kiraz seçmek: `kiezen`.
+  trap:
+    from: tr
+    text: >-
+      Türkçede kök hiç değişmez; bu yüzden `ik kiez` yazarsın. Hollandaca kelime sonunda `z` olmaz,
+      `s`ye döner: `ik kies`, `jij kiest`. Aynı kural: `lezen` → `ik lees`, `vriezen` → `het
+      vriest`.
+  pictures:
+    hook: >-
+      Bir pazar tezgâhında kırmızı kirazlar; satıcı kibarca eliyle gösteriyor, konuşma balonunda
+      ‘Kies maar!’ yazıyor; bir el kirazları tek tek seçiyor.
+kleur:
+  nl: kleur
+  article: de
+  tr: renk
+  en: colour
+  bridge: >-
+    Fransızca `couleur` ve İngilizce `colour` ile aynı aileden görünür. Çoğulu `kleuren`: `Welke
+    kleur heeft je racket?`
+kop:
+  nl: kop
+  article: de
+  tr: fincan; kafa; başlık
+  en: cup; head; headline
+  bridge: "`een kop koffie` bir fincan kahve. Kısa `o`. Çoğulu `koppen`: `p` ikilenir ki `o` kısa kalsın."
+korting:
+  nl: korting
+  article: de
+  tr: indirim
+  en: discount
+  bridge: "İçinde `kort` (kısa) var: indirim fiyatı kısaltır. `10% korting` yüzde on indirim."
+kwartier:
+  nl: kwartier
+  article: het
+  tr: çeyrek saat (15 dakika)
+  en: quarter of an hour
+  bridge: >-
+    `kwart` çeyrek demek: `kwart over acht` 8:15, `kwart voor acht` 7:45. `Een kwartier` ise 15
+    dakikalık süre.
+liever:
+  nl: liever
+  tr: tercihen, daha çok (isteyerek)
+  en: rather, preferably
+  bridge: >-
+    `graag` → `liever` → `het liefst`: severek → daha severek → en severek. İngilizce `good → better
+    → best` gibi düzensiz bir dizi.
+loon:
+  nl: loon
+  article: het
+  tr: ücret, maaş
+  en: wage
+  trap:
+    from: en
+    text: >-
+      `loon` yazılışıyla İngilizce `loan` (borç, kredi) gibi görünür. `Je loon wordt doorbetaald`
+      cümlesini ‘borcun ödenmeye devam eder’ diye okursun ve fark etmezsin. Oysa `het loon` senin
+      maaşın: sana ödenen para, borç değil. Kredi Hollandacada `de lening`.
+  pictures:
+    trap: >-
+      Solda bir maaş bordrosu ‘loon’ ve yeşil tik; sağda üstü çizili bir banka kredi kâğıdı ‘loan’;
+      ortada bir para destesi.
+maar:
+  nl: maar
+  tr: ama; (yumuşatıcı) hadi, rahatça, sadece
+  en: but; (softener) just, go ahead
+  trap:
+    from: tr
+    text: >-
+      `maar` = ‘ama’ diye öğrendin. Bu yüzden `Kom maar binnen!` cümlesini ‘ama içeri gel’ diye
+      okursun ve bir itiraz duyarsın. Oysa burada `maar` emir cümlesini yumuşatır: ‘Hadi, rahatça
+      içeri gel!’ Bir emir cümlesinin içinde, fiilden sonra gelen `maar` neredeyse hiç ‘ama’
+      değildir.
+  pictures:
+    trap: >-
+      Bir evin kapısında gülümseyen bir ev sahibi elini içeriye doğru uzatıyor; konuşma balonunda
+      ‘Kom maar binnen!’ yazıyor; yanında üstü çizili ‘ama’ kelimesi.
+maatregel:
+  nl: maatregel
+  article: de
+  tr: önlem, tedbir
+  en: measure
+  split:
+    parts:
+      - nl: maat
+        tr: ölçü
+        en: measure
+        role: stem
+      - nl: regel
+        tr: kural
+        en: rule
+        role: stem2
+    literal: ölçü kuralı
+makkelijk:
+  nl: makkelijk
+  tr: kolay
+  en: easy
+  bridge: "`moeilijk`in zıttı. ‘NOS Journaal in Makkelijke taal’ = kolay dilde haber."
+manifestatie:
+  nl: manifestatie
+  article: de
+  tr: gösteri yürüyüşü, toplu gösteri
+  en: demonstration, rally
+  bridge: >-
+    Türkçe ‘manifesto’ ile benzer; bir şeyi kamuya açıkça göstermek. Günlük dilde `demonstratie` de
+    denir.
+mantelzorger:
+  nl: mantelzorger
+  article: de
+  tr: (bir yakınına gönüllü bakan) bakıcı
+  en: informal carer
+  split:
+    parts:
+      - nl: mantel
+        tr: palto
+        en: cloak
+        role: stem
+      - nl: zorg
+        tr: bakım
+        en: care
+        role: stem2
+      - nl: "-er"
+        tr: "-ıcı (kişi)"
+        en: "-er"
+        role: affix
+    literal: palto gibi saran bakıcı
+    why: >-
+      Bir yakınını, para almadan, bir palto gibi sarıp koruyan kişi: anne-babasına ya da eşine bakan
+      biri.
+minimumloon:
+  nl: minimumloon
+  article: het
+  tr: asgari ücret
+  en: minimum wage
+  split:
+    parts:
+      - nl: minimum
+        tr: en az
+        en: minimum
+        role: stem
+      - nl: loon
+        tr: ücret
+        en: wage
+        role: stem2
+    literal: en az ücret
+moeilijk:
+  nl: moeilijk
+  tr: zor
+  en: difficult
+  bridge: >-
+    İçinde `moeite` (zahmet, çaba) var: zahmetli olan → zor. `-lijk` İngilizce `-ly`, Türkçe ‘-li’
+    gibi sıfat yapar.
+  hook: >-
+    `moeilijk`in başı `moei` kulağa zorlanan birinin 'Muuy!' inlemesi gibi gelir. Sahne: dik bir
+    yokuşta bisikletle çıkıyorsun, 'Muuy!' diye inliyorsun. Zor: `moeilijk`. Kıyasla: `mogelijk`
+    başında `mog` var, `mag` (izin var) gibi: kapı açık.
+  split:
+    parts:
+      - nl: moei
+        tr: zahmet
+        en: effort
+        base: moeite
+        role: stem
+      - nl: "-lijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: zahmetli
+    spelling: "`moeite` sıfat olurken `-te` düşer: `moei` + `-lijk`."
+  pictures:
+    hook: >-
+      Dik bir yokuşta bisiklet süren bir kişi terliyor ve ‘Muuy!’ diye inliyor; yokuşun tepesinde
+      bir tabelada ‘moeilijk’ yazıyor.
+mogelijk:
+  nl: mogelijk
+  tr: mümkün; muhtemelen
+  en: possible; possibly
+  bridge: "İçinde `mogen` (-ebilmek, izinli olmak) fiilini duyarsın: olabilen → mümkün. Tersi `onmogelijk`."
+  hook: >-
+    `mogelijk`in başı `mog` kulağa `mag` gibi gelir: 'izin var'. Sahne: bir kapı açılıyor, kapıcı
+    'Mag! Geç!' diyor. Geçmek mümkün: `mogelijk`. `moeilijk` yokuş, `mogelijk` açık kapı.
+  split:
+    parts:
+      - nl: moge
+        tr: "-ebilmek"
+        en: may
+        base: mogen
+        role: stem
+      - nl: "-lijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: olabilir olan
+    spelling: "`mogen` burada `moge` olur: `-n` düşer, `-lijk` eklenir."
+  pictures:
+    hook: >-
+      Ardına kadar açık bir kapı, önünde güler yüzlü bir kapıcı ‘Mag!’ diyor; kapının üstünde
+      ‘mogelijk’ yazıyor; kapının arkasında güneşli bir yol.
+negeren:
+  nl: negeren
+  tr: görmezden gelmek
+  en: to ignore
+  hook: >-
+    `negeren` kulağa 'ne gören?' gibi gelir. Sahne: posta kutunda bir reklam broşürü var. 'Bunu ne
+    gören var ne okuyan!' deyip çöpe atıyorsun. Görmezden geldin: `negeren`. Maildeki cümle de bunu
+    söyler: `Dan kunt u dit bericht negeren.`
+  pictures:
+    hook: >-
+      Bir kişi posta kutusundan çıkan bir broşürü omuz silkerek çöpe atıyor; konuşma balonunda ‘Ne
+      gören?’ yazıyor; broşürün üstünde ‘negeren’ yazıyor.
+nergens:
+  nl: nergens
+  tr: hiçbir yerde
+  en: nowhere
+  split:
+    parts:
+      - nl: n-
+        tr: hiç (olumsuz)
+        en: no-
+        role: affix
+      - nl: ergens
+        tr: bir yerde
+        en: somewhere
+        role: stem
+    literal: hiç bir yerde
+niemand:
+  nl: niemand
+  tr: hiç kimse
+  en: nobody
+  split:
+    parts:
+      - nl: n-
+        tr: hiç (olumsuz)
+        en: no-
+        role: affix
+      - nl: iemand
+        tr: biri
+        en: someone
+        role: stem
+    literal: hiç biri
+niet-te-doen:
+  nl: niet te doen
+  tr: dayanılmaz, yapılacak gibi değil
+  en: unbearable, not doable
+  trap:
+    from: tr
+    text: >-
+      Kelime kelime çevirirsen ‘yapılmayacak’ dersin, yani bir yasak. Ama `Het is niet te doen` bir
+      yasak değil, bir şikâyet: ‘bu çekilmez, yapılacak gibi değil’. `De drukte op de markt was niet
+      te doen.` Pazardaki kalabalık çekilmezdi.
+  pictures:
+    trap: >-
+      Çok kalabalık bir pazarda sıkışmış, terleyen bir kişi; konuşma balonunda ‘Niet te doen!’
+      yazıyor; yanında üstü çizili bir yasak tabelası.
+niets:
+  nl: niets
+  tr: hiçbir şey
+  en: nothing
+  split:
+    parts:
+      - nl: n-
+        tr: hiç (olumsuz)
+        en: no-
+        role: affix
+      - nl: iets
+        tr: bir şey
+        en: something
+        role: stem
+    literal: hiç bir şey
+    why: >-
+      Kural: başa `n` ekle, olumsuz olsun: `iets` → `niets`, `iemand` → `niemand`, `ergens` →
+      `nergens`.
+nieuwbouw:
+  nl: nieuwbouw
+  article: de
+  tr: yeni yapı, yeni inşaat
+  en: new build
+  split:
+    parts:
+      - nl: nieuw
+        tr: yeni
+        en: new
+        role: stem
+      - nl: bouw
+        tr: yapı
+        en: building
+        role: stem2
+    literal: yeni yapı
+nooit:
+  nl: nooit
+  tr: asla, hiçbir zaman
+  en: never
+  bridge: >-
+    `altijd` ← `soms` → `nooit`: her zaman, bazen, asla. `nooit` cümlede genellikle fiilden sonra:
+    `Ik kom nooit te laat.`
+omdat:
+  nl: omdat
+  tr: çünkü, -dığı için (fiil sona gider)
+  en: because
+  hook: >-
+    `omdat` kulağa 'omuz-dat' gibi gelir. Sahne: `omdat` bir kişi; cümleye girer girmez omzuyla
+    çekimli fiili iter ve onu cümlenin en sonuna kadar yuvarlar. `… omdat ik ziek ben.` Omzuyla
+    iter: `omdat`.
+  split:
+    parts:
+      - nl: om
+        tr: için
+        en: for
+        role: stem
+      - nl: dat
+        tr: ki
+        en: that
+        role: stem2
+    literal: o yüzden ki
+  pictures:
+    hook: >-
+      ‘omdat’ yazan bir kutu-karakter omzuyla ‘ben’ yazan bir fiil kutusunu bir cümle rafının en
+      sonuna itiyor; rafta sırasıyla ‘omdat’, ‘ik’, ‘ziek’, ‘ben’ kutuları var.
+omgevingsvergunning:
+  nl: omgevingsvergunning
+  article: de
+  tr: çevre / yapı izni
+  en: environmental permit
+  split:
+    parts:
+      - nl: omgeving
+        tr: çevre
+        en: surroundings
+        role: stem
+      - nl: "-s-"
+        tr: bağlayıcı ses
+        en: linking sound
+        role: link
+      - nl: vergunning
+        tr: ruhsat
+        en: permit
+        role: stem2
+    literal: çevre ruhsatı
+    why: "İnşaat, ağaç kesme, rüzgâr türbini: çevreyi değiştiren her iş için tek bir izin."
+onmogelijk:
+  nl: onmogelijk
+  tr: imkânsız
+  en: impossible
+  split:
+    parts:
+      - nl: on-
+        tr: "-sız (olumsuz)"
+        en: un-, im-
+        role: affix
+      - nl: mogelijk
+        tr: mümkün
+        en: possible
+        role: stem
+    literal: mümkün olmayan
+ons:
+  nl: ons
+  article: het
+  tr: 100 gram; (zamir) bizi, bize, bizim
+  en: 100 grams; us, our
+  trap:
+    from: en
+    text: >-
+      `ons` İngilizce `ounce` (yaklaşık 28 gram) gibi görünür, bu yüzden küçük bir miktar
+      düşünürsün. Pazarda `een ons kaas` = 100 gram peynir. Aynı kelime zamir olarak ‘bizi, bize’:
+      `Kom bij ons!` Bağlam karar verir.
+  pictures:
+    trap: >-
+      Bir pazar peynir tezgâhında bir terazi 100 g gösteriyor, üstünde ‘een ons kaas = 100 g’;
+      yanında üstü çizili ‘28 g’.
+ontslag:
+  nl: ontslag
+  article: het
+  tr: işten çıkarılma; istifa
+  en: dismissal; resignation
+  split:
+    parts:
+      - nl: ont-
+        tr: "-den ayırma"
+        en: un-, away
+        role: affix
+      - nl: slag
+        tr: vuruş
+        en: blow
+        role: stem
+    literal: ayırma vuruşu
+    why: "`ontslaan` ‘birini görevinden ayırmak’. İşten ayrılma → işten çıkarılma ya da istifa."
+  trap:
+    from: tr
+    text: >-
+      Türkçede ‘istifa’ ve ‘kovulmak’ iki ayrı kelime. Hollandacada ikisi de `ontslag`, fark fiilde:
+      `ontslag nemen` istifa etmek (sen ayrılırsın), `ontslag krijgen` ya da `ontslagen worden`
+      işten çıkarılmak. `Ik heb ontslag genomen` dersen kendin ayrıldın demektir.
+  pictures:
+    trap: >-
+      İki sahne: solda bir çalışan kendi isteğiyle bir mektup uzatıyor, üstünde ‘ontslag nemen’;
+      sağda bir yönetici bir çalışana kapıyı gösteriyor, üstünde ‘ontslag krijgen’.
+ontstaan:
+  nl: ontstaan
+  tr: ortaya çıkmak, oluşmak
+  en: to arise, to come into being
+  split:
+    parts:
+      - nl: ont-
+        tr: başlama
+        en: begin
+        role: affix
+      - nl: staan
+        tr: durmak
+        en: stand
+        role: stem
+    literal: ayağa kalkmaya başlamak
+    why: "Var olmaya başlamak → oluşmak. Levhada: `Eindhoven is ontstaan uit vijf dorpen.`"
+oranje:
+  nl: oranje
+  tr: turuncu
+  en: orange
+  bridge: >-
+    Kraliyet ailesinin adı `Oranje`: Koningsdag'da her yer turuncu olur, milli takım da `Oranje`
+    diye anılır.
+overal:
+  nl: overal
+  tr: her yerde
+  en: everywhere
+  split:
+    parts:
+      - nl: over
+        tr: üzerinde
+        en: over
+        role: stem
+      - nl: al
+        tr: bütün
+        en: all
+        role: stem2
+    literal: bütünün üzerinde
+paars:
+  nl: paars
+  tr: mor
+  en: purple
+  hook: >-
+    `paars` kulağa 'pars' gibi gelir, Anadolu parsı gibi. Sahne: Peakz'ın kortunda mor benekli bir
+    pars filelerin arasında dolaşıyor; herkes ona bakıp 'paars!' diyor. Mor pars: `paars`.
+  pictures:
+    hook: >-
+      Bir padel kortunda mor benekli büyük bir pars yürüyor; arkadaki camda büyük harflerle ‘PAARS’
+      yazıyor.
+pech:
+  nl: pech
+  article: de
+  tr: şanssızlık; araç arızası
+  en: bad luck; breakdown
+  hook: >-
+    `pech` kulağa Türkçe 'peh!' gibi gelir. Sahne: araban otoyolda duruyor, kaputu açıp 'Peh!'
+    diyorsun. Arıza ve kötü şans: `pech`. `Ik heb pech` arabam bozuldu ya da şansım yok.
+  pictures:
+    hook: >-
+      Otoyol kenarında kaputu açık, dumanı tüten bir araba; yanında bir kişi elini alnına koymuş
+      ‘Peh!’ diyor; bir tabelada ‘pech’ yazıyor.
+pensioen:
+  nl: pensioen
+  article: het
+  tr: emeklilik; emekli maaşı
+  en: pension, retirement
+  trap:
+    from: tr
+    text: >-
+      `pensioen` Türkçe ‘pansiyon’a çok benzer. `Mijn vader gaat met pensioen` cümlesini ‘babam
+      pansiyona gidiyor’ diye okuyabilirsin. Doğrusu: babam emekli oluyor. Pansiyon Hollandacada
+      `het pension` (ya da `de B&B`), `oe` yok.
+  pictures:
+    trap: >-
+      Solda yaşlı bir adam işyerinden çiçek ve bir pastayla ayrılıyor, üstünde ‘met pensioen’; sağda
+      üstü çizili küçük bir pansiyon binası ‘pension’.
 plek:
   nl: plek
   article: de
   tr: yer
   en: spot
+proberen:
+  nl: proberen
+  tr: denemek; tadına bakmak
+  en: to try
+  bridge: >-
+    Türkçe ‘prova’ (deneme) ve İngilizce `probe` ile aynı aileden görünür. `ik probeer`, `jij
+    probeert`; pazarda: `Wil je even proberen?` Tadına bakar mısın?
 recept:
   nl: recept
   article: het
@@ -170,6 +1331,215 @@ recept:
     trap: >-
       Yan yana iki kâğıt: solda doktorun yazdığı ‘het recept’ (reçete) ve eczaneye giden bir ok;
       sağda bir market fişi ‘de bon’. Aralarında ‘≠’ işareti.
+rechts:
+  nl: rechts
+  tr: sağda, sağa
+  en: right (side)
+  bridge: "İngilizce `right` gibi hem ‘sağ’ hem de `recht` ‘hak, doğru’ ile akraba görünür. Sol: `links`."
+rectificatie:
+  nl: rectificatie
+  article: de
+  tr: düzeltme (ilanı)
+  en: correction, rectification
+  bridge: İngilizce `rectification`. Daha önce yayımlanan bir ilanda hata vardı; bu ilan onu düzeltir.
+regering:
+  nl: regering
+  article: de
+  tr: hükümet
+  en: government
+  split:
+    parts:
+      - nl: reger
+        tr: yönetmek
+        en: govern
+        base: regeren
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: yönetme
+    why: Yönetenler → hükümet. İngilizce `regime` ve `reign` ile benzer görünür.
+rood:
+  nl: rood
+  tr: kırmızı
+  en: red
+  bridge: "İngilizce `red`, Almanca `rot`. Hollandaca uzun `oo` ile: `rood`. `Het licht is rood.`"
+roze:
+  nl: roze
+  tr: pembe
+  en: pink
+  bridge: "Gül (`rose`) renginden: `roze`. Okunuşu ‘roze’, sondaki `e` hafif okunur."
+ruzie:
+  nl: ruzie
+  article: de
+  tr: kavga, tartışma
+  en: quarrel, row
+  bridge: "Fiziksel değil, sözlü kavga: `ruzie maken` tartışmak. Episode: `ruzie tussen regeringspartijen`."
+schaatsen:
+  nl: schaatsen
+  tr: paten kaymak (buzda)
+  en: to ice-skate
+  bridge: >-
+    İngilizce `skate` kelimesi Hollandaca `schaats` kelimesinden geldi (kaynak:
+    etymonline.com/word/skate).
+soms:
+  nl: soms
+  tr: bazen
+  en: sometimes
+  hook: >-
+    `soms` kulağa 'som' balığı gibi gelir. Sahne: zaterdagmarkt'taki balıkçı tezgâhında som balığı
+    her hafta yok, sadece bazen var. 'Som var mı?' 'Soms!' Bazen: `soms`.
+  trap:
+    from: en
+    text: >-
+      `soms` İngilizce `some` (biraz, bazı) gibi görünür. `Soms koop ik vis` cümlesini ‘biraz balık
+      alırım’ diye okursun. Doğrusu: ‘bazen balık alırım’. `soms` bir zaman kelimesidir; ‘biraz’
+      `een beetje`, ‘bazı’ `sommige`.
+  pictures:
+    hook: >-
+      Bir pazar balık tezgâhında tek bir büyük som balığı; satıcı omuz silkiyor, konuşma balonunda
+      ‘Soms!’ yazıyor; arkadaki takvimde sadece bazı günler işaretli.
+staking:
+  nl: staking
+  article: de
+  tr: grev
+  en: strike
+  split:
+    parts:
+      - nl: stak
+        tr: durdurmak
+        en: stop
+        base: staak
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: durdurma
+    why: "`staken` ‘işi durdurmak’. İşi topluca durdurmak → grev."
+    spelling: "`staak` burada `stak` yazılır: açık hecede uzun ünlü tek harfle yazılır (`sta-king`)."
+storing:
+  nl: storing
+  article: de
+  tr: arıza, kesinti
+  en: outage, malfunction
+  hook: >-
+    `storing` kulağa 'stor' gibi gelir, stor perde gibi. Sahne: bilgisayarının ekranına bir stor
+    perde iniyor ve her şey kararıyor: mail yok, Teams yok. Ekrana inen stor: `de storing`.
+  split:
+    parts:
+      - nl: stor
+        tr: rahatsız etmek
+        en: disturb
+        base: storen
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: rahatsız etme
+    why: >-
+      `storen` ‘bozmak, rahatsız etmek’. Sistemin bozulması → arıza. Kapıda `Niet storen` = rahatsız
+      etmeyin.
+  pictures:
+    hook: >-
+      Bir bilgisayar ekranının önüne yukarıdan bir stor perde iniyor ve ekran kararıyor; ekranda
+      ‘storing’ yazıyor; yanında şaşkın bir kişi.
+te-doen:
+  nl: te doen
+  tr: yapılacak (şey)
+  en: to do, to be done
+  bridge: >-
+    `Er is veel te doen` yapılacak çok şey var. `Wat is er te doen in Eindhoven?` Eindhoven'da ne
+    yapılır, ne etkinlik var?
+te-koop:
+  nl: te koop
+  tr: satılık
+  en: for sale
+  bridge: >-
+    `kopen` (satın almak) fiilinden. Evlerin camında `Te koop` = satılık, `Te huur` = kiralık. `kop`
+    (fincan, kafa) kısa `o` ile ayrı bir kelime.
+tijdelijk:
+  nl: tijdelijk
+  tr: geçici
+  en: temporary
+  split:
+    parts:
+      - nl: tijd
+        tr: zaman
+        en: time
+        role: stem
+      - nl: "-elijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: zamanlı
+    why: Sadece bir süre için olan → geçici. Session 6'daki `-lijk` ailesinden.
+uitkering:
+  nl: uitkering
+  article: de
+  tr: (devletten, sigortadan) ödenek
+  en: benefit, allowance
+  hook: >-
+    `uitkering` kulağa 'öyt-kering', yani 'öyle kerim' gibi gelir. Sahne: işini kaybeden birine UWV
+    gişesinden bir zarf uzatılıyor; adam zarfa bakıp 'Devlet öyle kerim ki!' diyor. O zarf: `de
+    uitkering`.
+  split:
+    parts:
+      - nl: uit
+        tr: dışarı
+        en: out
+        role: affix
+      - nl: ker
+        tr: çevirmek
+        en: turn
+        base: keer
+        role: stem
+      - nl: "-ing"
+        tr: "-me (isim yapar)"
+        en: "-ing"
+        role: affix
+    literal: dışarı çevirme
+    why: "`uitkeren` ‘parayı dışarı çevirip dağıtmak’, yani ödemek. Düzenli ödenen yardım → ödenek."
+    spelling: "`keer` burada `ker` yazılır: açık hecede uzun ünlü tek harfle yazılır (`ke-ring`)."
+  pictures:
+    hook: >-
+      Bir resmî gişede bir memur bir zarf uzatıyor; zarfı alan adamın konuşma balonunda ‘Öyle
+      kerim!’ yazıyor; zarfın üstünde ‘uitkering’ yazıyor.
+vakantiegeld:
+  nl: vakantiegeld
+  article: het
+  tr: tatil parası (yıllık brüt maaşın en az %8'i)
+  en: holiday allowance
+  split:
+    parts:
+      - nl: vakantie
+        tr: tatil
+        en: holiday
+        role: stem
+      - nl: geld
+        tr: para
+        en: money
+        role: stem2
+    literal: tatil parası
+    why: Genellikle mayıs ayında maaşla birlikte bir kerede ödenir.
+vakbond:
+  nl: vakbond
+  article: de
+  tr: sendika
+  en: trade union
+  split:
+    parts:
+      - nl: vak
+        tr: meslek
+        en: trade
+        role: stem
+      - nl: bond
+        tr: birlik
+        en: union
+        role: stem2
+    literal: meslek birliği
 vergunning:
   nl: vergunning
   article: de
@@ -209,19 +1579,386 @@ vergunning:
     hook: >-
       Belediyede bir memur VERGUNNING yazan bir kâğıda büyük bir damga basıyor; konuşma balonunda
       ‘Ver! Gün: 15 Ekim!’ yazıyor.
+verkeersbesluit:
+  nl: verkeersbesluit
+  article: het
+  tr: trafik kararı (belediyenin)
+  en: traffic order
+  split:
+    parts:
+      - nl: verkeer
+        tr: trafik
+        en: traffic
+        role: stem
+      - nl: "-s-"
+        tr: bağlayıcı ses
+        en: linking sound
+        role: link
+      - nl: besluit
+        tr: karar
+        en: decision
+        role: stem2
+    literal: trafik kararı
+    why: "Bir yol kapatılır, park yasağı konur, hız düşürülür: hepsi bir `verkeersbesluit` ile."
+verkeershinder:
+  nl: verkeershinder
+  article: de
+  tr: trafik aksaması
+  en: traffic disruption
+  split:
+    parts:
+      - nl: verkeer
+        tr: trafik
+        en: traffic
+        role: stem
+      - nl: "-s-"
+        tr: bağlayıcı ses
+        en: linking sound
+        role: link
+      - nl: hinder
+        tr: engel
+        en: hindrance
+        role: stem2
+    literal: trafik engeli
+verkeersregelaar:
+  nl: verkeersregelaar
+  article: de
+  tr: trafik görevlisi (polis değil)
+  en: traffic controller
+  split:
+    parts:
+      - nl: verkeer
+        tr: trafik
+        en: traffic
+        role: stem
+      - nl: "-s-"
+        tr: bağlayıcı ses
+        en: linking sound
+        role: link
+      - nl: regelaar
+        tr: düzenleyici
+        en: regulator
+        role: stem2
+    literal: trafik düzenleyicisi
+verliezen:
+  nl: verliezen
+  tr: kaybetmek
+  en: to lose
+  bridge: "İngilizce `lose` kelimesi `-liezen` kısmında saklı. Geçmiş: `Wij hebben verloren.`"
 verplicht:
   nl: verplicht
   tr: zorunlu
   en: compulsory
+vervallen:
+  nl: vervallen
+  tr: geçersiz olmak, düşmek
+  en: to lapse, to expire
+  split:
+    parts:
+      - nl: ver-
+        tr: kötüye gitme, yok olma
+        en: away
+        role: affix
+      - nl: vallen
+        tr: düşmek
+        en: fall
+        role: stem
+    literal: düşüp gitmek
+    why: "Bir hak ya da kayıt ‘düşer’, yani geçersiz olur: `Als je niet betaalt, vervalt je deelname.`"
+vieren:
+  nl: vieren
+  tr: kutlamak
+  en: to celebrate
+  hook: >-
+    `vieren` içinde `vier` (dört) saklı. Sahne: padel maçını kazanan dört kişi kortun ortasında
+    raketlerini havaya kaldırıp kutlama yapıyor. Dört kişi kutluyor: `vier` → `vieren`.
+  pictures:
+    hook: >-
+      Bir padel kortunun ortasında dört oyuncu raketlerini havaya kaldırıp kutlama yapıyor;
+      üstlerinde büyük bir ‘4’ ve ‘vieren’ yazıyor.
+voorkeur:
+  nl: voorkeur
+  article: de
+  tr: tercih
+  en: preference
+  split:
+    parts:
+      - nl: voor
+        tr: önce
+        en: fore
+        role: affix
+      - nl: keur
+        tr: seçim
+        en: choice
+        role: stem
+    literal: önceden seçim
+    why: "Mailin sonunda: `Wilt u uw voorkeuren aanpassen?` Tercihlerinizi değiştirmek ister misiniz?"
+vooruit:
+  nl: vooruit
+  tr: ileriye; önceden
+  en: ahead, in advance
+  split:
+    parts:
+      - nl: voor
+        tr: ön
+        en: fore
+        role: stem
+      - nl: uit
+        tr: dışarı
+        en: out
+        role: stem2
+    literal: öne doğru
+    why: "`4 weken vooruit boeken`: dört hafta öncesinden ayırtmak."
+vriendelijk:
+  nl: vriendelijk
+  tr: nazik, güler yüzlü
+  en: friendly, kind
+  split:
+    parts:
+      - nl: vriend
+        tr: arkadaş
+        en: friend
+        role: stem
+      - nl: "-elijk"
+        tr: "-ce (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: arkadaşça
+    why: "Mektup sonu: `Met vriendelijke groet` (saygılarımla, kelimesi kelimesine ‘arkadaşça selamla’)."
+vriezen:
+  nl: vriezen
+  tr: donmak (hava için)
+  en: to freeze
+  bridge: "İngilizce `freeze`. Hava için: `Het vriest.` Don var. `z` sonda `s` olur: `het vriest`."
+waarschijnlijk:
+  nl: waarschijnlijk
+  tr: muhtemelen
+  en: probably
+  split:
+    parts:
+      - nl: waar
+        tr: doğru
+        en: true
+        role: stem
+      - nl: schijn
+        tr: görünmek
+        en: seem
+        role: stem2
+      - nl: "-lijk"
+        tr: "-li (sıfat)"
+        en: "-ly"
+        role: affix
+    literal: doğru görünen
+    why: "Doğru gibi görünen → muhtemelen. Episode'da: `Het dorp hoeft waarschijnlijk niet weg.`"
+want:
+  nl: want
+  tr: çünkü (cümle sırası değişmez)
+  en: because, for
+  trap:
+    from: en
+    text: >-
+      `want` İngilizce `want` (istemek) ile aynı yazılır. `Ik blijf thuis, want ik ben ziek`
+      cümlesinde ‘istiyorum’ ararsın ve cümle anlamsızlaşır. Hollandacada `want` bir bağlaç:
+      ‘çünkü’. İstemek `willen`dir: `Ik wil naar huis.`
+  pictures:
+    trap: >-
+      Solda bir kişi yatakta termometreyle yatıyor, altında ‘want = çünkü’ ve yeşil tik; sağda üstü
+      çizili bir hediye paketi isteyen el ‘want = istemek?’.
+wegenwacht:
+  nl: wegenwacht
+  article: de
+  tr: (ANWB'nin) yol yardım servisi
+  en: roadside assistance
+  split:
+    parts:
+      - nl: weg
+        tr: yol
+        en: way
+        role: stem
+      - nl: "-en-"
+        tr: bağlayıcı ses
+        en: linking sound
+        role: link
+      - nl: wacht
+        tr: nöbet
+        en: watch
+        role: stem2
+    literal: yolların nöbetçisi
+    why: Sarı arabalarla yolda kalanlara yardım eden ANWB ekibi.
 welkom:
   nl: welkom
   tr: hoş geldin
   en: welcome
   bridge: Hollandaca `welkom` ile İngilizce `welcome` neredeyse aynı yazılır ve aynı anlamdadır.
+werkgever:
+  nl: werkgever
+  article: de
+  tr: işveren
+  en: employer
+  bridge: "Türkçe `iş-veren` ile parça parça aynı: `werk` (iş) + `gever` (veren)."
+  split:
+    parts:
+      - nl: werk
+        tr: iş
+        en: work
+        role: stem
+      - nl: gever
+        tr: veren
+        en: giver
+        role: stem2
+    literal: iş veren
+werknemer:
+  nl: werknemer
+  article: de
+  tr: çalışan, işçi
+  en: employee
+  bridge: >-
+    `werkgever` işi verir, `werknemer` işi alır: `nemen` (almak) + `-er`. Türkçede ‘iş alan’ diye
+    düşün.
+  split:
+    parts:
+      - nl: werk
+        tr: iş
+        en: work
+        role: stem
+      - nl: nemer
+        tr: alan
+        en: taker
+        role: stem2
+    literal: iş alan
+wijk:
+  nl: wijk
+  article: de
+  tr: semt, mahalle (resmî bölüm)
+  en: district
+  bridge: >-
+    İngilizce yer adlarındaki `-wick` (Warwick, Norwich) ile benzer. `buurt` daha küçük ve günlük;
+    `wijk` belediyenin bölümü: `Wijkinfo`.
+wijzigen:
+  nl: wijzigen
+  tr: değiştirmek (resmî dilde)
+  en: to change, to amend
+  hook: >-
+    `wijzigen` kulağa 'vay, zigzag!' gibi gelir. Sahne: takvimdeki randevu saati bir zigzag çizerek
+    08:00'den 10:30'a kayıyor, sen de 'vay, zigzag!' diyorsun. Randevu değişti: `gewijzigd`.
+  trap:
+    from: en
+    text: >-
+      İngilizcedeki `change` aklıyla her değişikliğe `wijzigen` dersin. Ama gündelik konuşmada
+      değişmek `veranderen`: `Het weer verandert.` `wijzigen` mektupların, formların, randevuların
+      kelimesi: bir kayıt resmî olarak değiştirilir. `Het weer wijzigt` diye bir cümle duymazsın.
+  pictures:
+    hook: >-
+      Bir takvim sayfasında bir randevu kutusu zigzag bir okla 08:00'den 10:30'a kayıyor; yanında
+      şaşkın bir kişi ‘vay!’ diyor; kutunun üstünde ‘gewijzigd’ yazıyor.
+    trap: >-
+      Solda bir resmî form ve damga, altında ‘wijzigen’ ve yeşil tik; sağda gökyüzünde güneşten
+      yağmura dönen hava, altında ‘veranderen’; ortada iki kelimeyi ayıran bir çizgi.
+winnen:
+  nl: winnen
+  tr: kazanmak
+  en: to win
+  bridge: "İngilizce `win`. Geçmiş: `Wij hebben gewonnen!`"
+wit:
+  nl: wit
+  tr: beyaz
+  en: white
+  bridge: İngilizce `white` ile benzer. `Witte wijn` beyaz şarap; bira markası ‘witbier’ de buradan.
 wonen:
   nl: wonen
   tr: oturmak, yaşamak (bir yerde)
   en: to live
+woonadres:
+  nl: woonadres
+  article: het
+  tr: ikamet adresi
+  en: home address
+  split:
+    parts:
+      - nl: woon
+        tr: oturmak
+        en: live
+        base: wonen
+        role: stem
+      - nl: adres
+        tr: adres
+        en: address
+        role: stem2
+    literal: oturma adresi
+wortel:
+  nl: wortel
+  article: de
+  tr: kök; havuç
+  en: root; carrot
+  trap:
+    from: tr
+    text: >-
+      Süpermarketten `wortel` = havuç diye bilirsin. `De wortels staan voor de oorsprong van de
+      stad` cümlesini ‘havuçlar şehrin kökenini temsil eder’ diye okursun. Burada `wortel` ağacın
+      kökü. Aynı kelime: havuç da bir köktür.
+  pictures:
+    trap: >-
+      Bir ağacın toprak altındaki kökleri ‘wortels’ ve yanında aynı biçimde toprakta duran turuncu
+      bir havuç ‘wortel’; ikisini birleştiren bir eşittir işareti.
+ww:
+  nl: WW
+  article: de
+  tr: işsizlik ödeneği
+  en: unemployment benefit
+  bridge: "`WW` = `Werkloosheidswet`, İşsizlik Yasası. `werkloos` işsiz demek: ‘işsiz kalmış’. UWV öder."
+zich-aanmelden:
+  nl: zich aanmelden
+  tr: kaydolmak, katılacağını bildirmek
+  en: to sign up
+  split:
+    parts:
+      - nl: aan
+        tr: "-e (yöneliş)"
+        en: on, to
+        role: affix
+      - nl: melden
+        tr: bildirmek
+        en: report
+        role: stem
+    literal: kendini bildirmek
+    why: "Ayrılabilen fiil: `Je meldt je aan.` `aan` sona gider."
+zich-afmelden:
+  nl: zich afmelden
+  tr: abonelikten / kayıttan çıkmak
+  en: to unsubscribe, to sign off
+  bridge: "`zich aanmelden` (kaydolmak, Session 4) ile tersi: `aan` ↔ `af`. `Wilt u zich afmelden?`"
+zich-betermelden:
+  nl: zich betermelden
+  tr: iyileştiğini (işe dönebileceğini) bildirmek
+  en: to report back fit
+  split:
+    parts:
+      - nl: beter
+        tr: daha iyi
+        en: better
+        role: stem
+      - nl: melden
+        tr: bildirmek
+        en: report
+        role: stem2
+    literal: daha iyi bildirmek
+    why: "`zich ziekmelden`in tersi: `Ik meld me morgen beter.` Yarın işe dönüyorum."
+zich-inschrijven:
+  nl: zich inschrijven
+  tr: kaydolmak (bir listeye yazılmak)
+  en: to register, to enrol
+  split:
+    parts:
+      - nl: in
+        tr: içine
+        en: in
+        role: affix
+      - nl: schrijven
+        tr: yazmak
+        en: write
+        role: stem
+    literal: içine yazmak
+    why: "Adını listenin içine yazdırırsın. Peakz sayfasındaki düğme: `Inschrijven`."
 zich-voorstellen:
   nl: zich voorstellen
   tr: kendini tanıtmak
@@ -238,10 +1975,81 @@ zich-voorstellen:
         role: stem2
     literal: kendini öne koymak
     why: Kendini insanların önüne koyarsın, yani tanıtırsın.
+zich-ziekmelden:
+  nl: zich ziekmelden
+  tr: (işe) hasta olduğunu bildirmek
+  en: to call in sick
+  split:
+    parts:
+      - nl: ziek
+        tr: hasta
+        en: sick
+        role: stem
+      - nl: melden
+        tr: bildirmek
+        en: report
+        role: stem2
+    literal: hasta bildirmek
+    why: "Ayrılabilen fiil: `Ik meld me ziek.` (`ziek` sona gider), geçmişte `Ik heb me ziekgemeld.`"
+zilver:
+  nl: zilver
+  article: het
+  tr: gümüş
+  en: silver
+  bridge: İngilizce `silver`, ama `z` ile başlar. Sıfatı `zilveren`.
 zin-hebben-in:
   nl: zin hebben in
   tr: canı istemek, can atmak
   en: to look forward to
+zon:
+  nl: zon
+  article: de
+  tr: güneş
+  en: sun
+  bridge: "İngilizce `sun`. Kısa `o`: ağzı kısa açıp kapat."
+zoon:
+  nl: zoon
+  article: de
+  tr: oğul
+  en: son
+  bridge: "İngilizce `son`. Uzun `oo`: ‘zoon’ diye uzat. `zon` ile tek fark sesin uzunluğu."
+zorgen-voor:
+  nl: zorgen voor
+  tr: (birine) bakmak; (bir şeyi) sağlamak
+  en: to take care of; to provide
+  trap:
+    from: en
+    text: >-
+      `zorg` İngilizce `worry` gibi düşünülürse `Ik zorg voor mijn moeder` ‘annem için
+      endişeleniyorum’ olur. Hayır: ‘anneme bakıyorum’. Endişelenmek ayrı bir kalıp: `zich zorgen
+      maken over`.
+  pictures:
+    trap: >-
+      Solda yaşlı bir anneye çay getiren gülümseyen bir kişi, üstünde ‘zorgen voor’; sağda başını
+      tutan endişeli bir kişi, üstünde ‘zich zorgen maken’.
+zorgverlener:
+  nl: zorgverlener
+  article: de
+  tr: sağlık hizmeti veren kişi (doktor, hemşire, fizyoterapist…)
+  en: care provider
+  split:
+    parts:
+      - nl: zorg
+        tr: bakım
+        en: care
+        role: stem
+      - nl: verlen
+        tr: sağlamak
+        en: grant
+        role: stem2
+      - nl: "-er"
+        tr: "-ıcı (kişi)"
+        en: "-er"
+        role: affix
+    literal: bakım sağlayıcı
+    why: >-
+      Mail doktorun adını vermez, genel bir kelime kullanır: hangi sağlık çalışanıyla görüşeceksen
+      o.
 zorgverzekering:
   nl: zorgverzekering
   article: de
@@ -274,3 +2082,19 @@ zorgverzekering:
     why: >-
       `verzekeren` ‘emin kılmak’, yani sigortalamak. Bakım masrafını güvenceye alan şey → sağlık
       sigortası.
+zwaar:
+  nl: zwaar
+  tr: ağır; zor, yorucu
+  en: heavy; hard
+  hook: >-
+    `zwaar` kulağa 'zor' gibi gelir. Sahne: taşınmada sırtında koca bir dolap taşıyorsun ve 'Zor!'
+    diye inliyorsun. Ağır ve zor: `zwaar`. Episode'da: `Mantelzorgers hebben het zwaar.`
+  pictures:
+    hook: >-
+      Bir kişi sırtında kocaman bir dolapla merdiven çıkıyor ve terliyor; konuşma balonunda ‘Zor!’
+      yazıyor; dolabın üstünde ‘zwaar’ yazıyor.
+zwart:
+  nl: zwart
+  tr: siyah
+  en: black
+  bridge: Almanca `schwarz` ile neredeyse aynı. İngilizce `swarthy` (esmer) kelimesini de hatırlatır.

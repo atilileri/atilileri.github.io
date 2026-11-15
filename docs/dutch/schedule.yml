@@ -1,54 +1,462 @@
 aanvraag:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+achter:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+afgesloten:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+afspraak:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+afstand:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+allemaal:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+alles:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+altijd:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+anders-nog-iets:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+annuleren:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+aow:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 apotheek:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+baan:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+baan-2:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+bedrijfsarts:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 bekendmaking:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+belasting:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+beschikbaar:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 besluit:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+bestaand:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+betreffen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+blauw:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+blijven:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+boeken:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+bom:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+boom:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+boot:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+bot:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+bruin:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 buurt:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
 buurtbewoner:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+deelname:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+deelnemer:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+doorbetalen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+dorp:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 douane:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+drukte:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+duidelijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+dus:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+eerlijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ergens:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+evenement:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+geel:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+gevaarlijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+goud:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+graag:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+graag-gedaan:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+grijs:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+groen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+grondrecht:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+half:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+herinnering:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+het-liefst:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+houden:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+iedereen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+iemand:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+iets:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ijs:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 kappen:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+kennisgeving:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 kennismaken:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+kiezen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+kleur:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+kop:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+korting:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+kwartier:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+liever:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+loon:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+maar:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+maatregel:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+makkelijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+manifestatie:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+mantelzorger:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+minimumloon:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+moeilijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+mogelijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+negeren:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+nergens:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+niemand:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+niet-te-doen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+niets:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+nieuwbouw:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+nooit:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+omdat:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+omgevingsvergunning:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+onmogelijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ons:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ontslag:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ontstaan:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+oranje:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+overal:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+paars:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+pech:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+pensioen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 plek:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+proberen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 recept:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+rechts:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+rectificatie:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+regering:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+rood:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+roze:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ruzie:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+schaatsen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+soms:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+staking:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+storing:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+te-doen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+te-koop:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+tijdelijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+uitkering:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+vakantiegeld:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+vakbond:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 vergunning:
   recognition: {rung: 2, answered: "2026-10-24"}
   production: {rung: 1, answered: "2026-10-22"}
+verkeersbesluit:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+verkeershinder:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+verkeersregelaar:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+verliezen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 verplicht:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+vervallen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+vieren:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+voorkeur:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+vooruit:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+vriendelijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+vriezen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+waarschijnlijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+want:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+wegenwacht:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 welkom:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+werkgever:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+werknemer:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+wijk:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+wijzigen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+winnen:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+wit:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 wonen:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+woonadres:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+wortel:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+ww:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zich-aanmelden:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zich-afmelden:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zich-betermelden:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zich-inschrijven:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 zich-voorstellen:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+zich-ziekmelden:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zilver:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 zin-hebben-in:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+zon:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zoon:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zorgen-voor:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zorgverlener:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
 zorgverzekering:
   recognition: {rung: 2, answered: "2026-10-21"}
   production: {rung: 1, answered: "2026-10-21"}
+zwaar:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}
+zwart:
+  recognition: {rung: 1, answered: "2026-11-15"}
+  production: {rung: 1, answered: "2026-11-15"}

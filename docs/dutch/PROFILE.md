@@ -24,6 +24,7 @@ Who the learner is, so Docent can dress a Session in a real life. Current state,
 - Goes to the Saturday market in Eindhoven most Saturdays, when the weather is good.
 - Receives the Groot Eindhoven newsletter in the mailbox every week.
 - Receives letters from government bodies, and translates them rather than reading them.
+- Receives the "Berichten over uw Buurt" emails from Overheid.nl, which started automatically after registering an address, and tries to read them.
 - Wants to read the Dutch that is simply there: traffic signs, billboards and everyday notices.
 - Ran the Eindhoven Marathon 20K in 2025 in 02:01:22 — once, to prove a point. Does not enjoy running.
 
@@ -33,6 +34,7 @@ Who the learner is, so Docent can dress a Session in a real life. Current state,
 - Kitesurfed mostly in Urla, Turkey. Kitesurfed once in the Netherlands, at Ouddorp near the Natural High surf shop, in August 2026.
 - Plans to kitesurf wherever they travel, and enjoys talking about future kite spots.
 - Plays padel at Peakz Padel in Eindhoven, with a Peakz rating around 7–8. Also plays at Jack's Hustle.
+- Holds a Gold membership at Peakz Padel.
 - Plays the Super Sunday sessions at Peakz Padel, where the players rotate and mix.
 - Belongs to two Dutch-language padel WhatsApp groups: "peakz padel rating 9/10 - Low Starters - Eindhoven" and "peakz padel rating 9/10 - High Starters - Eindhoven".
 - Plays football on Sunday with a club in the Netherlands. Sessions are sometimes cancelled for low attendance.
