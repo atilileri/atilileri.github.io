@@ -3,6 +3,38 @@
  * Wordle", stories 77–80; rules decided on the prototype, #188).
  */
 
+/** One answer and its one İpucu. */
+export type Answer = { answer: string; hint: string };
+
+/**
+ * The ten answers and their hints, word for word the verdict table of #188
+ * (she turns 34: OTUZ DÖRT, not OTUZ BEŞ). Atıl edits them here and nowhere
+ * else. Written in Turkish capitals with single spaces between words.
+ */
+export const ANSWERS: readonly Answer[] = [
+  { answer: "ÇAĞLA", hint: "Bugünün yıldızı: doğum günü kızının adı" },
+  { answer: "ATIL", hint: "Bu oyunu senin için yapan adamın adı" },
+  { answer: "AŞKIM", hint: "Sana en çok seslendiğim tatlı söz, \"sevgilim\"in kardeşi" },
+  { answer: "SEVDİCEK", hint: "Sevgiliye şirin, biraz da cilveli bir sesleniş" },
+  { answer: "KENDİ DİLİMDE", hint: "Sahneye çıktığın tiyatro grubunun adı (iki kelime)" },
+  { answer: "İYİ Kİ DOĞDUN", hint: "Bugün sana söylenecek en güzel üç kelime" },
+  { answer: "SENİ SEVİYORUM", hint: "Her gün söylerim, iki kelime, kalpten" },
+  { answer: "SPA", hint: "Sıcak su, buhar, masaj: rahatlamanın üç harfli adı" },
+  { answer: "ŞARAP", hint: "Üzümden yapılır, akşam yemeğinde kadehe dökülür" },
+  { answer: "OTUZ DÖRT", hint: "Bu yıl pastadaki mum sayısı, yazıyla" },
+];
+
+/**
+ * The index in `ANSWERS` of the next Round's answer: any of the ten, but
+ * never `last`, the one of the Round before. `random` is `Math.random` in
+ * the page and a fixed number in the tests.
+ */
+export function pickAnswer(last: number | undefined, random: () => number): number {
+  const others = last === undefined ? ANSWERS.length : ANSWERS.length - 1;
+  const i = Math.min(others - 1, Math.floor(random() * others));
+  return last !== undefined && i >= last ? i + 1 : i;
+}
+
 /** The 29 letters of the Turkish alphabet, as capitals. */
 export const TURKISH_LETTERS = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
 
@@ -90,7 +122,12 @@ export type WordleRound = {
   /** Solved, or six guesses used. */
   readonly done: boolean;
   readonly solved: boolean;
+  /** The on-screen keyboard: each tried letter's best colour so far. */
+  keyboard(): ReadonlyMap<string, Colour>;
 };
+
+/** Which colour a key keeps when a letter learns two things. */
+const RANK: Record<Colour, number> = { absent: 0, present: 1, correct: 2 };
 
 export function createRound(answer: string): WordleRound {
   const shown = upper(answer);
@@ -135,6 +172,17 @@ export function createRound(answer: string): WordleRound {
       if (isDone() || typed.length === 0) return false;
       typed = typed.slice(0, -1);
       return true;
+    },
+    keyboard() {
+      const keys = new Map<string, Colour>();
+      for (const g of guesses) {
+        g.letters.forEach((letter, i) => {
+          const now = g.colours[i]!;
+          const was = keys.get(letter);
+          if (was === undefined || RANK[now] > RANK[was]) keys.set(letter, now);
+        });
+      }
+      return keys;
     },
     submit() {
       if (isDone()) return solved ? "solved" : "over";

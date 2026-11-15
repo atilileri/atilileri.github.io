@@ -19,7 +19,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { colour, createRound, typedLetter, type WordleRound } from "./wordle.ts";
+import { ANSWERS, colour, createRound, pickAnswer, typedLetter, type WordleRound } from "./wordle.ts";
 
 /** Colours as one letter each, to read a row at a glance: G green, Y yellow, . grey. */
 const row = (guess: string, answer: string) =>
@@ -167,4 +167,80 @@ test("Enter: six wrong guesses end the Round unsolved", () => {
   assert.equal(round.type("S"), false);
   assert.equal(round.submit(), "over");
   assert.equal(round.guesses.length, 6);
+});
+
+// ------------------------------------------------------- keyboard colours
+
+test("keyboard: an untried letter has no colour; a tried one shows what it learned", () => {
+  const round = createRound("ŞARAP");
+  assert.equal(round.keyboard().size, 0);
+  typeAll(round, "KUZEY");
+  round.submit();
+  assert.equal(round.keyboard().get("K"), "absent");
+  assert.equal(round.keyboard().get("A"), undefined);
+});
+
+test("keyboard: a letter keeps its best colour, green over yellow over grey", () => {
+  const round = createRound("ŞARAP");
+  typeAll(round, "PAŞKK"); // A green; P, Ş yellow; K grey
+  round.submit();
+  typeAll(round, "AKKPŞ"); // A yellow, P yellow, Ş yellow: none may lower a key
+  round.submit();
+  const keys = round.keyboard();
+  assert.equal(keys.get("A"), "correct");
+  assert.equal(keys.get("P"), "present");
+  assert.equal(keys.get("Ş"), "present");
+  assert.equal(keys.get("K"), "absent");
+  typeAll(round, "ŞAKKP"); // Ş now in place: yellow → green
+  round.submit();
+  assert.equal(round.keyboard().get("Ş"), "correct");
+});
+
+test("keyboard: a grey copy of a letter that is yellow elsewhere keeps the key yellow", () => {
+  // SPA has one A: "AAZ" makes the first A yellow and the second grey.
+  const round = createRound("SPA");
+  typeAll(round, "AAZ");
+  round.submit();
+  assert.equal(round.keyboard().get("A"), "present");
+});
+
+// ------------------------------------------------------ answers and hints
+
+test("answers: the ten of the #188 verdict, each with its İpucu", () => {
+  assert.deepEqual(
+    ANSWERS.map((a) => createRound(a.answer).answer),
+    ["ÇAĞLA", "ATIL", "AŞKIM", "SEVDİCEK", "KENDİ DİLİMDE", "İYİ Kİ DOĞDUN", "SENİ SEVİYORUM", "SPA", "ŞARAP", "OTUZ DÖRT"],
+  );
+  assert.equal(ANSWERS.find((a) => a.answer === "OTUZ DÖRT")?.hint, "Bu yıl pastadaki mum sayısı, yazıyla");
+  assert.equal(ANSWERS.find((a) => a.answer === "ATIL")?.hint, "Bu oyunu senin için yapan adamın adı");
+  for (const a of ANSWERS) assert.ok(a.hint.length > 0, a.answer);
+});
+
+test("answers: every answer can be typed on her keyboard", () => {
+  for (const { answer } of ANSWERS) {
+    for (const ch of answer.replace(/ /g, "")) assert.equal(typedLetter(ch), ch, `${answer}: ${ch}`);
+  }
+});
+
+// ------------------------------------------------------------- the picker
+
+test("picker: any answer can come first", () => {
+  assert.equal(pickAnswer(undefined, () => 0), 0);
+  assert.equal(pickAnswer(undefined, () => 0.999), ANSWERS.length - 1);
+});
+
+test("picker: never the answer of the last Round, whatever the random number", () => {
+  for (let last = 0; last < ANSWERS.length; last++) {
+    for (let r = 0; r < 1; r += 0.01) {
+      const next = pickAnswer(last, () => r);
+      assert.notEqual(next, last);
+      assert.ok(next >= 0 && next < ANSWERS.length);
+    }
+  }
+});
+
+test("picker: every other answer can still follow", () => {
+  const seen = new Set<number>();
+  for (let r = 0; r < 1; r += 0.01) seen.add(pickAnswer(3, () => r));
+  assert.deepEqual([...seen].sort((a, b) => a - b), [0, 1, 2, 4, 5, 6, 7, 8, 9]);
 });
