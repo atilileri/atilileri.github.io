@@ -1,0 +1,702 @@
+---
+/**
+ * /20261209/wordle/ — Turkish Wordle, "Kelime avı" (#201; spec #192 "Turkish
+ * Wordle", stories 77–80). The rules and the look are the prototype's
+ * (`prototype/188-wordle`), as Atıl played it and set it in the verdict of
+ * #188: defaults as built, one hint per answer.
+ *
+ * WHAT SHE SEES. One of our ten words or phrases, hidden, and the whole
+ * 6-row grid from the start, so its shape already says "3 kelime · 3 + 2 +
+ * 6 harf". A space is a narrow gap cell with a dot, which she never types:
+ * the cursor jumps over it. The İpucu stands above the grid in an orange
+ * pill from the first second. She types any letters (no dictionary, #188),
+ * fills every cell and presses Enter; the row turns over cell by cell, green
+ * (in place), yellow (elsewhere) and grey (absent), with the Wordle rule for
+ * repeated letters. The HUD says "Tahmin 2/6 · Şimdi bilirsen %100": what
+ * the next guess would score ("Skor" once the Round is over). Solved, the
+ * row jumps and the shell shows the result: 1–3 guesses %100, 4 guesses
+ * %95 — the Small prize edge, Paper Apps: The Games — 5 %80, 6 %65,
+ * unsolved %0 (`wordleScore` in `src/lib/bday26/scores.ts`). The result
+ * card adds the answer in tiles and her colour grid, row by row.
+ *
+ * KEYS. Her laptop's own keys: every letter goes through Turkish upper-
+ * casing, so i is İ and ı is I. Backspace takes a letter back, Enter sends
+ * the row (a row with an empty cell shakes and says "Eksik harf var"). The
+ * on-screen keyboard is the Turkish Q layout, with Ç Ğ I İ Ö Ş Ü marked and
+ * each key coloured by what that letter has learned; a click on it types.
+ * Esc is the shell's (it asks first). Keys wait while a row turns over.
+ *
+ * HOW IT IS BUILT. Three layers, as in the other Games:
+ *   - `src/lib/bday26/wordle.ts` is the Round: the ten answers and hints,
+ *     the picker, the grid with its gaps, typing, Enter, the colouring and
+ *     the keyboard colours. No DOM, pinned under `node --test`.
+ *   - `GameShell` is everything around the Round, and the one call that
+ *     records it.
+ *   - This page is the painter: the keyboard is rendered at build time, the
+ *     grid at each Round (its shape is the answer's). The script reads every
+ *     letter and colour off the Round, runs the turn-over and hands the
+ *     score function's number to the shell.
+ *
+ * NEVER THE SAME ANSWER TWICE IN A ROW. The last answer's index is kept in
+ * `sessionStorage` (key `bday26:wordle:last`), so a reload does not bring
+ * it straight back either. It is not progress: it is not in the ledger nor
+ * the Save code, and a browser that refuses storage only forgets it.
+ *
+ * FITS 1920×1080. The cell size is worked out in CSS from the number of
+ * cells in the row (a gap counts as 0.42 of a cell), capped at 76 px; the
+ * longest answer, SENİ SEVİYORUM (13 letters and a gap), still fits.
+ *
+ * The orange of the hint pill and the three Wordle colours are the
+ * prototype's and live only on this page.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+
+const game = gameById("wordle");
+
+const KEYS = [
+  { key: "A–Z · Ç Ğ I İ Ö Ş Ü", does: "Harf yaz" },
+  { key: "⌫", does: "Harfi sil" },
+  { key: "Enter", does: "Tahmini gönder" },
+  { key: "Tık", does: "Ekrandaki klavyeyle de yazabilirsin" },
+  { key: "Esc", does: "Salona dön" },
+];
+
+/** The Turkish Q layout, as on her laptop. */
+const ROWS = ["QWERTYUIOPĞÜ", "ASDFGHJKLŞİ", "ZXCVBNMÖÇ"];
+const TURKISH = "ÇĞIİÖŞÜ";
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="wordle" keys={KEYS}>
+    <span slot="hud">Tahmin <b data-guess>1</b>/6 · <span data-now-label>Şimdi bilirsen</span> <b data-now>%100</b></span>
+
+    <div class="game">
+      <div class="clue">
+        <p class="hint"><b>İpucu</b> <span data-hint></span></p>
+        <p class="shape" data-shape></p>
+      </div>
+      <div class="board-wrap">
+        <div class="board" data-board role="grid" aria-label="Tahminler"></div>
+        <p class="toast" data-toast role="status" hidden></p>
+      </div>
+      <div class="kb" data-kb aria-label="Klavye">
+        {
+          ROWS.map((row, r) => (
+            <div class="krow">
+              {r === 2 && (
+                <button class="key wide" type="button" tabindex="-1" data-key="Enter">
+                  Tahmin
+                </button>
+              )}
+              {[...row].map((ch) => (
+                <button class:list={["key", { tr: TURKISH.includes(ch) }]} type="button" tabindex="-1" data-key={ch}>
+                  {ch}
+                </button>
+              ))}
+              {r === 2 && (
+                <button class="key wide" type="button" tabindex="-1" data-key="Backspace" aria-label="Harfi sil">
+                  ⌫
+                </button>
+              )}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div slot="result" class="result">
+      <div class="answer" data-answer aria-label="Cevap"></div>
+      <div class="mini" data-mini aria-label="Tahminlerin"></div>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { ANSWERS, MAX_GUESSES, createRound, pickAnswer, typedLetter, type WordleRound } from "../../../lib/bday26/wordle";
+  import { wordleScore } from "../../../lib/bday26/scores";
+
+  const LAST_KEY = "bday26:wordle:last";
+  /** A gap cell's width, in cells. Keep in step with `.cell.gap` below. */
+  const GAP_WIDTH = 0.42;
+
+  const $ = <T extends HTMLElement>(selector: string) => {
+    const el = document.querySelector<T>(selector);
+    if (!el) throw new Error(`bday26 wordle: the page markup is missing ${selector}`);
+    return el;
+  };
+  const boardEl = $("[data-board]");
+  const hintEl = $("[data-hint]");
+  const shapeEl = $("[data-shape]");
+  const guessEl = $("[data-guess]");
+  const nowEl = $("[data-now]");
+  const nowLabelEl = $("[data-now-label]");
+  const toastEl = $("[data-toast]");
+  const answerEl = $("[data-answer]");
+  const miniEl = $("[data-mini]");
+  const keyEls = new Map(
+    Array.from(document.querySelectorAll<HTMLButtonElement>("[data-key]")).map((b) => [b.dataset.key!, b]),
+  );
+
+  let round: WordleRound = createRound(ANSWERS[0]!.answer);
+  /** A row is turning over: keys wait. */
+  let busy = false;
+  let revealTimer = 0;
+  let finishTimer = 0;
+  let toastTimer = 0;
+  /** rows[r][c] is the cell element of row r, cell c of `round.cells`. */
+  let rows: HTMLElement[][] = [];
+
+  function lastAnswer(): number | undefined {
+    try {
+      const n = Number(sessionStorage.getItem(LAST_KEY));
+      return sessionStorage.getItem(LAST_KEY) != null && Number.isInteger(n) ? n : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  function rememberAnswer(i: number) {
+    try {
+      sessionStorage.setItem(LAST_KEY, String(i));
+    } catch {
+      // Storage refused: the in-page memory below still covers "Yeni tur".
+    }
+  }
+  let last = lastAnswer();
+
+  // ------------------------------------------------------------- painting
+
+  function buildBoard() {
+    boardEl.replaceChildren();
+    const units = round.cells.reduce((n, c) => n + (c.gap ? GAP_WIDTH : 1), 0);
+    boardEl.style.setProperty("--units", String(units));
+    boardEl.style.setProperty("--cols", String(round.cells.length));
+    rows = [];
+    for (let r = 0; r < MAX_GUESSES; r++) {
+      const rowEl = document.createElement("div");
+      rowEl.className = "row";
+      rowEl.setAttribute("role", "row");
+      rows.push(
+        round.cells.map((c) => {
+          const cell = document.createElement("div");
+          cell.className = c.gap ? "cell gap" : "cell";
+          if (!c.gap) cell.setAttribute("role", "gridcell");
+          rowEl.append(cell);
+          return cell;
+        }),
+      );
+      boardEl.append(rowEl);
+    }
+  }
+
+  /** The row she is typing: letters, the caret. */
+  function paintTyping() {
+    const r = round.guesses.length;
+    if (r >= MAX_GUESSES || round.done) return;
+    round.cells.forEach((c, i) => {
+      if (c.gap) return;
+      const el = rows[r]![i]!;
+      const letter = round.typed[c.at] ?? "";
+      el.textContent = letter;
+      el.classList.toggle("filled", letter !== "");
+      el.classList.toggle("caret", round.caret === i);
+    });
+  }
+
+  /** A sent row turns over, cell by cell. Returns the ms until the last
+   *  cell has landed. */
+  function reveal(r: number): number {
+    const guess = round.guesses[r]!;
+    const letters = round.cells.filter((c) => !c.gap).length;
+    const stagger = Math.min(160, Math.round(1100 / letters));
+    let k = 0;
+    round.cells.forEach((c, i) => {
+      if (c.gap) return;
+      const el = rows[r]![i]!;
+      el.classList.remove("caret", "filled");
+      el.style.setProperty("--d", `${k * stagger}ms`);
+      el.classList.add("reveal", guess.colours[c.at]!);
+      k++;
+    });
+    return stagger * (letters - 1) + 500;
+  }
+
+  function paintKeyboard() {
+    const keys = round.keyboard();
+    for (const [ch, el] of keyEls) {
+      el.classList.remove("correct", "present", "absent");
+      const c = keys.get(ch);
+      if (c) el.classList.add(c);
+    }
+  }
+
+  function paintHud() {
+    const n = round.guesses.length;
+    guessEl.textContent = String(round.done ? n : n + 1);
+    nowLabelEl.textContent = round.done ? "Skor" : "Şimdi bilirsen";
+    nowEl.textContent = `%${round.done ? wordleScore(n, round.solved) : wordleScore(n + 1, true)}`;
+  }
+
+  function toast(text: string) {
+    toastEl.textContent = text;
+    toastEl.hidden = false;
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => (toastEl.hidden = true), 1600);
+  }
+
+  function shake() {
+    const rowEl = boardEl.children[round.guesses.length] as HTMLElement | undefined;
+    if (!rowEl) return;
+    rowEl.classList.remove("shake");
+    void rowEl.offsetWidth;
+    rowEl.classList.add("shake");
+  }
+
+  function bounce(r: number) {
+    let k = 0;
+    round.cells.forEach((c, i) => {
+      if (c.gap) return;
+      const el = rows[r]![i]!;
+      el.classList.remove("reveal");
+      el.style.setProperty("--d", `${k++ * 70}ms`);
+      el.classList.add("win");
+    });
+  }
+
+  /** The result card's extra: the answer in tiles and her colour grid. */
+  function paintResult() {
+    answerEl.replaceChildren(
+      ...[...round.answer].map((ch) => {
+        const tile = document.createElement("span");
+        tile.className = ch === " " ? "tile gap" : `tile ${round.solved ? "correct" : "absent"}`;
+        tile.textContent = ch === " " ? "" : ch;
+        return tile;
+      }),
+    );
+    miniEl.replaceChildren(
+      ...round.guesses.map((g) => {
+        const line = document.createElement("div");
+        line.append(
+          ...round.cells.map((c) => {
+            const dot = document.createElement("i");
+            dot.className = c.gap ? "gap" : g.colours[c.at]!;
+            return dot;
+          }),
+        );
+        return line;
+      }),
+    );
+  }
+
+  // ---------------------------------------------------------------- Round
+
+  function startRound() {
+    clearTimers();
+    busy = false;
+    const i = pickAnswer(last, Math.random);
+    last = i;
+    rememberAnswer(i);
+    round = createRound(ANSWERS[i]!.answer);
+    hintEl.textContent = ANSWERS[i]!.hint;
+    shapeEl.textContent =
+      round.words.length > 1
+        ? `${round.words.length} kelime · ${round.words.join(" + ")} harf`
+        : `${round.words[0]} harf`;
+    toastEl.hidden = true;
+    buildBoard();
+    paintTyping();
+    paintKeyboard();
+    paintHud();
+  }
+
+  function clearTimers() {
+    window.clearTimeout(revealTimer);
+    window.clearTimeout(finishTimer);
+    revealTimer = finishTimer = 0;
+  }
+
+  function finishRound() {
+    finishTimer = 0;
+    // The leave question is open: `resume` finishes when she stays.
+    if (shell.phase !== "playing") return;
+    const n = round.guesses.length;
+    paintResult();
+    shell.finish(wordleScore(n, round.solved), {
+      detail: round.solved ? `${n}. tahminde buldun` : "Bu sefer olmadı",
+    });
+  }
+
+  function type(letter: string) {
+    if (busy || !round.type(letter)) return;
+    paintTyping();
+  }
+
+  function erase() {
+    if (busy || !round.erase()) return;
+    paintTyping();
+  }
+
+  function submit() {
+    if (busy || round.done) return;
+    const outcome = round.submit();
+    if (outcome === "missing") {
+      toast("Eksik harf var");
+      shake();
+      return;
+    }
+    const r = round.guesses.length - 1;
+    busy = true;
+    paintHud();
+    revealTimer = window.setTimeout(() => {
+      revealTimer = 0;
+      busy = false;
+      paintKeyboard();
+      if (round.solved) bounce(r);
+      if (round.done) finishTimer = window.setTimeout(finishRound, round.solved ? 900 : 400);
+      else paintTyping();
+    }, reveal(r));
+  }
+
+  const shell = mountGameShell({
+    game: "wordle",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: clearTimers,
+      resume() {
+        if (round.done && !busy && !finishTimer) finishRound();
+      },
+    },
+  });
+
+  // The shell has taken Esc, and every key on its own screens.
+  window.addEventListener("keydown", (event) => {
+    if (event.ctrlKey || event.metaKey) return;
+    if (event.altKey && !event.getModifierState("AltGraph")) return;
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!event.repeat) submit();
+    } else if (event.key === "Backspace") {
+      event.preventDefault();
+      erase();
+    } else {
+      const letter = typedLetter(event.key);
+      if (letter) {
+        event.preventDefault();
+        type(letter);
+      }
+    }
+  });
+
+  // A click types but never takes focus, so Enter stays the Round's.
+  $("[data-kb]").addEventListener("mousedown", (event) => event.preventDefault());
+  $("[data-kb]").addEventListener("click", (event) => {
+    const key = (event.target as Element).closest<HTMLElement>("[data-key]")?.dataset.key;
+    if (key === "Enter") submit();
+    else if (key === "Backspace") erase();
+    else if (key) type(key);
+  });
+</script>
+
+<style>
+  .game {
+    --w-correct: #3a9d5d;
+    --w-present: #d4a72c;
+    --w-absent: #8b8a86;
+    --w-key: #f1e7e3;
+    --w-orange: #e8743b;
+    --w-orange-soft: #fdebe1;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  /* ── hint ────────────────────────────────────────────────────── */
+  .clue {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+  }
+  .hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 900px;
+    padding: 9px 22px;
+    border-radius: 999px;
+    background: var(--w-orange-soft);
+    color: var(--bd-ink);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .hint b {
+    color: var(--w-orange);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .shape {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+
+  /* ── board ───────────────────────────────────────────────────── */
+  .board-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 0;
+  }
+  .board {
+    --gap: 8px;
+    /* One cell: what the widest row and the six rows allow, at most 76 px. */
+    --cs: min(
+      76px,
+      calc((100vw - 120px - (var(--cols) - 1) * var(--gap)) / var(--units)),
+      calc((100vh - 500px) / 6)
+    );
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+  .board :global(.row) {
+    display: flex;
+    justify-content: center;
+    gap: var(--gap);
+  }
+  .board :global(.cell) {
+    width: var(--cs);
+    height: var(--cs);
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--bd-line);
+    border-radius: 10px;
+    background: var(--bd-paper);
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: calc(var(--cs) * 0.52);
+    line-height: 1;
+    color: var(--bd-ink);
+    user-select: none;
+  }
+  .board :global(.cell.filled) {
+    border-color: var(--bd-muted-3);
+    animation: pop 0.1s ease-out;
+  }
+  .board :global(.cell.caret) {
+    border-color: var(--w-orange);
+  }
+  .board :global(.cell.gap) {
+    width: calc(var(--cs) * 0.42);
+    border: 0;
+    background: none;
+  }
+  .board :global(.cell.gap)::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bd-muted-3);
+  }
+  .board :global(.cell.reveal) {
+    animation: flip 0.5s ease-in-out both;
+    animation-delay: var(--d, 0ms);
+    transition:
+      background-color 0s calc(var(--d, 0ms) + 250ms),
+      border-color 0s calc(var(--d, 0ms) + 250ms),
+      color 0s calc(var(--d, 0ms) + 250ms);
+  }
+  .board :global(.cell.correct),
+  .board :global(.cell.present),
+  .board :global(.cell.absent) {
+    color: #fff;
+    border-color: transparent;
+  }
+  .board :global(.cell.correct) {
+    background: var(--w-correct);
+  }
+  .board :global(.cell.present) {
+    background: var(--w-present);
+  }
+  .board :global(.cell.absent) {
+    background: var(--w-absent);
+  }
+  .board :global(.cell.win) {
+    animation: bounce 0.5s ease-out both;
+    animation-delay: var(--d, 0ms);
+  }
+  .board :global(.row.shake) {
+    animation: shake 0.4s;
+  }
+  .toast {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--bd-ink);
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    z-index: 2;
+  }
+
+  /* ── keyboard ────────────────────────────────────────────────── */
+  .kb {
+    display: grid;
+    justify-items: center;
+    gap: 7px;
+    user-select: none;
+  }
+  .krow {
+    display: flex;
+    gap: 6px;
+  }
+  .key {
+    min-width: 54px;
+    height: 56px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--w-key);
+    color: var(--bd-ink);
+    font: 800 20px var(--bd-font);
+    cursor: pointer;
+  }
+  .key:active {
+    transform: translateY(1px);
+  }
+  .key.wide {
+    min-width: 96px;
+    font-size: 15px;
+  }
+  .key.tr {
+    box-shadow: inset 0 -3px 0 var(--w-orange-soft);
+  }
+  .key.correct,
+  .key.present,
+  .key.absent {
+    color: #fff;
+    box-shadow: none;
+  }
+  .key.correct {
+    background: var(--w-correct);
+  }
+  .key.present {
+    background: var(--w-present);
+  }
+  .key.absent {
+    background: var(--w-absent);
+    opacity: 0.75;
+  }
+
+  /* ── result extra ────────────────────────────────────────────── */
+  .result {
+    --w-correct: #3a9d5d;
+    --w-present: #d4a72c;
+    --w-absent: #8b8a86;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+  .answer {
+    display: flex;
+    gap: 4px;
+  }
+  .result :global(.tile) {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 7px;
+    color: #fff;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 19px;
+    line-height: 1;
+  }
+  .result :global(.tile.correct) {
+    background: var(--w-correct);
+  }
+  .result :global(.tile.absent) {
+    background: var(--w-absent);
+  }
+  .result :global(.tile.gap) {
+    width: 14px;
+  }
+  .mini {
+    display: grid;
+    gap: 3px;
+  }
+  .mini :global(div) {
+    display: flex;
+    gap: 3px;
+  }
+  .mini :global(i) {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+  }
+  .mini :global(i.correct) {
+    background: var(--w-correct);
+  }
+  .mini :global(i.present) {
+    background: var(--w-present);
+  }
+  .mini :global(i.absent) {
+    background: var(--w-absent);
+  }
+  .mini :global(i.gap) {
+    width: 6px;
+  }
+
+  @keyframes pop {
+    50% {
+      transform: scale(1.08);
+    }
+  }
+  @keyframes flip {
+    0% {
+      transform: rotateX(0);
+    }
+    50% {
+      transform: rotateX(90deg);
+    }
+    100% {
+      transform: rotateX(0);
+    }
+  }
+  @keyframes bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-14px);
+    }
+    70% {
+      transform: translateY(3px);
+    }
+  }
+  @keyframes shake {
+    20%,
+    60% {
+      transform: translateX(-6px);
+    }
+    40%,
+    80% {
+      transform: translateX(6px);
+    }
+  }
+</style>
