@@ -10,7 +10,30 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore } from "./scores.ts";
+import { memoryScore, missScore } from "./scores.ts";
+
+// ------------------------------------------- "Bu nerede?" and name the song
+// Spec: 0 misses = 100, 1 = 95, each further miss −10; 95% means at most one
+// miss (#199; #204 scores "as Bu nerede?").
+
+test("miss score: a Round without a miss is a perfect 100", () => {
+  assert.equal(missScore(0), 100);
+});
+
+test("miss score: one miss is exactly 95, the Small prize edge", () => {
+  assert.equal(missScore(1), 95);
+});
+
+test("miss score: every miss after the first costs 10", () => {
+  assert.equal(missScore(2), 85);
+  assert.equal(missScore(3), 75);
+  assert.equal(missScore(10), 5);
+});
+
+test("miss score: eleven misses and more score 0, never less", () => {
+  assert.equal(missScore(11), 0);
+  assert.equal(missScore(12), 0);
+});
 
 // ------------------------------------------------------------ memory match
 // Spec: ≤14 moves = 100, −5 per extra move; 95% means ≤15 moves (#194).
