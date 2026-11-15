@@ -396,6 +396,11 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await expect(display).toContainText(/%(0|50|100)/, { timeout: 5000 });
   await expect(page.getByRole("dialog", { name: "Tur bitti" })).toBeHidden();
 
+  // A click on the lever spins too: a second Round, landed on the machine.
+  await page.getByRole("button", { name: "Kolu çek" }).click();
+  await expect(page.locator("[data-spins]")).toHaveText("2", { timeout: 5000 });
+  await expect(display).toContainText(/%(0|50|100)/);
+
   // Esc between spins is the hub at once, with no question. The Round was
   // recorded (a Best score on the tile) and gave no Points.
   await page.keyboard.press("Escape");
