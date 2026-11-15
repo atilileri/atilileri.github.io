@@ -10,7 +10,28 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { memoryScore, missScore, slotScore } from "./scores.ts";
+import { memoryScore, milyonerScore, missScore, slotScore } from "./scores.ts";
+
+// ---------------------------------------------------------- Milyoner quiz
+// Spec: correct answers before the first miss ÷ 12; 95% means all 12
+// correct (#198, #182). Read as a percent and rounded down, so 11 of 12 is
+// 91 — below the Small prize bar — and only a full ladder wins Yemek Kartı.
+
+test("Milyoner: all 12 correct is a perfect 100, the only score over 95", () => {
+  assert.equal(milyonerScore(12), 100);
+});
+
+test("Milyoner: 11 correct is 91, short of the Small prize", () => {
+  assert.equal(milyonerScore(11), 91);
+});
+
+test("Milyoner: half the ladder is 50", () => {
+  assert.equal(milyonerScore(6), 50);
+});
+
+test("Milyoner: a miss on the first question scores 0", () => {
+  assert.equal(milyonerScore(0), 0);
+});
 
 // ------------------------------------------- "Bu nerede?" and name the song
 // Spec: 0 misses = 100, 1 = 95, each further miss −10; 95% means at most one

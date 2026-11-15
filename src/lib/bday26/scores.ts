@@ -21,6 +21,16 @@
  */
 
 /**
+ * Milyoner quiz (#198; spec row "correct answers before the first miss ÷
+ * 12"). A wrong answer ends the Round, so `correct` is simply how far up the
+ * 12-rung ladder she climbed. As a percent, rounded down: 12 is 100, 11 is
+ * 91 — so the 95% bar means all twelve, as the spec says — 6 is 50, 0 is 0.
+ */
+export function milyonerScore(correct: number): number {
+  return Math.min(100, Math.max(0, Math.floor((correct * 100) / 12)));
+}
+
+/**
  * "Bu nerede?" (#199) and name the song (#204, spec row "as Bu nerede?"):
  * "0 misses = 100, 1 = 95, each further miss −10". A miss is one question of
  * the ten answered wrong. The first miss costs 5, so one slip still wins the
