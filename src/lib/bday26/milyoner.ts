@@ -109,6 +109,12 @@ export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Qu
   });
 }
 
+/** "Yarı yarıya": the indices of the two wrong choices it takes away. */
+export function halve(question: Question, rng: () => number): number[] {
+  const wrong = [0, 1, 2, 3].filter((i) => i !== question.answer);
+  return shuffle(wrong, rng).slice(0, 2);
+}
+
 /** Fisher–Yates, in place, with the given random source. */
 function shuffle<T>(items: T[], rng: () => number): T[] {
   for (let i = items.length - 1; i > 0; i--) {

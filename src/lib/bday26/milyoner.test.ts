@@ -24,7 +24,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildRound, parsePool } from "./milyoner.ts";
+import { buildRound, halve, parsePool } from "./milyoner.ts";
 
 /** A small seeded generator (mulberry32): [0, 1) like Math.random. */
 function seeded(seed: number): () => number {
@@ -124,4 +124,20 @@ test("the four choices are shuffled, and the answer points at the document's rig
     }
   }
   assert.deepEqual([...where].sort(), [0, 1, 2, 3], "the right answer sits under every letter");
+});
+
+test("Yarı yarıya takes away two wrong choices and leaves the right one and one wrong", () => {
+  const kept = new Set<number>();
+  for (let seed = 1; seed <= 100; seed++) {
+    const rng = seeded(seed);
+    const q = buildRound(POOL, rng)[seed % 12]!;
+    const gone = halve(q, rng);
+    assert.equal(gone.length, 2);
+    assert.equal(new Set(gone).size, 2);
+    assert.ok(!gone.includes(q.answer), `seed ${seed}: the right answer was taken away`);
+    for (const i of gone) assert.ok(i >= 0 && i < 4);
+    kept.add([0, 1, 2, 3].find((i) => i !== q.answer && !gone.includes(i))!);
+  }
+  // Which wrong choice survives is drawn: it can sit under any letter.
+  assert.deepEqual([...kept].sort(), [0, 1, 2, 3]);
 });
