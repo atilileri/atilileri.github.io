@@ -256,7 +256,9 @@ export function mountGameShell(options: MountOptions): GameShell {
   const main = one(root, "[data-shell]");
   const screens = Array.from(root.querySelectorAll<HTMLElement>("[data-shell-screen]"));
   const playfield = one(root, "[data-shell-playfield]");
-  const { prize } = gameById(options.game);
+  const { prize, luck } = gameById(options.game);
+  /** How the Small prize is won, as the hub's tile says it. */
+  const prizeHow = luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`;
 
   /** A score as she reads it: %88, rounded down like the Points it earns. */
   const pct = (score: number) => `%${Math.floor(score)}`;
@@ -271,7 +273,7 @@ export function mountGameShell(options: MountOptions): GameShell {
 
     fill("[data-shell-best]", screen.best == null ? "—" : pct(screen.best));
     fill("[data-shell-prize-icon]", screen.prizeWon ? "🎁" : "🔒");
-    fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : `%${PRIZE_BAR} yapınca senin`);
+    fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : prizeHow);
 
     const r = screen.result;
     if (r) {

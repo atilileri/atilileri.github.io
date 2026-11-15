@@ -12,9 +12,12 @@
  * to each one is the text, the glyph is decoration.
  *
  * Shared on purpose: the hub's tiles and shop, a Game's start screen (#194)
- * and the Proof's lists (#197) show the same glyph for the same thing.
+ * and the Proof's lists (#197) show the same glyph for the same thing. The
+ * slot machine's six reel symbols (#200) are here for the same reason: the
+ * rule in `./slot.ts` knows them by name only.
  */
 import type { GameId, GiftId } from "./catalogue.ts";
+import type { SlotSymbol } from "./slot.ts";
 
 export const GAME_ICON: Record<GameId, string> = {
   milyoner: "❓",
@@ -49,3 +52,13 @@ export const GIFT_ICON: Record<GiftId, string> = {
 /** The Small prize foot: a lock until it is won, a wrapped present after. */
 export const PRIZE_LOCKED_ICON = "🔒";
 export const PRIZE_WON_ICON = "🎁";
+
+/** The slot machine's reels: the six symbols Atıl named on #182. */
+export const SLOT_SYMBOL_ICON: Record<SlotSymbol, string> = {
+  camera: "📷",
+  ski: "⛷️",
+  note: "🎵",
+  wine: "🍷",
+  heart: "❤️",
+  mountain: "🏔️",
+};
