@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hikingScore, memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
+import { framingScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -192,4 +192,32 @@ test("hiking map: 20% over is 90, one point per 1% past the margin", () => {
 test("hiking map: 110% over and further scores 0, never less", () => {
   assert.equal(hikingScore(21_000, 10_000), 0);
   assert.equal(hikingScore(40_000, 10_000), 0);
+});
+
+// ---------------------------------------------------------- photo framing
+// Spec: 0.95 × mean of the best 4 photos + 0.05 × worst; 95% means four
+// near-perfect crops (#203, #184). The per-photo scores come from
+// `scoreCrop` in `./kadraj.ts`; this is only how five of them make a Round.
+
+test("photo framing: five perfect crops are a perfect 100", () => {
+  assert.equal(framingScore([100, 100, 100, 100, 100]), 100);
+});
+
+test("photo framing: four perfect crops and one miss are exactly 95, the Small prize edge", () => {
+  assert.equal(framingScore([100, 100, 0, 100, 100]), 95);
+});
+
+test("photo framing: the worst photo counts a twentieth, the best four the rest", () => {
+  // best four 100, 90, 80, 70 → mean 85 → 80.75; worst 60 → 3
+  assert.equal(framingScore([90, 60, 100, 70, 80]), 83.75);
+  // best four mean 99 → 94.05; worst 20 → 1: one weak crop still clears 95
+  assert.equal(framingScore([100, 96, 100, 20, 100]), 95.05);
+});
+
+test("photo framing: five crops at 94 stay under the bar", () => {
+  assert.equal(framingScore([94, 94, 94, 94, 94]), 94);
+});
+
+test("photo framing: five misses score 0", () => {
+  assert.equal(framingScore([0, 0, 0, 0, 0]), 0);
 });

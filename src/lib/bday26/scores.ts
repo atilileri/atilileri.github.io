@@ -114,3 +114,21 @@ export function hikingScore(route: number, shortest: number): number {
   if (past <= 1e-9) return 100;
   return Math.max(0, Math.floor(100 - past + 1e-9));
 }
+
+/**
+ * Photo framing, "Kadraj" (#203; spec row "0.95 × mean of best 4 photos +
+ * 0.05 × worst"). `photos` are the five per-photo scores of one Round, each
+ * 0..100 from `scoreCrop` in `./kadraj.ts` (100 when the Subject point sits
+ * within 10% of the crop diagonal of a thirds point). The weak photo costs
+ * little, so four perfect crops and one miss are exactly 95: the Small prize
+ * wants four near-perfect crops, not five (#184). Worked as one division of
+ * whole numbers, (95 × sum of best 4 + 20 × worst) ÷ 400, so that edge is 95
+ * itself and never 94.999… in floating point. Fractional, not rounded.
+ */
+export function framingScore(photos: readonly number[]): number {
+  if (photos.length === 0) return 0;
+  const sorted = [...photos].sort((a, b) => b - a);
+  const best4 = sorted.slice(0, 4).reduce((sum, s) => sum + s, 0);
+  const worst = sorted[sorted.length - 1]!;
+  return Math.min(100, Math.max(0, (95 * best4 + 20 * worst) / 400));
+}
