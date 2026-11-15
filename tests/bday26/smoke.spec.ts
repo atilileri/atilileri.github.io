@@ -382,6 +382,25 @@ test("\"Şarkıyı bil\" opens on its start screen with its keys, its prize and 
   await expect(page.getByText(/FluidR3 GM.*CC BY 3\.0/)).toBeAttached();
 });
 
+test("Piyano opens on its start screen with the three songs and their caps; 3 picks Zor (#205)", async ({ page }) => {
+  // No Round here: Enter would start the piano, and Game feel is Atıl's by hand.
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/piyano/");
+
+  const start = page.getByRole("dialog", { name: "Piyano" });
+  await expect(start).toBeVisible();
+  await expect(start).toContainText("De Slak'ta akşam yemeği");
+  const songs = start.getByRole("radiogroup", { name: "Şarkı" });
+  await expect(songs.getByRole("radio")).toHaveText([/Kolay.*İyi ki doğdun.*%70/, /Orta.*Hadi Bakalım.*%85/, /Zor.*Türk Marşı.*%100/]);
+  await expect(songs.getByRole("radio", { name: /Kolay/ })).toHaveAttribute("aria-checked", "true");
+
+  await page.keyboard.press("3");
+  await expect(songs.getByRole("radio", { name: /Zor/ })).toHaveAttribute("aria-checked", "true");
+  await expect(songs.getByRole("radio", { name: /Kolay/ })).toHaveAttribute("aria-checked", "false");
+  await expect(start).toBeVisible();
+  await expect(page.getByText(/FluidR3 GM.*CC BY 3\.0/)).toBeAttached();
+});
+
 test("Milyoner: Esc on \"Son kararın mı?\" takes the answer back without leaving, and Yarı yarıya leaves two choices (#198)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/milyoner/");

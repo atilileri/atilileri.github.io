@@ -1,0 +1,676 @@
+---
+/**
+ * /20261209/piyano/ — "Piyano", the piano Game (#205; spec #192 "Piano with
+ * falling notes", stories 60–64; prototype verdict #180; songs #187). Notes
+ * fall down six lanes; she presses S D F J K L as each one reaches the line,
+ * and hears the note only when she hits it.
+ *
+ * WHAT SHE SEES. The shell's start screen with the three songs under the
+ * keys legend — 1 Kolay İyi ki doğdun (tavan %70), 2 Orta Hadi Bakalım (tavan
+ * %85), 3 Zor Türk Marşı (tavan %100) — picked with 1 2 3 or a click, Enter
+ * to start. Then the field: six lanes, the hit line near the bottom, the key
+ * caps S D F J K L under it, falling notes, a countdown before the first
+ * one, a thin progress bar, and "Tam!" / "Erken" / "Geç" / "Kaçtı" over the
+ * line. The HUD says the song and Vuruş / Kaçan / Boş basış. After about
+ * 90 s the shell's result card: `pianoScore` (hit accuracy × the song's
+ * cap), the formula as the detail line, and the song picker again so "Yeni
+ * tur" can be another song. The Best score is the highest over all songs:
+ * one Game id, and the ledger keeps the maximum.
+ *
+ * SOUND (spec "Piano sound", #186). The shared engine of `piano.ts`. Her
+ * first key press or click anywhere unlocks it (a capture listener here,
+ * before the shell's), so the 2.6 MB of samples load while she picks a
+ * song; a Round waits for them ("Piyano hazırlanıyor…") before its
+ * countdown. A hit calls `piano.note(midi)`; nothing else on this page
+ * makes a sound — no guide melody, no count-in click, no stray thud (#180).
+ * If the samples fail, the Round still runs, silently, and says so.
+ *
+ * TIME. One clock: `performance.now()`, which is also the timeline of
+ * `KeyboardEvent.timeStamp`, so a press is judged at the moment she pressed,
+ * not when the handler ran. The song clock is ms since the first beat:
+ * negative during the lead-in (long enough for the first note to fall from
+ * the top, and never shorter than four beats). Pause (the shell's confirm
+ * card) freezes it; resume shifts its origin by the pause. `piyano.ts` judges
+ * every press and every passing note against the chart with the engine's
+ * `latencyMs` (+30 ms); this page owns no rule.
+ *
+ * HOW IT IS BUILT. `piano-songs.ts` (the songs), `piyano.ts` (chart and
+ * judging), `scores.ts` (`pianoScore`), `piano.ts` (sound), `shell.ts` (the
+ * screens, Esc, the ledger). The samples are CC BY 3.0, so the field
+ * carries `PIANO_CREDIT`.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { PIANO_CREDIT } from "../../../lib/bday26/piano";
+import { PIANO_SONGS } from "../../../lib/bday26/piano-songs";
+
+const game = gameById("piyano");
+
+const KEYS = [
+  { key: "S D F J K L", does: "Nota çizgiye değince bas" },
+  { key: "1 2 3", does: "Şarkıyı seç" },
+  { key: "Esc", does: "Salona dön" },
+];
+
+/** The picker, the same on the start and the result card. */
+const CHOICES = PIANO_SONGS.map((s, i) => ({
+  key: String(i + 1),
+  id: s.id,
+  level: s.level,
+  name: s.name,
+  by: s.by,
+  cap: Math.round(s.cap * 100),
+}));
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="piyano" keys={KEYS}>
+    <span slot="hud"
+      ><b data-hud-song>—</b> · Vuruş <b data-hud-hits>0</b> · Kaçan <b data-hud-misses>0</b> · Boş basış <b
+        data-hud-strays>0</b
+      ></span
+    >
+
+    <div slot="start" class="picker" role="radiogroup" aria-label="Şarkı">
+      {
+        CHOICES.map((c) => (
+          <button class="song" type="button" role="radio" tabindex="-1" data-song={c.id} aria-checked="false">
+            <kbd>{c.key}</kbd>
+            <span class="level">{c.level}</span>
+            <span class="name">{c.name}</span>
+            {c.by && <span class="by">{c.by}</span>}
+            <span class="cap">Tavan %{c.cap}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="stage" data-stage data-piano="locked">
+      <div class="progress" aria-hidden="true"><i data-progress></i></div>
+      <canvas class="field" data-field aria-label="Düşen notalar"></canvas>
+      <p class="judge" data-judge aria-live="polite"></p>
+      <p class="count" data-count hidden></p>
+      <p class="status">
+        <span class="when-loading">Piyano hazırlanıyor…</span>
+        <span class="when-failed">Piyano sesi yüklenemedi; tur sessiz oynanıyor.</span>
+      </p>
+      <p class="credit">{PIANO_CREDIT}</p>
+    </div>
+
+    <div slot="result" class="again">
+      <p class="again-label">Sıradaki şarkı <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></p>
+      <div class="picker small" role="radiogroup" aria-label="Sıradaki şarkı">
+        {
+          CHOICES.map((c) => (
+            <button class="song" type="button" role="radio" tabindex="-1" data-song={c.id} aria-checked="false">
+              <kbd>{c.key}</kbd>
+              <span class="level">{c.level}</span>
+              <span class="cap">Tavan %{c.cap}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { createPiano } from "../../../lib/bday26/piano";
+  import { PIANO_SONGS, songByChoice, type PianoSong } from "../../../lib/bday26/piano-songs";
+  import {
+    chartSong,
+    createRound,
+    HIT_WINDOW_MS,
+    LANE_LABELS,
+    laneOfKey,
+    type Chart,
+    type ChartNote,
+    type Round,
+    type Verdict,
+  } from "../../../lib/bday26/piyano";
+  import { pianoScore } from "../../../lib/bday26/scores";
+
+  /** Hit line: this many CSS px above the field's bottom; the key caps sit below it. */
+  const HIT_FROM_BOTTOM = 96;
+  /** Lane width, CSS px, at most. */
+  const LANE_MAX = 132;
+  /** A note's height, CSS px. */
+  const NOTE_H = 22;
+
+  const stage = document.querySelector<HTMLElement>("[data-stage]");
+  const field = document.querySelector<HTMLCanvasElement>("[data-field]");
+  const judgeEl = document.querySelector<HTMLElement>("[data-judge]");
+  const countEl = document.querySelector<HTMLElement>("[data-count]");
+  const progressEl = document.querySelector<HTMLElement>("[data-progress]");
+  const hud = {
+    song: document.querySelector<HTMLElement>("[data-hud-song]"),
+    hits: document.querySelector<HTMLElement>("[data-hud-hits]"),
+    misses: document.querySelector<HTMLElement>("[data-hud-misses]"),
+    strays: document.querySelector<HTMLElement>("[data-hud-strays]"),
+  };
+  const songButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-song]"));
+  if (!stage || !field || !judgeEl || !countEl || !progressEl || Object.values(hud).some((el) => !el)) {
+    throw new Error("bday26 piyano: the stage markup is missing");
+  }
+  const ctx = field.getContext("2d")!;
+
+  const piano = createPiano({
+    onState: (state) => (stage!.dataset.piano = state),
+  });
+
+  // ── the song she picked ───────────────────────────────────────────
+  let song: PianoSong = PIANO_SONGS[0]!;
+
+  function pick(next: PianoSong) {
+    song = next;
+    for (const b of songButtons) b.setAttribute("aria-checked", String(b.dataset.song === song.id));
+    hud.song!.textContent = song.name;
+  }
+  pick(song);
+
+  // ── one Round ─────────────────────────────────────────────────────
+  type Play = {
+    song: PianoSong;
+    chart: Chart;
+    round: Round;
+    /** Song-clock ms before the first beat: the lead-in. */
+    leadMs: number;
+    msPerBeat: number;
+    /** `performance.now()` of song-clock 0; undefined while the piano loads. */
+    origin?: number;
+    pausedAt?: number;
+    hit: Set<ChartNote>;
+    missed: Set<ChartNote>;
+    /** Per lane: when its key went down (song ms), and whether it is held. */
+    pressedAt: number[];
+    down: boolean[];
+  };
+  let play: Play | undefined;
+  let frame = 0;
+
+  /** The song clock at a `performance.now()` time. */
+  const songMs = (p: Play, at: number) => at - p.origin! - p.leadMs;
+
+  function startRound() {
+    stopLoop();
+    const chart = chartSong(song);
+    const msPerBeat = (60_000 * 100) / (song.bpm * song.tempoPct);
+    // Long enough for the first note to fall from the top of the field.
+    const fallMs = (fieldSize().hitY / song.speed) * 1000;
+    const leadMs = Math.max(4 * msPerBeat, fallMs + 400 - (chart.notes[0]?.at ?? 0));
+    const p: Play = {
+      song,
+      chart,
+      round: createRound(chart, piano.latencyMs),
+      leadMs,
+      msPerBeat,
+      hit: new Set(),
+      missed: new Set(),
+      pressedAt: LANE_LABELS.map(() => -Infinity),
+      down: LANE_LABELS.map(() => false),
+    };
+    play = p;
+    paintHud();
+    progressEl!.style.width = "0%";
+    judgeEl!.textContent = "";
+    // Inside her Enter or Başla click: the gesture that may start sound.
+    piano.unlock().then(() => {
+      if (play !== p) return; // left or restarted while the samples loaded
+      p.origin = performance.now();
+      if (p.pausedAt !== undefined) p.pausedAt = p.origin;
+      else startLoop();
+    });
+    draw();
+  }
+
+  function paintHud() {
+    hud.song!.textContent = play?.song.name ?? song.name;
+    hud.hits!.textContent = String(play?.round.hits ?? 0);
+    hud.misses!.textContent = String(play?.round.misses ?? 0);
+    hud.strays!.textContent = String(play?.round.strays ?? 0);
+  }
+
+  function showJudge(text: Verdict | "Kaçtı") {
+    judgeEl!.textContent = text;
+    judgeEl!.dataset.kind = text === "Tam!" ? "perfect" : text === "Kaçtı" ? "miss" : "hit";
+    judgeEl!.classList.remove("show");
+    void judgeEl!.offsetWidth; // restart the animation
+    judgeEl!.classList.add("show");
+  }
+
+  function tick(now: number) {
+    const p = play;
+    if (!p || p.origin === undefined) return;
+    const t = songMs(p, now);
+    const missed = p.round.advance(t);
+    if (missed.length) {
+      for (const n of missed) p.missed.add(n);
+      showJudge("Kaçtı");
+      paintHud();
+    }
+    // The countdown: the last four beats of the lead-in.
+    const beatsLeft = Math.ceil(-t / p.msPerBeat);
+    countEl!.hidden = t >= 0;
+    countEl!.textContent = beatsLeft > 4 ? "Hazır ol" : String(beatsLeft);
+    progressEl!.style.width = `${Math.min(100, Math.max(0, (t / p.chart.lengthMs) * 100))}%`;
+    draw(t);
+    if (p.round.done(t)) {
+      finishRound(p);
+      return;
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
+  function finishRound(p: Play) {
+    stopLoop();
+    play = undefined;
+    const notes = p.chart.notes.length;
+    const { hits, strays } = p.round;
+    const cap = Math.round(p.song.cap * 100);
+    const accuracy = notes ? (hits / notes) * 100 : 0;
+    const accText = accuracy.toLocaleString("tr-TR", { maximumFractionDigits: 1 });
+    shell.finish(pianoScore(hits, notes, p.song.cap), {
+      detail: `${p.song.name} · ${hits}/${notes} vuruş · %${accText} isabet × %${cap} tavan · ${strays} boş basış`,
+    });
+  }
+
+  function startLoop() {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(tick);
+  }
+  function stopLoop() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    countEl!.hidden = true;
+  }
+
+  // ── keys ──────────────────────────────────────────────────────────
+  // Her first key or click anywhere unlocks the piano, before the shell
+  // takes the key: the samples load while she reads the start screen.
+  window.addEventListener("keydown", () => piano.unlock(), { capture: true });
+  window.addEventListener("pointerdown", () => piano.unlock(), { capture: true });
+
+  // The shell has taken Esc, and every key on its own screens: what arrives
+  // here is a key during the Round.
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const lane = laneOfKey(event.code);
+    if (lane === undefined || !play) return;
+    event.preventDefault();
+    if (event.repeat || play.origin === undefined || play.pausedAt !== undefined) return;
+    const t = songMs(play, event.timeStamp);
+    play.down[lane] = true;
+    play.pressedAt[lane] = t;
+    const j = play.round.press(lane, t);
+    if (j.kind === "hit") {
+      play.hit.add(j.note);
+      piano.note(j.note.midi, { duration: Math.min(1.6, Math.max(0.35, j.note.durationMs / 1000)) });
+      showJudge(j.verdict);
+    }
+    paintHud();
+  });
+  window.addEventListener("keyup", (event) => {
+    const lane = laneOfKey(event.code);
+    if (lane !== undefined && play) play.down[lane] = false;
+  });
+
+  // ── drawing ───────────────────────────────────────────────────────
+  function css(name: string) {
+    return getComputedStyle(stage!).getPropertyValue(name).trim();
+  }
+  const colors = {
+    accent: css("--bd-accent") || "#e0446a",
+    accentSoft: css("--bd-accent-soft") || "#ffe6ec",
+    ink: css("--bd-ink") || "#3a2d2a",
+    line: css("--bd-line") || "#f2e4df",
+    track: css("--bd-track") || "#f6ebe7",
+    won: css("--bd-won") || "#2fb67c",
+    muted: css("--bd-muted-3") || "#b9a8a3",
+  };
+
+  function fieldSize() {
+    const r = field!.getBoundingClientRect();
+    return { w: r.width, h: r.height, hitY: r.height - HIT_FROM_BOTTOM };
+  }
+
+  function resize() {
+    const d = window.devicePixelRatio || 1;
+    const r = field!.getBoundingClientRect();
+    field!.width = Math.round(r.width * d);
+    field!.height = Math.round(r.height * d);
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    draw();
+  }
+
+  /** Paint the field at song time `t` (ms); no time = an empty field. */
+  function draw(t?: number) {
+    const { w, h, hitY } = fieldSize();
+    const lanes = LANE_LABELS.length;
+    const laneW = Math.min(LANE_MAX, (w - 32) / lanes);
+    const x0 = (w - laneW * lanes) / 2;
+    const p = play;
+    const speed = (p?.song ?? song).speed / 1000; // px per ms
+    ctx.clearRect(0, 0, w, h);
+
+    // Lanes, every other one tinted, and a flash where a key went down.
+    for (let i = 0; i < lanes; i++) {
+      const x = x0 + i * laneW;
+      if (i % 2) {
+        ctx.fillStyle = colors.track;
+        ctx.fillRect(x, 0, laneW, h);
+      }
+      const age = t === undefined || !p ? Infinity : t - p.pressedAt[i]!;
+      if (age >= 0 && age < 180) {
+        const g = ctx.createLinearGradient(0, hitY, 0, hitY - 240);
+        g.addColorStop(0, `rgb(224 68 106 / ${0.28 * (1 - age / 180)})`);
+        g.addColorStop(1, "rgb(224 68 106 / 0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(x, hitY - 240, laneW, 240);
+      }
+    }
+    ctx.strokeStyle = colors.line;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= lanes; i++) {
+      const x = Math.round(x0 + i * laneW) + 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+
+    // The hit window as a soft band, the hit line on it.
+    const band = HIT_WINDOW_MS * speed;
+    ctx.fillStyle = "rgb(224 68 106 / 0.08)";
+    ctx.fillRect(x0, hitY - band, laneW * lanes, band * 2);
+    ctx.fillStyle = colors.accent;
+    ctx.fillRect(x0, hitY - 2, laneW * lanes, 4);
+
+    // Falling notes; a hit one is gone, a missed one fades on past the line.
+    if (p && t !== undefined) {
+      for (const n of p.chart.notes) {
+        // On the line at its own time, as in the prototype; the judge takes
+        // the +30 ms off her press, not off the picture.
+        const y = hitY - (n.at - t) * speed;
+        if (y < -NOTE_H) break;
+        if (y > h + NOTE_H || p.hit.has(n)) continue;
+        ctx.fillStyle = p.missed.has(n) ? colors.muted : colors.accent;
+        ctx.beginPath();
+        ctx.roundRect(x0 + n.lane * laneW + 8, y - NOTE_H / 2, laneW - 16, NOTE_H, 7);
+        ctx.fill();
+      }
+      // A ring where a note was hit, for a quarter second.
+      for (const n of p.hit) {
+        const age = t - n.at;
+        if (age < -HIT_WINDOW_MS || age > 250) continue;
+        const a = Math.max(0, Math.min(1, 1 - Math.abs(age) / 250));
+        ctx.strokeStyle = `rgb(47 182 124 / ${a})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(x0 + n.lane * laneW + laneW / 2, hitY, 14 + Math.max(0, age) * 0.12, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // Key caps under the line, with her letters.
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `800 24px ${css("--bd-display") || "system-ui"}`;
+    for (let i = 0; i < lanes; i++) {
+      const cx = x0 + i * laneW + laneW / 2;
+      const down = p?.down[i] ?? false;
+      const kw = Math.min(64, laneW - 20);
+      const ky = hitY + 22 + (down ? 3 : 0);
+      ctx.fillStyle = down ? colors.accent : colors.accentSoft;
+      ctx.beginPath();
+      ctx.roundRect(cx - kw / 2, ky, kw, 52, 12);
+      ctx.fill();
+      ctx.fillStyle = down ? "#fff" : colors.ink;
+      ctx.fillText(LANE_LABELS[i]!, cx, ky + 27);
+    }
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  // ── the shell ─────────────────────────────────────────────────────
+  const shell = mountGameShell({
+    game: "piyano",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => {
+        stopLoop();
+        play = undefined;
+        piano.stop();
+      },
+      // The confirm card: the song clock freezes, the field stays as it was.
+      pause: () => {
+        if (!play) return;
+        play.pausedAt = performance.now();
+        play.down.fill(false);
+        stopLoop();
+        piano.stop();
+      },
+      resume: () => {
+        const p = play;
+        if (!p || p.pausedAt === undefined) return;
+        if (p.origin !== undefined) {
+          p.origin += performance.now() - p.pausedAt;
+          p.pausedAt = undefined;
+          startLoop();
+        } else {
+          p.pausedAt = undefined; // still loading: the unlock starts the loop
+        }
+      },
+      screenKey: (key) => {
+        const next = songByChoice(key);
+        if (next) pick(next);
+      },
+    },
+  });
+
+  // A click on a song card picks it, on the start card and the result card.
+  for (const b of songButtons) {
+    b.addEventListener("click", () => {
+      const next = PIANO_SONGS.find((s) => s.id === b.dataset.song);
+      if (next) pick(next);
+    });
+  }
+</script>
+
+<style>
+  /* ── the song picker (start and result cards) ───────────────────── */
+  .picker {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+  .song {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: 12px 8px 10px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    cursor: pointer;
+    outline: none;
+    font: inherit;
+    color: var(--bd-ink);
+    transition:
+      box-shadow 0.12s ease,
+      background 0.12s ease;
+  }
+  .song:hover {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .song[aria-checked="true"] {
+    background: var(--bd-accent-soft);
+    box-shadow: 0 0 0 3px var(--bd-accent);
+  }
+  .song kbd {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 15px;
+    padding: 0 9px;
+    border-radius: 7px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .song[aria-checked="true"] kbd {
+    background: var(--bd-accent);
+    color: #fff;
+  }
+  .level {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1.2;
+    color: var(--bd-accent-deep);
+  }
+  .name {
+    font-weight: 800;
+    font-size: 15px;
+  }
+  .by {
+    font-size: 12px;
+    color: var(--bd-muted);
+  }
+  .cap {
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bd-muted-2);
+  }
+  .picker.small .song {
+    padding: 8px 6px;
+  }
+  .again {
+    display: grid;
+    gap: 8px;
+  }
+  .again-label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .again-label kbd {
+    font-size: 12px;
+    padding: 0 6px;
+    border-radius: 5px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+
+  /* ── the field ──────────────────────────────────────────────────── */
+  .stage {
+    /* 104 px is the HUD (64) and the playfield's padding (20 + 20). */
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 104px);
+    display: grid;
+    grid-template-rows: 6px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  .progress {
+    width: min(100%, 800px);
+    justify-self: center;
+    border-radius: 3px;
+    background: var(--bd-track);
+    overflow: hidden;
+  }
+  .progress i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--bd-accent);
+  }
+  .field {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .judge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 190px;
+    margin: 0;
+    text-align: center;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 44px;
+    color: var(--bd-accent-deep);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .judge[data-kind="perfect"] {
+    color: var(--bd-won-ink);
+  }
+  .judge[data-kind="miss"] {
+    color: var(--bd-muted);
+  }
+  .judge.show {
+    animation: judge 0.5s ease-out both;
+  }
+  @keyframes judge {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1.08);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-18px) scale(1);
+    }
+  }
+  .count {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 32%;
+    margin: 0;
+    text-align: center;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 120px;
+    line-height: 1;
+    color: var(--bd-accent);
+    pointer-events: none;
+  }
+  .status {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 20%;
+    margin: 0;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--bd-ink);
+    pointer-events: none;
+  }
+  .status > span {
+    display: none;
+  }
+  .stage[data-piano="loading"] .when-loading,
+  .stage[data-piano="failed"] .when-failed {
+    display: inline;
+  }
+  .when-failed {
+    color: #8e2420;
+    font-size: 18px;
+  }
+  /* The samples' licence asks for the credit; it stays small and quiet. */
+  .credit {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--bd-muted);
+  }
+</style>
