@@ -73,3 +73,47 @@ export function parsePool(markdown: string): PoolQuestion[] {
   }
   return pool;
 }
+
+/** One question of a Round, as she sees it. */
+export type Question = {
+  /** 1..12, its rung on the ladder. */
+  readonly number: number;
+  readonly topic: string;
+  readonly band: Band;
+  readonly text: string;
+  /** Four choices in display order, A to D. */
+  readonly choices: readonly string[];
+  /** The index in `choices` of the right answer. */
+  readonly answer: number;
+};
+
+/** The twelve questions of one Round, drawn from `pool` with `rng`. */
+export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Question[] {
+  const topics = [...new Set(pool.map((q) => q.topic))];
+  const again = topics[Math.floor(rng() * topics.length)]!;
+  const bands: [Band, string[]][] = [
+    ["Kolay", shuffle([...topics, again], rng)],
+    ["Orta", shuffle([...topics], rng).slice(0, 4)],
+    ["Zor", shuffle([...topics], rng).slice(0, 2)],
+  ];
+  const picked: PoolQuestion[] = [];
+  for (const [band, bandTopics] of bands) {
+    for (const topic of bandTopics) {
+      const fresh = pool.filter((q) => q.band === band && q.topic === topic && !picked.includes(q));
+      picked.push(fresh[Math.floor(rng() * fresh.length)]!);
+    }
+  }
+  return picked.map((q, i) => {
+    const choices = shuffle([...q.choices], rng);
+    return { number: i + 1, topic: q.topic, band: q.band, text: q.text, choices, answer: choices.indexOf(q.choices[0]!) };
+  });
+}
+
+/** Fisher–Yates, in place, with the given random source. */
+function shuffle<T>(items: T[], rng: () => number): T[] {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [items[i], items[j]] = [items[j]!, items[i]!];
+  }
+  return items;
+}
