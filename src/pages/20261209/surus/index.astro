@@ -106,6 +106,7 @@ const LIMIT = formatClock(RULES.timeLimit);
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
   import { cssVar } from "../../../lib/bday26/css";
+  import { createFrameLoop } from "../../../lib/bday26/frame-loop";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { drivingScore } from "../../../lib/bday26/scores";
   import {
@@ -178,13 +179,11 @@ const LIMIT = formatClock(RULES.timeLimit);
   let countdown = 0;
   let paused = false; // the shell's confirm card
   let frozen = false; // the window lost focus
-  let frame = 0;
-  let last = 0;
   const cam = { x: 0, y: 0 };
   const keys = new Set<string>();
 
   function startRound() {
-    stopLoop();
+    loop.stop();
     drive = createDrive();
     cam.x = drive.car.x;
     cam.y = drive.car.y;
@@ -196,7 +195,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     countEl.hidden = false;
     countEl.textContent = String(COUNTDOWN);
     paintHud();
-    startLoop();
+    loop.start();
   }
 
   function input(): Input {
@@ -209,9 +208,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     };
   }
 
-  function tick(now: number) {
-    const dt = Math.min(0.033, (now - last) / 1000);
-    last = now;
+  function tick(dt: number, now: number) {
     if (phase === "countdown") {
       countdown -= dt;
       stepCyclists(drive.cyclists, drive.car, dt);
@@ -226,24 +223,15 @@ const LIMIT = formatClock(RULES.timeLimit);
     paintHud();
     if (drive.done) {
       finishRound();
-      return;
+      return false;
     }
-    frame = requestAnimationFrame(tick);
   }
 
-  function startLoop() {
-    cancelAnimationFrame(frame);
-    if (phase === "idle" || paused || frozen) return;
-    last = performance.now();
-    frame = requestAnimationFrame(tick);
-  }
-  function stopLoop() {
-    cancelAnimationFrame(frame);
-    frame = 0;
-  }
+  /** The town moves in a Round, with no confirm card and the window in focus. */
+  const loop = createFrameLoop({ canRun: () => phase !== "idle" && !paused && !frozen, frame: tick, maxDt: 0.033 });
 
   function finishRound() {
-    stopLoop();
+    loop.stop();
     phase = "idle";
     const { heavy, light } = tally(drive.mistakes);
     const score = drivingScore(heavy, light);
@@ -309,13 +297,13 @@ const LIMIT = formatClock(RULES.timeLimit);
     if (phase === "idle") return;
     frozen = true;
     frozenEl.hidden = paused;
-    stopLoop();
+    loop.stop();
   });
   window.addEventListener("focus", () => {
     if (!frozen) return;
     frozen = false;
     frozenEl.hidden = true;
-    startLoop();
+    loop.start();
   });
 
   // ── the town, drawn once ──────────────────────────────────────────
@@ -622,7 +610,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     hooks: {
       startRound,
       abandonRound: () => {
-        stopLoop();
+        loop.stop();
         phase = "idle";
         keys.clear();
       },
@@ -631,11 +619,11 @@ const LIMIT = formatClock(RULES.timeLimit);
         paused = true;
         keys.clear();
         frozenEl.hidden = true;
-        stopLoop();
+        loop.stop();
       },
       resume: () => {
         paused = false;
-        startLoop();
+        loop.start();
       },
     },
   });

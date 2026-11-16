@@ -94,6 +94,7 @@ const KEYS = [
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
   import { cssVar } from "../../../lib/bday26/css";
+  import { createFrameLoop } from "../../../lib/bday26/frame-loop";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { SKI_FLAGS, skiScore } from "../../../lib/bday26/scores";
   import {
@@ -154,8 +155,6 @@ const KEYS = [
   let pops: Pop[] = [];
   let toastT = 0;
   let acc = 0;
-  let frame = 0;
-  let last = 0;
   const cam = { x: 0, y: 0 };
   const keys = new Set<string>();
 
@@ -172,34 +171,26 @@ const KEYS = [
   }
 
   function startRound() {
-    stopLoop();
+    loop.stop();
     resetRun();
     keys.clear();
     mode = "play";
     pausedEl.hidden = true;
     verdictEl.hidden = true;
     paintHud();
-    startLoop();
+    loop.start();
   }
 
-  function startLoop() {
-    cancelAnimationFrame(frame);
-    if (mode !== "play" || confirming) return;
-    last = performance.now();
-    frame = requestAnimationFrame(tick);
-  }
-  function stopLoop() {
-    cancelAnimationFrame(frame);
-    frame = 0;
-  }
+  /** The slope moves only in play and with no confirm card over it. */
+  const loop = createFrameLoop({ canRun: () => mode === "play" && !confirming, frame: tick, maxDt: MAX_DT });
 
   function setPaused(on: boolean) {
     if (mode === "idle") return;
     mode = on ? "paused" : "play";
     pausedEl.hidden = !on;
     keys.clear();
-    if (on) stopLoop();
-    else startLoop();
+    if (on) loop.stop();
+    else loop.start();
   }
 
   function input() {
@@ -210,9 +201,7 @@ const KEYS = [
     };
   }
 
-  function tick(now: number) {
-    const dt = Math.min(MAX_DT, (now - last) / 1000);
-    last = now;
+  function tick(dt: number) {
     acc += dt;
     while (acc >= FIXED_STEP && !run.finished) {
       for (const e of stepRun(run, input(), FIXED_STEP)) onEvent(e);
@@ -233,9 +222,8 @@ const KEYS = [
     }
     if (run.finished) {
       finishRound();
-      return;
+      return false;
     }
-    frame = requestAnimationFrame(tick);
   }
 
   function onEvent(e: RunEvent) {
@@ -262,7 +250,7 @@ const KEYS = [
   }
 
   function finishRound() {
-    stopLoop();
+    loop.stop();
     mode = "idle";
     keys.clear();
     toastEl.classList.remove("show");
@@ -697,7 +685,7 @@ const KEYS = [
     hooks: {
       startRound,
       abandonRound: () => {
-        stopLoop();
+        loop.stop();
         mode = "idle";
         keys.clear();
         pausedEl.hidden = true;
@@ -706,11 +694,11 @@ const KEYS = [
       pause: () => {
         confirming = true;
         keys.clear();
-        stopLoop();
+        loop.stop();
       },
       resume: () => {
         confirming = false;
-        startLoop();
+        loop.start();
       },
     },
   });
