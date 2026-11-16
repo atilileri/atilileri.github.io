@@ -155,6 +155,11 @@ test("a buy she can afford lowers the Balance at once, and survives a reload", a
   await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
   await expect(rocky.getByRole("button", { name: "Al", exact: true })).toBeHidden();
 
+  // The backup prompt that follows the buy goes when she says "Sonra".
+  const prompt = page.getByRole("status").filter({ hasText: "Yedek kodunu" });
+  await prompt.getByRole("button", { name: "Sonra" }).click();
+  await expect(prompt).toBeHidden();
+
   // 23 buys nothing: every "Al" left is disabled.
   for (const al of await page.getByRole("button", { name: "Al", exact: true }).all()) {
     await expect(al).toBeDisabled();
@@ -256,6 +261,7 @@ test("the welcome screen greets her once by itself, and \"Hoş geldin\" reopens 
 
 test("Yedekle shows a Save code; a typo is refused; the right code restores her progress after she sees both", async ({ page }) => {
   await seed(page, AN_EVENING);
+  await page.clock.install();
   await page.goto(HUB);
   const tools = page.getByRole("navigation", { name: "Araçlar" });
 
@@ -268,13 +274,17 @@ test("Yedekle shows a Save code; a typo is refused; the right code restores her 
   await yedekle.getByRole("button", { name: "Kapat" }).click();
   await expect(yedekle).toBeHidden();
 
-  // A buy is followed by the backup prompt, and its button opens Yedekle.
+  // A buy is followed by the backup prompt. It waits for her, however long
+  // she looks away, and its button opens Yedekle.
   await row(page, "Rocky Horror film gecesi").getByRole("button", { name: "Al", exact: true }).click();
   await expect(balance(page)).toHaveText(["23", "23"]);
   const prompt = page.getByRole("status").filter({ hasText: "Yedek kodunu" });
   await expect(prompt).toBeVisible();
+  await page.clock.fastForward("01:00");
+  await expect(prompt).toBeVisible();
   await prompt.getByRole("button", { name: "Yedekle" }).click();
   await expect(yedekle).toBeVisible();
+  await expect(prompt).toBeHidden();
   await yedekle.getByRole("button", { name: "Kapat" }).click();
 
   // Geri yükle: one character changed is caught, in Turkish.

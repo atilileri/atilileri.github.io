@@ -42,7 +42,8 @@
  * prizes) — only "Bununla değiştir" writes, through `ledger.restore`, and
  * the hub repaints. No file download, no state in the URL. After every buy
  * the toast carries the backup prompt: "Yedek kodunu almayı unutma." with a
- * "Yedekle" button that opens the panel (spec story 29).
+ * "Yedekle" button that opens the panel and a "Sonra" that closes it; it
+ * stays until she presses one (spec story 29).
  *
  * PLACEHOLDERS, on purpose: "Hoş geldin" (the welcome screen, #195) is a
  * disabled button until its ticket lands; "Belge" links to the Proof page
@@ -167,6 +168,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     <div class="toast" role="status" aria-live="polite" data-toast>
       <span data-toast-text></span>
       <button class="bd-btn small toast-action" type="button" data-toast-action hidden></button>
+      <button class="bd-btn small toast-later" type="button" data-toast-later hidden>Sonra</button>
     </div>
   </div>
   <Welcome />
@@ -321,27 +323,30 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   }
 
   // ── the one line of feedback ─────────────────────────────────────────
-  // A toast is text and, now and then, one button: after a buy it carries
-  // "Yedekle", the backup prompt the spec asks for (story 29). Plain text
-  // fades after 3 s; a prompt stays 9 s, long enough to read and press.
+  // A toast is text, or a prompt: text and two buttons. After a buy the
+  // prompt asks for a backup, as the spec asks (story 29): "Yedekle" opens
+  // the panel, "Sonra" closes it, and it waits until she presses one. Plain
+  // text fades after 3 s.
   const toast = $(document, "[data-toast]");
   const toastText = $(toast, "[data-toast-text]");
   const toastAction = $(toast, "[data-toast-action]") as HTMLButtonElement;
+  const toastLater = $(toast, "[data-toast-later]") as HTMLButtonElement;
   let toastTimer = 0;
   let onToastAction: (() => void) | null = null;
   function say(text: string, action?: { label: string; run: () => void }) {
     toastText.textContent = text;
-    toastAction.hidden = !action;
+    toastAction.hidden = toastLater.hidden = !action;
     toastAction.textContent = action?.label ?? "";
     onToastAction = action?.run ?? null;
     toast.setAttribute("data-show", "");
     window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.removeAttribute("data-show"), action ? 9000 : 3200);
+    if (!action) toastTimer = window.setTimeout(() => toast.removeAttribute("data-show"), 3200);
   }
   toastAction.addEventListener("click", () => {
     toast.removeAttribute("data-show");
     onToastAction?.();
   });
+  toastLater.addEventListener("click", () => toast.removeAttribute("data-show"));
 
   // ── the Save code panels ─────────────────────────────────────────────
   // Two native <dialog>s: Esc closes, focus stays inside, and the top layer
@@ -856,13 +861,16 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     border-radius: 999px;
     box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     transition:
       opacity 0.2s ease,
-      transform 0.2s ease;
+      transform 0.2s ease,
+      visibility 0.2s;
   }
   .toast[data-show] {
     opacity: 1;
+    visibility: visible;
     transform: translate(-50%, 0);
     pointer-events: auto;
   }
@@ -875,6 +883,15 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   .toast-action:hover {
     background: var(--bd-accent-soft);
     color: var(--bd-accent-deep);
+  }
+  .toast-later {
+    background: transparent;
+    color: #fff;
+    padding: 5px 11px;
+    margin-left: 2px;
+  }
+  .toast-later:hover {
+    background: rgb(255 255 255 / 0.14);
   }
 
   /* ── the Save code panels ────────────────────────────────────── */
