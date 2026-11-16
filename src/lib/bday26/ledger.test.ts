@@ -349,3 +349,37 @@ test("a well-formed code that does not carry progress is refused too", async () 
   assert.deepEqual(await ledger.restore(code), { ok: false, reason: "payload" });
   assert.equal(ledger.earned(), 353);
 });
+
+// ------------------------------------------------------------ a Return reads its buy
+
+test("a Return gives back half of the matching buy's paid, whatever the Return line says", () => {
+  // A log can arrive by Save code. Its Return line repeats a paid, but the
+  // spec reads the half from the buy it undoes: 260 paid, 130 back.
+  const balance = balanceOf({
+    best: { nerede: 100, hafiza: 95, wordle: 100, milyoner: 58.3 },
+    jackpot: false,
+    log: [
+      { kind: "buy", gift: "rocky", paid: 260 },
+      { kind: "return", gift: "rocky", paid: 1000 },
+    ],
+  });
+  assert.equal(balance, 223);
+});
+
+test("a Save code whose log Returns a Gift she did not hold is refused, and her progress stays", async () => {
+  const ledger = ledgerWith353Points();
+  const forged = (log: unknown[]) => encodeSaveCode(JSON.stringify({ best: { nerede: 100 }, jackpot: false, log }));
+
+  const neverBought = await forged([{ kind: "return", gift: "rocky", paid: 260 }]);
+  assert.deepEqual(await ledger.restore(neverBought.code), { ok: false, reason: "payload" });
+
+  const returnedTwice = await forged([
+    { kind: "buy", gift: "rocky", paid: 260 },
+    { kind: "return", gift: "rocky", paid: 260 },
+    { kind: "return", gift: "rocky", paid: 260 },
+  ]);
+  assert.deepEqual(await ledger.restore(returnedTwice.code), { ok: false, reason: "payload" });
+
+  assert.equal(ledger.earned(), 353);
+  assert.equal(ledger.balance(), 353);
+});

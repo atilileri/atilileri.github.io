@@ -77,8 +77,8 @@ export type KeyValueStore = {
 };
 
 /** One Gift event. `paid` is the catalogue price at buy time; a Return
- *  repeats the `paid` of the buy it undoes, so the half it gives back can be
- *  read from the event alone. */
+ *  repeats the `paid` of the buy it undoes, for a reader of the log. The
+ *  half it gives back is still read from that buy (`balanceOf`). */
 export type GiftEvent = { kind: "buy" | "return"; gift: GiftId; paid: number };
 
 /** Her progress: facts only. Missing `best[id]` = never played. */
@@ -116,9 +116,20 @@ export function heldOf(p: Progress): Map<GiftId, number> {
 }
 
 /** Points earned minus what the log cost: a buy's full price, less the half
- *  a Return gave back. */
+ *  a Return gave back. That half is read from the buy the Return undoes, not
+ *  from the Return line, so a pasted log cannot add Points with it. */
 export function balanceOf(p: Progress): number {
-  const spent = p.log.reduce((sum, e) => sum + (e.kind === "buy" ? e.paid : -e.paid / 2), 0);
+  const held = new Map<GiftId, number>();
+  let spent = 0;
+  for (const e of p.log) {
+    if (e.kind === "buy") {
+      held.set(e.gift, e.paid);
+      spent += e.paid;
+    } else {
+      spent -= (held.get(e.gift) ?? 0) / 2;
+      held.delete(e.gift);
+    }
+  }
   return earnedOf(p) - spent;
 }
 
@@ -279,8 +290,10 @@ function load(store: KeyValueStore): Progress {
 
 /**
  * The JSON text of a `Progress`, checked field by field. Returns null when
- * the text is not JSON or not an object; drops any Best score, Gift event or
- * field it does not understand. Shared by `load` and by #196's Save code.
+ * the text is not JSON or not an object, or when its log Returns a Gift that
+ * no buy before it left held (no code made here can carry one; the ledger
+ * never writes it); drops any Best score, Gift event or field it does not
+ * understand. Shared by `load` and by #196's Save code.
  */
 export function parseProgress(text: string): Progress | null {
   let data: unknown;
@@ -301,11 +314,14 @@ export function parseProgress(text: string): Progress | null {
   }
   out.jackpot = data.jackpot === true;
   if (Array.isArray(data.log)) {
+    const held = new Set<GiftId>();
     for (const e of data.log) {
       if (!isRecord(e)) continue;
       if (e.kind !== "buy" && e.kind !== "return") continue;
       if (typeof e.gift !== "string" || !isGiftId(e.gift)) continue;
       if (typeof e.paid !== "number" || !Number.isFinite(e.paid) || e.paid < 0) continue;
+      if (e.kind === "buy") held.add(e.gift);
+      else if (!held.delete(e.gift)) return null;
       out.log.push({ kind: e.kind, gift: e.gift, paid: e.paid });
     }
   }
