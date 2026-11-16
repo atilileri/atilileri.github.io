@@ -145,3 +145,21 @@ export function framingScore(photos: readonly number[]): number {
   const worst = sorted[sorted.length - 1]!;
   return Math.min(100, Math.max(0, (95 * best4 + 20 * worst) / 400));
 }
+
+/** The ski course's flags (#179: the Dengeli course, seed 7). */
+export const SKI_FLAGS = 72;
+
+/**
+ * Ski platformer, "Kayak macerası" (#207; spec row "flags ÷ 72; no finish =
+ * no score"). `flags` is how many of the course's 72 she holds when she
+ * crosses the finish (`./kayak.ts`; a fall gives back the ones since the last
+ * checkpoint, so these are the ones she kept). As a percent, rounded down, as
+ * the prototype's `pctOf` did: 69 flags is 95, the Small prize edge, and 68
+ * is 94. `finished` false — she never crossed the finish — is no score at
+ * all: undefined, and the page hands nothing to the shell. Time, speed and
+ * falls earn nothing.
+ */
+export function skiScore(flags: number, finished: boolean): number | undefined {
+  if (!finished) return undefined;
+  return Math.min(100, Math.max(0, Math.floor((flags * 100) / SKI_FLAGS)));
+}

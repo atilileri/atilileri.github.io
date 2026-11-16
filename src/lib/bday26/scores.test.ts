@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { drivingScore, framingScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, slotScore, wordleScore } from "./scores.ts";
+import { drivingScore, framingScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, skiScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -250,4 +250,31 @@ test("driving: heavy and light add up, and the score never drops below 0", () =>
   assert.equal(drivingScore(2, 3), 71);
   assert.equal(drivingScore(10, 0), 0);
   assert.equal(drivingScore(9, 5), 0);
+});
+
+// ------------------------------------------------------- ski platformer
+// Spec: flags ÷ 72; no finish = no score; 95% means at least 69 flags (#207,
+// #179). As a percent, rounded down. A Round that never reaches the finish
+// has no score at all, so the shell records nothing for it.
+
+test("ski: all 72 flags is a perfect 100", () => {
+  assert.equal(skiScore(72, true), 100);
+});
+
+test("ski: 69 flags clears the 95% bar, the Small prize edge", () => {
+  assert.equal(skiScore(69, true), 95);
+});
+
+test("ski: 68 flags falls short of 95", () => {
+  assert.equal(skiScore(68, true), 94);
+});
+
+test("ski: half the flags is 50, and none is 0", () => {
+  assert.equal(skiScore(36, true), 50);
+  assert.equal(skiScore(0, true), 0);
+});
+
+test("ski: a Round that does not reach the finish has no score, whatever it collected", () => {
+  assert.equal(skiScore(72, false), undefined);
+  assert.equal(skiScore(40, false), undefined);
 });
