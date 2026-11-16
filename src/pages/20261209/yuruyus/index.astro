@@ -516,7 +516,7 @@ const KM_UNITS = 200;
   }
   .map :global(.walk) {
     fill: none;
-    stroke: #e8743b;
+    stroke: var(--bd-orange);
     stroke-width: 7;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -566,7 +566,7 @@ const KM_UNITS = 200;
     transition: r 0.15s ease;
   }
   .map :global(.junction.on .dot) {
-    fill: #e8743b;
+    fill: var(--bd-orange);
     stroke: #fff;
     r: 7;
   }
@@ -598,7 +598,7 @@ const KM_UNITS = 200;
   }
   .map :global(.junction.next .peak),
   .map :global(.junction.hover .peak) {
-    fill: #e8743b;
+    fill: var(--bd-orange);
   }
   .map :global(.snow) {
     fill: #fff;
@@ -613,7 +613,7 @@ const KM_UNITS = 200;
     stroke-linejoin: round;
   }
   .map :global(.badge circle) {
-    fill: #e8743b;
+    fill: var(--bd-orange);
     stroke: #fff;
     stroke-width: 2;
   }

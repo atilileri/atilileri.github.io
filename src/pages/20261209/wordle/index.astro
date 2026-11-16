@@ -403,11 +403,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
 
 <style>
   .game {
-    --w-correct: #3a9d5d;
-    --w-present: #d4a72c;
-    --w-absent: #8b8a86;
     --w-key: #f1e7e3;
-    --w-orange: #e8743b;
     --w-orange-soft: #fdebe1;
     width: 100%;
     height: 100%;
@@ -436,7 +432,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
     font-weight: 700;
   }
   .hint b {
-    color: var(--w-orange);
+    color: var(--bd-orange);
     font-size: 14px;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -494,7 +490,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
     animation: pop 0.1s ease-out;
   }
   .board :global(.cell.caret) {
-    border-color: var(--w-orange);
+    border-color: var(--bd-orange);
   }
   .board :global(.cell.gap) {
     width: calc(var(--cs) * 0.42);
@@ -523,13 +519,13 @@ const TURKISH = "ÇĞIİÖŞÜ";
     border-color: transparent;
   }
   .board :global(.cell.correct) {
-    background: var(--w-correct);
+    background: var(--bd-wordle-correct);
   }
   .board :global(.cell.present) {
-    background: var(--w-present);
+    background: var(--bd-wordle-present);
   }
   .board :global(.cell.absent) {
-    background: var(--w-absent);
+    background: var(--bd-wordle-absent);
   }
   .board :global(.cell.win) {
     animation: bounce 0.5s ease-out both;
@@ -591,21 +587,18 @@ const TURKISH = "ÇĞIİÖŞÜ";
     box-shadow: none;
   }
   .key.correct {
-    background: var(--w-correct);
+    background: var(--bd-wordle-correct);
   }
   .key.present {
-    background: var(--w-present);
+    background: var(--bd-wordle-present);
   }
   .key.absent {
-    background: var(--w-absent);
+    background: var(--bd-wordle-absent);
     opacity: 0.75;
   }
 
   /* ── result extra ────────────────────────────────────────────── */
   .result {
-    --w-correct: #3a9d5d;
-    --w-present: #d4a72c;
-    --w-absent: #8b8a86;
     display: grid;
     justify-items: center;
     gap: 14px;
@@ -627,10 +620,10 @@ const TURKISH = "ÇĞIİÖŞÜ";
     line-height: 1;
   }
   .result :global(.tile.correct) {
-    background: var(--w-correct);
+    background: var(--bd-wordle-correct);
   }
   .result :global(.tile.absent) {
-    background: var(--w-absent);
+    background: var(--bd-wordle-absent);
   }
   .result :global(.tile.gap) {
     width: 14px;
@@ -649,13 +642,13 @@ const TURKISH = "ÇĞIİÖŞÜ";
     border-radius: 3px;
   }
   .mini :global(i.correct) {
-    background: var(--w-correct);
+    background: var(--bd-wordle-correct);
   }
   .mini :global(i.present) {
-    background: var(--w-present);
+    background: var(--bd-wordle-present);
   }
   .mini :global(i.absent) {
-    background: var(--w-absent);
+    background: var(--bd-wordle-absent);
   }
   .mini :global(i.gap) {
     width: 6px;

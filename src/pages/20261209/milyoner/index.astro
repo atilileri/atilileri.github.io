@@ -365,9 +365,6 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     --right: var(--bd-won);
     --right-bg: var(--bd-won-bg-2);
     --right-ink: var(--bd-won-deep);
-    --wrong: #d9453d;
-    --wrong-bg: #fdeae8;
-    --wrong-ink: #8e2420;
 
     /* Viewport units for the same reason as "Bu nerede?": 104 px is the HUD
        (64) and the playfield's padding (20 + 20). */
@@ -509,15 +506,15 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     color: var(--right-ink);
   }
   .choice.wrong {
-    background: var(--wrong-bg);
-    box-shadow: 0 0 0 3px var(--wrong);
+    background: var(--bd-wrong-bg);
+    box-shadow: 0 0 0 3px var(--bd-wrong);
   }
   .choice.wrong kbd {
-    background: var(--wrong);
+    background: var(--bd-wrong);
     color: #fff;
   }
   .choice.wrong .label {
-    color: var(--wrong-ink);
+    color: var(--bd-wrong-ink);
   }
 
   /* One line under the choices that says what Enter does now. */
@@ -571,7 +568,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     color: var(--right-ink);
   }
   .verdict.wrong {
-    color: var(--wrong-ink);
+    color: var(--bd-wrong-ink);
   }
 
   /* ── jokers, audience, ladder ───────────────────────────────── */
@@ -712,6 +709,6 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     background: var(--right);
   }
   .rung.missed {
-    background: var(--wrong);
+    background: var(--bd-wrong);
   }
 </style>

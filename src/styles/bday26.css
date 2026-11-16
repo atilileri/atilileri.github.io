@@ -85,6 +85,20 @@
   --bd-gift-bg: #fff1d6;
   --bd-gift-fg: #b7791f;
 
+  /* A wrong answer, in every Game that marks one. */
+  --bd-wrong: #d9453d;
+  --bd-wrong-bg: #fdeae8;
+  --bd-wrong-ink: #8e2420;
+
+  /* The orange of a mark on a map or a photo: the hiking route, the framing
+     Game's Subject point, the Wordle hint. */
+  --bd-orange: #e8743b;
+
+  /* The Wordle tiles and keys: right place, wrong place, not in the word. */
+  --bd-wordle-correct: #3a9d5d;
+  --bd-wordle-present: #d4a72c;
+  --bd-wordle-absent: #8b8a86;
+
   --bd-radius: 16px;
   --bd-radius-sm: 10px;
 }

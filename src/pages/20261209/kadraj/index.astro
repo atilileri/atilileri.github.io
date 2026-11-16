@@ -142,7 +142,6 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
   const MARGIN = 24;
   /** The reveal's zoom takes this long (CSS `.photo.zooming` matches). */
   const ZOOM_MS = 460;
-  const SUBJECT = "#e8743b";
 
   /** The five framing photos, fixed, in `photos.json` order (spec). */
   const ROUND = PHOTOS.flatMap((p) => (p.subject ? [{ file: p.file, subject: p.subject }] : []));
@@ -384,8 +383,8 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
       g += `<circle cx="${nx}" cy="${ny}" r="${ringRadius(c) * map.s}" class="ring"/>`;
       const px = sx(subject.x);
       const py = sy(subject.y);
-      g += `<line x1="${nx}" y1="${ny}" x2="${px}" y2="${py}" stroke="${SUBJECT}" stroke-width="2.5" stroke-dasharray="6 5"/>`;
-      g += `<circle cx="${px}" cy="${py}" r="11" fill="${SUBJECT}" stroke="#fff" stroke-width="3"/>`;
+      g += `<line x1="${nx}" y1="${ny}" x2="${px}" y2="${py}" style="stroke: var(--bd-orange)" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+      g += `<circle cx="${px}" cy="${py}" r="11" style="fill: var(--bd-orange)" stroke="#fff" stroke-width="3"/>`;
     }
     overlay.innerHTML = g;
   }
@@ -748,7 +747,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
     vector-effect: non-scaling-stroke;
   }
   .thumbs :global(.thumb-dot) {
-    fill: #e8743b;
+    fill: var(--bd-orange);
     stroke: #fff;
     stroke-width: 2;
     vector-effect: non-scaling-stroke;
