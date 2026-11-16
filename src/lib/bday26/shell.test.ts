@@ -136,6 +136,18 @@ test("a lower Round keeps the old Best score, and the result says it was not imp
   assert.equal(g.ledger.bestOf("hafiza"), 80);
 });
 
+test("a first-ever 0 is kept as the Best score, but the result does not cheer it as a new one", () => {
+  const g = openGame();
+  g.shell.key("Enter");
+  g.shell.finish(0);
+  assert.equal(g.screen.result?.improved, false, "no \"Yeni rekor!\" for %0");
+  assert.equal(g.ledger.bestOf("hafiza"), 0);
+
+  g.shell.key("Enter");
+  g.shell.finish(10);
+  assert.equal(g.screen.result?.improved, true, "the first score above it is");
+});
+
 test("one finished Round is recorded once: a second finish without a new Round changes nothing", () => {
   const g = openGame();
   g.shell.key("Enter");

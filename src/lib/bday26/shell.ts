@@ -67,9 +67,9 @@
  *   - Confirm (Esc during a Round): "Turdan çıkılsın mı?" / "Yarım bırakılan
  *     tur skor vermez." / "Devam et · Esc", "Çık · Enter" (stories 35–36).
  *   - Result: "Tur bitti", the score as %N, `detail`, "Rekor %N" (with "Yeni
- *     rekor!" when this Round raised it), "Hedef %95" (with "Küçük ödül
- *     kazandın: X!" the one time it is won), "Yeni tur · Enter", "Salona dön
- *     · Esc" (stories 33–34).
+ *     rekor!" when this Round raised it, never for a first-ever %0), "Hedef
+ *     %95" (with "Küçük ödül kazandın: X!" the one time it is won), "Yeni
+ *     tur · Enter", "Salona dön · Esc" (stories 33–34).
  *
  * WHAT REACHES THE LEDGER. Exactly one `recordRound(game, score, {jackpot})`
  * per finished Round, from `finish`, and nothing from a Round she leaves:
@@ -194,7 +194,9 @@ export function createGameShell(options: ShellOptions): GameShell {
       const outcome = ledger.recordRound(game, score, { jackpot: extra?.jackpot });
       if (resultScreen) {
         phase = "result";
-        show({ ...outcome, score, detail: extra?.detail });
+        // A first-ever 0 is kept as the Best score, but "Yeni rekor!" over
+        // %0 would only mock her: the flash needs a score above nothing.
+        show({ ...outcome, improved: outcome.improved && outcome.best > 0, score, detail: extra?.detail });
       } else {
         shell.start();
       }
