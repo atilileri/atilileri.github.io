@@ -302,10 +302,8 @@ test("a Game may take a key on its start and result screens (the piano's 1 2 3);
     ledger: createLedger(memoryStore()),
     hooks: {
       startRound: () => void (rounds += 1),
-      screenKey: (key, phase) => {
-        offered.push([key, phase]);
-        return key === "2";
-      },
+      // Which screen she is on when the key is offered, as she sees it.
+      screenKey: (key) => void offered.push([key, screen?.phase ?? "none"]),
     },
     view: (s) => void (screen = s),
     leave: () => void (left += 1),

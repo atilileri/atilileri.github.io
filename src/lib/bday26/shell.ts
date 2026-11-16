@@ -55,7 +55,7 @@
  *
  *   6. A choice before the Round (the piano's song, #205). Markup in
  *      `<div slot="start">` shows on the start card above "Başla"; the
- *      `screenKey(key, phase)` hook gets every key on the start and result
+ *      `screenKey(key)` hook gets every key on the start and result
  *      screens except Enter and Esc, so 1 2 3 can pick a song there and
  *      Enter still starts. Clicks on that markup are the Game's own.
  *
@@ -132,7 +132,7 @@ export type GameHooks = {
   /** A key on the start or result screen other than Enter and Esc (the
    *  piano's song choice, #205). The key stays the screen's: the Game's own
    *  listeners never see it. */
-  screenKey?(key: string, phase: "start" | "result"): void;
+  screenKey?(key: string): void;
 };
 
 export type ShellOptions = {
@@ -241,7 +241,7 @@ export function createGameShell(options: ShellOptions): GameShell {
         if (phase === "confirm") shell.stay();
         else shell.leave();
       } else if (phase === "start" || phase === "result") {
-        hooks.screenKey?.(key, phase);
+        hooks.screenKey?.(key);
       }
       return true;
     },
