@@ -653,3 +653,33 @@ test("Hollanda'da sürüş: full gas down the first street, the HUD names the sp
   await expect(page.locator("[data-hud-score]")).toHaveText("%97");
   await expect(page.getByText("1 hafif")).toBeVisible();
 });
+
+test("Kayak macerası: riding into the first rock is a fall, P stops the clock, and a Round left before the finish scores nothing (#207)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/kayak/");
+  const start = page.getByRole("dialog", { name: "Kayak macerası" });
+  await expect(start).toContainText("Termal spa günü");
+  await expect(start).toContainText("Baştan başla");
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+
+  // No jump: the first rock on the fixed course stops her within a few seconds.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("0 / 72")).toBeVisible();
+  await expect(page.getByText("Düştün! Kontrol noktasına dönülüyor")).toBeVisible({ timeout: 10_000 });
+
+  // P: the slope stands still and the clock with it.
+  await page.keyboard.press("p");
+  await expect(page.getByText("Duraklatıldı")).toBeVisible();
+  const time = page.locator("[data-hud-time]");
+  const frozen = await time.innerText();
+  await page.waitForTimeout(400);
+  await expect(time).toHaveText(frozen);
+
+  // Esc, then Çık: a Round that never reached the finish leaves the tile unplayed.
+  await page.keyboard.press("Escape");
+  await expect(page.getByText("Turdan çıkılsın mı?")).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Kayak macerası")).toContainText("Henüz oynamadın");
+});
