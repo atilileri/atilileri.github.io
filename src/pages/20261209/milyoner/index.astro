@@ -139,9 +139,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { askAudience, buildRound, halve, parsePool, type Question } from "../../../lib/bday26/milyoner";
   import { milyonerScore } from "../../../lib/bday26/scores";
+  import { createAnswerStep } from "../../../lib/bday26/choice-quiz";
 
-  /** How long the coloured answer stays before the next step (#182: ~1.5 s). */
-  const PAUSE_MS = 1500;
   const POOL = parsePool(poolDocument);
 
   const $ = <T extends Element = HTMLElement>(selector: string) => {
@@ -173,7 +172,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   let hit = false;
   let halveUsed = false;
   let audienceUsed = false;
-  let nextTimer = 0;
+  /** The coloured answer stays a moment, then the next step (#182). */
+  const answerStep = createAnswerStep(next, () => step === "answered");
 
   const question = () => round[current]!;
 
@@ -214,7 +214,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   }
 
   function startRound() {
-    window.clearTimeout(nextTimer);
+    answerStep.cancel();
     round = buildRound(POOL, Math.random);
     current = 0;
     halveUsed = false;
@@ -259,11 +259,11 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     hit = marked === question().answer;
     step = "answered";
     paint();
-    nextTimer = window.setTimeout(next, PAUSE_MS);
+    answerStep.wait();
   }
 
   function next() {
-    window.clearTimeout(nextTimer);
+    answerStep.cancel();
     if (step !== "answered") return;
     // Rungs climbed: every question before this one, and this one if right.
     const correct = question().number - (hit ? 0 : 1);
@@ -312,12 +312,10 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     ledger: openLedger(),
     hooks: {
       startRound,
-      abandonRound: () => window.clearTimeout(nextTimer),
+      abandonRound: answerStep.cancel,
       // The confirm-leave card over a coloured answer: the next step waits.
-      pause: () => window.clearTimeout(nextTimer),
-      resume: () => {
-        if (step === "answered") nextTimer = window.setTimeout(next, PAUSE_MS);
-      },
+      pause: answerStep.pause,
+      resume: answerStep.resume,
     },
   });
 

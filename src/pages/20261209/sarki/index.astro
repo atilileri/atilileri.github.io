@@ -85,9 +85,7 @@ const LETTERS = ["A", "B", "C", "D"];
   import { createPiano } from "../../../lib/bday26/piano";
   import { parseSong, timeSong, type Song } from "../../../lib/bday26/song";
   import { missScore } from "../../../lib/bday26/scores";
-
-  /** How long her marked answer stays before the next song (#182: ~1.5 s). */
-  const PAUSE_MS = 1500;
+  import { clearMarks, createAnswerStep, markChoices } from "../../../lib/bday26/choice-quiz";
 
   const stage = document.querySelector<HTMLElement>("[data-stage]");
   const indexEl = document.querySelector<HTMLElement>("[data-index]");
@@ -112,7 +110,7 @@ const LETTERS = ["A", "B", "C", "D"];
   });
 
   let quiz: Quiz | undefined;
-  let nextTimer = 0;
+  const step = createAnswerStep(next, () => quiz?.picked !== undefined);
   let playingTimer = 0;
 
   /** Play the current question's hook from the top; the speaker moves while it sounds. */
@@ -138,8 +136,8 @@ const LETTERS = ["A", "B", "C", "D"];
   function paintQuestion() {
     const q = quiz!.question;
     stage!.classList.remove("answered");
+    clearMarks(buttons);
     buttons.forEach((button, i) => {
-      button.classList.remove("right", "wrong");
       const title = button.querySelector<HTMLElement>("[data-title]");
       if (title) title.textContent = q.choices[i] ?? "";
     });
@@ -148,7 +146,7 @@ const LETTERS = ["A", "B", "C", "D"];
   }
 
   function startRound() {
-    window.clearTimeout(nextTimer);
+    step.cancel();
     quiz = createQuiz(dealQuiz(TITLES, Math.random));
     paintQuestion();
     // Inside her Enter or Başla click: the gesture that may start sound.
@@ -158,18 +156,15 @@ const LETTERS = ["A", "B", "C", "D"];
 
   function answer(i: number) {
     if (!quiz || quiz.picked !== undefined) return;
-    const hit = quiz.pick(i);
-    const right = quiz.question.answer;
-    // The right title is green either way; on a miss her pick is red beside it.
-    buttons[right]!.classList.add("right");
-    if (!hit) buttons[i]!.classList.add("wrong");
+    quiz.pick(i);
+    markChoices(buttons, quiz.question.answer, i);
     stage!.classList.add("answered");
     missesEl!.textContent = String(quiz.misses);
-    nextTimer = window.setTimeout(next, PAUSE_MS);
+    step.wait();
   }
 
   function next() {
-    window.clearTimeout(nextTimer);
+    step.cancel();
     if (!quiz || quiz.picked === undefined) return;
     if (quiz.done) {
       silence();
@@ -189,18 +184,16 @@ const LETTERS = ["A", "B", "C", "D"];
     hooks: {
       startRound,
       abandonRound: () => {
-        window.clearTimeout(nextTimer);
+        step.cancel();
         silence();
         quiz = undefined;
       },
       // The confirm card: the music stops and a marked answer waits for her.
       pause: () => {
-        window.clearTimeout(nextTimer);
+        step.pause();
         silence();
       },
-      resume: () => {
-        if (quiz?.picked !== undefined) nextTimer = window.setTimeout(next, PAUSE_MS);
-      },
+      resume: step.resume,
     },
   });
 

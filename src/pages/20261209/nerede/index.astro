@@ -79,11 +79,10 @@ const LETTERS = ["A", "B", "C", "D"];
   import { buildRound, type Question } from "../../../lib/bday26/nerede";
   import { missScore } from "../../../lib/bday26/scores";
   import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
+  import { clearMarks, createAnswerStep, markChoices } from "../../../lib/bday26/choice-quiz";
 
   /** Photos in a Round (spec story 66). */
   const COUNT = 10;
-  /** How long her marked answer stays before the next photo (#182: ~1.5 s). */
-  const PAUSE_MS = 1500;
 
   const stage = document.querySelector<HTMLElement>("[data-stage]");
   const img = document.querySelector<HTMLImageElement>("[data-photo]");
@@ -99,14 +98,14 @@ const LETTERS = ["A", "B", "C", "D"];
   let misses = 0;
   /** True from her answer until the next photo: keys skip the wait. */
   let answered = false;
-  let nextTimer = 0;
+  const step = createAnswerStep(next, () => answered);
 
   function paintQuestion() {
     const q = round[current]!;
     img!.src = photoUrl(q.photo.file);
     stage!.classList.remove("answered");
+    clearMarks(buttons);
     buttons.forEach((button, i) => {
-      button.classList.remove("right", "wrong");
       const place = button.querySelector<HTMLElement>("[data-place]");
       if (place) place.textContent = q.choices[i] ?? "";
     });
@@ -121,7 +120,7 @@ const LETTERS = ["A", "B", "C", "D"];
   }
 
   function startRound() {
-    window.clearTimeout(nextTimer);
+    step.cancel();
     round = buildRound(PHOTOS, Math.random, COUNT);
     current = 0;
     misses = 0;
@@ -135,16 +134,14 @@ const LETTERS = ["A", "B", "C", "D"];
     answered = true;
     const hit = i === q.answer;
     if (!hit) misses += 1;
-    // The right place is green either way; on a miss her pick is red beside it.
-    buttons[q.answer]!.classList.add("right");
-    if (!hit) buttons[i]!.classList.add("wrong");
+    markChoices(buttons, q.answer, i);
     stage!.classList.add("answered");
     missesEl!.textContent = String(misses);
-    nextTimer = window.setTimeout(next, PAUSE_MS);
+    step.wait();
   }
 
   function next() {
-    window.clearTimeout(nextTimer);
+    step.cancel();
     if (!answered) return;
     answered = false;
     current += 1;
@@ -160,12 +157,10 @@ const LETTERS = ["A", "B", "C", "D"];
     ledger: openLedger(),
     hooks: {
       startRound,
-      abandonRound: () => window.clearTimeout(nextTimer),
+      abandonRound: step.cancel,
       // The confirm card over a marked answer: the photo waits for her.
-      pause: () => window.clearTimeout(nextTimer),
-      resume: () => {
-        if (answered) nextTimer = window.setTimeout(next, PAUSE_MS);
-      },
+      pause: step.pause,
+      resume: step.resume,
     },
   });
 
