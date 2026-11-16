@@ -105,6 +105,7 @@ const LIMIT = formatClock(RULES.timeLimit);
 
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
+  import { cssVar } from "../../../lib/bday26/css";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { drivingScore } from "../../../lib/bday26/scores";
   import {
@@ -167,10 +168,7 @@ const LIMIT = formatClock(RULES.timeLimit);
   /** The countdown before the clock runs, s; the cyclists ride through it. */
   const COUNTDOWN = 3;
 
-  function css(name: string, fallback: string) {
-    return getComputedStyle(stage).getPropertyValue(name).trim() || fallback;
-  }
-  const ACCENT = css("--bd-accent", "#e0446a");
+  const ACCENT = cssVar("--bd-accent");
   const ACCENT_LIGHT = "#f58aa5";
 
   // ── one Round ─────────────────────────────────────────────────────

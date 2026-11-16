@@ -117,6 +117,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
 
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
+  import { cssVar } from "../../../lib/bday26/css";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { createPiano } from "../../../lib/bday26/piano";
   import { PIANO_SONGS, songByChoice, type PianoSong } from "../../../lib/bday26/piano-songs";
@@ -318,17 +319,14 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   });
 
   // ── drawing ───────────────────────────────────────────────────────
-  function css(name: string) {
-    return getComputedStyle(stage!).getPropertyValue(name).trim();
-  }
   const colors = {
-    accent: css("--bd-accent") || "#e0446a",
-    accentSoft: css("--bd-accent-soft") || "#ffe6ec",
-    ink: css("--bd-ink") || "#3a2d2a",
-    line: css("--bd-line") || "#f2e4df",
-    track: css("--bd-track") || "#f6ebe7",
-    won: css("--bd-won") || "#2fb67c",
-    muted: css("--bd-muted-3") || "#b9a8a3",
+    accent: cssVar("--bd-accent"),
+    accentSoft: cssVar("--bd-accent-soft"),
+    ink: cssVar("--bd-ink"),
+    line: cssVar("--bd-line"),
+    track: cssVar("--bd-track"),
+    won: cssVar("--bd-won"),
+    muted: cssVar("--bd-muted-3"),
   };
 
   function fieldSize() {
@@ -417,7 +415,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     // Key caps under the line, with her letters.
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `800 24px ${css("--bd-display") || "system-ui"}`;
+    ctx.font = `800 24px ${cssVar("--bd-display")}`;
     for (let i = 0; i < lanes; i++) {
       const cx = x0 + i * laneW + laneW / 2;
       const down = p?.down[i] ?? false;

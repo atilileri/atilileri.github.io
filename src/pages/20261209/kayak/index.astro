@@ -93,6 +93,7 @@ const KEYS = [
 
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
+  import { cssVar } from "../../../lib/bday26/css";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { SKI_FLAGS, skiScore } from "../../../lib/bday26/scores";
   import {
@@ -137,8 +138,8 @@ const KEYS = [
   /** The Small prize's flag count: 95% of 72, rounded up (69). */
   const NEED_95 = Math.ceil((95 * SKI_FLAGS) / 100);
 
-  const ACCENT = getComputedStyle(view).getPropertyValue("--bd-accent").trim() || "#e0446a";
-  const ACCENT_DEEP = getComputedStyle(view).getPropertyValue("--bd-accent-deep").trim() || "#c2264f";
+  const ACCENT = cssVar("--bd-accent");
+  const ACCENT_DEEP = cssVar("--bd-accent-deep");
 
   // ── one Round ─────────────────────────────────────────────────────
   type Particle = { x: number; y: number; vx: number; vy: number; life: number; r: number; c?: string };
