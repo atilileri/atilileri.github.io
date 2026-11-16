@@ -1,7 +1,7 @@
 /**
  * The piano Game's three songs (/20261209/piyano/, #205; spec #192 stories
  * 61–62 and 64; songs chosen on #187, tuning from the prototype verdict
- * #180). One song per level, picked on the start screen with 1, 2, 3; the
+ * #180). One song per difficulty, picked on the start screen with 1, 2, 3; the
  * Best score is the highest over all three (one Game, `piyano`).
  *
  * EACH SONG CARRIES:
@@ -33,11 +33,11 @@
  * values here are the verdict's start values.
  */
 
-export type PianoLevel = "Kolay" | "Orta" | "Zor";
+export type PianoDifficulty = "Kolay" | "Orta" | "Zor";
 
 export type PianoSong = {
   readonly id: "kolay" | "orta" | "zor";
-  readonly level: PianoLevel;
+  readonly difficulty: PianoDifficulty;
   /** The title, as she reads it. */
   readonly name: string;
   /** Who wrote it, when the title alone does not say. */
@@ -59,7 +59,7 @@ export type PianoSong = {
 export const PIANO_SONGS: readonly PianoSong[] = [
   {
     id: "kolay",
-    level: "Kolay",
+    difficulty: "Kolay",
     name: "İyi ki doğdun",
     cap: 0.7,
     bpm: 120,
@@ -73,7 +73,7 @@ export const PIANO_SONGS: readonly PianoSong[] = [
   },
   {
     id: "orta",
-    level: "Orta",
+    difficulty: "Orta",
     name: "Hadi Bakalım",
     by: "Sezen Aksu",
     cap: 0.85,
@@ -92,7 +92,7 @@ export const PIANO_SONGS: readonly PianoSong[] = [
   },
   {
     id: "zor",
-    level: "Zor",
+    difficulty: "Zor",
     name: "Türk Marşı",
     by: "Mozart",
     cap: 1.0,

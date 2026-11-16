@@ -186,7 +186,7 @@ test("a Gift is held at most once: a second buy is refused", () => {
 test("a Return gives half the price back and the Gift can be bought again", () => {
   const ledger = ledgerWith353Points();
   ledger.buy("rocky");
-  assert.deepEqual(ledger.returnGift("rocky"), { ok: true, refund: 130 });
+  assert.deepEqual(ledger.returnGift("rocky"), { ok: true, returned: 130 });
   assert.equal(ledger.balance(), 223);
   assert.equal(ledger.holds("rocky"), false);
   assert.equal(ledger.buy("rocky").ok, false, "223 < 260");
@@ -212,7 +212,7 @@ test("a Return gives back half of the price PAID, even after the catalogue price
   });
   const ledger = createLedger(store);
   assert.equal(ledger.balance(), 100);
-  assert.deepEqual(ledger.returnGift("rocky"), { ok: true, refund: 150 });
+  assert.deepEqual(ledger.returnGift("rocky"), { ok: true, returned: 150 });
   assert.equal(ledger.balance(), 250);
 });
 

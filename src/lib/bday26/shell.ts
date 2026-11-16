@@ -12,7 +12,7 @@
  *      (`src/components/bday26/GameShell.astro`). The component draws the
  *      start screen (Game name, one-line rule, the `keys` legend, "Başla
  *      Enter"), the HUD bar (name left, your `<span slot="hud">` in the
- *      middle, Best score + target right), the confirm-leave card and the
+ *      middle, Best score + the 95% bar right), the confirm-leave card and the
  *      result card, all from the catalogue. Your playfield is the default
  *      slot and fills the rest of the 1920×1080 screen.
  *

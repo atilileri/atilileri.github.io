@@ -11,7 +11,7 @@
  * WHAT IT RENDERS (every word Turkish, from the catalogue where it can be):
  *   - `.hud`: the Game's glyph and name on the left, the Game's own
  *     `<slot name="hud">` in the middle (its move counter, its km, its guess
- *     x/6), her Best score and the 95% target on the right, and the Esc hint.
+ *     x/6), her Best score and the 95% bar on the right, and the Esc hint.
  *   - `.playfield`: the default slot, filling the rest of 1920×1080. It is
  *     `inert` whenever a screen is over it.
  *   - Three screens, absolutely over everything, one visible at a time by
@@ -46,7 +46,7 @@
  * The wording of the confirm and result cards is the hiking prototype's
  * (#183), which Atıl played and approved; the look is the hub's (#178): the
  * shared tokens from `src/styles/bday26.css`, Baloo 2 for the big numbers.
- * For the luck Game (#200) the target is the jackpot, not %95, so "Hedef"
+ * For the luck Game (#200) the bar is the jackpot, not %95, so "Hedef"
  * and the Small prize line say so, in the hub tile's words.
  */
 import { gameById, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
@@ -63,7 +63,7 @@ interface Props {
 const { game: id, keys, resultAside = false } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
-const target = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
+const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
 const hasResultSlot = Astro.slots.has("result");
 const hasStartSlot = Astro.slots.has("start");
 ---
@@ -82,7 +82,7 @@ const hasStartSlot = Astro.slots.has("start");
       </div>
       <div>
         <dt class="label">Hedef</dt>
-        <dd>{target}</dd>
+        <dd>{bar}</dd>
       </div>
     </dl>
     <span class="hud-esc"><kbd>Esc</kbd> çık</span>
@@ -114,7 +114,7 @@ const hasStartSlot = Astro.slots.has("start");
         }
       </ul>
       <p class="line">
-        Rekorun <b data-shell-best>—</b> · Hedef <b>{target}</b>
+        Rekorun <b data-shell-best>—</b> · Hedef <b>{bar}</b>
       </p>
       <p class="line">
         <span data-shell-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
@@ -178,7 +178,7 @@ const hasStartSlot = Astro.slots.has("start");
         </div>
         <div>
           <dt class="label">Hedef</dt>
-          <dd>{target}</dd>
+          <dd>{bar}</dd>
         </div>
       </dl>
       <p class="flash" data-shell-improved hidden>Yeni rekor!</p>

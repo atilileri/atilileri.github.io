@@ -57,7 +57,7 @@ const KEYS = [
 const CHOICES = PIANO_SONGS.map((s, i) => ({
   key: String(i + 1),
   id: s.id,
-  level: s.level,
+  difficulty: s.difficulty,
   name: s.name,
   by: s.by,
   cap: Math.round(s.cap * 100),
@@ -77,7 +77,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
         CHOICES.map((c) => (
           <button class="song" type="button" role="radio" tabindex="-1" data-song={c.id} aria-checked="false">
             <kbd>{c.key}</kbd>
-            <span class="level">{c.level}</span>
+            <span class="difficulty">{c.difficulty}</span>
             <span class="name">{c.name}</span>
             {c.by && <span class="by">{c.by}</span>}
             <span class="cap">Tavan %{c.cap}</span>
@@ -105,7 +105,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
           CHOICES.map((c) => (
             <button class="song" type="button" role="radio" tabindex="-1" data-song={c.id} aria-checked="false">
               <kbd>{c.key}</kbd>
-              <span class="level">{c.level}</span>
+              <span class="difficulty">{c.difficulty}</span>
               <span class="cap">Tavan %{c.cap}</span>
             </button>
           ))
@@ -526,7 +526,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     background: var(--bd-accent);
     color: #fff;
   }
-  .level {
+  .difficulty {
     font-family: var(--bd-display);
     font-weight: 800;
     font-size: 20px;

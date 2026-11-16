@@ -13,7 +13,7 @@
  * and what the ledger says her Best score is afterwards.
  *
  * What the spec pins (#194, stories 33–36): Enter starts a Round; a finished
- * Round shows score, Best score and the 95% target, and is recorded once;
+ * Round shows score, Best score and the 95% bar, and is recorded once;
  * Enter on the result is a new Round, Esc is the hub; Esc during a Round asks
  * first, and a Round she leaves scores nothing; the slot machine has no
  * result screen.
@@ -96,7 +96,7 @@ test("Enter on the start screen begins a Round; Esc there goes straight to the h
 
 // ------------------------------------------------------------ result screen
 
-test("a finished Round shows its score, the Best score and the 95% target, and the ledger has it", () => {
+test("a finished Round shows its score, the Best score and the 95% bar, and the ledger has it", () => {
   const g = openGame();
   g.shell.key("Enter");
   g.shell.finish(90, { detail: "16 hamle" });

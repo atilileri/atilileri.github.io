@@ -149,7 +149,7 @@ export type BuyOutcome =
   | { ok: false; reason: "held" | "balance" };
 
 export type ReturnOutcome =
-  | { ok: true; refund: number }
+  | { ok: true; returned: number }
   | { ok: false; reason: "not-held" };
 
 /** What a pasted Save code holds, or why it was refused (see `./savecode.ts`
@@ -238,7 +238,7 @@ export function createLedger(store: KeyValueStore): Ledger {
       const next = clone(p);
       next.log.push({ kind: "return", gift: id, paid });
       commit(next);
-      return { ok: true, refund: paid / 2 };
+      return { ok: true, returned: paid / 2 };
     },
 
     replace(next) {

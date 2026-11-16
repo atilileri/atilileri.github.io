@@ -18,7 +18,7 @@ import { chartSong } from "./piyano.ts";
 
 test("three songs, easy to hard: Kolay İyi ki doğdun, Orta Hadi Bakalım, Zor Türk Marşı", () => {
   assert.deepEqual(
-    PIANO_SONGS.map((s) => [s.level, s.name]),
+    PIANO_SONGS.map((s) => [s.difficulty, s.name]),
     [
       ["Kolay", "İyi ki doğdun"],
       ["Orta", "Hadi Bakalım"],
@@ -60,9 +60,9 @@ test("every song reaches both outer lanes, S and L", () => {
 });
 
 test("the start screen's 1, 2, 3 pick Kolay, Orta, Zor; other keys pick nothing", () => {
-  assert.equal(songByChoice("1")?.level, "Kolay");
-  assert.equal(songByChoice("2")?.level, "Orta");
-  assert.equal(songByChoice("3")?.level, "Zor");
+  assert.equal(songByChoice("1")?.difficulty, "Kolay");
+  assert.equal(songByChoice("2")?.difficulty, "Orta");
+  assert.equal(songByChoice("3")?.difficulty, "Zor");
   assert.equal(songByChoice("4"), undefined);
   assert.equal(songByChoice("Enter"), undefined);
 });
