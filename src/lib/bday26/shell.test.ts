@@ -259,6 +259,23 @@ test("between spins there is no Round to lose: Esc leaves at once; mid-spin it a
   assert.equal(ran.abandonRound, 1);
 });
 
+test("the slot machine opens ready: no start screen, and the first Space is the machine's (story 54)", () => {
+  let started = 0;
+  let screen: ShellScreen | undefined;
+  const shell = createGameShell({
+    game: "slot",
+    ledger: createLedger(memoryStore()),
+    hooks: { startRound: () => void (started += 1), roundInProgress: () => false },
+    resultScreen: false,
+    startScreen: false,
+    view: (s) => void (screen = s),
+    leave: () => {},
+  });
+  assert.equal(screen?.phase, "playing");
+  assert.equal(started, 1);
+  assert.equal(shell.key(" "), false, "Space reaches the machine on the first press");
+});
+
 // ------------------------------------------------------- a choice on a screen
 
 test("a Game may take a key on its start and result screens (the piano's 1 2 3); Enter and Esc stay the shell's", () => {

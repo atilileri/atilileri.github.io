@@ -40,11 +40,13 @@
  *      pass `resultScreen: false`. Then `finish(score, { jackpot })` records
  *      the Round, calls `startRound` again at once and returns the ledger's
  *      `RoundOutcome` (Best score, improved, prizeWonNow) so the machine can
- *      say "Jackpot!" itself. The start screen still shows once. Its
- *      "playing" phase is mostly a machine waiting for her, and one spin is
- *      one Round, so it also passes `roundInProgress: () => spinning`: Esc
- *      between spins leaves at once, as on the start screen, and asks only
- *      while the reels turn.
+ *      say "Jackpot!" itself. It also passes `startScreen: false` (here and
+ *      as the component's prop): the page opens on the machine, ready, the
+ *      first Round already begun, so Space or the lever spins on the first
+ *      press. Its "playing" phase is mostly a machine waiting for her, and
+ *      one spin is one Round, so it also passes `roundInProgress: () =>
+ *      spinning`: Esc between spins leaves at once, and asks only while the
+ *      reels turn. Every other Game keeps its start screen.
  *
  *   5. Extra result content. `detail` is one line under the score ("15
  *      hamle", "Senin rotan 9,2 km · en kısa 8,8 km"). A Game that wants
@@ -144,6 +146,9 @@ export type ShellOptions = {
   /** false: no result screen, the next Round starts right after `finish`
    *  (the slot machine). Default true. */
   resultScreen?: boolean;
+  /** false: no start screen, the first Round starts at once (the slot
+   *  machine, story 54). Default true. */
+  startScreen?: boolean;
 };
 
 export type GameShell = {
@@ -168,7 +173,7 @@ export type GameShell = {
 };
 
 export function createGameShell(options: ShellOptions): GameShell {
-  const { game, ledger, hooks, view, leave, resultScreen = true } = options;
+  const { game, ledger, hooks, view, leave, resultScreen = true, startScreen = true } = options;
   let phase: ShellPhase = "start";
 
   function show(result?: RoundResult) {
@@ -240,7 +245,8 @@ export function createGameShell(options: ShellOptions): GameShell {
     },
   };
 
-  show();
+  if (startScreen) show();
+  else shell.start();
   return shell;
 }
 
@@ -252,6 +258,9 @@ export type MountOptions = {
   hooks: GameHooks;
   /** See `ShellOptions.resultScreen`. */
   resultScreen?: boolean;
+  /** See `ShellOptions.startScreen`. Pass the same to `GameShell.astro`'s
+   *  `startScreen` prop, so the static page shows no start card either. */
+  startScreen?: boolean;
   /** Where `GameShell.astro` rendered. Default: the document. */
   root?: ParentNode;
   /** Default: navigate to the hub. */
@@ -314,6 +323,7 @@ export function mountGameShell(options: MountOptions): GameShell {
     ledger: options.ledger,
     hooks: options.hooks,
     resultScreen: options.resultScreen,
+    startScreen: options.startScreen,
     view: paint,
     leave: options.leave ?? (() => window.location.assign(HUB_URL)),
   });

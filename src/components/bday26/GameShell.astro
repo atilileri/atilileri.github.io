@@ -27,7 +27,9 @@
  *   An optional `<slot name="start">` sits on the start card above the
  *   buttons, for a choice made before the Round (the piano's song, #205).
  *   The start screen is visible in the static HTML, so the page never flashes
- *   an empty playfield before the script runs.
+ *   an empty playfield before the script runs. `startScreen={false}` (the
+ *   slot machine, story 54) renders it hidden and the page opens on the
+ *   playfield; the page passes the same option to `mountGameShell`.
  *   `resultAside` docks the result card at the right edge with no veil, so
  *   the playfield stays in plain sight beside it (the hiking map's reveal,
  *   #202: her route and the shortest drawn on the map while the card shows).
@@ -58,9 +60,12 @@ interface Props {
   keys: { key: string; does: string }[];
   /** Dock the result card at the right, no veil: the playfield stays visible. */
   resultAside?: boolean;
+  /** false: the page opens on the playfield, no start card (the slot
+   *  machine, story 54). Pass the same `startScreen` to `mountGameShell`. */
+  startScreen?: boolean;
 }
 
-const { game: id, keys, resultAside = false } = Astro.props;
+const { game: id, keys, resultAside = false, startScreen = true } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
 const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
@@ -68,7 +73,7 @@ const hasResultSlot = Astro.slots.has("result");
 const hasStartSlot = Astro.slots.has("start");
 ---
 
-<main class="shell" data-shell data-shell-phase="start">
+<main class="shell" data-shell data-shell-phase={startScreen ? "start" : "playing"}>
   <header class="hud">
     <div class="hud-game">
       <span class="hud-icon" aria-hidden="true">{GAME_ICON[id]}</span>
@@ -98,6 +103,7 @@ const hasStartSlot = Astro.slots.has("start");
     tabindex="-1"
     role="dialog"
     aria-labelledby="shell-start-title"
+    hidden={!startScreen}
   >
     <div class="card">
       <span class="big-icon" aria-hidden="true">{GAME_ICON[id]}</span>

@@ -14,7 +14,9 @@
  * Small prize line: locked until a jackpot, "Kazandın!" after.
  *
  * ONE SPIN IS ONE ROUND (glossary). The shell is mounted with
- * `resultScreen: false` (story 54): `shell.finish` records the spin and
+ * `startScreen: false` and `resultScreen: false` (story 54): the page opens
+ * on the machine, ready, so the first Space or lever click spins; no start
+ * card to pass first. `shell.finish` records the spin and
  * hands the machine straight back, so the score lives on the machine. A
  * jackpot calls `finish(100, { jackpot: true })`, which sets the ledger's
  * jackpot flag — the slot's Small prize — and nothing else. Between spins
@@ -53,7 +55,7 @@ const LIGHTS = Array.from({ length: 15 });
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="slot" keys={KEYS}>
+  <GameShell game="slot" keys={KEYS} startScreen={false}>
     <span slot="hud">Tur <b data-spins>0</b></span>
     <div class="machine" data-machine data-state="ready">
       <div class="cabinet">
@@ -249,6 +251,7 @@ const LIGHTS = Array.from({ length: 15 });
     game: "slot",
     ledger,
     resultScreen: false,
+    startScreen: false,
     hooks: {
       // The machine is always ready: a Round begins with the pull, not here,
       // and after a spin the display keeps what came up.

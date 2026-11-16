@@ -442,27 +442,23 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/slot/");
 
-  // The start screen of the luck Game: its rule, Space to spin, and the Small
-  // prize line as the hub's tile has it — the jackpot, not a 95%.
-  const start = page.getByRole("dialog", { name: "Slot makinesi" });
-  await expect(start).toBeVisible();
-  await expect(start).toContainText("Çevir, şansını dene");
-  await expect(start).toContainText("Boşluk");
-  await expect(start).toContainText("Kazımalı dünya haritası");
-  await expect(start).toContainText("Jackpot'ta senin");
-  await expect(start).not.toContainText("%95 yapınca senin");
+  // No start screen (story 54): the machine is ready, Space to spin, and the
+  // Small prize line as the hub's tile has it — the jackpot, not a 95%.
+  await expect(page.getByRole("dialog", { name: "Slot makinesi" })).toBeHidden();
+  const display = page.getByRole("status");
+  await expect(display).toContainText("Boşluk");
+  const machine = page.locator("[data-machine]");
+  await expect(machine).toContainText("Kazımalı dünya haritası");
+  await expect(machine).toContainText("Jackpot'ta senin");
+  await expect(machine).not.toContainText("%95 yapınca senin");
   const overflow = await page.evaluate(() => ({
     down: document.documentElement.scrollHeight - window.innerHeight,
     across: document.documentElement.scrollWidth - window.innerWidth,
   }));
   expect(overflow).toEqual({ down: 0, across: 0 });
 
-  // Enter: the machine waits for her. Space: the reels turn and stop, and
-  // the score shows on the machine itself; no "Tur bitti" card.
-  await page.keyboard.press("Enter");
-  await expect(start).toBeHidden();
-  const display = page.getByRole("status");
-  await expect(display).toContainText("Boşluk");
+  // The first Space: the reels turn and stop, and the score shows on the
+  // machine itself; no "Tur bitti" card.
   await page.keyboard.press(" ");
   await expect(display).toContainText(/%(0|50|100)/, { timeout: 5000 });
   await expect(page.getByRole("dialog", { name: "Tur bitti" })).toBeHidden();
