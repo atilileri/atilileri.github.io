@@ -36,7 +36,9 @@
  *     reveal are repainted from the route array on every change. The script
  *     owns no rule: every click and key goes through `stepRoute`,
  *     `undoRoute` or `choices`, and the score is the pure function's.
- * The next map is never the one just played (`pickMap`).
+ * The next map is never the one just played (`pickMap`), across "Salona
+ * dön" and reloads too: the last map is kept in `sessionStorage` (key
+ * `bday26:yuruyus:last`), as Wordle keeps its last answer.
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
@@ -260,7 +262,28 @@ const KM_UNITS = 200;
 
   // ------------------------------------------------------------ the Round
 
-  let mapIndex: number | undefined;
+  /** The last map, kept for the tab so leaving or a reload does not bring
+   *  it straight back. Not progress: a browser that refuses storage only
+   *  forgets it. */
+  const LAST_KEY = "bday26:yuruyus:last";
+  function lastMap(): number | undefined {
+    try {
+      const raw = sessionStorage.getItem(LAST_KEY);
+      const n = Number(raw);
+      return raw != null && Number.isInteger(n) && n >= 0 && n < MAPS.length ? n : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  function rememberMap(i: number) {
+    try {
+      sessionStorage.setItem(LAST_KEY, String(i));
+    } catch {
+      // Storage refused: `mapIndex` still covers "Yeni tur".
+    }
+  }
+
+  let mapIndex: number | undefined = lastMap();
   let map: HikingMap = MAPS[0]!;
   let best = shortestRoute(map);
   let route: number[] = startRoute(map);
@@ -311,6 +334,7 @@ const KM_UNITS = 200;
 
   function startRound() {
     mapIndex = pickMap(mapIndex, Math.random);
+    rememberMap(mapIndex);
     map = MAPS[mapIndex]!;
     best = shortestRoute(map);
     route = startRoute(map);

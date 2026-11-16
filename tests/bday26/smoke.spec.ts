@@ -578,6 +578,10 @@ test("Kelime avı: a short row is refused, the answer from its İpucu wins %100,
 
 test("Yürüyüş haritası: walked by number keys along the shortest route, it scores %100 and the hub tile shows it (#202)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
+  // The same throw on every page load, so a repeat map would show every time.
+  await page.addInitScript(() => {
+    Math.random = () => 0;
+  });
   await page.goto("/20261209/yuruyus/");
   const start = page.getByRole("dialog", { name: "Yürüyüş haritası" });
   await expect(start).toContainText("Piknik günü");
@@ -611,6 +615,12 @@ test("Yürüyüş haritası: walked by number keys along the shortest route, it 
   await page.keyboard.press("Escape");
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Yürüyüş haritası")).toContainText("%100");
+
+  // Back on the hiking page, a fresh page load: not the map she just walked,
+  // even with the dice pinned to the same throw.
+  await page.goto("/20261209/yuruyus/");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("[data-hud-map]")).not.toHaveText(name);
 });
 
 test("Kadraj: five crops by keys, a reveal after each, the five on the result card and its score on the hub tile (#203)", async ({ page }) => {
