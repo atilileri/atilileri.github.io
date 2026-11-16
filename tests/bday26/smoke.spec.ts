@@ -633,3 +633,23 @@ test("Kadraj: five crops by keys, a reveal after each, the five on the result ca
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Kadraj")).toContainText(score);
 });
+
+test("Hollanda'da sürüş: full gas down the first street, the HUD names the speeding as it happens and the score drops to %97 (#206)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/surus/");
+  const start = page.getByRole("dialog", { name: "Hollanda'da sürüş" });
+  await expect(start).toContainText("Çift bisiklet çantası");
+  await expect(start).toContainText("Ağır hata −%10");
+  await expect(start).toContainText("Kanala düşme");
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+
+  // Enter, the 3 s countdown, then the gas held down: 30 + 3 km/h for 1.5 s is a light mistake.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("1 / 7")).toBeVisible();
+  await page.keyboard.down("ArrowUp");
+  await expect(page.getByText("Hız sınırını aştın")).toBeVisible({ timeout: 12_000 });
+  await page.keyboard.up("ArrowUp");
+  await expect(page.locator("[data-hud-score]")).toHaveText("%97");
+  await expect(page.getByText("1 hafif")).toBeVisible();
+});

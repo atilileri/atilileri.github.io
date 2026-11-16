@@ -1,0 +1,911 @@
+---
+/**
+ * /20261209/surus/ — "Hollanda'da sürüş", driving in the Netherlands (#206;
+ * spec #192 "Driving", stories 56–59; prototype verdict #181, which Atıl
+ * played: "defaults as built, 150 s soft limit, 6 m yield").
+ *
+ * WHAT SHE SEES. A Dutch town from above, north always up: canals, a gracht,
+ * parks, red bike lanes, a roundabout with its cycle ring, and ~20 cyclists
+ * riding their lanes. She drives a small car from the start in the south-west
+ * along a dashed route through seven checkpoints — the canal crossing, the
+ * roundabout's third exit, the canal street with no railing, the bike-path
+ * crossing, the bridge, the straight, the chequered finish. The next
+ * checkpoint pulses on the road; when it is off screen an arrow at the edge
+ * points to it, and the minimap shows it as a dot. After "3 2 1" the clock
+ * runs; the HUD bar shows Süre (turning amber past 2:30), the running Skor
+ * and her heavy and light mistakes, and Hedef n/7; a pill on the town shows
+ * her speed beside a 30 sign (red when she is over it). Each mistake pops up
+ * at the top of the town as it happens, in Turkish, with its price ("−%10
+ * Kanala düştün"). At the finish, the shell's result card: the score
+ * (`drivingScore`, 100 − 10 × heavy − 3 × light), the time as the detail,
+ * and her mistakes listed with their times — or "Hatasız sürüş!".
+ *
+ * KEYS (keyboard only, as in the prototype): ↑/W gas, ↓/S brake (reverse
+ * once stopped), ←→/A D steer, Space handbrake. Enter starts and Esc asks to
+ * leave; both are the shell's. While the confirm card is open the simulation
+ * stands still (the shell's `pause`/`resume`), and when the window loses
+ * focus it freezes too and says so, as the prototype paused on blur. The
+ * prototype's own Esc pause, debug panel, end screen, Best and tries are
+ * gone: the shell and the ledger own those.
+ *
+ * HOW IT IS BUILT. `src/lib/bday26/surus.ts` owns every rule — the town, the
+ * route, the cyclists, the physics, the nine mistakes — with no DOM, and
+ * `scores.ts` owns the score. This page reads the keys into an `Input`,
+ * calls `stepDrive` once per animation frame (dt clamped to 33 ms, no fixed
+ * step, as in the prototype), and draws: the town once to an offscreen
+ * canvas, then each frame the camera (zoom 1.5, looking 0.6 s ahead, easing
+ * 8% a frame, clamped to the town's edge), the route line, the checkpoint,
+ * the cyclists and the car. The drawing is the prototype's, recoloured to
+ * the birthday look: the car, the route and the checkpoint in the site's
+ * rose accent instead of the prototype's orange.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { MISTAKES, RULES, formatClock } from "../../../lib/bday26/surus";
+
+const game = gameById("surus");
+
+const KEYS = [
+  { key: "↑ / W", does: "Gaz" },
+  { key: "↓ / S", does: "Fren, durunca geri" },
+  { key: "← → / A D", does: "Direksiyon" },
+  { key: "Boşluk", does: "El freni" },
+  { key: "Esc", does: "Turdan çık" },
+];
+
+const HEAVY = MISTAKES.filter((m) => m.kind === "heavy");
+const LIGHT = MISTAKES.filter((m) => m.kind === "light");
+const LIMIT = formatClock(RULES.timeLimit);
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="surus" keys={KEYS}>
+    <span slot="hud" class="hud-line"
+      >Süre <b data-hud-time>0:00</b><small> / {LIMIT}</small> · Skor <b data-hud-score>%100</b>
+      <small class="tally"><span class="h" data-hud-heavy>0 ağır</span> <span class="l" data-hud-light>0 hafif</span></small>
+      · Hedef <b data-hud-next>1 / 7</b></span
+    >
+
+    <div slot="start" class="rules">
+      <p class="intro">
+        Kasabadan geçip bitiş bayrağına ulaş. Bisikletlilere yol ver, döner kavşağı doğru yönde dön, kanala dikkat et.
+        Hız sınırı {RULES.limit} km/sa; süre {LIMIT}, sonrası her {RULES.timeRepeat} saniyede bir hafif hata.
+      </p>
+      <div class="lists">
+        <div class="list heavy">
+          <p class="lbl">Ağır hata −%10</p>
+          <ul>{HEAVY.map((m) => <li>{m.label}</li>)}</ul>
+        </div>
+        <div class="list light">
+          <p class="lbl">Hafif hata −%3</p>
+          <ul>{LIGHT.map((m) => <li>{m.label}</li>)}</ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" data-stage>
+      <canvas class="town" data-town aria-label="Hollanda kasabası, yukarıdan"></canvas>
+      <div class="pill speed" data-speed-pill>
+        <div><span class="lbl">Hız</span><span class="val"><b data-speed>0</b> <small>km/sa</small></span></div>
+        <span class="sign" aria-label={`Hız sınırı ${RULES.limit}`}>{RULES.limit}</span>
+      </div>
+      <div class="pill map"><canvas data-mini width="200" height="160" aria-hidden="true"></canvas></div>
+      <div class="toasts" data-toasts aria-live="polite"></div>
+      <p class="count" data-count hidden></p>
+      <p class="frozen" data-frozen hidden>Duraklatıldı · devam etmek için pencereye dön</p>
+    </div>
+
+    <div slot="result" class="mistakes">
+      <p class="verdict" data-verdict></p>
+      <ul data-mistakes></ul>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { drivingScore } from "../../../lib/bday26/scores";
+  import {
+    ARMS,
+    CAR_LENGTH as CL,
+    CAR_WIDTH as CW,
+    CELL as C,
+    CHECKPOINTS,
+    GRID,
+    GRID_H,
+    GRID_W,
+    MISTAKES,
+    ROADS,
+    ROUNDABOUT,
+    ROUTE,
+    RULES,
+    SINK_S,
+    carKmh,
+    createDrive,
+    formatClock,
+    gridTile as get,
+    stepCyclists,
+    stepDrive,
+    tally,
+    tileAt,
+    type Cyclist,
+    type Drive,
+    type Input,
+    type Mistake,
+  } from "../../../lib/bday26/surus";
+
+  const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
+  const stage = $<HTMLElement>("[data-stage]");
+  const cv = $<HTMLCanvasElement>("[data-town]");
+  const ctx = cv.getContext("2d")!;
+  const mini = $<HTMLCanvasElement>("[data-mini]").getContext("2d")!;
+  const toasts = $<HTMLElement>("[data-toasts]");
+  const countEl = $<HTMLElement>("[data-count]");
+  const frozenEl = $<HTMLElement>("[data-frozen]");
+  const hud = {
+    time: $<HTMLElement>("[data-hud-time]"),
+    score: $<HTMLElement>("[data-hud-score]"),
+    heavy: $<HTMLElement>("[data-hud-heavy]"),
+    light: $<HTMLElement>("[data-hud-light]"),
+    next: $<HTMLElement>("[data-hud-next]"),
+    speed: $<HTMLElement>("[data-speed]"),
+    speedPill: $<HTMLElement>("[data-speed-pill]"),
+  };
+  const verdictEl = $<HTMLElement>("[data-verdict]");
+  const mistakesEl = $<HTMLElement>("[data-mistakes]");
+
+  const LABEL = Object.fromEntries(MISTAKES.map((m) => [m.id, m]));
+  const PRICE = { heavy: 10, light: 3 } as const;
+  const { x: RX, y: RY, island: R1, ring: R2, cycleIn: R3, cycleOut: R4, zone: RZ } = ROUNDABOUT;
+
+  /** The prototype's view settings (#181): zoom, look-ahead s, camera easing. */
+  const ZOOM = 1.5;
+  const LOOK = 0.6;
+  const EASE = 0.08;
+  /** The countdown before the clock runs, s; the cyclists ride through it. */
+  const COUNTDOWN = 3;
+
+  function css(name: string, fallback: string) {
+    return getComputedStyle(stage).getPropertyValue(name).trim() || fallback;
+  }
+  const ACCENT = css("--bd-accent", "#e0446a");
+  const ACCENT_LIGHT = "#f58aa5";
+
+  // ── one Round ─────────────────────────────────────────────────────
+  let drive: Drive = createDrive();
+  /** idle: no Round; countdown: 3 2 1; driving: the clock runs. */
+  let phase: "idle" | "countdown" | "driving" = "idle";
+  let countdown = 0;
+  let paused = false; // the shell's confirm card
+  let frozen = false; // the window lost focus
+  let frame = 0;
+  let last = 0;
+  const cam = { x: 0, y: 0 };
+  const keys = new Set<string>();
+
+  function startRound() {
+    stopLoop();
+    drive = createDrive();
+    cam.x = drive.car.x;
+    cam.y = drive.car.y;
+    keys.clear();
+    toasts.replaceChildren();
+    phase = "countdown";
+    countdown = COUNTDOWN;
+    paused = false;
+    countEl.hidden = false;
+    countEl.textContent = String(COUNTDOWN);
+    paintHud();
+    startLoop();
+  }
+
+  function input(): Input {
+    return {
+      gas: keys.has("ArrowUp") || keys.has("KeyW"),
+      brake: keys.has("ArrowDown") || keys.has("KeyS"),
+      left: keys.has("ArrowLeft") || keys.has("KeyA"),
+      right: keys.has("ArrowRight") || keys.has("KeyD"),
+      handbrake: keys.has("Space"),
+    };
+  }
+
+  function tick(now: number) {
+    const dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+    if (phase === "countdown") {
+      countdown -= dt;
+      stepCyclists(drive.cyclists, drive.car, dt);
+      if (countdown <= 0) {
+        phase = "driving";
+        countEl.hidden = true;
+      } else countEl.textContent = String(Math.ceil(countdown));
+    } else if (phase === "driving") {
+      for (const m of stepDrive(drive, input(), dt)) toast(m);
+    }
+    render(now);
+    paintHud();
+    if (drive.done) {
+      finishRound();
+      return;
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
+  function startLoop() {
+    cancelAnimationFrame(frame);
+    if (phase === "idle" || paused || frozen) return;
+    last = performance.now();
+    frame = requestAnimationFrame(tick);
+  }
+  function stopLoop() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+  }
+
+  function finishRound() {
+    stopLoop();
+    phase = "idle";
+    const { heavy, light } = tally(drive.mistakes);
+    const score = drivingScore(heavy, light);
+    verdictEl.textContent = score >= 95 ? "" : "%95 için: hiç ağır hata yok, en fazla bir hafif hata.";
+    verdictEl.hidden = score >= 95;
+    mistakesEl.replaceChildren(
+      ...(drive.mistakes.length
+        ? drive.mistakes.map((m) => row(formatClock(m.at), LABEL[m.id]!.label + (m.detail ? ` · ${m.detail}` : ""), `−%${PRICE[m.kind]}`, m.kind))
+        : [row("", "Hatasız sürüş!", "", "clean")]),
+    );
+    shell.finish(score, { detail: `Süre ${formatClock(drive.t)} · ${heavy} ağır · ${light} hafif hata` });
+  }
+
+  function row(t: string, label: string, price: string, kind: string) {
+    const li = document.createElement("li");
+    li.className = kind;
+    for (const [cls, text] of [["t", t], ["m", label], ["p", price]] as const) {
+      const span = document.createElement("span");
+      span.className = cls;
+      span.textContent = text;
+      li.append(span);
+    }
+    return li;
+  }
+
+  /** A mistake, the moment it happens: "−%10 Kanala düştün". Three at most. */
+  function toast(m: Mistake) {
+    const el = document.createElement("div");
+    el.className = `toast ${m.kind}`;
+    const price = document.createElement("b");
+    price.textContent = `−%${PRICE[m.kind]}`;
+    el.append(price, LABEL[m.id]!.toast);
+    toasts.prepend(el);
+    setTimeout(() => el.remove(), 2600);
+    while (toasts.children.length > 3) toasts.lastElementChild!.remove();
+  }
+
+  function paintHud() {
+    const { heavy, light } = tally(drive.mistakes);
+    const kmh = Math.round(carKmh(drive));
+    hud.time.textContent = formatClock(drive.t);
+    hud.time.classList.toggle("over", drive.t > RULES.timeLimit);
+    hud.score.textContent = `%${drivingScore(heavy, light)}`;
+    hud.heavy.textContent = `${heavy} ağır`;
+    hud.light.textContent = `${light} hafif`;
+    hud.next.textContent = `${Math.min(drive.next + 1, CHECKPOINTS.length)} / ${CHECKPOINTS.length}`;
+    hud.speed.textContent = String(kmh);
+    hud.speedPill.classList.toggle("fast", kmh > RULES.limit + RULES.tol);
+  }
+
+  // ── keys ──────────────────────────────────────────────────────────
+  // The shell takes Esc during a Round and every key on its own screens:
+  // what arrives here is a key while she drives.
+  const DRIVE_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD", "Space"]);
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || !DRIVE_KEYS.has(event.code)) return;
+    event.preventDefault();
+    if (phase !== "idle") keys.add(event.code);
+  });
+  window.addEventListener("keyup", (event) => keys.delete(event.code));
+  window.addEventListener("blur", () => {
+    keys.clear();
+    if (phase === "idle") return;
+    frozen = true;
+    frozenEl.hidden = paused;
+    stopLoop();
+  });
+  window.addEventListener("focus", () => {
+    if (!frozen) return;
+    frozen = false;
+    frozenEl.hidden = true;
+    startLoop();
+  });
+
+  // ── the town, drawn once ──────────────────────────────────────────
+  const world = document.createElement("canvas");
+  world.width = GRID_W * C;
+  world.height = GRID_H * C;
+  drawWorld(world.getContext("2d")!);
+  const miniBase = document.createElement("canvas");
+  miniBase.width = 200;
+  miniBase.height = 160;
+  miniBase.getContext("2d")!.drawImage(world, 0, 0, 200, 160);
+
+  /** The prototype's world painter, as is. */
+  function drawWorld(g: CanvasRenderingContext2D) {
+    const COL: Record<string, string> = { ".": "#d8d3c6", g: "#9cc47a", t: "#9cc47a", r: "#5d6168", "=": "#6e7178", b: "#b45a4c", B: "#b45a4c", z: "#b45a4c", w: "#4e88b4", R: "#4e88b4" };
+    const ROOF = ["#a8553f", "#8c4a3a", "#b8684c", "#6f6a66", "#94563f", "#7b4636"];
+    for (let y = 0; y < GRID_H; y++)
+      for (let x = 0; x < GRID_W; x++) {
+        const c = GRID[y]![x]!;
+        const X = x * C;
+        const Y = y * C;
+        if (c === "#") {
+          const seg = Math.floor(x / 3) * 31 + Math.floor(y / 2) * 17;
+          g.fillStyle = ROOF[seg % ROOF.length]!;
+          g.fillRect(X, Y, C, C);
+          g.fillStyle = "rgba(0,0,0,.12)";
+          if (x % 3 === 0) g.fillRect(X, Y, 1, C);
+          if (y % 2 === 0) g.fillRect(X, Y + C / 2 - 1, C, 2);
+          continue;
+        }
+        g.fillStyle = COL[c] ?? "#ccc";
+        g.fillRect(X, Y, C, C);
+        if (c === "w" && (x * 7 + y * 3) % 5 === 0) {
+          g.fillStyle = "rgba(255,255,255,.18)";
+          g.fillRect(X + 4, Y + 9, 9, 2);
+        }
+        if (c === "t") {
+          g.fillStyle = "#4f8a3d";
+          g.beginPath();
+          g.arc(X + C / 2, Y + C / 2, 9, 0, 7);
+          g.fill();
+          g.fillStyle = "#69a552";
+          g.beginPath();
+          g.arc(X + C / 2 - 2, Y + C / 2 - 2, 4, 0, 7);
+          g.fill();
+        }
+        if (c === "z") {
+          g.fillStyle = "#fff";
+          for (const [i, j] of [[2, 2], [14, 2], [2, 14], [14, 14]] as const) g.fillRect(X + i, Y + j, 4, 4);
+        }
+        if (c === "R") {
+          g.fillStyle = "#e9e5dc";
+          g.fillRect(X + 7, Y, 6, C);
+        }
+        if (c === "=") {
+          g.fillStyle = "rgba(255,255,255,.06)";
+          g.fillRect(X, Y, C, C);
+        }
+      }
+    // Quay edges.
+    const QUAY = ["w", "R", "=", "B"];
+    g.fillStyle = "#e9e3d4";
+    for (let y = 0; y < GRID_H; y++)
+      for (let x = 0; x < GRID_W; x++)
+        if (GRID[y]![x] === "w") {
+          if (!QUAY.includes(get(x, y - 1))) g.fillRect(x * C, y * C, C, 2);
+          if (!QUAY.includes(get(x, y + 1))) g.fillRect(x * C, y * C + C - 2, C, 2);
+        }
+    // Centre dashes.
+    g.fillStyle = "#f2f2ee";
+    const paved = (t: string) => "rz=".includes(t);
+    for (const r of ROADS)
+      for (let k = r.a; k <= r.b; k++) {
+        if (r.t === "h") {
+          const ok = !paved(get(k, r.at - 1)) && !paved(get(k, r.at + 2));
+          if (ok && Math.hypot(k * C + 10 - RX, (r.at + 1) * C - RY) > RZ) g.fillRect(k * C + 4, (r.at + 1) * C - 1, 11, 2);
+        } else {
+          const ok = !paved(get(r.at - 1, k)) && !paved(get(r.at + 2, k));
+          if (ok && Math.hypot((r.at + 1) * C - RX, k * C + 10 - RY) > RZ) g.fillRect((r.at + 1) * C - 1, k * C + 4, 2, 11);
+        }
+      }
+    // The roundabout, painted from tileAt itself so what she sees is what collides.
+    const RCOL: Record<string, string> = { I: "#8fbf6a", r: "#5d6168", z: "#b45a4c", p: "#b45a4c", b: "#b45a4c", g: "#9cc47a" };
+    for (let y = RY - RZ; y < RY + RZ; y += 2)
+      for (let x = RX - RZ; x < RX + RZ; x += 2) {
+        if (Math.hypot(x + 1 - RX, y + 1 - RY) >= RZ) continue;
+        g.fillStyle = RCOL[tileAt(x + 1, y + 1)] ?? "#9cc47a";
+        g.fillRect(x, y, 2, 2);
+      }
+    for (const [ux, uy] of ARMS) {
+      // Cycle crossings and shark teeth on each entry.
+      g.save();
+      g.translate(RX, RY);
+      g.rotate(Math.atan2(uy, ux));
+      g.fillStyle = "#fff";
+      for (let o = -C; o < C; o += 8) {
+        g.fillRect(R3, o + 1, 3, 4);
+        g.fillRect(R4 - 3, o + 1, 3, 4);
+      }
+      for (let o = -C + 1; o < 0; o += 7) {
+        g.beginPath();
+        g.moveTo(R2 + 4, o);
+        g.lineTo(R2 + 4, o + 5);
+        g.lineTo(R2 + 10, o + 2.5);
+        g.fill();
+      }
+      g.restore();
+    }
+    g.strokeStyle = "#e4ddc9";
+    g.lineWidth = 3;
+    g.beginPath();
+    g.arc(RX, RY, R1 - 1.5, 0, 7);
+    g.stroke();
+    g.fillStyle = "#e9a23b";
+    for (let i = 0; i < 6; i++) {
+      g.beginPath();
+      g.arc(RX + Math.cos(i) * 18, RY + Math.sin(i) * 18, 4, 0, 7);
+      g.fill();
+    }
+    // The finish box.
+    const f = CHECKPOINTS[CHECKPOINTS.length - 1]!;
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 2; j++) {
+        g.fillStyle = (i + j) % 2 ? "#111" : "#fff";
+        g.fillRect(f.x - C + i * 10, f.y - 5 + j * 5, 10, 5);
+      }
+  }
+
+  // ── each frame ────────────────────────────────────────────────────
+  let W = 0;
+  let Hh = 0;
+  let dpr = 1;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    const r = cv.getBoundingClientRect();
+    W = r.width;
+    Hh = r.height;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(Hh * dpr);
+    render(performance.now());
+  }
+
+  function render(now: number) {
+    const car = drive.car;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#cfd8c4";
+    ctx.fillRect(0, 0, W, Hh);
+    const tx = car.x + Math.cos(car.a) * car.v * LOOK;
+    const ty = car.y + Math.sin(car.a) * car.v * LOOK;
+    cam.x += (tx - cam.x) * EASE;
+    cam.y += (ty - cam.y) * EASE;
+    ctx.save();
+    const hw = W / 2 / ZOOM;
+    const hh = Hh / 2 / ZOOM;
+    const cx = hw * 2 < world.width ? Math.max(hw, Math.min(world.width - hw, cam.x)) : world.width / 2;
+    const cy = hh * 2 < world.height ? Math.max(hh, Math.min(world.height - hh, cam.y)) : world.height / 2;
+    ctx.translate(W / 2, Hh / 2);
+    ctx.scale(ZOOM, ZOOM);
+    ctx.translate(-cx, -cy);
+    ctx.drawImage(world, 0, 0);
+    // The route, dashed.
+    ctx.strokeStyle = "rgb(224 68 106 / 0.5)";
+    ctx.lineWidth = 4;
+    ctx.setLineDash([10, 12]);
+    ctx.beginPath();
+    ROUTE.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // The next checkpoint, pulsing.
+    const cp = CHECKPOINTS[drive.next];
+    if (cp) {
+      const pulse = 1 + 0.08 * Math.sin(now / 180);
+      ctx.strokeStyle = cp.finish ? "#111" : ACCENT;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cp.x, cp.y, 30 * pulse, 0, 7);
+      ctx.stroke();
+      ctx.fillStyle = cp.finish ? "rgba(0,0,0,.12)" : "rgb(224 68 106 / 0.18)";
+      ctx.fill();
+    }
+    for (const c of drive.cyclists) drawCyclist(c);
+    drawCar();
+    const M = ctx.getTransform();
+    ctx.restore();
+    // An arrow at the edge when the checkpoint is off screen.
+    if (cp && phase === "driving") {
+      const p = M.transformPoint(new DOMPoint(cp.x, cp.y));
+      const sx = p.x / dpr;
+      const sy = p.y / dpr;
+      const m = 70;
+      if (sx < m || sy < m || sx > W - m || sy > Hh - m) {
+        const ang = Math.atan2(sy - Hh / 2, sx - W / 2);
+        const ex = Math.max(m, Math.min(W - m, W / 2 + Math.cos(ang) * W));
+        const ey = Math.max(m + 40, Math.min(Hh - m, Hh / 2 + Math.sin(ang) * Hh));
+        ctx.save();
+        ctx.translate(ex, ey);
+        ctx.rotate(ang);
+        ctx.fillStyle = ACCENT;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(16, 0);
+        ctx.lineTo(-10, -11);
+        ctx.lineTo(-4, 0);
+        ctx.lineTo(-10, 11);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+    // The minimap.
+    mini.drawImage(miniBase, 0, 0);
+    const sc = 200 / world.width;
+    if (cp) {
+      mini.fillStyle = cp.finish ? "#111" : ACCENT;
+      mini.beginPath();
+      mini.arc(cp.x * sc, cp.y * sc, 4, 0, 7);
+      mini.fill();
+    }
+    mini.fillStyle = "#fff";
+    mini.strokeStyle = "#111";
+    mini.lineWidth = 1.5;
+    mini.beginPath();
+    mini.arc(car.x * sc, car.y * sc, 3.5, 0, 7);
+    mini.fill();
+    mini.stroke();
+  }
+
+  function drawCyclist(c: Cyclist) {
+    ctx.save();
+    ctx.globalAlpha = c.alpha;
+    ctx.translate(c.x, c.y);
+    ctx.rotate(Math.atan2(c.dy, c.dx) + (c.fallen > 0 ? 1.3 : 0));
+    ctx.fillStyle = "#222";
+    ctx.fillRect(-6, -1, 12, 2); // bike
+    ctx.fillStyle = c.jacket;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 3.2, 4, 0, 0, 7);
+    ctx.fill(); // rider
+    ctx.fillStyle = "#e8c39e";
+    ctx.beginPath();
+    ctx.arc(0.8, 0, 2, 0, 7);
+    ctx.fill();
+    if (c.fallen > 0) {
+      ctx.strokeStyle = "#d6453d";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, 7);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function rr(x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+  }
+
+  function drawCar() {
+    const car = drive.car;
+    ctx.save();
+    ctx.translate(car.x, car.y);
+    ctx.rotate(car.a);
+    if (drive.sinking > 0) {
+      const k = Math.max(0.2, drive.sinking / SINK_S);
+      ctx.scale(k, k);
+      ctx.globalAlpha = k;
+    }
+    ctx.fillStyle = "rgba(0,0,0,.25)";
+    rr(-CL / 2 + 1.5, -CW / 2 + 1.5, CL, CW, 4);
+    ctx.fill();
+    ctx.fillStyle = ACCENT;
+    rr(-CL / 2, -CW / 2, CL, CW, 4);
+    ctx.fill();
+    ctx.fillStyle = "#2b3440";
+    rr(2, -CW / 2 + 2, 6, CW - 4, 2);
+    ctx.fill(); // windscreen
+    ctx.fillStyle = ACCENT_LIGHT;
+    rr(-8, -CW / 2 + 2.5, 9, CW - 5, 2);
+    ctx.fill(); // roof
+    ctx.fillStyle = "#2b3440";
+    rr(-12, -CW / 2 + 2.5, 3, CW - 5, 1);
+    ctx.fill(); // rear window
+    ctx.fillStyle = "#fff6c9";
+    ctx.fillRect(CL / 2 - 2, -CW / 2 + 1, 2, 3);
+    ctx.fillRect(CL / 2 - 2, CW / 2 - 4, 2, 3);
+    const i = input();
+    if (i.brake || i.handbrake) {
+      ctx.fillStyle = "#ff3b30";
+      ctx.fillRect(-CL / 2, -CW / 2 + 1, 2, 3);
+      ctx.fillRect(-CL / 2, CW / 2 - 4, 2, 3);
+    }
+    ctx.restore();
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  // ── the shell ─────────────────────────────────────────────────────
+  const shell = mountGameShell({
+    game: "surus",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => {
+        stopLoop();
+        phase = "idle";
+        keys.clear();
+      },
+      // The confirm card: the town stands still until she answers.
+      pause: () => {
+        paused = true;
+        keys.clear();
+        frozenEl.hidden = true;
+        stopLoop();
+      },
+      resume: () => {
+        paused = false;
+        startLoop();
+      },
+    },
+  });
+</script>
+
+<style>
+  /* ── HUD line (in the shell's bar) ──────────────────────────────── */
+  .hud-line {
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-line small {
+    font-size: 15px;
+    color: var(--bd-muted);
+  }
+  .hud-line b.over {
+    color: #c77700;
+  }
+  .tally .h {
+    color: #c0392b;
+  }
+  .tally .l {
+    color: #c77700;
+  }
+
+  /* ── start card: the two mistake lists ──────────────────────────── */
+  .rules {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .intro {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--bd-ink-soft);
+  }
+  .lists {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .list {
+    padding: 10px 14px;
+    border-radius: var(--bd-radius-sm);
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+  }
+  .list .lbl {
+    margin: 0 0 4px;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 17px;
+  }
+  .list.heavy .lbl {
+    color: #c0392b;
+  }
+  .list.light .lbl {
+    color: #c77700;
+  }
+  .list ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--bd-ink);
+  }
+
+  /* ── the town ───────────────────────────────────────────────────── */
+  .stage {
+    /* 104 px is the HUD (64) and the playfield's padding (20 + 20). */
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 104px);
+    border-radius: var(--bd-radius);
+    overflow: hidden;
+    box-shadow: 0 0 0 2px var(--bd-line);
+  }
+  .town {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .pill {
+    position: absolute;
+    background: var(--bd-paper);
+    border-radius: var(--bd-radius);
+    box-shadow: 0 6px 20px rgb(58 45 42 / 0.18);
+    padding: 10px 14px;
+  }
+  .pill .lbl {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bd-muted-2);
+  }
+  .speed {
+    right: 16px;
+    top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .speed .val {
+    font-family: var(--bd-display);
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--bd-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .speed .val small {
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .speed.fast .val {
+    color: #c0392b;
+  }
+  .sign {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: 5px solid #d6453d;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 16px;
+    color: #111;
+  }
+  .map {
+    left: 16px;
+    bottom: 16px;
+    padding: 6px;
+  }
+  .map canvas {
+    display: block;
+    border-radius: 8px;
+  }
+  .toasts {
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .toasts :global(.toast) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px 8px 8px;
+    border-radius: 999px;
+    background: var(--bd-paper);
+    box-shadow: 0 6px 20px rgb(58 45 42 / 0.2);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--bd-ink);
+    animation:
+      toast-in 0.25s ease-out,
+      toast-out 0.4s ease-in 2.1s forwards;
+  }
+  .toasts :global(.toast b) {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 15px;
+    color: #fff;
+    background: #c0392b;
+  }
+  .toasts :global(.toast.light b) {
+    background: #d98a00;
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+    }
+  }
+  @keyframes toast-out {
+    to {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+  .count {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--bd-display);
+    font-size: 140px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 4px 24px rgb(0 0 0 / 0.35);
+    pointer-events: none;
+  }
+  .count[hidden],
+  .frozen[hidden] {
+    display: none;
+  }
+  .frozen {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 14px 24px;
+    border-radius: var(--bd-radius);
+    background: var(--bd-paper);
+    box-shadow: 0 6px 20px rgb(58 45 42 / 0.2);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--bd-ink);
+  }
+
+  /* ── result card: her mistakes ──────────────────────────────────── */
+  .mistakes {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+  }
+  .verdict {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .verdict[hidden] {
+    display: none;
+  }
+  .mistakes ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 260px;
+    overflow: auto;
+    text-align: left;
+  }
+  .mistakes :global(li) {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 10px;
+    padding: 5px 2px;
+    border-bottom: 1px dashed var(--bd-line-dash);
+    font-size: 14px;
+    color: var(--bd-ink);
+  }
+  .mistakes :global(li .t) {
+    color: var(--bd-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .mistakes :global(li .p) {
+    font-weight: 800;
+  }
+  .mistakes :global(li.heavy .p) {
+    color: #c0392b;
+  }
+  .mistakes :global(li.light .p) {
+    color: #d98a00;
+  }
+  .mistakes :global(li.clean) {
+    color: var(--bd-won-ink);
+    font-weight: 800;
+  }
+</style>
