@@ -190,13 +190,8 @@ const LETTERS = ["A", "B", "C", "D"];
 </script>
 
 <style>
-  /* The two answer colours. Green is the site's "won" token; red has no
-     token yet because nothing on the hub is ever wrong. */
+  /* The answer colours are the shared choice-quiz marks in bday26.css. */
   .stage {
-    --right: var(--bd-won);
-    --right-bg: var(--bd-won-bg-2);
-    --right-ink: var(--bd-won-deep);
-
     /* The height is spelled in viewport units, like the memory board's,
        because the shell's playfield is a grid whose one row is `auto`: a
        percentage height here would be read against the content and the
@@ -302,28 +297,6 @@ const LETTERS = ["A", "B", "C", "D"];
   .stage.answered .choice.right,
   .stage.answered .choice.wrong {
     opacity: 1;
-  }
-  .choice.right {
-    background: var(--right-bg);
-    box-shadow: 0 0 0 3px var(--right);
-  }
-  .choice.right kbd {
-    background: var(--right);
-    color: #fff;
-  }
-  .choice.right .place {
-    color: var(--right-ink);
-  }
-  .choice.wrong {
-    background: var(--bd-wrong-bg);
-    box-shadow: 0 0 0 3px var(--bd-wrong);
-  }
-  .choice.wrong kbd {
-    background: var(--bd-wrong);
-    color: #fff;
-  }
-  .choice.wrong .place {
-    color: var(--bd-wrong-ink);
   }
 
   /* The skip hint keeps its line, so nothing jumps when it appears. */

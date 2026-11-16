@@ -231,12 +231,8 @@ const LETTERS = ["A", "B", "C", "D"];
 </script>
 
 <style>
-  /* The two answer colours, as on "Bu nerede?". */
+  /* The answer colours are the shared choice-quiz marks in bday26.css. */
   .stage {
-    --right: var(--bd-won);
-    --right-bg: var(--bd-won-bg-2);
-    --right-ink: var(--bd-won-deep);
-
     /* Viewport units, as on "Bu nerede?": 104 px is the HUD (64) and the
        playfield's padding (20 + 20). */
     width: 100%;
@@ -415,28 +411,6 @@ const LETTERS = ["A", "B", "C", "D"];
   .stage.answered .choice.right,
   .stage.answered .choice.wrong {
     opacity: 1;
-  }
-  .choice.right {
-    background: var(--right-bg);
-    box-shadow: 0 0 0 3px var(--right);
-  }
-  .choice.right kbd {
-    background: var(--right);
-    color: #fff;
-  }
-  .choice.right .title {
-    color: var(--right-ink);
-  }
-  .choice.wrong {
-    background: var(--bd-wrong-bg);
-    box-shadow: 0 0 0 3px var(--bd-wrong);
-  }
-  .choice.wrong kbd {
-    background: var(--bd-wrong);
-    color: #fff;
-  }
-  .choice.wrong .title {
-    color: var(--bd-wrong-ink);
   }
 
   .hint {

@@ -210,3 +210,34 @@ button {
   box-shadow: none;
   transform: none;
 }
+
+/* ──────────────────────────────────────────────── choice quiz marks ── */
+/* After her answer in a choice quiz (nerede, sarki, milyoner; the step is
+   `src/lib/bday26/choice-quiz.ts`): the right choice green, her miss red.
+   The selectors start at `.stage.answered` on purpose. Each page's scoped
+   rules carry an attribute per compound, so these must out-rank the page's
+   own `.choice`, `.choice:hover`, `.choice.marked` and `.choice kbd`, yet
+   still lose to its `.stage.answered .choice` dimming where that sets a
+   ring. The dimming of the other choices stays each page's own. */
+.stage.answered .choice.right {
+  background: var(--bd-won-bg-2);
+  box-shadow: 0 0 0 3px var(--bd-won);
+}
+.stage.answered .choices .choice.right kbd {
+  background: var(--bd-won);
+  color: #fff;
+}
+.stage.answered .choice.right :is(.place, .title, .label) {
+  color: var(--bd-won-deep);
+}
+.stage.answered .choice.wrong {
+  background: var(--bd-wrong-bg);
+  box-shadow: 0 0 0 3px var(--bd-wrong);
+}
+.stage.answered .choices .choice.wrong kbd {
+  background: var(--bd-wrong);
+  color: #fff;
+}
+.stage.answered .choice.wrong :is(.place, .title, .label) {
+  color: var(--bd-wrong-ink);
+}

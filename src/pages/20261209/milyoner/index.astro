@@ -361,7 +361,6 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   .stage {
     /* Answer colours as on "Bu nerede?"; the gold of the show for "now". */
     --right: var(--bd-won);
-    --right-bg: var(--bd-won-bg-2);
     --right-ink: var(--bd-won-deep);
 
     /* Viewport units for the same reason as "Bu nerede?": 104 px is the HUD
@@ -491,28 +490,6 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   .stage.answered .choice.right,
   .stage.answered .choice.wrong {
     opacity: 1;
-  }
-  .choice.right {
-    background: var(--right-bg);
-    box-shadow: 0 0 0 3px var(--right);
-  }
-  .choice.right kbd {
-    background: var(--right);
-    color: #fff;
-  }
-  .choice.right .label {
-    color: var(--right-ink);
-  }
-  .choice.wrong {
-    background: var(--bd-wrong-bg);
-    box-shadow: 0 0 0 3px var(--bd-wrong);
-  }
-  .choice.wrong kbd {
-    background: var(--bd-wrong);
-    color: #fff;
-  }
-  .choice.wrong .label {
-    color: var(--bd-wrong-ink);
   }
 
   /* One line under the choices that says what Enter does now. */
