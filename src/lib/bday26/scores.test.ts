@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { drivingScore, framingScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, skiScore, slotScore, wordleScore } from "./scores.ts";
+import { drivingScore, framingScore, hikingRoundScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, skiScore, slotScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -192,6 +192,30 @@ test("hiking map: 20% over is 90, one point per 1% past the margin", () => {
 test("hiking map: 110% over and further scores 0, never less", () => {
   assert.equal(hikingScore(21_000, 10_000), 0);
   assert.equal(hikingScore(40_000, 10_000), 0);
+});
+
+// A hiking Round is three levels (Atıl's play test): level 1 weighs 20%,
+// level 2 30%, level 3 50%, and the sum is rounded down.
+
+test("hiking Round: three perfect levels are 100", () => {
+  assert.equal(hikingRoundScore([100, 100, 100]), 100);
+});
+
+test("hiking Round: 90 on the hard level alone still makes 95", () => {
+  assert.equal(hikingRoundScore([100, 100, 90]), 95);
+});
+
+test("hiking Round: the hard level is half the Round", () => {
+  assert.equal(hikingRoundScore([0, 0, 100]), 50);
+  assert.equal(hikingRoundScore([100, 0, 0]), 20);
+  assert.equal(hikingRoundScore([0, 100, 0]), 30);
+});
+
+test("hiking Round: the weighted sum is rounded down", () => {
+  // 0.2·99 + 0.3·98 + 0.5·97 = 19.8 + 29.4 + 48.5 = 97.7
+  assert.equal(hikingRoundScore([99, 98, 97]), 97);
+  // 0.2·95 + 0.3·95 + 0.5·95 = 95 exactly, not 94.999…
+  assert.equal(hikingRoundScore([95, 95, 95]), 95);
 });
 
 // ---------------------------------------------------------- photo framing

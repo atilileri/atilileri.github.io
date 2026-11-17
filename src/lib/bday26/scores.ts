@@ -128,6 +128,22 @@ export function hikingScore(route: number, shortest: number): number {
   return Math.max(0, Math.floor(100 - past + 1e-9));
 }
 
+/** The weight of each hiking level in the Round, in percent: Seviye 1, 2, 3. */
+export const HIKING_LEVEL_WEIGHTS = [20, 30, 50] as const;
+
+/**
+ * Hiking map Round (after Atıl's play test): a Round is three maps in a row,
+ * Seviye 1 (easy), 2 (medium), 3 (hard), each scored by `hikingScore`. The
+ * Round is 0.20 × level 1 + 0.30 × level 2 + 0.50 × level 3, rounded down,
+ * so the hard map is half the Round: 100/100/90 is 95, 0/0/100 is 50.
+ * Worked in whole percents, (20a + 30b + 50c) ÷ 100, so 95/95/95 is 95
+ * itself and never 94.999… in floating point.
+ */
+export function hikingRoundScore(levels: readonly [number, number, number]): number {
+  const sum = levels.reduce((acc, s, i) => acc + HIKING_LEVEL_WEIGHTS[i]! * s, 0);
+  return Math.min(100, Math.max(0, Math.floor(sum / 100 + 1e-9)));
+}
+
 /**
  * Photo framing, "Kadraj" (#203; spec row "0.95 × mean of best 4 photos +
  * 0.05 × worst"). `photos` are the five per-photo scores of one Round, each
