@@ -454,6 +454,31 @@ test("\"Şarkıyı bil\" opens on its start screen with its keys, its prize and 
   await expect(page.getByText(/FluidR3 GM.*CC BY 3\.0/)).toBeAttached();
 });
 
+test("\"Şarkıyı bil\" ends on the Round's 10 songs, each marked and playable, and a play click leaves Enter to Yeni tur (#204)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/sarki/");
+  await page.keyboard.press("Enter");
+  // Ten answers, always A; any key moves on.
+  for (let i = 1; i <= 10; i++) {
+    await expect(page.getByText(`Şarkı ${i}/10`)).toBeVisible();
+    await page.keyboard.press("a");
+    await page.keyboard.press("n");
+  }
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  const songs = result.getByRole("list", { name: "Turun şarkıları" }).getByRole("listitem");
+  await expect(songs).toHaveCount(10);
+  await expect(songs.first()).toContainText("1.");
+  await expect(songs.first()).toContainText(/[✓✗]/);
+  const plays = result.getByRole("button", { name: /^Dinle: / });
+  await expect(plays).toHaveCount(10);
+
+  await plays.nth(3).click();
+  await page.keyboard.press("Enter");
+  await expect(result).toBeHidden();
+  await expect(page.getByText("Şarkı 1/10")).toBeVisible();
+});
+
 test("Piyano opens on its start screen with the three songs and their caps; 3 picks Zor (#205)", async ({ page }) => {
   // No Round here: Enter would start the piano, and Game feel is Atıl's by hand.
   await seed(page, { best: {}, jackpot: false, log: [] });
