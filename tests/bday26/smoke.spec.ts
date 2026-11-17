@@ -376,6 +376,38 @@ test("Yedekle shows a Save code; a typo is refused; the right code restores her 
   await expect(balance(page)).toHaveText(["283", "283"]);
 });
 
+test("Atıl's corner: a wrong password is refused, 1047 opens it, 50 Gifted points raise the Balance and survive a reload", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  await expect(balance(page)).toHaveText(["283", "283"]);
+
+  await page.getByRole("button", { name: "Atıl'ın köşesi" }).click();
+  const corner = page.getByRole("dialog", { name: "Atıl'ın köşesi" });
+  const password = corner.getByLabel("Şifre");
+  await password.fill("1234");
+  await password.press("Enter");
+  await expect(corner.getByText("Olmadı, bir daha dene")).toBeVisible();
+  await expect(corner.getByRole("button", { name: "Hediye et" })).toBeHidden();
+
+  await password.fill("1047");
+  await password.press("Enter");
+  await corner.getByRole("button", { name: "+50" }).click();
+  await corner.getByLabel("Not").fill("sürpriz");
+  await corner.getByRole("button", { name: "Hediye et" }).click();
+  await expect(corner.getByRole("listitem").filter({ hasText: "sürpriz" })).toContainText("+50");
+  await corner.getByRole("button", { name: "Kapat" }).click();
+  await expect(corner).toBeHidden();
+
+  // Gifted points are Balance, not Points earned.
+  await expect(balance(page)).toHaveText(["333", "333"]);
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("283");
+  await expect(page.getByText("+50 hediye puan")).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Yedek kodunu" })).toBeVisible();
+
+  await page.reload();
+  await expect(balance(page)).toHaveText(["333", "333"]);
+});
+
 test("a Game opens on its start screen, and a Round she leaves scores nothing (#194)", async ({ page }) => {
   // A fresh start, welcome already seen: the tile must still say "never
   // played" when she comes back from a Round she left.

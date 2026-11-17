@@ -5,7 +5,8 @@
  *
  * WHAT IS STORED, AND WHAT IS NOT. The state is facts only, as #175 decided:
  * her Best score per Game, whether the slot machine ever hit its jackpot, and
- * the log of Gift events (each buy with the price it was PAID, each Return).
+ * the log of Gift events (each buy with the price it was PAID, each Return),
+ * and the Gifted points Atıl gave her from the hub's admin panel.
  * Everything she sees as a number — Points earned, Balance, which Gifts she
  * holds, which Small prizes she won — is derived here on every read and never
  * written down. A rule can change and old progress stays right; a Gift's
@@ -17,8 +18,12 @@
  *     machine gives none. No bonus for a Small prize. 1,000 is the most,
  *     which follows from clamping every score to 0..100 before it is kept.
  *   - Gifts held = Gifts whose last event is a buy.
- *   - Balance = Points earned − Σ paid of every buy + Σ ½ paid of every
- *     Return. Prices are multiples of 10, so a Return is always whole.
+ *   - Balance = Points earned + Gifted points − Σ paid of every buy + Σ ½
+ *     paid of every Return. Prices are multiples of 10, so a Return is
+ *     always whole.
+ *   - Gifted points are whole numbers above 0. They are NOT Points earned,
+ *     so the 1,000 cap is for Game Points only. Only the newest gift can be
+ *     undone (a typo), and not when its Points are already spent.
  *   - Buy needs: Gift not held, Balance ≥ catalogue price. The event stores
  *     paid = the catalogue price NOW.
  *   - Return needs: Gift held. It gives back half of THAT buy's paid.
@@ -30,7 +35,9 @@
  * so the rules run under `node --test` with no DOM (spec, "Testing
  * Decisions", seam 1). The key is `bday26:v1`; the `v1` is the shape below,
  * and a shape change means a new key plus a migration, never a silent
- * re-read. The ledger writes after every Round, buy and Return, and reads
+ * re-read. `gifted` came later as an optional field: a state or Save code
+ * without it reads as no gifts, so the shape stays `v1`. The ledger writes
+ * after every Round, buy, Return and gift, and reads
  * once when created: two ledgers on one store do not see each other's
  * writes, so a page makes one and keeps it. The browser side (the pages)
  * calls `navigator.storage.persist()` once; that is a browser concern and
@@ -86,10 +93,17 @@ export type Progress = {
   best: Partial<Record<GameId, number>>;
   jackpot: boolean;
   log: GiftEvent[];
+  /** Gifted points Atıl gave, oldest first. Missing = none (a state or Save
+   *  code from before gifts existed). */
+  gifted?: GiftedPoints[];
 };
 
+/** One gift of Points from Atıl (*Hediye puan*): a whole number above 0,
+ *  an optional note, and when (ISO 8601). */
+export type GiftedPoints = { points: number; note?: string; at: string };
+
 export function emptyProgress(): Progress {
-  return { best: {}, jackpot: false, log: [] };
+  return { best: {}, jackpot: false, log: [], gifted: [] };
 }
 
 // ------------------------------------------------------- derived values
@@ -105,6 +119,11 @@ export function earnedOf(p: Progress): number {
   return GAMES.reduce((sum, g) => sum + pointsOf(g.id, p.best[g.id]), 0);
 }
 
+/** Gifted points: the sum of every gift from Atıl. Not Points earned. */
+export function giftedOf(p: Progress): number {
+  return (p.gifted ?? []).reduce((sum, g) => sum + g.points, 0);
+}
+
 /** Gift id → price paid, for every Gift held now (last event is a buy). */
 export function heldOf(p: Progress): Map<GiftId, number> {
   const held = new Map<GiftId, number>();
@@ -115,7 +134,7 @@ export function heldOf(p: Progress): Map<GiftId, number> {
   return held;
 }
 
-/** Points earned minus what the log cost: a buy's full price, less the half
+/** Points earned plus Gifted points, minus what the log cost: a buy's full price, less the half
  *  a Return gave back. That half is read from the buy the Return undoes, not
  *  from the Return line, so a pasted log cannot add Points with it. */
 export function balanceOf(p: Progress): number {
@@ -130,7 +149,7 @@ export function balanceOf(p: Progress): number {
       held.delete(e.gift);
     }
   }
-  return earnedOf(p) - spent;
+  return earnedOf(p) + giftedOf(p) - spent;
 }
 
 /** Whether one Game's Small prize is won. */
@@ -159,6 +178,14 @@ export type BuyOutcome =
   | { ok: true; paid: number }
   | { ok: false; reason: "held" | "balance" };
 
+export type GiftPointsOutcome =
+  | { ok: true; points: number }
+  | { ok: false; reason: "points" };
+
+export type UndoGiftOutcome =
+  | { ok: true; points: number }
+  | { ok: false; reason: "none" | "spent" };
+
 export type ReturnOutcome =
   | { ok: true; returned: number }
   | { ok: false; reason: "not-held" };
@@ -182,6 +209,15 @@ export type Ledger = {
   holds(id: GiftId): boolean;
   prizeWon(id: GameId): boolean;
   prizesWon(): GameId[];
+  /** Every gift of Points from Atıl, oldest first. */
+  gifted(): GiftedPoints[];
+  /** The sum of `gifted()`: part of the Balance, never of Points earned. */
+  giftedTotal(): number;
+  /** Atıl gives Points. Refused unless a whole number above 0. */
+  giftPoints(points: number, note?: string, at?: string): GiftPointsOutcome;
+  /** Take back the newest gift (a typo). Refused when there is none, or
+   *  when its Points are already spent: the Balance never goes below 0. */
+  undoLastGift(): UndoGiftOutcome;
   /** One finished Round. Keeps the higher of the old Best score and this
    *  one. `jackpot: true` on the slot machine sets the jackpot flag. */
   recordRound(id: GameId, score: number, outcome?: { jackpot?: boolean }): RoundOutcome;
@@ -220,6 +256,27 @@ export function createLedger(store: KeyValueStore): Ledger {
     holds: (id) => heldOf(p).has(id),
     prizeWon: (id) => prizeWonOf(p, id),
     prizesWon: () => prizesWonOf(p),
+    gifted: () => clone(p).gifted ?? [],
+    giftedTotal: () => giftedOf(p),
+
+    giftPoints(points, note, at = new Date().toISOString()) {
+      if (!Number.isInteger(points) || points <= 0) return { ok: false, reason: "points" };
+      const next = clone(p);
+      const trimmed = note?.trim();
+      next.gifted = [...(next.gifted ?? []), { points, ...(trimmed ? { note: trimmed } : {}), at }];
+      commit(next);
+      return { ok: true, points };
+    },
+
+    undoLastGift() {
+      const last = p.gifted?.at(-1);
+      if (!last) return { ok: false, reason: "none" };
+      if (balanceOf(p) < last.points) return { ok: false, reason: "spent" };
+      const next = clone(p);
+      next.gifted = next.gifted!.slice(0, -1);
+      commit(next);
+      return { ok: true, points: last.points };
+    },
 
     recordRound(id, score, outcome) {
       const kept = clampScore(score);
@@ -325,6 +382,14 @@ export function parseProgress(text: string): Progress | null {
       out.log.push({ kind: e.kind, gift: e.gift, paid: e.paid });
     }
   }
+  if (Array.isArray(data.gifted)) {
+    for (const g of data.gifted) {
+      if (!isRecord(g) || typeof g.at !== "string") continue;
+      if (typeof g.points !== "number" || !Number.isInteger(g.points) || g.points <= 0) continue;
+      const note = typeof g.note === "string" && g.note.trim() ? { note: g.note.trim() } : {};
+      out.gifted!.push({ points: g.points, ...note, at: g.at });
+    }
+  }
   return out;
 }
 
@@ -339,5 +404,10 @@ function clampScore(score: number): number {
 }
 
 function clone(p: Progress): Progress {
-  return { best: { ...p.best }, jackpot: p.jackpot, log: p.log.map((e) => ({ ...e })) };
+  return {
+    best: { ...p.best },
+    jackpot: p.jackpot,
+    log: p.log.map((e) => ({ ...e })),
+    gifted: (p.gifted ?? []).map((g) => ({ ...g })),
+  };
 }
