@@ -11,7 +11,9 @@
  * %100 for three alike, "İkili!" and %50 for two, "Bu sefer olmadı" and %0
  * for none — and she can spin again at once, as often as she likes. Free and
  * unlimited; the slot gives no Points (story 55). Under the display sits the
- * Small prize line: locked until a jackpot, "Kazandın!" after.
+ * Small prize line: locked until a jackpot, "Kazandın!" after. Under it, the
+ * key legend: with no start screen, the machine itself has to say which keys
+ * spin and leave.
  *
  * ONE SPIN IS ONE ROUND (glossary). The shell is mounted with
  * `startScreen: false` and `resultScreen: false` (story 54): the page opens
@@ -81,6 +83,10 @@ const LIGHTS = Array.from({ length: 15 });
           <span data-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
           Küçük ödül: <b>{game.prize.name}</b> · <span data-prize-sub>Jackpot'ta senin</span>
         </p>
+        <ul class="machine-keys" aria-label="Tuşlar">
+          <li><kbd>Boşluk</kbd> ya da kola tıkla: çevir</li>
+          <li><kbd>Esc</kbd> salona dön</li>
+        </ul>
       </div>
       <button class="lever" type="button" data-lever aria-label="Kolu çek" tabindex="-1">
         <span class="arm" aria-hidden="true">
@@ -448,6 +454,30 @@ const LIGHTS = Array.from({ length: 15 });
   }
   .prize b {
     color: #fff;
+  }
+  /* ── key legend: no start screen, so the machine carries it ───── */
+  .machine-keys {
+    display: flex;
+    justify-content: center;
+    gap: 8px 28px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgb(255 255 255 / 0.82);
+  }
+  .machine-keys li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .machine-keys kbd {
+    font: inherit;
+    font-size: 0.85em;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 6px;
+    white-space: nowrap;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
   }
   .machine.won-now .prize {
     animation: pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;

@@ -455,6 +455,13 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await expect(machine).toContainText("Kazımalı dünya haritası");
   await expect(machine).toContainText("Jackpot'ta senin");
   await expect(machine).not.toContainText("%95 yapınca senin");
+  // With no start screen, the machine itself carries the key legend.
+  const legend = machine.getByRole("list", { name: "Tuşlar" });
+  await expect(legend).toBeVisible();
+  await expect(legend).toContainText("Boşluk ya da kola tıkla");
+  await expect(legend).toContainText("çevir");
+  await expect(legend).toContainText("Esc");
+  await expect(legend).toContainText("salona dön");
   const overflow = await page.evaluate(() => ({
     down: document.documentElement.scrollHeight - window.innerHeight,
     across: document.documentElement.scrollWidth - window.innerWidth,
