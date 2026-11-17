@@ -7,8 +7,9 @@
  *
  * WHAT SHE SEES. Ten songs a Round, drawn from the 20 of the pool, the HUD
  * counting "Şarkı 3/10 · Hata 1". The hook starts on its own when a question
- * appears; Space or R plays it again, as often as she likes. She answers
- * with 1–4, A–D or a click: green or red at once, the right title marked
+ * appears; Space or R (or the speaker) plays it again from the top, as
+ * often as she likes, never two at once (the engine's guarantee). She answers
+ * with 1–4, A–D or a click: the hook stops, green or red at once, the right title marked
  * green beside her red one on a miss. The next song comes after 1.5 s, or at
  * once on any key or click. No timer, no reveal of the recording (#187).
  * After the tenth the shell shows the result: `missScore` (no miss %100,
@@ -156,6 +157,8 @@ const LETTERS = ["A", "B", "C", "D"];
 
   function answer(i: number) {
     if (!quiz || quiz.picked !== undefined) return;
+    // The hook stops at once: her answer ends the listening (Atıl's play test).
+    silence();
     quiz.pick(i);
     markChoices(buttons, quiz.question.answer, i);
     stage!.classList.add("answered");
