@@ -16,7 +16,8 @@
  *
  * WHAT IS HERE AND WHAT IS NOT. `dealQuiz` draws and shuffles with an
  * injected random source, so a test pins a deal and the page passes
- * `Math.random`. `createQuiz` owns the answer state. Playing the hook, the
+ * `Math.random`. `createQuiz` owns the answer state, every pick kept for
+ * the result screen's list of the Round's 10 songs. Playing the hook, the
  * 1.5 s wait, the painting and the key events are the page's; `choiceOfKey`
  * only says which choice a key means.
  */
@@ -59,6 +60,9 @@ export type Quiz = {
   readonly question: Question;
   /** What she picked on the current question, or undefined while it is open. */
   readonly picked: number | undefined;
+  /** Her pick on every question, in order; undefined where not yet answered.
+   *  The result screen lists the Round from it. */
+  readonly picks: readonly (number | undefined)[];
   /** Misses so far in this Round. */
   readonly misses: number;
   /** True when the last question is answered: the Round is over. */
@@ -74,7 +78,7 @@ export type Quiz = {
 /** A Round over a deal (see `dealQuiz`), on its first question, nothing answered. */
 export function createQuiz(questions: readonly Question[]): Quiz {
   let index = 0;
-  let picked: number | undefined;
+  const picks: (number | undefined)[] = questions.map(() => undefined);
   let misses = 0;
   return {
     questions,
@@ -85,25 +89,27 @@ export function createQuiz(questions: readonly Question[]): Quiz {
       return questions[index]!;
     },
     get picked() {
-      return picked;
+      return picks[index];
+    },
+    get picks() {
+      return [...picks];
     },
     get misses() {
       return misses;
     },
     get done() {
-      return index === questions.length - 1 && picked !== undefined;
+      return index === questions.length - 1 && picks[index] !== undefined;
     },
     pick(i) {
-      if (picked !== undefined || i < 0 || i >= this.question.choices.length) return false;
-      picked = i;
+      if (picks[index] !== undefined || i < 0 || i >= this.question.choices.length) return false;
+      picks[index] = i;
       const hit = i === this.question.answer;
       if (!hit) misses += 1;
       return hit;
     },
     next() {
-      if (picked === undefined || this.done) return;
+      if (picks[index] === undefined || this.done) return;
       index += 1;
-      picked = undefined;
     },
   };
 }

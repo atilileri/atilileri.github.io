@@ -101,3 +101,21 @@ test("keys 1–4 and A–D (either case) pick choices A–D; other keys pick not
   assert.deepEqual(["A", "B", "C", "D"].map(choiceOfKey), [0, 1, 2, 3]);
   for (const key of ["5", "e", " ", "r", "Enter", "Escape", "ArrowDown", ""]) assert.equal(choiceOfKey(key), undefined, key);
 });
+
+test("the Round keeps her pick for every question, in order, for the result list", () => {
+  const questions = [
+    { title: "Song 1", choices: ["Song 1", "Song 2", "Song 3", "Song 4"], answer: 0 },
+    { title: "Song 5", choices: ["Song 6", "Song 5", "Song 7", "Song 8"], answer: 1 },
+    { title: "Song 9", choices: ["Song 10", "Song 11", "Song 9", "Song 12"], answer: 2 },
+  ];
+  const quiz = createQuiz(questions);
+  assert.deepEqual(quiz.picks, [undefined, undefined, undefined]);
+  quiz.pick(0); // right
+  quiz.next();
+  quiz.pick(3); // wrong: Song 8
+  quiz.pick(1); // a second pick on the same question is ignored
+  quiz.next();
+  quiz.pick(2); // right
+  assert.deepEqual(quiz.picks, [0, 3, 2]);
+  assert.equal(quiz.done, true);
+});
