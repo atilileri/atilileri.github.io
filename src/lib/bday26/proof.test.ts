@@ -108,3 +108,15 @@ test("the Proof prints the Save code Yedekle shows, with its last 6 characters a
   assert.deepEqual([...another.held().keys()], ["rocky", "resim"]);
   assert.deepEqual(another.prizesWon(), ["nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "slot"]);
 });
+
+test("the Proof lists the Gifted points Atıl gave, with their notes and their sum, and none when he gave none", async () => {
+  assert.deepEqual((await proofOf(anEvening(), BIRTHDAY)).gifted, { total: 0, items: [] });
+
+  const ledger = anEvening();
+  ledger.giftPoints(50, "sürpriz", "2026-12-09T10:00:00.000Z");
+  ledger.giftPoints(100, undefined, "2026-12-09T11:00:00.000Z");
+  assert.deepEqual((await proofOf(ledger, BIRTHDAY)).gifted, {
+    total: 150,
+    items: [{ points: 50, note: "sürpriz" }, { points: 100 }],
+  });
+});

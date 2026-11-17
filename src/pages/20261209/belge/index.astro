@@ -7,7 +7,8 @@
  *
  * WHAT IS ON THE PAPER, top to bottom, all Turkish: a greeting and today's
  * date written out ("9 Aralık 2026"); the Gifts she holds, each with its one
- * line; the Small prizes she won, each with the Game that gave it; the check
+ * line; the Small prizes she won, each with the Game that gave it; the
+ * Gifted points Atıl gave her, only when there are any; the check
  * code in large letters with one line for Atıl on how he checks it; and the
  * full Save code in small monospace letters. Nothing else, so it reads at a
  * glance and fits one A4 page (story 92).
@@ -82,6 +83,11 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
         <p class="empty" data-prizes-empty hidden>Henüz küçük ödül yok — bir oyunda %95 yapınca buraya yazılır.</p>
       </section>
 
+      <section class="block" aria-labelledby="gifted-heading" data-gifted hidden>
+        <h2 class="h2" id="gifted-heading">Hediye puanlar</h2>
+        <ul class="items" aria-labelledby="gifted-heading" data-gifted-list></ul>
+      </section>
+
       <section class="block check" aria-labelledby="check-heading">
         <div class="check-text">
           <h2 class="h2" id="check-heading">Kontrol kodu</h2>
@@ -149,6 +155,12 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
   function paint(proof: Proof) {
     fill($("[data-gifts]"), $("[data-gifts-empty]"), proof.gifts.map((g) => item(g.name, g.desc)));
     fill($("[data-prizes]"), $("[data-prizes-empty]"), proof.prizes.map((p) => item(p.name, p.desc, p.game)));
+    // Gifted points only when Atıl gave some: a section that only ever says
+    // "none" would be noise on the paper.
+    $("[data-gifted]").hidden = proof.gifted.items.length === 0;
+    $("[data-gifted-list]").replaceChildren(
+      ...proof.gifted.items.map((g) => item(`+${g.points.toLocaleString("tr-TR")} puan`, g.note ?? "Atıl'dan hediye")),
+    );
     $("[data-date]").textContent = proof.date;
     $("[data-check]").textContent = proof.check;
     $("[data-code]").textContent = proof.code;

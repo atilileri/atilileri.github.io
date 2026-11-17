@@ -6,9 +6,11 @@
  * WHAT THE PROOF IS FOR. She prints it, or saves it as a PDF, when she wants
  * to claim a present; Atıl hands over what it lists (glossary, "Proof"). It
  * is optional: a Small prize won in front of him needs no paper (story 95).
- * It carries five things and nothing else (story 91):
+ * It carries five things and nothing else (story 91), plus a sixth when Atıl
+ * gave her any:
  *   - the Gifts she holds, in the shop's order, each with its one line;
  *   - the Small prizes she won, in the hub's order, each with its Game;
+ *   - the Gifted points (*Hediye puan*), each with its note, and their sum;
  *   - today's date, written the Turkish way ("9 Aralık 2026");
  *   - the check code, printed large, so Atıl can compare it with the one on
  *     her live screen — that comparison IS the check, there is no check
@@ -49,6 +51,8 @@ export type Proof = {
   gifts: ProofGift[];
   /** Small prizes won, in the hub's order (the slot machine last). */
   prizes: ProofPrize[];
+  /** Gifted points, oldest first, and their sum; empty when none. */
+  gifted: { total: number; items: ProofGifted[] };
   /** The day it is printed, the Turkish way: "9 Aralık 2026". */
   date: string;
   /** The check code, in large letters: the last 6 characters of `code`. */
@@ -57,8 +61,11 @@ export type Proof = {
   code: string;
 };
 
+/** One gift of Points from Atıl, as the Proof prints it. */
+export type ProofGifted = { points: number; note?: string };
+
 /** What the ledger must answer for a Proof; the full `Ledger` does. */
-export type ProofSource = Pick<Ledger, "held" | "prizesWon" | "toSaveCode">;
+export type ProofSource = Pick<Ledger, "held" | "prizesWon" | "toSaveCode" | "gifted" | "giftedTotal">;
 
 /** Day, month spelt out, year — "9 Aralık 2026" — in the reader's own time zone. */
 const TURKISH_DATE = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -76,6 +83,10 @@ export async function proofOf(ledger: ProofSource, today: Date): Promise<Proof> 
       name: g.prize.name,
       desc: g.prize.desc,
     })),
+    gifted: {
+      total: ledger.giftedTotal(),
+      items: ledger.gifted().map(({ points, note }) => (note ? { points, note } : { points })),
+    },
     date: TURKISH_DATE.format(today),
     check,
     code,
