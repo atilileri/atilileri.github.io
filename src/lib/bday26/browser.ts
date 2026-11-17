@@ -33,6 +33,7 @@
  */
 import { createLedger, type KeyValueStore, type Ledger } from "./ledger.ts";
 import { createWelcome, type Welcome } from "./welcome.ts";
+import { createEffectsPreference, type EffectsPreference } from "./effects.ts";
 
 /** What this module reads off `window`. Any of it may be missing or throw. */
 export type BrowserLike = {
@@ -52,6 +53,11 @@ export function openLedger(win: BrowserLike = window): Ledger {
 /** The welcome screen's "seen" flag on this browser (#195). */
 export function openWelcome(win: BrowserLike = window): Welcome {
   return createWelcome(storageOf(win));
+}
+
+/** Her "Efektler: Açık/Kapalı" switch on this browser: UI state, its own key. */
+export function openEffectsPreference(win: BrowserLike = window): EffectsPreference {
+  return createEffectsPreference(storageOf(win));
 }
 
 function askToPersist(win: BrowserLike) {
