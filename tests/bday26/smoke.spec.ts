@@ -274,6 +274,18 @@ for (const [width, height] of [
     });
     expect(spills).toEqual([]);
 
+    // The 🎂 in the corner tilts on hover; the tilt must not grow the page.
+    const extent = () =>
+      page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.scrollHeight]);
+    const before = await extent();
+    await page.getByRole("button", { name: "Atıl'ın köşesi" }).hover();
+    await page.waitForFunction(() => {
+      const cake = document.querySelector(".adm-cake");
+      return cake && getComputedStyle(cake).transform !== "none" && cake.getAnimations().length === 0;
+    });
+    expect(await extent()).toEqual(before);
+    await page.mouse.move(width / 2, 10);
+
     // On her own screen the shop is still all in view beside the tiles.
     if (width === 1920) {
       await expect(row(page, "Rocky Horror film gecesi")).toBeInViewport({ ratio: 1 });

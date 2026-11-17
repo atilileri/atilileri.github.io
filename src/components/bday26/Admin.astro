@@ -7,7 +7,9 @@
  *
  * THE TRIGGER is a tiny 🎂 in the page's bottom-left corner, inside the
  * page's padding, faded until hovered or focused: it reads as decoration.
- * It is a real button with a name, so it is reachable by keyboard.
+ * It is a real button with a name, so it is reachable by keyboard. The hover
+ * tilt turns the inner cake, not the button, and the button clips it: a
+ * rotated button would poke past the page bottom and add a scrollbar.
  *
  * THE DIALOG is a native <dialog> (Esc closes, focus stays inside, the hub
  * behind it is inert), soft and rounded in the hub's tokens. Two faces: the
@@ -17,7 +19,7 @@
  */
 ---
 
-<button class="adm-trigger" type="button" data-open-admin aria-label="Atıl'ın köşesi" title="🎂">🎂</button>
+<button class="adm-trigger" type="button" data-open-admin aria-label="Atıl'ın köşesi" title="🎂"><span class="adm-cake" aria-hidden="true">🎂</span></button>
 
 <dialog class="adm" data-admin aria-labelledby="adm-heading">
   <h2 class="adm-title" id="adm-heading"><span aria-hidden="true">🔑</span> Atıl'ın köşesi</h2>
@@ -80,15 +82,22 @@
     filter: grayscale(0.6);
     cursor: pointer;
     border-radius: 50%;
+    overflow: clip;
     transition:
       opacity 0.2s ease,
-      filter 0.2s ease,
-      transform 0.2s ease;
+      filter 0.2s ease;
+  }
+  .adm-cake {
+    display: block;
+    transition: transform 0.2s ease;
   }
   .adm-trigger:hover,
   .adm-trigger:focus-visible {
     opacity: 1;
     filter: none;
+  }
+  .adm-trigger:hover .adm-cake,
+  .adm-trigger:focus-visible .adm-cake {
     transform: rotate(-12deg) scale(1.15);
   }
   .adm-trigger:focus-visible {
@@ -262,7 +271,8 @@
     .adm-balance[data-hop] {
       animation: none;
     }
-    .adm-trigger {
+    .adm-trigger,
+    .adm-cake {
       transition: none;
     }
   }
