@@ -40,7 +40,15 @@ export type PoolSong = {
   readonly unsure?: string;
 };
 
-const GUESS = "guess: melody not known; a placeholder in the song's key and feel";
+/**
+ * The 11 placeholders. A web search for real note sources (2026-11-17:
+ * sheet music, tabs, letter notes, MuseScore, Hooktheory, Turkish "nota"
+ * sites) found none that is free and readable: only paid retail PDFs
+ * (Musicnotes, Sheet Music Direct for Şımarık's "Kiss Kiss" cover) and paid
+ * transcription services (PaidTabs for the Yin Yin songs). So these stay
+ * placeholders, not invented melodies; Atıl replaces them by ear.
+ */
+const GUESS = "guess: melody not known and no free note source found; a placeholder in the song's key and feel";
 
 export const SONGS: readonly PoolSong[] = [
   // ── Yin Yin ──────────────────────────────────────────────────────
