@@ -21,7 +21,7 @@ type Started = { note: number; time?: number; duration?: number; velocity?: numb
 
 /** A fake AudioContext, a fake instrument, and what each saw. */
 function fakes(overrides: { readyLater?: boolean } = {}) {
-  const log = { contexts: 0, started: [] as Started[], stopped: 0 };
+  const log = { contexts: 0, started: [] as Started[], stopped: 0, cancelled: [] as Started[] };
   let resolveReady = () => {};
   const clock = {
     currentTime: 10,
@@ -40,8 +40,10 @@ function fakes(overrides: { readyLater?: boolean } = {}) {
       return {
         ready: overrides.readyLater ? new Promise<void>((r) => (resolveReady = r)) : Promise.resolve(),
         start(event) {
-          log.started.push({ note: event.note, time: event.time, duration: event.duration, velocity: event.velocity });
-          return () => {};
+          const started = { note: event.note, time: event.time, duration: event.duration, velocity: event.velocity };
+          log.started.push(started);
+          // smplr's StopFn: cancels the note even while it still waits in the scheduler's queue.
+          return () => log.cancelled.push(started);
         },
         stop() {
           log.stopped += 1;
@@ -122,6 +124,29 @@ test("one hook at a time: a new play silences the old one first, and stop silenc
   assert.equal(log.started.length, 4);
   piano.stop();
   assert.equal(log.stopped, 3);
+});
+
+test("a replay or a stop cancels the old hook's notes still queued ahead on the audio clock, not only the sounding ones", async () => {
+  // smplr's stop() silences voices already sounding; a note scheduled for
+  // later sits in its lookahead queue and would still play over the replay.
+  // Only the stop function each start returned removes it from that queue.
+  const { log, options } = fakes();
+  const piano = createPiano(options);
+  await piano.unlock();
+  await piano.play(parseSong("C4 D4 E4"), { bpm: 60 });
+  await piano.play(parseSong("G4"), { bpm: 60 });
+  assert.deepEqual(
+    log.cancelled.map((s) => s.note),
+    [60, 62, 64],
+  );
+  piano.stop();
+  assert.deepEqual(
+    log.cancelled.map((s) => s.note),
+    [60, 62, 64, 67],
+  );
+  // Nothing is cancelled twice.
+  piano.stop();
+  assert.equal(log.cancelled.length, 4);
 });
 
 test("a play that waits for the samples sounds when they arrive, unless a stop or a newer play came first", async () => {

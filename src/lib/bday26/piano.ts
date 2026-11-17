@@ -70,9 +70,13 @@ export type AudioClock = {
 export type PianoInstrument = {
   /** Resolves when every note is decoded; rejects when the samples will not load. */
   readonly ready: Promise<void>;
-  /** Start a note; `time` on the audio clock (now when omitted), `duration` in seconds. */
+  /** Start a note; `time` on the audio clock (now when omitted), `duration` in
+   *  seconds. Returns smplr's stop function, which also cancels the note while
+   *  it still waits in smplr's lookahead queue. */
   start(event: { note: number; time?: number; duration?: number; velocity?: number }): unknown;
-  /** Stop every sounding note. */
+  /** Stop every sounding note. NOT the notes still queued ahead: smplr's
+   *  `stop()` only reaches voices that exist, so the engine also calls each
+   *  stop function `start` returned. */
   stop(): void;
 };
 
@@ -125,6 +129,16 @@ export function createPiano(options: PianoOptions = {}): Piano {
   let loaded: Promise<boolean> | undefined;
   /** Bumped by every `play` and `stop`, so a play still waiting knows it was superseded. */
   let generation = 0;
+  /** The stop functions of the hook's notes; calling them cancels queued ones too. */
+  let scheduled: Array<() => void> = [];
+
+  /** Silence the hook: every note it scheduled, sounding or still queued ahead. */
+  function cancelHook() {
+    const cancels = scheduled;
+    scheduled = [];
+    for (const cancel of cancels) cancel();
+    instrument?.stop();
+  }
 
   function setState(next: PianoState) {
     if (state === next) return;
@@ -162,13 +176,14 @@ export function createPiano(options: PianoOptions = {}): Piano {
     async play(song, { bpm, from = 0, seconds = Infinity }) {
       if (!instrument || !context) return;
       const mine = ++generation;
-      instrument.stop();
+      cancelHook();
       if (!(await loaded!) || mine !== generation) return;
       const start = context.currentTime + latencyMs / 1000;
       const end = from + seconds;
       for (const n of timeSong(song, bpm).notes) {
         if (n.time < from || n.time >= end) continue;
-        instrument.start({ note: n.midi, time: start + (n.time - from), duration: n.duration });
+        const cancel = instrument.start({ note: n.midi, time: start + (n.time - from), duration: n.duration });
+        if (typeof cancel === "function") scheduled.push(cancel as () => void);
       }
     },
     note(midi, { velocity, duration } = {}) {
@@ -177,7 +192,7 @@ export function createPiano(options: PianoOptions = {}): Piano {
     },
     stop() {
       generation += 1;
-      instrument?.stop();
+      cancelHook();
     },
     now() {
       return context?.currentTime;
