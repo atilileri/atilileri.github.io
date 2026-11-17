@@ -25,12 +25,18 @@ The currency of the site. She earns Points from her Best scores and spends them 
 _Avoid_: Credits, coins, score (a score belongs to one Round)
 
 **Balance** (_Bakiye_):
-The Points she can spend now: Points earned, minus the price of each Gift she holds.
+The Points she can spend now: Points earned plus Gifted points, minus the price of each Gift she
+holds.
 _Avoid_: Wallet, total
 
 **Gift** (_Hediye_):
 A present she buys with Points. Its price leaves her Balance at once.
 _Avoid_: Reward, unlock, prize (a prize is not bought)
+
+**Gifted points** (_Hediye puan_):
+Points Atıl gives her by hand, outside any Game. They add to her Balance but are not Points
+earned, so the 1,000 that the Games can give stays the most she can earn. The Proof lists them.
+_Avoid_: Bonus, gift (a Gift is bought), earned points
 
 **Small prize** (_Küçük ödül_):
 A present owned by one Game. She wins it when her Best score in that Game reaches 95%. It costs

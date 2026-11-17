@@ -383,3 +383,116 @@ test("a Save code whose log Returns a Gift she did not hold is refused, and her 
   assert.equal(ledger.earned(), 353);
   assert.equal(ledger.balance(), 353);
 });
+
+// ------------------------------------------------------------ Gifted points
+
+const AT = "2026-12-09T10:00:00.000Z";
+
+test("Gifted points raise the Balance, not the Points earned from Games", () => {
+  const ledger = ledgerWith353Points();
+  assert.deepEqual(ledger.giftPoints(50, "doğum günü", AT), { ok: true, points: 50 });
+  assert.equal(ledger.earned(), 353);
+  assert.equal(ledger.giftedTotal(), 50);
+  assert.equal(ledger.balance(), 403);
+  assert.deepEqual(ledger.gifted(), [{ points: 50, note: "doğum günü", at: AT }]);
+});
+
+test("Gifted points are kept: the next visit on that browser still has them", () => {
+  const store = memoryStore();
+  createLedger(store).giftPoints(50, undefined, AT);
+  const later = createLedger(store);
+  assert.equal(later.balance(), 50);
+  assert.deepEqual(later.gifted(), [{ points: 50, at: AT }]);
+});
+
+test("a state saved before Gifted points existed still loads, with none", () => {
+  const store = memoryStore({
+    [STORAGE_KEY]: JSON.stringify({ best: { nerede: 100 }, jackpot: false, log: [] }),
+  });
+  const ledger = createLedger(store);
+  assert.equal(ledger.balance(), 100);
+  assert.deepEqual(ledger.gifted(), []);
+});
+
+test("a saved gift that is not a whole number above 0 is dropped on load", () => {
+  const store = memoryStore({
+    [STORAGE_KEY]: JSON.stringify({
+      best: {},
+      jackpot: false,
+      log: [],
+      gifted: [{ points: 30, at: AT }, { points: -5, at: AT }, { points: 2.5, at: AT }, "x", { points: 20 }],
+    }),
+  });
+  assert.equal(createLedger(store).balance(), 30);
+});
+
+test("Gifted points ride in the Save code and come back on restore in another browser", async () => {
+  const hers = ledgerWith353Points();
+  hers.giftPoints(100, "sürpriz", AT);
+  hers.buy("rocky");
+  const { code } = await hers.toSaveCode();
+
+  const read = await hers.fromSaveCode(code);
+  assert.ok(read.ok);
+  assert.equal(earnedOf(read.progress), 353);
+  assert.equal(balanceOf(read.progress), 193);
+
+  const other = createLedger(memoryStore());
+  assert.equal((await other.restore(code)).ok, true);
+  assert.equal(other.earned(), 353);
+  assert.equal(other.balance(), 193);
+  assert.deepEqual(other.gifted(), [{ points: 100, note: "sürpriz", at: AT }]);
+});
+
+test("a Save code made before Gifted points existed still restores, with none", async () => {
+  const { code } = await encodeSaveCode(JSON.stringify({ best: { nerede: 100 }, jackpot: false, log: [] }));
+  const ledger = createLedger(memoryStore());
+  ledger.giftPoints(40, undefined, AT);
+  assert.equal((await ledger.restore(code)).ok, true);
+  assert.equal(ledger.balance(), 100);
+  assert.deepEqual(ledger.gifted(), []);
+});
+
+test("a gift of Points that is not a whole number above 0 is refused and leaves no trace", () => {
+  const ledger = createLedger(memoryStore());
+  for (const points of [0, -10, 2.5, Number.NaN]) {
+    assert.deepEqual(ledger.giftPoints(points, undefined, AT), { ok: false, reason: "points" });
+  }
+  assert.equal(ledger.balance(), 0);
+  assert.deepEqual(ledger.gifted(), []);
+});
+
+test("the last gift can be undone, newest first", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.giftPoints(10, undefined, AT);
+  ledger.giftPoints(500, "yazım hatası", AT);
+  assert.deepEqual(ledger.undoLastGift(), { ok: true, points: 500 });
+  assert.equal(ledger.balance(), 10);
+  assert.deepEqual(ledger.gifted(), [{ points: 10, at: AT }]);
+});
+
+test("undo is refused when there is no gift to undo", () => {
+  const ledger = ledgerWith353Points();
+  assert.deepEqual(ledger.undoLastGift(), { ok: false, reason: "none" });
+  assert.equal(ledger.balance(), 353);
+});
+
+test("undo is refused when the gifted Points are already spent, so the Balance never goes below 0", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.recordRound("nerede", 100);
+  ledger.giftPoints(200, undefined, AT);
+  ledger.buy("rocky"); // 300 − 260 = 40 left
+  assert.deepEqual(ledger.undoLastGift(), { ok: false, reason: "spent" });
+  assert.equal(ledger.balance(), 40);
+  assert.equal(ledger.gifted().length, 1);
+});
+
+test("undo goes through when the Balance covers it exactly", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.recordRound("nerede", 100);
+  ledger.giftPoints(160, undefined, AT);
+  ledger.buy("rocky"); // 100 + 160 − 260 = 0
+  ledger.giftPoints(30, undefined, AT);
+  assert.deepEqual(ledger.undoLastGift(), { ok: true, points: 30 });
+  assert.equal(ledger.balance(), 0);
+});
