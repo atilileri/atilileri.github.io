@@ -710,3 +710,43 @@ test("Kayak macerası: riding into the first rock is a fall, P stops the clock, 
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Kayak macerası")).toContainText("Henüz oynamadın");
 });
+
+/**
+ * The pause both real-time Games share (Atıl's fixes after #206, #207): P
+ * pauses and P resumes; a lost window focus pauses too and stays paused when
+ * the focus comes back, until she presses P. The overlay says so, and the
+ * clock stands still under it.
+ */
+for (const { path, name } of [
+  { path: "/20261209/surus/", name: "Hollanda'da sürüş" },
+  { path: "/20261209/kayak/", name: "Kayak macerası" },
+]) {
+  test(`${name}: P pauses and resumes; a lost focus pauses until P`, async ({ page }) => {
+    await seed(page, { best: {}, jackpot: false, log: [] });
+    await page.goto(path);
+    const start = page.getByRole("dialog", { name });
+    await expect(start.getByRole("listitem").filter({ hasText: "Duraklat" })).toContainText("P");
+    await page.keyboard.press("Enter");
+    const overlay = page.getByRole("status").filter({ hasText: "Duraklatıldı" });
+    const time = page.locator("[data-hud-time]");
+    await expect(time).not.toHaveText(/^0:00(\.0)?$/, { timeout: 6000 });
+
+    await page.keyboard.press("p");
+    await expect(overlay).toBeVisible();
+    await expect(overlay).toContainText("Devam etmek için P'ye bas");
+    const held = await time.innerText();
+    await page.waitForTimeout(400);
+    await expect(time).toHaveText(held);
+    await page.keyboard.press("p");
+    await expect(overlay).toBeHidden();
+    await expect(time).not.toHaveText(held);
+
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    await expect(overlay).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.waitForTimeout(400);
+    await expect(overlay).toBeVisible();
+    await page.keyboard.press("p");
+    await expect(overlay).toBeHidden();
+  });
+}

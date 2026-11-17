@@ -26,7 +26,9 @@
  * Esc pause became the shell's confirm, during which the slope stands still
  * (the shell's `pause` / `resume`). When the window loses focus the Round
  * pauses as P does, as the prototype did, and waits for P: a skier who came
- * back to a running slope would already be in the next rock. The
+ * back to a running slope would already be in the next rock. The overlay
+ * is `PauseOverlay.astro`, shared with the driving Game, which pauses by the
+ * same rule. The
  * prototype's tuning panel, presets, seed box, play log, Best and its own
  * result card are gone: the course is fixed, the shell and the ledger own
  * the rest.
@@ -44,6 +46,7 @@
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
+import PauseOverlay from "../../../components/bday26/PauseOverlay.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
 import { SKI_FLAGS } from "../../../lib/bday26/scores";
 import { COURSE_SEED, buildCourse } from "../../../lib/bday26/kayak";
@@ -55,7 +58,7 @@ const KEYS = [
   { key: "Boşluk / ↑ / W", does: "Zıpla (basılı tut: daha yüksek)" },
   { key: "→ / D", does: "Hızlan" },
   { key: "← / A", does: "Yavaşla" },
-  { key: "P", does: "Duraklat" },
+  { key: "P", does: "Duraklat / devam et" },
   { key: "R", does: "Baştan başla" },
   { key: "Esc", does: "Turdan çık" },
 ];
@@ -80,10 +83,7 @@ const KEYS = [
         <canvas data-slope aria-label="Kayak pisti, yandan"></canvas>
         <div class="prog" data-prog aria-hidden="true"><div class="fill" data-prog-fill></div><div class="end"></div></div>
         <p class="toast" data-toast aria-live="polite"></p>
-        <div class="paused" data-paused hidden>
-          <p class="big">Duraklatıldı</p>
-          <p>Devam etmek için <kbd>P</kbd>'ye bas.</p>
-        </div>
+        <PauseOverlay />
       </div>
     </div>
 
@@ -118,7 +118,7 @@ const KEYS = [
   const cv = $<HTMLCanvasElement>("[data-slope]");
   const ctx = cv.getContext("2d")!;
   const toastEl = $<HTMLElement>("[data-toast]");
-  const pausedEl = $<HTMLElement>("[data-paused]");
+  const pausedEl = $<HTMLElement>("[data-pause-overlay]");
   const progEl = $<HTMLElement>("[data-prog]");
   const progFill = $<HTMLElement>("[data-prog-fill]");
   const verdictEl = $<HTMLElement>("[data-verdict]");
@@ -802,31 +802,6 @@ const KEYS = [
     opacity: 1;
     transform: translate(-50%, 0);
   }
-  .paused {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-content: center;
-    gap: 6px;
-    text-align: center;
-    background: rgb(214 230 245 / 0.55);
-    backdrop-filter: blur(3px);
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--bd-ink);
-  }
-  .paused[hidden] {
-    display: none;
-  }
-  .paused p {
-    margin: 0;
-  }
-  .paused .big {
-    font-family: var(--bd-display);
-    font-size: 56px;
-    font-weight: 800;
-  }
-
   /* ── result card ────────────────────────────────────────────────── */
   .verdict {
     margin: 0;

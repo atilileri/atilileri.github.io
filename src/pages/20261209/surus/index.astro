@@ -23,8 +23,10 @@
  * KEYS (keyboard only, as in the prototype): ↑/W gas, ↓/S brake (reverse
  * once stopped), ←→/A D steer, Space handbrake. Enter starts and Esc asks to
  * leave; both are the shell's. While the confirm card is open the simulation
- * stands still (the shell's `pause`/`resume`), and when the window loses
- * focus it freezes too and says so, as the prototype paused on blur. The
+ * stands still (the shell's `pause`/`resume`). P pauses and P resumes; a
+ * lost window focus pauses too and waits for P, as the ski Game does — the
+ * shared `PauseOverlay.astro` says so, and the clock, the countdown and the
+ * toasts stand still under it. The
  * prototype's own Esc pause, debug panel, end screen, Best and tries are
  * gone: the shell and the ledger own those.
  *
@@ -41,6 +43,7 @@
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
+import PauseOverlay from "../../../components/bday26/PauseOverlay.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
 import { MISTAKES, RULES, formatClock } from "../../../lib/bday26/surus";
 
@@ -51,6 +54,7 @@ const KEYS = [
   { key: "↓ / S", does: "Fren, durunca geri" },
   { key: "← → / A D", does: "Direksiyon" },
   { key: "Boşluk", does: "El freni" },
+  { key: "P", does: "Duraklat / devam et" },
   { key: "Esc", does: "Turdan çık" },
 ];
 
@@ -93,7 +97,7 @@ const LIMIT = formatClock(RULES.timeLimit);
       <div class="pill map"><canvas data-mini width="200" height="160" aria-hidden="true"></canvas></div>
       <div class="toasts" data-toasts aria-live="polite"></div>
       <p class="count" data-count hidden></p>
-      <p class="frozen" data-frozen hidden>Duraklatıldı · devam etmek için pencereye dön</p>
+      <PauseOverlay />
     </div>
 
     <div slot="result" class="mistakes">
@@ -145,7 +149,7 @@ const LIMIT = formatClock(RULES.timeLimit);
   const mini = $<HTMLCanvasElement>("[data-mini]").getContext("2d")!;
   const toasts = $<HTMLElement>("[data-toasts]");
   const countEl = $<HTMLElement>("[data-count]");
-  const frozenEl = $<HTMLElement>("[data-frozen]");
+  const pauseEl = $<HTMLElement>("[data-pause-overlay]");
   const hud = {
     time: $<HTMLElement>("[data-hud-time]"),
     score: $<HTMLElement>("[data-hud-score]"),
@@ -178,7 +182,7 @@ const LIMIT = formatClock(RULES.timeLimit);
   let phase: "idle" | "countdown" | "driving" = "idle";
   let countdown = 0;
   let paused = false; // the shell's confirm card
-  let frozen = false; // the window lost focus
+  let held = false; // her P pause, or a lost window focus: only P lifts it
   const cam = { x: 0, y: 0 };
   const keys = new Set<string>();
 
@@ -192,6 +196,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     phase = "countdown";
     countdown = COUNTDOWN;
     paused = false;
+    setHeld(false);
     countEl.hidden = false;
     countEl.textContent = String(COUNTDOWN);
     paintHud();
@@ -219,6 +224,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     } else if (phase === "driving") {
       for (const m of stepDrive(drive, input(), dt)) toast(m);
     }
+    ageToasts(dt);
     render(now);
     paintHud();
     if (drive.done) {
@@ -227,8 +233,18 @@ const LIMIT = formatClock(RULES.timeLimit);
     }
   }
 
-  /** The town moves in a Round, with no confirm card and the window in focus. */
-  const loop = createFrameLoop({ canRun: () => phase !== "idle" && !paused && !frozen, frame: tick, maxDt: 0.033 });
+  /** The town moves in a Round, with no confirm card and no pause. */
+  const loop = createFrameLoop({ canRun: () => phase !== "idle" && !paused && !held, frame: tick, maxDt: 0.033 });
+
+  /** Her pause: P, or a lost focus. The overlay says so; the town, the
+   *  clock, the countdown and the toasts all stand still under it. */
+  function setHeld(on: boolean) {
+    held = on;
+    pauseEl.hidden = !on;
+    keys.clear();
+    if (on) loop.stop();
+    else loop.start();
+  }
 
   function finishRound() {
     loop.stop();
@@ -257,6 +273,17 @@ const LIMIT = formatClock(RULES.timeLimit);
     return li;
   }
 
+  /** How long a toast stays, in seconds of play: a pause holds it too. */
+  const TOAST_S = 2.6;
+
+  function ageToasts(dt: number) {
+    for (const el of Array.from(toasts.children) as HTMLElement[]) {
+      const life = Number(el.dataset.life) - dt;
+      if (life <= 0) el.remove();
+      else el.dataset.life = String(life);
+    }
+  }
+
   /** A mistake, the moment it happens: "−%10 Kanala düştün". Three at most. */
   function toast(m: Mistake) {
     const el = document.createElement("div");
@@ -264,8 +291,8 @@ const LIMIT = formatClock(RULES.timeLimit);
     const price = document.createElement("b");
     price.textContent = `−%${PRICE[m.kind]}`;
     el.append(price, LABEL[m.id]!.toast);
+    el.dataset.life = String(TOAST_S);
     toasts.prepend(el);
-    setTimeout(() => el.remove(), 2600);
     while (toasts.children.length > 3) toasts.lastElementChild!.remove();
   }
 
@@ -284,26 +311,24 @@ const LIMIT = formatClock(RULES.timeLimit);
 
   // ── keys ──────────────────────────────────────────────────────────
   // The shell takes Esc during a Round and every key on its own screens:
-  // what arrives here is a key while she drives.
+  // what arrives here is a key while she drives (or while she has paused).
   const DRIVE_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD", "Space"]);
   window.addEventListener("keydown", (event) => {
-    if (event.altKey || event.ctrlKey || event.metaKey || !DRIVE_KEYS.has(event.code)) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || phase === "idle") return;
+    if (event.code === "KeyP") {
+      if (!event.repeat) setHeld(!held);
+      return;
+    }
+    if (!DRIVE_KEYS.has(event.code)) return;
     event.preventDefault();
-    if (phase !== "idle") keys.add(event.code);
+    if (!held) keys.add(event.code);
   });
   window.addEventListener("keyup", (event) => keys.delete(event.code));
+  // A lost focus pauses as P does, and waits for P: coming back to the
+  // window does not drive on by itself.
   window.addEventListener("blur", () => {
     keys.clear();
-    if (phase === "idle") return;
-    frozen = true;
-    frozenEl.hidden = paused;
-    loop.stop();
-  });
-  window.addEventListener("focus", () => {
-    if (!frozen) return;
-    frozen = false;
-    frozenEl.hidden = true;
-    loop.start();
+    if (phase !== "idle" && !held) setHeld(true);
   });
 
   // ── the town, drawn once ──────────────────────────────────────────
@@ -612,13 +637,14 @@ const LIMIT = formatClock(RULES.timeLimit);
       abandonRound: () => {
         loop.stop();
         phase = "idle";
+        held = false;
+        pauseEl.hidden = true;
         keys.clear();
       },
       // The confirm card: the town stands still until she answers.
       pause: () => {
         paused = true;
         keys.clear();
-        frozenEl.hidden = true;
         loop.stop();
       },
       resume: () => {
@@ -827,25 +853,9 @@ const LIMIT = formatClock(RULES.timeLimit);
     text-shadow: 0 4px 24px rgb(0 0 0 / 0.35);
     pointer-events: none;
   }
-  .count[hidden],
-  .frozen[hidden] {
+  .count[hidden] {
     display: none;
   }
-  .frozen {
-    position: absolute;
-    left: 50%;
-    top: 45%;
-    transform: translateX(-50%);
-    margin: 0;
-    padding: 14px 24px;
-    border-radius: var(--bd-radius);
-    background: var(--bd-paper);
-    box-shadow: 0 6px 20px rgb(58 45 42 / 0.2);
-    font-weight: 800;
-    font-size: 22px;
-    color: var(--bd-ink);
-  }
-
   /* ── result card: her mistakes ──────────────────────────────────── */
   .mistakes {
     display: grid;

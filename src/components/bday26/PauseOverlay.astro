@@ -1,0 +1,65 @@
+---
+/**
+ * The pause overlay the real-time Games share: Hollanda'da sürüş (surus) and
+ * Kayak macerası (kayak). Drop it inside the playfield's positioned box; it
+ * covers that box when shown.
+ *
+ * THE RULE IT ANNOUNCES is each page's, and the same in both: P pauses and P
+ * resumes; a lost window focus pauses too and stays paused when the focus
+ * comes back, until she presses P. While it shows, the clock, the physics
+ * and the timers stand still. The page toggles `hidden` on the element
+ * carrying `data-pause-overlay`; nothing else here has a script.
+ */
+---
+
+<div class="pause-overlay" data-pause-overlay role="status" hidden>
+  <p class="big">Duraklatıldı</p>
+  <p class="how">Devam etmek için <kbd>P</kbd>'ye bas</p>
+</div>
+
+<style>
+  .pause-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 18px;
+    text-align: center;
+    background: rgb(58 45 42 / 0.62);
+    backdrop-filter: blur(4px);
+  }
+  .pause-overlay[hidden] {
+    display: none;
+  }
+  .pause-overlay p {
+    margin: 0;
+  }
+  .big {
+    font-family: var(--bd-display);
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 4px 24px rgb(0 0 0 / 0.35);
+  }
+  .how {
+    padding: 12px 26px;
+    border-radius: 999px;
+    background: var(--bd-paper);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--bd-ink);
+  }
+  kbd {
+    font: inherit;
+    font-size: 0.9em;
+    font-weight: 800;
+    padding: 1px 10px;
+    border-radius: 8px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+</style>
