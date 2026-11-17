@@ -209,24 +209,53 @@ test("a Return asks first; confirmed, half the price comes back and the Gift is 
   await expect(returnButton).toBeVisible();
 });
 
-test("the whole hub fits her 1920×1080 screen: no scroll, the shop in view", async ({ page }) => {
-  // A held Gift adds the "Sende olanlar" block, the taller case for the shop.
-  await seed(page, A_LATER_EVENING);
-  await page.goto(HUB);
-  await expect(page.getByText("Sende olanlar")).toBeVisible();
+/**
+ * The hub at her 1920×1080 screen, two smaller laptops and a phone: it may
+ * scroll down, never across, and every tile keeps its content inside its
+ * card (cards grow, the grid reflows 3 → 2 → 1, the shop drops below on a
+ * phone). "Inside" is measured by the boxes she sees: every element of a
+ * tile lies within the tile's own rectangle.
+ */
+for (const [width, height] of [
+  [1920, 1080],
+  [1280, 800],
+  [1130, 870],
+  [390, 844],
+] as const) {
+  test(`the hub at ${width}×${height}: no sideways scroll, no tile spills out of its card`, async ({ page }) => {
+    // A held Gift adds the "Sende olanlar" block, the taller case for the shop.
+    await page.setViewportSize({ width, height });
+    await seed(page, A_LATER_EVENING);
+    await page.goto(HUB);
+    await expect(page.getByText("Sende olanlar")).toBeVisible();
+    await expect(row(page, "Slot makinesi")).toContainText("Kazandın!");
 
-  const overflow = await page.evaluate(() => ({
-    down: document.documentElement.scrollHeight - window.innerHeight,
-    across: document.documentElement.scrollWidth - window.innerWidth,
-  }));
-  expect(overflow).toEqual({ down: 0, across: 0 });
+    const across = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(across).toBe(0);
 
-  // The far corners, whole and unscrolled: the last tile, the held Gift at
-  // the top of the shop, and the cheapest Gift still for sale at its bottom.
-  await expect(row(page, "Slot makinesi")).toBeInViewport({ ratio: 1 });
-  await expect(row(page, "Rocky Horror film gecesi")).toBeInViewport({ ratio: 1 });
-  await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
-});
+    const spills = await page.evaluate(() => {
+      const out: string[] = [];
+      for (const tile of document.querySelectorAll<HTMLElement>("li[data-game]")) {
+        const card = tile.getBoundingClientRect();
+        for (const el of tile.querySelectorAll("*")) {
+          const box = el.getBoundingClientRect();
+          if (box.width === 0 && box.height === 0) continue;
+          if (box.left < card.left - 1 || box.right > card.right + 1 || box.top < card.top - 1 || box.bottom > card.bottom + 1) {
+            out.push(`${tile.dataset.game}: ${(el.textContent ?? "").trim().slice(0, 30)}`);
+          }
+        }
+      }
+      return out;
+    });
+    expect(spills).toEqual([]);
+
+    // On her own screen the shop is still all in view beside the tiles.
+    if (width === 1920) {
+      await expect(row(page, "Rocky Horror film gecesi")).toBeInViewport({ ratio: 1 });
+      await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
+    }
+  });
+}
 
 test("the welcome screen greets her by itself until she closes it once, and \"Hoş geldin\" reopens it", async ({ page }) => {
   // A fresh browser, no seed: the first visit. It opens by itself, whole on

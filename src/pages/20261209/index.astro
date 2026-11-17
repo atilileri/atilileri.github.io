@@ -9,9 +9,12 @@
  * Each tile: Game name, one-line rule, Best score, the Points it earns, a
  * progress bar with the 95% mark, and the Small prize on its foot — a lock
  * and the prize's name until it is won, green "Kazandın!" after (how a prize
- * is won is the welcome screen's to say, not every tile's). The whole page fits 1920×1080 with no scroll (spec story 12): the
- * page is a viewport-high grid and only the shop column may scroll inside
- * itself, in the unlikely state where she holds nearly every Gift.
+ * is won is the welcome screen's to say, not every tile's). The whole page
+ * fits 1920×1080 with no scroll (spec story 12). On a smaller screen the
+ * tiles keep their content and the page scrolls down, never across: the grid
+ * goes 3 → 2 → 1 columns by the width it has, and on a phone the shop drops
+ * below the tiles. Beside the tiles the shop scrolls inside itself, in the
+ * unlikely state where she holds nearly every Gift.
  *
  * HOW IT IS BUILT. Everything that comes from the catalogue is rendered at
  * build time from `src/lib/bday26/catalogue.ts`: names, rules, prizes,
@@ -471,19 +474,24 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
 </script>
 
 <style>
+  /* The page is at least one screen high, never less, and grows when the
+     tiles need more room: on 1920×1080 the tiles share the screen, on a
+     smaller laptop they keep their content and the page scrolls down. It
+     never scrolls across. */
   .page {
-    height: 100vh;
+    min-height: 100vh;
     padding: 20px 28px 20px;
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
     gap: 18px;
   }
 
   /* ── top strip ───────────────────────────────────────────────── */
   .top {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 24px;
+    gap: 16px 24px;
     padding-bottom: 16px;
     border-bottom: 2px dashed var(--bd-dash);
   }
@@ -553,12 +561,13 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     grid-template-columns: minmax(0, 1fr) 380px;
     gap: 24px;
     align-items: stretch;
-    min-height: 0;
   }
+  /* The tiles' column decides the grid's columns by its own width (3, 2, 1),
+     so the shop beside it or below it needs no second set of numbers. */
   .games {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
-    min-height: 0;
+    grid-template-rows: auto 1fr;
+    container: games / inline-size;
   }
   .h2 {
     font-family: var(--bd-display);
@@ -579,12 +588,24 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     border-radius: 999px;
     padding: 3px 10px;
   }
+  /* Rows are equal and share the height left, but never shorter than the
+     tallest tile's content: a tile grows, its text never spills. */
   .grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-auto-rows: minmax(0, 1fr);
+    grid-auto-rows: 1fr;
     gap: 12px;
-    min-height: 0;
+  }
+  @container games (max-width: 760px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container games (max-width: 460px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-auto-rows: auto;
+    }
   }
 
   /* ── tile ────────────────────────────────────────────────────── */
@@ -598,7 +619,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-height: 0;
+    min-width: 0;
   }
   .tile[data-won] {
     box-shadow:
@@ -723,13 +744,57 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   }
 
   /* ── shop ────────────────────────────────────────────────────── */
+  /* Beside the tiles, the shop takes the tiles' height and never sets it:
+     size containment keeps its list out of the row's height, so the page
+     grows for tiles only and the shop scrolls inside itself when she holds
+     nearly every Gift. When the tiles make the page scroll, the shop stays
+     in view beside them, one screen high at most. Below the tiles (narrow
+     screens) it is just a box. */
   .shop {
     background: var(--bd-paper);
     border-radius: 18px;
     padding: 14px 16px;
     box-shadow: 0 0 0 1px var(--bd-line);
-    min-height: 0;
+    contain: size;
     overflow-y: auto;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    height: min(100%, calc(100vh - 40px));
+  }
+
+  /* ── smaller screens ─────────────────────────────────────────── */
+  @media (max-width: 1400px) {
+    .main {
+      grid-template-columns: minmax(0, 1fr) 340px;
+    }
+  }
+  @media (max-width: 900px) {
+    .main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .shop {
+      contain: none;
+      overflow: visible;
+      position: static;
+      height: auto;
+    }
+  }
+  @media (max-width: 600px) {
+    .page {
+      padding: 16px;
+    }
+    .title {
+      font-size: 28px;
+    }
+    .stats {
+      margin-left: 0;
+      width: 100%;
+    }
+    .stat {
+      flex: 1;
+      min-width: 0;
+    }
   }
   .shop-head {
     display: flex;
