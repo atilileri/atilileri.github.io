@@ -125,7 +125,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   <span class="prize-icon" aria-hidden="true" data-prize-icon>{PRIZE_LOCKED_ICON}</span>
                   <div class="prize-text">
                     <b class="prize-name">{g.prize.name}</b>
-                    <span class="prize-sub" data-prize-sub hidden>Kazandın!</span>
+                    <span class="prize-sub" data-prize-sub hidden></span>
                   </div>
                   <a class="bd-btn primary small" href={`/20261209/${g.id}/`}>Oyna</a>
                 </div>
@@ -147,7 +147,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         <ul class="gifts" data-shop-list>
           {
             GIFTS.map((g) => (
-              <li class="gift" data-gift={g.id}>
+              <li class="gift" data-gift={g.id} tabindex="0">
                 <span class="gicon" aria-hidden="true">{GIFT_ICON[g.id]}</span>
                 <div class="gtext">
                   <b class="gname">{g.name}</b>
@@ -280,7 +280,9 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       const fill = tile.querySelector<HTMLElement>("[data-fill]");
       if (fill) fill.style.width = `${best ?? 0}%`;
       $(tile, "[data-prize-icon]").textContent = won ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON;
-      $(tile, "[data-prize-sub]").hidden = !won;
+      const prizeSub = $(tile, "[data-prize-sub]");
+      prizeSub.hidden = !won;
+      prizeSub.textContent = won ? "Kazandın!" : "";
     }
   }
 
@@ -316,6 +318,91 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     renderTiles();
     renderShop();
   }
+
+  // ── a Gift's description, opened on hover or focus ───────────────────
+  // One line until she rests the pointer on a row for a moment (hover
+  // intent, so sweeping across the list moves nothing) or focuses it from
+  // the keyboard; then up to four lines. The height is animated from the
+  // measured one to the other, so the rows below slide instead of jumping.
+  // Rows are moved between lists, never rebuilt, so listeners bound once
+  // stay with them.
+  const HOVER_INTENT_MS = 120;
+  const calm = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function openable(row: HTMLElement) {
+    const desc = $(row, ".gdesc");
+    let timer = 0;
+    let open = false;
+    /** Animate the description's height from where it is now to `to`. */
+    let run = 0;
+    function slide(to: () => number, done?: () => void) {
+      const mine = ++run;
+      const from = desc.getBoundingClientRect().height;
+      desc.style.height = "";
+      const target = to();
+      if (calm.matches || Math.abs(target - from) < 1) {
+        done?.();
+        return;
+      }
+      desc.style.height = `${from}px`;
+      void desc.offsetHeight; // commit the start height before the change
+      desc.style.height = `${target}px`;
+      // A row moved by a buy can cancel the transition; that ends it too.
+      // A slide overtaken by a newer one (she left before it opened) only
+      // lets go: the newer slide owns the height now.
+      const end = (event: TransitionEvent) => {
+        if (event.propertyName !== "height") return;
+        desc.removeEventListener("transitionend", end);
+        desc.removeEventListener("transitioncancel", end);
+        if (mine !== run) return;
+        desc.style.height = "";
+        done?.();
+      };
+      desc.addEventListener("transitionend", end);
+      desc.addEventListener("transitioncancel", end);
+    }
+    function show() {
+      window.clearTimeout(timer);
+      if (open) return;
+      open = true;
+      slide(() => {
+        row.setAttribute("data-open", "");
+        return desc.scrollHeight;
+      });
+    }
+    function hide() {
+      window.clearTimeout(timer);
+      if (!open || row.matches(":focus-within") || row.matches(":hover")) return;
+      open = false;
+      // Measure the one-line height with the clamp back on, then keep the
+      // text unclamped while it slides shut so no line vanishes early.
+      slide(
+        () => {
+          row.removeAttribute("data-open");
+          const shut = desc.getBoundingClientRect().height;
+          row.setAttribute("data-open", "");
+          return shut;
+        },
+        () => {
+          if (!open) row.removeAttribute("data-open");
+        },
+      );
+    }
+    row.addEventListener("pointerenter", (event) => {
+      if (event.pointerType !== "mouse") return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(show, HOVER_INTENT_MS);
+    });
+    row.addEventListener("pointerleave", () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(hide, 0);
+    });
+    row.addEventListener("focusin", show);
+    row.addEventListener("focusout", () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(hide, 0);
+    });
+  }
+  for (const row of document.querySelectorAll<HTMLElement>("[data-gift]")) openable(row);
 
   // ── the one line of feedback ─────────────────────────────────────────
   // A toast is text, or a prompt: text and two buttons. After a buy the
@@ -863,9 +950,28 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    opacity: 0.85;
+    transition:
+      height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.3s ease-out,
+      color 0.3s ease-out;
   }
-  .gift:hover .gdesc {
+  /* Open (the script sets it after a short hover, or on focus): up to four
+     lines, the script animating the height between the two. */
+  .gift[data-open] .gdesc {
     -webkit-line-clamp: 4;
+    opacity: 1;
+    color: var(--bd-ink-soft);
+  }
+  .gift:focus-visible {
+    outline: 3px solid var(--bd-gold);
+    outline-offset: 2px;
+    border-radius: var(--bd-radius-sm);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gdesc {
+      transition: none;
+    }
   }
   /* Price and "N eksik" stacked, the button beside them: two lines at most,
      so 13 Gifts and a held block fit the column at 1080 without scrolling. */

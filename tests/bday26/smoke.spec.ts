@@ -174,6 +174,31 @@ test("a buy she can afford lowers the Balance at once, and survives a reload", a
   await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
 });
 
+test("a Gift's description opens on a resting hover or on focus, not on a sweep", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const gezi = row(page, "Bir haftalık gezi");
+  const desc = gezi.getByText(/^Mont-Saint-Martin/);
+  const height = async () => (await desc.boundingBox())!.height;
+  const shut = await height();
+
+  // A sweep across the list (in and out before the hover intent) opens nothing.
+  await gezi.hover();
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(400);
+  expect(await height()).toBe(shut);
+
+  // Resting on it opens it smoothly to more lines; leaving closes it again.
+  await gezi.hover();
+  await expect.poll(height).toBeGreaterThan(shut * 2);
+  await page.mouse.move(0, 0);
+  await expect.poll(height).toBe(shut);
+
+  // Keyboard focus opens it the same way.
+  await gezi.focus();
+  await expect.poll(height).toBeGreaterThan(shut * 2);
+});
+
 test("a Return asks first; confirmed, half the price comes back and the Gift is buyable again", async ({ page }) => {
   await seed(page, A_LATER_EVENING);
   await page.goto(HUB);
