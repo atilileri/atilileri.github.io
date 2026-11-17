@@ -241,3 +241,42 @@ button {
 .stage.answered .choice.wrong :is(.place, .title, .label) {
   color: var(--bd-wrong-ink);
 }
+
+/* ─────────────────────────────────────────────── celebration effects ── */
+/* `src/lib/bday26/effects-dom.ts`: the confetti canvas over everything (the
+   result veil too), never in the way of a click; and the short shake of a
+   wrong choice. Only with "Efektler: Açık"; no shake under reduced motion. */
+.bd-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  pointer-events: none;
+}
+.bd-shake {
+  animation: bd-shake 0.42s ease-in-out;
+}
+@keyframes bd-shake {
+  0%,
+  100% {
+    translate: 0;
+  }
+  20% {
+    translate: -9px;
+  }
+  40% {
+    translate: 8px;
+  }
+  60% {
+    translate: -6px;
+  }
+  80% {
+    translate: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bd-shake {
+    animation: none;
+  }
+}

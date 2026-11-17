@@ -20,6 +20,9 @@
  *     green beside her red one. The next question comes after 1.5 s, or at
  *     once on any key or click. After a miss that next step is the result:
  *     a wrong answer ends the Round (story 48).
+ *   - With "Efektler: Açık" (the HUD switch, `src/lib/bday26/effects.ts`)
+ *     a right lock gets confetti and a chime that grow with the band; a miss
+ *     a soft bonk and a shake. They never hold up the step.
  *   - Y = "Yarı yarıya", S = "Seyirciye sor", or their buttons; each once
  *     per Round. They work while she is choosing, not after the lock.
  *
@@ -63,7 +66,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="milyoner" keys={KEYS}>
+  <GameShell game="milyoner" keys={KEYS} effects>
     <span slot="hud">Soru <b data-number>1</b>/12</span>
     <div class="stage" data-stage>
       <div class="main">
@@ -140,8 +143,11 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   import { askAudience, buildRound, halve, parsePool, type Question } from "../../../lib/bday26/milyoner";
   import { milyonerScore } from "../../../lib/bday26/scores";
   import { createAnswerStep } from "../../../lib/bday26/choice-quiz";
+  import { milyonerCelebration, perfectRoundCelebration } from "../../../lib/bday26/effects";
+  import { mountEffects } from "../../../lib/bday26/effects-dom";
 
   const POOL = parsePool(poolDocument);
+  const effects = mountEffects();
 
   const $ = <T extends Element = HTMLElement>(selector: string) => {
     const el = document.querySelector<T>(selector);
@@ -260,6 +266,10 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     step = "answered";
     paint();
     answerStep.wait();
+    // Effects ride alongside and never hold the step up: bigger as the band
+    // climbs, different each time; a miss bonks and her choice shakes.
+    if (hit) effects.celebrate(milyonerCelebration(question().number, Math.random), buttons[marked]);
+    else effects.miss(buttons[marked]);
   }
 
   function next() {
@@ -271,6 +281,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
       shell.finish(milyonerScore(correct), {
         detail: correct === 12 ? "12/12 · Milyoner oldun!" : `${correct}/12 doğru`,
       });
+      // 12/12: a second grand wave as the result card arrives (it waits 0.5 s).
+      if (correct === 12) setTimeout(() => effects.celebrate(perfectRoundCelebration(Math.random)), 500);
       return;
     }
     current += 1;

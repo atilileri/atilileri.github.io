@@ -12,6 +12,8 @@
  *   - `.hud`: the Game's glyph and name on the left, the Game's own
  *     `<slot name="hud">` in the middle (its move counter, its km, its guess
  *     x/6), her Best score and the 95% bar on the right, and the Esc hint.
+ *     With `effects`, the "Efektler: Açık/Kapalı" switch (`EffectsToggle`)
+ *     sits before the Esc hint, above the screens so it is always reachable.
  *   - `.playfield`: the default slot, filling the rest of 1920×1080. It is
  *     `inert` whenever a screen is over it.
  *   - Three screens, absolutely over everything, one visible at a time by
@@ -53,6 +55,7 @@
  */
 import { gameById, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
 import { GAME_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
+import EffectsToggle from "./EffectsToggle.astro";
 
 interface Props {
   game: GameId;
@@ -63,9 +66,12 @@ interface Props {
   /** false: the page opens on the playfield, no start card (the slot
    *  machine, story 54). Pass the same `startScreen` to `mountGameShell`. */
   startScreen?: boolean;
+  /** Show the "Efektler: Açık/Kapalı" switch in the HUD; the page calls
+   *  `mountEffects()` (`src/lib/bday26/effects-dom.ts`). */
+  effects?: boolean;
 }
 
-const { game: id, keys, resultAside = false, startScreen = true } = Astro.props;
+const { game: id, keys, resultAside = false, startScreen = true, effects = false } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
 const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
@@ -90,6 +96,7 @@ const hasStartSlot = Astro.slots.has("start");
         <dd>{bar}</dd>
       </div>
     </dl>
+    {effects && <EffectsToggle />}
     <span class="hud-esc"><kbd>Esc</kbd> çık</span>
   </header>
 
