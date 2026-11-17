@@ -263,7 +263,7 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
     display: grid;
     gap: 8px;
   }
-  .items li {
+  .items :global(li) {
     display: grid;
     gap: 2px;
     padding: 8px 12px;
@@ -271,22 +271,22 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
     border-radius: var(--bd-radius-sm);
     break-inside: avoid;
   }
-  .item-head {
+  .items :global(.item-head) {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 4px 10px;
     font-size: 15px;
   }
-  .item-tag {
+  .items :global(.item-tag) {
     font-size: 12px;
     font-weight: 700;
     color: var(--bd-muted);
   }
-  .item-tag::before {
+  .items :global(.item-tag::before) {
     content: "· ";
   }
-  .item-desc {
+  .items :global(.item-desc) {
     font-size: 12.5px;
     color: var(--bd-ink-soft);
   }
@@ -316,6 +316,13 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
     color: var(--bd-ink);
     min-width: 7ch;
     text-align: center;
+  }
+  /* On a phone the code goes under Atıl's line instead of squeezing it. */
+  @media screen and (max-width: 600px) {
+    .check {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: start;
+    }
   }
 
   /* ── the full Save code, small, wrapping anywhere ───────────────────── */

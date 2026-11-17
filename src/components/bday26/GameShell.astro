@@ -384,6 +384,15 @@ const hasStartSlot = Astro.slots.has("start");
   .keys kbd {
     white-space: nowrap;
   }
+  /* On a phone the card keeps its text inside: less padding, one key a row. */
+  @media (max-width: 600px) {
+    .card {
+      padding: 26px 20px 22px;
+    }
+    .keys {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
   .line {
     font-size: 15px;
     color: var(--bd-muted);
