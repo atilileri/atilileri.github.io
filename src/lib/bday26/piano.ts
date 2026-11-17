@@ -35,6 +35,11 @@
  * newer `play` in the meantime drops it, so a question she answers before
  * the piano is ready never plays late over the next one.
  *
+ * MICROTONES. A note typed with a cents bend (`B4-23`, segah; see the
+ * song format in `./song.ts`) is started on its piano key with smplr's
+ * per-note `detune` in cents, which smplr adds to the sample's playback
+ * pitch (AudioBufferSourceNode.detune). Plain notes pass no detune.
+ *
  * WHAT THE PIANO GAME (#205) USES: `unlock()` on its first gesture,
  * `state`/`onState` to wait for "ready" before the count-in, `note(midi)`
  * for each hit (sounds now; `velocity` 0..1), `now()` for the audio clock,
@@ -71,9 +76,9 @@ export type PianoInstrument = {
   /** Resolves when every note is decoded; rejects when the samples will not load. */
   readonly ready: Promise<void>;
   /** Start a note; `time` on the audio clock (now when omitted), `duration` in
-   *  seconds. Returns smplr's stop function, which also cancels the note while
+   *  seconds, `detune` a microtone bend in cents (the song format's `B4-23`). Returns smplr's stop function, which also cancels the note while
    *  it still waits in smplr's lookahead queue. */
-  start(event: { note: number; time?: number; duration?: number; velocity?: number }): unknown;
+  start(event: { note: number; time?: number; duration?: number; velocity?: number; detune?: number }): unknown;
   /** Stop every sounding note. NOT the notes still queued ahead: smplr's
    *  `stop()` only reaches voices that exist, so the engine also calls each
    *  stop function `start` returned. */
@@ -182,7 +187,9 @@ export function createPiano(options: PianoOptions = {}): Piano {
       const end = from + seconds;
       for (const n of timeSong(song, bpm).notes) {
         if (n.time < from || n.time >= end) continue;
-        const cancel = instrument.start({ note: n.midi, time: start + (n.time - from), duration: n.duration });
+        const at = { note: n.midi, time: start + (n.time - from), duration: n.duration };
+        // A microtone (the song format's `B4-23`) rides on the key as smplr's per-note detune.
+        const cancel = instrument.start(n.cents ? { ...at, detune: n.cents } : at);
         if (typeof cancel === "function") scheduled.push(cancel as () => void);
       }
     },

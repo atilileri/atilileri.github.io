@@ -55,6 +55,28 @@ test("the lane step is the diatonic position: C4 and C#4 share it, D4 is one abo
   assert.equal(c5, c! + 7);
 });
 
+test("a signed cents offset after the octave bends one note between the keys: B4-23 is segah, a koma under B4", () => {
+  // A koma of the Turkish 53-division is 1200/53 ≈ 22.6 cents; the marker is
+  // written in whole cents. The key stays the piano's, the bend rides on it.
+  const [segah, plain, up] = parseSong("B4-23:.5 B4 F#4+15").notes;
+  assert.deepEqual({ midi: segah?.midi, cents: segah?.cents, duration: segah?.duration }, { midi: 71, cents: -23, duration: 0.5 });
+  assert.equal(plain?.cents, 0);
+  assert.deepEqual({ midi: up?.midi, cents: up?.cents }, { midi: 66, cents: 15 });
+  // The lane step ignores the bend, as it ignores accidentals.
+  assert.equal(segah?.step, plain?.step);
+  // And it reaches the clock-time notes the piano schedules.
+  assert.deepEqual(
+    timeSong(parseSong("B4-23 C5"), 60).notes.map((n) => n.cents),
+    [-23, 0],
+  );
+});
+
+test("a bend of a whole semitone or more is refused: that is the next key, typed as a sharp or flat", () => {
+  assert.throws(() => parseSong("B4-100"), /B4-100/);
+  assert.throws(() => parseSong("B4+150"), /B4\+150/);
+  assert.throws(() => parseSong("B4-2.5"), /B4-2\.5/);
+});
+
 test("a token that is not a note, a rest or a length is refused, so a typo fails the data test", () => {
   assert.throws(() => parseSong("C4 H4"), /H4/);
   assert.throws(() => parseSong("C4:x"), /C4:x/);
@@ -64,9 +86,9 @@ test("at 120 bpm a beat is half a second: times, durations and the whole length 
   // C4 for a beat, D4 for two, a one-beat rest, E4 for half a beat.
   const timed = timeSong(parseSong("C4 D4:2 R E4:.5"), 120);
   assert.deepEqual(timed.notes, [
-    { time: 0, duration: 0.5, midi: 60 },
-    { time: 0.5, duration: 1, midi: 62 },
-    { time: 2, duration: 0.25, midi: 64 },
+    { time: 0, duration: 0.5, midi: 60, cents: 0 },
+    { time: 0.5, duration: 1, midi: 62, cents: 0 },
+    { time: 2, duration: 0.25, midi: 64, cents: 0 },
   ]);
   assert.equal(timed.seconds, 2.25);
 });

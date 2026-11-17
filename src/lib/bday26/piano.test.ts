@@ -98,6 +98,25 @@ test("the latency offset is a parameter: +100 ms moves every note by that much",
   assert.deepEqual(log.started, [{ note: 69, time: 10.1, duration: 1, velocity: undefined }]);
 });
 
+test("a microtone reaches smplr as the note's detune in cents; a plain note carries none", async () => {
+  const { options } = fakes();
+  const events: Array<{ note: number; detune?: number }> = [];
+  const piano = createPiano({
+    ...options,
+    createInstrument: () => ({
+      ready: Promise.resolve(),
+      start: (e: { note: number; detune?: number }) => events.push({ note: e.note, detune: e.detune }),
+      stop() {},
+    }),
+  });
+  await piano.unlock();
+  await piano.play(parseSong("B4-23 C5"), { bpm: 60 });
+  assert.deepEqual(events, [
+    { note: 71, detune: -23 },
+    { note: 72, detune: undefined },
+  ]);
+});
+
 test("`from` and `seconds` cut a window out of the song, in seconds, the window's first note landing first", async () => {
   // Four one-beat notes at 60 bpm: C4 at 0, D4 at 1, E4 at 2, F4 at 3.
   const { log, options } = fakes();

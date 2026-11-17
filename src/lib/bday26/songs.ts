@@ -9,6 +9,8 @@
  * first notes — the riff for a riff song, the chorus for a sung one — typed
  * in the song format of `./song.ts` (`NOTE[:beats]`, `R` a rest, one bar per
  * line) and played at `bpm`. `part` says which part of the song it is.
+ * A note between the piano keys takes a signed cents bend after its octave
+ * (`B4-23` is segah, a koma under B4); see the MICROTONES note in `./song.ts`.
  * Low riffs (Billie Jean, Seven Nation Army) are lifted an octave or two:
  * she listens on laptop speakers, which drop the bass.
  *

@@ -15,6 +15,17 @@
  * none of these throws: a typo in a hook must fail the data test, not play
  * a wrong note at the table.
  *
+ * MICROTONES (Atıl's play test, for Turkish makam): a signed whole number of
+ * cents right after the octave digit bends that one note off the piano key,
+ * `NOTE±cents[:beats]`, less than a semitone either way (`B4-23`, `F#4+15`).
+ * A koma of the Turkish 53-division is 1200/53 ≈ 22.6 cents, so segah (B
+ * a koma flat, the 2nd of uşşak and the 3rd of rast) is `B4-23`, and the
+ * "4-koma" flat of hicaz/kürdi is about `B4-90`, which is close enough to
+ * `Bb4` that a piano hook may just type `Bb4`. In practice performers set
+ * these by ear, so a cents value is a starting point for Atıl's ear, not a
+ * rule. The bend is `cents` on every note (0 when unmarked), carried to the
+ * timed note, and the engine hands it to smplr as the note's `detune`.
+ *
  * WHAT COMES OUT. Every note knows the beat it starts on, how many beats it
  * lasts, its MIDI number, and its diatonic `step` (octave × 7 + letter,
  * accidentals ignored). The step is for the piano Game: it maps the song's
@@ -33,6 +44,8 @@ export type SongNote = {
   readonly midi: number;
   /** Diatonic step, octave × 7 + letter (C=0 … B=6); the piano Game's lane key. */
   readonly step: number;
+  /** The microtone bend off the key, in cents (−99..99); 0 for a plain note. */
+  readonly cents: number;
 };
 
 export type Song = {
@@ -43,7 +56,7 @@ export type Song = {
 
 const LETTER_STEP: Record<string, number> = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 };
 const LETTER_SEMI: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-const NOTE = /^([A-G])([#b]?)(\d)$/;
+const NOTE = /^([A-G])([#b]?)(\d)([+-]\d{1,2})?$/;
 
 /** Parse a song typed in the format above. Throws on a token it cannot read. */
 export function parseSong(src: string): Song {
@@ -57,10 +70,10 @@ export function parseSong(src: string): Song {
     if (name !== "R") {
       const m = NOTE.exec(name ?? "");
       if (!m) throw new Error(`song: bad note "${token}"`);
-      const [, letter, accidental, octave] = m as unknown as [string, string, string, string];
+      const [, letter, accidental, octave, bend] = m as unknown as [string, string, string, string, string | undefined];
       const oct = Number(octave);
       const midi = 12 * (oct + 1) + LETTER_SEMI[letter]! + (accidental === "#" ? 1 : accidental === "b" ? -1 : 0);
-      notes.push({ beat, duration, midi, step: oct * 7 + LETTER_STEP[letter]! });
+      notes.push({ beat, duration, midi, step: oct * 7 + LETTER_STEP[letter]!, cents: bend ? Number(bend) : 0 });
     }
     beat += duration;
   }
@@ -73,6 +86,8 @@ export type TimedNote = {
   /** Seconds the note lasts. */
   readonly duration: number;
   readonly midi: number;
+  /** The microtone bend in cents; 0 for a plain note. */
+  readonly cents: number;
 };
 
 export type TimedSong = {
@@ -90,7 +105,7 @@ export function secondsPerBeat(bpm: number): number {
 export function timeSong(song: Song, bpm: number): TimedSong {
   const spb = secondsPerBeat(bpm);
   return {
-    notes: song.notes.map((n) => ({ time: n.beat * spb, duration: n.duration * spb, midi: n.midi })),
+    notes: song.notes.map((n) => ({ time: n.beat * spb, duration: n.duration * spb, midi: n.midi, cents: n.cents })),
     seconds: song.beats * spb,
   };
 }
