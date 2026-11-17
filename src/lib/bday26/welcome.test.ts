@@ -5,7 +5,7 @@
  *
  * Seam 1 of the spec (#192, "Testing Decisions"): a plain module with
  * injected storage, run in Node with no browser. Each test plays a visit or
- * two the way the hub does — ask whether to show the welcome, mark it seen —
+ * two the way the hub does — ask whether to show the welcome, mark it seen when she closes it —
  * and reads what she would get on the next visit. None of them looks at how
  * the flag is written, only that it is not her progress (#195: "UI state in
  * its own key, outside the progress state and the Save code").
@@ -33,6 +33,17 @@ test("a fresh browser shows the welcome on the first visit and not on the second
 
   const secondVisit = createWelcome(browser);
   assert.equal(secondVisit.shouldShow(), false);
+});
+
+test("a visit that leaves before closing the welcome shows it again on the next", () => {
+  // The hub marks it seen on close only: a reload while it is open is no close.
+  const browser = memoryStore();
+  assert.equal(createWelcome(browser).shouldShow(), true);
+
+  const reload = createWelcome(browser);
+  assert.equal(reload.shouldShow(), true);
+  reload.markSeen();
+  assert.equal(createWelcome(browser).shouldShow(), false);
 });
 
 test("her progress is not the flag: a browser holding progress but no flag still shows the welcome", () => {

@@ -20,8 +20,9 @@
  * focus on open, so Enter and Space also work the plain way.
  *
  * ONCE BY ITSELF. The script asks `openWelcome()` (`src/lib/bday26/
- * browser.ts` → `welcome.ts`) whether this is a first visit and marks it
- * seen the moment it opens on its own; from then on only an element with
+ * browser.ts` → `welcome.ts`) whether she has closed it before, and marks
+ * it seen when she closes it (button, Enter or Esc) — a reload while it is
+ * still open greets her again. From then on only an element with
  * `data-open-welcome` opens it — the hub's button carries that attribute.
  * The flag is its own `localStorage` key, never the progress state.
  *
@@ -62,21 +63,25 @@
     const open = () => {
       if (!dialog.open) dialog.showModal();
     };
+    // Seen means closed. Each way out marks it at once, not on the dialog's
+    // `close` event, which the browser fires a task later — a reload in that
+    // gap would greet her again after she had closed it.
+    const welcome = openWelcome();
     dialog.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
+        welcome.markSeen();
         dialog.close();
       }
     });
+    dialog.addEventListener("cancel", () => welcome.markSeen()); // Esc
+    dialog.querySelector("form")?.addEventListener("submit", () => welcome.markSeen()); // the button
     for (const el of document.querySelectorAll("[data-open-welcome]")) {
       el.addEventListener("click", open);
     }
 
-    const welcome = openWelcome();
-    if (welcome.shouldShow()) {
-      open();
-      welcome.markSeen();
-    }
+    // A reload before she closes it greets her again.
+    if (welcome.shouldShow()) open();
   }
 </script>
 

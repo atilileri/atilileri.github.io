@@ -5,7 +5,8 @@
  *
  * WHAT IT ANSWERS. One question the hub asks on every load — should the
  * welcome screen open by itself? — and one fact the hub reports the moment
- * it has: it opened once. The first visit shows it; from then on the "Hoş
+ * it has: she closed it. Every visit shows it until she has closed it once
+ * (a reload while it is open greets her again); from then on the "Hoş
  * geldin" button on the hub is the only way it opens. No date lock: the
  * first visit is the first visit, whenever it happens (#191).
  *
@@ -33,9 +34,9 @@ export const WELCOME_KEY = "bday26:welcome";
 const SEEN = "seen";
 
 export type Welcome = {
-  /** True until the welcome screen has opened by itself once on this browser. */
+  /** True until she has closed the welcome screen once on this browser. */
   shouldShow(): boolean;
-  /** It has opened: from now on only the hub's button opens it. */
+  /** She closed it: from now on only the hub's button opens it. */
   markSeen(): void;
 };
 

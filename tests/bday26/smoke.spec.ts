@@ -225,7 +225,7 @@ test("the whole hub fits her 1920×1080 screen: no scroll, the shop in view", as
   await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
 });
 
-test("the welcome screen greets her once by itself, and \"Hoş geldin\" reopens it", async ({ page }) => {
+test("the welcome screen greets her by itself until she closes it once, and \"Hoş geldin\" reopens it", async ({ page }) => {
   // A fresh browser, no seed: the first visit. It opens by itself, whole on
   // her screen, with the one line #191 fixed and a sentence each on Games,
   // Points and Gifts (the glossary's words; the sentences are Atıl's call).
@@ -237,7 +237,11 @@ test("the welcome screen greets her once by itself, and \"Hoş geldin\" reopens 
   await expect(welcome(page)).toContainText(/puan/i);
   await expect(welcome(page)).toContainText(/hediye/i);
 
-  // Closed with its button; the second visit does not open it.
+  // Seen means closed: a reload before she closes it greets her again.
+  await page.reload();
+  await expect(welcome(page)).toBeVisible();
+
+  // Closed with its button; the next visit does not open it.
   await welcome(page).getByRole("button").click();
   await expect(welcome(page)).toBeHidden();
   await page.reload();
