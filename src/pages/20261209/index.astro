@@ -8,8 +8,8 @@
  * shop as a right column that is always in view, Gifts held at the top.
  * Each tile: Game name, one-line rule, Best score, the Points it earns, a
  * progress bar with the 95% mark, and the Small prize on its foot — a lock
- * and "Rekorun %N · %95 yapınca senin" until it is won, green "Kazandın!"
- * after. The whole page fits 1920×1080 with no scroll (spec story 12): the
+ * and the prize's name until it is won, green "Kazandın!" after (how a prize
+ * is won is the welcome screen's to say, not every tile's). The whole page fits 1920×1080 with no scroll (spec story 12): the
  * page is a viewport-high grid and only the shop column may scroll inside
  * itself, in the unlikely state where she holds nearly every Gift.
  *
@@ -122,9 +122,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   <span class="prize-icon" aria-hidden="true" data-prize-icon>{PRIZE_LOCKED_ICON}</span>
                   <div class="prize-text">
                     <b class="prize-name">{g.prize.name}</b>
-                    <span class="prize-sub" data-prize-sub>
-                      {g.luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`}
-                    </span>
+                    <span class="prize-sub" data-prize-sub hidden>Kazandın!</span>
                   </div>
                   <a class="bd-btn primary small" href={`/20261209/${g.id}/`}>Oyna</a>
                 </div>
@@ -226,7 +224,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // here (spec #192 "Modules": the hub reads and writes progress only through
   // the ledger). `render()` is idempotent and runs after every change.
   import { openLedger } from "../../lib/bday26/browser";
-  import { GAMES, GIFTS, PRIZE_BAR, giftById, isGiftId } from "../../lib/bday26/catalogue";
+  import { GAMES, GIFTS, giftById, isGiftId } from "../../lib/bday26/catalogue";
   import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "../../lib/bday26/icons";
   import {
     balanceOf,
@@ -279,13 +277,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       const fill = tile.querySelector<HTMLElement>("[data-fill]");
       if (fill) fill.style.width = `${best ?? 0}%`;
       $(tile, "[data-prize-icon]").textContent = won ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON;
-      $(tile, "[data-prize-sub]").textContent = won
-        ? "Kazandın!"
-        : game.luck
-          ? "Jackpot'ta senin"
-          : best == null
-            ? `%${PRIZE_BAR} yapınca senin`
-            : `Rekorun ${pct(best)} · %${PRIZE_BAR} yapınca senin`;
+      $(tile, "[data-prize-sub]").hidden = !won;
     }
   }
 

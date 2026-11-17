@@ -81,7 +81,7 @@ const LIGHTS = Array.from({ length: 15 });
         </div>
         <p class="prize">
           <span data-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
-          Küçük ödül: <b>{game.prize.name}</b> · <span data-prize-sub>Jackpot'ta senin</span>
+          Küçük ödül: <b>{game.prize.name}</b><span data-prize-sub></span>
         </p>
         <ul class="machine-keys" aria-label="Tuşlar">
           <li><kbd>Boşluk</kbd> ya da kola tıkla: çevir</li>
@@ -244,7 +244,7 @@ const LIGHTS = Array.from({ length: 15 });
   function paintPrize() {
     if (!ledger.prizeWon("slot")) return;
     prizeIcon.textContent = PRIZE_WON_ICON;
-    prizeSub.textContent = "Kazandın!";
+    prizeSub.textContent = " · Kazandın!";
   }
 
   function stopLoop() {

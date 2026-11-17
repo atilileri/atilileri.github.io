@@ -113,13 +113,16 @@ test("her progress shows on the tiles and in the strip", async ({ page }) => {
   await expect(page.locator('[data-stat="prizes"]')).toHaveText("3");
   await expect(page.getByText("4/11 oynandı")).toBeVisible();
 
-  // A won Small prize is green and says so; a locked one names the gap.
+  // A won Small prize is green and says so; a locked one shows only its name
+  // (how to win it is the welcome screen's to say).
   await expect(row(page, "Hafıza kartları")).toContainText("%100");
   await expect(row(page, "Hafıza kartları")).toContainText("100 puan");
   await expect(row(page, "Hafıza kartları")).toContainText("Kazandın!");
   await expect(row(page, "Milyoner")).toContainText("%88");
   await expect(row(page, "Milyoner")).toContainText("88 puan");
-  await expect(row(page, "Milyoner")).toContainText("Rekorun %88 · %95 yapınca senin");
+  await expect(row(page, "Milyoner")).toContainText("Yemek Kartı");
+  await expect(row(page, "Milyoner")).not.toContainText("yapınca senin");
+  await expect(row(page, "Milyoner")).not.toContainText("Kazandın!");
 
   // 95.5 is written as %95 and earns 95 Points; it is over the bar.
   await expect(row(page, "Kelime avı")).toContainText("%95");
@@ -133,7 +136,7 @@ test("her progress shows on the tiles and in the strip", async ({ page }) => {
 
   // Never played.
   await expect(row(page, "Piyano")).toContainText("Henüz oynamadın");
-  await expect(row(page, "Piyano")).toContainText("%95 yapınca senin");
+  await expect(row(page, "Piyano")).not.toContainText("yapınca senin");
   await expect(row(page, "Piyano")).not.toContainText("Rekorun");
 });
 
@@ -447,14 +450,14 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await page.goto("/20261209/slot/");
 
   // No start screen (story 54): the machine is ready, Space to spin, and the
-  // Small prize line as the hub's tile has it — the jackpot, not a 95%.
+  // Small prize line as the hub's tile has it — its name, no how-to hint.
   await expect(page.getByRole("dialog", { name: "Slot makinesi" })).toBeHidden();
   const display = page.getByRole("status");
   await expect(display).toContainText("Boşluk");
   const machine = page.locator("[data-machine]");
   await expect(machine).toContainText("Kazımalı dünya haritası");
-  await expect(machine).toContainText("Jackpot'ta senin");
-  await expect(machine).not.toContainText("%95 yapınca senin");
+  await expect(machine).not.toContainText("Jackpot'ta senin");
+  await expect(machine).not.toContainText("yapınca senin");
   // With no start screen, the machine itself carries the key legend.
   const legend = machine.getByRole("list", { name: "Tuşlar" });
   await expect(legend).toBeVisible();
