@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { ANSWERS } from "../../src/lib/bday26/wordle.ts";
-import { MAPS, choices, shortestRoute } from "../../src/lib/bday26/yuruyus.ts";
+import { LEVELS, choices, shortestRoute } from "../../src/lib/bday26/yuruyus.ts";
 
 /**
  * The birthday games smoke — ticket #193, spec #192 ("Testing Decisions",
@@ -730,7 +730,7 @@ test("Kelime avı: a short row is refused, the answer from its İpucu wins %100,
   await expect(row(page, "Kelime avı")).toContainText("Kazandın!");
 });
 
-test("Yürüyüş haritası: walked by number keys along the shortest route, it scores %100 and the hub tile shows it (#202)", async ({ page }) => {
+test("Yürüyüş haritası: three levels walked by number keys along the shortest route, the Round scores %100 and the hub tile shows it (#202)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   // The same throw on every page load, so a repeat map would show every time.
   await page.addInitScript(() => {
@@ -740,41 +740,61 @@ test("Yürüyüş haritası: walked by number keys along the shortest route, it 
   const start = page.getByRole("dialog", { name: "Yürüyüş haritası" });
   await expect(start).toContainText("Piknik günü");
   await expect(start).toContainText("en kısanın %10 fazlasına kadar %100");
+  await expect(start).toContainText("Seviye 1 %20, Seviye 2 %30, Seviye 3 %50");
 
-  // The map is dealt at random; the HUD names it, and the core knows its shortest route.
   await page.keyboard.press("Enter");
-  const name = (await page.locator("[data-hud-map]").innerText()).trim();
-  const map = MAPS.find((m) => m.name === name);
-  expect(map, `no map is called "${name}"`).toBeDefined();
-  const best = shortestRoute(map!);
+  const names: string[] = [];
+  for (let level = 1; level <= 3; level++) {
+    await expect(page.locator("[data-hud-level]")).toHaveText(`Seviye ${level}/3`);
+    // The map is dealt at random; the HUD names it, and the core knows its shortest route.
+    const name = (await page.locator("[data-hud-map]").innerText()).trim();
+    const map = LEVELS[level - 1]!.maps.find((m) => m.name === name);
+    expect(map, `Seviye ${level} has no map called "${name}"`).toBeDefined();
+    names.push(name);
+    const best = shortestRoute(map!);
 
-  // One step and Backspace: back at the car park.
-  await page.keyboard.press("1");
-  await expect(page.getByText("1 patika")).toBeVisible();
-  await page.keyboard.press("Backspace");
-  await expect(page.getByText("0 patika")).toBeVisible();
+    if (level === 1) {
+      // One step and Backspace: back at the car park.
+      await page.keyboard.press("1");
+      await expect(page.getByText("1 patika")).toBeVisible();
+      await page.keyboard.press("Backspace");
+      await expect(page.getByText("0 patika")).toBeVisible();
+    }
 
-  // The badges number the choices clockwise from north; press the one on the shortest route.
-  for (let i = 1; i < best.route.length; i++) {
-    const key = choices(map!, best.route.slice(0, i)).indexOf(best.route[i]!) + 1;
-    await page.keyboard.press(String(key));
+    // The badges number the choices clockwise from north; press the one on the shortest route.
+    for (let i = 1; i < best.route.length; i++) {
+      const key = choices(map!, best.route.slice(0, i)).indexOf(best.route[i]!) + 1;
+      await page.keyboard.press(String(key));
+    }
+    await expect(page.getByText("Zirvedesin. Rotan hazır mı?")).toBeVisible();
+    await page.keyboard.press("Enter");
+    // The level's reveal: its score and the step on.
+    await expect(page.locator("[data-level-score]")).toHaveText("%100");
+    await expect(page.locator("[data-level-why]")).toContainText("En kısa rotayı buldun!");
+    await expect(page.getByRole("button", { name: level < 3 ? /Sonraki seviye/ : /Sonuç/ })).toBeVisible();
+    await page.keyboard.press("Enter");
   }
-  await expect(page.getByText("Zirvedesin. Rotan hazır mı?")).toBeVisible();
-  await page.keyboard.press("Enter");
+
   const result = page.getByRole("dialog", { name: "Tur bitti" });
   await expect(result).toContainText("%100");
-  await expect(result).toContainText("en kısa rotayı buldun!");
+  for (const [i, weight] of ["%20", "%30", "%50"].entries()) {
+    const line = result.locator("[data-levels] li").nth(i);
+    await expect(line).toContainText(`Seviye ${i + 1}`);
+    await expect(line).toContainText(names[i]!);
+    await expect(line).toContainText("%100");
+    await expect(line).toContainText(weight);
+  }
   await expect(result).toContainText("Küçük ödül kazandın: Piknik günü!");
 
   await page.keyboard.press("Escape");
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Yürüyüş haritası")).toContainText("%100");
 
-  // Back on the hiking page, a fresh page load: not the map she just walked,
-  // even with the dice pinned to the same throw.
+  // Back on the hiking page, a fresh page load: not the Seviye 1 map she just
+  // walked, even with the dice pinned to the same throw.
   await page.goto("/20261209/yuruyus/");
   await page.keyboard.press("Enter");
-  await expect(page.locator("[data-hud-map]")).not.toHaveText(name);
+  await expect(page.locator("[data-hud-map]")).not.toHaveText(names[0]!);
 });
 
 test("Kadraj: five crops by keys, a reveal after each, the five on the result card and its score on the hub tile (#203)", async ({ page }) => {

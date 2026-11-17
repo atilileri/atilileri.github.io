@@ -4,6 +4,14 @@
  * "Hiking map", stories 81–83; feel from the prototype #183, which Atıl
  * played). An easy Game on purpose (spec story 40).
  *
+ * A ROUND IS THREE LEVELS (after Atıl's play test): Seviye 1 easy, 2
+ * medium, 3 hard, one map each (`LEVELS` in the core). Each level is scored
+ * on its own with the formula below; after the summit's Enter its reveal
+ * plays and the bar shows that level's score and "Sonraki seviye" (Enter or
+ * the button; "Sonuç" after Seviye 3). The Round is 0.20 × level 1 + 0.30 ×
+ * level 2 + 0.50 × level 3, rounded down (`hikingRoundScore`); the result
+ * card lists the three with their weights. The HUD shows "Seviye x/3".
+ *
  * WHAT SHE SEES. A printed trail map: green valleys, contour lines, red
  * dashed trails with their length in km on each, a car park (P, "Otopark")
  * low on one side and the summit ("Zirve") high on the other. She builds a
@@ -13,7 +21,7 @@
  * slides left to make room for the result card docked at the right
  * (`resultAside` on the shell). ≤10% longer than the shortest is %100, then
  * one point off per 1% (`hikingScore` in `src/lib/bday26/scores.ts`), so
- * 15% over is the %95 that wins Piknik günü. The formula is on the start
+ * 15% over is a level's %95; a Round of %95 wins Piknik günü. The formula is on the start
  * card and on the result card.
  *
  * KEYS (keyboard-first; a mouse works too):
@@ -25,8 +33,9 @@
  *   - Enter at the summit confirms. Esc is the shell's (it asks first).
  *
  * HOW IT IS BUILT. Three layers:
- *   - `src/lib/bday26/yuruyus.ts`: the five maps (the prototype's generator
- *     and seeds), the shortest route, the route rules, the map picker. No
+ *   - `src/lib/bday26/yuruyus.ts`: the three levels of maps (the prototype's
+ *     generator and fixed seeds), the shortest route, the route rules, the
+ *     map picker. No
  *     DOM, pinned under `node --test`.
  *   - `src/lib/bday26/yuruyus-art.ts`: the printed-map art as strings — land
  *     colours, contour paths, trail lines, label spots.
@@ -36,14 +45,15 @@
  *     reveal are repainted from the route array on every change. The script
  *     owns no rule: every click and key goes through `stepRoute`,
  *     `undoRoute` or `choices`, and the score is the pure function's.
- * The next map is never the one just played (`pickMap`), across "Salona
- * dön" and reloads too: the last map is kept in `sessionStorage` (key
- * `bday26:yuruyus:last`), as Wordle keeps its last answer.
+ * No level deals the map it dealt last Round (`pickRound`), across "Salona
+ * dön" and reloads too: the last Round's three maps are kept in
+ * `sessionStorage` (key `bday26:yuruyus:last`, a JSON array of indices), as
+ * Wordle keeps its last answer.
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
-import { HIKING_MARGIN } from "../../../lib/bday26/scores";
+import { HIKING_LEVEL_WEIGHTS, HIKING_MARGIN } from "../../../lib/bday26/scores";
 import { WORLD } from "../../../lib/bday26/yuruyus";
 
 const game = gameById("yuruyus");
@@ -57,8 +67,11 @@ const KEYS = [
   { key: "Esc", does: "Turdan çık" },
 ];
 
-/** The formula, word for word the prototype's (#183), on both cards. */
-const RULE = `Skor: en kısanın %${HIKING_MARGIN} fazlasına kadar %100, sonrası her %1 için −1 puan.`;
+/** The per-level formula, the prototype's words (#183), on both cards. */
+const RULE = `Seviye skoru: en kısanın %${HIKING_MARGIN} fazlasına kadar %100, sonrası her %1 için −1 puan.`;
+
+/** The Round's weights, in one line on the start card. */
+const WEIGHTS = `Üç seviye, her biri bir öncekinden zor. Tur skoru: ${HIKING_LEVEL_WEIGHTS.map((w, i) => `Seviye ${i + 1} %${w}`).join(", ")}.`;
 
 const VIEWBOX = `0 0 ${WORLD.width} ${WORLD.height}`;
 /** The scale bar: 1 km is 200 world units (5 m per unit). */
@@ -68,11 +81,12 @@ const KM_UNITS = 200;
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
   <GameShell game="yuruyus" keys={KEYS} resultAside>
     <span slot="hud"
-      ><b data-hud-map>—</b> · Rotan <b data-hud-km>0,0 km</b> · <span data-hud-trails>0 patika</span></span
+      ><b data-hud-level>Seviye 1/3</b> · <span data-hud-map>—</span> · Rotan <b data-hud-km>0,0 km</b> · <span data-hud-trails>0 patika</span></span
     >
 
     <div slot="start" class="note">
       <p>Otoparktan zirveye giden en kısa patikayı bul. Her patikanın uzunluğu haritada yazılı.</p>
+      <p>{WEIGHTS}</p>
       <p class="formula">{RULE}</p>
     </div>
 
@@ -122,10 +136,16 @@ const KM_UNITS = 200;
         <p class="hint" data-hint>Otoparktan bir sonraki kavşağa tıkla</p>
         <button class="bd-btn ghost" type="button" tabindex="-1" data-undo disabled>Geri al <kbd>⌫</kbd></button>
         <button class="bd-btn primary" type="button" tabindex="-1" data-confirm disabled>Onayla <kbd>Enter</kbd></button>
+        <div class="level-reveal" data-level-reveal hidden>
+          <b class="level-score" data-level-score>%0</b>
+          <p class="why" data-level-why></p>
+        </div>
+        <button class="bd-btn primary" type="button" tabindex="-1" data-next hidden>Sonraki seviye <kbd>Enter</kbd></button>
       </div>
     </div>
 
     <div slot="result" class="note">
+      <ol class="levels" data-levels></ol>
       <p class="verdict" data-verdict></p>
       <p class="formula">{RULE}</p>
     </div>
@@ -135,14 +155,15 @@ const KM_UNITS = 200;
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
-  import { hikingScore, HIKING_MARGIN } from "../../../lib/bday26/scores";
+  import { hikingRoundScore, hikingScore, HIKING_LEVEL_WEIGHTS } from "../../../lib/bday26/scores";
+  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
   import {
-    MAPS,
+    LEVELS,
     WORLD,
     atSummit,
     choices,
     formatKm,
-    pickMap,
+    pickRound,
     routeLength,
     shortestRoute,
     startRoute,
@@ -176,12 +197,18 @@ const KM_UNITS = 200;
   const bestMask = $<SVGPathElement>("[data-best-mask]");
   const compass = $<SVGGElement>("[data-compass]");
   const scaleBar = $<SVGGElement>("[data-scale]");
+  const hudLevel = $("[data-hud-level]");
   const hudMap = $("[data-hud-map]");
   const hudKm = $("[data-hud-km]");
   const hudTrails = $("[data-hud-trails]");
   const hint = $("[data-hint]");
   const undoBtn = $<HTMLButtonElement>("[data-undo]");
   const confirmBtn = $<HTMLButtonElement>("[data-confirm]");
+  const levelReveal = $("[data-level-reveal]");
+  const levelScoreEl = $("[data-level-score]");
+  const levelWhy = $("[data-level-why]");
+  const nextBtn = $<HTMLButtonElement>("[data-next]");
+  const levelsEl = $("[data-levels]");
   const verdictEl = $("[data-verdict]");
 
   /** Turkish one-decimal number: 4,2. */
@@ -191,7 +218,7 @@ const KM_UNITS = 200;
   // Built once per map, kept as strings: a map change is five assignments.
 
   type Art = { land: string; landW: number; landH: number; minor: string; major: string; trails: string; labels: string; junctions: string };
-  const artCache = new Map<number, Art>();
+  const artCache = new Map<HikingMap, Art>();
 
   /** The land colours as a tiny image the SVG stretches over the world. */
   function landImage(map: HikingMap): { land: string; landW: number; landH: number } {
@@ -208,10 +235,9 @@ const KM_UNITS = 200;
     return { land: canvas.toDataURL(), landW: px.cols * px.cell, landH: px.rows * px.cell };
   }
 
-  function artOf(index: number): Art {
-    const cached = artCache.get(index);
+  function artOf(map: HikingMap): Art {
+    const cached = artCache.get(map);
     if (cached) return cached;
-    const map = MAPS[index]!;
     const { minor, major } = contours(map);
     const trails = map.trails
       .map((t) => {
@@ -239,12 +265,12 @@ const KM_UNITS = 200;
     const start = `<g class="junction start" data-j="${map.start}" transform="translate(${S.x.toFixed(1)} ${S.y.toFixed(1)})"><circle class="hit" r="26"/><rect class="park" x="-14" y="-14" width="28" height="28" rx="7"/><text class="park-p" y="1">P</text><text class="place" y="34">Otopark</text></g>`;
     const summit = `<g class="junction summit" data-j="${map.summit}" transform="translate(${Z.x.toFixed(1)} ${Z.y.toFixed(1)})"><circle class="hit" r="26"/><path class="peak" d="M0 -17 L16 11 L-16 11 Z"/><path class="snow" d="M0 -17 L5.5 -7.5 L-5.5 -7.5 Z"/><text class="place" y="32">Zirve</text></g>`;
     const art: Art = { ...landImage(map), minor, major, trails, labels, junctions: plain + start + summit };
-    artCache.set(index, art);
+    artCache.set(map, art);
     return art;
   }
 
-  function drawMap(index: number) {
-    const art = artOf(index);
+  function drawMap(map: HikingMap) {
+    const art = artOf(map);
     land.setAttribute("href", art.land);
     land.setAttribute("width", String(art.landW));
     land.setAttribute("height", String(art.landH));
@@ -255,40 +281,48 @@ const KM_UNITS = 200;
     junctionsG.innerHTML = art.junctions;
     // The car park is low on one side and the summit high on the other, so
     // the compass goes top on the car park's side, the scale bottom on the summit's.
-    const parkLeft = MAPS[index]!.junctions[MAPS[index]!.start]!.x < WORLD.width / 2;
+    const parkLeft = map.junctions[map.start]!.x < WORLD.width / 2;
     compass.setAttribute("transform", `translate(${parkLeft ? 44 : WORLD.width - 44} 44)`);
     scaleBar.setAttribute("transform", `translate(${parkLeft ? WORLD.width - 36 - KM_UNITS : 36} ${WORLD.height - 24})`);
   }
 
   // ------------------------------------------------------------ the Round
 
-  /** The last map, kept for the tab so leaving or a reload does not bring
-   *  it straight back. Not progress: a browser that refuses storage only
-   *  forgets it. */
+  /** The last Round's maps, one index per level, kept for the tab so
+   *  leaving or a reload does not bring them straight back. Not progress:
+   *  a browser that refuses storage only forgets them. */
   const LAST_KEY = "bday26:yuruyus:last";
-  function lastMap(): number | undefined {
+  function lastMaps(): (number | undefined)[] {
     try {
-      const raw = sessionStorage.getItem(LAST_KEY);
-      const n = Number(raw);
-      return raw != null && Number.isInteger(n) && n >= 0 && n < MAPS.length ? n : undefined;
+      const raw = JSON.parse(sessionStorage.getItem(LAST_KEY) ?? "[]");
+      if (!Array.isArray(raw)) return [];
+      return LEVELS.map((level, i) => {
+        const n = raw[i];
+        return Number.isInteger(n) && n >= 0 && n < level.maps.length ? (n as number) : undefined;
+      });
     } catch {
-      return undefined;
+      return [];
     }
   }
-  function rememberMap(i: number) {
+  function rememberMaps(picks: number[]) {
     try {
-      sessionStorage.setItem(LAST_KEY, String(i));
+      sessionStorage.setItem(LAST_KEY, JSON.stringify(picks));
     } catch {
-      // Storage refused: `mapIndex` still covers "Yeni tur".
+      // Storage refused: `picks` still covers "Yeni tur".
     }
   }
 
-  let mapIndex: number | undefined = lastMap();
-  let map: HikingMap = MAPS[0]!;
+  /** This Round's map index on each level. */
+  let picks: (number | undefined)[] = lastMaps();
+  /** The level being walked, 0..2. */
+  let level = 0;
+  /** The scores of the levels done so far this Round. */
+  let levelScores: number[] = [];
+  let map: HikingMap = LEVELS[0]!.maps[0]!;
   let best = shortestRoute(map);
   let route: number[] = startRoute(map);
   let hover = -1;
-  /** Her route is confirmed and the reveal is on: the map takes no input. */
+  /** Her route on this level is confirmed and the reveal is on: the map takes no input. */
   let confirmed = false;
 
   /** A route drawn as a white casing under a coloured line. */
@@ -322,6 +356,7 @@ const KM_UNITS = 200;
 
     const km = routeLength(map, route);
     const hops = route.length - 1;
+    hudLevel.textContent = `Seviye ${level + 1}/${LEVELS.length}`;
     hudMap.textContent = map.name;
     hudKm.textContent = formatKm(km);
     hudTrails.textContent = `${hops} patika`;
@@ -330,12 +365,21 @@ const KM_UNITS = 200;
     hint.classList.toggle("ready", ready);
     undoBtn.disabled = confirmed || hops === 0;
     confirmBtn.disabled = confirmed || !ready;
+    // During a level's reveal the bar shows its score and the step on instead.
+    hint.hidden = undoBtn.hidden = confirmBtn.hidden = confirmed;
+    levelReveal.hidden = nextBtn.hidden = !confirmed;
   }
 
   function startRound() {
-    mapIndex = pickMap(mapIndex, Math.random);
-    rememberMap(mapIndex);
-    map = MAPS[mapIndex]!;
+    picks = pickRound(picks, Math.random);
+    rememberMaps(picks as number[]);
+    levelScores = [];
+    startLevel(0);
+  }
+
+  function startLevel(i: number) {
+    level = i;
+    map = LEVELS[i]!.maps[picks[i]!]!;
     best = shortestRoute(map);
     route = startRoute(map);
     hover = -1;
@@ -343,7 +387,7 @@ const KM_UNITS = 200;
     revealG.setAttribute("display", "none");
     revealHers.innerHTML = "";
     revealBest.innerHTML = "";
-    drawMap(mapIndex);
+    drawMap(map);
     paint();
   }
 
@@ -359,6 +403,7 @@ const KM_UNITS = 200;
     hover = -1;
     const hers = routeLength(map, route);
     const score = hikingScore(hers, best.length);
+    levelScores[level] = score;
     const same = route.join() === best.route.join();
     const more = dec((hers / best.length - 1) * 100);
 
@@ -376,17 +421,37 @@ const KM_UNITS = 200;
     }
     revealG.removeAttribute("display");
 
-    const cap = formatKm(Math.floor((best.length * (1 + (HIKING_MARGIN + 5) / 100)) / 100) * 100);
-    verdictEl.textContent = same
-      ? `${map.name}: en kısa rotayı buldun!`
-      : score === 100
-        ? `${map.name}: %${more} daha uzun, pay içinde: %100!`
-        : score >= 95
-          ? `${map.name}: %${more} daha uzun. %95 tamam!`
-          : `${map.name}: %${more} daha uzun. %95 için en fazla ${cap} gerekiyordu.`;
-    verdictEl.classList.toggle("win", score >= 95);
+    levelScoreEl.textContent = `%${score}`;
+    levelScoreEl.classList.toggle("win", score >= PRIZE_BAR);
+    levelWhy.textContent = same
+      ? "En kısa rotayı buldun!"
+      : `Senin rotan ${formatKm(hers)}, en kısa ${formatKm(best.length)}: %${more} daha uzun.${score === 100 ? " Pay içinde!" : ""}`;
+    nextBtn.innerHTML = `${level + 1 < LEVELS.length ? "Sonraki seviye" : "Sonuç"} <kbd>Enter</kbd>`;
     paint();
-    shell.finish(score, { detail: `Senin rotan ${formatKm(hers)} · en kısa ${formatKm(best.length)}` });
+  }
+
+  /** "Sonraki seviye" (or "Sonuç" after the last level). */
+  function next() {
+    if (!confirmed || shell.phase !== "playing") return;
+    if (level + 1 < LEVELS.length) {
+      startLevel(level + 1);
+      return;
+    }
+    const scores = levelScores as [number, number, number];
+    const total = hikingRoundScore(scores);
+    levelsEl.innerHTML = scores
+      .map(
+        (sc, i) =>
+          `<li><span>Seviye ${i + 1} · ${LEVELS[i]!.maps[picks[i]!]!.name}</span><b class="${sc >= PRIZE_BAR ? "win" : ""}">%${sc}</b><span class="weight">× %${HIKING_LEVEL_WEIGHTS[i]}</span></li>`,
+      )
+      .join("");
+    const hard = scores[2];
+    verdictEl.textContent =
+      total >= PRIZE_BAR
+        ? "Üç zirve, %95 tamam!"
+        : `%95 için en çok sayan Seviye 3: orada %${hard} aldın.`;
+    verdictEl.classList.toggle("win", total >= PRIZE_BAR);
+    shell.finish(total);
   }
 
   const shell = mountGameShell({
@@ -419,13 +484,21 @@ const KM_UNITS = 200;
   });
   undoBtn.addEventListener("click", () => go(undoRoute(route)));
   confirmBtn.addEventListener("click", confirmRoute);
+  nextBtn.addEventListener("click", next);
 
   // The shell has taken Esc, and every key on its own screens; what arrives
   // here during a Round is hers.
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
-    if (shell.phase !== "playing" || confirmed) return;
+    if (shell.phase !== "playing") return;
     const key = event.key;
+    if (confirmed) {
+      if (key === "Enter") {
+        event.preventDefault();
+        next();
+      }
+      return;
+    }
     if (key === "Enter") {
       event.preventDefault();
       confirmRoute();
@@ -691,6 +764,29 @@ const KM_UNITS = 200;
     color: #fff;
   }
 
+  .level-reveal {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .level-reveal[hidden],
+  .bar [hidden] {
+    display: none;
+  }
+  .level-score {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--bd-ink);
+  }
+  .level-score.win {
+    color: var(--bd-won-ink);
+  }
+  .why {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--bd-ink-soft);
+  }
+
   /* ── start and result card text ──────────────────────────────── */
   .note {
     display: grid;
@@ -704,6 +800,30 @@ const KM_UNITS = 200;
     padding: 8px 12px;
     border-radius: var(--bd-radius-sm);
     background: var(--bd-track);
+  }
+  .levels {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .levels :global(li) {
+    display: grid;
+    grid-template-columns: 1fr auto 64px;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .levels :global(b) {
+    font-weight: 900;
+    color: var(--bd-ink);
+  }
+  .levels :global(b.win) {
+    color: var(--bd-won-ink);
+  }
+  .levels :global(.weight) {
+    color: var(--bd-muted);
+    text-align: right;
   }
   .verdict {
     font-weight: 800;
