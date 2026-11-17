@@ -472,6 +472,27 @@ test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo u
   expect(overflow).toEqual({ down: 0, across: 0 });
 });
 
+test("the Efektler switch flips off, stays off after a reload and on Milyoner too, and leaves Enter to the Game", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/nerede/");
+
+  const toggle = page.getByRole("button", { name: /^Efektler/ });
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveAccessibleName("Efektler: Açık");
+  await toggle.click();
+  await expect(toggle).toHaveAccessibleName("Efektler: Kapalı");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+  // The click took no focus: Enter still starts the Round.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Fotoğraf 1/10 · Hata 0")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Kapalı");
+  await page.goto("/20261209/milyoner/");
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Kapalı");
+});
+
 test("\"Şarkıyı bil\" opens on its start screen with its keys, its prize and the piano's credit (#204)", async ({ page }) => {
   // No Round here: Enter would start the piano, and Game feel is Atıl's by hand.
   await seed(page, { best: {}, jackpot: false, log: [] });

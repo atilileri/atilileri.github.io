@@ -50,7 +50,7 @@ const LETTERS = ["A", "B", "C", "D"];
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="nerede" keys={KEYS}>
+  <GameShell game="nerede" keys={KEYS} effects>
     <span slot="hud">Fotoğraf <b data-index>0</b>/10 · Hata <b data-misses>0</b></span>
     <div class="stage" data-stage>
       <figure class="photo">
@@ -80,6 +80,10 @@ const LETTERS = ["A", "B", "C", "D"];
   import { missScore } from "../../../lib/bday26/scores";
   import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
   import { clearMarks, createAnswerStep, markChoices } from "../../../lib/bday26/choice-quiz";
+  import { neredeCelebration, perfectRoundCelebration } from "../../../lib/bday26/effects";
+  import { mountEffects } from "../../../lib/bday26/effects-dom";
+
+  const effects = mountEffects();
 
   /** Photos in a Round (spec story 66). */
   const COUNT = 10;
@@ -138,6 +142,9 @@ const LETTERS = ["A", "B", "C", "D"];
     stage!.classList.add("answered");
     missesEl!.textContent = String(misses);
     step.wait();
+    // Alongside the marks, never holding up the next photo.
+    if (hit) effects.celebrate(neredeCelebration(Math.random), buttons[i]);
+    else effects.miss(buttons[i]);
   }
 
   function next() {
@@ -147,6 +154,8 @@ const LETTERS = ["A", "B", "C", "D"];
     current += 1;
     if (current >= round.length) {
       shell.finish(missScore(misses), { detail: misses === 0 ? "Hatasız tur!" : `${misses} hata` });
+      // A perfect Round: the grand one, as the result card arrives (0.5 s).
+      if (misses === 0) setTimeout(() => effects.celebrate(perfectRoundCelebration(Math.random)), 500);
       return;
     }
     paintQuestion();
