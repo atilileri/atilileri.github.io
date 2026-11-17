@@ -20,23 +20,27 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  MAPS,
+  LEVELS,
   choices,
   formatKm,
   generateMap,
   neighbours,
-  pickMap,
+  pickRound,
   routeLength,
   shortestRoute,
   startRoute,
   stepRoute,
   undoRoute,
   type Graph,
+  type HikingMap,
 } from "./yuruyus.ts";
 
 // ---------------------------------------------------------- the five maps
+// Seviye 2 is the prototype's five maps, untouched.
 
-test("the five maps are the prototype's, in its order and with its names", () => {
+const MAPS = LEVELS[1]!.maps;
+
+test("Seviye 2 is the prototype's five maps, in its order and with its names", () => {
   assert.deepEqual(
     MAPS.map((m) => [m.name, m.seed]),
     [
@@ -178,21 +182,86 @@ test("undo drops the last step, never the car park", () => {
   assert.deepEqual(undoRoute([0]), [0]);
 });
 
-// ---------------------------------------------------------- picking a map
+// ------------------------------------------------- the three levels
+// After Atıl's play test a Round is three maps: Seviye 1 easy, 2 medium,
+// 3 hard. Harder means more junctions and trails, a longer shortest route,
+// and near-equal alternatives where the easy maps have one clear winner.
 
-test("the first map of the evening can be any of the five", () => {
-  assert.equal(pickMap(undefined, () => 0), 0);
-  assert.equal(pickMap(undefined, () => 0.99), 4);
+const EASY = LEVELS[0]!.maps;
+const HARD = LEVELS[2]!.maps;
+
+test("a Round has three levels, each with five maps, every map named once", () => {
+  assert.equal(LEVELS.length, 3);
+  for (const level of LEVELS) assert.equal(level.maps.length, 5);
+  const names = LEVELS.flatMap((l) => l.maps.map((m) => m.name));
+  assert.equal(new Set(names).size, 15);
 });
 
-test("the next map is never the one just played", () => {
-  for (let last = 0; last < MAPS.length; last++) {
+test("Seviye 1 and Seviye 3 are drawn from their fixed seeds", () => {
+  assert.deepEqual(EASY.map((m) => m.seed), [1005, 1013, 1031, 1036, 1083]);
+  assert.deepEqual(HARD.map((m) => m.seed), [3122, 3177, 3190, 3255, 3277]);
+});
+
+test("each level has more junctions and more trails than the one before, on every map", () => {
+  const span = (maps: readonly HikingMap[], f: (m: HikingMap) => number) => [Math.min(...maps.map(f)), Math.max(...maps.map(f))];
+  for (let i = 1; i < LEVELS.length; i++) {
+    const [, lowJ] = span(LEVELS[i - 1]!.maps, (m) => m.junctions.length);
+    const [highJ] = span(LEVELS[i]!.maps, (m) => m.junctions.length);
+    assert.ok(highJ! > lowJ!, `Seviye ${i + 1} junctions`);
+    const [, lowT] = span(LEVELS[i - 1]!.maps, (m) => m.trails.length);
+    const [highT] = span(LEVELS[i]!.maps, (m) => m.trails.length);
+    assert.ok(highT! > lowT!, `Seviye ${i + 1} trails`);
+  }
+});
+
+test("each level's shortest routes take more trails, and every hard one is longer than every easy one", () => {
+  const hops = (maps: readonly HikingMap[]) => maps.map((m) => shortestRoute(m).route.length - 1);
+  assert.deepEqual(hops(EASY), [6, 5, 6, 6, 5]);
+  assert.deepEqual(hops(HARD), [10, 10, 11, 10, 10]);
+  const km = (maps: readonly HikingMap[]) => maps.map((m) => Math.round(shortestRoute(m).length));
+  assert.deepEqual(km(EASY), [7921, 8654, 9170, 8785, 8898]);
+  assert.deepEqual(km(HARD), [11440, 10118, 10642, 10371, 10341]);
+  assert.ok(Math.min(...km(HARD)) > Math.max(...km(EASY)));
+});
+
+/** How much longer the second-shortest route is than the shortest, in percent. */
+function runnerUp(m: HikingMap): number {
+  const best = shortestRoute(m);
+  let second = Infinity;
+  for (let i = 1; i < best.route.length; i++) {
+    const [a, b] = [best.route[i - 1]!, best.route[i]!];
+    const without = { ...m, trails: m.trails.filter((t) => !((t.a === a && t.b === b) || (t.a === b && t.b === a))) };
+    second = Math.min(second, shortestRoute(without).length);
+  }
+  return (second / best.length - 1) * 100;
+}
+
+test("an easy map has one clear winner; a hard map has a runner-up within 5%", () => {
+  for (const m of EASY) assert.ok(runnerUp(m) >= 5, `${m.name}: ${runnerUp(m).toFixed(1)}%`);
+  for (const m of HARD) assert.ok(runnerUp(m) < 5, `${m.name}: ${runnerUp(m).toFixed(1)}%`);
+});
+
+// ---------------------------------------------------------- picking maps
+
+test("the first Round can deal any map on each level", () => {
+  assert.deepEqual(pickRound([undefined, undefined, undefined], () => 0), [0, 0, 0]);
+  assert.deepEqual(pickRound([undefined, undefined, undefined], () => 0.99), [4, 4, 4]);
+});
+
+test("no level deals the map it dealt last Round", () => {
+  for (let last = 0; last < 5; last++) {
     for (const r of [0, 0.2, 0.4, 0.6, 0.8, 0.99]) {
-      const next = pickMap(last, () => r);
-      assert.notEqual(next, last);
-      assert.ok(next >= 0 && next < MAPS.length);
+      const next = pickRound([last, last, last], () => r);
+      for (const i of next) {
+        assert.notEqual(i, last);
+        assert.ok(i >= 0 && i < 5);
+      }
     }
   }
+});
+
+test("a level with no last map (or a stale one) is dealt fresh", () => {
+  assert.deepEqual(pickRound([undefined, 2, undefined], () => 0.5), [2, 3, 2]);
 });
 
 // ------------------------------------------------------------- the km text

@@ -1,10 +1,10 @@
 /**
  * The hiking map core, "Yürüyüş haritası" (/20261209/yuruyus/, ticket #202;
  * spec #192 "Hiking map", stories 81–83; feel decided on the prototype #183).
- * No DOM, no clock, no `Math.random`: the five maps, the shortest route on
+ * No DOM, no clock, no `Math.random`: the three levels of maps, the shortest route on
  * each, and the rules of the route she builds junction by junction. The page
  * (`src/pages/20261209/yuruyus/index.astro`) paints and listens; the printed
- * map art is `./yuruyus-art.ts`; the score is `hikingScore` in `./scores.ts`.
+ * map art is `./yuruyus-art.ts`; the scores are `hikingScore` and `hikingRoundScore` in `./scores.ts`.
  *
  * THE FIVE MAPS. The spec says "the prototype's 5 maps are kept as fixed
  * data". They are kept as the prototype's generator plus its five seeds, not
@@ -18,6 +18,17 @@
  * `7919 + i·101 + k`, the first k whose shortest route has 6+ junctions and
  * where "head straight for the summit" does not reach 95%). Change nothing
  * in `generateMap` without re-measuring: a reordered `rng()` call is a new map.
+ *
+ * THE THREE LEVELS (after Atıl's play test). A Round is three maps in a
+ * row: Seviye 1 easy, 2 medium, 3 hard. Seviye 2 is the prototype's five
+ * maps above. The other two use the same generator with other knobs: easy
+ * is 16 junctions, wiggle 0.25, prune 0.25 (a sparse net, shortest route
+ * 5–6 trails, the runner-up 5%+ longer); hard is 40 junctions, wiggle 0.42,
+ * prune 0.06 (a dense net, 10–11 trails, 10+ km, a runner-up within 5%,
+ * and "head straight for the summit" more than 15% off). Their seeds were
+ * picked by scanning ranges (1000+ easy, 3000+ hard) against those numbers;
+ * the tests pin them. Each level keeps five maps, so Rounds vary, and
+ * `pickRound` never deals a level the map it dealt last time.
  *
  * HOW A MAP IS DRAWN (all in world units, 1600×900, 5 m per unit):
  *   - junction 0 is the car park ("Otopark", P) low on one side, junction 1
@@ -75,18 +86,48 @@ export type HikingMap = Graph & {
 export const WORLD = { width: 1600, height: 900 } as const;
 /** Metres per world unit. */
 const METRES_PER_UNIT = 5;
-/** The prototype's frozen knobs (#183 verdict): junctions, trail wiggle, random prune. */
-const JUNCTIONS = 26;
-const WIGGLE = 0.3;
-const PRUNE = 0.15;
+/** The generator's knobs: how many junctions, how wiggly the trails, what share of trails a random prune drops. */
+export type Knobs = { junctions: number; wiggle: number; prune: number };
+/** The prototype's frozen knobs (#183 verdict). */
+export const PROTOTYPE_KNOBS: Knobs = { junctions: 26, wiggle: 0.3, prune: 0.15 };
 
-/** The prototype's five maps: name and seed, in its order. */
-const SET: readonly { name: string; seed: number }[] = [
-  { name: "Kartal Tepesi", seed: 7921 },
-  { name: "Çam Sırtı", seed: 8031 },
-  { name: "Sisli Doruk", seed: 8124 },
-  { name: "Kızılkaya", seed: 8227 },
-  { name: "Ayı Yaylası", seed: 8329 },
+/** Seviye 1, easy: few junctions, a sparse net, one clear winner. */
+export const EASY_KNOBS: Knobs = { junctions: 16, wiggle: 0.25, prune: 0.25 };
+/** Seviye 3, hard: a dense net of wigglier trails, near-equal alternatives. */
+export const HARD_KNOBS: Knobs = { junctions: 40, wiggle: 0.42, prune: 0.06 };
+
+/** The maps of each level: name and seed. Seviye 2 is the prototype's five, in its order. */
+const SETS: readonly { knobs: Knobs; maps: readonly { name: string; seed: number }[] }[] = [
+  {
+    knobs: EASY_KNOBS,
+    maps: [
+      { name: "Göl Kıyısı", seed: 1005 },
+      { name: "Çınar Vadisi", seed: 1013 },
+      { name: "Papatya Yolu", seed: 1031 },
+      { name: "Kekik Bayırı", seed: 1036 },
+      { name: "Dere Boyu", seed: 1083 },
+    ],
+  },
+  {
+    knobs: PROTOTYPE_KNOBS,
+    maps: [
+      { name: "Kartal Tepesi", seed: 7921 },
+      { name: "Çam Sırtı", seed: 8031 },
+      { name: "Sisli Doruk", seed: 8124 },
+      { name: "Kızılkaya", seed: 8227 },
+      { name: "Ayı Yaylası", seed: 8329 },
+    ],
+  },
+  {
+    knobs: HARD_KNOBS,
+    maps: [
+      { name: "Kurt Geçidi", seed: 3122 },
+      { name: "Fırtına Sırtı", seed: 3177 },
+      { name: "Buzul Tepe", seed: 3190 },
+      { name: "Sarp Kaya", seed: 3255 },
+      { name: "Yıldız Doruğu", seed: 3277 },
+    ],
+  },
 ];
 
 // ------------------------------------------------------------- generation
@@ -132,10 +173,11 @@ function connected(n: number, edges: Edge[], skip: number): boolean {
 
 /**
  * The prototype's `genMap`, ported call for call: the same seed gives the
- * same map. Exported for the determinism test; the page uses `MAPS`.
+ * same map. Exported for the determinism test; the page uses `LEVELS`.
  */
-export function generateMap(seed: number, name = ""): HikingMap {
+export function generateMap(seed: number, name = "", knobs: Knobs = PROTOTYPE_KNOBS): HikingMap {
   const { width: W, height: H } = WORLD;
+  const { junctions: JUNCTIONS, wiggle: WIGGLE, prune: PRUNE } = knobs;
   const rng = mulberry32(seed);
   const margin = 70;
   const flip = rng() < 0.5;
@@ -225,8 +267,14 @@ export function generateMap(seed: number, name = ""): HikingMap {
   return { name, seed, junctions: pts, trails, start: 0, summit: 1, hills, ripple };
 }
 
-/** The five maps of the Game, in the prototype's order. */
-export const MAPS: readonly HikingMap[] = SET.map(({ name, seed }) => generateMap(seed, name));
+/** One level of a Round: its generator knobs and its maps. */
+export type Level = { knobs: Knobs; maps: readonly HikingMap[] };
+
+/** The three levels of a Round, Seviye 1 to 3, each harder than the last. */
+export const LEVELS: readonly Level[] = SETS.map(({ knobs, maps }) => ({
+  knobs,
+  maps: maps.map(({ name, seed }) => generateMap(seed, name, knobs)),
+}));
 
 /** The terrain's height at a world point, for the art's colours and contours. */
 export function terrainHeight(map: HikingMap, x: number, y: number): number {
@@ -327,16 +375,21 @@ export function undoRoute(route: readonly number[]): number[] {
   return route.length > 1 ? route.slice(0, -1) : [...route];
 }
 
-/**
- * The map for the next Round, by index into `MAPS`: any of the five at
- * first, never the one just played after that. `random` is `Math.random` on
- * the page and a fixed value in the tests.
- */
-export function pickMap(last: number | undefined, random: () => number): number {
-  const n = MAPS.length;
-  if (last == null) return Math.min(n - 1, Math.floor(random() * n));
+/** One map index out of `n`: any at first, never `last` after that. */
+function pickOne(n: number, last: number | undefined, random: () => number): number {
+  if (last == null || last < 0 || last >= n) return Math.min(n - 1, Math.floor(random() * n));
   const i = Math.min(n - 2, Math.floor(random() * (n - 1)));
   return i >= last ? i + 1 : i;
+}
+
+/**
+ * The maps for the next Round, one index per level into `LEVELS[i].maps`:
+ * any at first, never the one that level dealt last Round. `last` holds
+ * the previous Round's indices (undefined where unknown); `random` is
+ * `Math.random` on the page and a fixed value in the tests.
+ */
+export function pickRound(last: readonly (number | undefined)[], random: () => number): number[] {
+  return LEVELS.map((level, i) => pickOne(level.maps.length, last[i], random));
 }
 
 /** A length as the map and HUD print it: "8,8 km", one decimal, Turkish comma. */
