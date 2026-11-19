@@ -394,8 +394,7 @@ export const SONGS: readonly PoolSong[] = [
            E5:2 B5:1 A5:1.5 R:.5
            F#5:.5 A5:.5 F#5:.25 D5:.75 F#5:1
            E5:2 B5:1 A5:2`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/katarina-and-the-waves-walking-on-sunshine-k-mid",
-    unsure: "replaces Time Warp: not yet heard by Atıl",
   },
 ];

@@ -37,7 +37,7 @@ Each song repeats to about 90 s.
 The second pool (2026-11-19). Atıl listened to the first pool on the test page, approved nine hooks
 and dropped the other eleven. **Approved** means he heard the hook and it passed; **new** means a
 candidate that still waits for his ear. A second listen approved ten of the new songs, notes
-unchanged. Time Warp failed twice and was replaced by Walking on Sunshine, which waits for his ear.
+unchanged. Time Warp failed twice and was replaced by Walking on Sunshine, which he then approved too: all 20 hooks are approved.
 The notes and their sources sit beside each song in
 `src/lib/bday26/songs.ts`.
 
@@ -62,7 +62,7 @@ The notes and their sources sit beside each song in
 | World hits | Hit the Road Jack | Ray Charles | approved |
 | World hits | Another One Bites the Dust | Queen | approved |
 | World hits | Popcorn | Hot Butter | approved |
-| World hits | Walking on Sunshine | Katrina and the Waves | new (replaces Time Warp) |
+| World hits | Walking on Sunshine | Katrina and the Waves | approved (replaced Time Warp) |
 
 **Groups rebalanced** to 1/5/14. No reliable melody source turned up for more Yin Yin, for any
 Karsu song, or for new 90s Turkish pop, so those groups shrank and world hits filled the gap. Jest

@@ -41,7 +41,7 @@ const POOL: Record<string, string> = {
 };
 
 /** The hooks Atıl approved by ear (pool doc): nine at the first listen, ten
- *  of the second pool's new songs at the next; the rest are candidates. */
+ *  of the second pool's new songs at the next, then Walking on Sunshine. */
 const APPROVED = [
   "One Inch Punch",
   "Jest Oldu",
@@ -62,6 +62,7 @@ const APPROVED = [
   "Lambada",
   "Hit the Road Jack",
   "Another One Bites the Dust",
+  "Walking on Sunshine",
 ];
 
 test("the pool is the 20 songs of the pool document, each title once", () => {
