@@ -6,7 +6,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createEffects, createEffectsPreference, forReducedMotion, milyonerCelebration, neredeCelebration, perfectRoundCelebration } from "./effects.ts";
+import { createEffects, createEffectsPreference, forReducedMotion, milyonerCelebration, neredeCelebration, perfectRoundCelebration, giftCelebration, smallPrizeCelebration, sparkleCelebration } from "./effects.ts";
 
 /** A fixed random stream, so a test reads one known draw. */
 function seeded(seed: number) {
@@ -172,4 +172,16 @@ test("stopLoops silences every loop until the Game starts it again", () => {
   assert.equal(log.length, 2, "a stopped loop does not restart on set");
   car.start();
   assert.equal(log.at(-2), "start engine");
+});
+
+test("gifts: a bought Gift is the biggest party, a Small prize a smaller one, Gifted points a light sparkle", () => {
+  const rng = seeded(5);
+  const gift = giftCelebration(rng);
+  const prize = smallPrizeCelebration(rng);
+  const sparkle = sparkleCelebration(rng);
+  assert.deepEqual([gift.size, gift.sound], ["grand", "gift-fanfare"]);
+  assert.equal(prize.sound, "prize-fanfare");
+  assert.deepEqual(sparkle.shapes, ["star"]);
+  assert.equal(sparkle.sound, "sparkle");
+  assert.ok(gift.particles > prize.particles && prize.particles > sparkle.particles);
 });

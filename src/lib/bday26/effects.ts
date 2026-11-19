@@ -32,7 +32,7 @@ export type EffectsPreference = {
 };
 
 export type Size = "puff" | "burst" | "shower" | "grand";
-export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare";
+export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare" | "gift-fanfare" | "prize-fanfare" | "sparkle";
 
 export type Shape = "square" | "circle" | "strip" | "star";
 
@@ -109,6 +109,22 @@ export function neredeCelebration(rng: () => number): Celebration {
 /** A Round with no miss, on the result screen. */
 export function perfectRoundCelebration(rng: () => number): Celebration {
   return celebration("grand", rng);
+}
+
+/** A Gift bought in the shop: the biggest party there is, with its own fanfare. */
+export function giftCelebration(rng: () => number): Celebration {
+  return { ...celebration("grand", rng), sound: "gift-fanfare" };
+}
+
+/** A Small prize won (a Round first lifts the Best score to 95, or a jackpot):
+ *  a shower, smaller than a Gift's, and a short brass call. */
+export function smallPrizeCelebration(rng: () => number): Celebration {
+  return { ...celebration("shower", rng), sound: "prize-fanfare" };
+}
+
+/** Gifted points from Atıl's corner: a light sparkle, a few stars. */
+export function sparkleCelebration(rng: () => number): Celebration {
+  return { ...celebration("puff", rng), shapes: ["star"], particles: 18, sound: "sparkle" };
 }
 
 /** `prefers-reduced-motion`: the sound stays; a small puff goes, a big one thins to a few. */
@@ -289,11 +305,18 @@ export function createEffects(pref: EffectsPreference, engine: EffectsEngine): E
 }
 
 export function createEffectsPreference(store: KeyValueStore): EffectsPreference {
+  return createSwitchPreference(store, EFFECTS_KEY);
+}
+
+/** An on/off switch kept under `key` ("on"/"off", missing means on): the
+ *  effects' and the music's. A storage that throws leaves it on, and a flip
+ *  then lasts the visit. */
+export function createSwitchPreference(store: KeyValueStore, key: string): EffectsPreference {
   let on = true;
   try {
-    on = store.getItem(EFFECTS_KEY) !== "off";
+    on = store.getItem(key) !== "off";
   } catch {
-    // Storage blocked: effects stay on, the default.
+    // Storage blocked: the switch stays on, the default.
   }
   return {
     get on() {
@@ -302,7 +325,7 @@ export function createEffectsPreference(store: KeyValueStore): EffectsPreference
     toggle() {
       on = !on;
       try {
-        store.setItem(EFFECTS_KEY, on ? "on" : "off");
+        store.setItem(key, on ? "on" : "off");
       } catch {
         // Quota full or blocked: the switch holds for this visit only.
       }

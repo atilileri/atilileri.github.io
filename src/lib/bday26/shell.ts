@@ -93,6 +93,10 @@ import type { Ledger, RoundOutcome } from "./ledger.ts";
 /** The hub, where "Salona dön" goes. */
 export const HUB_URL = "/20261209/";
 
+/** Fired on `[data-shell]` when a result screen shows a Small prize won by
+ *  this very Round (the one time it unlocks); GameShell celebrates it. */
+export const PRIZE_WON_EVENT = "bday26:prize-won";
+
 export type ShellPhase = "start" | "playing" | "confirm" | "result";
 
 /** What the result card shows for one finished Round. */
@@ -308,6 +312,7 @@ export function mountGameShell(options: MountOptions): GameShell {
       const now = one(root, "[data-shell-prize-now]");
       now.hidden = !r.prizeWonNow;
       now.textContent = `Küçük ödül kazandın: ${prize.name}!`;
+      if (r.prizeWonNow) main.dispatchEvent(new CustomEvent(PRIZE_WON_EVENT));
     }
 
     let shown: HTMLElement | undefined;

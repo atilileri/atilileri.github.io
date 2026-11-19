@@ -19,7 +19,12 @@
  *     one preference for every sound and visual effect: a Game plays them
  *     through `effects` from `src/lib/bday26/effects-dom.ts` and needs no
  *     wiring here; this component's script binds the switch and stops every
- *     effect loop whenever a screen covers the Round.
+ *     effect loop whenever a screen covers the Round. A Game given `music`
+ *     (Milyoner, "Bu nerede?", Hafıza kartları, the slot) also gets the
+ *     "Müzik: Açık/Kapalı" switch (`MusicToggle`) beside it; the script
+ *     plays the track (`src/lib/bday26/music-dom.ts`) and pauses it while
+ *     the leave confirm asks. A Small prize won by this Round
+ *     (`PRIZE_WON_EVENT` from the shell) gets a celebration on the result.
  *   - `.playfield`: the default slot, filling the rest of 1920×1080. It is
  *     `inert` whenever a screen is over it.
  *   - Three screens, absolutely over everything, one visible at a time by
@@ -62,8 +67,14 @@
 import { gameById, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
 import { GAME_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
 import EffectsToggle from "./EffectsToggle.astro";
+import MusicToggle from "./MusicToggle.astro";
+import type { TrackName } from "../../lib/bday26/music";
 
 interface Props {
+  /** This Game's background music (`src/lib/bday26/music-dom.ts`): the
+   *  shell plays it, pauses it during the leave confirm, and shows the
+   *  "Müzik" switch beside "Efektler". Omitted: no music, no switch. */
+  music?: TrackName;
   game: GameId;
   /** The start screen's key legend, in reading order: what she presses, what it does. */
   keys: { key: string; does: string }[];
@@ -74,7 +85,7 @@ interface Props {
   startScreen?: boolean;
 }
 
-const { game: id, keys, resultAside = false, startScreen = true } = Astro.props;
+const { game: id, keys, resultAside = false, startScreen = true, music } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
 const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
@@ -82,7 +93,7 @@ const hasResultSlot = Astro.slots.has("result");
 const hasStartSlot = Astro.slots.has("start");
 ---
 
-<main class="shell" data-shell data-shell-phase={startScreen ? "start" : "playing"}>
+<main class="shell" data-shell data-shell-phase={startScreen ? "start" : "playing"} data-shell-music={music}>
   <header class="hud">
     <div class="hud-game">
       <span class="hud-icon" aria-hidden="true">{GAME_ICON[id]}</span>
@@ -100,6 +111,7 @@ const hasStartSlot = Astro.slots.has("start");
       </div>
     </dl>
     <EffectsToggle />
+    {music && <MusicToggle />}
     <button class="hud-exit" type="button" tabindex="-1" data-shell-action="escape" aria-label="Çık" title="Çık (Esc)">
       <span aria-hidden="true">✕</span> Çık <kbd>Esc</kbd>
     </button>
@@ -211,15 +223,38 @@ const hasStartSlot = Astro.slots.has("start");
 
 <script>
   import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
+  import { smallPrizeCelebration } from "../../lib/bday26/effects";
+  import { PRIZE_WON_EVENT } from "../../lib/bday26/shell";
+  import type { TrackName } from "../../lib/bday26/music";
+  import { bindMusicToggles, music } from "../../lib/bday26/music-dom";
 
   bindEffectsToggles();
+  const shellRoot = document.querySelector<HTMLElement>("[data-shell]");
+  const track = shellRoot?.dataset.shellMusic as TrackName | undefined;
   // A screen over the Round (start, the leave confirm, the result) is quiet:
   // every effect loop stops; the Game starts its loops again when it plays.
-  const shellRoot = document.querySelector<HTMLElement>("[data-shell]");
+  // The music plays on under the start and result cards and pauses only
+  // while the leave confirm asks.
   if (shellRoot) {
+    const onPhase: ((phase: string | undefined) => void)[] = [
+      (phase) => {
+        if (phase !== "playing") effects.stopLoops();
+      },
+    ];
+    if (track) {
+      bindMusicToggles();
+      music.play(track);
+      onPhase.push((phase) => (phase === "confirm" ? music.hold("confirm") : music.release("confirm")));
+    }
     new MutationObserver(() => {
-      if (shellRoot.dataset.shellPhase !== "playing") effects.stopLoops();
+      for (const f of onPhase) f(shellRoot.dataset.shellPhase);
     }).observe(shellRoot, { attributes: true, attributeFilter: ["data-shell-phase"] });
+
+    // A Small prize won this Round: a celebration as the result card lands
+    // (it waits half a second), after a perfect Round's own confetti.
+    shellRoot.addEventListener(PRIZE_WON_EVENT, () => {
+      window.setTimeout(() => effects.celebrate(smallPrizeCelebration(Math.random)), 900);
+    });
   }
 </script>
 

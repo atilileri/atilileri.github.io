@@ -51,7 +51,7 @@ const CARDS = Array.from({ length: 16 }, (_, i) => i);
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="hafiza" keys={KEYS}>
+  <GameShell game="hafiza" keys={KEYS} music="hafiza">
     <span slot="hud">Hamle <b data-moves>0</b></span>
     <ul class="board" data-board aria-label="Kartlar">
       {

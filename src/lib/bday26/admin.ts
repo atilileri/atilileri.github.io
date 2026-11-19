@@ -35,9 +35,11 @@ export type AdminOptions = {
   ledger: Ledger;
   /** The dialog closed; `changed` is true when a gift or undo went through. */
   onClose(changed: boolean): void;
+  /** A gift went through, at that moment (the hub's sparkle). */
+  onGift?(): void;
 };
 
-export function mountAdmin(root: ParentNode, { ledger, onClose }: AdminOptions) {
+export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminOptions) {
   const $ = <T extends HTMLElement = HTMLElement>(selector: string): T => {
     const el = root.querySelector<T>(selector);
     if (!el) throw new Error(`bday26 admin: missing ${selector}`);
@@ -153,6 +155,7 @@ export function mountAdmin(root: ParentNode, { ledger, onClose }: AdminOptions) 
     say(`+${fmt(outcome.points)} puan hediye edildi 🎉`, "ok");
     paint();
     hop(balance);
+    onGift?.();
     amount.focus();
   });
 

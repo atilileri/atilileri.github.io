@@ -22,14 +22,16 @@
  * stay the Game's.
  *
  * THE ENGINE. Sounds are synthesised with Web Audio, no files: short, soft
- * and through one master gain so the Games stay balanced. Confetti is one
+ * and through the effects bus (`./audio-dom.ts`) so the Games stay balanced. Confetti is one
  * fixed canvas over everything, `pointer-events: none`, its frame loop
  * running only while particles are alive; under `prefers-reduced-motion`
  * the confetti thins (`forReducedMotion`) and the shake is off in CSS.
  *
- * Music is not an effect: the piano Games play through `./piano.ts` and
+ * Music is not an effect: background music is `./music-dom.ts` with its own
+ * switch, and the piano Games play through `./piano.ts` and
  * ignore this switch.
  */
+import { bus, context, hz, noise } from "./audio-dom.ts";
 import { openEffectsPreference } from "./browser.ts";
 import {
   createEffects,
@@ -108,25 +110,6 @@ function shake(el: HTMLElement) {
 
 // ── sounds ─────────────────────────────────────────────────────────
 
-let audio: AudioContext | undefined;
-let master: GainNode | undefined;
-
-function context(): AudioContext | undefined {
-  try {
-    if (!audio) {
-      audio = new AudioContext();
-      master = audio.createGain();
-      master.gain.value = 1;
-      master.connect(audio.destination);
-    }
-    if (audio.state === "suspended") void audio.resume();
-    return audio;
-  } catch {
-    return undefined; // no Web Audio: a silent page
-  }
-}
-
-const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
 const vary = (x: number, by = 0.08) => x * (1 + (Math.random() - 0.5) * 2 * by);
 
 /** One soft note: a quick attack, an exponential fade. */
@@ -163,17 +146,6 @@ function brass(ac: AudioContext, out: AudioNode, midi: number, at: number, lengt
   filter.connect(out);
   note(ac, filter, midi, at, length, "sawtooth", level);
   note(ac, filter, midi - 12, at, length, "triangle", level * 0.6);
-}
-
-let noiseBuffer: AudioBuffer | undefined;
-/** Two seconds of white noise, made once. */
-function noise(ac: AudioContext): AudioBuffer {
-  if (!noiseBuffer) {
-    noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  }
-  return noiseBuffer;
 }
 
 /** A puff of filtered noise; the filter's frequency glides `f0` → `f1`. */
@@ -221,6 +193,33 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     [0, 4, 7, 12, 16].forEach((d) => brass(ac, out, B + d, t + 0.62, 1.4, 0.14));
     [24, 28, 31, 36].forEach((d, i) => bell(ac, out, B + d, t + 0.62 + i * 0.09, 1.2, 0.25));
   }),
+  /** A Gift bought: a snare roll, then a big brass hit with a cymbal and
+   *  bells raining down. The biggest sound on the site, still at the quiz
+   *  celebrations' 0.35 gain. */
+  "gift-fanfare": celebration((ac, out, t, C) => {
+    const B = C - 12;
+    for (let i = 0; i < 12; i++) hiss(ac, out, t + i * 0.04, 0.05, 0.05 + i * 0.012, "bandpass", 2400, 1800, 0.9, 0.003);
+    const hit = t + 0.5;
+    hiss(ac, out, hit, 1.6, 0.16, "highpass", 5000, 3500, 0.5, 0.004);
+    tone(ac, out, 120, 55, hit, 0.4, "sine", 0.5, 0.004);
+    [0, 7, 4, 12].forEach((d, i) => brass(ac, out, B + d, hit + i * 0.12, 0.14));
+    [0, 4, 7, 12, 16].forEach((d) => brass(ac, out, B + d, hit + 0.5, 1.6, 0.14));
+    [36, 31, 28, 24, 28, 31, 36, 40].forEach((d, i) => bell(ac, out, B + d, hit + 0.5 + i * 0.07, 1, 0.22));
+  }),
+  /** A Small prize: a short "ta-da-daa" brass call over a bell. */
+  "prize-fanfare": celebration((ac, out, t, C) => {
+    const B = C - 12;
+    brass(ac, out, B + 7, t, 0.12);
+    brass(ac, out, B + 7, t + 0.13, 0.12);
+    [0, 4, 7, 12].forEach((d) => brass(ac, out, B + d + 5, t + 0.28, 0.9, 0.15));
+    bell(ac, out, B + 29, t + 0.28, 1.0, 0.3);
+  }),
+  /** Gifted points: a light rising glitter of high bells. */
+  sparkle(ac, out, t) {
+    const root = 84 + Math.floor(Math.random() * 3) * 2;
+    [0, 4, 7, 11, 14, 19].forEach((d, i) => bell(ac, out, root + d, t + i * 0.05, 0.45, 0.06));
+    hiss(ac, out, t, 0.4, 0.015, "highpass", 7000, 9000, 0.7, 0.05);
+  },
   bonk: celebration((ac, out, t) => {
     const filter = ac.createBiquadFilter();
     filter.type = "lowpass";
@@ -375,6 +374,7 @@ function celebration(make: (ac: AudioContext, out: AudioNode, t: number, C: numb
 function play(name: SoundName) {
   const ac = context();
   const make = SOUNDS[name];
+  const master = bus("effects");
   if (!ac || !master || !make) return;
   make(ac, master, ac.currentTime + 0.02);
 }
@@ -481,6 +481,7 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
 function startLoop(name: LoopName): LoopVoice {
   const ac = context();
   const make = LOOPS[name];
+  const master = bus("effects");
   if (!ac || !master || !make) return { set() {}, stop() {} };
   const out = ac.createGain();
   out.gain.setValueAtTime(0.0001, ac.currentTime);

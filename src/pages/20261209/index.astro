@@ -56,6 +56,11 @@
  * buy. Gifted points show as a small "+N hediye puan" badge under Bakiye,
  * only when there are any; "Kazandığın" stays the Games' Points alone.
  *
+ * SOUND. The header carries the two switches, "Efektler" and "Müzik"
+ * (`src/lib/bday26/effects-dom.ts`, `music-dom.ts`). The salon plays its own
+ * warm, quiet track from her first click or key. A buy gets the biggest
+ * fanfare and confetti; a gift from Atıl's corner a light sparkle.
+ *
  * PLACEHOLDERS, on purpose: "Hoş geldin" (the welcome screen, #195) is a
  * disabled button until its ticket lands; "Belge" links to the Proof page
  * (#197) and every "Oyna" links to its Game's route, which exists once that
@@ -66,6 +71,8 @@
 import BdayLayout from "../../layouts/BdayLayout.astro";
 import Welcome from "../../components/bday26/Welcome.astro";
 import Admin from "../../components/bday26/Admin.astro";
+import EffectsToggle from "../../components/bday26/EffectsToggle.astro";
+import MusicToggle from "../../components/bday26/MusicToggle.astro";
 import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
 import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
 
@@ -100,6 +107,10 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         <button class="bd-btn ghost small" type="button" data-tool="geri-yukle">Geri yükle</button>
         <a class="bd-btn ghost small" href="/20261209/belge/">Belge</a>
       </nav>
+      <div class="switches">
+        <EffectsToggle />
+        <MusicToggle />
+      </div>
     </header>
 
     <div class="main">
@@ -249,8 +260,17 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     type Progress,
     type SaveCodeOutcome,
   } from "../../lib/bday26/ledger";
+  import { giftCelebration, sparkleCelebration } from "../../lib/bday26/effects";
+  import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
+  import { bindMusicToggles, music } from "../../lib/bday26/music-dom";
 
   const ledger = openLedger();
+
+  // The salon's own music, warm and quiet, from her first click or key; the
+  // two switches sit in the header.
+  bindEffectsToggles();
+  bindMusicToggles();
+  music.play("hub");
 
   /** Whole Points, written the Turkish way: 1.000. */
   const fmt = (n: number) => Math.round(n).toLocaleString("tr-TR");
@@ -561,6 +581,8 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
 
     if (button.hasAttribute("data-buy")) {
       if (ledger.buy(id).ok) {
+        // A Gift is the biggest moment of the evening: fanfare and confetti.
+        effects.celebrate(giftCelebration(Math.random));
         say(`${gift.name} senin! Yedek kodunu almayı unutma.`, { label: "Yedekle", run: () => void openYedekle() });
       }
     } else {
@@ -577,9 +599,18 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // Gifted points go through this page's ledger. The toast sits behind the
   // modal, so the repaint, the hop and the backup prompt wait for it to close.
   const mainStat = $(document, ".stat[data-main]");
+  let gifted = false;
   mountAdmin(document, {
     ledger,
+    // A gift sparkles as it goes through; its stars wait for the dialog to
+    // close (the modal sits above the confetti) and rise from the Balance.
+    onGift() {
+      effects.sound("sparkle");
+      gifted = true;
+    },
     onClose(changed) {
+      if (gifted) effects.celebrate(sparkleCelebration(Math.random), mainStat);
+      gifted = false;
       if (!changed) return;
       render();
       mainStat.removeAttribute("data-hop");
@@ -708,6 +739,12 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     display: grid;
     grid-template-columns: auto auto;
     gap: 2px 4px;
+  }
+  /* "Efektler" and "Müzik", stacked beside the tools. */
+  .switches {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
   }
 
   /* ── main: tiles + shop ──────────────────────────────────────── */

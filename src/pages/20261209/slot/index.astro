@@ -57,7 +57,7 @@ const LIGHTS = Array.from({ length: 15 });
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="slot" keys={KEYS} startScreen={false}>
+  <GameShell game="slot" keys={KEYS} startScreen={false} music="slot">
     <span slot="hud">Tur <b data-spins>0</b></span>
     <div class="machine" data-machine data-state="ready">
       <div class="cabinet">
@@ -105,6 +105,8 @@ const LIGHTS = Array.from({ length: 15 });
   import { spin, SLOT_SYMBOLS, type Spin, type SpinOutcome } from "../../../lib/bday26/slot";
   import { slotScore } from "../../../lib/bday26/scores";
   import { PRIZE_WON_ICON } from "../../../lib/bday26/icons";
+  import { smallPrizeCelebration } from "../../../lib/bday26/effects";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
   function one<T extends HTMLElement>(selector: string): T {
     const el = document.querySelector<T>(selector);
@@ -239,6 +241,8 @@ const LIGHTS = Array.from({ length: 15 });
     scoreEl.hidden = false;
     paintPrize();
     machine.classList.toggle("won-now", outcome?.prizeWonNow === true);
+    // A jackpot is the slot's Small prize: its celebration, every time.
+    if (drawn.outcome === "jackpot") effects.celebrate(smallPrizeCelebration(Math.random));
   }
 
   function paintPrize() {
