@@ -244,12 +244,13 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     tone(ac, out, vary(110, 0.1), 70, t, 0.06, "sine", 0.05, 0.004);
   },
   // ── Hollanda'da sürüş ──
-  /** Tyres squealing under hard braking: a wavering high whine. */
+  /** Tyres under hard braking: a short, muted whine (toned down after
+   *  Atıl's listen: a triangle, not a saw, and well under the music). */
   brake(ac, out, t) {
     const bp = ac.createBiquadFilter();
     bp.type = "bandpass";
-    bp.frequency.value = 2600;
-    bp.Q.value = 6;
+    bp.frequency.value = 1900;
+    bp.Q.value = 3;
     bp.connect(out);
     const lfo = ac.createOscillator();
     const depth = ac.createGain();
@@ -258,20 +259,20 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     lfo.connect(depth);
     const osc = ac.createOscillator();
     const gain = ac.createGain();
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(vary(2500, 0.05), t);
-    osc.frequency.linearRampToValueAtTime(2150, t + 0.55);
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(vary(1900, 0.05), t);
+    osc.frequency.linearRampToValueAtTime(1650, t + 0.45);
     depth.connect(osc.frequency);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.035, t + 0.05);
-    gain.gain.setValueAtTime(0.035, t + 0.35);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.014, t + 0.06);
+    gain.gain.setValueAtTime(0.014, t + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
     osc.connect(gain).connect(bp);
     for (const o of [osc, lfo]) {
       o.start(t);
       o.stop(t + 0.65);
     }
-    hiss(ac, out, t, 0.55, 0.03, "highpass", 3000, 3000, 0.7, 0.04);
+    hiss(ac, out, t, 0.45, 0.01, "bandpass", 2400, 1800, 0.8, 0.04);
   },
   /** A bicycle bell: "tring tring", inharmonic partials that ring out. */
   bell(ac, out, t) {
@@ -313,34 +314,35 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     tone(ac, out, 130, 45, t, 0.25, "sine", 0.22, 0.004);
     hiss(ac, out, t, 0.12, 0.12, "lowpass", 900, 200, 0.8, 0.002);
   },
-  /** A mistake named: a short, soft two-tone warning. */
+  /** A mistake named: a short, soft two-tone warning (sines, lower and
+   *  quieter than at first, so it informs without nagging). */
   warn(ac, out, t) {
-    note(ac, out, 81, t, 0.11, "triangle", 0.07);
-    note(ac, out, 77, t + 0.12, 0.16, "triangle", 0.07);
+    note(ac, out, 76, t, 0.11, "sine", 0.045);
+    note(ac, out, 72, t + 0.12, 0.16, "sine", 0.045);
   },
   // ── Kayak macerası ──
   /** A jump: a rising whoosh of air. */
   jump(ac, out, t) {
-    hiss(ac, out, t, 0.3, 0.09, "bandpass", 500, 2200, 1.5, 0.04);
+    hiss(ac, out, t, 0.3, 0.06, "bandpass", 500, 2000, 1.5, 0.04);
   },
   /** Landing on the snow: a soft thud and a puff. */
   land(ac, out, t) {
-    tone(ac, out, 95, 45, t, 0.2, "sine", 0.18, 0.004);
-    hiss(ac, out, t, 0.18, 0.08, "lowpass", 1500, 300, 0.7, 0.004);
+    tone(ac, out, 95, 45, t, 0.2, "sine", 0.13, 0.004);
+    hiss(ac, out, t, 0.18, 0.05, "lowpass", 1300, 300, 0.7, 0.004);
   },
   /** A flag taken: one bright little ding. */
   ding(ac, out, t) {
-    bell(ac, out, 91 + Math.floor(Math.random() * 3) * 2, t, 0.35, 0.08);
+    bell(ac, out, 91 + Math.floor(Math.random() * 3) * 2, t, 0.35, 0.06);
   },
   /** A fall: a tumble of snow and a low bonk. */
   crash(ac, out, t) {
-    hiss(ac, out, t, 0.55, 0.16, "lowpass", 2500, 250, 0.6, 0.006);
-    tone(ac, out, 160, 55, t, 0.35, "sine", 0.18, 0.006);
-    tone(ac, out, 120, 50, t + 0.12, 0.25, "triangle", 0.08, 0.006);
+    hiss(ac, out, t, 0.55, 0.11, "lowpass", 2000, 250, 0.6, 0.006);
+    tone(ac, out, 160, 55, t, 0.35, "sine", 0.13, 0.006);
+    tone(ac, out, 120, 50, t + 0.12, 0.25, "triangle", 0.055, 0.006);
   },
   /** A checkpoint (or the finish) passed: a short rising chime. */
   checkpoint(ac, out, t) {
-    [72, 76, 79, 84].forEach((m, i) => bell(ac, out, m, t + i * 0.07, 0.5, 0.08));
+    [72, 76, 79, 84].forEach((m, i) => bell(ac, out, m, t + i * 0.07, 0.5, 0.06));
   },
   // ── Kelime avı ──
   /** A soft key tick: a click of noise and a tiny high blip. */
@@ -396,61 +398,69 @@ function noiseLoop(ac: AudioContext): AudioBufferSourceNode {
 }
 
 const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
-  /** The car's engine: a low growl whose pitch rises with speed and whose
-   *  volume and brightness rise with the gas. Params: speed, throttle (0..1). */
+  /** The car's engine: a soft, round, low hum (rewritten after Atıl's
+   *  listen found the old sawtooth growl buzzy and too loud). A sine and a
+   *  quiet triangle an octave up, through a gentle low-pass; the pitch moves
+   *  only a little with speed and the level a little with the gas, slowly,
+   *  so it sits as a texture under the radio. Params: speed, throttle (0..1). */
   engine(ac, out) {
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass";
-    lp.Q.value = 2;
+    lp.Q.value = 0.5;
     const gain = ac.createGain();
     gain.gain.value = 0.0001;
     lp.connect(gain).connect(out);
-    const saw = ac.createOscillator();
-    saw.type = "sawtooth";
-    const sub = ac.createOscillator();
-    sub.type = "square";
-    const subGain = ac.createGain();
-    subGain.gain.value = 0.35;
-    saw.connect(lp);
-    sub.connect(subGain).connect(lp);
-    // A little wobble, so it rumbles rather than hums.
+    const body = ac.createOscillator();
+    body.type = "sine";
+    const over = ac.createOscillator();
+    over.type = "triangle";
+    const overGain = ac.createGain();
+    overGain.gain.value = 0.3;
+    body.connect(lp);
+    over.connect(overGain).connect(lp);
+    // A slow, shallow breath in the level, so it lives without wobbling.
     const lfo = ac.createOscillator();
-    lfo.frequency.value = 9;
-    const wobble = ac.createGain();
-    wobble.gain.value = 3;
-    lfo.connect(wobble);
-    wobble.connect(saw.frequency);
+    lfo.frequency.value = 0.7;
+    const breath = ac.createGain();
+    breath.gain.value = 0.002;
+    lfo.connect(breath).connect(gain.gain);
     let speed = 0;
     let throttle = 0;
     return {
-      nodes: [saw, sub, lfo],
+      nodes: [body, over, lfo],
       set(p, now) {
         speed = p.speed ?? speed;
         throttle = p.throttle ?? throttle;
-        const f = 42 + speed * 95 + throttle * 12;
-        smooth(saw.frequency, f, now);
-        smooth(sub.frequency, f / 2, now);
-        smooth(lp.frequency, 300 + speed * 700 + throttle * 500, now);
-        smooth(gain.gain, 0.03 + speed * 0.025 + throttle * 0.03, now, 0.12);
+        const f = 58 + speed * 26 + throttle * 4;
+        smooth(body.frequency, f, now, 0.25);
+        smooth(over.frequency, f * 2, now, 0.25);
+        smooth(lp.frequency, 260 + speed * 160 + throttle * 60, now, 0.25);
+        smooth(gain.gain, 0.012 + speed * 0.006 + throttle * 0.004, now, 0.3);
       },
     };
   },
-  /** Skis on snow: a hiss whose brightness and volume follow her speed.
+  /** Skis on snow: a soft, filtered hush under the music (turned well down
+   *  after Atıl's listen). A high-pass and a low-pass take the hiss out of
+   *  the noise; the level follows her speed on a gentle (squared) curve and
+   *  slowly, so a burst of speed swells it rather than snapping it.
    *  Param: speed (0..1). */
   swoosh(ac, out) {
     const src = noiseLoop(ac);
-    const bp = ac.createBiquadFilter();
-    bp.type = "bandpass";
-    bp.Q.value = 0.8;
+    const hp = ac.createBiquadFilter();
+    hp.type = "highpass";
+    hp.frequency.value = 220;
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.Q.value = 0.4;
     const gain = ac.createGain();
     gain.gain.value = 0.0001;
-    src.connect(bp).connect(gain).connect(out);
+    src.connect(hp).connect(lp).connect(gain).connect(out);
     return {
       nodes: [src],
       set(p, now) {
-        const v = p.speed ?? 0;
-        smooth(bp.frequency, 500 + v * 1800, now);
-        smooth(gain.gain, 0.0001 + v * 0.07, now, 0.06);
+        const v = Math.max(0, Math.min(1, p.speed ?? 0));
+        smooth(lp.frequency, 700 + v * 700, now, 0.2);
+        smooth(gain.gain, 0.0001 + v * v * 0.022, now, 0.2);
       },
     };
   },
@@ -465,13 +475,13 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
     const lfo = ac.createOscillator();
     lfo.frequency.value = 0.13;
     const swell = ac.createGain();
-    swell.gain.value = 0.012;
+    swell.gain.value = 0.004;
     lfo.connect(swell).connect(gain.gain);
     src.connect(lp).connect(gain).connect(out);
     return {
       nodes: [src, lfo],
       set(p, now) {
-        smooth(gain.gain, 0.035 * (p.level ?? 1), now, 0.5);
+        smooth(gain.gain, 0.014 * (p.level ?? 1), now, 0.5);
       },
     };
   },
