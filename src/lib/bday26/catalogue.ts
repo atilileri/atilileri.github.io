@@ -74,7 +74,7 @@ export const GAMES: readonly Game[] = [
   { id: "sarki", name: "Şarkıyı bil", rule: "İlk notalardan şarkıyı tanı", prize: { name: "Dodo'da kahvaltı", desc: "Sint Gerardusplein'deki Dodo coffee bar'da kahvaltı." } },
   { id: "piyano", name: "Piyano", rule: "Düşen notalara bas", prize: { name: "De Slak'ta akşam yemeği", desc: "Eindhoven'daki De Slak'ta akşam yemeği." } },
   { id: "kadraj", name: "Kadraj", rule: "Üçte bir kuralıyla kırp", prize: { name: "Sage bottomless portafiltre", desc: "Mükemmel shot'lar için Sage makinesine bottomless portafiltre." } },
-  { id: "surus", name: "Hollanda'da sürüş", rule: "Bisikletlere yol ver, kanala düşme", prize: { name: "Çift bisiklet çantası", desc: "40 litreden büyük, iki taraflı bisiklet çantası." } },
+  { id: "surus", name: "Hollanda'da sürüş", rule: "Bisikletlilere yol ver, kanala düşme", prize: { name: "Çift bisiklet çantası", desc: "40 litreden büyük, iki taraflı bisiklet çantası." } },
   { id: "yuruyus", name: "Yürüyüş haritası", rule: "Zirveye en kısa yolu çiz", prize: { name: "Piknik günü", desc: "Yeri sen seç, sepeti ben hazırlayayım." } },
   { id: "kayak", name: "Kayak macerası", rule: "Kayalardan atla, bayrakları topla", prize: { name: "Termal spa günü", desc: "Senin seçtiğin bir termal spada bir gün." } },
   { id: "slot", name: "Slot makinesi", rule: "Çevir, şansını dene", luck: true, prize: { name: "Kazımalı dünya haritası", desc: "Gittiğimiz yerleri kazıyacağımız bir dünya haritası yapbozu." } },

@@ -772,10 +772,10 @@ test("Kelime avı: a Round plays all ten words once each, a short row is refused
 
     const letters = answer!.replace(/ /g, "");
     if (n === 10) {
-      // The last word: six rows of Q, which is in no answer.
+      // The last word: six rows of J, which is in no answer.
       for (let g = 1; g <= 6; g++) {
         await expect(page.locator("[data-guess]")).toHaveText(String(g));
-        for (let k = 0; k < letters.length; k++) await page.keyboard.press("q");
+        for (let k = 0; k < letters.length; k++) await page.keyboard.press("j");
         await page.keyboard.press("Enter");
       }
       await expect(between).toBeVisible();
@@ -847,7 +847,7 @@ test("Yürüyüş haritası: three levels walked by number keys along the shorte
   await page.goto("/20261209/yuruyus/");
   const start = page.getByRole("dialog", { name: "Yürüyüş haritası" });
   await expect(start).toContainText("Piknik günü");
-  await expect(start).toContainText("en kısanın %10 fazlasına kadar %100");
+  await expect(start).toContainText("en kısa rotadan %10 uzuna kadar %100");
   await expect(start).toContainText("Seviye 1 %20, Seviye 2 %30, Seviye 3 %50");
 
   await page.keyboard.press("Enter");
@@ -920,7 +920,7 @@ test("Kadraj: five crops by keys, a reveal after each, the five on the result ca
     await page.keyboard.press("q");
     await page.keyboard.press("x");
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("button", { name: i < 5 ? /Sonraki/ : /Sonuç/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: i < 5 ? /Sonraki fotoğraf/ : /Sonuç/ })).toBeVisible();
     await page.keyboard.press("Enter");
   }
 

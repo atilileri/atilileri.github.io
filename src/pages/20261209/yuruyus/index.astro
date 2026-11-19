@@ -60,7 +60,7 @@ const game = gameById("yuruyus");
 
 const KEYS = [
   { key: "Tık", does: "Komşu kavşağa ilerle" },
-  { key: "1 – 9", does: "Numaralı kavşağa ilerle" },
+  { key: "1–9", does: "Numaralı kavşağa ilerle" },
   { key: "⌫ / Z", does: "Son adımı geri al" },
   { key: "Tık rotada", does: "Rotayı o kavşağa kadar kısalt" },
   { key: "Enter", does: "Zirvedeyken rotayı onayla" },
@@ -68,7 +68,7 @@ const KEYS = [
 ];
 
 /** The per-level formula, the prototype's words (#183), on both cards. */
-const RULE = `Seviye skoru: en kısanın %${HIKING_MARGIN} fazlasına kadar %100, sonrası her %1 için −1 puan.`;
+const RULE = `Seviye skoru: en kısa rotadan %${HIKING_MARGIN} uzuna kadar %100, sonrası her %1 için −1 puan.`;
 
 /** The Round's weights, in one line on the start card. */
 const WEIGHTS = `Üç seviye, her biri bir öncekinden zor. Tur skoru: ${HIKING_LEVEL_WEIGHTS.map((w, i) => `Seviye ${i + 1} %${w}`).join(", ")}.`;
@@ -494,7 +494,7 @@ const KM_UNITS = 200;
     levelScoreEl.classList.toggle("win", score >= PRIZE_BAR);
     levelWhy.textContent = same
       ? "En kısa rotayı buldun!"
-      : `Senin rotan ${formatKm(hers)}, en kısa ${formatKm(best.length)}: %${more} daha uzun.${score === 100 ? " Pay içinde!" : ""}`;
+      : `Senin rotan ${formatKm(hers)}, en kısa ${formatKm(best.length)}: %${more} daha uzun.${score === 100 ? " Kabul edilen fark içinde, %100!" : ""}`;
     nextBtn.innerHTML = `${level + 1 < LEVELS.length ? "Sonraki seviye" : "Sonuç"} <kbd>Enter</kbd>`;
     paint();
   }
@@ -518,7 +518,7 @@ const KM_UNITS = 200;
     verdictEl.textContent =
       total >= PRIZE_BAR
         ? "Üç zirve, %95 tamam!"
-        : `%95 için en çok sayan Seviye 3: orada %${hard} aldın.`;
+        : `%95 için en önemlisi Seviye 3 (%50 sayar): orada %${hard} aldın.`;
     verdictEl.classList.toggle("win", total >= PRIZE_BAR);
     shell.finish(total);
   }

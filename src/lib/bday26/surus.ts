@@ -118,7 +118,7 @@ export const MISTAKES: readonly { id: MistakeId; kind: MistakeKind; label: strin
   { id: "canal", kind: "heavy", label: "Kanala düşme", toast: "Kanala düştün" },
   { id: "wrongway", kind: "heavy", label: "Döner kavşakta ters yön", toast: "Kavşakta ters yöndesin" },
   { id: "crash", kind: "heavy", label: "Sert çarpışma (duvar, ağaç)", toast: "Sert çarptın" },
-  { id: "yield", kind: "light", label: "Bisiklete yol vermeme", toast: "Bisiklete yol vermedin" },
+  { id: "yield", kind: "light", label: "Bisikletliye yol vermeme", toast: "Bisikletliye yol vermedin" },
   { id: "curb", kind: "light", label: "Kaldırıma sürtme", toast: "Kaldırıma sürttün" },
   { id: "speed", kind: "light", label: "Hız sınırını aşma", toast: "Hız sınırını aştın" },
   { id: "bikelane", kind: "light", label: "Bisiklet yolunda sürme", toast: "Bisiklet yolundasın" },

@@ -50,7 +50,7 @@ const game = gameById("piyano");
 const KEYS = [
   { key: "S D F J K L", does: "Nota çizgiye değince bas" },
   { key: "1 2 3", does: "Şarkıyı seç" },
-  { key: "Esc", does: "Salona dön" },
+  { key: "Esc", does: "Turdan çık" },
 ];
 
 /** The picker, the same on the start and the result card. */
@@ -274,7 +274,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     const accuracy = notes ? (hits / notes) * 100 : 0;
     const accText = accuracy.toLocaleString("tr-TR", { maximumFractionDigits: 1 });
     shell.finish(pianoScore(hits, notes, p.song.cap), {
-      detail: `${p.song.name} · ${hits}/${notes} vuruş · %${accText} isabet × %${cap} tavan · ${strays} boş basış`,
+      detail: `${p.song.name} · ${hits}/${notes} vuruş · %${accText} isabet × %${cap} şarkı tavanı · ${strays} boş basış`,
     });
   }
 

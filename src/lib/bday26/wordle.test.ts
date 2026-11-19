@@ -70,8 +70,8 @@ test("typing: the other Turkish letters come up as capitals too", () => {
   assert.deepEqual(["ç", "ğ", "ö", "ş", "ü", "a"].map(typedLetter), ["Ç", "Ğ", "Ö", "Ş", "Ü", "A"]);
 });
 
-test("typing: Q, W and X type (they are on her keyboard) but never match", () => {
-  assert.deepEqual(["q", "w", "x"].map(typedLetter), ["Q", "W", "X"]);
+test("typing: Q, W and X type nothing (no Turkish word uses them)", () => {
+  assert.deepEqual(["q", "w", "x"].map(typedLetter), [undefined, undefined, undefined]);
 });
 
 test("typing: anything that is not a letter types nothing", () => {

@@ -76,9 +76,6 @@ export function shuffleAnswers(random: () => number): number[] {
 /** The 29 letters of the Turkish alphabet, as capitals. */
 export const TURKISH_LETTERS = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
 
-/** On her Turkish Q keyboard and typeable, but in no answer. */
-const FOREIGN_LETTERS = "QWX";
-
 /** Turkish capitals: i → İ, ı → I (plain `toUpperCase` turns both into I). */
 export function upper(text: string): string {
   return text.toLocaleUpperCase("tr");
@@ -86,13 +83,13 @@ export function upper(text: string): string {
 
 /**
  * The letter a key types, as a Turkish capital, or undefined when the key
- * types no letter (Space, digits, Enter, arrows, a foreign é…). Takes
+ * types no letter (Space, digits, Enter, arrows, Q W X, a foreign é…). Takes
  * `KeyboardEvent.key` as it comes.
  */
 export function typedLetter(key: string): string | undefined {
   if ([...key].length !== 1) return undefined;
   const letter = upper(key);
-  return TURKISH_LETTERS.includes(letter) || FOREIGN_LETTERS.includes(letter) ? letter : undefined;
+  return TURKISH_LETTERS.includes(letter) ? letter : undefined;
 }
 
 /** What one guessed letter learns: in place, elsewhere in the answer, or absent. */

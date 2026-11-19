@@ -61,15 +61,15 @@ import { ANSWERS } from "../../../lib/bday26/wordle";
 const game = gameById("wordle");
 
 const KEYS = [
-  { key: "A–Z · Ç Ğ I İ Ö Ş Ü", does: "Harf yaz" },
+  { key: "Harfler", does: "Harf yaz" },
   { key: "⌫", does: "Harfi sil" },
   { key: "Enter", does: "Tahmini gönder · Sonraki kelime" },
   { key: "Tık", does: "Ekrandaki klavyeyle de yazabilirsin" },
-  { key: "Esc", does: "Salona dön" },
+  { key: "Esc", does: "Turdan çık" },
 ];
 
-/** The Turkish Q layout, as on her laptop. */
-const ROWS = ["QWERTYUIOPĞÜ", "ASDFGHJKLŞİ", "ZXCVBNMÖÇ"];
+/** The Turkish Q layout, as on her laptop, without Q W X (no Turkish word uses them). */
+const ROWS = ["ERTYUIOPĞÜ", "ASDFGHJKLŞİ", "ZCVBNMÖÇ"];
 const TURKISH = "ÇĞIİÖŞÜ";
 ---
 
