@@ -36,8 +36,10 @@
  * this time. No source was found for more Yin Yin or any Karsu song, nor for
  * new 90s Turkish pop (searched: bitmidi, Turkish nota/flüt/melodika sites,
  * sheet-music shops), so those groups shrank and Dünya hitleri grew.
- * A later listen approved ten of the eleven, notes unchanged; only Time Warp
- * still waits for his ear.
+ * A later listen approved ten of the eleven, notes unchanged. The eleventh,
+ * Time Warp, never passed (two takes), so it left with the Rocky Horror group
+ * and Walking on Sunshine came in, read from a bitmidi karaoke file; it still
+ * waits for his ear.
  *
  * The approved hooks keep their old sources: Songsterr tabs read through its
  * public tab data before it closed that door (Songsterr marks spoken or
@@ -45,7 +47,7 @@
  * rests here).
  */
 
-export type SongGroup = "Yin Yin" | "Rocky Horror" | "90'lar Türk popu" | "Dünya hitleri";
+export type SongGroup = "Yin Yin" | "90'lar Türk popu" | "Dünya hitleri";
 
 /** How sure the hook is: 1 placeholder … 4 Atıl-approved (see the header). */
 export type HookConfidence = 1 | 2 | 3 | 4;
@@ -87,26 +89,6 @@ export const SONGS: readonly PoolSong[] = [
            B4:.5 D5:.5 B4:.5 A4:.5 B4:2`,
     confidence: 4,
     source: "https://www.songsterr.com/a/wsa/yin-yin-one-inch-punch-tab-s5723477",
-  },
-
-  // ── Rocky Horror ─────────────────────────────────────────────────
-  {
-    // Re-sourced after Atıl dropped the first take. Two MIDI files agree on the sung
-    // line "Let's do the Time Warp again", F E G F# (F#) E: time-warp-mid, channel 0,
-    // bars 35–41 (played an octave up, at 150 bpm in half time), and the
-    // double-feature file, channel 3, bars 18–22 and 29–32 (87 bpm). Neither has
-    // the A pickup the first take had. Sung twice, as in the song.
-    title: "Time Warp",
-    artist: "The Rocky Horror Show",
-    group: "Rocky Horror",
-    bpm: 87,
-    part: "the chorus, \"Let's do the Time Warp again\", twice",
-    hook: `F4:1 E4:1 G4:1 F#4:.75 F#4:.25 E4:2 R:1
-           F4:1 E4:1 G4:1 F#4:.75 F#4:.25 E4:2`,
-    confidence: 3,
-    source: "https://bitmidi.com/time-warp-mid",
-    // second source: https://bitmidi.com/double-feature-the-time-warp-mid
-    unsure: NEW + "; the first take, with an A pickup, was dropped",
   },
 
   // ── 90'lar Türk popu ─────────────────────────────────────────────
@@ -397,5 +379,23 @@ export const SONGS: readonly PoolSong[] = [
     confidence: 4,
     source: "https://bitmidi.com/popcorn-2-mid",
     // second source (pitches only): https://bitmidi.com/popcorn-1-mid
+  },
+  {
+    // Replaces Time Warp. A hand-sequenced karaoke MIDI with the lyrics in it,
+    // channel 3 (the sung line; its syllables land on these notes), bars 25–28:
+    // "I'm walking on sunshine, whoa-oh" twice, quantised, starting on "I'm".
+    // In A, as the file has it; 104 bpm.
+    title: "Walking on Sunshine",
+    artist: "Katrina and the Waves",
+    group: "Dünya hitleri",
+    bpm: 104,
+    part: "the chorus, \"I'm walking on sunshine, whoa-oh\", twice",
+    hook: `F#5:.5 A5:.5 F#5:.25 D5:.75 F#5:1
+           E5:2 B5:1 A5:1.5 R:.5
+           F#5:.5 A5:.5 F#5:.25 D5:.75 F#5:1
+           E5:2 B5:1 A5:2`,
+    confidence: 3,
+    source: "https://bitmidi.com/katarina-and-the-waves-walking-on-sunshine-k-mid",
+    unsure: "replaces Time Warp: not yet heard by Atıl",
   },
 ];

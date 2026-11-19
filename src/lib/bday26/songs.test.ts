@@ -5,10 +5,11 @@
  *   node --test src/lib/bday26/songs.test.ts
  *
  * Expected values come from the pool document, not from `songs.ts`: its 20
- * titles in 4 groups of 1/1/5/13 (the second pool, after Atıl's listening:
- * Karsu found no source and left), and the spec's "about 4 bars (~8 s)" hook,
- * read as 5–12 s so a slow ballad and a fast riff both fit. Whether a hook
- * sounds like its song is Atıl's ear, not a test.
+ * titles in 3 groups of 1/5/14 (the second pool, after Atıl's listening:
+ * Karsu found no source and left, and Rocky Horror left with Time Warp),
+ * and the spec's "about 4 bars (~8 s)" hook, read as 5–12 s so a slow
+ * ballad and a fast riff both fit. Whether a hook sounds like its song is
+ * Atıl's ear, not a test.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -18,7 +19,6 @@ import { parseSong, timeSong } from "./song.ts";
 /** The pool table of `docs/bday26/song-pool.md`, title → group. */
 const POOL: Record<string, string> = {
   "One Inch Punch": "Yin Yin",
-  "Time Warp": "Rocky Horror",
   Şımarık: "90'lar Türk popu",
   "Jest Oldu": "90'lar Türk popu",
   "Her Gece": "90'lar Türk popu",
@@ -37,6 +37,7 @@ const POOL: Record<string, string> = {
   "Hit the Road Jack": "Dünya hitleri",
   "Another One Bites the Dust": "Dünya hitleri",
   Popcorn: "Dünya hitleri",
+  "Walking on Sunshine": "Dünya hitleri",
 };
 
 /** The hooks Atıl approved by ear (pool doc): nine at the first listen, ten
@@ -68,7 +69,7 @@ test("the pool is the 20 songs of the pool document, each title once", () => {
   assert.deepEqual([...SONGS.map((s) => s.title)].sort(), Object.keys(POOL).sort());
 });
 
-test("the groups are Yin Yin 1, Rocky Horror 1, 90'lar Türk popu 5, Dünya hitleri 13", () => {
+test("the groups are Yin Yin 1, 90'lar Türk popu 5, Dünya hitleri 14", () => {
   const counts: Record<string, number> = {};
   for (const s of SONGS) {
     assert.equal(s.group, POOL[s.title], `${s.title} is in the wrong group`);
@@ -76,9 +77,8 @@ test("the groups are Yin Yin 1, Rocky Horror 1, 90'lar Türk popu 5, Dünya hitl
   }
   assert.deepEqual(counts, {
     "Yin Yin": 1,
-    "Rocky Horror": 1,
     "90'lar Türk popu": 5,
-    "Dünya hitleri": 13,
+    "Dünya hitleri": 14,
   });
 });
 
