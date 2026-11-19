@@ -152,3 +152,41 @@ export function routeLine(g: Graph, route: readonly number[]): Point[] {
   }
   return out;
 }
+
+/** The point a fraction `t` (0..1, clamped) of the way along a polyline, by
+ *  distance: where the walking hiker stands mid-step. */
+export function pointAlong(points: readonly Point[], t: number): Point {
+  const first = points[0]!;
+  const legs: number[] = [];
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    const d = Math.hypot(points[i]!.x - points[i - 1]!.x, points[i]!.y - points[i - 1]!.y);
+    legs.push(d);
+    total += d;
+  }
+  if (total === 0 || t <= 0) return { x: first.x, y: first.y };
+  if (t >= 1) {
+    const last = points.at(-1)!;
+    return { x: last.x, y: last.y };
+  }
+  let left = t * total;
+  for (let i = 0; i < legs.length; i++) {
+    const d = legs[i]!;
+    if (left <= d) {
+      const a = points[i]!;
+      const b = points[i + 1]!;
+      const f = d === 0 ? 0 : left / d;
+      return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f };
+    }
+    left -= d;
+  }
+  const last = points.at(-1)!;
+  return { x: last.x, y: last.y };
+}
+
+/** How long the hiker takes to walk a trail of `metres`: 0.4 s plus 0.2 s a
+ *  km, at most 0.8 s; walking back (an undo) takes a third. */
+export function walkMs(metres: number, opts: { back?: boolean } = {}): number {
+  const ms = Math.min(800, 400 + metres / 5);
+  return opts.back ? ms / 3 : ms;
+}

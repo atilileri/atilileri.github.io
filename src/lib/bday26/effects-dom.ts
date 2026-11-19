@@ -223,6 +223,12 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     filter.connect(out);
     tone(ac, filter, 190, 85, t, 0.3, "sine", 0.7, 0.01);
   }),
+  // ── Yürüyüş haritası ──
+  /** A soft footstep on a dirt trail: a short low scuff. */
+  step(ac, out, t) {
+    hiss(ac, out, t, 0.07, 0.07, "lowpass", vary(700, 0.2), 250, 0.7, 0.004);
+    tone(ac, out, vary(110, 0.1), 70, t, 0.06, "sine", 0.05, 0.004);
+  },
   // ── Kelime avı ──
   /** A soft key tick: a click of noise and a tiny high blip. */
   key(ac, out, t) {

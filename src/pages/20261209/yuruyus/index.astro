@@ -113,6 +113,7 @@ const KM_UNITS = 200;
             <g data-labels></g>
             <g data-junctions></g>
             <g data-badges></g>
+            <g class="hiker" data-hiker aria-hidden="true"><ellipse class="hiker-shadow" cx="0" cy="13" rx="9" ry="3"></ellipse><circle r="13"></circle><text data-hiker-face>🚶‍♀️</text></g>
             <!-- Compass and scale bar: placed per map in the corners the car park and summit leave free. -->
             <g class="furniture" aria-hidden="true">
               <g data-compass transform="translate(44 44)">
@@ -171,7 +172,8 @@ const KM_UNITS = 200;
     undoRoute,
     type HikingMap,
   } from "../../../lib/bday26/yuruyus";
-  import { contours, labelPoint, landPixels, linePath, routeLine } from "../../../lib/bday26/yuruyus-art";
+  import { contours, labelPoint, landPixels, linePath, pointAlong, routeLine, walkMs } from "../../../lib/bday26/yuruyus-art";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
   /** The scale bar's 1 km in world units (5 m per unit), as in the markup. */
   const KM_UNITS = 200;
@@ -191,6 +193,8 @@ const KM_UNITS = 200;
   const previewG = $<SVGGElement>("[data-preview]");
   const routeG = $<SVGGElement>("[data-route]");
   const badgesG = $<SVGGElement>("[data-badges]");
+  const hikerG = $<SVGGElement>("[data-hiker]");
+  const hikerFace = $<SVGTextElement>("[data-hiker-face]");
   const revealG = $<SVGGElement>("[data-reveal]");
   const revealHers = $<SVGGElement>("[data-reveal-hers]");
   const revealBest = $<SVGGElement>("[data-reveal-best]");
@@ -370,6 +374,64 @@ const KM_UNITS = 200;
     levelReveal.hidden = nextBtn.hidden = !confirmed;
   }
 
+  // ------------------------------------------------------- the walking hiker
+  // A step chosen, she walks that trail in a short tween with soft footsteps;
+  // an undo walks back quickly. Nothing waits for her: a new pick snaps the
+  // walk in progress and the next one starts from the junction she was
+  // heading for. With effects off (or reduced motion) she simply stands at
+  // the route's end.
+
+  let walkFrame = 0;
+  let stepTimer = 0;
+
+  function placeHiker(p: { x: number; y: number }, facingRight?: boolean) {
+    hikerG.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+    // The walker emoji faces left; mirror it when she heads east.
+    if (facingRight != null) hikerFace.setAttribute("transform", facingRight ? "scale(-1 1)" : "");
+  }
+
+  function stopWalk() {
+    cancelAnimationFrame(walkFrame);
+    window.clearInterval(stepTimer);
+    walkFrame = stepTimer = 0;
+  }
+
+  /** Stand at the route's end now. */
+  function snapHiker() {
+    stopWalk();
+    placeHiker(map.junctions[route.at(-1)!]!);
+  }
+
+  /** Walk from the old route's end to the new one's, along the trails. */
+  function walk(from: number[], to: number[]) {
+    stopWalk();
+    const forward = to.length === from.length + 1 && to.slice(0, -1).join() === from.join();
+    const back = to.length < from.length && from.slice(0, to.length).join() === to.join();
+    const motion = effects.on && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!motion || (!forward && !back)) return snapHiker();
+    const legs = forward ? [from.at(-1)!, to.at(-1)!] : from.slice(to.length - 1).reverse();
+    const line = routeLine(map, legs);
+    const ms = walkMs(routeLength(map, legs), { back });
+    const t0 = performance.now();
+    let last = line[0]!;
+    let foot = 0;
+    effects.sound("step");
+    stepTimer = window.setInterval(() => effects.sound("step"), back ? 110 : 170);
+    const frame = (now: number) => {
+      const t = Math.min(1, (now - t0) / ms);
+      // Ease in and out, so she sets off and arrives softly.
+      const p = pointAlong(line, t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+      if (Math.abs(p.x - last.x) > 0.5) placeHiker(p, p.x > last.x);
+      else placeHiker(p);
+      // A little bob in her step.
+      hikerFace.style.translate = `0 ${(Math.sin(++foot * 0.9) * 1.5).toFixed(1)}px`;
+      last = p;
+      if (t < 1) walkFrame = requestAnimationFrame(frame);
+      else snapHiker();
+    };
+    walkFrame = requestAnimationFrame(frame);
+  }
+
   function startRound() {
     picks = pickRound(picks, Math.random);
     rememberMaps(picks as number[]);
@@ -388,12 +450,16 @@ const KM_UNITS = 200;
     revealHers.innerHTML = "";
     revealBest.innerHTML = "";
     drawMap(map);
+    hikerG.removeAttribute("display");
+    snapHiker();
     paint();
   }
 
   function go(next: number[]) {
     if (confirmed || shell.phase !== "playing") return;
+    const was = route;
     route = next;
+    if (route !== was && route.join() !== was.join()) walk(was, route);
     paint();
   }
 
@@ -401,6 +467,9 @@ const KM_UNITS = 200;
     if (confirmed || shell.phase !== "playing" || !atSummit(map, route)) return;
     confirmed = true;
     hover = -1;
+    // The reveal is the existing drawing alone: the hiker steps aside.
+    stopWalk();
+    hikerG.setAttribute("display", "none");
     const hers = routeLength(map, route);
     const score = hikingScore(hers, best.length);
     levelScores[level] = score;
@@ -457,7 +526,7 @@ const KM_UNITS = 200;
   const shell = mountGameShell({
     game: "yuruyus",
     ledger: openLedger(),
-    hooks: { startRound },
+    hooks: { startRound, abandonRound: stopWalk },
   });
 
   // ---------------------------------------------------------------- input
@@ -492,6 +561,7 @@ const KM_UNITS = 200;
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (shell.phase !== "playing") return;
     const key = event.key;
+    if (!event.repeat && /^([1-9]|Backspace|z|Z|Enter)$/.test(key)) effects.sound("key");
     if (confirmed) {
       if (key === "Enter") {
         event.preventDefault();
@@ -698,6 +768,22 @@ const KM_UNITS = 200;
   }
   .map :global(.badge) {
     pointer-events: none;
+  }
+  .hiker {
+    pointer-events: none;
+  }
+  .hiker circle {
+    fill: #fff;
+    stroke: var(--bd-orange);
+    stroke-width: 3;
+  }
+  .hiker-shadow {
+    fill: rgb(60 40 20 / 0.25);
+  }
+  .hiker text {
+    font-size: 17px;
+    text-anchor: middle;
+    dominant-baseline: central;
   }
 
   .compass {
