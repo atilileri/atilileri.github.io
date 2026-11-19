@@ -105,8 +105,15 @@ const LIGHTS = Array.from({ length: 15 });
   import { spin, SLOT_SYMBOLS, type Spin, type SpinOutcome } from "../../../lib/bday26/slot";
   import { slotScore } from "../../../lib/bday26/scores";
   import { PRIZE_WON_ICON } from "../../../lib/bday26/icons";
-  import { smallPrizeCelebration } from "../../../lib/bday26/effects";
+  import { jackpotCelebration } from "../../../lib/bday26/effects";
   import { effects } from "../../../lib/bday26/effects-dom";
+
+  // Sounds, all through the shared effects switch: the lever's clunk, a
+  // whirr while reels turn (thinning as each stops), a click per stop, then
+  // the outcome — a jingle for a pair, a soft womp for none, the jackpot's
+  // fanfare with coins. The whirr stops on pause, leave and a hidden tab.
+  const whirr = effects.loop("reels");
+  const OUTCOME_SOUND = { pair: "pair-jingle", none: "no-win" } as const;
 
   function one<T extends HTMLElement>(selector: string): T {
     const el = document.querySelector<T>(selector);
@@ -193,8 +200,12 @@ const LIGHTS = Array.from({ length: 15 });
       strips[k]!.classList.add("running");
     });
     t0 = performance.now();
+    effects.sound("lever");
+    whirr.start({ reels: 3 });
     raf = requestAnimationFrame(frame);
   }
+
+  const running = () => reels.filter((r) => !r.settled).length;
 
   function frame(now: number) {
     const t = now - t0;
@@ -216,6 +227,8 @@ const LIGHTS = Array.from({ length: 15 });
         if (u >= 1) {
           r.settled = true;
           r.pos = r.to! % N; // the same cells, a strip-length earlier
+          effects.sound("reel-stop");
+          whirr.set({ reels: running() });
         } else {
           done = false;
         }
@@ -229,6 +242,7 @@ const LIGHTS = Array.from({ length: 15 });
   /** All three reels stand still: price the spin, record it, show it. */
   function land() {
     spinning = false;
+    whirr.stop();
     const drawn = current!;
     const score = slotScore(drawn.reels);
     const outcome = shell.finish(score, { jackpot: drawn.outcome === "jackpot" });
@@ -241,8 +255,11 @@ const LIGHTS = Array.from({ length: 15 });
     scoreEl.hidden = false;
     paintPrize();
     machine.classList.toggle("won-now", outcome?.prizeWonNow === true);
-    // A jackpot is the slot's Small prize: its celebration, every time.
-    if (drawn.outcome === "jackpot") effects.celebrate(smallPrizeCelebration(Math.random));
+    // A jackpot is the slot's Small prize: its shower, every time, with the
+    // jackpot's own fanfare and coins in place of the prize's brass call
+    // (one celebration, so the two never double up).
+    if (drawn.outcome === "jackpot") effects.celebrate(jackpotCelebration(Math.random));
+    else effects.sound(OUTCOME_SOUND[drawn.outcome]);
   }
 
   function paintPrize() {
@@ -254,6 +271,7 @@ const LIGHTS = Array.from({ length: 15 });
   function stopLoop() {
     cancelAnimationFrame(raf);
     spinning = false;
+    whirr.stop();
   }
 
   const ledger = openLedger();
@@ -271,9 +289,11 @@ const LIGHTS = Array.from({ length: 15 });
         if (!spinning) return;
         pausedAt = performance.now();
         cancelAnimationFrame(raf);
+        whirr.stop();
       },
       resume() {
         if (!spinning) return;
+        whirr.start({ reels: running() });
         t0 += performance.now() - pausedAt;
         raf = requestAnimationFrame(frame);
       },
@@ -282,6 +302,14 @@ const LIGHTS = Array.from({ length: 15 });
   });
   reels.forEach((_, k) => paintReel(k));
   paintPrize();
+
+  // A hidden tab silences every loop; back with reels still turning, the
+  // whirr comes back too.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && spinning && machine.closest("[data-shell]")?.getAttribute("data-shell-phase") === "playing") {
+      whirr.start({ reels: running() });
+    }
+  });
 
   lever.addEventListener("click", pull);
   // The shell has already taken Esc, and every key on its own screens; a

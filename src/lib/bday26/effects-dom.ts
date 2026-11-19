@@ -148,6 +148,13 @@ function brass(ac: AudioContext, out: AudioNode, midi: number, at: number, lengt
   note(ac, filter, midi - 12, at, length, "triangle", level * 0.6);
 }
 
+/** One coin landing: a bright metallic ping (two inharmonic partials). */
+function coin(ac: AudioContext, out: AudioNode, at: number, level: number) {
+  const f = 1900 + Math.random() * 1400;
+  tone(ac, out, f, f, at, 0.22, "sine", level, 0.002);
+  tone(ac, out, f * 2.4, f * 2.4, at, 0.12, "sine", level * 0.4, 0.002);
+}
+
 /** A puff of filtered noise; the filter's frequency glides `f0` → `f1`. */
 function hiss(ac: AudioContext, out: AudioNode, at: number, length: number, level: number, filter: BiquadFilterType, f0: number, f1 = f0, q = 1, attack = 0.005) {
   const src = ac.createBufferSource();
@@ -213,6 +220,17 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     brass(ac, out, B + 7, t + 0.13, 0.12);
     [0, 4, 7, 12].forEach((d) => brass(ac, out, B + d + 5, t + 0.28, 0.9, 0.15));
     bell(ac, out, B + 29, t + 0.28, 1.0, 0.3);
+  }),
+  /** The slot's jackpot: a longer brass call than the Small prize's, a big
+   *  held chord, and a shower of coins ringing down over it. */
+  "jackpot-fanfare": celebration((ac, out, t, C) => {
+    const B = C - 12;
+    [7, 7, 7, 12].forEach((d, i) => brass(ac, out, B + d, t + i * 0.12, i < 3 ? 0.1 : 0.2, 0.15));
+    const hit = t + 0.5;
+    tone(ac, out, 110, 55, hit, 0.35, "sine", 0.4, 0.004);
+    hiss(ac, out, hit, 1.2, 0.1, "highpass", 5000, 3500, 0.5, 0.004);
+    [0, 4, 7, 12, 16].forEach((d) => brass(ac, out, B + d, hit, 1.5, 0.13));
+    for (let i = 0; i < 22; i++) coin(ac, out, hit + 0.05 + i * 0.065 + Math.random() * 0.04, 0.13);
   }),
   /** Gifted points: a light rising glitter of high bells. */
   sparkle(ac, out, t) {
@@ -343,6 +361,31 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
   /** A checkpoint (or the finish) passed: a short rising chime. */
   checkpoint(ac, out, t) {
     [72, 76, 79, 84].forEach((m, i) => bell(ac, out, m, t + i * 0.07, 0.5, 0.06));
+  },
+  // ── Slot makinesi ──
+  /** The lever pulled: a low mechanical clunk with a latch click on top. */
+  lever(ac, out, t) {
+    tone(ac, out, 150, 60, t, 0.18, "sine", 0.16, 0.004);
+    hiss(ac, out, t, 0.1, 0.09, "lowpass", 1200, 250, 0.8, 0.002);
+    hiss(ac, out, t + 0.07, 0.04, 0.05, "bandpass", 2600, 2200, 2.5, 0.002);
+  },
+  /** A reel stops: one firm click. */
+  "reel-stop"(ac, out, t) {
+    hiss(ac, out, t, 0.04, 0.08, "bandpass", vary(1800, 0.1), 1400, 2.5, 0.002);
+    tone(ac, out, vary(700, 0.05), 420, t, 0.05, "triangle", 0.05, 0.002);
+  },
+  /** Two alike: a small happy jingle, bells skipping up an arpeggio. */
+  "pair-jingle"(ac, out, t) {
+    [0, 4, 7, 12].forEach((d, i) => bell(ac, out, 79 + d, t + i * 0.08, i === 3 ? 0.5 : 0.25, 0.09));
+  },
+  /** None alike: a short, soft "womp womp", falling, not a buzzer. */
+  "no-win"(ac, out, t) {
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 1000;
+    lp.connect(out);
+    tone(ac, lp, 311, 294, t, 0.22, "triangle", 0.07, 0.02);
+    tone(ac, lp, 277, 207, t + 0.25, 0.5, "triangle", 0.07, 0.02);
   },
   // ── Kelime avı ──
   /** A soft key tick: a click of noise and a tiny high blip. */
@@ -480,6 +523,42 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
         const v = Math.max(0, Math.min(1, p.speed ?? 0));
         smooth(lp.frequency, 700 + v * 700, now, 0.2);
         smooth(gain.gain, 0.0001 + v * v * 0.022, now, 0.2);
+      },
+    };
+  },
+  /** The slot's reels turning: a soft mechanical whirr, band-passed noise
+   *  with a quick rattle in its level (about the rate the symbols pass)
+   *  over a quiet motor tone. Param: reels, how many still run (0..3); the
+   *  whirr thins as each one stops. */
+  reels(ac, out) {
+    const src = noiseLoop(ac);
+    const bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 1300;
+    bp.Q.value = 1.2;
+    const gain = ac.createGain();
+    gain.gain.value = 0.0001;
+    src.connect(bp).connect(gain).connect(out);
+    const rattle = ac.createOscillator();
+    rattle.type = "square";
+    rattle.frequency.value = 18;
+    const depth = ac.createGain();
+    depth.gain.value = 0.006;
+    rattle.connect(depth).connect(gain.gain);
+    const motor = ac.createOscillator();
+    motor.type = "triangle";
+    motor.frequency.value = 230;
+    const motorGain = ac.createGain();
+    motorGain.gain.value = 0.0001;
+    motor.connect(motorGain).connect(out);
+    return {
+      nodes: [src, rattle, motor],
+      set(p, now) {
+        const share = Math.max(0, Math.min(3, p.reels ?? 3)) / 3;
+        smooth(gain.gain, 0.0001 + share * 0.018, now, 0.04);
+        smooth(depth.gain, share * 0.008, now, 0.04);
+        smooth(motorGain.gain, 0.0001 + share * 0.012, now, 0.04);
+        smooth(motor.frequency, 180 + share * 60, now, 0.06);
       },
     };
   },

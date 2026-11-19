@@ -32,7 +32,7 @@ export type EffectsPreference = {
 };
 
 export type Size = "puff" | "burst" | "shower" | "grand";
-export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare" | "gift-fanfare" | "prize-fanfare" | "sparkle";
+export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare" | "gift-fanfare" | "prize-fanfare" | "jackpot-fanfare" | "sparkle";
 
 export type Shape = "square" | "circle" | "strip" | "star";
 
@@ -122,6 +122,13 @@ export function smallPrizeCelebration(rng: () => number): Celebration {
   return { ...celebration("shower", rng), sound: "prize-fanfare" };
 }
 
+/** The slot's jackpot: the Small prize's shower, its sound grown into a
+ *  bigger brass fanfare with a cascade of coins. One celebration in place
+ *  of the prize's, so the two never double up. */
+export function jackpotCelebration(rng: () => number): Celebration {
+  return { ...smallPrizeCelebration(rng), sound: "jackpot-fanfare" };
+}
+
 /** Gifted points from Atıl's corner: a light sparkle, a few stars. */
 export function sparkleCelebration(rng: () => number): Celebration {
   return { ...celebration("puff", rng), shapes: ["star"], particles: 18, sound: "sparkle" };
@@ -158,10 +165,15 @@ export type SoundName =
   | "land"
   | "ding"
   | "crash"
-  | "checkpoint";
+  | "checkpoint"
+  // Slot makinesi
+  | "lever"
+  | "reel-stop"
+  | "pair-jingle"
+  | "no-win";
 
 /** The continuous sounds: started, steered by params each frame, stopped. */
-export type LoopName = "engine" | "traffic" | "swoosh";
+export type LoopName = "engine" | "traffic" | "swoosh" | "reels";
 
 /** A loop's steering, each 0..1 (speed, throttle, …). */
 export type LoopParams = Record<string, number>;

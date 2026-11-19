@@ -6,7 +6,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createEffects, createEffectsPreference, forReducedMotion, milyonerCelebration, neredeCelebration, perfectRoundCelebration, giftCelebration, smallPrizeCelebration, sparkleCelebration } from "./effects.ts";
+import { createEffects, createEffectsPreference, forReducedMotion, milyonerCelebration, neredeCelebration, perfectRoundCelebration, giftCelebration, smallPrizeCelebration, jackpotCelebration, sparkleCelebration } from "./effects.ts";
 
 /** A fixed random stream, so a test reads one known draw. */
 function seeded(seed: number) {
@@ -184,4 +184,11 @@ test("gifts: a bought Gift is the biggest party, a Small prize a smaller one, Gi
   assert.deepEqual(sparkle.shapes, ["star"]);
   assert.equal(sparkle.sound, "sparkle");
   assert.ok(gift.particles > prize.particles && prize.particles > sparkle.particles);
+});
+
+test("the slot's jackpot: the Small prize's shower with its own bigger fanfare, one sound not two", () => {
+  const jackpot = jackpotCelebration(seeded(7));
+  const prize = smallPrizeCelebration(seeded(7));
+  assert.equal(jackpot.sound, "jackpot-fanfare");
+  assert.deepEqual({ ...jackpot, sound: prize.sound }, prize);
 });
