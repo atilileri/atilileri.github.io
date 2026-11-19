@@ -5,10 +5,11 @@
  * the birthday site is deployed. It is on the launch-check list.
  *
  * /20261209/test-sarkilar/ — Atıl's listening bench for the "Şarkıyı bil"
- * hooks (#204, after his play test): all 20 songs of `src/lib/bday26/songs.ts`
- * in pool order, each with its group, title, bpm, the `unsure` note when the
- * hook still needs his ear, and the note string as typed, plus a play/stop
- * button. One hook sounds at a time (the engine's guarantee: `play` cancels
+ * hooks (#204, after his play test): all 20 songs of `src/lib/bday26/songs.ts`,
+ * least certain first (by `confidence`, pool order within a level), each with
+ * its confidence and source link beside the play/stop button, its group,
+ * title, bpm, the `unsure` note when the hook still needs his ear, and the
+ * note string as typed. One hook sounds at a time (the engine's guarantee: `play` cancels
  * whatever still sounds or waits queued ahead). Nothing links here; the
  * layout already sets `noindex, nofollow` and the sitemap filter drops every
  * /20261209/ URL.
@@ -16,6 +17,10 @@
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import { SONGS } from "../../../lib/bday26/songs";
 import { PIANO_CREDIT } from "../../../lib/bday26/piano";
+
+/** Least certain first; `i` stays the song's index in SONGS for the player. */
+const ROWS = SONGS.map((s, i) => ({ s, i })).sort((a, b) => a.s.confidence - b.s.confidence || a.i - b.i);
+const LEVEL = { 1: "yer tutucu", 2: "kaynaklı, duyulmadı", 3: "kaynaklı, iki kaynak / insan", 4: "Atıl onayladı" } as const;
 ---
 
 <BdayLayout title="Geçici test sayfası · Şarkılar">
@@ -28,11 +33,23 @@ import { PIANO_CREDIT } from "../../../lib/bday26/piano";
     </p>
     <ol class="songs">
       {
-        SONGS.map((s, i) => (
+        ROWS.map(({ s, i }) => (
           <li class:list={[{ unsure: s.unsure }]} data-row={i}>
-            <button class="play" type="button" data-play={i} aria-label={`Çal: ${s.title}`}>
-              <span class="tri" aria-hidden="true" />
-            </button>
+            <div class="side">
+              <button class="play" type="button" data-play={i} aria-label={`Çal: ${s.title}`}>
+                <span class="tri" aria-hidden="true" />
+              </button>
+              <span class={`conf c${s.confidence}`} title={LEVEL[s.confidence]} data-confidence={s.confidence}>
+                {s.confidence}/4
+              </span>
+              {s.source ? (
+                <a class="src" href={s.source} target="_blank" rel="noopener noreferrer">
+                  kaynak
+                </a>
+              ) : (
+                <span class="src none">kaynak yok</span>
+              )}
+            </div>
             <div class="meta">
               <p class="head">
                 <b>{s.title}</b> <span class="artist">{s.artist}</span>
@@ -40,8 +57,8 @@ import { PIANO_CREDIT } from "../../../lib/bday26/piano";
               <p class="facts">
                 <span>{s.group}</span> · <span>{s.bpm} bpm</span> · <span>{s.part}</span>
               </p>
+              <p class="facts">güven {s.confidence}/4: {LEVEL[s.confidence]}</p>
               {s.unsure ? <p class="flag">unsure: {s.unsure}</p> : <p class="ok">emin (unsure işareti yok)</p>}
-              <p class="facts">kaynak: yok</p>
               <pre class="hook">{s.hook.replace(/\n\s+/g, "\n")}</pre>
             </div>
           </li>
@@ -59,6 +76,7 @@ import { PIANO_CREDIT } from "../../../lib/bday26/piano";
 
   const stateEl = document.querySelector<HTMLElement>("[data-state]");
   const rows = Array.from(document.querySelectorAll<HTMLElement>("[data-row]"));
+  // Rows are sorted by confidence, so a row's place is not its song's index: match by data-row.
   const piano = createPiano({
     onState: (state) => {
       if (stateEl) {
@@ -78,7 +96,7 @@ import { PIANO_CREDIT } from "../../../lib/bday26/piano";
   function mark(i: number | undefined) {
     playing = i;
     window.clearTimeout(timer);
-    rows.forEach((row, r) => row.classList.toggle("playing", r === i));
+    rows.forEach((row) => row.classList.toggle("playing", Number(row.dataset.row) === i));
   }
 
   async function toggle(i: number) {
@@ -136,7 +154,7 @@ import { PIANO_CREDIT } from "../../../lib/bday26/piano";
   }
   .songs li {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
     gap: 14px;
     padding: 12px 14px;
     border-radius: 14px;
@@ -145,6 +163,35 @@ import { PIANO_CREDIT } from "../../../lib/bday26/piano";
   }
   .songs li.playing {
     box-shadow: 0 0 0 2.5px var(--bd-accent);
+  }
+  .side {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 6px;
+  }
+  .conf {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    background: var(--bd-track);
+    color: var(--bd-ink);
+  }
+  .conf.c1 {
+    background: var(--bd-wrong-bg);
+    color: var(--bd-wrong-ink);
+  }
+  .conf.c4 {
+    color: var(--bd-won-ink);
+  }
+  .src {
+    font-size: 12px;
+    color: var(--bd-accent-deep);
+  }
+  .src.none {
+    color: var(--bd-muted);
+    text-align: center;
   }
   .meta {
     min-width: 0;
