@@ -136,6 +136,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
   import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
   import { ANSWERS, MAX_GUESSES, createRound, shuffleAnswers, typedLetter, type WordleRound } from "../../../lib/bday26/wordle";
   import { wordleRoundScore, wordleScore } from "../../../lib/bday26/scores";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
   /** A gap cell's width, in cells. Keep in step with `.cell.gap` below. */
   const GAP_WIDTH = 0.42;
@@ -175,6 +176,8 @@ const TURKISH = "ÇĞIİÖŞÜ";
   /** The word is over and its reveal is up: Enter is "Sonraki kelime". */
   let between = false;
   let revealTimer = 0;
+  /** One per turning cell: its "flip" sound, mid-turn. */
+  let flipTimers: number[] = [];
   let finishTimer = 0;
   let toastTimer = 0;
   /** rows[r][c] is the cell element of row r, cell c of `round.cells`. */
@@ -232,6 +235,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
       el.classList.remove("caret", "filled");
       el.style.setProperty("--d", `${k * stagger}ms`);
       el.classList.add("reveal", guess.colours[c.at]!);
+      flipTimers.push(window.setTimeout(() => effects.sound("flip"), k * stagger + 200));
       k++;
     });
     return stagger * (letters - 1) + 500;
@@ -317,6 +321,8 @@ const TURKISH = "ÇĞIİÖŞÜ";
     window.clearTimeout(revealTimer);
     window.clearTimeout(finishTimer);
     revealTimer = finishTimer = 0;
+    for (const t of flipTimers) window.clearTimeout(t);
+    flipTimers = [];
   }
 
   /** The word is over: the answer in tiles, its score, "Sonraki kelime". */
@@ -374,11 +380,13 @@ const TURKISH = "ÇĞIİÖŞÜ";
 
   function type(letter: string) {
     if (busy || between || !round.type(letter)) return;
+    effects.sound("key");
     paintTyping();
   }
 
   function erase() {
     if (busy || between || !round.erase()) return;
+    effects.sound("backspace");
     paintTyping();
   }
 
@@ -395,7 +403,11 @@ const TURKISH = "ÇĞIİÖŞÜ";
     busy = true;
     revealTimer = window.setTimeout(() => {
       revealTimer = 0;
+      flipTimers = [];
       busy = false;
+      // A word found: a happy chime; six guesses spent: a soft bonk.
+      if (round.solved) effects.sound("rich-chime");
+      else if (round.done) effects.sound("bonk");
       paintKeyboard();
       paintHud();
       if (round.solved) bounce(r);

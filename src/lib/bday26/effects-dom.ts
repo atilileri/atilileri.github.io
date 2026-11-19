@@ -223,6 +223,22 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     filter.connect(out);
     tone(ac, filter, 190, 85, t, 0.3, "sine", 0.7, 0.01);
   }),
+  // ── Kelime avı ──
+  /** A soft key tick: a click of noise and a tiny high blip. */
+  key(ac, out, t) {
+    hiss(ac, out, t, 0.03, 0.06, "bandpass", vary(3200, 0.15), vary(3200, 0.15), 2.5, 0.002);
+    tone(ac, out, vary(1500), vary(1100), t, 0.035, "triangle", 0.03, 0.002);
+  },
+  /** Backspace: a lower, duller tock that slides down. */
+  backspace(ac, out, t) {
+    hiss(ac, out, t, 0.05, 0.05, "bandpass", 1300, 700, 2, 0.002);
+    tone(ac, out, vary(620, 0.04), 380, t, 0.07, "triangle", 0.04, 0.003);
+  },
+  /** A tile turning over: a quick paper flick. */
+  flip(ac, out, t) {
+    hiss(ac, out, t, 0.09, 0.05, "bandpass", vary(900, 0.1), 3400, 1.4, 0.01);
+    tone(ac, out, vary(700, 0.05), vary(1050, 0.05), t + 0.02, 0.05, "sine", 0.025, 0.004);
+  },
 };
 
 /** The quiz celebrations at their first, approved loudness: through a 0.35
