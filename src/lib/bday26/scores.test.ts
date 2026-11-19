@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { drivingScore, framingScore, hikingRoundScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, skiScore, slotScore, wordleScore } from "./scores.ts";
+import { drivingScore, framingScore, hikingRoundScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, skiScore, slotScore, wordleRoundScore, wordleScore } from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -122,6 +122,26 @@ test("Wordle: solved on the sixth and last guess is 65", () => {
 
 test("Wordle: six guesses without the answer score 0", () => {
   assert.equal(wordleScore(6, false), 0);
+});
+
+// A Round is all ten words; its score is the mean of the ten word scores,
+// rounded down (Atıl's play test).
+
+test("Wordle Round: every word in 3 guesses or fewer is 100", () => {
+  assert.equal(wordleRoundScore([100, 100, 100, 100, 100, 100, 100, 100, 100, 100]), 100);
+});
+
+test("Wordle Round: nine perfect words and one not found is 90", () => {
+  assert.equal(wordleRoundScore([100, 100, 100, 100, 0, 100, 100, 100, 100, 100]), 90);
+});
+
+test("Wordle Round: every word in 4 guesses is 95, the Small prize edge", () => {
+  assert.equal(wordleRoundScore([95, 95, 95, 95, 95, 95, 95, 95, 95, 95]), 95);
+});
+
+test("Wordle Round: the mean is rounded down", () => {
+  // 9 × 95 + 80 = 935 → 93.5 → 93.
+  assert.equal(wordleRoundScore([95, 95, 95, 95, 95, 95, 95, 95, 95, 80]), 93);
 });
 
 // ------------------------------------------------------------------ piano

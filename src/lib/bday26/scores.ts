@@ -66,7 +66,8 @@ export function slotScore(reels: readonly [string, string, string]): number {
 
 /**
  * Turkish Wordle, "Kelime avı" (#201; spec row "1–3 guesses = 100, 4 = 95,
- * 5 = 80, 6 = 65, unsolved = 0"). `guesses` is how many rows she used,
+ * 5 = 80, 6 = 65, unsolved = 0"), one word of the Round; the Round itself
+ * is `wordleRoundScore`. `guesses` is how many rows she used,
  * 1..6; `solved` is whether the last of them was the answer. Four guesses
  * is the Small prize edge. The Wordle page also calls this with the NEXT
  * guess number for its "Şimdi bilirsen %N" line, so the HUD and the result
@@ -79,6 +80,18 @@ export function wordleScore(guesses: number, solved: boolean): number {
   if (guesses === 5) return 80;
   if (guesses === 6) return 65;
   return 0;
+}
+
+/**
+ * One Round of "Kelime avı": all ten words, each scored by `wordleScore`.
+ * The Round is the mean of the word scores, rounded down (Atıl's play test).
+ * All ten in at most 4 guesses keeps the 95 edge; one word not found costs
+ * a tenth. Worked on the whole-number sum, so no floating-point slip.
+ */
+export function wordleRoundScore(words: readonly number[]): number {
+  if (words.length === 0) return 0;
+  const sum = words.reduce((acc, s) => acc + s, 0);
+  return Math.min(100, Math.max(0, Math.floor(sum / words.length)));
 }
 
 /**
