@@ -23,6 +23,9 @@
  *   - With "Efektler: Açık" (the HUD switch, `src/lib/bday26/effects.ts`)
  *     a right lock gets confetti and a chime that grow with the band; a miss
  *     a soft bonk and a shake. They never hold up the step.
+ *   - With "Müzik: Açık" a tense bed plays (`src/lib/bday26/music-dom.ts`):
+ *     faster and fuller from Q7 and again from Q11, down to a heartbeat
+ *     while "Son kararın mı?" is open.
  *   - Y = "Yarı yarıya", S = "Seyirciye sor", or their buttons; each once
  *     per Round. They work while she is choosing, not after the lock.
  *
@@ -66,7 +69,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="milyoner" keys={KEYS}>
+  <GameShell game="milyoner" keys={KEYS} music="milyoner">
     <span slot="hud">Soru <b data-number>1</b>/12</span>
     <div class="stage" data-stage>
       <div class="main">
@@ -145,6 +148,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   import { createAnswerStep } from "../../../lib/bday26/choice-quiz";
   import { milyonerCelebration, perfectRoundCelebration } from "../../../lib/bday26/effects";
   import { effects } from "../../../lib/bday26/effects-dom";
+  import { milyonerIntensity } from "../../../lib/bday26/music";
+  import { music } from "../../../lib/bday26/music-dom";
 
   const POOL = parsePool(poolDocument);
 
@@ -188,6 +193,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     numberEl.textContent = String(q.number);
     topicEl.textContent = q.topic;
     bandEl.textContent = q.band;
+    // The music tightens with the band and holds its breath on "Son kararın mı?".
+    music.play("milyoner", { band: milyonerIntensity(q.number), tension: step === "confirming" ? 1 : 0 });
     textEl.textContent = q.text;
     buttons.forEach((button, i) => {
       button.querySelector("[data-label]")!.textContent = q.choices[i] ?? "";
