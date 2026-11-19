@@ -400,9 +400,11 @@ function noiseLoop(ac: AudioContext): AudioBufferSourceNode {
 const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
   /** The car's engine: a soft, round, low hum (rewritten after Atıl's
    *  listen found the old sawtooth growl buzzy and too loud). A sine and a
-   *  quiet triangle an octave up, through a gentle low-pass; the pitch moves
-   *  only a little with speed and the level a little with the gas, slowly,
-   *  so it sits as a texture under the radio. Params: speed, throttle (0..1). */
+   *  quiet triangle an octave up, through a gentle low-pass. Raised again
+   *  after a later listen found it inaudible: about 0.03 at idle to 0.05 at
+   *  full gas, so it sits clearly under the radio (~0.04 peaks), and the
+   *  pitch climbs a little more with speed so acceleration is felt.
+   *  Params: speed, throttle (0..1). */
   engine(ac, out) {
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass";
@@ -422,7 +424,7 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
     const lfo = ac.createOscillator();
     lfo.frequency.value = 0.7;
     const breath = ac.createGain();
-    breath.gain.value = 0.002;
+    breath.gain.value = 0.004;
     lfo.connect(breath).connect(gain.gain);
     let speed = 0;
     let throttle = 0;
@@ -431,11 +433,11 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
       set(p, now) {
         speed = p.speed ?? speed;
         throttle = p.throttle ?? throttle;
-        const f = 58 + speed * 26 + throttle * 4;
+        const f = 58 + speed * 40 + throttle * 6;
         smooth(body.frequency, f, now, 0.25);
         smooth(over.frequency, f * 2, now, 0.25);
-        smooth(lp.frequency, 260 + speed * 160 + throttle * 60, now, 0.25);
-        smooth(gain.gain, 0.012 + speed * 0.006 + throttle * 0.004, now, 0.3);
+        smooth(lp.frequency, 280 + speed * 220 + throttle * 80, now, 0.25);
+        smooth(gain.gain, 0.03 + speed * 0.012 + throttle * 0.008, now, 0.3);
       },
     };
   },
