@@ -1,0 +1,1265 @@
+---
+/**
+ * /20261209/ — the hub, "Oyun salonu" (#193; spec #192 "Hub"; the look is
+ * the hub prototype's variant A, verdict on #178).
+ *
+ * WHAT SHE SEES. A top strip with her totals (Points earned, Balance, Small
+ * prizes won) and the tools; a 3-column grid of the 11 Game tiles; the Gift
+ * shop as a right column that is always in view, Gifts held at the top.
+ * Each tile: Game name, one-line rule, Best score, the Points it earns, a
+ * progress bar with the 95% mark, and the Small prize on its foot — a lock
+ * and the prize's name until it is won, green "Kazandın!" after (how a prize
+ * is won is the welcome screen's to say, not every tile's). The whole page
+ * fits 1920×1080 with no scroll (spec story 12). On a smaller screen the
+ * tiles keep their content and the page scrolls down, never across: the grid
+ * goes 3 → 2 → 1 columns by the width it has, and on a phone the shop drops
+ * below the tiles. Beside the tiles the shop scrolls inside itself, in the
+ * unlikely state where she holds nearly every Gift.
+ *
+ * HOW IT IS BUILT. Everything that comes from the catalogue is rendered at
+ * build time from `src/lib/bday26/catalogue.ts`: names, rules, prizes,
+ * descriptions, prices. Everything that comes from HER progress is filled by
+ * the client script below, which reads and writes only through the ledger
+ * (`openLedger()` in `src/lib/bday26/browser.ts`) and never computes a rule
+ * of its own: Best scores, Points, bar widths, prize states, the strip, which
+ * Gifts sit in "Sende olanlar", which "Al" buttons are enabled. The script
+ * owns no state; after every buy or Return it re-renders from the ledger.
+ *
+ * The buy button is disabled, not hidden, when the Balance is short (spec
+ * story 20), with "N eksik" beside the price (the prototype's hint). A Return
+ * asks "Emin misin? …" with the Gift's name and the half that comes back
+ * (story 23) through the browser's own confirm(): one dialog, no custom
+ * modal to keep in step with the keyboard.
+ *
+ * THE WELCOME SCREEN (#195) is `src/components/bday26/Welcome.astro`,
+ * dropped in at the foot of the page: it opens by itself on her first visit
+ * and from the "Hoş geldin" button here (`data-open-welcome`) after that.
+ *
+ * THE SAVE CODE PANELS (#196, spec "Save code and Proof") are two native
+ * <dialog>s at the end of the page, opened from the tools: "Yedekle" asks
+ * the ledger for her Save code and shows it in a read-only field with a
+ * "Kopyala" button (the clipboard API, or, where that is refused, the field
+ * selected for her to copy); "Geri yükle" takes a pasted code, shows the
+ * Turkish refusal for a typo, and for a good code lays her progress and the
+ * pasted one side by side (Points earned, Balance, Gifts held, Small
+ * prizes) — only "Bununla değiştir" writes, through `ledger.restore`, and
+ * the hub repaints. No file download, no state in the URL. After every buy
+ * the toast carries the backup prompt: "Yedek kodunu almayı unutma." with a
+ * "Yedekle" button that opens the panel and a "Sonra" that closes it; it
+ * stays until she presses one (spec story 29).
+ *
+ * ATIL'S CORNER (`src/components/bday26/Admin.astro`, behaviour in
+ * `src/lib/bday26/admin.ts`) is a faded 🎂 in the page's bottom-left corner
+ * that opens a password dialog where Atıl gives her Gifted points. The hub
+ * mounts it with its own ledger; when it closes after a change, the hub
+ * repaints, the Balance hops, and the backup prompt is offered as after a
+ * buy. Gifted points show as a small "+N hediye puan" badge under Bakiye,
+ * only when there are any; "Kazandığın" stays the Games' Points alone.
+ *
+ * SOUND. The header carries the two switches, "Efektler" and "Müzik"
+ * (`src/lib/bday26/effects-dom.ts`, `music-dom.ts`). The salon plays its own
+ * warm, quiet track from her first click or key. A buy gets the biggest
+ * fanfare and confetti; a gift from Atıl's corner a light sparkle.
+ *
+ * PLACEHOLDERS, on purpose: "Hoş geldin" (the welcome screen, #195) is a
+ * disabled button until its ticket lands; "Belge" links to the Proof page
+ * (#197) and every "Oyna" links to its Game's route, which exists once that
+ * Game is built. The Turkish Game names and one-line rules are the
+ * prototype's draft and are approved or edited by Atıl on #193 — edit them
+ * in the catalogue, not here.
+ */
+import BdayLayout from "../../layouts/BdayLayout.astro";
+import Welcome from "../../components/bday26/Welcome.astro";
+import Admin from "../../components/bday26/Admin.astro";
+import EffectsToggle from "../../components/bday26/EffectsToggle.astro";
+import MusicToggle from "../../components/bday26/MusicToggle.astro";
+import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
+import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
+
+const fmt = (n: number) => n.toLocaleString("tr-TR");
+---
+
+<BdayLayout title="İyi ki doğdun Çağla!">
+  <div class="page">
+    <header class="top">
+      <div class="title-block">
+        <h1 class="title">İyi ki doğdun, Çağla!</h1>
+        <p class="sub">Oyna, rekor kır, puanlarını hediyeye çevir.</p>
+      </div>
+      <dl class="stats">
+        <div class="stat">
+          <dt class="label">Kazandığın</dt>
+          <dd class="stat-value" data-stat="earned">0</dd>
+        </div>
+        <div class="stat" data-main>
+          <dt class="label">Bakiye</dt>
+          <dd class="stat-value"><span data-stat="balance">0</span> <small>puan</small></dd>
+          <dd class="gifted-badge" data-gifted-badge hidden></dd>
+        </div>
+        <div class="stat">
+          <dt class="label">Küçük ödül</dt>
+          <dd class="stat-value"><span data-stat="prizes">0</span><small>/{GAMES.length}</small></dd>
+        </div>
+      </dl>
+      <nav class="tools" aria-label="Araçlar">
+        <button class="bd-btn ghost small" type="button" data-open-welcome>Hoş geldin</button>
+        <button class="bd-btn ghost small" type="button" data-tool="yedekle">Yedekle</button>
+        <button class="bd-btn ghost small" type="button" data-tool="geri-yukle">Geri yükle</button>
+        <a class="bd-btn ghost small" href="/20261209/belge/">Belge</a>
+      </nav>
+      <div class="switches">
+        <EffectsToggle />
+        <MusicToggle />
+      </div>
+    </header>
+
+    <div class="main">
+      <section class="games" aria-labelledby="games-heading">
+        <h2 class="h2" id="games-heading">
+          Oyunlar <span class="badge"><span data-played>0</span>/{GAMES.length} oynandı</span>
+        </h2>
+        <ul class="grid">
+          {
+            GAMES.map((g) => (
+              <li class="tile" data-game={g.id} data-luck={g.luck || undefined}>
+                <div class="tile-head">
+                  <span class="icon" aria-hidden="true">{GAME_ICON[g.id]}</span>
+                  <div class="tile-name">
+                    <h3 class="name">{g.name}</h3>
+                    <p class="rule">{g.rule}</p>
+                  </div>
+                </div>
+                <div class="score">
+                  <div>
+                    <span class="label">Rekor</span>
+                    <b class="best" data-best>—</b>
+                  </div>
+                  <span class="pts" data-points>{g.luck ? "Puan vermez" : "Henüz oynamadın"}</span>
+                </div>
+                {!g.luck && (
+                  <div class="track" aria-hidden="true">
+                    <div class="fill" data-fill style="width: 0%" />
+                    <div class="mark" style={`left: ${PRIZE_BAR}%`} />
+                  </div>
+                )}
+                <div class="prize">
+                  <span class="prize-icon" aria-hidden="true" data-prize-icon>{PRIZE_LOCKED_ICON}</span>
+                  <div class="prize-text">
+                    <b class="prize-name">{g.prize.name}</b>
+                    <span class="prize-sub" data-prize-sub hidden></span>
+                  </div>
+                  <a class="bd-btn primary small" href={`/20261209/${g.id}/`}>Oyna</a>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <aside class="shop" aria-labelledby="shop-heading" data-shop>
+        <div class="shop-head">
+          <h2 class="h2" id="shop-heading">Hediye dükkânı</h2>
+          <span class="shop-bal">Bakiye <b data-stat="balance">0</b></span>
+        </div>
+        <div class="mine" data-mine hidden>
+          <span class="label">Sende olanlar</span>
+          <ul class="gifts" data-mine-list></ul>
+        </div>
+        <ul class="gifts" data-shop-list>
+          {
+            GIFTS.map((g) => (
+              <li class="gift" data-gift={g.id} tabindex="0">
+                <span class="gicon" aria-hidden="true">{GIFT_ICON[g.id]}</span>
+                <div class="gtext">
+                  <b class="gname">{g.name}</b>
+                  <p class="gdesc">{g.desc}</p>
+                </div>
+                <div class="buy">
+                  <b class="price">{fmt(g.price)}</b>
+                  <span class="short" data-short hidden></span>
+                  <button class="bd-btn primary small" type="button" data-buy disabled>Al</button>
+                  <button class="bd-btn secondary small" type="button" data-return hidden>İade et</button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </aside>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite" data-toast>
+      <span data-toast-text></span>
+      <button class="bd-btn small toast-action" type="button" data-toast-action hidden></button>
+      <button class="bd-btn small toast-later" type="button" data-toast-later hidden>Sonra</button>
+    </div>
+    <Admin />
+  </div>
+  <Welcome />
+
+  <dialog class="panel" data-panel="yedekle" aria-labelledby="yedekle-heading">
+    <h2 class="h2" id="yedekle-heading">Yedekle</h2>
+    <p class="panel-sub">
+      Bu tek satır bütün ilerlemeni taşır: rekorlarını, puanlarını, hediyelerini. Kopyala ve güvenli bir
+      yere yapıştır; bir not, bir mesaj yeter. Başka bir cihazda "Geri yükle" ile aynı yerden devam edersin.
+    </p>
+    <label class="label" for="savecode-field">Yedek kodu</label>
+    <textarea id="savecode-field" class="code-field" rows="4" readonly spellcheck="false" data-savecode-field
+    ></textarea>
+    <p class="panel-status" role="status" data-copy-status></p>
+    <div class="panel-actions">
+      <button class="bd-btn ghost" type="button" data-close>Kapat</button>
+      <button class="bd-btn primary" type="button" data-copy>Kopyala</button>
+    </div>
+  </dialog>
+
+  <dialog class="panel" data-panel="geri-yukle" aria-labelledby="geri-yukle-heading">
+    <h2 class="h2" id="geri-yukle-heading">Geri yükle</h2>
+    <p class="panel-sub">
+      Yedek kodunu buraya yapıştır. Önce şimdiki ilerlemenle yan yana görürsün; onaylarsan kodun içindeki
+      gelir, şimdiki silinir.
+    </p>
+    <label class="label" for="restore-field">Yedek kodu</label>
+    <textarea id="restore-field" class="code-field" rows="4" spellcheck="false" autocomplete="off"
+      placeholder="Kodu buraya yapıştır" data-restore-field></textarea>
+    <p class="panel-error" data-restore-error hidden></p>
+    <div class="compare" data-compare hidden>
+      <table class="compare-table">
+        <thead>
+          <tr><th scope="col"><span class="sr-only">Değer</span></th><th scope="col">Şimdiki</th><th scope="col">Yapıştırdığın</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Kazandığın puan</th><td data-now="earned"></td><td data-next="earned"></td></tr>
+          <tr><th scope="row">Bakiye</th><td data-now="balance"></td><td data-next="balance"></td></tr>
+          <tr><th scope="row">Sendeki hediyeler</th><td data-now="held"></td><td data-next="held"></td></tr>
+          <tr><th scope="row">Küçük ödüller</th><td data-now="prizes"></td><td data-next="prizes"></td></tr>
+        </tbody>
+      </table>
+      <p class="panel-note">Onaylarsan şimdiki ilerlemen silinir, yerine sağdaki gelir.</p>
+    </div>
+    <div class="panel-actions">
+      <button class="bd-btn ghost" type="button" data-close>Vazgeç</button>
+      <button class="bd-btn primary" type="button" data-restore-confirm disabled>Bununla değiştir</button>
+    </div>
+  </dialog>
+</BdayLayout>
+
+<script>
+  // The hub's one job on the client: paint what the ledger says. Every
+  // number and state below is read from the ledger; nothing is computed
+  // here (spec #192 "Modules": the hub reads and writes progress only through
+  // the ledger). `render()` is idempotent and runs after every change.
+  import { mountAdmin } from "../../lib/bday26/admin";
+  import { openLedger } from "../../lib/bday26/browser";
+  import { GAMES, GIFTS, giftById, isGiftId } from "../../lib/bday26/catalogue";
+  import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "../../lib/bday26/icons";
+  import {
+    balanceOf,
+    earnedOf,
+    heldOf,
+    prizesWonOf,
+    type Progress,
+    type SaveCodeOutcome,
+  } from "../../lib/bday26/ledger";
+  import { giftCelebration, sparkleCelebration } from "../../lib/bday26/effects";
+  import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
+  import { bindMusicToggles, music } from "../../lib/bday26/music-dom";
+
+  const ledger = openLedger();
+
+  // The salon's own music, warm and quiet, from her first click or key; the
+  // two switches sit in the header.
+  bindEffectsToggles();
+  bindMusicToggles();
+  music.play("hub");
+
+  /** Whole Points, written the Turkish way: 1.000. */
+  const fmt = (n: number) => Math.round(n).toLocaleString("tr-TR");
+  /** A score as she reads it: %88. Rounded down, like the Points it earns. */
+  const pct = (score: number) => `%${Math.floor(score)}`;
+
+  function $(root: ParentNode, selector: string): HTMLElement {
+    const el = root.querySelector<HTMLElement>(selector);
+    if (!el) throw new Error(`bday26 hub: missing ${selector}`);
+    return el;
+  }
+
+  function renderStrip() {
+    const stats: Record<string, string> = {
+      earned: fmt(ledger.earned()),
+      balance: fmt(ledger.balance()),
+      prizes: String(ledger.prizesWon().length),
+    };
+    for (const el of document.querySelectorAll<HTMLElement>("[data-stat]")) {
+      el.textContent = stats[el.dataset.stat ?? ""] ?? el.textContent;
+    }
+    const gifted = ledger.giftedTotal();
+    const badge = $(document, "[data-gifted-badge]");
+    badge.hidden = gifted === 0;
+    badge.textContent = `+${fmt(gifted)} hediye puan`;
+    $(document, "[data-played]").textContent = String(
+      GAMES.filter((g) => ledger.bestOf(g.id) != null).length,
+    );
+  }
+
+  function renderTiles() {
+    for (const game of GAMES) {
+      const tile = $(document, `[data-game="${game.id}"]`);
+      const best = ledger.bestOf(game.id);
+      const won = ledger.prizeWon(game.id);
+      tile.toggleAttribute("data-won", won);
+      $(tile, "[data-best]").textContent = best == null ? "—" : pct(best);
+      $(tile, "[data-points]").textContent = game.luck
+        ? "Puan vermez"
+        : best == null
+          ? "Henüz oynamadın"
+          : `${fmt(ledger.pointsOf(game.id))} puan`;
+      const fill = tile.querySelector<HTMLElement>("[data-fill]");
+      if (fill) fill.style.width = `${best ?? 0}%`;
+      $(tile, "[data-prize-icon]").textContent = won ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON;
+      const prizeSub = $(tile, "[data-prize-sub]");
+      prizeSub.hidden = !won;
+      prizeSub.textContent = won ? "Kazandın!" : "";
+    }
+  }
+
+  function renderShop() {
+    const held = ledger.held();
+    const balance = ledger.balance();
+    const mineList = $(document, "[data-mine-list]");
+    const shopList = $(document, "[data-shop-list]");
+    // Rows are moved, not rebuilt: a held Gift's row goes up into "Sende
+    // olanlar", a Returned one comes back down, catalogue order kept.
+    for (const gift of GIFTS) {
+      const row = $(document, `[data-gift="${gift.id}"]`);
+      const paid = held.get(gift.id);
+      const isHeld = paid != null;
+      const short = gift.price - balance;
+      row.toggleAttribute("data-held", isHeld);
+      const shortEl = $(row, "[data-short]");
+      shortEl.hidden = isHeld || short <= 0;
+      shortEl.textContent = `${fmt(short)} eksik`;
+      const buy = $(row, "[data-buy]") as HTMLButtonElement;
+      buy.hidden = isHeld;
+      buy.disabled = short > 0;
+      const ret = $(row, "[data-return]");
+      ret.hidden = !isHeld;
+      if (isHeld) ret.textContent = `İade et · +${fmt(paid / 2)}`;
+      (isHeld ? mineList : shopList).appendChild(row);
+    }
+    $(document, "[data-mine]").hidden = held.size === 0;
+  }
+
+  function render() {
+    renderStrip();
+    renderTiles();
+    renderShop();
+  }
+
+  // ── a Gift's description, opened on hover or focus ───────────────────
+  // One line until she rests the pointer on a row for a moment (hover
+  // intent, so sweeping across the list moves nothing) or focuses it from
+  // the keyboard; then up to four lines. The height is animated from the
+  // measured one to the other, so the rows below slide instead of jumping.
+  // Rows are moved between lists, never rebuilt, so listeners bound once
+  // stay with them.
+  const HOVER_INTENT_MS = 120;
+  const calm = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function openable(row: HTMLElement) {
+    const desc = $(row, ".gdesc");
+    let timer = 0;
+    let open = false;
+    /** Animate the description's height from where it is now to `to`. */
+    let run = 0;
+    function slide(to: () => number, done?: () => void) {
+      const mine = ++run;
+      const from = desc.getBoundingClientRect().height;
+      desc.style.height = "";
+      const target = to();
+      if (calm.matches || Math.abs(target - from) < 1) {
+        done?.();
+        return;
+      }
+      desc.style.height = `${from}px`;
+      void desc.offsetHeight; // commit the start height before the change
+      desc.style.height = `${target}px`;
+      // A row moved by a buy can cancel the transition; that ends it too.
+      // A slide overtaken by a newer one (she left before it opened) only
+      // lets go: the newer slide owns the height now.
+      const end = (event: TransitionEvent) => {
+        if (event.propertyName !== "height") return;
+        desc.removeEventListener("transitionend", end);
+        desc.removeEventListener("transitioncancel", end);
+        if (mine !== run) return;
+        desc.style.height = "";
+        done?.();
+      };
+      desc.addEventListener("transitionend", end);
+      desc.addEventListener("transitioncancel", end);
+    }
+    function show() {
+      window.clearTimeout(timer);
+      if (open) return;
+      open = true;
+      slide(() => {
+        row.setAttribute("data-open", "");
+        return desc.scrollHeight;
+      });
+    }
+    function hide() {
+      window.clearTimeout(timer);
+      if (!open || row.matches(":focus-within") || row.matches(":hover")) return;
+      open = false;
+      // Measure the one-line height with the clamp back on, then keep the
+      // text unclamped while it slides shut so no line vanishes early.
+      slide(
+        () => {
+          row.removeAttribute("data-open");
+          const shut = desc.getBoundingClientRect().height;
+          row.setAttribute("data-open", "");
+          return shut;
+        },
+        () => {
+          if (!open) row.removeAttribute("data-open");
+        },
+      );
+    }
+    row.addEventListener("pointerenter", (event) => {
+      if (event.pointerType !== "mouse") return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(show, HOVER_INTENT_MS);
+    });
+    row.addEventListener("pointerleave", () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(hide, 0);
+    });
+    row.addEventListener("focusin", show);
+    row.addEventListener("focusout", () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(hide, 0);
+    });
+  }
+  for (const row of document.querySelectorAll<HTMLElement>("[data-gift]")) openable(row);
+
+  // ── the one line of feedback ─────────────────────────────────────────
+  // A toast is text, or a prompt: text and two buttons. After a buy the
+  // prompt asks for a backup, as the spec asks (story 29): "Yedekle" opens
+  // the panel, "Sonra" closes it, and it waits until she presses one. Plain
+  // text fades after 3 s.
+  const toast = $(document, "[data-toast]");
+  const toastText = $(toast, "[data-toast-text]");
+  const toastAction = $(toast, "[data-toast-action]") as HTMLButtonElement;
+  const toastLater = $(toast, "[data-toast-later]") as HTMLButtonElement;
+  let toastTimer = 0;
+  let onToastAction: (() => void) | null = null;
+  function say(text: string, action?: { label: string; run: () => void }) {
+    toastText.textContent = text;
+    toastAction.hidden = toastLater.hidden = !action;
+    toastAction.textContent = action?.label ?? "";
+    onToastAction = action?.run ?? null;
+    toast.setAttribute("data-show", "");
+    window.clearTimeout(toastTimer);
+    if (!action) toastTimer = window.setTimeout(() => toast.removeAttribute("data-show"), 3200);
+  }
+  toastAction.addEventListener("click", () => {
+    toast.removeAttribute("data-show");
+    onToastAction?.();
+  });
+  toastLater.addEventListener("click", () => toast.removeAttribute("data-show"));
+
+  // ── the Save code panels ─────────────────────────────────────────────
+  // Two native <dialog>s: Esc closes, focus stays inside, and the top layer
+  // leaves the 1920×1080 layout alone. They own no state either. Yedekle
+  // asks the ledger for the code each time it opens; Geri yükle asks the
+  // ledger to read what she pasted and shows the ledger's own numbers for
+  // both sides; only her confirm writes, through `restore`.
+  function panel(name: string): HTMLDialogElement {
+    const dialog = $(document, `dialog[data-panel="${name}"]`) as HTMLDialogElement;
+    for (const close of dialog.querySelectorAll("[data-close]")) {
+      close.addEventListener("click", () => dialog.close());
+    }
+    return dialog;
+  }
+
+  const yedekle = panel("yedekle");
+  const codeField = $(yedekle, "[data-savecode-field]") as HTMLTextAreaElement;
+  const copyStatus = $(yedekle, "[data-copy-status]");
+  async function openYedekle() {
+    const { code } = await ledger.toSaveCode();
+    codeField.value = code;
+    copyStatus.textContent = "";
+    yedekle.showModal();
+  }
+  codeField.addEventListener("focus", () => codeField.select());
+  $(yedekle, "[data-copy]").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(codeField.value);
+      copyStatus.textContent = "Kopyalandı!";
+    } catch {
+      // No clipboard permission, or no secure context: the code is selected
+      // for her, and the old shortcut copies it.
+      codeField.focus();
+      codeField.select();
+      copyStatus.textContent = "Kopyalanamadı; kodu seçtim, Ctrl+C ile kopyala.";
+    }
+  });
+
+  const geriYukle = panel("geri-yukle");
+  const pasteField = $(geriYukle, "[data-restore-field]") as HTMLTextAreaElement;
+  const pasteError = $(geriYukle, "[data-restore-error]");
+  const compare = $(geriYukle, "[data-compare]");
+  const confirmRestore = $(geriYukle, "[data-restore-confirm]") as HTMLButtonElement;
+  /** One Turkish sentence per refusal. "empty" shows nothing: she has not
+   *  pasted yet. */
+  const REFUSED: Record<string, string> = {
+    check: "Bu kod tutmuyor: bir karakteri eksik ya da yanlış olabilir. Kodu yeniden kopyalayıp yapıştır.",
+    payload: "Bu kod okunamadı. Yedekle'den aldığın kodu olduğu gibi yapıştır.",
+  };
+  function openGeriYukle() {
+    pasteField.value = "";
+    showPasted(null);
+    geriYukle.showModal();
+  }
+  // Read on every keystroke or paste; a slower read that lands after a newer
+  // one is dropped, so the panel always shows the text that is in the field.
+  let pasteSeq = 0;
+  pasteField.addEventListener("input", async () => {
+    const seq = ++pasteSeq;
+    const outcome = await ledger.fromSaveCode(pasteField.value);
+    if (seq === pasteSeq) showPasted(outcome);
+  });
+  function showPasted(outcome: SaveCodeOutcome | null) {
+    const refused = outcome && !outcome.ok ? (REFUSED[outcome.reason] ?? "") : "";
+    pasteError.textContent = refused;
+    pasteError.hidden = !refused;
+    const pasted = outcome?.ok ? outcome.progress : null;
+    compare.hidden = !pasted;
+    confirmRestore.disabled = !pasted;
+    if (!pasted) return;
+    fillColumn("now", ledger.progress());
+    fillColumn("next", pasted);
+  }
+  /** The four lines of a summary, the way the hub writes them. */
+  function summarise(p: Progress): Record<string, string> {
+    return {
+      earned: fmt(earnedOf(p)),
+      balance: fmt(balanceOf(p)),
+      held: [...heldOf(p).keys()].map((id) => giftById(id).name).join(", ") || "—",
+      prizes: `${prizesWonOf(p).length}/${GAMES.length}`,
+    };
+  }
+  function fillColumn(side: "now" | "next", p: Progress) {
+    const summary = summarise(p);
+    for (const cell of compare.querySelectorAll<HTMLElement>(`[data-${side}]`)) {
+      cell.textContent = summary[cell.dataset[side] ?? ""] ?? "";
+    }
+  }
+  confirmRestore.addEventListener("click", async () => {
+    const outcome = await ledger.restore(pasteField.value);
+    if (!outcome.ok) return showPasted(outcome);
+    geriYukle.close();
+    render();
+    say("İlerlemen geri yüklendi.");
+  });
+
+  $(document, '[data-tool="yedekle"]').addEventListener("click", () => void openYedekle());
+  $(document, '[data-tool="geri-yukle"]').addEventListener("click", openGeriYukle);
+
+  // ── the shop's two actions ───────────────────────────────────────────
+  // One listener on the shop: rows move between lists, so the buttons are
+  // found at click time, not bound once. The ledger decides; a refused buy
+  // changes nothing on screen, since the button for it is already disabled.
+  // A Return asks first (spec story 23) with the browser's own confirm():
+  // the half that comes back is the ledger's number, read before asking.
+  $(document, "[data-shop]").addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>(
+      "button[data-buy], button[data-return]",
+    );
+    const row = button?.closest<HTMLElement>("[data-gift]");
+    const id = row?.dataset.gift;
+    if (!button || button.disabled || !id || !isGiftId(id)) return;
+    const gift = giftById(id);
+
+    if (button.hasAttribute("data-buy")) {
+      if (ledger.buy(id).ok) {
+        // A Gift is the biggest moment of the evening: fanfare and confetti.
+        effects.celebrate(giftCelebration(Math.random));
+        say(`${gift.name} senin! Yedek kodunu almayı unutma.`, { label: "Yedekle", run: () => void openYedekle() });
+      }
+    } else {
+      const paid = ledger.held().get(id);
+      if (paid == null) return;
+      const half = fmt(paid / 2);
+      if (!window.confirm(`Emin misin? ${gift.name} iade edilecek, ${half} puan geri gelir.`)) return;
+      if (ledger.returnGift(id).ok) say(`${gift.name} iade edildi, ${half} puan geri geldi.`);
+    }
+    render();
+  });
+
+  // ── Atıl's corner ────────────────────────────────────────────────────
+  // Gifted points go through this page's ledger. The toast sits behind the
+  // modal, so the repaint, the hop and the backup prompt wait for it to close.
+  const mainStat = $(document, ".stat[data-main]");
+  let gifted = false;
+  mountAdmin(document, {
+    ledger,
+    // A gift sparkles as it goes through; its stars wait for the dialog to
+    // close (the modal sits above the confetti) and rise from the Balance.
+    onGift() {
+      effects.sound("sparkle");
+      gifted = true;
+    },
+    onClose(changed) {
+      if (gifted) effects.celebrate(sparkleCelebration(Math.random), mainStat);
+      gifted = false;
+      if (!changed) return;
+      render();
+      mainStat.removeAttribute("data-hop");
+      void mainStat.offsetWidth; // restart the animation
+      mainStat.setAttribute("data-hop", "");
+      say("Bakiye güncellendi! Yedek kodunu almayı unutma.", { label: "Yedekle", run: () => void openYedekle() });
+    },
+  });
+
+  render();
+</script>
+
+<style>
+  /* The page is at least one screen high, never less, and grows when the
+     tiles need more room: on 1920×1080 the tiles share the screen, on a
+     smaller laptop they keep their content and the page scrolls down. It
+     never scrolls across. */
+  .page {
+    position: relative;
+    min-height: 100vh;
+    padding: 20px 28px 20px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 18px;
+  }
+
+  /* ── top strip ───────────────────────────────────────────────── */
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px dashed var(--bd-dash);
+  }
+  .title {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 34px;
+    line-height: 1.05;
+    color: var(--bd-accent-deep);
+  }
+  .sub {
+    color: var(--bd-muted);
+    font-size: 15px;
+    margin-top: 4px;
+  }
+  .stats {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .stat {
+    background: var(--bd-paper);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow:
+      0 1px 0 #f0dfd9,
+      0 0 0 1px var(--bd-line);
+    min-width: 110px;
+  }
+  .stat[data-main] {
+    background: var(--bd-accent);
+    color: #fff;
+    box-shadow: 0 6px 16px -6px var(--bd-accent);
+  }
+  .stat[data-main] {
+    position: relative;
+  }
+  /* Hangs off the Balance card's foot, into the strip's padding, so the
+     strip keeps its height whether or not Atıl gave any. */
+  .gifted-badge {
+    position: absolute;
+    right: 10px;
+    bottom: -10px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--bd-gold);
+    color: var(--bd-ink);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px -2px rgb(58 45 42 / 0.35);
+  }
+  .stat[data-main][data-hop] {
+    animation: balance-hop 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes balance-hop {
+    30% {
+      transform: translateY(-6px) scale(1.08);
+      box-shadow: 0 14px 26px -8px var(--bd-accent);
+    }
+    60% {
+      transform: translateY(0) scale(0.98);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stat[data-main][data-hop] {
+      animation: none;
+    }
+  }
+  .stat[data-main] .label {
+    color: var(--bd-accent-pale);
+  }
+  .stat-value {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+  .stat-value small {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.75;
+    margin-left: 2px;
+  }
+  .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bd-muted-2);
+    font-weight: 700;
+  }
+  .tools {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2px 4px;
+  }
+  /* "Efektler" and "Müzik", stacked beside the tools. */
+  .switches {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+  }
+
+  /* ── main: tiles + shop ──────────────────────────────────────── */
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 24px;
+    align-items: stretch;
+  }
+  /* The tiles' column decides the grid's columns by its own width (3, 2, 1),
+     so the shop beside it or below it needs no second set of numbers. */
+  .games {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    container: games / inline-size;
+  }
+  .h2 {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 21px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: var(--bd-ink);
+  }
+  .badge {
+    font-family: var(--bd-font);
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--bd-accent-deep);
+    background: var(--bd-accent-soft);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  /* Rows are equal and share the height left, but never shorter than the
+     tallest tile's content: a tile grows, its text never spills. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 12px;
+  }
+  @container games (max-width: 760px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container games (max-width: 460px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-auto-rows: auto;
+    }
+  }
+
+  /* ── tile ────────────────────────────────────────────────────── */
+  .tile {
+    background: var(--bd-paper);
+    border-radius: var(--bd-radius);
+    padding: 12px 14px 0;
+    box-shadow:
+      0 0 0 1px var(--bd-line),
+      0 2px 0 var(--bd-line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .tile[data-won] {
+    box-shadow:
+      0 0 0 2px var(--bd-won),
+      0 4px 14px -6px var(--bd-won);
+  }
+  .tile-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .icon {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 19px;
+    background: var(--bd-accent-soft);
+  }
+  .tile[data-won] .icon {
+    background: var(--bd-won-bg-2);
+  }
+  .tile-name {
+    min-width: 0;
+  }
+  .name {
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1.2;
+  }
+  .rule {
+    font-size: 12px;
+    color: var(--bd-muted);
+    line-height: 1.3;
+  }
+  .score {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+  }
+  .best {
+    display: block;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--bd-ink);
+  }
+  .pts {
+    font-size: 12px;
+    color: var(--bd-muted);
+    font-weight: 700;
+    padding-bottom: 3px;
+  }
+  .track {
+    position: relative;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--bd-track);
+  }
+  .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--bd-gold), var(--bd-accent));
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .tile[data-won] .fill {
+    background: linear-gradient(90deg, var(--bd-won-soft), var(--bd-won));
+  }
+  .mark {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--bd-ink);
+    border-radius: 1px;
+  }
+  .prize {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px -14px 0;
+    padding: 9px 14px;
+    border-top: 1px dashed var(--bd-line-dash);
+    border-radius: 0 0 var(--bd-radius) var(--bd-radius);
+    color: var(--bd-muted-2);
+  }
+  .tile[data-won] .prize {
+    background: var(--bd-won-bg);
+    border-top-color: var(--bd-won-line);
+    color: var(--bd-won-ink);
+  }
+  .prize-icon {
+    flex: none;
+    font-size: 16px;
+  }
+  .prize-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .prize-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--bd-ink-soft);
+    line-height: 1.25;
+  }
+  .tile[data-won] .prize-name {
+    color: var(--bd-won-deep);
+  }
+  .prize-sub {
+    font-size: 11.5px;
+  }
+  .tile[data-won] .prize-sub {
+    font-weight: 800;
+  }
+
+  /* ── shop ────────────────────────────────────────────────────── */
+  /* Beside the tiles, the shop takes the tiles' height and never sets it:
+     size containment keeps its list out of the row's height, so the page
+     grows for tiles only and the shop scrolls inside itself when she holds
+     nearly every Gift. When the tiles make the page scroll, the shop stays
+     in view beside them, one screen high at most. Below the tiles (narrow
+     screens) it is just a box. */
+  .shop {
+    background: var(--bd-paper);
+    border-radius: 18px;
+    padding: 14px 16px;
+    box-shadow: 0 0 0 1px var(--bd-line);
+    contain: size;
+    overflow-y: auto;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    height: min(100%, calc(100vh - 40px));
+  }
+
+  /* ── smaller screens ─────────────────────────────────────────── */
+  @media (max-width: 1400px) {
+    .main {
+      grid-template-columns: minmax(0, 1fr) 340px;
+    }
+  }
+  @media (max-width: 900px) {
+    .main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .shop {
+      contain: none;
+      overflow: visible;
+      position: static;
+      height: auto;
+    }
+  }
+  @media (max-width: 600px) {
+    .page {
+      padding: 16px;
+    }
+    .title {
+      font-size: 28px;
+    }
+    .stats {
+      margin-left: 0;
+      width: 100%;
+    }
+    .stat {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+  .shop-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .shop-head .h2 {
+    margin-bottom: 6px;
+  }
+  .shop-bal {
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .shop-bal b {
+    color: var(--bd-accent-deep);
+    font-size: 16px;
+  }
+  .mine {
+    background: var(--bd-won-bg);
+    border-radius: 12px;
+    padding: 8px 10px 4px;
+    margin-bottom: 6px;
+  }
+  .mine .label {
+    color: var(--bd-won-ink);
+    margin-bottom: 2px;
+  }
+  .gift {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--bd-line-soft);
+  }
+  .mine .gift {
+    border-bottom: 0;
+  }
+  .gifts > .gift:last-child {
+    border-bottom: 0;
+  }
+  .gicon {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--bd-radius-sm);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+    background: var(--bd-gift-bg);
+  }
+  .gtext {
+    flex: 1;
+    min-width: 0;
+  }
+  .gname {
+    display: block;
+    font-weight: 800;
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+  .gdesc {
+    font-size: 11.5px;
+    color: var(--bd-muted);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    opacity: 0.85;
+    transition:
+      height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.3s ease-out,
+      color 0.3s ease-out;
+  }
+  /* Open (the script sets it after a short hover, or on focus): up to four
+     lines, the script animating the height between the two. */
+  .gift[data-open] .gdesc {
+    -webkit-line-clamp: 4;
+    opacity: 1;
+    color: var(--bd-ink-soft);
+  }
+  .gift:focus-visible {
+    outline: 3px solid var(--bd-gold);
+    outline-offset: 2px;
+    border-radius: var(--bd-radius-sm);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gdesc {
+      transition: none;
+    }
+  }
+  /* Price and "N eksik" stacked, the button beside them: two lines at most,
+     so 13 Gifts and a held block fit the column at 1080 without scrolling. */
+  .buy {
+    flex: none;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 2px;
+    align-items: center;
+    justify-items: end;
+  }
+  .price {
+    grid-column: 1;
+    grid-row: 1;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .short {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .buy .bd-btn {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .gift[data-held] .price {
+    color: var(--bd-won-ink);
+  }
+  .short {
+    font-size: 11px;
+    color: var(--bd-muted-3);
+    white-space: nowrap;
+  }
+
+  /* ── toast ───────────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translate(-50%, 8px);
+    background: var(--bd-ink);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0.2s;
+  }
+  .toast[data-show] {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+  }
+  .toast-action {
+    background: #fff;
+    color: var(--bd-ink);
+    padding: 5px 11px;
+    margin-left: 6px;
+  }
+  .toast-action:hover {
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .toast-later {
+    background: transparent;
+    color: #fff;
+    padding: 5px 11px;
+    margin-left: 2px;
+  }
+  .toast-later:hover {
+    background: rgb(255 255 255 / 0.14);
+  }
+
+  /* ── the Save code panels ────────────────────────────────────── */
+  .panel {
+    border: 0;
+    border-radius: 18px;
+    padding: 22px 24px;
+    width: min(680px, calc(100vw - 48px));
+    background: var(--bd-paper);
+    color: var(--bd-ink);
+    box-shadow: 0 30px 80px -30px rgb(58 45 42 / 0.5);
+  }
+  .panel::backdrop {
+    background: rgb(58 45 42 / 0.45);
+  }
+  .panel .h2 {
+    margin-bottom: 6px;
+  }
+  .panel-sub {
+    color: var(--bd-muted);
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .code-field {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--bd-line);
+    border-radius: 12px;
+    background: var(--bd-bg);
+    color: var(--bd-ink);
+    font: 13px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    word-break: break-all;
+    resize: vertical;
+  }
+  .code-field:focus-visible {
+    outline: 3px solid var(--bd-gold);
+    outline-offset: 1px;
+  }
+  .panel-status {
+    min-height: 1.4em;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bd-won-ink);
+  }
+  .panel-error {
+    margin-top: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--bd-accent-deep);
+  }
+  .compare {
+    margin-top: 12px;
+  }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .compare-table th,
+  .compare-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--bd-line-soft);
+  }
+  .compare-table thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bd-muted-2);
+  }
+  .compare-table tbody th {
+    width: 34%;
+    font-weight: 700;
+    color: var(--bd-ink-soft);
+  }
+  .compare-table td[data-next] {
+    font-weight: 800;
+    color: var(--bd-accent-deep);
+  }
+  .panel-note {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

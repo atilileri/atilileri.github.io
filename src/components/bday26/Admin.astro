@@ -1,0 +1,279 @@
+---
+/**
+ * Atıl's corner on the hub (/20261209/): the markup and look of the panel
+ * where Atıl gives her Gifted points (*Hediye puan*). The behaviour, and the
+ * note on why its password is not a lock, are in `src/lib/bday26/admin.ts`,
+ * which the hub's script mounts with the hub's own ledger.
+ *
+ * THE TRIGGER is a tiny 🎂 in the page's bottom-left corner, inside the
+ * page's padding, faded until hovered or focused: it reads as decoration.
+ * It is a real button with a name, so it is reachable by keyboard. The hover
+ * tilt turns the inner cake, not the button, and the button clips it: a
+ * rotated button would poke past the page bottom and add a scrollbar.
+ *
+ * THE DIALOG is a native <dialog> (Esc closes, focus stays inside, the hub
+ * behind it is inert), soft and rounded in the hub's tokens. Two faces: the
+ * lock (password; a wrong one shakes and says so in Turkish) and the desk
+ * (amount with +10 / +50 / +100, an optional note, "Hediye et"; the gifts so
+ * far, newest first, with "Son hediyeyi geri al"). Closing locks it again.
+ */
+---
+
+<button class="adm-trigger" type="button" data-open-admin aria-label="Atıl'ın köşesi" title="🎂"><span class="adm-cake" aria-hidden="true">🎂</span></button>
+
+<dialog class="adm" data-admin aria-labelledby="adm-heading">
+  <h2 class="adm-title" id="adm-heading"><span aria-hidden="true">🔑</span> Atıl'ın köşesi</h2>
+
+  <form class="adm-lock" data-admin-lock>
+    <p class="adm-sub">Burası Atıl'a özel. Şifreyi söyler misin?</p>
+    <label class="adm-label" for="adm-pass">Şifre</label>
+    <div class="adm-row">
+      <input id="adm-pass" class="adm-input" type="password" inputmode="numeric" autocomplete="off"
+        data-admin-pass />
+      <button class="bd-btn primary" type="submit">Aç</button>
+    </div>
+    <p class="adm-error" role="alert" data-admin-pass-error hidden>Olmadı, bir daha dene 🙈</p>
+  </form>
+
+  <div class="adm-desk" data-admin-desk hidden>
+    <p class="adm-sub">Bakiyesi şu an <b class="adm-balance" data-admin-balance>0</b> puan.</p>
+    <form class="adm-form" data-admin-form>
+      <label class="adm-label" for="adm-amount">Hediye puan</label>
+      <div class="adm-row">
+        <input id="adm-amount" class="adm-input adm-amount" type="number" min="1" step="1" inputmode="numeric"
+          placeholder="0" data-admin-amount />
+        <button class="bd-btn ghost small" type="button" data-admin-quick="10">+10</button>
+        <button class="bd-btn ghost small" type="button" data-admin-quick="50">+50</button>
+        <button class="bd-btn ghost small" type="button" data-admin-quick="100">+100</button>
+      </div>
+      <label class="adm-label" for="adm-note">Not <span class="adm-opt">(isteğe bağlı)</span></label>
+      <input id="adm-note" class="adm-input" type="text" maxlength="80" autocomplete="off"
+        placeholder="Örn. bulaşıkları yıkadığın için" data-admin-note />
+      <div class="adm-actions">
+        <button class="bd-btn primary" type="submit">Hediye et</button>
+      </div>
+    </form>
+    <p class="adm-status" role="status" data-admin-status></p>
+
+    <h3 class="adm-label adm-list-head">Verilen hediye puanlar</h3>
+    <ul class="adm-list" data-admin-list hidden></ul>
+    <p class="adm-empty" data-admin-empty>Henüz yok.</p>
+    <button class="bd-btn secondary small" type="button" data-admin-undo disabled>Son hediyeyi geri al</button>
+  </div>
+
+  <div class="adm-foot">
+    <button class="bd-btn ghost" type="button" data-admin-close>Kapat</button>
+  </div>
+</dialog>
+
+<style>
+  .adm-trigger {
+    position: absolute;
+    left: 4px;
+    bottom: 2px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 14px;
+    line-height: 22px;
+    opacity: 0.3;
+    filter: grayscale(0.6);
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: clip;
+    transition:
+      opacity 0.2s ease,
+      filter 0.2s ease;
+  }
+  .adm-cake {
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  .adm-trigger:hover,
+  .adm-trigger:focus-visible {
+    opacity: 1;
+    filter: none;
+  }
+  .adm-trigger:hover .adm-cake,
+  .adm-trigger:focus-visible .adm-cake {
+    transform: rotate(-12deg) scale(1.15);
+  }
+  .adm-trigger:focus-visible {
+    outline: 2px solid var(--bd-gold);
+  }
+
+  .adm {
+    border: 0;
+    border-radius: 24px;
+    padding: 22px 24px 18px;
+    width: min(440px, calc(100vw - 32px));
+    background: linear-gradient(180deg, var(--bd-accent-soft), var(--bd-paper) 120px);
+    color: var(--bd-ink);
+    box-shadow: 0 30px 80px -30px rgb(58 45 42 / 0.5);
+  }
+  .adm::backdrop {
+    background: rgb(58 45 42 / 0.4);
+  }
+  .adm-title {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--bd-accent-deep);
+    margin-bottom: 4px;
+  }
+  .adm-sub {
+    color: var(--bd-muted);
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .adm-balance {
+    display: inline-block;
+    color: var(--bd-accent-deep);
+    font-family: var(--bd-display);
+    font-size: 17px;
+  }
+  .adm-balance[data-hop] {
+    animation: adm-hop 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .adm-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bd-muted-2);
+    font-weight: 700;
+    margin: 10px 0 4px;
+  }
+  .adm-opt {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+  }
+  .adm-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .adm-input {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 12px;
+    border: 1.5px solid var(--bd-line);
+    border-radius: 12px;
+    background: var(--bd-bg);
+    color: var(--bd-ink);
+    font: inherit;
+    font-size: 15px;
+  }
+  .adm-input:focus-visible {
+    outline: 3px solid var(--bd-gold);
+    outline-offset: 1px;
+  }
+  .adm-amount {
+    flex: 1;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .adm-lock[data-shake] {
+    animation: adm-shake 0.4s ease;
+  }
+  .adm-error {
+    margin-top: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--bd-accent-deep);
+  }
+  .adm-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+  .adm-status {
+    min-height: 1.4em;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bd-won-ink);
+  }
+  .adm-status[data-tone="no"] {
+    color: var(--bd-accent-deep);
+  }
+  .adm-list-head {
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--bd-line-dash);
+  }
+  .adm-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+  }
+  .adm-list :global(li) {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--bd-line-soft);
+    font-size: 13.5px;
+  }
+  .adm-list :global(b) {
+    color: var(--bd-won-ink);
+    min-width: 44px;
+  }
+  .adm-list :global(.adm-note) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--bd-ink-soft);
+  }
+  .adm-list :global(time) {
+    font-size: 11.5px;
+    color: var(--bd-muted-2);
+    white-space: nowrap;
+  }
+  .adm-empty {
+    font-size: 13px;
+    color: var(--bd-muted);
+    margin-bottom: 8px;
+  }
+  .adm-foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+  }
+
+  @keyframes adm-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20%,
+    60% {
+      transform: translateX(-7px);
+    }
+    40%,
+    80% {
+      transform: translateX(7px);
+    }
+  }
+  @keyframes adm-hop {
+    40% {
+      transform: translateY(-4px) scale(1.2);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .adm-lock[data-shake],
+    .adm-balance[data-hop] {
+      animation: none;
+    }
+    .adm-trigger,
+    .adm-cake {
+      transition: none;
+    }
+  }
+</style>

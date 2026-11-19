@@ -34,30 +34,42 @@ Each song repeats to about 90 s.
 - **No overlap**: the three piano songs never appear here.
 - **No reveal**: the result screen links to no recording.
 
-| Group | Song | Artist |
-|---|---|---|
-| Yin Yin | One Inch Punch | Yin Yin |
-| Yin Yin | Pingpxng | Yin Yin |
-| Yin Yin | Takahashi Timing | Yin Yin |
-| Karsu | Jest Oldu | Karsu |
-| Karsu | Bırak Beni Böyle | Karsu |
-| Karsu | İtiraf | Karsu |
-| Rocky Horror | Time Warp | The Rocky Horror Show |
-| Rocky Horror | Sweet Transvestite | The Rocky Horror Show |
-| 90s Turkish pop | Şımarık | Tarkan |
-| 90s Turkish pop | Aya Benzer | Mustafa Sandal |
-| 90s Turkish pop | Her Gece | Mirkelam |
-| 90s Turkish pop | Abone | Yonca Evcimik |
-| 90s Turkish pop | Zalim | Levent Yüksel |
-| 90s Turkish pop | Yaparım Bilirsin | Kenan Doğulu |
-| World hits | Take On Me | a-ha |
-| World hits | Dancing Queen | ABBA |
-| World hits | My Heart Will Go On | Céline Dion |
-| World hits | Shape of You | Ed Sheeran |
-| World hits | Seven Nation Army | The White Stripes |
-| World hits | Billie Jean | Michael Jackson |
+The second pool (2026-11-19). Atıl listened to the first pool on the test page, approved nine hooks
+and dropped the other eleven. **Approved** means he heard the hook and it passed; **new** means a
+candidate that still waits for his ear. A second listen approved ten of the new songs, notes
+unchanged. Time Warp failed twice and was replaced by Walking on Sunshine, which he then approved too: all 20 hooks are approved.
+The notes and their sources sit beside each song in
+`src/lib/bday26/songs.ts`.
 
-**Backups**: Alpaca Mountain (Yin Yin), Science Fiction/Double Feature (Rocky Horror).
+| Group | Song | Artist | Status |
+|---|---|---|---|
+| Yin Yin | One Inch Punch | Yin Yin | approved |
+| 90s Turkish pop | Şımarık | Tarkan | approved |
+| 90s Turkish pop | Jest Oldu | Mustafa Sandal | approved |
+| 90s Turkish pop | Her Gece | Mirkelam | approved |
+| 90s Turkish pop | Zalim | Levent Yüksel | approved |
+| 90s Turkish pop | Yaparım Bilirsin | Kenan Doğulu | approved |
+| World hits | Take On Me | a-ha | approved |
+| World hits | Shape of You | Ed Sheeran | approved |
+| World hits | Seven Nation Army | The White Stripes | approved |
+| World hits | The Final Countdown | Europe | approved |
+| World hits | Sweet Dreams (Are Made of This) | Eurythmics | approved |
+| World hits | Careless Whisper | George Michael | approved |
+| World hits | Smoke on the Water | Deep Purple | approved |
+| World hits | Axel F | Harold Faltermeyer | approved |
+| World hits | Barbie Girl | Aqua | approved |
+| World hits | Lambada | Kaoma | approved |
+| World hits | Hit the Road Jack | Ray Charles | approved |
+| World hits | Another One Bites the Dust | Queen | approved |
+| World hits | Popcorn | Hot Butter | approved |
+| World hits | Walking on Sunshine | Katrina and the Waves | approved (replaced Time Warp) |
+
+**Groups rebalanced** to 1/5/14. No reliable melody source turned up for more Yin Yin, for any
+Karsu song, or for new 90s Turkish pop, so those groups shrank and world hits filled the gap. Jest
+Oldu is Mustafa Sandal's song (Karsu covers it), so it moved to 90s Turkish pop and the Karsu group
+is gone. Time Warp never passed, so the Rocky Horror group is gone too. Dropped after the
+listening: Pingpxng, Takahashi Timing, Bırak Beni Böyle, İtiraf, Sweet Transvestite, Aya Benzer,
+Abone, Dancing Queen, My Heart Will Go On, Billie Jean, and both takes of Time Warp.
 
 Sources for the artist picks: [Shazam: Yin Yin](https://shazam.com/artist/yin-yin/412459589),
 [Karsu](https://wiki.krisyotam.com/content/wikipedia_en_all_nopic_2026-03/Karsu),

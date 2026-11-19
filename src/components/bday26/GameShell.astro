@@ -1,0 +1,556 @@
+---
+/**
+ * GameShell — the frame around every Game's Round (/20261209/<game>/, spec
+ * #192 "Modules" 4, stories 30–36; built on #194). A Game page puts its
+ * playfield inside this component and gets, for free: the start screen, the
+ * HUD bar, the confirm-leave question, the result screen, Enter and Esc, and
+ * the one `recordRound` a finished Round makes. The rules of all that live in
+ * `src/lib/bday26/shell.ts`; read ITS header for the whole interface a Game
+ * uses. This file is the markup and the look.
+ *
+ * WHAT IT RENDERS (every word Turkish, from the catalogue where it can be):
+ *   - `.hud`: the Game's glyph and name on the left, the Game's own
+ *     `<slot name="hud">` in the middle (its move counter, its km, its guess
+ *     x/6), her Best score and the 95% bar on the right, then on every Game
+ *     the "Efektler: Açık/Kapalı" switch (`EffectsToggle`) and "✕ Çık · Esc",
+ *     a real button that does exactly what Esc does (the leave confirm
+ *     during a Round, the hub otherwise), both above the screens so they
+ *     are always reachable and neither takes focus from the Game. The switch is the
+ *     one preference for every sound and visual effect: a Game plays them
+ *     through `effects` from `src/lib/bday26/effects-dom.ts` and needs no
+ *     wiring here; this component's script binds the switch and stops every
+ *     effect loop whenever a screen covers the Round. A Game given `music`
+ *     (Milyoner, "Bu nerede?", Hafıza kartları, the slot, the ski and
+ *     driving Games) also gets the "Müzik: Açık/Kapalı" switch
+ *     (`MusicToggle`) beside it; the script plays the track
+ *     (`src/lib/bday26/music-dom.ts`) and pauses it while the leave confirm
+ *     asks (the ski and driving pages also hold it under their P pause,
+ *     `music.hold("pause")`). A Small prize won by this Round
+ *     (`PRIZE_WON_EVENT` from the shell) gets a celebration on the result.
+ *   - `.playfield`: the default slot, filling the rest of 1920×1080. It is
+ *     `inert` whenever a screen is over it.
+ *   - Three screens, absolutely over everything, one visible at a time by
+ *     the `hidden` attribute, picked by the controller's phase: `start`
+ *     (opaque: name, one-line rule, the `keys` legend, her Best score, the
+ *     Small prize line, "Başla · Enter", "Salona dön · Esc"), `confirm` (a
+ *     veil over the Round: "Turdan çıkılsın mı?" / "Yarım bırakılan tur skor
+ *     vermez." / "Devam et · Esc", "Çık · Enter") and `result` (a veil that
+ *     waits half a second so she sees her last move: "Tur bitti", the score,
+ *     the Game's `detail` line, the optional `<slot name="result">`, "Rekor"
+ *     and "Hedef %95", the "Yeni rekor!" and "Küçük ödül kazandın: …!"
+ *     flashes, "Yeni tur · Enter", "Salona dön · Esc").
+ *   An optional `<slot name="start">` sits on the start card above the
+ *   buttons, for a choice made before the Round (the piano's song, #205).
+ *   The start screen is visible in the static HTML, so the page never flashes
+ *   an empty playfield before the script runs. `startScreen={false}` (the
+ *   slot machine, story 54) renders it hidden and the page opens on the
+ *   playfield; the page passes the same option to `mountGameShell`.
+ *   `resultAside` docks the result card at the right edge with no veil, so
+ *   the playfield stays in plain sight beside it (the hiking map's reveal,
+ *   #202: her route and the shortest drawn on the map while the card shows).
+ *   The Game makes room for the card itself, on `data-shell-phase="result"`.
+ *
+ * THE CONTRACT WITH `mountGameShell`. The script finds everything here by
+ * `data-shell-*` attributes and nothing else — classes are free to change:
+ * `data-shell` (the root; gets `data-shell-phase`), `data-shell-playfield`,
+ * `data-shell-screen="start|confirm|result"` (focusable, `tabindex="-1"`),
+ * `data-shell-best` (every place her Best score shows), `data-shell-prize-
+ * icon` / `-sub`, `data-shell-score`, `data-shell-detail`,
+ * `data-shell-improved`, `data-shell-prize-now`, and the buttons'
+ * `data-shell-action="start|leave|stay|leave-round|escape"`. Add an element, keep
+ * the attribute, and the binding keeps working.
+ *
+ * The wording of the confirm and result cards is the hiking prototype's
+ * (#183), which Atıl played and approved; the look is the hub's (#178): the
+ * shared tokens from `src/styles/bday26.css`, Baloo 2 for the big numbers.
+ * For the luck Game (#200) the bar is the jackpot, not %95, so "Hedef"
+ * and the Small prize line say so, in the hub tile's words.
+ */
+import { gameById, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
+import { GAME_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
+import EffectsToggle from "./EffectsToggle.astro";
+import MusicToggle from "./MusicToggle.astro";
+import type { TrackName } from "../../lib/bday26/music";
+
+interface Props {
+  /** This Game's background music (`src/lib/bday26/music-dom.ts`): the
+   *  shell plays it, pauses it during the leave confirm, and shows the
+   *  "Müzik" switch beside "Efektler". Omitted: no music, no switch. */
+  music?: TrackName;
+  game: GameId;
+  /** The start screen's key legend, in reading order: what she presses, what it does. */
+  keys: { key: string; does: string }[];
+  /** Dock the result card at the right, no veil: the playfield stays visible. */
+  resultAside?: boolean;
+  /** false: the page opens on the playfield, no start card (the slot
+   *  machine, story 54). Pass the same `startScreen` to `mountGameShell`. */
+  startScreen?: boolean;
+}
+
+const { game: id, keys, resultAside = false, startScreen = true, music } = Astro.props;
+const game = gameById(id);
+/** What a Round aims at: %95, or the jackpot for the luck Game. */
+const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
+const hasResultSlot = Astro.slots.has("result");
+const hasStartSlot = Astro.slots.has("start");
+---
+
+<main class="shell" data-shell data-shell-phase={startScreen ? "start" : "playing"} data-shell-music={music}>
+  <header class="hud">
+    <div class="hud-game">
+      <span class="hud-icon" aria-hidden="true">{GAME_ICON[id]}</span>
+      <h1 class="hud-name">{game.name}</h1>
+    </div>
+    <div class="hud-mid"><slot name="hud" /></div>
+    <dl class="hud-facts">
+      <div>
+        <dt class="label">Rekor</dt>
+        <dd data-shell-best>—</dd>
+      </div>
+      <div>
+        <dt class="label">Hedef</dt>
+        <dd>{bar}</dd>
+      </div>
+    </dl>
+    <EffectsToggle />
+    {music && <MusicToggle />}
+    <button class="hud-exit" type="button" tabindex="-1" data-shell-action="escape" aria-label="Çık" title="Çık (Esc)">
+      <span aria-hidden="true">✕</span> Çık <kbd>Esc</kbd>
+    </button>
+  </header>
+
+  <section class="playfield" data-shell-playfield>
+    <slot />
+  </section>
+
+  <div
+    class="screen"
+    data-shell-screen="start"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="shell-start-title"
+    hidden={!startScreen}
+  >
+    <div class="card">
+      <span class="big-icon" aria-hidden="true">{GAME_ICON[id]}</span>
+      <h2 class="title" id="shell-start-title">{game.name}</h2>
+      <p class="rule">{game.rule}</p>
+      <ul class="keys">
+        {
+          keys.map((k) => (
+            <li>
+              <kbd>{k.key}</kbd>
+              <span>{k.does}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="line">
+        Rekorun <b data-shell-best>—</b> · Hedef <b>{bar}</b>
+      </p>
+      <p class="line">
+        <span data-shell-prize-icon aria-hidden="true">{PRIZE_LOCKED_ICON}</span>
+        Küçük ödül: <b>{game.prize.name}</b> · <span data-shell-prize-sub>{game.luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`}</span>
+      </p>
+      {
+        hasStartSlot && (
+          <div class="extra">
+            <slot name="start" />
+          </div>
+        )
+      }
+      <div class="actions">
+        <button class="bd-btn primary" type="button" data-shell-action="start">Başla <kbd>Enter</kbd></button>
+        <button class="bd-btn ghost" type="button" data-shell-action="leave">Salona dön <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="screen veil"
+    data-shell-screen="confirm"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="shell-confirm-title"
+    hidden
+  >
+    <div class="card narrow">
+      <h2 class="title small" id="shell-confirm-title">Turdan çıkılsın mı?</h2>
+      <p class="rule">Yarım bırakılan tur skor vermez.</p>
+      <div class="actions">
+        <button class="bd-btn primary" type="button" data-shell-action="stay">Devam et <kbd>Esc</kbd></button>
+        <button class="bd-btn secondary" type="button" data-shell-action="leave-round">Çık <kbd>Enter</kbd></button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class:list={["screen", "late", resultAside ? "aside" : "veil"]}
+    data-shell-screen="result"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="shell-result-title"
+    hidden
+  >
+    <div class="card">
+      <h2 class="eyebrow" id="shell-result-title">Tur bitti</h2>
+      <p class="score" data-shell-score>%0</p>
+      <p class="detail" data-shell-detail hidden></p>
+      {
+        hasResultSlot && (
+          <div class="extra">
+            <slot name="result" />
+          </div>
+        )
+      }
+      <dl class="facts">
+        <div>
+          <dt class="label">Rekor</dt>
+          <dd data-shell-best>—</dd>
+        </div>
+        <div>
+          <dt class="label">Hedef</dt>
+          <dd>{bar}</dd>
+        </div>
+      </dl>
+      <p class="flash" data-shell-improved hidden>Yeni rekor!</p>
+      <p class="flash won" data-shell-prize-now hidden></p>
+      <div class="actions">
+        <button class="bd-btn primary" type="button" data-shell-action="start">Yeni tur <kbd>Enter</kbd></button>
+        <button class="bd-btn secondary" type="button" data-shell-action="leave">Salona dön <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
+  import { smallPrizeCelebration } from "../../lib/bday26/effects";
+  import { PRIZE_WON_EVENT } from "../../lib/bday26/shell";
+  import type { TrackName } from "../../lib/bday26/music";
+  import { bindMusicToggles, music } from "../../lib/bday26/music-dom";
+
+  bindEffectsToggles();
+  const shellRoot = document.querySelector<HTMLElement>("[data-shell]");
+  const track = shellRoot?.dataset.shellMusic as TrackName | undefined;
+  // A screen over the Round (start, the leave confirm, the result) is quiet:
+  // every effect loop stops; the Game starts its loops again when it plays.
+  // The music plays on under the start and result cards and pauses only
+  // while the leave confirm asks.
+  if (shellRoot) {
+    const onPhase: ((phase: string | undefined) => void)[] = [
+      (phase) => {
+        if (phase !== "playing") effects.stopLoops();
+      },
+    ];
+    if (track) {
+      bindMusicToggles();
+      music.play(track);
+      onPhase.push((phase) => (phase === "confirm" ? music.hold("confirm") : music.release("confirm")));
+    }
+    new MutationObserver(() => {
+      for (const f of onPhase) f(shellRoot.dataset.shellPhase);
+    }).observe(shellRoot, { attributes: true, attributeFilter: ["data-shell-phase"] });
+
+    // A Small prize won this Round: a celebration as the result card lands
+    // (it waits half a second), after a perfect Round's own confetti.
+    shellRoot.addEventListener(PRIZE_WON_EVENT, () => {
+      window.setTimeout(() => effects.celebrate(smallPrizeCelebration(Math.random)), 900);
+    });
+  }
+</script>
+
+<style>
+  .shell {
+    position: relative;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  /* ── HUD ─────────────────────────────────────────────────────── */
+  .hud {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 12px 28px;
+    border-bottom: 2px dashed var(--bd-dash);
+  }
+  .hud-game {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 280px;
+  }
+  .hud-icon {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    background: var(--bd-accent-soft);
+  }
+  .hud-name {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1.1;
+    color: var(--bd-accent-deep);
+  }
+  .hud-mid {
+    flex: 1;
+    text-align: center;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--bd-ink);
+  }
+  .hud-facts {
+    display: flex;
+    gap: 22px;
+  }
+  .hud-facts div {
+    text-align: right;
+  }
+  .hud-facts dd {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  .hud-exit {
+    /* Above the shell's screens (z-index 10), like the Efektler switch. */
+    position: relative;
+    z-index: 11;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 6px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--bd-ink-soft);
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+  }
+  .hud-exit:hover {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bd-muted-2);
+    font-weight: 700;
+  }
+  kbd {
+    font: inherit;
+    font-size: 0.85em;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 6px;
+    background: var(--bd-accent-soft);
+    color: var(--bd-accent-deep);
+  }
+  .bd-btn.primary kbd {
+    background: rgb(255 255 255 / 0.25);
+    color: #fff;
+  }
+
+  /* ── playfield ───────────────────────────────────────────────── */
+  .playfield {
+    position: relative;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px 28px;
+  }
+
+  /* ── screens ─────────────────────────────────────────────────── */
+  .screen {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    outline: none;
+    background: var(--bd-bg);
+  }
+  .screen.veil {
+    background: rgb(58 45 42 / 0.45);
+    backdrop-filter: blur(3px);
+    animation: veil-in 0.25s ease both;
+  }
+  /* The result waits half a second: her last move is still on screen. */
+  .screen.late {
+    animation-delay: 0.5s;
+  }
+  .screen.late .card {
+    animation-delay: 0.5s;
+  }
+  /* Docked at the right, no veil: the playfield stays in view beside it. */
+  .screen.aside {
+    background: transparent;
+    place-items: center end;
+    padding: 72px 36px 20px;
+  }
+  .screen.aside .card {
+    width: 480px;
+  }
+  .card {
+    background: var(--bd-paper);
+    border-radius: 24px;
+    padding: 34px 44px 30px;
+    width: min(600px, 90vw);
+    box-shadow:
+      0 0 0 1px var(--bd-line),
+      0 30px 70px -36px rgb(0 0 0 / 0.45);
+    text-align: center;
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+    animation: card-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .card.narrow {
+    width: min(460px, 90vw);
+  }
+  .big-icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    font-size: 40px;
+    background: var(--bd-accent-soft);
+  }
+  .title {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 40px;
+    line-height: 1.05;
+    color: var(--bd-accent-deep);
+  }
+  .title.small {
+    font-size: 30px;
+    color: var(--bd-ink);
+  }
+  .rule {
+    font-size: 18px;
+    color: var(--bd-muted);
+  }
+  .keys {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 8px 28px;
+    margin: 6px 0;
+    text-align: left;
+    font-size: 14px;
+    color: var(--bd-ink-soft);
+  }
+  .keys li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .keys kbd {
+    white-space: nowrap;
+  }
+  /* On a phone the card keeps its text inside: less padding, one key a row. */
+  @media (max-width: 600px) {
+    .card {
+      padding: 26px 20px 22px;
+    }
+    .keys {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .line {
+    font-size: 15px;
+    color: var(--bd-muted);
+  }
+  .line b {
+    color: var(--bd-ink);
+  }
+  .eyebrow {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--bd-muted-2);
+    font-weight: 800;
+  }
+  .score {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 96px;
+    line-height: 1;
+    color: var(--bd-accent-deep);
+  }
+  .detail {
+    font-size: 18px;
+    color: var(--bd-muted);
+    margin-top: -6px;
+  }
+  .extra {
+    width: 100%;
+  }
+  .facts {
+    display: flex;
+    gap: 36px;
+    margin-top: 4px;
+  }
+  .facts dd {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1.1;
+  }
+  .flash {
+    font-weight: 800;
+    font-size: 15px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--bd-gift-bg);
+    color: var(--bd-gift-fg);
+  }
+  .flash.won {
+    background: var(--bd-won-bg-2);
+    color: var(--bd-won-deep);
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .actions .bd-btn {
+    padding: 12px 22px;
+    font-size: 16px;
+  }
+
+  @keyframes veil-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,282 @@
+/*
+ * bday26.css — the birthday games look (/20261209/, spec #192, built on
+ * #193). Loaded once by `src/layouts/BdayLayout.astro`, so every page under
+ * the route shares the fonts, the tokens, the reset and the buttons; a page's
+ * own layout stays in its own scoped <style>.
+ *
+ * Warm and playful on purpose (spec story 11): Nunito for text, Baloo 2 for
+ * the big numbers and titles, pink accent on a cream ground. The colours are
+ * the hub prototype's (#178, variant A "Oyun salonu"), which is the look that
+ * was approved; change a token here and every page follows.
+ *
+ * Fonts are self-hosted under /20261209/fonts/ like the rest of the site's
+ * fonts (no CDN, works offline at the table). Both families are Google's
+ * variable builds (OFL licence), latin + latin-ext: the Turkish ğ, ı, İ and ş
+ * live in latin-ext, so the two subsets are declared with the same
+ * unicode-ranges Google serves and the browser fetches only what it needs.
+ */
+
+/* ───────────────────────────────────────────────────────────── fonts ── */
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("/20261209/fonts/nunito-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url("/20261209/fonts/nunito-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/20261209/fonts/baloo2-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Baloo 2";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/20261209/fonts/baloo2-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ──────────────────────────────────────────────────────────── tokens ── */
+:root {
+  --bd-font: "Nunito", system-ui, sans-serif;
+  --bd-display: "Baloo 2", "Nunito", system-ui, sans-serif;
+
+  --bd-bg: #fffaf5;
+  --bd-paper: #ffffff;
+  --bd-accent: #e0446a;
+  --bd-accent-deep: #c2264f;
+  --bd-accent-soft: #ffe6ec;
+  --bd-accent-pale: #ffe0e8;
+  --bd-dash: #f2d3db;
+  --bd-gold: #ffb703;
+
+  --bd-ink: #3a2d2a;
+  --bd-ink-soft: #5d4f4b;
+  --bd-muted: #8d7d78;
+  --bd-muted-2: #9b8a85;
+  --bd-muted-3: #b9a8a3;
+  --bd-line: #f2e4df;
+  --bd-line-soft: #f6ece8;
+  --bd-line-dash: #efdcd6;
+  --bd-track: #f6ebe7;
+
+  --bd-won: #2fb67c;
+  --bd-won-soft: #6fdba8;
+  --bd-won-bg: #effaf4;
+  --bd-won-bg-2: #dcf5e9;
+  --bd-won-line: #bfe9d3;
+  --bd-won-ink: #1f8a5b;
+  --bd-won-deep: #155c3d;
+
+  --bd-gift-bg: #fff1d6;
+  --bd-gift-fg: #b7791f;
+
+  /* A wrong answer, in every Game that marks one. */
+  --bd-wrong: #d9453d;
+  --bd-wrong-bg: #fdeae8;
+  --bd-wrong-ink: #8e2420;
+
+  /* The orange of a mark on a map or a photo: the hiking route, the framing
+     Game's Subject point, the Wordle hint. */
+  --bd-orange: #e8743b;
+
+  /* The Wordle tiles and keys: right place, wrong place, not in the word. */
+  --bd-wordle-correct: #3a9d5d;
+  --bd-wordle-present: #d4a72c;
+  --bd-wordle-absent: #8b8a86;
+
+  --bd-radius: 16px;
+  --bd-radius-sm: 10px;
+}
+
+/* ───────────────────────────────────────────────────────────── reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bd-bg);
+  color: var(--bd-ink);
+  font-family: var(--bd-font);
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+p,
+ul,
+dl,
+dd {
+  margin: 0;
+}
+ul {
+  padding: 0;
+  list-style: none;
+}
+a {
+  color: inherit;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+[hidden] {
+  display: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────── buttons ── */
+/* `.bd-btn` works on <button> and on <a>: a tile's "Oyna" is a link. */
+.bd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+.bd-btn:active {
+  transform: translateY(1px);
+}
+.bd-btn:focus-visible {
+  outline: 3px solid var(--bd-gold);
+  outline-offset: 2px;
+}
+.bd-btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.bd-btn.primary {
+  background: var(--bd-accent);
+  color: #fff;
+  box-shadow: 0 4px 12px -6px var(--bd-accent);
+}
+.bd-btn.primary:hover {
+  background: var(--bd-accent-deep);
+}
+.bd-btn.secondary {
+  background: var(--bd-paper);
+  color: var(--bd-accent-deep);
+  box-shadow: 0 0 0 1.5px var(--bd-accent-soft);
+}
+.bd-btn.secondary:hover {
+  background: var(--bd-accent-soft);
+}
+.bd-btn.ghost {
+  background: transparent;
+  color: var(--bd-ink-soft);
+  padding: 6px 10px;
+}
+.bd-btn.ghost:hover {
+  background: var(--bd-accent-soft);
+  color: var(--bd-accent-deep);
+}
+.bd-btn:disabled,
+.bd-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ──────────────────────────────────────────────── choice quiz marks ── */
+/* After her answer in a choice quiz (nerede, sarki, milyoner; the step is
+   `src/lib/bday26/choice-quiz.ts`): the right choice green, her miss red.
+   The selectors start at `.stage.answered` on purpose. Each page's scoped
+   rules carry an attribute per compound, so these must out-rank the page's
+   own `.choice`, `.choice:hover`, `.choice.marked` and `.choice kbd`, yet
+   still lose to its `.stage.answered .choice` dimming where that sets a
+   ring. The dimming of the other choices stays each page's own. */
+.stage.answered .choice.right {
+  background: var(--bd-won-bg-2);
+  box-shadow: 0 0 0 3px var(--bd-won);
+}
+.stage.answered .choices .choice.right kbd {
+  background: var(--bd-won);
+  color: #fff;
+}
+.stage.answered .choice.right :is(.place, .title, .label) {
+  color: var(--bd-won-deep);
+}
+.stage.answered .choice.wrong {
+  background: var(--bd-wrong-bg);
+  box-shadow: 0 0 0 3px var(--bd-wrong);
+}
+.stage.answered .choices .choice.wrong kbd {
+  background: var(--bd-wrong);
+  color: #fff;
+}
+.stage.answered .choice.wrong :is(.place, .title, .label) {
+  color: var(--bd-wrong-ink);
+}
+
+/* ─────────────────────────────────────────────── celebration effects ── */
+/* `src/lib/bday26/effects-dom.ts`: the confetti canvas over everything (the
+   result veil too), never in the way of a click; and the short shake of a
+   wrong choice. Only with "Efektler: Açık"; no shake under reduced motion. */
+.bd-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  pointer-events: none;
+}
+.bd-shake {
+  animation: bd-shake 0.42s ease-in-out;
+}
+@keyframes bd-shake {
+  0%,
+  100% {
+    translate: 0;
+  }
+  20% {
+    translate: -9px;
+  }
+  40% {
+    translate: 8px;
+  }
+  60% {
+    translate: -6px;
+  }
+  80% {
+    translate: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bd-shake {
+    animation: none;
+  }
+}

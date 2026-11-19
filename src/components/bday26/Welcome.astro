@@ -1,0 +1,144 @@
+---
+/**
+ * The welcome screen of the birthday games site (/20261209/, spec #192
+ * stories 1–3, built on #195). The hub drops it in once; it opens by itself
+ * on her first visit and from the hub's "Hoş geldin" button after that.
+ *
+ * WHAT IT SAYS. The first line is exactly "Nice yıllara güzel sevgilim" —
+ * decided on #191 so it fits any date, since there is no date lock and Atıl
+ * may show her the site before 9 December. Then three short sentences, one
+ * each on Games, Points and Gifts, in the glossary's words (Oyun, Rekor,
+ * Puan, Bakiye, Hediye, Küçük ödül). The sentences are Atıl's to approve on
+ * #195; edit them here and nowhere else. Warm, informal Turkish throughout.
+ *
+ * HOW IT WORKS. A native <dialog> opened with showModal(): the browser gives
+ * the backdrop, the focus trap, Esc-to-close and the top layer for free, and
+ * the hub behind it is inert while it is open. Three ways out, all the same
+ * close(): the one button (a `method="dialog"` form, so it needs no script),
+ * Esc (the dialog's own `cancel`), and Enter anywhere inside (a keydown
+ * handler, for the case where focus is not on the button). The button takes
+ * focus on open, so Enter and Space also work the plain way.
+ *
+ * ONCE BY ITSELF. The script asks `openWelcome()` (`src/lib/bday26/
+ * browser.ts` → `welcome.ts`) whether she has closed it before, and marks
+ * it seen when she closes it (button, Enter or Esc) — a reload while it is
+ * still open greets her again. From then on only an element with
+ * `data-open-welcome` opens it — the hub's button carries that attribute.
+ * The flag is its own `localStorage` key, never the progress state.
+ *
+ * It fits 1920×1080 with room to spare and, like the hub, uses the shared
+ * tokens from `src/styles/bday26.css`: Baloo 2 for the line, Nunito for the
+ * sentences, the pink accent on paper.
+ */
+---
+
+<dialog class="welcome" data-welcome aria-labelledby="welcome-title">
+  <h2 class="welcome-title" id="welcome-title">Nice yıllara güzel sevgilim</h2>
+  <div class="welcome-lines">
+    <p>
+      <span class="glyph" aria-hidden="true">🎲</span>
+      <span>Sana 11 oyun hazırladım; her oyunda en yüksek skorun rekorun olur.</span>
+    </p>
+    <p>
+      <span class="glyph" aria-hidden="true">⭐</span>
+      <span>Rekorlarının her yüzdesi bir puan eder; biriken puanlar bakiyen olur.</span>
+    </p>
+    <p>
+      <span class="glyph" aria-hidden="true">🎁</span>
+      <span>Puanlarını dükkândan gerçek hediyelere çevir; %95'e ulaşan her rekor küçük bir ödül de getirir.</span>
+    </p>
+  </div>
+  <form method="dialog" class="welcome-foot">
+    <button class="bd-btn primary welcome-go" type="submit" autofocus>Hadi oynayalım!</button>
+  </form>
+</dialog>
+
+<script>
+  // Open once by itself, then only on request. The rule (first visit or
+  // not) lives in src/lib/bday26/welcome.ts; this script only asks it.
+  import { openWelcome } from "../../lib/bday26/browser";
+
+  const dialog = document.querySelector<HTMLDialogElement>("[data-welcome]");
+  if (dialog) {
+    const open = () => {
+      if (!dialog.open) dialog.showModal();
+    };
+    // Seen means closed. Each way out marks it at once, not on the dialog's
+    // `close` event, which the browser fires a task later — a reload in that
+    // gap would greet her again after she had closed it.
+    const welcome = openWelcome();
+    dialog.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        welcome.markSeen();
+        dialog.close();
+      }
+    });
+    dialog.addEventListener("cancel", () => welcome.markSeen()); // Esc
+    dialog.querySelector("form")?.addEventListener("submit", () => welcome.markSeen()); // the button
+    for (const el of document.querySelectorAll("[data-open-welcome]")) {
+      el.addEventListener("click", open);
+    }
+
+    // A reload before she closes it greets her again.
+    if (welcome.shouldShow()) open();
+  }
+</script>
+
+<style>
+  .welcome {
+    width: min(640px, calc(100vw - 32px));
+    padding: 40px 44px 36px;
+    border: 0;
+    border-radius: 24px;
+    background: var(--bd-paper);
+    color: var(--bd-ink);
+    text-align: center;
+    box-shadow:
+      0 0 0 1px var(--bd-line),
+      0 30px 60px -30px rgb(58 45 42 / 0.55);
+  }
+  .welcome::backdrop {
+    background: rgb(58 45 42 / 0.45);
+    backdrop-filter: blur(3px);
+  }
+  .welcome-title {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 40px;
+    line-height: 1.1;
+    color: var(--bd-accent-deep);
+  }
+  .welcome-lines {
+    display: grid;
+    gap: 14px;
+    margin: 28px 0 30px;
+    text-align: left;
+  }
+  .welcome-lines p {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--bd-ink-soft);
+  }
+  .glyph {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    background: var(--bd-accent-soft);
+  }
+  .welcome-foot {
+    display: flex;
+    justify-content: center;
+  }
+  .welcome-go {
+    padding: 12px 26px;
+    font-size: 16px;
+  }
+</style>

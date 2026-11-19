@@ -1,0 +1,811 @@
+---
+/**
+ * /20261209/wordle/ — Turkish Wordle, "Kelime avı" (#201; spec #192 "Turkish
+ * Wordle", stories 77–80). The rules and the look are the prototype's
+ * (`prototype/188-wordle`), as Atıl played it and set it in the verdict of
+ * #188: defaults as built, one hint per answer.
+ *
+ * ONE ROUND, ALL TEN WORDS (Atıl's play test). A Round plays every one of
+ * our ten words and phrases, one after another, in a fresh random order
+ * each Round (`shuffleAnswers`). Each word is scored on its own with the
+ * table below; after a word is solved or its six guesses run out, the
+ * keyboard gives way to the answer in tiles, that word's score and
+ * "Sonraki kelime" (Enter or the button; "Sonuç" after the tenth). The
+ * Round is the mean of the ten word scores, rounded down
+ * (`wordleRoundScore`). The result card lists the ten words in the order
+ * played, each with its guess count (or "bulunamadı") and score.
+ *
+ * WHAT SHE SEES. The word, hidden, and the whole 6-row grid from the start, so its shape already says "3 kelime · 3 + 2 +
+ * 6 harf". A space is a narrow gap cell with a dot, which she never types:
+ * the cursor jumps over it. The İpucu stands above the grid in an orange
+ * pill from the first second. She types any letters (no dictionary, #188),
+ * fills every cell and presses Enter; the row turns over cell by cell, green
+ * (in place), yellow (elsewhere) and grey (absent), with the Wordle rule for
+ * repeated letters. The HUD says "Kelime 3/10 · Tahmin 2/6 · Tur %95": the
+ * word, the guess, and the mean of the words finished so far. Solved, the
+ * row jumps. A word scores 1–3 guesses %100, 4 guesses %95, 5 %80, 6 %65,
+ * unsolved %0 (`wordleScore` in `src/lib/bday26/scores.ts`), so the Small
+ * prize, Paper Apps: The Games, wants every word in four guesses or fewer.
+ *
+ * KEYS. Her laptop's own keys: every letter goes through Turkish upper-
+ * casing, so i is İ and ı is I. Backspace takes a letter back, Enter sends
+ * the row (a row with an empty cell shakes and says "Eksik harf var"). The
+ * on-screen keyboard is the Turkish Q layout, with Ç Ğ I İ Ö Ş Ü marked and
+ * each key coloured by what that letter has learned; a click on it types.
+ * Esc is the shell's (it asks first). Keys wait while a row turns over.
+ * Between words, Enter is "Sonraki kelime".
+ *
+ * HOW IT IS BUILT. Three layers, as in the other Games:
+ *   - `src/lib/bday26/wordle.ts` is the rules: the ten answers and hints,
+ *     the Round's order, the grid with its gaps, typing, Enter, the colouring and
+ *     the keyboard colours. No DOM, pinned under `node --test`.
+ *   - `GameShell` is everything around the Round, and the one call that
+ *     records it.
+ *   - This page is the painter: the keyboard is rendered at build time, the
+ *     grid at each word (its shape is the answer's). The script reads every
+ *     letter and colour off the Round, runs the turn-over and hands the
+ *     score function's number to the shell.
+ *
+ * FITS 1920×1080. The cell size is worked out in CSS from the number of
+ * cells in the row (a gap counts as 0.42 of a cell), capped at 76 px; the
+ * longest answer, SENİ SEVİYORUM (13 letters and a gap), still fits.
+ *
+ * The orange of the hint pill and the three Wordle colours are the
+ * prototype's and live only on this page.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { ANSWERS } from "../../../lib/bday26/wordle";
+
+const game = gameById("wordle");
+
+const KEYS = [
+  { key: "Harfler", does: "Harf yaz" },
+  { key: "⌫", does: "Harfi sil" },
+  { key: "Enter", does: "Tahmini gönder · Sonraki kelime" },
+  { key: "Tık", does: "Ekrandaki klavyeyle de yazabilirsin" },
+  { key: "Esc", does: "Turdan çık" },
+];
+
+/** The Turkish Q layout, as on her laptop, without Q W X (no Turkish word uses them). */
+const ROWS = ["ERTYUIOPĞÜ", "ASDFGHJKLŞİ", "ZCVBNMÖÇ"];
+const TURKISH = "ÇĞIİÖŞÜ";
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="wordle" keys={KEYS}>
+    <span slot="hud"
+      >Kelime <b data-word>1</b>/{ANSWERS.length} · Tahmin <b data-guess>1</b>/6 · Tur <b data-total>—</b></span
+    >
+
+    <div slot="start" class="note">
+      <p>{ANSWERS.length} kelimenin hepsi, her turda farklı sırayla. Tur skoru, kelimelerin ortalaması.</p>
+      <p class="formula">Her kelime: 1–3 tahmin %100 · 4 tahmin %95 · 5 tahmin %80 · 6 tahmin %65 · bulamazsan %0</p>
+    </div>
+
+    <div class="game">
+      <div class="clue">
+        <p class="hint"><b>İpucu</b> <span data-hint></span></p>
+        <p class="shape" data-shape></p>
+      </div>
+      <div class="board-wrap">
+        <div class="board" data-board role="grid" aria-label="Tahminler"></div>
+        <p class="toast" data-toast role="status" hidden></p>
+      </div>
+      <div class="kb" data-kb role="group" aria-label="Klavye">
+        {
+          ROWS.map((row, r) => (
+            <div class="krow">
+              {r === 2 && (
+                <button class="key wide" type="button" tabindex="-1" data-key="Enter">
+                  Tahmin
+                </button>
+              )}
+              {[...row].map((ch) => (
+                <button class:list={["key", { tr: TURKISH.includes(ch) }]} type="button" tabindex="-1" data-key={ch}>
+                  {ch}
+                </button>
+              ))}
+              {r === 2 && (
+                <button class="key wide" type="button" tabindex="-1" data-key="Backspace" aria-label="Harfi sil">
+                  ⌫
+                </button>
+              )}
+            </div>
+          ))
+        }
+      </div>
+      <div class="between" data-between hidden>
+        <div class="answer" data-answer aria-label="Cevap"></div>
+        <p class="word-line"><b class="word-score" data-word-score>%0</b> <span class="why" data-word-why></span></p>
+        <button class="bd-btn primary" type="button" tabindex="-1" data-next>Sonraki kelime <kbd>Enter</kbd></button>
+      </div>
+    </div>
+
+    <div slot="result" class="result">
+      <ol class="words" data-words aria-label="Kelimeler"></ol>
+      <p class="formula">Tur skoru, {ANSWERS.length} kelimenin ortalaması (aşağı yuvarlanır).</p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
+  import { ANSWERS, MAX_GUESSES, createRound, shuffleAnswers, typedLetter, type WordleRound } from "../../../lib/bday26/wordle";
+  import { wordleRoundScore, wordleScore } from "../../../lib/bday26/scores";
+  import { effects } from "../../../lib/bday26/effects-dom";
+
+  /** A gap cell's width, in cells. Keep in step with `.cell.gap` below. */
+  const GAP_WIDTH = 0.42;
+
+  const $ = <T extends HTMLElement>(selector: string) => {
+    const el = document.querySelector<T>(selector);
+    if (!el) throw new Error(`bday26 wordle: the page markup is missing ${selector}`);
+    return el;
+  };
+  const boardEl = $("[data-board]");
+  const hintEl = $("[data-hint]");
+  const shapeEl = $("[data-shape]");
+  const wordEl = $("[data-word]");
+  const guessEl = $("[data-guess]");
+  const totalEl = $("[data-total]");
+  const toastEl = $("[data-toast]");
+  const kbEl = $("[data-kb]");
+  const betweenEl = $("[data-between]");
+  const answerEl = $("[data-answer]");
+  const wordScoreEl = $("[data-word-score]");
+  const wordWhyEl = $("[data-word-why]");
+  const nextBtn = $<HTMLButtonElement>("[data-next]");
+  const wordsEl = $("[data-words]");
+  const keyEls = new Map(
+    Array.from(document.querySelectorAll<HTMLButtonElement>("[data-key]")).map((b) => [b.dataset.key!, b]),
+  );
+
+  /** This Round's order: indexes into `ANSWERS`, all ten, each once. */
+  let order: number[] = ANSWERS.map((_, i) => i);
+  /** The word being played, 0..9 (a place in `order`). */
+  let word = 0;
+  /** What each finished word did this Round, in the order played. */
+  let played: { answer: string; guesses: number; solved: boolean; score: number }[] = [];
+  let round: WordleRound = createRound(ANSWERS[0]!.answer);
+  /** A row is turning over: keys wait. */
+  let busy = false;
+  /** The word is over and its reveal is up: Enter is "Sonraki kelime". */
+  let between = false;
+  let revealTimer = 0;
+  /** One per turning cell: its "flip" sound, mid-turn. */
+  let flipTimers: number[] = [];
+  let finishTimer = 0;
+  let toastTimer = 0;
+  /** rows[r][c] is the cell element of row r, cell c of `round.cells`. */
+  let rows: HTMLElement[][] = [];
+
+  // ------------------------------------------------------------- painting
+
+  function buildBoard() {
+    boardEl.replaceChildren();
+    const units = round.cells.reduce((n, c) => n + (c.gap ? GAP_WIDTH : 1), 0);
+    boardEl.style.setProperty("--units", String(units));
+    boardEl.style.setProperty("--cols", String(round.cells.length));
+    rows = [];
+    for (let r = 0; r < MAX_GUESSES; r++) {
+      const rowEl = document.createElement("div");
+      rowEl.className = "row";
+      rowEl.setAttribute("role", "row");
+      rows.push(
+        round.cells.map((c) => {
+          const cell = document.createElement("div");
+          cell.className = c.gap ? "cell gap" : "cell";
+          if (!c.gap) cell.setAttribute("role", "gridcell");
+          rowEl.append(cell);
+          return cell;
+        }),
+      );
+      boardEl.append(rowEl);
+    }
+  }
+
+  /** The row she is typing: letters, the caret. */
+  function paintTyping() {
+    const r = round.guesses.length;
+    if (r >= MAX_GUESSES || round.done) return;
+    round.cells.forEach((c, i) => {
+      if (c.gap) return;
+      const el = rows[r]![i]!;
+      const letter = round.typed[c.at] ?? "";
+      el.textContent = letter;
+      el.classList.toggle("filled", letter !== "");
+      el.classList.toggle("caret", round.caret === i);
+    });
+  }
+
+  /** A sent row turns over, cell by cell. Returns the ms until the last
+   *  cell has landed. */
+  function reveal(r: number): number {
+    const guess = round.guesses[r]!;
+    const letters = round.cells.filter((c) => !c.gap).length;
+    const stagger = Math.min(160, Math.round(1100 / letters));
+    let k = 0;
+    round.cells.forEach((c, i) => {
+      if (c.gap) return;
+      const el = rows[r]![i]!;
+      el.classList.remove("caret", "filled");
+      el.style.setProperty("--d", `${k * stagger}ms`);
+      el.classList.add("reveal", guess.colours[c.at]!);
+      flipTimers.push(window.setTimeout(() => effects.sound("flip"), k * stagger + 200));
+      k++;
+    });
+    return stagger * (letters - 1) + 500;
+  }
+
+  function paintKeyboard() {
+    const keys = round.keyboard();
+    for (const [ch, el] of keyEls) {
+      el.classList.remove("correct", "present", "absent");
+      const c = keys.get(ch);
+      if (c) el.classList.add(c);
+    }
+  }
+
+  function paintHud() {
+    const n = round.guesses.length;
+    wordEl.textContent = String(word + 1);
+    guessEl.textContent = String(Math.min(MAX_GUESSES, round.done ? n : n + 1));
+    totalEl.textContent = played.length ? `%${wordleRoundScore(played.map((p) => p.score))}` : "—";
+  }
+
+  function toast(text: string) {
+    toastEl.textContent = text;
+    toastEl.hidden = false;
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => (toastEl.hidden = true), 1600);
+  }
+
+  function shake() {
+    const rowEl = boardEl.children[round.guesses.length] as HTMLElement | undefined;
+    if (!rowEl) return;
+    rowEl.classList.remove("shake");
+    void rowEl.offsetWidth;
+    rowEl.classList.add("shake");
+  }
+
+  function bounce(r: number) {
+    let k = 0;
+    round.cells.forEach((c, i) => {
+      if (c.gap) return;
+      const el = rows[r]![i]!;
+      el.classList.remove("reveal");
+      el.style.setProperty("--d", `${k++ * 70}ms`);
+      el.classList.add("win");
+    });
+  }
+
+  /** Swaps the keyboard for the word's reveal, or back. */
+  function showBetween(on: boolean) {
+    between = on;
+    kbEl.hidden = on;
+    betweenEl.hidden = !on;
+  }
+
+  // ---------------------------------------------------------------- Round
+
+  function startRound() {
+    order = shuffleAnswers(Math.random);
+    played = [];
+    startWord(0);
+  }
+
+  function startWord(i: number) {
+    clearTimers();
+    busy = false;
+    showBetween(false);
+    word = i;
+    const a = ANSWERS[order[i]!]!;
+    round = createRound(a.answer);
+    hintEl.textContent = a.hint;
+    shapeEl.textContent =
+      round.words.length > 1
+        ? `${round.words.length} kelime · ${round.words.join(" + ")} harf`
+        : `${round.words[0]} harf`;
+    toastEl.hidden = true;
+    buildBoard();
+    paintTyping();
+    paintKeyboard();
+    paintHud();
+  }
+
+  function clearTimers() {
+    window.clearTimeout(revealTimer);
+    window.clearTimeout(finishTimer);
+    revealTimer = finishTimer = 0;
+    for (const t of flipTimers) window.clearTimeout(t);
+    flipTimers = [];
+  }
+
+  /** The word is over: the answer in tiles, its score, "Sonraki kelime". */
+  function finishWord() {
+    finishTimer = 0;
+    // The leave question is open: `resume` finishes when she stays.
+    if (shell.phase !== "playing") return;
+    const n = round.guesses.length;
+    const score = wordleScore(n, round.solved);
+    played.push({ answer: round.answer, guesses: n, solved: round.solved, score });
+    answerEl.replaceChildren(
+      ...[...round.answer].map((ch) => {
+        const tile = document.createElement("span");
+        tile.className = ch === " " ? "tile gap" : `tile ${round.solved ? "correct" : "absent"}`;
+        tile.textContent = ch === " " ? "" : ch;
+        return tile;
+      }),
+    );
+    wordScoreEl.textContent = `%${score}`;
+    wordScoreEl.classList.toggle("win", score >= PRIZE_BAR);
+    wordWhyEl.textContent = round.solved ? `${n}. tahminde buldun` : "Bu sefer olmadı";
+    nextBtn.innerHTML = `${word + 1 < order.length ? "Sonraki kelime" : "Sonuç"} <kbd>Enter</kbd>`;
+    showBetween(true);
+    paintHud();
+  }
+
+  /** "Sonraki kelime" (or "Sonuç" after the tenth). */
+  function next() {
+    if (!between || shell.phase !== "playing") return;
+    if (word + 1 < order.length) {
+      startWord(word + 1);
+      return;
+    }
+    const scores = played.map((p) => p.score);
+    const total = wordleRoundScore(scores);
+    wordsEl.replaceChildren(
+      ...played.map((p) => {
+        const li = document.createElement("li");
+        const name = document.createElement("span");
+        name.className = "w";
+        name.textContent = p.answer;
+        const tries = document.createElement("span");
+        tries.className = "tries";
+        tries.textContent = p.solved ? `${p.guesses} tahmin` : "bulunamadı";
+        const sc = document.createElement("b");
+        sc.textContent = `%${p.score}`;
+        if (p.score >= PRIZE_BAR) sc.className = "win";
+        li.append(name, tries, sc);
+        return li;
+      }),
+    );
+    const found = played.filter((p) => p.solved).length;
+    shell.finish(total, { detail: `${found}/${played.length} kelime bulundu` });
+  }
+
+  function type(letter: string) {
+    if (busy || between || !round.type(letter)) return;
+    effects.sound("key");
+    paintTyping();
+  }
+
+  function erase() {
+    if (busy || between || !round.erase()) return;
+    effects.sound("backspace");
+    paintTyping();
+  }
+
+  function submit() {
+    if (between) return next();
+    if (busy || round.done) return;
+    const outcome = round.submit();
+    if (outcome === "missing") {
+      toast("Eksik harf var");
+      shake();
+      return;
+    }
+    const r = round.guesses.length - 1;
+    busy = true;
+    revealTimer = window.setTimeout(() => {
+      revealTimer = 0;
+      flipTimers = [];
+      busy = false;
+      // Every sent row answers: found, a happy chime; six guesses spent, a
+      // soft bonk; a row with a green or yellow, an upbeat blip; all grey,
+      // a soft "no".
+      if (round.solved) effects.sound("rich-chime");
+      else if (round.done) effects.sound("bonk");
+      else if (round.guesses[r]!.colours.some((c) => c !== "absent")) effects.sound("row-good");
+      else effects.sound("row-wrong");
+      paintKeyboard();
+      paintHud();
+      if (round.solved) bounce(r);
+      if (round.done) finishTimer = window.setTimeout(finishWord, round.solved ? 900 : 400);
+      else paintTyping();
+    }, reveal(r));
+  }
+
+  const shell = mountGameShell({
+    game: "wordle",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: clearTimers,
+      resume() {
+        if (round.done && !busy && !finishTimer && !between) finishWord();
+      },
+    },
+  });
+
+  // The shell has taken Esc, and every key on its own screens.
+  window.addEventListener("keydown", (event) => {
+    if (event.ctrlKey || event.metaKey) return;
+    if (event.altKey && !event.getModifierState("AltGraph")) return;
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!event.repeat) submit();
+    } else if (event.key === "Backspace") {
+      event.preventDefault();
+      erase();
+    } else {
+      const letter = typedLetter(event.key);
+      if (letter) {
+        event.preventDefault();
+        type(letter);
+      }
+    }
+  });
+
+  // A click types but never takes focus, so Enter stays the Round's.
+  kbEl.addEventListener("mousedown", (event) => event.preventDefault());
+  kbEl.addEventListener("click", (event) => {
+    const key = (event.target as Element).closest<HTMLElement>("[data-key]")?.dataset.key;
+    if (key === "Enter") submit();
+    else if (key === "Backspace") erase();
+    else if (key) type(key);
+  });
+  nextBtn.addEventListener("mousedown", (event) => event.preventDefault());
+  nextBtn.addEventListener("click", next);
+</script>
+
+<style>
+  .game {
+    --w-key: #f1e7e3;
+    --w-orange-soft: #fdebe1;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  /* ── hint ────────────────────────────────────────────────────── */
+  .clue {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+  }
+  .hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 900px;
+    padding: 9px 22px;
+    border-radius: 999px;
+    background: var(--w-orange-soft);
+    color: var(--bd-ink);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .hint b {
+    color: var(--bd-orange);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .shape {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+
+  /* ── board ───────────────────────────────────────────────────── */
+  .board-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 0;
+  }
+  .board {
+    --gap: 8px;
+    /* One cell: what the widest row and the six rows allow, at most 76 px. */
+    --cs: min(
+      76px,
+      calc((100vw - 120px - (var(--cols) - 1) * var(--gap)) / var(--units)),
+      calc((100vh - 500px) / 6)
+    );
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+  .board :global(.row) {
+    display: flex;
+    justify-content: center;
+    gap: var(--gap);
+  }
+  .board :global(.cell) {
+    width: var(--cs);
+    height: var(--cs);
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--bd-line);
+    border-radius: 10px;
+    background: var(--bd-paper);
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: calc(var(--cs) * 0.52);
+    line-height: 1;
+    color: var(--bd-ink);
+    user-select: none;
+  }
+  .board :global(.cell.filled) {
+    border-color: var(--bd-muted-3);
+    animation: pop 0.1s ease-out;
+  }
+  .board :global(.cell.caret) {
+    border-color: var(--bd-orange);
+  }
+  .board :global(.cell.gap) {
+    width: calc(var(--cs) * 0.42);
+    border: 0;
+    background: none;
+  }
+  .board :global(.cell.gap)::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bd-muted-3);
+  }
+  .board :global(.cell.reveal) {
+    animation: flip 0.5s ease-in-out both;
+    animation-delay: var(--d, 0ms);
+    transition:
+      background-color 0s calc(var(--d, 0ms) + 250ms),
+      border-color 0s calc(var(--d, 0ms) + 250ms),
+      color 0s calc(var(--d, 0ms) + 250ms);
+  }
+  .board :global(.cell.correct),
+  .board :global(.cell.present),
+  .board :global(.cell.absent) {
+    color: #fff;
+    border-color: transparent;
+  }
+  .board :global(.cell.correct) {
+    background: var(--bd-wordle-correct);
+  }
+  .board :global(.cell.present) {
+    background: var(--bd-wordle-present);
+  }
+  .board :global(.cell.absent) {
+    background: var(--bd-wordle-absent);
+  }
+  .board :global(.cell.win) {
+    animation: bounce 0.5s ease-out both;
+    animation-delay: var(--d, 0ms);
+  }
+  .board :global(.row.shake) {
+    animation: shake 0.4s;
+  }
+  .toast {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--bd-ink);
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    z-index: 2;
+  }
+
+  /* ── keyboard ────────────────────────────────────────────────── */
+  .kb {
+    display: grid;
+    justify-items: center;
+    gap: 7px;
+    user-select: none;
+  }
+  .krow {
+    display: flex;
+    gap: 6px;
+  }
+  .key {
+    min-width: 54px;
+    height: 56px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--w-key);
+    color: var(--bd-ink);
+    font: 800 20px var(--bd-font);
+    cursor: pointer;
+  }
+  .key:active {
+    transform: translateY(1px);
+  }
+  .key.wide {
+    min-width: 96px;
+    font-size: 15px;
+  }
+  .key.tr {
+    box-shadow: inset 0 -3px 0 var(--w-orange-soft);
+  }
+  .key.correct,
+  .key.present,
+  .key.absent {
+    color: #fff;
+    box-shadow: none;
+  }
+  .key.correct {
+    background: var(--bd-wordle-correct);
+  }
+  .key.present {
+    background: var(--bd-wordle-present);
+  }
+  .key.absent {
+    background: var(--bd-wordle-absent);
+    opacity: 0.75;
+  }
+
+  /* ── between words ───────────────────────────────────────────── */
+  .kb[hidden],
+  .between[hidden] {
+    display: none;
+  }
+  .between {
+    /* The keyboard's height, so the grid does not move when they swap. */
+    min-height: 182px;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 12px;
+  }
+  .answer {
+    display: flex;
+    gap: 5px;
+  }
+  .between :global(.tile) {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    color: #fff;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+  }
+  .between :global(.tile.correct) {
+    background: var(--bd-wordle-correct);
+  }
+  .between :global(.tile.absent) {
+    background: var(--bd-wordle-absent);
+  }
+  .between :global(.tile.gap) {
+    width: 18px;
+  }
+  .word-line {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .word-score {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--bd-ink);
+  }
+  .word-score.win {
+    color: var(--bd-won-ink);
+  }
+  .why {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--bd-ink-soft);
+  }
+  .between .primary kbd {
+    background: rgb(255 255 255 / 0.25);
+    color: #fff;
+  }
+
+  /* ── start and result card text ──────────────────────────────── */
+  .note {
+    display: grid;
+    gap: 8px;
+    font-size: 15px;
+    color: var(--bd-ink-soft);
+  }
+  .formula {
+    font-size: 14px;
+    color: var(--bd-muted);
+    padding: 8px 12px;
+    border-radius: var(--bd-radius-sm);
+    background: var(--bd-track);
+  }
+  .result {
+    display: grid;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--bd-ink-soft);
+  }
+  .words {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .words :global(li) {
+    display: grid;
+    grid-template-columns: 1fr auto 52px;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .words :global(.w) {
+    text-align: left;
+    font-weight: 800;
+    color: var(--bd-ink);
+  }
+  .words :global(.tries) {
+    color: var(--bd-muted);
+  }
+  .words :global(b) {
+    font-weight: 900;
+    color: var(--bd-ink);
+    text-align: right;
+  }
+  .words :global(b.win) {
+    color: var(--bd-won-ink);
+  }
+
+  @keyframes pop {
+    50% {
+      transform: scale(1.08);
+    }
+  }
+  @keyframes flip {
+    0% {
+      transform: rotateX(0);
+    }
+    50% {
+      transform: rotateX(90deg);
+    }
+    100% {
+      transform: rotateX(0);
+    }
+  }
+  @keyframes bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-14px);
+    }
+    70% {
+      transform: translateY(3px);
+    }
+  }
+  @keyframes shake {
+    20%,
+    60% {
+      transform: translateX(-6px);
+    }
+    40%,
+    80% {
+      transform: translateX(6px);
+    }
+  }
+</style>

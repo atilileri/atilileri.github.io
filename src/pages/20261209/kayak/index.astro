@@ -1,0 +1,858 @@
+---
+/**
+ * /20261209/kayak/ — "Kayak macerası", the ski platformer (#207; spec #192
+ * "Ski platformer", stories 84–86; prototype verdict #179, which Atıl played:
+ * "Dengeli, the feel is right; seed fixed; 72 flags").
+ *
+ * WHAT SHE SEES. A snowy slope from the side, mountains and pines behind it,
+ * scrolling left as she skis down to the right. Rocks stand on the snow,
+ * crevasses cut it, and red flags float over the snow and along the arcs of
+ * the jumps. Blue "KONTROL n" gates mark the four checkpoints (every 20 s at
+ * the base speed), a red "BİTİŞ" gate the finish after 105 s. A thin bar at
+ * the top of the slope shows how far she is, with a tick per checkpoint. The
+ * HUD bar says Bayrak x / 72, Süre and Kontrol n / 4. A fall tumbles her for
+ * 0.9 s and says "Düştün! Kontrol noktasına dönülüyor"; she stands again at
+ * the last checkpoint and the flags she took since then are back on the
+ * slope. Crossing the finish ends the Round on the shell's result card: the
+ * score (`skiScore`, flags ÷ 72, rounded down), "x / 72 bayrak · Süre ·
+ * düşüş" as the detail, and below 95 how many flags the Small prize wants.
+ * Speed, time and falls earn nothing; a Round she leaves before the finish
+ * scores nothing (the shell records nothing for it).
+ *
+ * KEYS (keyboard only, as in the prototype): Space / ↑ / W jump (held: the
+ * jump rises higher; let go early and it stays low), → / D faster, ← / A
+ * slower, P pause, R restart the Round from the start line (not scored).
+ * Enter starts and Esc asks to leave; both are the shell's — the prototype's
+ * Esc pause became the shell's confirm, during which the slope stands still
+ * (the shell's `pause` / `resume`). When the window loses focus the Round
+ * pauses as P does, as the prototype did, and waits for P: a skier who came
+ * back to a running slope would already be in the next rock. The overlay
+ * is `PauseOverlay.astro`, shared with the driving Game, which pauses by the
+ * same rule. The
+ * prototype's tuning panel, presets, seed box, play log, Best and its own
+ * result card are gone: the course is fixed, the shell and the ledger own
+ * the rest.
+ *
+ * HOW IT IS BUILT. `src/lib/bday26/kayak.ts` owns every rule — the course,
+ * the physics, falls, flags, checkpoints, the finish — with no DOM, and
+ * `scores.ts` owns the score. This page reads the keys into an `Input`, runs
+ * `stepRun` at the prototype's fixed 120 Hz step (frame dt clamped to 50 ms),
+ * eases the camera after her (12 / 5 per second, still while she tumbles),
+ * and draws. The drawing is the prototype's, on its 960 × 540 stage scaled
+ * up to fill the screen at 16:9; only the skier's jacket and the flags take
+ * the site's rose accent instead of the prototype's orange. The snow spray,
+ * crash sparks and "+1" pops are drawing too, so they live here and use
+ * `Math.random`; the simulation tells the page about them in its events.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import PauseOverlay from "../../../components/bday26/PauseOverlay.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { SKI_FLAGS } from "../../../lib/bday26/scores";
+import { COURSE_SEED, buildCourse } from "../../../lib/bday26/kayak";
+
+const game = gameById("kayak");
+const CHECKPOINTS = buildCourse(COURSE_SEED).checkpoints.length;
+
+const KEYS = [
+  { key: "Boşluk / ↑ / W", does: "Zıpla (basılı tut: daha yüksek)" },
+  { key: "→ / D", does: "Hızlan" },
+  { key: "← / A", does: "Yavaşla" },
+  { key: "P", does: "Duraklat / devam et" },
+  { key: "R", does: "Baştan başla" },
+  { key: "Esc", does: "Turdan çık" },
+];
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="kayak" keys={KEYS} music="kayak">
+    <span slot="hud" class="hud-line"
+      >Bayrak <b data-hud-flags>0 / {SKI_FLAGS}</b> · Süre <b data-hud-time>0:00.0</b> · Kontrol <b data-hud-cp
+        >0 / {CHECKPOINTS}</b
+      ></span
+    >
+
+    <p slot="start" class="intro">
+      Kayaların ve yarıkların üstünden atla, {SKI_FLAGS} bayrağı topla, bitişe ulaş. Düşersen son kontrol noktasına
+      dönersin; oradan sonra aldığın bayraklar parkura geri gelir. Skor: bayrak ÷ {SKI_FLAGS}. Hız ve süre skoru
+      etkilemez; bitişe varmayan tur skor vermez.
+    </p>
+
+    <div class="stage">
+      <div class="view" data-view>
+        <canvas data-slope aria-label="Kayak pisti, yandan"></canvas>
+        <div class="prog" data-prog aria-hidden="true"><div class="fill" data-prog-fill></div><div class="end"></div></div>
+        <p class="toast" data-toast aria-live="polite"></p>
+        <PauseOverlay />
+      </div>
+    </div>
+
+    <p slot="result" class="verdict" data-verdict hidden></p>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { cssVar } from "../../../lib/bday26/css";
+  import { createFrameLoop } from "../../../lib/bday26/frame-loop";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { SKI_FLAGS, skiScore } from "../../../lib/bday26/scores";
+  import {
+    FIXED_STEP,
+    TUNING,
+    checkpointsReached,
+    createRun,
+    flagsHeld,
+    gapAt,
+    ground,
+    pressJump,
+    slope,
+    stepRun,
+    type Rock,
+    type Run,
+    type RunEvent,
+  } from "../../../lib/bday26/kayak";
+  import { effects } from "../../../lib/bday26/effects-dom";
+  import { music } from "../../../lib/bday26/music-dom";
+
+  const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
+  const view = $<HTMLElement>("[data-view]");
+  const cv = $<HTMLCanvasElement>("[data-slope]");
+  const ctx = cv.getContext("2d")!;
+  const toastEl = $<HTMLElement>("[data-toast]");
+  const pausedEl = $<HTMLElement>("[data-pause-overlay]");
+  /** The skis on the snow: a swoosh that follows her speed (the shared effects switch). */
+  const swoosh = effects.loop("swoosh");
+  const progEl = $<HTMLElement>("[data-prog]");
+  const progFill = $<HTMLElement>("[data-prog-fill]");
+  const verdictEl = $<HTMLElement>("[data-verdict]");
+  const hud = {
+    flags: $<HTMLElement>("[data-hud-flags]"),
+    time: $<HTMLElement>("[data-hud-time]"),
+    cp: $<HTMLElement>("[data-hud-cp]"),
+  };
+
+  /** The prototype's stage, px: everything is drawn on it, then scaled to the screen. */
+  const W = 960;
+  const H = 540;
+  /** The prototype's frame dt clamp, s. */
+  const MAX_DT = 0.05;
+  /** Where the camera keeps her on the stage: 260 px from the left, 330 px from the top. */
+  const CAM_X = 260;
+  const CAM_Y = 330;
+  /** The Small prize's flag count: 95% of 72, rounded up (69). */
+  const NEED_95 = Math.ceil((95 * SKI_FLAGS) / 100);
+
+  const ACCENT = cssVar("--bd-accent");
+  const ACCENT_DEEP = cssVar("--bd-accent-deep");
+
+  // ── one Round ─────────────────────────────────────────────────────
+  type Particle = { x: number; y: number; vx: number; vy: number; life: number; r: number; c?: string };
+  type Pop = { x: number; y: number; life: number };
+
+  let run: Run = createRun();
+  /** idle: no Round (or it ended); play: the slope moves; paused: P or a lost focus. */
+  let mode: "idle" | "play" | "paused" = "idle";
+  /** The shell's confirm card is open over the Round. */
+  let confirming = false;
+  let particles: Particle[] = [];
+  let pops: Pop[] = [];
+  let toastT = 0;
+  let acc = 0;
+  const cam = { x: 0, y: 0 };
+  const keys = new Set<string>();
+
+  function resetRun() {
+    run = createRun();
+    particles = [];
+    pops = [];
+    acc = 0;
+    cam.x = run.x - CAM_X;
+    cam.y = run.y - CAM_Y;
+    toastT = 0;
+    toastEl.classList.remove("show");
+    buildTicks();
+  }
+
+  function startRound() {
+    loop.stop();
+    resetRun();
+    keys.clear();
+    mode = "play";
+    pausedEl.hidden = true;
+    music.release("pause");
+    verdictEl.hidden = true;
+    paintHud();
+    loop.start();
+  }
+
+  /** The slope moves only in play and with no confirm card over it. */
+  const loop = createFrameLoop({ canRun: () => mode === "play" && !confirming, frame: tick, maxDt: MAX_DT });
+
+  function setPaused(on: boolean) {
+    if (mode === "idle") return;
+    mode = on ? "paused" : "play";
+    pausedEl.hidden = !on;
+    keys.clear();
+    if (on) {
+      loop.stop();
+      effects.stopLoops();
+      music.hold("pause");
+    } else {
+      music.release("pause");
+      loop.start();
+    }
+  }
+
+  function input() {
+    return {
+      faster: keys.has("ArrowRight") || keys.has("KeyD"),
+      slower: keys.has("ArrowLeft") || keys.has("KeyA"),
+      jumpHeld: keys.has("Space") || keys.has("ArrowUp") || keys.has("KeyW"),
+    };
+  }
+
+  function tick(dt: number) {
+    acc += dt;
+    while (acc >= FIXED_STEP && !run.finished) {
+      const rising = run.vy;
+      for (const e of stepRun(run, input(), FIXED_STEP)) onEvent(e);
+      // A take-off: she was not already rising fast, now she is.
+      if (run.vy < -TUNING.jump * 0.8 && rising >= -TUNING.jump * 0.8) effects.sound("jump");
+      // Snow spray off her skis when she rides faster than the base speed.
+      if (run.onGround && run.crash <= 0 && run.vx > TUNING.speed * 1.05 && Math.random() < 0.5)
+        particles.push({ x: run.x - 18, y: run.y, vx: -80 - Math.random() * 80, vy: -60 - Math.random() * 80, life: 0.4, r: 1.5 + Math.random() * 2 });
+      acc -= FIXED_STEP;
+    }
+    if (run.crash <= 0) {
+      cam.x += (run.x - CAM_X - cam.x) * Math.min(1, dt * 12);
+      cam.y += (run.y - CAM_Y - cam.y) * Math.min(1, dt * 5);
+    }
+    // Loud on the snow at speed, quiet in the air, silent while she tumbles.
+    const onSnow = run.onGround && run.crash <= 0;
+    swoosh.start({ speed: run.crash > 0 ? 0 : Math.min(1, run.vx / (TUNING.speed * 1.35)) * (onSnow ? 1 : 0.15) });
+    draw(dt);
+    paintHud();
+    if (toastT > 0) {
+      toastT -= dt;
+      if (toastT <= 0) toastEl.classList.remove("show");
+    }
+    if (run.finished) {
+      finishRound();
+      return false;
+    }
+  }
+
+  function onEvent(e: RunEvent) {
+    if (e.kind === "flag") effects.sound("ding");
+    else if (e.kind === "land") effects.sound("land");
+    else if (e.kind === "fall") effects.sound("crash");
+    else if (e.kind === "checkpoint" || e.kind === "finish") effects.sound("checkpoint");
+    if (e.kind === "flag") {
+      pops.push({ x: e.x, y: e.y, life: 0.5 });
+      for (let i = 0; i < 8; i++)
+        particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 200, vy: (Math.random() - 0.7) * 200, life: 0.5, r: 2, c: "#ffb020" });
+    } else if (e.kind === "land") {
+      for (let i = 0; i < 6; i++)
+        particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 160, vy: -Math.random() * 90, life: 0.35, r: 1.5 + Math.random() * 2 });
+    } else if (e.kind === "fall") {
+      for (let i = 0; i < 18; i++)
+        particles.push({ x: e.x, y: e.y - 10, vx: (Math.random() - 0.3) * 260, vy: -Math.random() * 260, life: 0.8, r: 2 + Math.random() * 3 });
+      toast("Düştün! Kontrol noktasına dönülüyor", 1.4);
+    } else if (e.kind === "checkpoint") {
+      toast(`Kontrol noktası ${e.index + 1} / ${e.total}`, 1.1);
+    }
+  }
+
+  function toast(msg: string, seconds: number) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    toastT = seconds;
+  }
+
+  function finishRound() {
+    loop.stop();
+    effects.stopLoops();
+    mode = "idle";
+    keys.clear();
+    toastEl.classList.remove("show");
+    const got = flagsHeld(run);
+    const score = skiScore(got, true)!;
+    verdictEl.textContent = `Küçük ödül için en az ${NEED_95} bayrak (%95) gerekli.`;
+    verdictEl.hidden = score >= 95;
+    const falls = run.falls ? `${run.falls} düşüş` : "hiç düşmeden";
+    shell.finish(score, { detail: `${got} / ${SKI_FLAGS} bayrak · Süre ${fmtTime(run.time)} · ${falls}` });
+  }
+
+  /** The prototype's clock: 1:47.3. */
+  function fmtTime(t: number) {
+    const m = Math.floor(t / 60);
+    const s = t - m * 60;
+    return `${m}:${s < 10 ? "0" : ""}${s.toFixed(1)}`;
+  }
+
+  function paintHud() {
+    const total = run.course.checkpoints.length;
+    hud.flags.textContent = `${flagsHeld(run)} / ${run.course.flags.length}`;
+    hud.time.textContent = fmtTime(run.time);
+    hud.cp.textContent = `${checkpointsReached(run)} / ${total}`;
+    progFill.style.width = `${Math.min(100, (100 * run.x) / run.course.finishX)}%`;
+    progEl.querySelectorAll<HTMLElement>(".tick").forEach((t, i) => t.classList.toggle("on", !!run.course.checkpoints[i]?.reached));
+  }
+
+  function buildTicks() {
+    progEl.querySelectorAll(".tick").forEach((t) => t.remove());
+    for (const c of run.course.checkpoints) {
+      const t = document.createElement("div");
+      t.className = "tick";
+      t.style.left = `${(100 * c.x) / run.course.finishX}%`;
+      progEl.append(t);
+    }
+  }
+
+  // ── keys ──────────────────────────────────────────────────────────
+  // The shell takes Esc during a Round and every key on its own screens:
+  // what arrives here is a key while she skis (or while she has paused).
+  const HELD = new Set(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyD"]);
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || mode === "idle") return;
+    const code = event.code;
+    if (HELD.has(code)) event.preventDefault();
+    if (code === "KeyP") {
+      if (!event.repeat) setPaused(mode === "play");
+      return;
+    }
+    if (code === "KeyR") {
+      if (!event.repeat) startRound();
+      return;
+    }
+    if (mode !== "play") return;
+    if (HELD.has(code)) keys.add(code);
+    if (!event.repeat && (code === "Space" || code === "ArrowUp" || code === "KeyW")) pressJump(run);
+  });
+  window.addEventListener("keyup", (event) => keys.delete(event.code));
+  window.addEventListener("blur", () => {
+    keys.clear();
+    if (mode === "play") setPaused(true);
+  });
+
+  // ── drawing: the prototype's, on its 960 × 540 stage ─────────────
+  /** Draw-only noise for the scenery (the prototype's `hash`). */
+  function hash(i: number) {
+    const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+    return x - Math.floor(x);
+  }
+  const sxw = (x: number) => x - cam.x;
+  const syw = (y: number) => y - cam.y;
+
+  function drawBg() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#8ec5f0");
+    g.addColorStop(0.6, "#cfe6f8");
+    g.addColorStop(1, "#eef6fc");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    ctx.beginPath();
+    ctx.arc(820, 90, 34, 0, Math.PI * 2);
+    ctx.fill();
+    // Far mountains, two layers of parallax.
+    const layers: [number, number, string, string, number, number][] = [
+      [0.08, 260, "#a9c4de", "#f4f9ff", 260, 170],
+      [0.18, 320, "#86a8c8", "#eaf2fb", 200, 130],
+    ];
+    for (const [par, base, col, cap, span, hmax] of layers) {
+      const off = (cam.x * par) % span;
+      const i0 = Math.floor((cam.x * par) / span);
+      for (let i = -1; i < W / span + 2; i++) {
+        const k = i0 + i;
+        const h = hmax * (0.6 + 0.4 * hash(k + par * 100));
+        const x = i * span - off + span * 0.2 * hash(k * 3);
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.moveTo(x - span * 0.8, base + 120);
+        ctx.lineTo(x, base - h);
+        ctx.lineTo(x + span * 0.8, base + 120);
+        ctx.fill();
+        ctx.fillStyle = cap;
+        ctx.beginPath();
+        ctx.moveTo(x - h * 0.28, base - h * 0.66);
+        ctx.lineTo(x, base - h);
+        ctx.lineTo(x + h * 0.28, base - h * 0.66);
+        ctx.lineTo(x + h * 0.1, base - h * 0.6);
+        ctx.lineTo(x, base - h * 0.68);
+        ctx.lineTo(x - h * 0.12, base - h * 0.6);
+        ctx.fill();
+      }
+    }
+  }
+
+  /** A pine whose trunk base stands at (x, y) on the snow line; `tilt` is the
+   *  slope's angle there, for the little snow mound around its foot. */
+  function drawTree(x: number, y: number, s: number, col: string, tilt: number) {
+    ctx.fillStyle = "#6b4a35";
+    ctx.fillRect(x - 3 * s, y - 10 * s, 6 * s, 12 * s);
+    ctx.fillStyle = col;
+    for (let i = 0; i < 3; i++) {
+      const w = (26 - i * 6) * s;
+      const t = y - 10 * s - i * 16 * s;
+      ctx.beginPath();
+      ctx.moveTo(x - w, t);
+      ctx.lineTo(x, t - 26 * s);
+      ctx.lineTo(x + w, t);
+      ctx.fill();
+    }
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.beginPath();
+    ctx.moveTo(x - 6 * s, y - 68 * s);
+    ctx.lineTo(x, y - 84 * s);
+    ctx.lineTo(x + 6 * s, y - 68 * s);
+    ctx.fill();
+    // Rooted: a soft snow mound over the foot of the trunk, lying along the slope.
+    ctx.save();
+    ctx.translate(x, y + 1);
+    ctx.rotate(tilt);
+    ctx.fillStyle = "#dceaf6";
+    ctx.beginPath();
+    ctx.ellipse(1.5 * s, 1.5 * s, 13 * s, 4.5 * s, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.ellipse(0, 0.5, 12 * s, 4 * s, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawGround() {
+    const course = run.course;
+    // Pines behind the slope.
+    const span = 90;
+    const i0 = Math.floor(cam.x / span);
+    for (let i = -1; i < W / span + 2; i++) {
+      const k = i0 + i;
+      if (hash(k) < 0.45) continue;
+      const wx = k * span + 40 * hash(k * 7);
+      const s = 0.8 + 0.5 * hash(k * 11);
+      // Rooted in the snow at its own x (the ground's height varies), and
+      // never over a crevasse, where there is no snow to stand on.
+      if (gapAt(course, wx - 14 * s) || gapAt(course, wx) || gapAt(course, wx + 14 * s)) continue;
+      drawTree(sxw(wx), syw(ground(wx)), s, hash(k * 13) < 0.5 ? "#2f7a5a" : "#3a8c66", Math.atan(slope(wx)));
+    }
+    // The snow, broken at the crevasses.
+    const runs: [number, number][][] = [];
+    let cur: [number, number][] | null = null;
+    for (let sx = -8; sx <= W + 8; sx += 6) {
+      const wx = cam.x + sx;
+      if (gapAt(course, wx)) {
+        if (cur) runs.push(cur);
+        cur = null;
+        continue;
+      }
+      if (!cur) cur = [];
+      cur.push([sx, syw(ground(wx))]);
+    }
+    if (cur) runs.push(cur);
+    for (const pts of runs) {
+      if (pts.length < 2) continue;
+      // Exact crevasse edges.
+      const first = pts[0]!;
+      const lastPt = pts[pts.length - 1]!;
+      const g0 = course.gaps.find((g) => Math.abs(sxw(g.x + g.w) - first[0]) < 7);
+      const g1 = course.gaps.find((g) => Math.abs(sxw(g.x) - lastPt[0]) < 7);
+      if (g0) pts.unshift([sxw(g0.x + g0.w), syw(ground(g0.x + g0.w))]);
+      if (g1) pts.push([sxw(g1.x), syw(ground(g1.x))]);
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.moveTo(pts[0]![0], H + 10);
+      for (const [x, y] of pts) ctx.lineTo(x, y);
+      ctx.lineTo(pts[pts.length - 1]![0], H + 10);
+      ctx.fill();
+      ctx.strokeStyle = "#bcd6ee";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(160,195,225,.35)";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y + 26) : ctx.moveTo(x, y + 26)));
+      ctx.stroke();
+    }
+    // The crevasses.
+    for (const g of course.gaps) {
+      const a = sxw(g.x);
+      const b = sxw(g.x + g.w);
+      if (b < -10 || a > W + 10) continue;
+      const ya = syw(ground(g.x));
+      const yb = syw(ground(g.x + g.w));
+      const gr = ctx.createLinearGradient(0, Math.min(ya, yb), 0, H);
+      gr.addColorStop(0, "#5a86b8");
+      gr.addColorStop(1, "#1d3557");
+      ctx.fillStyle = gr;
+      ctx.beginPath();
+      ctx.moveTo(a, ya);
+      ctx.lineTo(a, H + 10);
+      ctx.lineTo(b, H + 10);
+      ctx.lineTo(b, yb);
+      ctx.lineTo(b - 6, yb + 30);
+      ctx.lineTo(a + 6, ya + 30);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawRock(r: Rock) {
+    const x = sxw(r.x);
+    const cx = r.x + r.w / 2;
+    if (x > W + 60 || x + r.w < -60) return;
+    const gy = syw(ground(cx));
+    const s = r.s;
+    ctx.fillStyle = "#7d8794";
+    ctx.beginPath();
+    ctx.moveTo(x - 2, gy + 6);
+    ctx.lineTo(x + 2, gy - r.h * (0.55 + 0.2 * s[0]));
+    ctx.lineTo(x + r.w * 0.35, gy - r.h);
+    ctx.lineTo(x + r.w * 0.7, gy - r.h * (0.85 + 0.1 * s[1]));
+    ctx.lineTo(x + r.w + 2, gy - r.h * (0.4 + 0.2 * s[2]));
+    ctx.lineTo(x + r.w + 4, gy + 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#626c78";
+    ctx.beginPath();
+    ctx.moveTo(x + r.w * 0.55, gy + 6);
+    ctx.lineTo(x + r.w * 0.7, gy - r.h * (0.85 + 0.1 * s[1]));
+    ctx.lineTo(x + r.w + 2, gy - r.h * (0.4 + 0.2 * s[2]));
+    ctx.lineTo(x + r.w + 4, gy + 6);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.moveTo(x + 3, gy - r.h * (0.55 + 0.2 * s[0]) + 2);
+    ctx.lineTo(x + r.w * 0.35, gy - r.h - 1);
+    ctx.lineTo(x + r.w * 0.7, gy - r.h * (0.85 + 0.1 * s[1]) - 1);
+    ctx.lineTo(x + r.w * 0.6, gy - r.h * 0.72);
+    ctx.lineTo(x + r.w * 0.3, gy - r.h * 0.8);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawFlags(dt: number) {
+    const t = performance.now() / 1000;
+    for (const f of run.course.flags) {
+      if (f.got) continue;
+      const x = sxw(f.x);
+      const y = syw(f.y);
+      if (x < -40 || x > W + 40) continue;
+      const w = Math.sin(t * 6 + f.x) * 2;
+      ctx.fillStyle = "rgba(255,200,80,.25)";
+      ctx.beginPath();
+      ctx.arc(x, y, 15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#2b3645";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(x - 5, y + 13);
+      ctx.lineTo(x - 5, y - 13);
+      ctx.stroke();
+      ctx.fillStyle = ACCENT;
+      ctx.beginPath();
+      ctx.moveTo(x - 4, y - 13);
+      ctx.lineTo(x + 12, y - 7 + w);
+      ctx.lineTo(x - 4, y - 1);
+      ctx.fill();
+    }
+    // "+1" over each flag just taken.
+    for (const p of pops) {
+      p.life -= dt;
+      const k = Math.max(0, p.life / 0.5);
+      ctx.globalAlpha = k;
+      ctx.fillStyle = ACCENT;
+      ctx.font = "800 16px Nunito, sans-serif";
+      ctx.fillText("+1", sxw(p.x) - 8, syw(p.y) - 20 - (1 - k) * 24);
+    }
+    ctx.globalAlpha = 1;
+    pops = pops.filter((p) => p.life > 0);
+  }
+
+  function drawGate(x: number, label: string, color: string, reached: boolean) {
+    const sx = sxw(x);
+    if (sx < -80 || sx > W + 80) return;
+    const gy = syw(ground(x));
+    ctx.strokeStyle = "#2b3645";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(sx - 34, gy + 4);
+    ctx.lineTo(sx - 34, gy - 92);
+    ctx.moveTo(sx + 34, gy + 4);
+    ctx.lineTo(sx + 34, gy - 92);
+    ctx.stroke();
+    ctx.fillStyle = reached ? "#9fb5cf" : color;
+    ctx.beginPath();
+    ctx.roundRect(sx - 46, gy - 118, 92, 30, 8);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = "900 13px Nunito, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(label, sx, gy - 98);
+    ctx.textAlign = "left";
+  }
+
+  function drawSkier() {
+    const S = run;
+    const sx = sxw(S.x);
+    const sy = syw(S.y);
+    const ang = S.onGround ? Math.atan(slope(S.x)) : Math.atan(slope(S.x)) * 0.6 + Math.max(-0.35, Math.min(0.35, S.vy / 2200));
+    const c = S.tuck * 7;
+    ctx.save();
+    ctx.translate(sx, sy);
+    if (S.crash > 0) {
+      ctx.translate(0, -18);
+      ctx.rotate(S.spin);
+      ctx.translate(0, 18);
+    } else ctx.rotate(ang);
+    // Skis.
+    ctx.strokeStyle = "#1d3557";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-26, -1);
+    ctx.lineTo(22, -1);
+    ctx.quadraticCurveTo(30, -1, 31, -8);
+    ctx.stroke();
+    // Pole.
+    ctx.strokeStyle = "#8a97a8";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(6, -24 + c);
+    ctx.lineTo(-18, -2);
+    ctx.stroke();
+    // Legs.
+    ctx.strokeStyle = "#2b3d5c";
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(-2, -4);
+    ctx.lineTo(6, -16 + c * 0.6);
+    ctx.lineTo(-5, -26 + c);
+    ctx.stroke();
+    // Torso.
+    ctx.strokeStyle = ACCENT;
+    ctx.lineWidth = 12;
+    ctx.beginPath();
+    ctx.moveTo(-5, -27 + c);
+    ctx.lineTo(1 + c * 0.6, -42 + c * 1.4);
+    ctx.stroke();
+    // Arm.
+    ctx.strokeStyle = ACCENT_DEEP;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(0 + c * 0.5, -38 + c * 1.3);
+    ctx.lineTo(7, -25 + c);
+    ctx.stroke();
+    // Scarf.
+    ctx.fillStyle = "#ffd34d";
+    ctx.beginPath();
+    ctx.moveTo(-1 + c * 0.6, -44 + c * 1.4);
+    ctx.lineTo(-14 - Math.sin(S.time * 14) * 2, -42 + c * 1.4);
+    ctx.lineTo(-1 + c * 0.6, -40 + c * 1.4);
+    ctx.fill();
+    // Head, helmet, goggles.
+    const hx = 4 + c * 0.9;
+    const hy = -51 + c * 1.5;
+    ctx.fillStyle = "#f2c9a5";
+    ctx.beginPath();
+    ctx.arc(hx, hy, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#1f9d8a";
+    ctx.beginPath();
+    ctx.arc(hx, hy - 1, 7.5, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(hx - 2, hy - 10, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#1d2a3a";
+    ctx.fillRect(hx + 1, hy - 1, 7, 3);
+    ctx.restore();
+  }
+
+  function drawParticles(dt: number) {
+    for (const p of particles) {
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 600 * dt;
+    }
+    particles = particles.filter((p) => p.life > 0);
+    for (const p of particles) {
+      ctx.globalAlpha = Math.min(1, p.life * 3);
+      ctx.fillStyle = p.c ?? "#ffffff";
+      ctx.beginPath();
+      ctx.arc(sxw(p.x), syw(p.y), p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  let scale = 1;
+  function draw(dt: number) {
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    drawBg();
+    drawGround();
+    run.course.checkpoints.forEach((c, i) => drawGate(c.x, `KONTROL ${i + 1}`, "#2f6fd6", c.reached));
+    drawGate(run.course.finishX, "BİTİŞ", ACCENT, false);
+    for (const r of run.course.rocks) drawRock(r);
+    drawFlags(dt);
+    drawSkier();
+    drawParticles(dt);
+  }
+
+  function resize() {
+    const r = view.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = Math.round(r.width * dpr);
+    cv.height = Math.round(r.height * dpr);
+    scale = cv.width / W;
+    draw(0);
+  }
+
+  window.addEventListener("resize", resize);
+  resetRun();
+  resize();
+
+  // ── the shell ─────────────────────────────────────────────────────
+  const shell = mountGameShell({
+    game: "kayak",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => {
+        loop.stop();
+        effects.stopLoops();
+        mode = "idle";
+        keys.clear();
+        pausedEl.hidden = true;
+        music.release("pause");
+      },
+      // The confirm card: the slope stands still until she answers.
+      pause: () => {
+        confirming = true;
+        keys.clear();
+        loop.stop();
+        effects.stopLoops();
+      },
+      resume: () => {
+        confirming = false;
+        loop.start();
+      },
+    },
+  });
+</script>
+
+<style>
+  /* ── HUD line (in the shell's bar) ──────────────────────────────── */
+  .hud-line {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── start card ─────────────────────────────────────────────────── */
+  .intro {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--bd-ink-soft);
+    text-align: left;
+  }
+
+  /* ── the slope ──────────────────────────────────────────────────── */
+  .stage {
+    /* 104 px is the HUD (64) and the playfield's padding (20 + 20). */
+    height: calc(100vh - 104px);
+    display: grid;
+    place-items: center;
+  }
+  .view {
+    /* The prototype's 16:9 stage, as large as the screen allows. */
+    position: relative;
+    height: min(100%, calc((100vw - 40px) * 9 / 16));
+    aspect-ratio: 16 / 9;
+    border-radius: var(--bd-radius);
+    overflow: hidden;
+    box-shadow: 0 0 0 2px var(--bd-line);
+    background: #cfe3f5;
+  }
+  .view canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .prog {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 18px;
+    height: 12px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.7);
+    box-shadow: inset 0 0 0 1px rgb(20 40 70 / 0.08);
+    pointer-events: none;
+  }
+  .prog .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: 999px;
+    background: #2f6fd6;
+  }
+  .prog :global(.tick) {
+    position: absolute;
+    top: -4px;
+    width: 5px;
+    height: 20px;
+    border-radius: 2px;
+    background: #9fb5cf;
+    transform: translateX(-2px);
+  }
+  .prog :global(.tick.on) {
+    background: #2f6fd6;
+  }
+  .prog .end {
+    position: absolute;
+    right: -3px;
+    top: -6px;
+    width: 7px;
+    height: 24px;
+    border-radius: 2px;
+    background: repeating-linear-gradient(#1d2a3a 0 4px, #fff 4px 8px);
+  }
+  .toast {
+    position: absolute;
+    left: 50%;
+    top: 56px;
+    margin: 0;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: #1d2a3a;
+    color: #fff;
+    font-weight: 800;
+    font-size: 22px;
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  /* ── result card ────────────────────────────────────────────────── */
+  .verdict {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .verdict[hidden] {
+    display: none;
+  }
+</style>

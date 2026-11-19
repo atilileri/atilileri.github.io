@@ -11,9 +11,10 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "test:deck": "playwright test",
-    "test:deck:goldens": "playwright test --update-snapshots",
-    "test": "node --test .agents/skills/docent/scripts/*.test.mjs"
+    "test:deck": "playwright test --project=chromium",
+    "test:deck:goldens": "playwright test --project=chromium --update-snapshots",
+    "test:smoke": "playwright test --project=bday26",
+    "test": "node --test .agents/skills/docent/scripts/*.test.mjs src/lib/bday26/*.test.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.0",
@@ -24,6 +25,7 @@
     "js-yaml": "^4.1.0",
     "reveal.js": "^5.2.1",
     "sharp": "^0.33.0",
+    "smplr": "1.2.0",
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
