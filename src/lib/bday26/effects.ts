@@ -32,7 +32,7 @@ export type EffectsPreference = {
 };
 
 export type Size = "puff" | "burst" | "shower" | "grand";
-export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare";
+export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare" | "gift-fanfare" | "prize-fanfare" | "sparkle";
 
 export type Shape = "square" | "circle" | "strip" | "star";
 
@@ -109,6 +109,22 @@ export function neredeCelebration(rng: () => number): Celebration {
 /** A Round with no miss, on the result screen. */
 export function perfectRoundCelebration(rng: () => number): Celebration {
   return celebration("grand", rng);
+}
+
+/** A Gift bought in the shop: the biggest party there is, with its own fanfare. */
+export function giftCelebration(rng: () => number): Celebration {
+  return { ...celebration("grand", rng), sound: "gift-fanfare" };
+}
+
+/** A Small prize won (a Round first lifts the Best score to 95, or a jackpot):
+ *  a shower, smaller than a Gift's, and a short brass call. */
+export function smallPrizeCelebration(rng: () => number): Celebration {
+  return { ...celebration("shower", rng), sound: "prize-fanfare" };
+}
+
+/** Gifted points from Atıl's corner: a light sparkle, a few stars. */
+export function sparkleCelebration(rng: () => number): Celebration {
+  return { ...celebration("puff", rng), shapes: ["star"], particles: 18, sound: "sparkle" };
 }
 
 /** `prefers-reduced-motion`: the sound stays; a small puff goes, a big one thins to a few. */
