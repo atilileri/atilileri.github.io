@@ -398,46 +398,63 @@ function noiseLoop(ac: AudioContext): AudioBufferSourceNode {
 }
 
 const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
-  /** The car's engine: a soft, round, low hum (rewritten after Atıl's
-   *  listen found the old sawtooth growl buzzy and too loud). A sine and a
-   *  quiet triangle an octave up, through a gentle low-pass. Raised again
-   *  after a later listen found it inaudible: about 0.03 at idle to 0.05 at
-   *  full gas, so it sits clearly under the radio (~0.04 peaks), and the
-   *  pitch climbs a little more with speed so acceleration is felt.
+  /** The car's engine. History: the first sawtooth growl was buzzy and too
+   *  loud; its replacement (a 58→104 Hz sine plus a triangle, low-passed
+   *  near 300–500 Hz) was pleasant but inaudible on Atıl's laptop, because
+   *  laptop speakers reproduce almost nothing below ~150 Hz: whatever its
+   *  gain, a hum that lives down there is mostly not heard.
+   *
+   *  So the sound now lives in its harmonics. One oscillator plays a custom
+   *  wave, a rounded sum of eight harmonics falling off gently (no odd-only
+   *  hollowness, no saw edge), so with a 70→160 Hz fundamental harmonics 2–6
+   *  land in the ~150–900 Hz band small speakers do play, and the ear fills
+   *  in the low note it cannot hear (the "missing fundamental"). A soft
+   *  low-pass (Q 0.6, ~900 Hz idle to ~1400 Hz full speed and gas) rounds
+   *  off the top so it never buzzes; throttle opens it a little, so pressing
+   *  the gas brightens the tone as well as raising it. A fast, tiny
+   *  amplitude flutter (~11 Hz, ±6%) gives it life like firing cylinders,
+   *  plus a slow breath. Level about 0.06 at idle to 0.09 at full gas:
+   *  above the radio music (~0.04 peaks), below every one-shot.
    *  Params: speed, throttle (0..1). */
   engine(ac, out) {
+    const amps = [0, 1, 0.75, 0.55, 0.42, 0.3, 0.2, 0.12, 0.07];
+    const wave = ac.createPeriodicWave(new Float32Array(amps.length), Float32Array.from(amps));
+    const osc = ac.createOscillator();
+    osc.setPeriodicWave(wave);
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass";
-    lp.Q.value = 0.5;
+    lp.Q.value = 0.6;
+    lp.frequency.value = 900;
     const gain = ac.createGain();
     gain.gain.value = 0.0001;
-    lp.connect(gain).connect(out);
-    const body = ac.createOscillator();
-    body.type = "sine";
-    const over = ac.createOscillator();
-    over.type = "triangle";
-    const overGain = ac.createGain();
-    overGain.gain.value = 0.3;
-    body.connect(lp);
-    over.connect(overGain).connect(lp);
-    // A slow, shallow breath in the level, so it lives without wobbling.
+    osc.connect(lp).connect(gain).connect(out);
+    // The flutter: a small fast wobble in the level, scaled with it.
+    const flutter = ac.createOscillator();
+    flutter.frequency.value = 11;
+    const flutterDepth = ac.createGain();
+    flutterDepth.gain.value = 0.004;
+    flutter.connect(flutterDepth).connect(gain.gain);
+    // A slow, shallow breath, so it lives without wobbling.
     const lfo = ac.createOscillator();
     lfo.frequency.value = 0.7;
     const breath = ac.createGain();
-    breath.gain.value = 0.004;
+    breath.gain.value = 0.003;
     lfo.connect(breath).connect(gain.gain);
     let speed = 0;
     let throttle = 0;
     return {
-      nodes: [body, over, lfo],
+      nodes: [osc, flutter, lfo],
       set(p, now) {
-        speed = p.speed ?? speed;
-        throttle = p.throttle ?? throttle;
-        const f = 58 + speed * 40 + throttle * 6;
-        smooth(body.frequency, f, now, 0.25);
-        smooth(over.frequency, f * 2, now, 0.25);
-        smooth(lp.frequency, 280 + speed * 220 + throttle * 80, now, 0.25);
-        smooth(gain.gain, 0.03 + speed * 0.012 + throttle * 0.008, now, 0.3);
+        speed = Math.max(0, Math.min(1, p.speed ?? speed));
+        throttle = Math.max(0, Math.min(1, p.throttle ?? throttle));
+        const f = 70 + speed * 80 + throttle * 10; // 70 Hz idle → 160 Hz flat out
+        smooth(osc.frequency, f, now, 0.25);
+        // The flutter follows the revs a little, so it quickens too.
+        smooth(flutter.frequency, 9 + speed * 6, now, 0.3);
+        smooth(lp.frequency, 900 + speed * 300 + throttle * 200, now, 0.25);
+        const level = 0.06 + speed * 0.018 + throttle * 0.012;
+        smooth(gain.gain, level, now, 0.3);
+        smooth(flutterDepth.gain, level * 0.06, now, 0.3);
       },
     };
   },
