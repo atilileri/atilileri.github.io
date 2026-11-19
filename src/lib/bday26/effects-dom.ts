@@ -314,6 +314,30 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     note(ac, out, 81, t, 0.11, "triangle", 0.07);
     note(ac, out, 77, t + 0.12, 0.16, "triangle", 0.07);
   },
+  // ── Kayak macerası ──
+  /** A jump: a rising whoosh of air. */
+  jump(ac, out, t) {
+    hiss(ac, out, t, 0.3, 0.09, "bandpass", 500, 2200, 1.5, 0.04);
+  },
+  /** Landing on the snow: a soft thud and a puff. */
+  land(ac, out, t) {
+    tone(ac, out, 95, 45, t, 0.2, "sine", 0.18, 0.004);
+    hiss(ac, out, t, 0.18, 0.08, "lowpass", 1500, 300, 0.7, 0.004);
+  },
+  /** A flag taken: one bright little ding. */
+  ding(ac, out, t) {
+    bell(ac, out, 91 + Math.floor(Math.random() * 3) * 2, t, 0.35, 0.08);
+  },
+  /** A fall: a tumble of snow and a low bonk. */
+  crash(ac, out, t) {
+    hiss(ac, out, t, 0.55, 0.16, "lowpass", 2500, 250, 0.6, 0.006);
+    tone(ac, out, 160, 55, t, 0.35, "sine", 0.18, 0.006);
+    tone(ac, out, 120, 50, t + 0.12, 0.25, "triangle", 0.08, 0.006);
+  },
+  /** A checkpoint (or the finish) passed: a short rising chime. */
+  checkpoint(ac, out, t) {
+    [72, 76, 79, 84].forEach((m, i) => bell(ac, out, m, t + i * 0.07, 0.5, 0.08));
+  },
   // ── Kelime avı ──
   /** A soft key tick: a click of noise and a tiny high blip. */
   key(ac, out, t) {
@@ -403,6 +427,25 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
         smooth(sub.frequency, f / 2, now);
         smooth(lp.frequency, 300 + speed * 700 + throttle * 500, now);
         smooth(gain.gain, 0.04 + speed * 0.03 + throttle * 0.035, now, 0.12);
+      },
+    };
+  },
+  /** Skis on snow: a hiss whose brightness and volume follow her speed.
+   *  Param: speed (0..1). */
+  swoosh(ac, out) {
+    const src = noiseLoop(ac);
+    const bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.Q.value = 0.8;
+    const gain = ac.createGain();
+    gain.gain.value = 0.0001;
+    src.connect(bp).connect(gain).connect(out);
+    return {
+      nodes: [src],
+      set(p, now) {
+        const v = p.speed ?? 0;
+        smooth(bp.frequency, 500 + v * 1800, now);
+        smooth(gain.gain, 0.0001 + v * 0.07, now, 0.06);
       },
     };
   },

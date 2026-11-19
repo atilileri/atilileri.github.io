@@ -112,6 +112,7 @@ const KEYS = [
     type Run,
     type RunEvent,
   } from "../../../lib/bday26/kayak";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
   const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
   const view = $<HTMLElement>("[data-view]");
@@ -119,6 +120,8 @@ const KEYS = [
   const ctx = cv.getContext("2d")!;
   const toastEl = $<HTMLElement>("[data-toast]");
   const pausedEl = $<HTMLElement>("[data-pause-overlay]");
+  /** The skis on the snow: a swoosh that follows her speed (the shared effects switch). */
+  const swoosh = effects.loop("swoosh");
   const progEl = $<HTMLElement>("[data-prog]");
   const progFill = $<HTMLElement>("[data-prog-fill]");
   const verdictEl = $<HTMLElement>("[data-verdict]");
@@ -189,8 +192,10 @@ const KEYS = [
     mode = on ? "paused" : "play";
     pausedEl.hidden = !on;
     keys.clear();
-    if (on) loop.stop();
-    else loop.start();
+    if (on) {
+      loop.stop();
+      effects.stopLoops();
+    } else loop.start();
   }
 
   function input() {
@@ -204,7 +209,10 @@ const KEYS = [
   function tick(dt: number) {
     acc += dt;
     while (acc >= FIXED_STEP && !run.finished) {
+      const rising = run.vy;
       for (const e of stepRun(run, input(), FIXED_STEP)) onEvent(e);
+      // A take-off: she was not already rising fast, now she is.
+      if (run.vy < -TUNING.jump * 0.8 && rising >= -TUNING.jump * 0.8) effects.sound("jump");
       // Snow spray off her skis when she rides faster than the base speed.
       if (run.onGround && run.crash <= 0 && run.vx > TUNING.speed * 1.05 && Math.random() < 0.5)
         particles.push({ x: run.x - 18, y: run.y, vx: -80 - Math.random() * 80, vy: -60 - Math.random() * 80, life: 0.4, r: 1.5 + Math.random() * 2 });
@@ -214,6 +222,9 @@ const KEYS = [
       cam.x += (run.x - CAM_X - cam.x) * Math.min(1, dt * 12);
       cam.y += (run.y - CAM_Y - cam.y) * Math.min(1, dt * 5);
     }
+    // Loud on the snow at speed, quiet in the air, silent while she tumbles.
+    const onSnow = run.onGround && run.crash <= 0;
+    swoosh.start({ speed: run.crash > 0 ? 0 : Math.min(1, run.vx / (TUNING.speed * 1.35)) * (onSnow ? 1 : 0.15) });
     draw(dt);
     paintHud();
     if (toastT > 0) {
@@ -227,6 +238,10 @@ const KEYS = [
   }
 
   function onEvent(e: RunEvent) {
+    if (e.kind === "flag") effects.sound("ding");
+    else if (e.kind === "land") effects.sound("land");
+    else if (e.kind === "fall") effects.sound("crash");
+    else if (e.kind === "checkpoint" || e.kind === "finish") effects.sound("checkpoint");
     if (e.kind === "flag") {
       pops.push({ x: e.x, y: e.y, life: 0.5 });
       for (let i = 0; i < 8; i++)
@@ -251,6 +266,7 @@ const KEYS = [
 
   function finishRound() {
     loop.stop();
+    effects.stopLoops();
     mode = "idle";
     keys.clear();
     toastEl.classList.remove("show");
@@ -365,7 +381,9 @@ const KEYS = [
     }
   }
 
-  function drawTree(x: number, y: number, s: number, col: string) {
+  /** A pine whose trunk base stands at (x, y) on the snow line; `tilt` is the
+   *  slope's angle there, for the little snow mound around its foot. */
+  function drawTree(x: number, y: number, s: number, col: string, tilt: number) {
     ctx.fillStyle = "#6b4a35";
     ctx.fillRect(x - 3 * s, y - 10 * s, 6 * s, 12 * s);
     ctx.fillStyle = col;
@@ -384,6 +402,19 @@ const KEYS = [
     ctx.lineTo(x, y - 84 * s);
     ctx.lineTo(x + 6 * s, y - 68 * s);
     ctx.fill();
+    // Rooted: a soft snow mound over the foot of the trunk, lying along the slope.
+    ctx.save();
+    ctx.translate(x, y + 1);
+    ctx.rotate(tilt);
+    ctx.fillStyle = "#dceaf6";
+    ctx.beginPath();
+    ctx.ellipse(1.5 * s, 1.5 * s, 13 * s, 4.5 * s, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.ellipse(0, 0.5, 12 * s, 4 * s, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.restore();
   }
 
   function drawGround() {
@@ -396,7 +427,10 @@ const KEYS = [
       if (hash(k) < 0.45) continue;
       const wx = k * span + 40 * hash(k * 7);
       const s = 0.8 + 0.5 * hash(k * 11);
-      drawTree(sxw(wx), syw(ground(wx)) - 26 - 30 * hash(k * 5), s, hash(k * 13) < 0.5 ? "#2f7a5a" : "#3a8c66");
+      // Rooted in the snow at its own x (the ground's height varies), and
+      // never over a crevasse, where there is no snow to stand on.
+      if (gapAt(course, wx - 14 * s) || gapAt(course, wx) || gapAt(course, wx + 14 * s)) continue;
+      drawTree(sxw(wx), syw(ground(wx)), s, hash(k * 13) < 0.5 ? "#2f7a5a" : "#3a8c66", Math.atan(slope(wx)));
     }
     // The snow, broken at the crevasses.
     const runs: [number, number][][] = [];
@@ -686,6 +720,7 @@ const KEYS = [
       startRound,
       abandonRound: () => {
         loop.stop();
+        effects.stopLoops();
         mode = "idle";
         keys.clear();
         pausedEl.hidden = true;
@@ -695,6 +730,7 @@ const KEYS = [
         confirming = true;
         keys.clear();
         loop.stop();
+        effects.stopLoops();
       },
       resume: () => {
         confirming = false;
