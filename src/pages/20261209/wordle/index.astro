@@ -405,9 +405,13 @@ const TURKISH = "ÇĞIİÖŞÜ";
       revealTimer = 0;
       flipTimers = [];
       busy = false;
-      // A word found: a happy chime; six guesses spent: a soft bonk.
+      // Every sent row answers: found, a happy chime; six guesses spent, a
+      // soft bonk; a row with a green or yellow, an upbeat blip; all grey,
+      // a soft "no".
       if (round.solved) effects.sound("rich-chime");
       else if (round.done) effects.sound("bonk");
+      else if (round.guesses[r]!.colours.some((c) => c !== "absent")) effects.sound("row-good");
+      else effects.sound("row-wrong");
       paintKeyboard();
       paintHud();
       if (round.solved) bounce(r);

@@ -126,6 +126,8 @@ export type SoundName =
   | "key"
   | "backspace"
   | "flip"
+  | "row-good"
+  | "row-wrong"
   // Yürüyüş haritası
   | "step"
   // Hollanda'da sürüş

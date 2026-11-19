@@ -223,6 +223,16 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     filter.connect(out);
     tone(ac, filter, 190, 85, t, 0.3, "sine", 0.7, 0.01);
   }),
+  /** A sent row with a green or yellow in it: two quick rising notes. */
+  "row-good"(ac, out, t) {
+    bell(ac, out, 79, t, 0.22, 0.08);
+    bell(ac, out, 84, t + 0.08, 0.3, 0.08);
+  },
+  /** A sent row all grey: a soft two-note fall, not a buzzer. */
+  "row-wrong"(ac, out, t) {
+    note(ac, out, 62, t, 0.16, "triangle", 0.07);
+    note(ac, out, 57, t + 0.12, 0.26, "triangle", 0.07);
+  },
   // ── Yürüyüş haritası ──
   /** A soft footstep on a dirt trail: a short low scuff. */
   step(ac, out, t) {
