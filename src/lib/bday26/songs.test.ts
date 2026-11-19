@@ -5,7 +5,8 @@
  *   node --test src/lib/bday26/songs.test.ts
  *
  * Expected values come from the pool document, not from `songs.ts`: its 20
- * titles in 5 groups of 3/3/2/6/6, and the spec's "about 4 bars (~8 s)" hook,
+ * titles in 4 groups of 1/1/5/13 (the second pool, after Atıl's listening:
+ * Karsu found no source and left), and the spec's "about 4 bars (~8 s)" hook,
  * read as 5–12 s so a slow ballad and a fast riff both fit. Whether a hook
  * sounds like its song is Atıl's ear, not a test.
  */
@@ -17,45 +18,68 @@ import { parseSong, timeSong } from "./song.ts";
 /** The pool table of `docs/bday26/song-pool.md`, title → group. */
 const POOL: Record<string, string> = {
   "One Inch Punch": "Yin Yin",
-  Pingpxng: "Yin Yin",
-  "Takahashi Timing": "Yin Yin",
-  "Jest Oldu": "Karsu",
-  "Bırak Beni Böyle": "Karsu",
-  İtiraf: "Karsu",
   "Time Warp": "Rocky Horror",
-  "Sweet Transvestite": "Rocky Horror",
   Şımarık: "90'lar Türk popu",
-  "Aya Benzer": "90'lar Türk popu",
+  "Jest Oldu": "90'lar Türk popu",
   "Her Gece": "90'lar Türk popu",
-  Abone: "90'lar Türk popu",
   Zalim: "90'lar Türk popu",
   "Yaparım Bilirsin": "90'lar Türk popu",
   "Take On Me": "Dünya hitleri",
-  "Dancing Queen": "Dünya hitleri",
-  "My Heart Will Go On": "Dünya hitleri",
   "Shape of You": "Dünya hitleri",
   "Seven Nation Army": "Dünya hitleri",
-  "Billie Jean": "Dünya hitleri",
+  "The Final Countdown": "Dünya hitleri",
+  "Sweet Dreams (Are Made of This)": "Dünya hitleri",
+  "Careless Whisper": "Dünya hitleri",
+  "Smoke on the Water": "Dünya hitleri",
+  "Axel F": "Dünya hitleri",
+  "Barbie Girl": "Dünya hitleri",
+  Lambada: "Dünya hitleri",
+  "Hit the Road Jack": "Dünya hitleri",
+  "Another One Bites the Dust": "Dünya hitleri",
+  Popcorn: "Dünya hitleri",
 };
+
+/** The nine hooks Atıl approved by ear (pool doc); the rest are new candidates. */
+const APPROVED = [
+  "One Inch Punch",
+  "Jest Oldu",
+  "Her Gece",
+  "Zalim",
+  "Yaparım Bilirsin",
+  "Şımarık",
+  "Take On Me",
+  "Shape of You",
+  "Seven Nation Army",
+];
 
 test("the pool is the 20 songs of the pool document, each title once", () => {
   assert.equal(SONGS.length, 20);
   assert.deepEqual([...SONGS.map((s) => s.title)].sort(), Object.keys(POOL).sort());
 });
 
-test("the groups are Yin Yin 3, Karsu 3, Rocky Horror 2, 90'lar Türk popu 6, Dünya hitleri 6", () => {
+test("the groups are Yin Yin 1, Rocky Horror 1, 90'lar Türk popu 5, Dünya hitleri 13", () => {
   const counts: Record<string, number> = {};
   for (const s of SONGS) {
     assert.equal(s.group, POOL[s.title], `${s.title} is in the wrong group`);
     counts[s.group] = (counts[s.group] ?? 0) + 1;
   }
   assert.deepEqual(counts, {
-    "Yin Yin": 3,
-    Karsu: 3,
-    "Rocky Horror": 2,
-    "90'lar Türk popu": 6,
-    "Dünya hitleri": 6,
+    "Yin Yin": 1,
+    "Rocky Horror": 1,
+    "90'lar Türk popu": 5,
+    "Dünya hitleri": 13,
   });
+});
+
+test("the approved nine are confidence 4; every new candidate is 2 or 3 and still flagged", () => {
+  for (const s of SONGS) {
+    if (APPROVED.includes(s.title)) {
+      assert.equal(s.confidence, 4, `${s.title} was approved`);
+    } else {
+      assert.ok(s.confidence === 2 || s.confidence === 3, `${s.title}: confidence ${s.confidence}`);
+      assert.ok(s.unsure, `${s.title} waits for Atıl's ear`);
+    }
+  }
 });
 
 test("every hook parses and lasts about 8 s: 5 to 12 seconds at its own tempo", () => {
