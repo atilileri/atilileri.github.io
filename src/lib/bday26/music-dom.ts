@@ -19,17 +19,23 @@
  * bound by `bindMusicToggles()`. Like the effects' switch it never takes
  * focus, so Enter and the Game's keys stay the Game's.
  *
- * THE SYNTH. Every track is original, written here as a few bars of
- * chords, bass, melody and percussion for a small step sequencer (16th
- * notes, scheduled a little ahead on the AudioContext's clock, so the loop
- * is seamless and the tempo can change between steps). No files, nothing
- * copied from any song or show theme. A track fades in over 0.8 s and out
- * over 0.8 s; a new track fades the old one out first.
+ * THE SYNTH. Every track is written here as a few bars of chords, bass,
+ * melody and percussion for a small step sequencer (16th notes, scheduled
+ * a little ahead on the AudioContext's clock, so the loop is seamless and
+ * the tempo can change between steps). No files. Every tune is original
+ * except the ski Game's, an arrangement of the public-domain "Jingle
+ * Bells" chorus (1857); nothing is copied from any modern song or show
+ * theme. A track fades in over 0.8 s and out over 0.8 s; a new track fades
+ * the old one out first.
  *
  * BALANCE. The effects' celebrations peak near 0.18 of full scale. A
  * track's busiest moment is written to stay near 0.08 and goes through the
  * music bus at 0.5 (`./audio-dom.ts`), so the music sits around a quarter of
- * the celebrations and every effect plays clearly on top of it.
+ * the celebrations and every effect plays clearly on top of it. The two
+ * real-time Games turn this round for their continuous sounds (after
+ * Atıl's listen): the ski swoosh peaks at 0.022 and the car's engine hum
+ * at 0.022, traffic at 0.014, all under their track's ~0.04 after the bus,
+ * while their one-shots (a flag, a bump) still sit on top of it.
  *
  * Nobody has listened to these tracks yet: they want Atıl's ears before
  * the evening.
@@ -94,6 +100,9 @@ type Track = {
   steps: number;
   bpm(p: MusicParams): number;
   play(s: Step): void;
+  /** An optional sound of its own the whole track goes through (the car
+   *  radio's EQ): given the track's output, returns where notes go. */
+  chain?(ac: AudioContext, out: AudioNode): AudioNode;
 };
 
 function startTrack(name: TrackName, initial: MusicParams) {
@@ -107,13 +116,14 @@ function startTrack(name: TrackName, initial: MusicParams) {
   out.gain.setValueAtTime(0, now);
   out.gain.linearRampToValueAtTime(1, now + FADE);
   out.connect(into);
+  const dest = track.chain ? track.chain(ac, out) : out;
 
   let step = 0;
   let next = now + 0.05;
   const tick = () => {
     while (next < ac.currentTime + AHEAD) {
       const dur = 60 / track.bpm(params) / 4;
-      track.play({ ac, out, t: next, dur, step: step % 16, bar: Math.floor(step / 16), p: params });
+      track.play({ ac, out: dest, t: next, dur, step: step % 16, bar: Math.floor(step / 16), p: params });
       next += dur;
       step = (step + 1) % track.steps;
     }
@@ -453,4 +463,160 @@ const TRACKS: Record<TrackName, Track> = {
       if (n) vibe(s, n[1], when, dur * n[2] * 1.4, 0.026);
     },
   },
+
+  /**
+   * Kayak macerası: a fun sleigh ride. The chorus of "Jingle Bells"
+   * (James Lord Pierpont, 1857, public domain), arranged here: C major,
+   * 126 bpm, sixteen bars (C C C C | F C D7 G7 | C C C C | F C G7 C).
+   * Sleigh bells on every eighth, a bouncy bass (root, octave hop, fifth,
+   * pickup), soft piano chords on 2 and 4, the tune on a bright electric
+   * piano with a glockenspiel sparkle an octave up.
+   */
+  kayak: {
+    steps: 256,
+    bpm: () => 126,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const C = [60, 64, 67], F = [60, 65, 69], D7 = [60, 62, 66], G7 = [59, 62, 65];
+      const chords = [C, C, C, C, F, C, D7, G7, C, C, C, C, F, C, G7, C];
+      const roots = [48, 48, 48, 48, 53, 48, 50, 55, 48, 48, 48, 48, 53, 48, 55, 48];
+      const chord = chords[bar]!;
+      const root = roots[bar]!;
+      // The bells: every eighth, the beat a little louder, a light shake between.
+      if (step % 2 === 0) sleighBell(s, t, step % 4 === 0 ? 0.014 : 0.009);
+      else shaker(s, t, 0.004);
+      if (step === 0 || step === 8) kick(s, t, 0.04);
+      if (step === 4 || step === 12) clap(s, t, 0.008);
+      // The bass bounces: root, a quick octave hop, the fifth, a pickup.
+      const b = ([[0, 0, 3], [6, 12, 1], [8, 7, 3], [14, 12, 1]] as Line).find(([st]) => st === step);
+      if (b) bass(s, root + b[1], t, dur * (b[2] + 0.5), 0.045);
+      if (step === 4 || step === 12) for (const m of chord) keys(s, m, t, dur * 2.5, 0.009);
+      const e = 76, g = 79, c = 72, d = 74, f = 77;
+      const one: Line = [[0, e, 4], [4, e, 4], [8, e, 8]];
+      const three: Line = [[0, e, 4], [4, g, 4], [8, c, 6], [14, d, 2]];
+      const five: Line = [[0, f, 4], [4, f, 4], [8, f, 6], [14, f, 2]];
+      const six: Line = [[0, f, 4], [4, e, 4], [8, e, 4], [12, e, 2], [14, e, 2]];
+      const tune: Line[] = [
+        one, one, three, [[0, e, 16]],
+        five, six, [[0, e, 4], [4, d, 4], [8, d, 4], [12, e, 4]], [[0, d, 8], [8, g, 8]],
+        one, one, three, [[0, e, 16]],
+        five, six, [[0, g, 4], [4, g, 4], [8, f, 4], [12, d, 4]], [[0, c, 16]],
+      ];
+      const n = at(tune[bar], step);
+      if (n) {
+        keys(s, n[1], t, dur * Math.min(n[2], 6) * 1.2, 0.03);
+        tine(s, n[1] + 12, t, 0.008, 0.5);
+      }
+    },
+  },
+
+  /**
+   * Hollanda'da sürüş: a relaxed, cheerful tune on the car radio. B♭
+   * major, 100 bpm, eight bars (B♭ – Gm – E♭ – F | B♭ – Dm – E♭ – F),
+   * original: a round bass, electric-piano chords on the off-beats, a
+   * light kick, rim and hat, and an electric-piano tune. Everything goes
+   * through the radio (`radio`): a band-limited, slightly warm EQ, with a
+   * crackle now and then. A short tuning sweep of static plays whenever a
+   * voice starts and whenever the page bumps `tune` (each new Round).
+   */
+  surus: {
+    steps: 128,
+    bpm: () => 100,
+    chain: radio,
+    play(s) {
+      const { step, bar, t, dur, p } = s;
+      if ((p.tune ?? 0) !== p.tuned) {
+        p.tuned = p.tune ?? 0;
+        tuning(s, t);
+      }
+      const Bb = [62, 65, 70], Gm = [62, 67, 70], Eb = [63, 67, 70], F = [60, 65, 69], Dm = [62, 65, 69];
+      const chord = [Bb, Gm, Eb, F, Bb, Dm, Eb, F][bar]!;
+      const root = [46, 43, 51, 53, 46, 50, 51, 53][bar]!;
+      const b = ([[0, 0, 3], [6, 0, 1], [8, 7, 3], [12, 12, 2], [14, 7, 2]] as Line).find(([st]) => st === step);
+      if (b) bass(s, root + b[1], t, dur * (b[2] + 0.4), 0.05);
+      if (step % 4 === 2) for (const m of chord) keys(s, m, t, dur * 1.4, 0.011);
+      if (step === 0 || step === 7 || step === 8) kick(s, t, step === 7 ? 0.03 : 0.05);
+      if (step === 4 || step === 12) clap(s, t, 0.012);
+      if (step % 2 === 0) hat(s, t, step % 4 === 0 ? 0.008 : 0.011);
+      if (step === 0 && Math.random() < 0.35) crackle(s, t + Math.random() * dur * 16);
+      const tune: Line[] = [
+        [[0, 74, 2], [2, 77, 2], [4, 79, 4], [8, 77, 2], [10, 74, 2], [12, 72, 4]],
+        [[0, 70, 2], [2, 72, 2], [4, 74, 6], [12, 79, 4]],
+        [[0, 79, 2], [2, 77, 2], [4, 75, 4], [8, 74, 2], [10, 75, 2], [12, 77, 4]],
+        [[0, 72, 6], [8, 69, 2], [10, 72, 2], [12, 77, 4]],
+        [[0, 82, 4], [4, 81, 2], [6, 79, 2], [8, 77, 4], [12, 74, 4]],
+        [[0, 77, 2], [2, 74, 2], [4, 69, 4], [8, 72, 2], [10, 74, 2], [12, 77, 4]],
+        [[0, 79, 3], [4, 75, 2], [6, 79, 2], [8, 82, 4], [12, 79, 4]],
+        [[0, 77, 6], [8, 72, 2], [10, 74, 2], [12, 72, 4]],
+      ];
+      const n = at(tune[bar], step);
+      if (n) keys(s, n[1], t, dur * n[2] * 1.3, 0.03);
+    },
+  },
 };
+
+// ── the ski and the radio's own sounds ─────────────────────────────
+
+/** A sleigh bell: a shake of bright noise and a few high, slightly
+ *  inharmonic jingles that ring out quickly. */
+function sleighBell(s: Step, at: number, level: number) {
+  noiseHit(s, at, 0.08, level, "bandpass", 8500, 1.6, 0.003);
+  for (const m of [101, 105, 108]) {
+    blip(s, m, at + Math.random() * 0.012, 0.11, "sine", level * 0.35, 0.002, s.out, (Math.random() - 0.5) * 60);
+  }
+}
+
+/** The car radio: a band-limited (telephone-ish) EQ with a little
+ *  presence and a soft saturation for warmth. Returns the chain's input. */
+function radio(ac: AudioContext, out: AudioNode): AudioNode {
+  const hp = ac.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 280;
+  hp.Q.value = 0.7;
+  const presence = ac.createBiquadFilter();
+  presence.type = "peaking";
+  presence.frequency.value = 1500;
+  presence.Q.value = 0.8;
+  presence.gain.value = 4;
+  const lp = ac.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 3400;
+  lp.Q.value = 0.9;
+  // Warmth: drive a gentle tanh curve, then bring the level back.
+  const drive = ac.createGain();
+  drive.gain.value = 5;
+  const shaper = ac.createWaveShaper();
+  const curve = new Float32Array(1024);
+  for (let i = 0; i < curve.length; i++) {
+    const x = (i / (curve.length - 1)) * 2 - 1;
+    curve[i] = Math.tanh(1.5 * x) / Math.tanh(1.5);
+  }
+  shaper.curve = curve;
+  const trim = ac.createGain();
+  trim.gain.value = 0.15;
+  hp.connect(presence).connect(lp).connect(drive).connect(shaper).connect(trim).connect(out);
+  return hp;
+}
+
+/** Tuning in: a short sweep of static and a faint whistle sliding into place. */
+function tuning(s: Step, at: number) {
+  noiseHit(s, at, 0.5, 0.05, "bandpass", 700, 2.5, 0.02, 2600);
+  const { ac } = s;
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(2200, at);
+  osc.frequency.exponentialRampToValueAtTime(900, at + 0.4);
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(0.012, at + 0.05);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + 0.45);
+  osc.connect(g).connect(s.out);
+  osc.start(at);
+  osc.stop(at + 0.5);
+}
+
+/** A crackle on the air: a tick of bright noise, now and then. */
+function crackle(s: Step, at: number) {
+  noiseHit(s, at, 0.015, 0.012, "highpass", 2500);
+  noiseHit(s, at + 0.04 + Math.random() * 0.05, 0.01, 0.007, "highpass", 3000);
+}

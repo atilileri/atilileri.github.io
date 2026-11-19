@@ -64,7 +64,7 @@ const LIMIT = formatClock(RULES.timeLimit);
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="surus" keys={KEYS}>
+  <GameShell game="surus" keys={KEYS} music="surus">
     <span slot="hud" class="hud-line"
       >Süre <b data-hud-time>0:00</b><small> / {LIMIT}</small> · Skor <b data-hud-score>%100</b>
       <small class="tally"><span class="h" data-hud-heavy>0 ağır</span> <span class="l" data-hud-light>0 hafif</span></small>
@@ -143,6 +143,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     type Mistake,
   } from "../../../lib/bday26/surus";
   import { effects } from "../../../lib/bday26/effects-dom";
+  import { music } from "../../../lib/bday26/music-dom";
 
   const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
   const stage = $<HTMLElement>("[data-stage]");
@@ -202,6 +203,8 @@ const LIMIT = formatClock(RULES.timeLimit);
     countdown = COUNTDOWN;
     paused = false;
     setHeld(false);
+    // A new Round retunes the car radio: a short sweep of static.
+    music.set({ tune: ++tunes });
     countEl.hidden = false;
     countEl.textContent = String(COUNTDOWN);
     paintHud();
@@ -295,8 +298,14 @@ const LIMIT = formatClock(RULES.timeLimit);
     if (on) {
       loop.stop();
       effects.stopLoops();
-    } else loop.start();
+      music.hold("pause");
+    } else {
+      music.release("pause");
+      loop.start();
+    }
   }
+  /** How many times the radio has been retuned (each Round bumps it). */
+  let tunes = 0;
 
   function finishRound() {
     loop.stop();
@@ -693,6 +702,7 @@ const LIMIT = formatClock(RULES.timeLimit);
         phase = "idle";
         held = false;
         pauseEl.hidden = true;
+        music.release("pause");
         keys.clear();
       },
       // The confirm card: the town stands still until she answers.

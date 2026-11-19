@@ -65,7 +65,7 @@ const KEYS = [
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="kayak" keys={KEYS}>
+  <GameShell game="kayak" keys={KEYS} music="kayak">
     <span slot="hud" class="hud-line"
       >Bayrak <b data-hud-flags>0 / {SKI_FLAGS}</b> · Süre <b data-hud-time>0:00.0</b> · Kontrol <b data-hud-cp
         >0 / {CHECKPOINTS}</b
@@ -113,6 +113,7 @@ const KEYS = [
     type RunEvent,
   } from "../../../lib/bday26/kayak";
   import { effects } from "../../../lib/bday26/effects-dom";
+  import { music } from "../../../lib/bday26/music-dom";
 
   const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
   const view = $<HTMLElement>("[data-view]");
@@ -179,6 +180,7 @@ const KEYS = [
     keys.clear();
     mode = "play";
     pausedEl.hidden = true;
+    music.release("pause");
     verdictEl.hidden = true;
     paintHud();
     loop.start();
@@ -195,7 +197,11 @@ const KEYS = [
     if (on) {
       loop.stop();
       effects.stopLoops();
-    } else loop.start();
+      music.hold("pause");
+    } else {
+      music.release("pause");
+      loop.start();
+    }
   }
 
   function input() {
@@ -724,6 +730,7 @@ const KEYS = [
         mode = "idle";
         keys.clear();
         pausedEl.hidden = true;
+        music.release("pause");
       },
       // The confirm card: the slope stands still until she answers.
       pause: () => {

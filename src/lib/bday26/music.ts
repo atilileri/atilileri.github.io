@@ -1,6 +1,6 @@
 /**
- * Background music for the hub and four Games (Milyoner, "Bu nerede?",
- * Hafıza kartları, the slot machine): short original loops synthesised with
+ * Background music for the hub and six Games (Milyoner, "Bu nerede?",
+ * Hafıza kartları, the slot machine, the ski and driving Games): short loops synthesised with
  * Web Audio, no files. This file is the pure side, pinned under `node --test`:
  *
  *   - her switch, "Müzik: Açık/Kapalı", under its own `localStorage` key
@@ -34,7 +34,7 @@ export function milyonerIntensity(n: number): number {
 }
 
 /** Every place with its own background music. */
-export type TrackName = "hub" | "milyoner" | "nerede" | "hafiza" | "slot";
+export type TrackName = "hub" | "milyoner" | "nerede" | "hafiza" | "slot" | "kayak" | "surus";
 
 /** A track's steering (Milyoner's band, its "Son kararın mı?" tension). */
 export type MusicParams = Record<string, number>;

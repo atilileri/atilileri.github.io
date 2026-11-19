@@ -20,10 +20,12 @@
  *     through `effects` from `src/lib/bday26/effects-dom.ts` and needs no
  *     wiring here; this component's script binds the switch and stops every
  *     effect loop whenever a screen covers the Round. A Game given `music`
- *     (Milyoner, "Bu nerede?", Hafıza kartları, the slot) also gets the
- *     "Müzik: Açık/Kapalı" switch (`MusicToggle`) beside it; the script
- *     plays the track (`src/lib/bday26/music-dom.ts`) and pauses it while
- *     the leave confirm asks. A Small prize won by this Round
+ *     (Milyoner, "Bu nerede?", Hafıza kartları, the slot, the ski and
+ *     driving Games) also gets the "Müzik: Açık/Kapalı" switch
+ *     (`MusicToggle`) beside it; the script plays the track
+ *     (`src/lib/bday26/music-dom.ts`) and pauses it while the leave confirm
+ *     asks (the ski and driving pages also hold it under their P pause,
+ *     `music.hold("pause")`). A Small prize won by this Round
  *     (`PRIZE_WON_EVENT` from the shell) gets a celebration on the result.
  *   - `.playfield`: the default slot, filling the rest of 1920×1080. It is
  *     `inert` whenever a screen is over it.
