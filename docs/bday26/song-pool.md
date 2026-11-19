@@ -36,7 +36,8 @@ Each song repeats to about 90 s.
 
 The second pool (2026-11-19). Atıl listened to the first pool on the test page, approved nine hooks
 and dropped the other eleven. **Approved** means he heard the hook and it passed; **new** means a
-candidate that still waits for his ear. The notes and their sources sit beside each song in
+candidate that still waits for his ear. A second listen approved ten of the new songs, notes
+unchanged; Time Warp still waits. The notes and their sources sit beside each song in
 `src/lib/bday26/songs.ts`.
 
 | Group | Song | Artist | Status |
@@ -51,16 +52,16 @@ candidate that still waits for his ear. The notes and their sources sit beside e
 | World hits | Take On Me | a-ha | approved |
 | World hits | Shape of You | Ed Sheeran | approved |
 | World hits | Seven Nation Army | The White Stripes | approved |
-| World hits | The Final Countdown | Europe | new |
-| World hits | Sweet Dreams (Are Made of This) | Eurythmics | new |
-| World hits | Careless Whisper | George Michael | new |
-| World hits | Smoke on the Water | Deep Purple | new |
-| World hits | Axel F | Harold Faltermeyer | new |
-| World hits | Barbie Girl | Aqua | new |
-| World hits | Lambada | Kaoma | new |
-| World hits | Hit the Road Jack | Ray Charles | new |
-| World hits | Another One Bites the Dust | Queen | new |
-| World hits | Popcorn | Hot Butter | new |
+| World hits | The Final Countdown | Europe | approved |
+| World hits | Sweet Dreams (Are Made of This) | Eurythmics | approved |
+| World hits | Careless Whisper | George Michael | approved |
+| World hits | Smoke on the Water | Deep Purple | approved |
+| World hits | Axel F | Harold Faltermeyer | approved |
+| World hits | Barbie Girl | Aqua | approved |
+| World hits | Lambada | Kaoma | approved |
+| World hits | Hit the Road Jack | Ray Charles | approved |
+| World hits | Another One Bites the Dust | Queen | approved |
+| World hits | Popcorn | Hot Butter | approved |
 
 **Groups rebalanced** to 1/1/5/13. No reliable melody source turned up for more Yin Yin, for any
 Karsu song, or for new 90s Turkish pop, so those groups shrank and world hits filled the gap. Jest

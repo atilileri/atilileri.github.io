@@ -39,7 +39,8 @@ const POOL: Record<string, string> = {
   Popcorn: "Dünya hitleri",
 };
 
-/** The nine hooks Atıl approved by ear (pool doc); the rest are new candidates. */
+/** The hooks Atıl approved by ear (pool doc): nine at the first listen, ten
+ *  of the second pool's new songs at the next; the rest are candidates. */
 const APPROVED = [
   "One Inch Punch",
   "Jest Oldu",
@@ -50,6 +51,16 @@ const APPROVED = [
   "Take On Me",
   "Shape of You",
   "Seven Nation Army",
+  "Popcorn",
+  "The Final Countdown",
+  "Sweet Dreams (Are Made of This)",
+  "Careless Whisper",
+  "Smoke on the Water",
+  "Axel F",
+  "Barbie Girl",
+  "Lambada",
+  "Hit the Road Jack",
+  "Another One Bites the Dust",
 ];
 
 test("the pool is the 20 songs of the pool document, each title once", () => {
@@ -71,7 +82,7 @@ test("the groups are Yin Yin 1, Rocky Horror 1, 90'lar Türk popu 5, Dünya hitl
   });
 });
 
-test("the approved nine are confidence 4; every new candidate is 2 or 3 and still flagged", () => {
+test("every approved hook is confidence 4; every candidate is 2 or 3 and still flagged", () => {
   for (const s of SONGS) {
     if (APPROVED.includes(s.title)) {
       assert.equal(s.confidence, 4, `${s.title} was approved`);

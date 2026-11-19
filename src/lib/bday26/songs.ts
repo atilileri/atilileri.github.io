@@ -36,6 +36,8 @@
  * this time. No source was found for more Yin Yin or any Karsu song, nor for
  * new 90s Turkish pop (searched: bitmidi, Turkish nota/flüt/melodika sites,
  * sheet-music shops), so those groups shrank and Dünya hitleri grew.
+ * A later listen approved ten of the eleven, notes unchanged; only Time Warp
+ * still waits for his ear.
  *
  * The approved hooks keep their old sources: Songsterr tabs read through its
  * public tab data before it closed that door (Songsterr marks spoken or
@@ -67,7 +69,7 @@ export type PoolSong = {
   readonly unsure?: string;
 };
 
-/** Every new song of the second pool waits for Atıl's ear. */
+/** A new song of the second pool still waiting for Atıl's ear. */
 const NEW = "new in the second pool: not yet heard by Atıl";
 
 export const SONGS: readonly PoolSong[] = [
@@ -240,9 +242,8 @@ export const SONGS: readonly PoolSong[] = [
            D5:.25 C#5:.25 D5:.5 C#5:.5 B4:2.5
            D5:.25 C#5:.25 D5:1 F#4:2.5
            B4:.25 A4:.25 B4:.5 A4:.5 G#4:.5 B4:.5 A4:1.5`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/europe-the-final-countdown-k-mid",
-    unsure: NEW,
   },
   {
     // Two files agree on the synth riff: the Eurythmics karaoke file, channel 1,
@@ -257,10 +258,9 @@ export const SONGS: readonly PoolSong[] = [
            Ab4:.5 Ab4:.5 C5:.5 C5:.5 G4:.5 G4:.5 G4:.5 C5:.5
            C4:.5 C4:.5 C5:.5 C5:.5 Eb4:.5 Eb5:.5 C5:.5 C5:.5
            Ab4:.5 Ab4:.5 C5:.5 C5:.5 G4:.5 G4:.5 G4:.5 C5:.5`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/eurythmics-sweet-dreams-k-mid",
     // second source: https://bitmidi.com/lennox-sweet-dreams-k-mid
-    unsure: NEW,
   },
   {
     // Two files agree on the sax riff: careless-whisper-mid, "ALTO SAX", bars 3–5,
@@ -273,10 +273,9 @@ export const SONGS: readonly PoolSong[] = [
     hook: `E5:.5 D5:.25 A4:.5 F4:.75 E5:.5 D5:.25 A4:.5 F4:.75
            C5:.5 Bb4:.25 F4:.5 D4:.75 C5:.5 Bb4:.25 F4:1.25
            Bb4:.5 A4:.25 F4:.5 D4:.5 Bb3:2.25`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/careless-whisper-mid",
     // second source: https://bitmidi.com/g-michael-careless-whisper-mid
-    unsure: NEW,
   },
   {
     // Two files agree on the riff: deep-purple-smoke-on-the-water-mid, channel 4,
@@ -291,10 +290,9 @@ export const SONGS: readonly PoolSong[] = [
            Bb4:1 C#5:.5 C5:2
            G4:1 Bb4:1 C5:1.5 Bb4:1
            G4:3`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/deep-purple-smoke-on-the-water-mid",
     // second source: https://bitmidi.com/smoke-on-the-water-1-mid
-    unsure: NEW,
   },
   {
     // Two files agree on the synth theme: axel-f-1-mid, channel 8, bars 3–5, and
@@ -307,10 +305,9 @@ export const SONGS: readonly PoolSong[] = [
     hook: `F4:1 Ab4:.75 F4:.5 F4:.25 Bb4:.5 F4:.5 Eb4:.5
            F4:1 C5:.75 F4:.5 F4:.25 Db5:.5 C5:.5 Ab4:.5
            F4:.5 C5:.5 F5:.5 F4:.25 Eb4:.5 Eb4:.25 C4:.5 G4:.5 F4:1.5`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/axel-f-1-mid",
     // second source: https://bitmidi.com/axel-f-2-mid
-    unsure: NEW,
   },
   {
     // The karaoke file, channel 3 (the sung line, lyrics in the file), bars 7–10:
@@ -325,9 +322,8 @@ export const SONGS: readonly PoolSong[] = [
            F#4:.5 D#4:.5 F#4:.5 B4:.5 G#4:1 F#4:.5 E4:1.5
            E4:.5 C#4:.5 F#4:1 C#4:1 R:1
            F#4:.5 E4:.5 G#4:1 F#4:1.5`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/aqua-barbie-girl-k-mid",
-    unsure: NEW,
   },
   {
     // Two files agree on the tune: lambada-mid, channel 4 (accordion), bars 17–20
@@ -342,10 +338,9 @@ export const SONGS: readonly PoolSong[] = [
            D5:.5 F5:.5 E5:.5 D5:.5 C5:.5 D5:.5 A4:.5 G4:.5 A4:2
            A5:1.5 G5:.5 F5:.5 E5:.5 D5:1
            D5:.5 F5:.5 E5:.5 D5:.5 C5:.5 D5:.5 A4:.5 G4:.5 A4:2`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/lambada-mid",
     // second source: https://bitmidi.com/kaoma-lambada-mid
-    unsure: NEW,
   },
   {
     // Two files agree on the sung line: charles-hit-the-road-jack-mid, channel 4,
@@ -363,10 +358,9 @@ export const SONGS: readonly PoolSong[] = [
            C6:1 C6:1 A5:1
            E5:.67 C5:.33 D5:1.67 A4:2 A4:.33
            C5:.67 C5:.33 D5:.67 C5:.33 D5:1 A4:3`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/charles-hit-the-road-jack-mid",
     // second source: https://bitmidi.com/hit-the-road-jack-mid
-    unsure: NEW,
   },
   {
     // Two files agree on the bass riff: another-one-bites-the-dust-1-mid, channel 1,
@@ -382,10 +376,9 @@ export const SONGS: readonly PoolSong[] = [
            E4:.5 E4:.5 G4:.5 E4:.25 A4:1.75 A4:.25 G4:.25
            E4:.5 R:.5 E4:.5 R:.5 E4:.5 R:1.25 E4:.25
            E4:.5 E4:.5 G4:.5 E4:.25 A4:2`,
-    confidence: 3,
+    confidence: 4,
     source: "https://bitmidi.com/another-one-bites-the-dust-1-mid",
     // second source: https://bitmidi.com/another-one-bites-the-dust-2-mid
-    unsure: NEW + "; a bass riff, like the dropped Billie Jean",
   },
   {
     // popcorn-2-mid, channel 3, bars 7–11; popcorn-1-mid, channel 4, has the same
@@ -401,9 +394,8 @@ export const SONGS: readonly PoolSong[] = [
            B5:.5 F#5:.5 D5:.5 F#5:.5 B4:1 B5:.5 C#6:.5
            D6:.5 C#6:.5 D6:.5 B5:.5 C#6:.5 B5:.5 C#6:.5 A5:.5
            B5:.5 A5:.5 B5:.5 G5:.5 B5:1`,
-    confidence: 2,
+    confidence: 4,
     source: "https://bitmidi.com/popcorn-2-mid",
     // second source (pitches only): https://bitmidi.com/popcorn-1-mid
-    unsure: NEW + "; the two files differ in rhythm",
   },
 ];
