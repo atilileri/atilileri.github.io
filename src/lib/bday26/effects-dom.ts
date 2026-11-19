@@ -194,7 +194,12 @@ function hiss(ac: AudioContext, out: AudioNode, at: number, length: number, leve
   src.stop(at + length + 0.05);
 }
 
-/** The one-shot sounds. Each is short; levels are balanced by ear. */
+/** The one-shot sounds, all synthesised (no files, nothing recorded) and
+ *  short. BALANCE: the quiz celebrations peak near 0.18 of full scale; every
+ *  other one-shot stays at or under that, the frequent ones (key ticks,
+ *  footsteps, flips) well under it, and the loops lowest of all, so an
+ *  evening of play stays gentle. Low thumps get a little more level than
+ *  bright sounds because the ear hears them less. */
 const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: number) => void>> = {
   chime: celebration((ac, out, t, C) => {
     bell(ac, out, C + 4, t, 0.5);
@@ -296,7 +301,7 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
   },
   /** The canal: a splash of falling noise and a couple of bubbles. */
   splash(ac, out, t) {
-    hiss(ac, out, t, 0.7, 0.2, "lowpass", 4000, 300, 0.6, 0.01);
+    hiss(ac, out, t, 0.6, 0.16, "lowpass", 4000, 300, 0.6, 0.01);
     hiss(ac, out, t + 0.05, 0.35, 0.08, "bandpass", 1800, 600, 1.2, 0.01);
     for (let i = 0; i < 3; i++) {
       const at = t + 0.25 + i * 0.12 + Math.random() * 0.05;
@@ -306,7 +311,7 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
   },
   /** A curb or a crash: a low thump with a knock on top. */
   bump(ac, out, t) {
-    tone(ac, out, 130, 45, t, 0.25, "sine", 0.3, 0.004);
+    tone(ac, out, 130, 45, t, 0.25, "sine", 0.22, 0.004);
     hiss(ac, out, t, 0.12, 0.12, "lowpass", 900, 200, 0.8, 0.002);
   },
   /** A mistake named: a short, soft two-tone warning. */
@@ -426,7 +431,7 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
         smooth(saw.frequency, f, now);
         smooth(sub.frequency, f / 2, now);
         smooth(lp.frequency, 300 + speed * 700 + throttle * 500, now);
-        smooth(gain.gain, 0.04 + speed * 0.03 + throttle * 0.035, now, 0.12);
+        smooth(gain.gain, 0.03 + speed * 0.025 + throttle * 0.03, now, 0.12);
       },
     };
   },
