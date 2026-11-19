@@ -123,6 +123,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     GRID_H,
     GRID_W,
     MISTAKES,
+    PX_PER_M,
     ROADS,
     ROUNDABOUT,
     ROUTE,
@@ -141,6 +142,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     type Input,
     type Mistake,
   } from "../../../lib/bday26/surus";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
   const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
   const stage = $<HTMLElement>("[data-stage]");
@@ -193,6 +195,9 @@ const LIMIT = formatClock(RULES.timeLimit);
     cam.y = drive.car.y;
     keys.clear();
     toasts.replaceChildren();
+    hardBraking = false;
+    nearQuiet = 0;
+    riderQuiet.clear();
     phase = "countdown";
     countdown = COUNTDOWN;
     paused = false;
@@ -201,6 +206,47 @@ const LIMIT = formatClock(RULES.timeLimit);
     countEl.textContent = String(COUNTDOWN);
     paintHud();
     loop.start();
+  }
+
+  // ── sounds ────────────────────────────────────────────────────────
+  // All through the shared effects switch: the engine follows her speed and
+  // gas, a soft traffic hum sits under the town, hard braking squeals, a
+  // cyclist close by rings a bell or chats, the canal splashes, a curb or a
+  // crash bumps, and every mistake the HUD names gives a short warning tone.
+  // The loops stop on her pause, on the leave confirm and at the finish.
+  const engineSound = effects.loop("engine");
+  const trafficSound = effects.loop("traffic");
+  let hardBraking = false;
+  /** Seconds until any cyclist may ring again, and per rider. */
+  let nearQuiet = 0;
+  const riderQuiet = new Map<Cyclist, number>();
+  const NEAR_PX = 7 * PX_PER_M;
+
+  function sounds(dt: number, made: Mistake[], keysNow: Input | undefined) {
+    const kmh = carKmh(drive);
+    const sinking = drive.sinking > 0;
+    engineSound.start({ speed: sinking ? 0 : Math.min(1, kmh / RULES.vmax), throttle: keysNow?.gas && !sinking ? 1 : 0 });
+    trafficSound.start({ level: 1 });
+    if (!keysNow) return;
+    const hard = !sinking && kmh > 22 && ((keysNow.brake && drive.car.v > 0) || keysNow.handbrake);
+    if (hard && !hardBraking) effects.sound("brake");
+    hardBraking = hard;
+    nearQuiet -= dt;
+    for (const c of drive.cyclists) {
+      const quiet = (riderQuiet.get(c) ?? 0) - dt;
+      riderQuiet.set(c, quiet);
+      if (nearQuiet > 0 || quiet > 0 || c.fallen > 0) continue;
+      if (Math.hypot(c.x - drive.car.x, c.y - drive.car.y) < NEAR_PX) {
+        effects.sound(Math.random() < 0.6 ? "bell" : "chatter");
+        riderQuiet.set(c, 10);
+        nearQuiet = 2.5;
+      }
+    }
+    for (const m of made) {
+      if (m.id === "canal") effects.sound("splash");
+      else if (m.id === "crash" || m.id === "curb" || m.id === "cyclist") effects.sound("bump");
+      effects.sound("warn");
+    }
   }
 
   function input(): Input {
@@ -221,8 +267,12 @@ const LIMIT = formatClock(RULES.timeLimit);
         phase = "driving";
         countEl.hidden = true;
       } else countEl.textContent = String(Math.ceil(countdown));
+      sounds(dt, [], undefined);
     } else if (phase === "driving") {
-      for (const m of stepDrive(drive, input(), dt)) toast(m);
+      const keysNow = input();
+      const made = stepDrive(drive, keysNow, dt);
+      for (const m of made) toast(m);
+      sounds(dt, made, keysNow);
     }
     ageToasts(dt);
     render(now);
@@ -242,12 +292,15 @@ const LIMIT = formatClock(RULES.timeLimit);
     held = on;
     pauseEl.hidden = !on;
     keys.clear();
-    if (on) loop.stop();
-    else loop.start();
+    if (on) {
+      loop.stop();
+      effects.stopLoops();
+    } else loop.start();
   }
 
   function finishRound() {
     loop.stop();
+    effects.stopLoops();
     phase = "idle";
     const { heavy, light } = tally(drive.mistakes);
     const score = drivingScore(heavy, light);
@@ -636,6 +689,7 @@ const LIMIT = formatClock(RULES.timeLimit);
       startRound,
       abandonRound: () => {
         loop.stop();
+        effects.stopLoops();
         phase = "idle";
         held = false;
         pauseEl.hidden = true;
@@ -646,6 +700,7 @@ const LIMIT = formatClock(RULES.timeLimit);
         paused = true;
         keys.clear();
         loop.stop();
+        effects.stopLoops();
       },
       resume: () => {
         paused = false;

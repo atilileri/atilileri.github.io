@@ -239,6 +239,81 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     hiss(ac, out, t, 0.07, 0.07, "lowpass", vary(700, 0.2), 250, 0.7, 0.004);
     tone(ac, out, vary(110, 0.1), 70, t, 0.06, "sine", 0.05, 0.004);
   },
+  // ── Hollanda'da sürüş ──
+  /** Tyres squealing under hard braking: a wavering high whine. */
+  brake(ac, out, t) {
+    const bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 2600;
+    bp.Q.value = 6;
+    bp.connect(out);
+    const lfo = ac.createOscillator();
+    const depth = ac.createGain();
+    lfo.frequency.value = 18;
+    depth.gain.value = 60;
+    lfo.connect(depth);
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(vary(2500, 0.05), t);
+    osc.frequency.linearRampToValueAtTime(2150, t + 0.55);
+    depth.connect(osc.frequency);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.035, t + 0.05);
+    gain.gain.setValueAtTime(0.035, t + 0.35);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    osc.connect(gain).connect(bp);
+    for (const o of [osc, lfo]) {
+      o.start(t);
+      o.stop(t + 0.65);
+    }
+    hiss(ac, out, t, 0.55, 0.03, "highpass", 3000, 3000, 0.7, 0.04);
+  },
+  /** A bicycle bell: "tring tring", inharmonic partials that ring out. */
+  bell(ac, out, t) {
+    for (const at of [t, t + 0.16]) {
+      const f = vary(2350, 0.03);
+      tone(ac, out, f, f, at, 0.5, "sine", 0.06, 0.002);
+      tone(ac, out, f * 2.76, f * 2.76, at, 0.25, "sine", 0.02, 0.002);
+      tone(ac, out, f * 0.5, f * 0.5, at, 0.12, "triangle", 0.015, 0.002);
+    }
+  },
+  /** Passers-by chatting: a few soft vowel-like murmurs, no words. */
+  chatter(ac, out, t) {
+    const bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = vary(900, 0.2);
+    bp.Q.value = 3;
+    bp.connect(out);
+    const syllables = 4 + Math.floor(Math.random() * 3);
+    let at = t;
+    for (let i = 0; i < syllables; i++) {
+      const len = 0.07 + Math.random() * 0.07;
+      const f = 150 + Math.random() * 110;
+      tone(ac, bp, f, f * vary(1, 0.15), at, len, "sawtooth", 0.05, 0.015);
+      at += len + 0.02 + Math.random() * 0.05;
+    }
+  },
+  /** The canal: a splash of falling noise and a couple of bubbles. */
+  splash(ac, out, t) {
+    hiss(ac, out, t, 0.7, 0.2, "lowpass", 4000, 300, 0.6, 0.01);
+    hiss(ac, out, t + 0.05, 0.35, 0.08, "bandpass", 1800, 600, 1.2, 0.01);
+    for (let i = 0; i < 3; i++) {
+      const at = t + 0.25 + i * 0.12 + Math.random() * 0.05;
+      const f = vary(500, 0.3);
+      tone(ac, out, f, f * 1.8, at, 0.08, "sine", 0.04, 0.005);
+    }
+  },
+  /** A curb or a crash: a low thump with a knock on top. */
+  bump(ac, out, t) {
+    tone(ac, out, 130, 45, t, 0.25, "sine", 0.3, 0.004);
+    hiss(ac, out, t, 0.12, 0.12, "lowpass", 900, 200, 0.8, 0.002);
+  },
+  /** A mistake named: a short, soft two-tone warning. */
+  warn(ac, out, t) {
+    note(ac, out, 81, t, 0.11, "triangle", 0.07);
+    note(ac, out, 77, t + 0.12, 0.16, "triangle", 0.07);
+  },
   // ── Kelime avı ──
   /** A soft key tick: a click of noise and a tiny high blip. */
   key(ac, out, t) {
@@ -279,7 +354,80 @@ function play(name: SoundName) {
 
 type LoopMaker = (ac: AudioContext, out: AudioNode) => { set(p: LoopParams, now: number): void; nodes: AudioScheduledSourceNode[] };
 
-const LOOPS: Partial<Record<LoopName, LoopMaker>> = {};
+const smooth = (param: AudioParam, value: number, now: number, tc = 0.08) => param.setTargetAtTime(value, now, tc);
+
+/** A looping noise source, started at a random place. */
+function noiseLoop(ac: AudioContext): AudioBufferSourceNode {
+  const src = ac.createBufferSource();
+  src.buffer = noise(ac);
+  src.loop = true;
+  src.loopStart = 0;
+  src.loopEnd = 2;
+  return src;
+}
+
+const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
+  /** The car's engine: a low growl whose pitch rises with speed and whose
+   *  volume and brightness rise with the gas. Params: speed, throttle (0..1). */
+  engine(ac, out) {
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.Q.value = 2;
+    const gain = ac.createGain();
+    gain.gain.value = 0.0001;
+    lp.connect(gain).connect(out);
+    const saw = ac.createOscillator();
+    saw.type = "sawtooth";
+    const sub = ac.createOscillator();
+    sub.type = "square";
+    const subGain = ac.createGain();
+    subGain.gain.value = 0.35;
+    saw.connect(lp);
+    sub.connect(subGain).connect(lp);
+    // A little wobble, so it rumbles rather than hums.
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 9;
+    const wobble = ac.createGain();
+    wobble.gain.value = 3;
+    lfo.connect(wobble);
+    wobble.connect(saw.frequency);
+    let speed = 0;
+    let throttle = 0;
+    return {
+      nodes: [saw, sub, lfo],
+      set(p, now) {
+        speed = p.speed ?? speed;
+        throttle = p.throttle ?? throttle;
+        const f = 42 + speed * 95 + throttle * 12;
+        smooth(saw.frequency, f, now);
+        smooth(sub.frequency, f / 2, now);
+        smooth(lp.frequency, 300 + speed * 700 + throttle * 500, now);
+        smooth(gain.gain, 0.04 + speed * 0.03 + throttle * 0.035, now, 0.12);
+      },
+    };
+  },
+  /** Distant traffic: a soft low rumble that breathes. Param: level (0..1). */
+  traffic(ac, out) {
+    const src = noiseLoop(ac);
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 260;
+    const gain = ac.createGain();
+    gain.gain.value = 0.0001;
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 0.13;
+    const swell = ac.createGain();
+    swell.gain.value = 0.012;
+    lfo.connect(swell).connect(gain.gain);
+    src.connect(lp).connect(gain).connect(out);
+    return {
+      nodes: [src, lfo],
+      set(p, now) {
+        smooth(gain.gain, 0.035 * (p.level ?? 1), now, 0.5);
+      },
+    };
+  },
+};
 
 /** A continuous sound: faded in, steered smoothly, faded out on stop. */
 function startLoop(name: LoopName): LoopVoice {
