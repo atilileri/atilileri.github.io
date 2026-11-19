@@ -1,0 +1,736 @@
+<!doctype html>
+<!--
+  PROTOTYPE (#216) — throwaway. "How does Barista feel, and how wide are its bands?"
+  Not the real site. One shot = 3 steps (grind to a dose, tamp to a pressure,
+  pull to a yield); in each step she holds Space and lets go inside a target
+  band. One Round = 3 shots, the band narrows each shot; each step scores
+  0–100 by distance from the band centre; the Round is the mean of the 9 steps.
+
+  Open tuning, switchable from the floating bottom bar (and the URL):
+    ?band=wide|medium|narrow     band half-width, as a time window at the fill speed
+    ?speed=constant|accel|osc    fills once at a constant speed / fills once, speeding up /
+                                 swings back and forth until she lets go
+    ?curve=linear|flat           100 at the centre falling to 85 at the edge /
+                                 100 across the inner half of the band, then to 85 at the edge
+  Keys on the bar: ← → band, ↑ ↓ speed, C curve. F2 opens Atıl's panel
+  (full state, step log, her measured timing spread, the "95% in how many
+  Rounds" simulator). ?bar=0 hides the bar.
+
+  The playable mechanic is plain JS + inline SVG; the screens around it
+  (start, HUD, result) follow stageshow's craft rules in plain CSS on the
+  live site's tokens (src/styles/bday26.css, GameShell.astro), because the
+  kit is React/TS and this must be one self-contained file. All drawings are
+  original shapes; no brand art.
+-->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Prototip: Barista</title>
+<style>
+@font-face{font-family:"Nunito";font-weight:200 1000;font-display:swap;src:url("/20261209/fonts/nunito-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F}
+@font-face{font-family:"Nunito";font-weight:200 1000;font-display:swap;src:url("/20261209/fonts/nunito-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212}
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url("/20261209/fonts/baloo2-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F}
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url("/20261209/fonts/baloo2-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212}
+:root{
+  --bd-font:"Nunito",system-ui,sans-serif; --bd-display:"Baloo 2","Nunito",system-ui,sans-serif;
+  --bd-bg:#fffaf5; --bd-paper:#fff; --bd-accent:#e0446a; --bd-accent-deep:#c2264f; --bd-accent-soft:#ffe6ec;
+  --bd-dash:#f2d3db; --bd-gold:#ffb703; --bd-ink:#3a2d2a; --bd-ink-soft:#5d4f4b; --bd-muted:#8d7d78; --bd-muted-2:#9b8a85;
+  --bd-line:#f2e4df; --bd-line-soft:#f6ece8; --bd-track:#f6ebe7;
+  --bd-won:#2fb67c; --bd-won-bg:#effaf4; --bd-won-bg-2:#dcf5e9; --bd-won-ink:#1f8a5b; --bd-won-deep:#155c3d;
+  --bd-gift-bg:#fff1d6; --bd-gift-fg:#b7791f; --bd-wrong:#d9453d; --bd-wrong-bg:#fdeae8;
+  --coffee:#5b3a29; --coffee-dark:#3b2418; --crema:#c98d52; --steel:#c9c4c0; --steel-dark:#8f8984; --machine:#3a2d2a;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);-webkit-font-smoothing:antialiased;display:flex;overflow:hidden}
+.shell{position:relative;flex:1;min-width:0;height:100vh;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+kbd{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 7px;border-radius:7px;background:var(--bd-paper);box-shadow:0 0 0 1.5px var(--bd-line),0 2px 0 var(--bd-line);font:800 12px var(--bd-font);color:var(--bd-ink-soft);white-space:nowrap}
+.bd-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:0;border-radius:999px;font:800 14px/1 var(--bd-font);cursor:pointer}
+.bd-btn.primary{background:var(--bd-accent);color:#fff;box-shadow:0 4px 12px -6px var(--bd-accent)}
+.bd-btn.primary:hover{background:var(--bd-accent-deep)}
+.bd-btn.primary kbd{background:rgba(255,255,255,.18);color:#fff;box-shadow:none}
+.bd-btn.secondary{background:var(--bd-paper);color:var(--bd-accent-deep);box-shadow:0 0 0 1.5px var(--bd-accent-soft)}
+.bd-btn.ghost{background:transparent;color:var(--bd-ink-soft)}
+.bd-btn.ghost:hover,.bd-btn.secondary:hover{background:var(--bd-accent-soft)}
+.label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--bd-muted-2);font-weight:700}
+
+/* ── HUD (as GameShell.astro) ─────────────────────────────── */
+.hud{display:flex;align-items:center;gap:24px;padding:12px 28px;border-bottom:2px dashed var(--bd-dash)}
+.hud-game{display:flex;align-items:center;gap:10px;min-width:240px}
+.hud-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--bd-accent-soft)}
+.hud-name{font:800 22px/1.1 var(--bd-display);color:var(--bd-accent-deep)}
+.hud-mid{flex:1;display:flex;justify-content:center;align-items:center;gap:22px}
+.hud-facts{display:flex;gap:22px;margin:0}
+.hud-facts div{text-align:right}
+.hud-facts dd{margin:0;font:800 22px/1.1 var(--bd-display);font-variant-numeric:tabular-nums}
+.hud-exit{display:inline-flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;border:0;border-radius:999px;background:var(--bd-paper);box-shadow:0 0 0 1.5px var(--bd-line);font:800 13px var(--bd-font);color:var(--bd-ink-soft);cursor:pointer}
+/* shot pips: 3 shots × 3 steps */
+.shots{display:flex;gap:14px}
+.shot{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--bd-track)}
+.shot.cur{background:var(--bd-accent-soft)}
+.pip{width:34px;height:26px;border-radius:8px;background:var(--bd-paper);display:grid;place-items:center;font:800 13px/1 var(--bd-display);color:var(--bd-muted-2);font-variant-numeric:tabular-nums}
+.pip.cur{box-shadow:0 0 0 2px var(--bd-accent);color:var(--bd-accent-deep)}
+.pip.hi{background:var(--bd-won-bg-2);color:var(--bd-won-deep)}
+.pip.mid{background:var(--bd-gift-bg);color:var(--bd-gift-fg)}
+.pip.lo{background:var(--bd-wrong-bg);color:var(--bd-wrong)}
+.mean{text-align:left;min-width:92px}
+.mean .v{font:800 24px/1.05 var(--bd-display);font-variant-numeric:tabular-nums}
+
+/* ── playfield ─────────────────────────────────────────────── */
+.playfield{position:relative;display:grid;grid-template-rows:auto minmax(0,auto) auto;align-content:center;justify-items:center;padding:16px 28px 84px;gap:18px;min-height:0}
+.stepbar{display:flex;align-items:baseline;gap:14px}
+.stepbar .n{font:800 15px var(--bd-font);color:var(--bd-muted);letter-spacing:.02em}
+.stepbar .t{font:800 34px/1 var(--bd-display);color:var(--bd-ink)}
+.stepbar .goal{font:700 17px var(--bd-font);color:var(--bd-ink-soft)}
+.stepbar .goal b{color:var(--bd-won-ink);font-variant-numeric:tabular-nums}
+.bench{display:grid;grid-template-columns:minmax(0,680px) 340px;gap:28px;align-items:center;min-height:0;height:min(640px,calc(100vh - 260px));width:min(1080px,100%)}
+.scene{height:100%;min-height:0;display:grid;place-items:center;background:linear-gradient(#fffdfb,#fbf1ea);border-radius:22px;box-shadow:0 0 0 1.5px var(--bd-line);overflow:hidden;position:relative}
+.scene svg{width:100%;height:100%;display:block}
+.scene svg[hidden]{display:none}
+.instr{display:grid;gap:14px;align-content:center}
+.readout{background:#2b2422;border-radius:16px;padding:14px 18px 12px;color:#ffe9c7;box-shadow:inset 0 0 0 2px #463a36}
+.readout .rl{font:700 11px var(--bd-font);letter-spacing:.08em;text-transform:uppercase;color:#bfa58d}
+.readout .rv{font:600 48px/1.05 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 0 12px rgba(255,190,110,.35)}
+.readout .rv small{font-size:20px;margin-left:6px;color:#d9bf9f}
+.readout .row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.readout .timer{font:600 22px/1 var(--mono);color:#ffd7a0}
+/* the band meter: horizontal, under the readout */
+.meter{position:relative;height:46px;border-radius:12px;background:var(--bd-track);overflow:hidden;box-shadow:inset 0 0 0 1.5px var(--bd-line)}
+.meter .band{position:absolute;top:0;bottom:0;background:rgba(47,182,124,.22);border-left:2px solid var(--bd-won);border-right:2px solid var(--bd-won)}
+.meter .band.flat::after{content:"";position:absolute;top:0;bottom:0;left:25%;right:25%;background:rgba(47,182,124,.22)}
+.meter .centre{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--bd-won-ink)}
+.meter .fill{position:absolute;left:0;top:13px;bottom:13px;border-radius:0 6px 6px 0;background:var(--coffee);width:0}
+.meter .needle{position:absolute;top:4px;bottom:4px;width:4px;margin-left:-2px;border-radius:2px;background:var(--bd-ink);left:0}
+.meter.hit .needle{background:var(--bd-won-ink)} .meter.miss .needle{background:var(--bd-wrong)}
+.scale{display:flex;justify-content:space-between;font:700 11px var(--bd-font);color:var(--bd-muted-2);margin-top:-8px;font-variant-numeric:tabular-nums}
+.gauge{display:block;width:100%;height:auto}
+.gauge[hidden]{display:none}
+/* the last step, in full (the ticket asks for the whole state on screen) */
+.last{background:var(--bd-paper);border-radius:16px;box-shadow:0 0 0 1.5px var(--bd-line);padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:13px;color:var(--bd-muted)}
+.last b{display:block;font:800 18px/1.15 var(--bd-display);color:var(--bd-ink);font-variant-numeric:tabular-nums}
+.last .verdict{grid-column:1/-1;font-weight:800;font-size:14px;color:var(--bd-ink-soft)}
+.last .verdict.hit{color:var(--bd-won-ink)} .last .verdict.miss{color:var(--bd-wrong)}
+.last.empty{visibility:hidden}
+.hint{display:flex;align-items:center;gap:12px;font-weight:800;font-size:16px;color:var(--bd-ink-soft);background:var(--bd-paper);border-radius:999px;padding:8px 18px 8px 10px;box-shadow:0 0 0 1.5px var(--bd-line),0 6px 18px -10px rgba(58,45,42,.35)}
+.hint kbd{min-width:96px;height:30px;font-size:13px}
+.hint.holding kbd{transform:translateY(2px);box-shadow:0 0 0 1.5px var(--bd-accent);color:var(--bd-accent-deep)}
+
+/* scene animation bits */
+.flow{stroke-dasharray:3 9;animation:flow .35s linear infinite;opacity:0;transition:opacity .12s}
+.flow.thin{stroke-dasharray:14 6;animation-duration:.5s}
+.holding .flow{opacity:1}
+@keyframes flow{to{stroke-dashoffset:-12}}
+.holding .grind-rumble{animation:rumble .08s linear infinite}
+@keyframes rumble{50%{transform:translate(.6px,-.4px)}}
+.drip{opacity:0}
+.holding .drip{animation:drip .6s ease-in infinite;opacity:1}
+@keyframes drip{from{transform:translateY(0);opacity:1}to{transform:translateY(60px);opacity:0}}
+
+/* ── screens (as GameShell.astro) ─────────────────────────── */
+.screen{position:absolute;inset:0;z-index:10;display:grid;place-items:center;background:rgba(255,250,245,.82);backdrop-filter:blur(4px);padding:16px}
+.screen[hidden]{display:none}
+.card{width:min(600px,92vw);background:var(--bd-paper);border-radius:28px;box-shadow:0 0 0 1.5px var(--bd-line),0 24px 60px -24px rgba(58,45,42,.35);padding:34px 40px 28px;display:grid;gap:14px;justify-items:center;text-align:center;animation:card-in .3s cubic-bezier(.22,1,.36,1) both}
+.card.narrow{width:min(460px,90vw)}
+@keyframes card-in{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.big-icon{width:76px;height:76px;border-radius:22px;display:grid;place-items:center;background:var(--bd-accent-soft)}
+.title{margin:0;font:800 40px/1.05 var(--bd-display);color:var(--bd-accent-deep)}
+.title.small{font-size:30px;color:var(--bd-ink)}
+.rule{margin:0;font-size:18px;color:var(--bd-muted)}
+.keys{display:grid;grid-template-columns:auto auto;gap:8px 28px;margin:6px 0;padding:0;list-style:none;text-align:left;font-size:14px;color:var(--bd-ink-soft)}
+.keys li{display:flex;align-items:center;gap:10px}
+.line{margin:0;font-size:15px;color:var(--bd-muted)} .line b{color:var(--bd-ink)}
+.eyebrow{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--bd-muted-2);font-weight:800}
+.score{margin:0;font:800 96px/1 var(--bd-display);color:var(--bd-accent-deep);font-variant-numeric:tabular-nums}
+.score.win{color:var(--bd-won-ink)}
+.facts{display:flex;gap:36px;margin:4px 0 0}
+.facts dd{margin:0;font:800 28px/1.1 var(--bd-display)}
+.flash{margin:0;font-weight:800;font-size:15px;padding:6px 14px;border-radius:999px;background:var(--bd-gift-bg);color:var(--bd-gift-fg)}
+.flash.won{background:var(--bd-won-bg-2);color:var(--bd-won-deep)}
+.actions{display:flex;gap:10px;margin-top:6px}
+.grid9{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px 6px;width:100%;max-width:420px;font-size:13px;color:var(--bd-muted)}
+.grid9 .h{font-weight:800;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--bd-muted-2)}
+.grid9 .c{border-radius:8px;padding:4px 0;font:800 16px/1.2 var(--bd-display);font-variant-numeric:tabular-nums}
+.grid9 .r{text-align:left;font-weight:700;padding-right:6px;align-self:center}
+
+/* ── prototype chrome (for Atıl, not Çağla) ───────────────── */
+#vbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;display:flex;gap:6px;align-items:center;background:#1d1d1f;color:#f2f2f3;border-radius:999px;padding:6px 8px;box-shadow:0 1px 2px rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.3);font:600 12.5px system-ui,sans-serif}
+#vbar[hidden]{display:none}
+#vbar .g{display:flex;align-items:center;gap:2px;padding:0 4px}
+#vbar .g+.g{border-left:1px solid rgba(255,255,255,.15);padding-left:8px}
+#vbar button{border:0;background:transparent;color:#f2f2f3;font:inherit;border-radius:999px;width:24px;height:24px;cursor:pointer}
+#vbar button:hover{background:rgba(255,255,255,.12)}
+#vbar .k{color:#9a9aa0;margin-right:4px}
+#vbar .v{min-width:86px;text-align:center}
+#vbar .kb{color:#7d7d84;font-size:11px;margin-left:2px}
+#vbar .tag{background:#e8743b;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;letter-spacing:.04em}
+#dbg{width:360px;flex-shrink:0;height:100vh;overflow:auto;background:#fff;border-left:1px solid rgba(0,0,0,.1);font:12.5px/1.45 system-ui,sans-serif;color:#333}
+#dbg[hidden]{display:none}
+#dbg header{position:sticky;top:0;background:#fff;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.1);display:flex;justify-content:space-between;z-index:1}
+#dbg header b{font-size:12px;letter-spacing:.06em;color:#e8743b}
+#dbg header span{color:#888;font-size:11px}
+#dbg section{padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.06)}
+#dbg h3{margin:0 0 8px;font-size:11px;color:#888;letter-spacing:.04em;text-transform:uppercase}
+#dbg pre{font:11.5px/1.5 var(--mono);white-space:pre-wrap;margin:0;color:#1d1d1f}
+#dbg table{width:100%;border-collapse:collapse;font:11px var(--mono)}
+#dbg th{text-align:right;color:#888;font-weight:600;padding:2px 3px}
+#dbg td{text-align:right;padding:3px;border-top:1px solid rgba(0,0,0,.06)}
+#dbg th:first-child,#dbg td:first-child{text-align:left}
+#dbg tr.cur td{background:#fdebe1}
+.knob{display:grid;grid-template-columns:1fr 64px;gap:2px 8px;align-items:center;margin-bottom:6px}
+.knob output{text-align:right;font:12px var(--mono)}
+.knob input{grid-column:1/-1;width:100%;accent-color:#e8743b;margin:0}
+.note{color:#888;font-size:11.5px;margin:6px 0 0}
+.sum{margin-top:8px;padding:8px 10px;background:#f6f5f2;border-radius:8px}
+#log{margin:0;padding:0;list-style:none;font:11px var(--mono)}
+#log li{padding:2px 0;border-top:1px solid rgba(0,0,0,.05)}
+#toggleDbg{position:absolute;right:16px;bottom:18px;z-index:12;border:1px solid rgba(0,0,0,.1);background:#fff;color:#555;border-radius:8px;font:600 11px system-ui,sans-serif;padding:5px 8px;cursor:pointer}
+</style>
+</head>
+<body>
+<main class="shell" id="shell">
+  <header class="hud">
+    <div class="hud-game">
+      <span class="hud-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="#c2264f"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16" fill="none" stroke="#c2264f" stroke-width="2"/><path d="M8 3c-1 1.5 1 2 0 4M12 3c-1 1.5 1 2 0 4" stroke="#e0446a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>
+      <div class="hud-name">Barista</div>
+    </div>
+    <div class="hud-mid">
+      <div class="shots" id="shots"></div>
+      <div class="mean"><span class="label">Tur ortalaması</span><div class="v" id="vMean">—</div></div>
+    </div>
+    <dl class="hud-facts">
+      <div><dt class="label">Rekor</dt><dd id="vBest">—</dd></div>
+      <div><dt class="label">Hedef</dt><dd>%95</dd></div>
+    </dl>
+    <button class="hud-exit" id="bExit" tabindex="-1">Çık <kbd>Esc</kbd></button>
+  </header>
+
+  <section class="playfield">
+    <div class="stepbar"><span class="n" id="sN">Çekim 1 / 3 · Adım 1 / 3</span><span class="t" id="sT">Öğütme</span><span class="goal" id="sG"></span></div>
+    <div class="bench">
+      <div class="scene" id="scene">
+        <!-- 1. grinder filling a portafilter on a scale -->
+        <svg id="scGrind" viewBox="0 0 560 460" aria-hidden="true">
+          <rect x="0" y="408" width="560" height="52" fill="#ead9cb"/><rect x="0" y="406" width="560" height="4" fill="#dcc5b3"/>
+          <g class="grind-rumble">
+            <!-- hopper -->
+            <path d="M196 30h168l-24 78H220z" fill="#f4e9e0" stroke="#d8c5b8" stroke-width="3" stroke-linejoin="round"/>
+            <g fill="#6b4430"><ellipse cx="236" cy="92" rx="9" ry="6"/><ellipse cx="256" cy="96" rx="9" ry="6" transform="rotate(30 256 96)"/><ellipse cx="278" cy="90" rx="9" ry="6" transform="rotate(-20 278 90)"/><ellipse cx="300" cy="95" rx="9" ry="6"/><ellipse cx="322" cy="90" rx="9" ry="6" transform="rotate(40 322 90)"/><ellipse cx="246" cy="78" rx="9" ry="6" transform="rotate(-35 246 78)"/><ellipse cx="270" cy="74" rx="9" ry="6"/><ellipse cx="294" cy="78" rx="9" ry="6" transform="rotate(25 294 78)"/><ellipse cx="316" cy="74" rx="9" ry="6" transform="rotate(-10 316 74)"/><ellipse cx="282" cy="60" rx="9" ry="6" transform="rotate(15 282 60)"/><ellipse cx="258" cy="58" rx="9" ry="6"/><ellipse cx="306" cy="58" rx="9" ry="6" transform="rotate(-30 306 58)"/></g>
+            <rect x="214" y="106" width="132" height="12" rx="4" fill="#5d4f4b"/>
+            <!-- body -->
+            <rect x="190" y="116" width="180" height="168" rx="22" fill="var(--machine)"/>
+            <rect x="206" y="132" width="148" height="56" rx="12" fill="#4a3c38"/>
+            <circle cx="236" cy="160" r="12" fill="#2b2422" stroke="#6e5e58" stroke-width="2"/><circle cx="236" cy="160" r="3" fill="#e0446a"/>
+            <rect x="262" y="150" width="76" height="22" rx="6" fill="#2b2422"/><text x="300" y="166" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="13" fill="#ffd7a0" id="gTimer">00,0</text>
+            <!-- spout -->
+            <path d="M262 284h36l-6 26h-24z" fill="#2b2422"/>
+          </g>
+          <!-- the stream of grounds -->
+          <line class="flow" x1="280" y1="312" x2="280" y2="342" stroke="#6b4430" stroke-width="5" stroke-linecap="round"/>
+          <line class="flow" x1="274" y1="314" x2="276" y2="340" stroke="#8a5a3c" stroke-width="3" stroke-linecap="round" style="animation-delay:-.15s"/>
+          <!-- portafilter on the scale -->
+          <rect x="170" y="384" width="220" height="24" rx="8" fill="#d9d3ce"/><rect x="176" y="380" width="208" height="8" rx="4" fill="#ece8e4"/>
+          <rect x="318" y="389" width="58" height="15" rx="4" fill="#2b2422"/><text x="370" y="401" text-anchor="end" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#ffd7a0" id="gScale">0,0 g</text>
+          <path d="M236 352h88l-8 28h-72z" fill="var(--steel-dark)"/>
+          <rect x="228" y="346" width="104" height="10" rx="4" fill="var(--steel)"/>
+          <path d="M332 350h28c4 0 4 0 6 2l110 18c8 2 8 12 0 13l-112-12h-32z" fill="#2b2422"/>
+          <clipPath id="basketClip"><rect x="230" y="250" width="100" height="100"/></clipPath>
+          <ellipse id="gMound" cx="280" cy="348" rx="20" ry="0" fill="var(--coffee)" clip-path="url(#basketClip)"/>
+        </svg>
+
+        <!-- 2. tamping the bed in the portafilter -->
+        <svg id="scTamp" viewBox="0 0 560 460" aria-hidden="true" hidden>
+          <rect x="0" y="408" width="560" height="52" fill="#ead9cb"/><rect x="0" y="406" width="560" height="4" fill="#dcc5b3"/>
+          <!-- tamping mat -->
+          <rect x="140" y="390" width="260" height="18" rx="8" fill="#5d4f4b"/>
+          <!-- portafilter, seen from the side -->
+          <path d="M196 300h148l-10 90H206z" fill="var(--steel-dark)"/>
+          <rect x="186" y="292" width="168" height="14" rx="5" fill="var(--steel)"/>
+          <path d="M354 300h30l140 30c10 2 10 16 0 18l-140-16h-30z" fill="#2b2422"/>
+          <!-- coffee bed (its top drops as she presses) -->
+          <rect id="tBed" x="202" y="306" width="136" height="40" fill="var(--coffee)"/>
+          <!-- tamper -->
+          <g id="tTamper">
+            <rect x="204" y="270" width="132" height="34" rx="6" fill="#d9d3ce" stroke="#bdb6b0" stroke-width="2"/>
+            <rect x="204" y="270" width="132" height="8" rx="4" fill="#ece8e4"/>
+            <path d="M252 270c0-26 6-40 18-50 12 10 18 24 18 50z" fill="#8f8984"/>
+            <ellipse cx="270" cy="196" rx="44" ry="34" fill="#c2264f"/>
+            <ellipse cx="258" cy="184" rx="16" ry="9" fill="#e0446a" opacity=".7"/>
+          </g>
+          <!-- press arrows -->
+          <g id="tArrows" opacity="0"><path d="M160 150v60m-10-12 10 12 10-12M380 150v60m-10-12 10 12 10-12" stroke="#c2264f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </svg>
+
+        <!-- 3. pulling the shot into a cup on a scale -->
+        <svg id="scPull" viewBox="0 0 560 460" aria-hidden="true" hidden>
+          <rect x="0" y="408" width="560" height="52" fill="#ead9cb"/><rect x="0" y="406" width="560" height="4" fill="#dcc5b3"/>
+          <!-- machine -->
+          <rect x="90" y="0" width="380" height="150" rx="0" fill="var(--machine)"/>
+          <rect x="90" y="138" width="380" height="20" fill="#2b2422"/>
+          <rect x="120" y="30" width="110" height="62" rx="12" fill="#4a3c38"/>
+          <circle cx="175" cy="61" r="20" fill="#f4e9e0"/><path d="M175 61l12-9" stroke="#c2264f" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="400" cy="60" r="16" fill="#4a3c38" stroke="#6e5e58" stroke-width="2"/><circle cx="400" cy="60" r="5" id="pLamp" fill="#6e5e58"/>
+          <!-- group head and portafilter -->
+          <rect x="226" y="158" width="108" height="26" rx="6" fill="var(--steel)"/>
+          <path d="M232 184h96l-8 30h-80z" fill="var(--steel-dark)"/>
+          <path d="M328 190h20l150 -12c10 0 12 14 2 16l-150 20h-22z" fill="#2b2422"/>
+          <path d="M268 214h24l-4 12h-16z" fill="#6e6863"/>
+          <!-- streams -->
+          <line class="flow thin" x1="276" y1="226" x2="276" y2="330" stroke="var(--coffee)" stroke-width="3.5" stroke-linecap="round"/>
+          <line class="flow thin" x1="284" y1="226" x2="284" y2="330" stroke="var(--coffee)" stroke-width="3.5" stroke-linecap="round" style="animation-delay:-.25s"/>
+          <circle class="drip" cx="280" cy="230" r="3" fill="var(--coffee)"/>
+          <!-- scale -->
+          <rect x="170" y="384" width="220" height="24" rx="8" fill="#d9d3ce"/><rect x="176" y="380" width="208" height="8" rx="4" fill="#ece8e4"/>
+          <rect x="318" y="389" width="58" height="15" rx="4" fill="#2b2422"/><text x="370" y="401" text-anchor="end" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#ffd7a0" id="pScale">0,0 g</text>
+          <!-- glass cup -->
+          <clipPath id="cupClip"><path d="M234 300h92l-8 78h-76z"/></clipPath>
+          <g clip-path="url(#cupClip)">
+            <rect id="pLiquid" x="230" y="380" width="100" height="0" fill="var(--coffee-dark)"/>
+            <rect id="pCrema" x="230" y="380" width="100" height="0" fill="var(--crema)"/>
+          </g>
+          <path d="M234 300h92l-8 78h-76z" fill="rgba(255,255,255,.25)" stroke="#cfc5bf" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M326 316c22 0 22 40 -4 40" fill="none" stroke="#cfc5bf" stroke-width="5"/>
+        </svg>
+      </div>
+
+      <div class="instr">
+        <div class="readout">
+          <div class="row"><div><div class="rl" id="rL">Doz</div><div class="rv"><span id="rV">0,0</span><small id="rU">g</small></div></div><div id="rT" class="timer" hidden>0 sn</div></div>
+        </div>
+        <svg class="gauge" id="gauge" viewBox="0 0 320 200" hidden>
+          <path id="gTrack" fill="none" stroke="#f6ebe7" stroke-width="22"/>
+          <path id="gBand" fill="none" stroke="rgba(47,182,124,.45)" stroke-width="22"/>
+          <path id="gBandIn" fill="none" stroke="rgba(47,182,124,.75)" stroke-width="22"/>
+          <g id="gTicks" stroke="#b9a8a3" stroke-width="2"></g>
+          <g id="gNums" font-family="Nunito,system-ui" font-size="11" font-weight="700" fill="#9b8a85" text-anchor="middle"></g>
+          <line id="gNeedle" x1="160" y1="150" x2="160" y2="50" stroke="#3a2d2a" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="160" cy="150" r="10" fill="#3a2d2a"/>
+        </svg>
+        <div id="meterWrap">
+          <div class="meter" id="meter"><div class="band" id="mBand"></div><div class="centre" id="mCentre"></div><div class="fill" id="mFill"></div><div class="needle" id="mNeedle"></div></div>
+          <div class="scale" style="margin-top:4px"><span id="mMin">0</span><span id="mMax">24 g</span></div>
+        </div>
+        <div class="last empty" id="last">
+          <div>Bıraktığın<b id="lV">—</b></div>
+          <div>Bant<b id="lB">—</b></div>
+          <div>Adım puanı<b id="lS">—</b></div>
+          <div>Tur ortalaması<b id="lM">—</b></div>
+          <div class="verdict" id="lVer"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hint" id="hint"><kbd>Space</kbd><span id="hintT">Basılı tut, yeşil bantta bırak</span></div>
+  </section>
+
+  <button id="toggleDbg" title="Ayarlar paneli (F2)">Panel · F2</button>
+
+  <div class="screen" id="sStart">
+    <div class="card">
+      <span class="big-icon" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" fill="#c2264f"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16" fill="none" stroke="#c2264f" stroke-width="2"/><path d="M8 3c-1 1.5 1 2 0 4M12 3c-1 1.5 1 2 0 4" stroke="#e0446a" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>
+      <h2 class="title">Barista</h2>
+      <p class="rule">Üç espresso çek. Her çekimde öğüt, sıkıştır, demle: Space'e basılı tut, yeşil bantta bırak. Bant her çekimde daralır.</p>
+      <ul class="keys">
+        <li><kbd>Space</kbd> Basılı tut, bantta bırak</li>
+        <li><kbd>Esc</kbd> Turdan çık</li>
+      </ul>
+      <p class="line">Rekor <b id="stBest">—</b></p>
+      <p class="line">Küçük ödül: <b>Simon Levelt kahve tadım paketi</b> · %95 yapınca senin</p>
+      <div class="actions">
+        <button class="bd-btn primary" id="bStart">Başla <kbd>Enter</kbd></button>
+        <button class="bd-btn ghost" id="bHub0">Salona dön <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="sExit" hidden>
+    <div class="card narrow">
+      <h2 class="title small">Turdan çıkılsın mı?</h2>
+      <p class="rule">Yarım bırakılan tur skor vermez.</p>
+      <div class="actions">
+        <button class="bd-btn primary" id="bStay">Devam et <kbd>Esc</kbd></button>
+        <button class="bd-btn secondary" id="bLeave">Çık <kbd>Enter</kbd></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="sEnd" hidden>
+    <div class="card">
+      <h2 class="eyebrow">Tur bitti</h2>
+      <p class="score" id="eScore">%0</p>
+      <div class="grid9" id="eGrid"></div>
+      <dl class="facts">
+        <div><dt class="label">Rekor</dt><dd id="eBest">—</dd></div>
+        <div><dt class="label">Hedef</dt><dd>%95</dd></div>
+      </dl>
+      <p class="flash" id="eNew" hidden>Yeni rekor!</p>
+      <p class="flash won" id="ePrize" hidden>Küçük ödül kazandın: Simon Levelt kahve tadım paketi!</p>
+      <div class="actions">
+        <button class="bd-btn primary" id="bAgain">Yeni tur <kbd>Enter</kbd></button>
+        <button class="bd-btn secondary" id="bHub">Salona dön <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<aside id="dbg" hidden>
+  <header><b>PROTOTİP #216</b><span>F2 gizler</span></header>
+  <section><h3>Ayar</h3><pre id="cfg"></pre></section>
+  <section><h3>Durum</h3><pre id="state"></pre></section>
+  <section><h3>Senin zamanlaman</h3><pre id="meas">Henüz adım yok.</pre>
+    <p class="note">Her adımda bıraktığın an, hedefi tam tutturacak andan kaç ms sapmış (hedefteki dolum hızına göre). σ = standart sapma.</p></section>
+  <section><h3>%95 kaç turda? (simülasyon)</h3>
+    <div class="knob"><label for="kSig">Zamanlama σ (ms)</label><output id="oSig">50</output><input id="kSig" type="range" min="25" max="90" step="5" value="50"></div>
+    <div class="knob"><label for="kLapse">Dalgınlık (%, adım başı; σ×4)</label><output id="oLapse">3</output><input id="kLapse" type="range" min="0" max="10" step="1" value="3"></div>
+    <table id="simT"></table>
+    <div class="sum" id="simSum"></div>
+    <p class="note">Model: her adımda bırakma anı, hedefe göre N(0, σ) ms sapar; sapma × hedefteki dolum hızı = birim hatası. Bant yarı genişliği de ms olarak tanımlı (çekim 1/2/3: ×1, ×0,8, ×0,62). Hızlanan dolum hedefte 1,6 kat hızlı, yani aynı bant zamanda 1,6 kat dar. Salınan dolum sabitle aynı hızda (model farkı yok; fark: taşma yok, acele yok). p = bir turda %95+ olasılığı; 1/p = beklenen tur. «Öğrenme» sütunu: σ ilk turda 60 ms, her tur 5 ms iner, 40'ta durur; ilk %95'in beklenen turu.</p>
+  </section>
+  <section><h3>Adım kaydı</h3><ul id="log"></ul></section>
+</aside>
+
+<nav id="vbar" aria-label="Prototip varyantları">
+  <span class="tag">#216</span>
+  <div class="g"><span class="k">Bant</span><button data-d="band" data-s="-1" title="←">‹</button><span class="v" id="vbBand"></span><button data-d="band" data-s="1" title="→">›</button><span class="kb">← →</span></div>
+  <div class="g"><span class="k">Dolum</span><button data-d="speed" data-s="-1" title="↓">‹</button><span class="v" id="vbSpeed"></span><button data-d="speed" data-s="1" title="↑">›</button><span class="kb">↑ ↓</span></div>
+  <div class="g"><span class="k">Eğri</span><button data-d="curve" data-s="-1">‹</button><span class="v" id="vbCurve"></span><button data-d="curve" data-s="1">›</button><span class="kb">C</span></div>
+</nav>
+
+<script>
+"use strict";
+// ---------- the open tuning (the variants) ----------
+const OPTS = {
+  band:  [['wide','Geniş'],['medium','Orta'],['narrow','Dar']],
+  speed: [['constant','Sabit'],['accel','Hızlanan'],['osc','Salınan']],
+  curve: [['linear','Doğrusal'],['flat','Düz tepe']],
+};
+// Band half-width at shot 1, as a time window (ms) at the constant fill speed.
+const BAND_MS = { wide: 120, medium: 85, narrow: 65 };
+const NARROW = [1, 0.8, 0.62];          // shot 1, 2, 3
+const ACCEL_EXP = 1.6;                  // accel: value = target·(t/tt)^1.6 → 1.6× faster at the target
+const EDGE = 85;                        // score at the band edge; 0 at twice the half-width
+const CURVES = {
+  linear: d => d <= 1 ? 100 - (100 - EDGE) * d : Math.max(0, EDGE - EDGE * (d - 1)),
+  flat:   d => d <= .5 ? 100 : d <= 1 ? 100 - (100 - EDGE) * (d - .5) * 2 : Math.max(0, EDGE - EDGE * (d - 1)),
+};
+const qs = new URLSearchParams(location.search);
+const V = {};
+for (const d in OPTS) { const v = qs.get(d); V[d] = OPTS[d].some(o => o[0] === v) ? v : (d === 'band' ? 'medium' : d === 'speed' ? 'constant' : 'flat'); }
+
+// ---------- the three steps ----------
+// tt = seconds from 0 to the target at the constant speed.
+const STEPS = [
+  { key: 'grind', name: 'Öğütme',     lbl: 'Doz',    unit: 'g',  max: 24, target: 18, tt: 1.8, goal: 'öğüt' },
+  { key: 'tamp',  name: 'Sıkıştırma', lbl: 'Basınç', unit: 'kg', max: 30, target: 15, tt: 1.5, goal: 'bastır' },
+  { key: 'pull',  name: 'Demleme',    lbl: 'Verim',  unit: 'g',  max: 50, target: 36, tt: 2.4, goal: 'demle' },
+];
+const SHOT_SECONDS = 27;                 // the pull's timer reads 27 sn at the target (game time × 27/2.4)
+const baseSpeed = s => s.target / s.tt;  // units per second
+const speedAtTarget = s => V.speed === 'accel' ? ACCEL_EXP * baseSpeed(s) : baseSpeed(s);
+const halfWidth = (s, shot) => BAND_MS[V.band] / 1000 * NARROW[shot] * baseSpeed(s);
+function valueAt(s, t) {
+  if (V.speed === 'constant') return Math.min(s.max, baseSpeed(s) * t);
+  if (V.speed === 'accel') return Math.min(s.max, s.target * Math.pow(t / s.tt, ACCEL_EXP));
+  const pos = (baseSpeed(s) * t) % (2 * s.max);  // osc: 0 → max → 0 …
+  return pos <= s.max ? pos : 2 * s.max - pos;
+}
+const overflows = (s, t) => V.speed !== 'osc' && valueAt(s, t) >= s.max;
+const stepScore = (s, shot, v) => Math.round(CURVES[V.curve](Math.abs(v - s.target) / halfWidth(s, shot)));
+
+// ---------- state (memory only) ----------
+let phase = 'start';     // start | play | exit | result
+let shot = 0, step = 0;  // current
+let sub = 'ready';       // ready | holding | shown
+let t0 = 0, held = 0, cur = 0, shownAt = 0;
+let scores = [];         // this Round: {shot, step, v, lo, hi, score, errMs}
+let best = null, rounds = 0, prizeWon = false, lastResult = null;
+const allSteps = [];     // every step she played, for the timing estimate
+
+const $ = id => document.getElementById(id);
+const fmt = (v, d = 1) => v.toFixed(d).replace('.', ',');
+const pct = v => '%' + Math.round(v);
+const S = () => STEPS[step];
+const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
+
+// ---------- round flow ----------
+function newRound() { phase = 'play'; shot = 0; step = 0; sub = 'ready'; scores = []; cur = 0; render(); }
+function press(ts) {
+  if (phase !== 'play' || sub === 'holding') return;
+  if (sub === 'shown') {
+    if (performance.now() - shownAt < 250) return;   // a beat to read the last step
+    advance();
+  }
+  sub = 'holding'; t0 = ts; held = 0; cur = 0; render(); requestAnimationFrame(tick);
+}
+function release(ts) {
+  if (phase !== 'play' || sub !== 'holding') return;
+  held = Math.max(0, (ts - t0) / 1000); cur = valueAt(S(), held);
+  lock();
+}
+function lock() {
+  const s = S(), hw = halfWidth(s, shot);
+  const r = { shot, step, v: cur, lo: s.target - hw, hi: s.target + hw, score: stepScore(s, shot, cur),
+              errMs: (cur - s.target) / speedAtTarget(s) * 1000, held, band: V.band, speed: V.speed, curve: V.curve };
+  scores.push(r); allSteps.push(r);
+  sub = 'shown'; shownAt = performance.now();
+  logStep(r); render();
+  if (scores.length === 9) setTimeout(finish, 1100);
+}
+function advance() { step++; if (step > 2) { step = 0; shot++; } cur = 0; }
+function tick(now) {
+  if (sub !== 'holding' || phase !== 'play') return;
+  held = Math.max(0, (now - t0) / 1000);
+  cur = valueAt(S(), held);
+  if (overflows(S(), held)) { cur = S().max; lock(); return; }
+  draw(); requestAnimationFrame(tick);
+}
+function finish() {
+  if (phase !== 'play') return;
+  const sc = mean(scores.map(r => r.score));
+  rounds++;
+  const improved = best == null || sc > best;
+  const first95 = !prizeWon && sc >= 95;
+  if (improved) best = sc;
+  if (first95) prizeWon = true;
+  lastResult = { sc, improved: improved && sc > 0, first95, rows: scores.slice() };
+  phase = 'result'; render();
+}
+
+// ---------- drawing ----------
+const GA0 = 150, GSW = 240;            // gauge: start angle, sweep (deg, SVG clockwise)
+const gPt = (f, r) => { const a = (GA0 + GSW * f) * Math.PI / 180; return [160 + r * Math.cos(a), 150 + r * Math.sin(a)]; };
+function gArc(f1, f2, r) { f1 = Math.max(0, f1); f2 = Math.min(1, f2); const [x1, y1] = gPt(f1, r), [x2, y2] = gPt(f2, r); return `M${x1} ${y1}A${r} ${r} 0 ${(f2 - f1) * GSW > 180 ? 1 : 0} 1 ${x2} ${y2}`; }
+
+function draw() {
+  const s = S(), hw = halfWidth(s, shot), f = cur / s.max;
+  // readout
+  $('rV').textContent = fmt(cur);
+  if (s.key === 'pull') $('rT').textContent = Math.round(held * SHOT_SECONDS / s.tt) + ' sn';
+  // meter / gauge
+  if (s.key === 'tamp') {
+    const [x, y] = gPt(f, 92); const n = $('gNeedle'); n.setAttribute('x2', x); n.setAttribute('y2', y);
+  } else {
+    $('mFill').style.width = (f * 100) + '%'; $('mNeedle').style.left = (f * 100) + '%';
+  }
+  // scenes
+  if (s.key === 'grind') {
+    const g = cur / s.target;   // 1 at the dose
+    const m = $('gMound'); m.setAttribute('ry', Math.min(26, 18 * g)); m.setAttribute('rx', 30 + 16 * Math.min(1.2, g));
+    $('gScale').textContent = fmt(cur) + ' g';
+    $('gTimer').textContent = fmt(held, 1);
+  } else if (s.key === 'tamp') {
+    const p = cur / s.max;      // 0..1
+    $('tTamper').setAttribute('transform', `translate(0 ${36 + p * 14})`);
+    $('tBed').setAttribute('y', 306 + 4 + p * 14); $('tBed').setAttribute('height', 40 - 4 - p * 14);
+    $('tArrows').setAttribute('opacity', sub === 'holding' ? .4 + p * .6 : 0);
+  } else {
+    const y = cur / s.max;      // cup height 78px ≈ 50 g
+    const h = y * 70;
+    $('pLiquid').setAttribute('y', 378 - h); $('pLiquid').setAttribute('height', h);
+    const ch = Math.min(h, 3 + h * .18); $('pCrema').setAttribute('y', 378 - h); $('pCrema').setAttribute('height', ch);
+    $('pScale').textContent = fmt(cur) + ' g';
+    $('pLamp').setAttribute('fill', sub === 'holding' ? '#ffb703' : '#6e5e58');
+  }
+}
+
+function setupStep() {
+  const s = S(), hw = halfWidth(s, shot);
+  $('sN').textContent = `Çekim ${shot + 1} / 3 · Adım ${step + 1} / 3`;
+  $('sT').textContent = s.name;
+  $('sG').innerHTML = `Hedef <b>${fmt(s.target)} ${s.unit}</b> · bant <b>${fmt(s.target - hw)}–${fmt(s.target + hw)} ${s.unit}</b>`;
+  $('scGrind').toggleAttribute('hidden', s.key !== 'grind'); $('scTamp').toggleAttribute('hidden', s.key !== 'tamp'); $('scPull').toggleAttribute('hidden', s.key !== 'pull');
+  $('rL').textContent = s.lbl; $('rU').textContent = s.unit; $('rT').hidden = s.key !== 'pull';
+  const isG = s.key === 'tamp';
+  $('gauge').toggleAttribute('hidden', !isG); $('meterWrap').hidden = isG;
+  if (isG) {
+    $('gTrack').setAttribute('d', gArc(0, 1, 110));
+    $('gBand').setAttribute('d', gArc((s.target - hw) / s.max, (s.target + hw) / s.max, 110));
+    $('gBandIn').setAttribute('d', V.curve === 'flat' ? gArc((s.target - hw / 2) / s.max, (s.target + hw / 2) / s.max, 110) : '');
+    let ticks = '', nums = '';
+    for (let k = 0; k <= s.max; k += 5) { const [x1, y1] = gPt(k / s.max, 124), [x2, y2] = gPt(k / s.max, 132), [xn, yn] = gPt(k / s.max, 146);
+      ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; nums += `<text x="${xn}" y="${yn + 4}">${k}</text>`; }
+    $('gTicks').innerHTML = ticks; $('gNums').innerHTML = nums;
+  } else {
+    const b = $('mBand'); b.style.left = ((s.target - hw) / s.max * 100) + '%'; b.style.width = (2 * hw / s.max * 100) + '%';
+    b.classList.toggle('flat', V.curve === 'flat');
+    $('mCentre').style.left = (s.target / s.max * 100) + '%';
+    $('mMax').textContent = s.max + ' ' + s.unit;
+  }
+}
+
+function render() {
+  $('sStart').hidden = phase !== 'start';
+  $('sExit').hidden = phase !== 'exit';
+  $('sEnd').hidden = phase !== 'result';
+  $('stBest').textContent = best == null ? '—' : pct(best) + (prizeWon ? ' · Kazandın!' : '');
+  $('vBest').textContent = best == null ? '—' : pct(best);
+  // pips
+  let h = '';
+  for (let a = 0; a < 3; a++) {
+    h += `<div class="shot${a === shot && phase === 'play' ? ' cur' : ''}">`;
+    for (let b = 0; b < 3; b++) {
+      const r = scores.find(x => x.shot === a && x.step === b);
+      const isCur = phase === 'play' && a === shot && b === step && !r;
+      const cls = r ? (r.score >= 95 ? 'hi' : r.score >= 80 ? 'mid' : 'lo') : isCur ? 'cur' : '';
+      h += `<div class="pip ${cls}" title="${STEPS[b].name}">${r ? r.score : ['Ö', 'S', 'D'][b]}</div>`;
+    }
+    h += '</div>';
+  }
+  $('shots').innerHTML = h;
+  $('vMean').textContent = scores.length ? pct(mean(scores.map(r => r.score))) : '—';
+  // step
+  setupStep();
+  const last = scores.length && sub === 'shown' ? scores[scores.length - 1] : null;
+  if (sub === 'ready') { cur = 0; held = 0; }
+  draw();
+  $('scene').classList.toggle('holding', sub === 'holding');
+  $('hint').classList.toggle('holding', sub === 'holding');
+  const m = $('meter'); m.classList.toggle('hit', !!last && last.v >= last.lo && last.v <= last.hi); m.classList.toggle('miss', !!last && !(last.v >= last.lo && last.v <= last.hi));
+  $('hintT').textContent = sub === 'holding' ? 'Bantta bırak…' : sub === 'shown' ? (scores.length === 9 ? 'Tur bitti' : 'Sonraki adım için yine basılı tut') : `Basılı tut, ${S().goal}, yeşil bantta bırak`;
+  // the last step in full
+  const L = $('last');
+  const lr = scores[scores.length - 1];
+  if (lr && phase !== 'start') {
+    const ls = STEPS[lr.step];
+    L.classList.remove('empty');
+    $('lV').textContent = fmt(lr.v) + ' ' + ls.unit;
+    $('lB').textContent = fmt(lr.lo) + '–' + fmt(lr.hi);
+    $('lS').textContent = lr.score;
+    $('lM').textContent = pct(mean(scores.map(r => r.score)));
+    const inB = lr.v >= lr.lo && lr.v <= lr.hi, dv = lr.v - STEPS[lr.step].target;
+    $('lVer').className = 'verdict ' + (inB ? 'hit' : 'miss');
+    $('lVer').textContent = (inB ? 'Bantta! ' : 'Bant dışı · ') + (Math.abs(dv) < 0.05 ? 'tam merkez' : `merkezden ${dv > 0 ? '+' : '−'}${fmt(Math.abs(dv))} ${ls.unit}`) + ` (${ls.name}, çekim ${lr.shot + 1})`;
+  } else L.classList.add('empty');
+  if (phase === 'result') fillResult();
+  renderVbar(); renderDbg();
+}
+
+function fillResult() {
+  const r = lastResult; if (!r) return;
+  $('eScore').textContent = pct(r.sc); $('eScore').classList.toggle('win', r.sc >= 95);
+  let g = '<div></div>' + STEPS.map(s => `<div class="h">${s.name}</div>`).join('');
+  for (let a = 0; a < 3; a++) {
+    g += `<div class="r">Çekim ${a + 1}</div>`;
+    for (let b = 0; b < 3; b++) { const x = r.rows.find(q => q.shot === a && q.step === b); const c = x.score >= 95 ? 'hi' : x.score >= 80 ? 'mid' : 'lo';
+      g += `<div class="c pip ${c}" style="width:auto;height:auto">${x.score}</div>`; }
+  }
+  $('eGrid').innerHTML = g;
+  $('eBest').textContent = pct(best);
+  $('eNew').hidden = !r.improved; $('ePrize').hidden = !r.first95;
+}
+
+// ---------- input ----------
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'F2') { ev.preventDefault(); toggleDbg(); return; }
+  if (ev.target.closest && ev.target.closest('#dbg')) return;
+  if (ev.code === 'Space') ev.preventDefault();
+  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') toHub(); else vbarKey(ev); return; }
+  if (phase === 'exit') { if (ev.key === 'Enter') { ev.preventDefault(); leave(); } else if (ev.key === 'Escape') stay(); return; }
+  if (phase === 'result') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') toHub(); else vbarKey(ev); return; }
+  if (phase === 'play') {
+    if (ev.key === 'Escape') { if (sub === 'holding') sub = 'ready'; phase = 'exit'; render(); return; }
+    if (ev.code === 'Space') { if (!ev.repeat) press(ev.timeStamp); return; }
+    if (sub !== 'holding') vbarKey(ev);
+  }
+});
+document.addEventListener('keyup', ev => { if (ev.code === 'Space') { ev.preventDefault(); release(ev.timeStamp); } });
+window.addEventListener('blur', () => release(performance.now()));
+function leave() { phase = 'start'; scores = []; sub = 'ready'; render(); }
+function stay() { phase = 'play'; render(); }
+function toHub() { phase = 'start'; scores = []; sub = 'ready'; render(); }  // the prototype has no hub; the start screen stands in for it
+$('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = toHub; $('bHub0').onclick = toHub;
+$('bStay').onclick = stay; $('bLeave').onclick = leave; $('bExit').onclick = () => { if (phase === 'play') { sub = sub === 'holding' ? 'ready' : sub; phase = 'exit'; render(); } };
+for (const b of document.querySelectorAll('button')) b.addEventListener('keydown', ev => { if (ev.code === 'Space') ev.preventDefault(); });
+for (const b of document.querySelectorAll('button')) b.addEventListener('keyup', ev => { if (ev.code === 'Space') ev.preventDefault(); });
+
+// ---------- variant bar ----------
+function cycle(d, s) {
+  const o = OPTS[d], i = o.findIndex(x => x[0] === V[d]);
+  V[d] = o[(i + s + o.length) % o.length][0];
+  const u = new URL(location.href); u.searchParams.set(d, V[d]); history.replaceState(null, '', u);
+  if (phase === 'play' && sub === 'shown' && scores.length < 9) { /* the change applies from the next step */ }
+  render(); runSim();
+}
+function vbarKey(ev) {
+  if (ev.key === 'ArrowLeft') cycle('band', -1); else if (ev.key === 'ArrowRight') cycle('band', 1);
+  else if (ev.key === 'ArrowUp') { ev.preventDefault(); cycle('speed', 1); } else if (ev.key === 'ArrowDown') { ev.preventDefault(); cycle('speed', -1); }
+  else if (ev.key === 'c' || ev.key === 'C') cycle('curve', 1);
+}
+for (const b of document.querySelectorAll('#vbar button')) b.onclick = () => { cycle(b.dataset.d, +b.dataset.s); b.blur(); };
+function renderVbar() {
+  const nm = d => OPTS[d].find(x => x[0] === V[d])[1];
+  $('vbBand').textContent = nm('band') + ' · ' + BAND_MS[V.band] + ' ms'; $('vbSpeed').textContent = nm('speed'); $('vbCurve').textContent = nm('curve');
+}
+if (qs.get('bar') === '0') $('vbar').hidden = true;
+
+// ---------- Atıl's panel ----------
+function toggleDbg() { $('dbg').hidden = !$('dbg').hidden; if (!$('dbg').hidden) runSim(); }
+$('toggleDbg').onclick = toggleDbg;
+function renderDbg() {
+  if ($('dbg').hidden) return;
+  const lines = STEPS.map(s => `${s.name.padEnd(11)} hedef ${fmt(s.target)} ${s.unit}  bant ±` + [0, 1, 2].map(k => fmt(halfWidth(s, k), 2)).join(' / ') + ` ${s.unit}`);
+  $('cfg').textContent = `bant  ${V.band} (${BAND_MS[V.band]} ms × 1 / 0,8 / 0,62)\ndolum ${V.speed}${V.speed === 'accel' ? ' (hedefte ×1,6)' : ''}\neğri  ${V.curve} (kenar = ${EDGE}, 2× yarı genişlikte 0)\n` + lines.join('\n');
+  const s = S(), last = scores[scores.length - 1];
+  $('state').textContent =
+`faz        ${phase} / ${sub}
+tur        ${rounds + (phase === 'play' ? 1 : 0)}   çekim ${shot + 1}/3   adım ${step + 1}/3 (${s.name})
+şu an      ${fmt(cur, 2)} ${s.unit}   süre ${held.toFixed(3)} s
+bant       ${fmt(s.target - halfWidth(s, shot), 2)}–${fmt(s.target + halfWidth(s, shot), 2)} ${s.unit}
+son adım   ${last ? `${fmt(last.v, 2)} ${STEPS[last.step].unit} → ${last.score} puan (sapma ${last.errMs >= 0 ? '+' : ''}${Math.round(last.errMs)} ms)` : '—'}
+puanlar    ${scores.map(r => r.score).join(' ') || '—'}
+ortalama   ${scores.length ? mean(scores.map(r => r.score)).toFixed(1) : '—'}
+rekor      ${best == null ? '—' : best.toFixed(1)}   ödül ${prizeWon ? 'kazanıldı' : 'yok'}`;
+  if (allSteps.length) {
+    const e = allSteps.filter(r => r.speed !== 'osc').map(r => r.errMs);
+    const sd = e.length > 1 ? Math.sqrt(e.reduce((a, x) => a + x * x, 0) / e.length) : NaN;
+    const mu = mean(e);
+    $('meas').textContent = `${allSteps.length} adım (salınan hariç ${e.length})\nortalama sapma ${isNaN(mu) ? '—' : (mu >= 0 ? '+' : '') + Math.round(mu) + ' ms'}  (+ = geç bıraktın)\nRMS sapma (σ) ${isNaN(sd) ? '—' : Math.round(sd) + ' ms'}` +
+      (isNaN(sd) ? '' : `\n→ simülatörü σ = ${Math.round(sd / 5) * 5} ms ile çalıştırmak için kaydırıcıyı oraya getir`);
+  }
+}
+function logStep(r) {
+  const li = document.createElement('li');
+  li.textContent = `T${rounds + 1} Ç${r.shot + 1} ${STEPS[r.step].name.slice(0, 5)} ${fmt(r.v, 2)} [${fmt(r.lo, 2)}–${fmt(r.hi, 2)}] ${String(r.score).padStart(3)}p ${r.errMs >= 0 ? '+' : ''}${Math.round(r.errMs)}ms`;
+  $('log').prepend(li);
+}
+
+// ---------- simulator ----------
+function gauss() { let u = 0; while (!u) u = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random()); }
+function simRound(band, speed, curve, sigma, lapse) {
+  let s = 0; const f = speed === 'accel' ? ACCEL_EXP : 1;
+  for (let sh = 0; sh < 3; sh++) for (let st = 0; st < 3; st++) {
+    const hw = BAND_MS[band] * NARROW[sh] / f, sg = Math.random() < lapse ? sigma * 4 : sigma;
+    s += Math.round(CURVES[curve](Math.abs(gauss() * sg) / hw));
+  }
+  return s / 9;
+}
+function simP(band, speed, curve, sigma, lapse, N = 4000) { let h = 0, m = 0; for (let i = 0; i < N; i++) { const r = simRound(band, speed, curve, sigma, lapse); m += r; if (r >= 95) h++; } return [h / N, m / N]; }
+function simLearn(band, speed, curve, lapse, N = 1500) {
+  let tot = 0;
+  for (let i = 0; i < N; i++) { let k = 0; while (k < 60 && simRound(band, speed, curve, Math.max(40, 60 - 5 * k), lapse) < 95) k++; tot += k + 1; }
+  return tot / N;
+}
+function runSim() {
+  if ($('dbg').hidden) return;
+  const sigma = +$('kSig').value, lapse = +$('kLapse').value / 100;
+  $('oSig').textContent = sigma; $('oLapse').textContent = $('kLapse').value;
+  let h = '<tr><th>bant · eğri</th><th>ort.</th><th>p</th><th>1/p</th><th>5 turda</th><th>öğrenme</th></tr>';
+  let curRow = null;
+  for (const b of ['wide', 'medium', 'narrow']) for (const c of ['linear', 'flat']) {
+    const [p, m] = simP(b, V.speed, c, sigma, lapse), L = simLearn(b, V.speed, c, lapse);
+    const isCur = b === V.band && c === V.curve;
+    if (isCur) curRow = { p, m, L };
+    h += `<tr class="${isCur ? 'cur' : ''}"><td>${b} · ${c}</td><td>${m.toFixed(1)}</td><td>${p.toFixed(2)}</td><td>${p ? (1 / p).toFixed(1) : '∞'}</td><td>${(1 - Math.pow(1 - p, 5)).toFixed(2)}</td><td>${L >= 60 ? '60+' : L.toFixed(1)}</td></tr>`;
+  }
+  $('simT').innerHTML = h;
+  $('simSum').innerHTML = `Dolum <b>${V.speed}</b>, σ ${sigma} ms: seçili ayarda bir turda %95+ olasılığı <b>${(curRow.p * 100).toFixed(0)}%</b>, yani ortalama <b>${curRow.p ? (1 / curRow.p).toFixed(1) : '∞'} tur</b>; öğrenerek ilk %95 ≈ <b>${curRow.L.toFixed(1)}. tur</b>.`;
+  renderDbg();
+}
+$('kSig').oninput = runSim; $('kLapse').oninput = runSim;
+if (qs.get('panel') === '1') $('dbg').hidden = false;
+
+render(); runSim();
+</script>
+</body>
+</html>
