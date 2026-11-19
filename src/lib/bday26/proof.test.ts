@@ -74,7 +74,7 @@ test("the Proof lists the Gifts she holds in shop order and the Small prizes she
       "Mei Wah'da akşam yemeği",
       "Paper Apps: The Games",
       "Dodo'da kahvaltı",
-      "De Slak'ta akşam yemeği",
+      "Kanunda senin şarkın",
       "Sage bottomless portafiltre",
       "Kazımalı dünya haritası",
     ],

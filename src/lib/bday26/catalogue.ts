@@ -1,6 +1,6 @@
 /**
  * The birthday games catalogue (/20261209/, spec #192): the 11 Games with
- * their Small prizes, and the 13 Gifts with their prices. Data only — the
+ * their Small prizes, and the 14 Gifts with their prices. Data only — the
  * ledger (`./ledger.ts`) turns it into Points, Balance and prizes, and the
  * hub and the Proof read it for names and text.
  *
@@ -30,6 +30,8 @@
  *   - "Ya da senin seçtiğin" Gifts (lens, trips, ski gear, Urban Shopper,
  *     the Yin Yin city) are ONE Gift each; the examples stay in the text and
  *     the choice is made in person (#177).
+ *   - De Slak was Piyano's Small prize until Atıl gave Piyano the kanun song
+ *     (2026-11-19); it moved to the shop at 100, below every tier of #176.
  *   - The concert Gifts stay buyable after their dates (#177): nothing here
  *     carries a date, on purpose.
  */
@@ -72,7 +74,7 @@ export const GAMES: readonly Game[] = [
   { id: "hafiza", name: "Hafıza kartları", rule: "8 çift fotoğrafı eşle", prize: { name: "Mei Wah'da akşam yemeği", desc: "Eindhoven'daki Mei Wah'da akşam yemeği." } },
   { id: "wordle", name: "Kelime avı", rule: "Bizim kelimelerle Wordle", prize: { name: "Paper Apps: The Games", desc: "Gladden Design'ın kâğıt oyun defteri." } },
   { id: "sarki", name: "Şarkıyı bil", rule: "İlk notalardan şarkıyı tanı", prize: { name: "Dodo'da kahvaltı", desc: "Sint Gerardusplein'deki Dodo coffee bar'da kahvaltı." } },
-  { id: "piyano", name: "Piyano", rule: "Düşen notalara bas", prize: { name: "De Slak'ta akşam yemeği", desc: "Eindhoven'daki De Slak'ta akşam yemeği." } },
+  { id: "piyano", name: "Piyano", rule: "Düşen notalara bas", prize: { name: "Kanunda senin şarkın", desc: "Senin seçtiğin bir şarkıyı kanunda çalışıp sana çalıyorum." } },
   { id: "kadraj", name: "Kadraj", rule: "Üçte bir kuralıyla kırp", prize: { name: "Sage bottomless portafiltre", desc: "Mükemmel shot'lar için Sage makinesine bottomless portafiltre." } },
   { id: "surus", name: "Hollanda'da sürüş", rule: "Bisikletlilere yol ver, kanala düşme", prize: { name: "Çift bisiklet çantası", desc: "40 litreden büyük, iki taraflı bisiklet çantası." } },
   { id: "yuruyus", name: "Yürüyüş haritası", rule: "Zirveye en kısa yolu çiz", prize: { name: "Piknik günü", desc: "Yeri sen seç, sepeti ben hazırlayayım." } },
@@ -93,7 +95,8 @@ export type GiftId =
   | "urban"
   | "resim"
   | "kurs"
-  | "rocky";
+  | "rocky"
+  | "deslak";
 
 export type Gift = {
   id: GiftId;
@@ -118,6 +121,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "resim", name: "Resim seti", price: 310, desc: "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti." },
   { id: "kurs", name: "Online fotoğraf kursu", price: 290, desc: "Udemy ya da Skillshare'de senin seçtiğin bir seyahat fotoğrafçılığı kursu." },
   { id: "rocky", name: "Rocky Horror film gecesi", price: 260, desc: "The Rocky Horror Picture Show ile şarkılı, danslı bir film gecesi." },
+  { id: "deslak", name: "De Slak'ta akşam yemeği", price: 100, desc: "Eindhoven'daki De Slak'ta akşam yemeği." },
 ];
 
 /** The Game with this id. Throws on an unknown id: the catalogue is closed. */

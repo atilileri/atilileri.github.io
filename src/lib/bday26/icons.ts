@@ -47,6 +47,7 @@ export const GIFT_ICON: Record<GiftId, string> = {
   resim: "🎨",
   kurs: "🎓",
   rocky: "🍿",
+  deslak: "🍽️",
 };
 
 /** The Small prize foot: a lock until it is won, a wrapped present after. */

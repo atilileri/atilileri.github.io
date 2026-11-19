@@ -16,8 +16,8 @@ test("every Gift price is a multiple of 10, so a Return is always whole", () => 
   for (const gift of GIFTS) assert.equal(gift.price % 10, 0, `${gift.id}: ${gift.price}`);
 });
 
-test("the hub has 11 Games, one of them luck, and 13 Gifts", () => {
+test("the hub has 11 Games, one of them luck, and 14 Gifts", () => {
   assert.equal(GAMES.length, 11);
   assert.equal(GAMES.filter((g) => g.luck).length, 1);
-  assert.equal(GIFTS.length, 13);
+  assert.equal(GIFTS.length, 14);
 });
