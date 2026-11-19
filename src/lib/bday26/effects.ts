@@ -289,11 +289,18 @@ export function createEffects(pref: EffectsPreference, engine: EffectsEngine): E
 }
 
 export function createEffectsPreference(store: KeyValueStore): EffectsPreference {
+  return createSwitchPreference(store, EFFECTS_KEY);
+}
+
+/** An on/off switch kept under `key` ("on"/"off", missing means on): the
+ *  effects' and the music's. A storage that throws leaves it on, and a flip
+ *  then lasts the visit. */
+export function createSwitchPreference(store: KeyValueStore, key: string): EffectsPreference {
   let on = true;
   try {
-    on = store.getItem(EFFECTS_KEY) !== "off";
+    on = store.getItem(key) !== "off";
   } catch {
-    // Storage blocked: effects stay on, the default.
+    // Storage blocked: the switch stays on, the default.
   }
   return {
     get on() {
@@ -302,7 +309,7 @@ export function createEffectsPreference(store: KeyValueStore): EffectsPreference
     toggle() {
       on = !on;
       try {
-        store.setItem(EFFECTS_KEY, on ? "on" : "off");
+        store.setItem(key, on ? "on" : "off");
       } catch {
         // Quota full or blocked: the switch holds for this visit only.
       }
