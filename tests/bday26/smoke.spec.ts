@@ -403,6 +403,19 @@ test("Atıl's corner: a wrong password is refused, 1047 opens it, 50 Gifted poin
 
   await password.fill("1047");
   await password.press("Enter");
+
+  // A gift and its undo: the last gift goes, and nothing of it stays.
+  const undo = corner.getByRole("button", { name: "Son hediyeyi geri al" });
+  await expect(undo).toBeDisabled();
+  await corner.getByRole("button", { name: "+10", exact: true }).click();
+  await corner.getByLabel("Not").fill("deneme");
+  await corner.getByRole("button", { name: "Hediye et" }).click();
+  await expect(corner.getByRole("listitem").filter({ hasText: "deneme" })).toContainText("+10");
+  await undo.click();
+  await expect(corner.getByText("+10 puanlık son hediye geri alındı.")).toBeVisible();
+  await expect(corner.getByRole("listitem").filter({ hasText: "deneme" })).toHaveCount(0);
+  await expect(undo).toBeDisabled();
+
   await corner.getByRole("button", { name: "+50" }).click();
   await corner.getByLabel("Not").fill("sürpriz");
   await corner.getByRole("button", { name: "Hediye et" }).click();
@@ -459,6 +472,16 @@ test("a Game opens on its start screen, and a Round she leaves scores nothing (#
   await expect(row(page, "Hafıza kartları")).toContainText("Henüz oynamadın");
   await expect(page.getByText("0/11 oynandı")).toBeVisible();
 });
+
+for (const game of ["hafiza", "nerede", "milyoner", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak"]) {
+  test(`the ${game} start screen names Esc the same way as every Game: Turdan çık`, async ({ page }) => {
+    await seed(page, { best: {}, jackpot: false, log: [] });
+    await page.goto(`/20261209/${game}/`);
+    const esc = page.locator("[data-shell-screen=start] li").filter({ has: page.locator("kbd", { hasText: /^Esc$/ }) });
+    await expect(esc).toHaveCount(1);
+    await expect(esc).toContainText(game === "milyoner" ? "Vazgeç ya da turdan çık" : "Turdan çık");
+  });
+}
 
 test("the HUD's ✕ Çık does what Esc does: mid-Round it asks first, and it takes no focus from the Game", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
@@ -749,6 +772,9 @@ test("Kelime avı: a Round plays all ten words once each, a short row is refused
   await page.keyboard.press("Enter");
   const keyboard = page.getByRole("group", { name: "Klavye" });
   const between = page.locator("[data-between]");
+  // The Turkish Q layout without Q, W and X: no Turkish word uses them.
+  for (const ch of ["Q", "W", "X"]) await expect(keyboard.locator(`[data-key="${ch}"]`)).toHaveCount(0);
+  for (const ch of ["Ğ", "Ü", "Ş", "İ", "Ö", "Ç", "E", "Z"]) await expect(keyboard.locator(`[data-key="${ch}"]`)).toHaveCount(1);
   const seen: string[] = [];
   for (let n = 1; n <= 10; n++) {
     // The HUD, the hint from the first second, the whole grid of six rows.
@@ -762,6 +788,9 @@ test("Kelime avı: a Round plays all ten words once each, a short row is refused
     await expect(page.getByRole("row")).toHaveCount(6);
 
     if (n === 1) {
+      // Q, W and X on her real keyboard type nothing.
+      for (const k of ["q", "w", "x"]) await page.keyboard.press(k);
+      await expect(page.getByRole("row").first()).toHaveText("");
       // One letter and Enter: refused, nothing sent.
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
