@@ -67,6 +67,15 @@ test("every hook parses and lasts about 8 s: 5 to 12 seconds at its own tempo", 
   }
 });
 
+test("every hook has a confidence 1–4, and every sourced one (2–3) links its source", () => {
+  for (const s of SONGS) {
+    assert.ok([1, 2, 3, 4].includes(s.confidence), `${s.title}: confidence ${s.confidence}`);
+    if (s.confidence === 2 || s.confidence === 3) {
+      assert.match(s.source ?? "", /^https:\/\//, `${s.title}: no source`);
+    }
+  }
+});
+
 test("no hook leaves the piano: every note is between A0 and C8", () => {
   for (const s of SONGS) {
     for (const n of parseSong(s.hook).notes) {
