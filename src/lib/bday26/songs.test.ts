@@ -5,7 +5,7 @@
  *   node --test src/lib/bday26/songs.test.ts
  *
  * Expected values come from the pool document, not from `songs.ts`: its 20
- * titles in 5 groups of 3/3/2/6/6, and the spec's "about 4 bars (~8 s)" hook,
+ * titles in 5 groups of 3/2/2/7/6, and the spec's "about 4 bars (~8 s)" hook,
  * read as 5–12 s so a slow ballad and a fast riff both fit. Whether a hook
  * sounds like its song is Atıl's ear, not a test.
  */
@@ -19,7 +19,7 @@ const POOL: Record<string, string> = {
   "One Inch Punch": "Yin Yin",
   Pingpxng: "Yin Yin",
   "Takahashi Timing": "Yin Yin",
-  "Jest Oldu": "Karsu",
+  "Jest Oldu": "90'lar Türk popu",
   "Bırak Beni Böyle": "Karsu",
   İtiraf: "Karsu",
   "Time Warp": "Rocky Horror",
@@ -43,7 +43,7 @@ test("the pool is the 20 songs of the pool document, each title once", () => {
   assert.deepEqual([...SONGS.map((s) => s.title)].sort(), Object.keys(POOL).sort());
 });
 
-test("the groups are Yin Yin 3, Karsu 3, Rocky Horror 2, 90'lar Türk popu 6, Dünya hitleri 6", () => {
+test("the groups are Yin Yin 3, Karsu 2, Rocky Horror 2, 90'lar Türk popu 7, Dünya hitleri 6", () => {
   const counts: Record<string, number> = {};
   for (const s of SONGS) {
     assert.equal(s.group, POOL[s.title], `${s.title} is in the wrong group`);
@@ -51,9 +51,9 @@ test("the groups are Yin Yin 3, Karsu 3, Rocky Horror 2, 90'lar Türk popu 6, D�
   }
   assert.deepEqual(counts, {
     "Yin Yin": 3,
-    Karsu: 3,
+    Karsu: 2,
     "Rocky Horror": 2,
-    "90'lar Türk popu": 6,
+    "90'lar Türk popu": 7,
     "Dünya hitleri": 6,
   });
 });

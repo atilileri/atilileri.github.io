@@ -85,9 +85,8 @@ export const SONGS: readonly PoolSong[] = [
            F#4:.5 A4:.5 F#4:.5 E4:.5 F#4:2
            B4:.5 G5:.25 E5:.25 D5:.5 E5:.5 B4:1.5 A4:.5
            B4:.5 D5:.5 B4:.5 A4:.5 B4:2`,
-    confidence: 2,
+    confidence: 4,
     source: "https://www.songsterr.com/a/wsa/yin-yin-one-inch-punch-tab-s5723477",
-    unsure: AI_TAB,
   },
   {
     // Songsterr AI tab, Lead Guitar, bars 1–7 (the opening theme, back at bars 28 and 64),
@@ -127,22 +126,21 @@ export const SONGS: readonly PoolSong[] = [
 
   // ── Karsu ────────────────────────────────────────────────────────
   {
-    // Karsu's "Jest Oldu" is her cover of Mustafa Sandal's song (setlist.fm,
-    // https://www.setlist.fm/stats/covers/karsu-43df0ff7.html), so the melody
-    // is Sandal's: Songsterr AI tab of the original, Vocals, bars 34–37 (the
-    // chorus; again at 38–41 and 75–78). E minor.
+    // Mustafa Sandal's song (Karsu only covers it, setlist.fm,
+    // https://www.setlist.fm/stats/covers/karsu-43df0ff7.html): Songsterr AI tab
+    // of the original, Vocals, bars 34–37 (the chorus; again at 38–41 and 75–78).
+    // E minor.
     title: "Jest Oldu",
-    artist: "Karsu",
-    group: "Karsu",
+    artist: "Mustafa Sandal",
+    group: "90'lar Türk popu",
     bpm: 96,
     part: "the chorus",
     hook: `E4:.5 E4:.5 E4:.25 G4:.75 F#4:.25 E4:.25 D4:.5 R:1
            E4:.5 E4:.5 E4:.25 G4:.75 F#4:.25 E4:.25 D4:.5 R:1
            E4:.75 D4:.75 C4:.5 R:.5 C4:.5 D4:.5 E4:.5
            F#4:.75 E4:.75 D4:.5 R:.5 A4:.5 G4:.5 F#4:.5`,
-    confidence: 2,
+    confidence: 4,
     source: "https://www.songsterr.com/a/wsa/mustafa-sandal-jest-oldu-tab-s5190078",
-    unsure: AI_TAB + "; the source is Mustafa Sandal's original, which Karsu covers",
   },
   {
     title: "Bırak Beni Böyle",
@@ -216,7 +214,7 @@ export const SONGS: readonly PoolSong[] = [
            G4:.5 G4:.5 B4:.5 B4:.5 A4:.25 B4:.25 A4:.25 B4:.5 B4:.25 A4:.5
            A4:.5 A4:.5 C5:.5 D5:.5 B4:.25 C5:.25 B4:.25 C5:.75 B4:.5
            R:1 C5:.5 B4:1.5`,
-    confidence: 3,
+    confidence: 4,
     source: "https://www.songsterr.com/a/wsa/tarkan-simarikk-tab-s7866318",
   },
   {
@@ -251,9 +249,8 @@ export const SONGS: readonly PoolSong[] = [
            B4:1 A4:.5 B4:1 A4:.5 B4:1.5
            C#5:.5 D5:.5 E5:.5 C#5:.5 D5:.5 B4:.5 C#5:.5
            A4:2`,
-    confidence: 2,
+    confidence: 4,
     source: "https://www.songsterr.com/a/wsa/mirkelam-her-gece-tab-s220922",
-    unsure: AI_TAB + "; the intro riff, as the tab has no sung line for the chorus",
   },
   {
     title: "Abone",
@@ -281,9 +278,8 @@ export const SONGS: readonly PoolSong[] = [
            G4:.5 F5:1 F5:.5 F5:.5 F5:.5 F5:.5 G5:.5
            F5:.25 Eb5:.25 F5:1 Eb5:.5 Eb5:.5 D5:.5 Bb4:.5 C5:.5
            Eb5:1.5 C5:1.5`,
-    confidence: 2,
+    confidence: 4,
     source: "https://www.songsterr.com/a/wsa/levent-yuksel-zalim-tab-s4019251",
-    unsure: AI_TAB,
   },
   {
     // Songsterr AI tab (no vocal track), Acoustic Guitar, bars 15–18 (the intro lick), one
@@ -297,9 +293,8 @@ export const SONGS: readonly PoolSong[] = [
            B4:.25 C#5:.25 D#5:.5 R:.5 C#5:.25 B4:.25 C#5:.25 B4:.25 A4:.25 B4:.25 G#4:.5 R:.5
            D#5:.25 E5:.25 F#5:1 E5:.25 D#5:.25 D#5:.125 E5:.125 D#5:.125 E5:.125 C#5:.25 E5:.25 D#5:1
            B4:.25 C#5:.25 D#5:1 C#5:.25 B4:.25 C#5:.25 B4:.25 A4:.25 B4:.25 G#4:1`,
-    confidence: 2,
+    confidence: 4,
     source: "https://www.songsterr.com/a/wsa/kenan-dogulu-yaparim-bilirsin-tab-s2493625",
-    unsure: AI_TAB + "; the intro lick, as the tab has no sung line for the chorus",
   },
 
   // ── Dünya hitleri ────────────────────────────────────────────────
