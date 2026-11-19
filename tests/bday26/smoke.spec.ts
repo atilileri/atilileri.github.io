@@ -460,6 +460,23 @@ test("a Game opens on its start screen, and a Round she leaves scores nothing (#
   await expect(page.getByText("0/11 oynandı")).toBeVisible();
 });
 
+test("the HUD's ✕ Çık does what Esc does: mid-Round it asks first, and it takes no focus from the Game", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/hafiza/");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Hamle 0")).toBeVisible();
+
+  const exit = page.getByRole("button", { name: "Çık", exact: true });
+  const question = page.getByRole("dialog", { name: "Turdan çıkılsın mı?" });
+  await exit.click();
+  await expect(question).toBeVisible();
+  expect(await exit.evaluate((el) => el === document.activeElement)).toBe(false);
+  // Esc still answers the question: "Devam et", the Round goes on.
+  await page.keyboard.press("Escape");
+  await expect(question).toBeHidden();
+  await expect(page.getByText("Hamle 0")).toBeVisible();
+});
+
 test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo up with four places (#199)", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/nerede/");

@@ -12,8 +12,10 @@
  *   - `.hud`: the Game's glyph and name on the left, the Game's own
  *     `<slot name="hud">` in the middle (its move counter, its km, its guess
  *     x/6), her Best score and the 95% bar on the right, then on every Game
- *     the "Efektler: Açık/Kapalı" switch (`EffectsToggle`) and the Esc hint,
- *     above the screens so the switch is always reachable. The switch is the
+ *     the "Efektler: Açık/Kapalı" switch (`EffectsToggle`) and "✕ Çık · Esc",
+ *     a real button that does exactly what Esc does (the leave confirm
+ *     during a Round, the hub otherwise), both above the screens so they
+ *     are always reachable and neither takes focus from the Game. The switch is the
  *     one preference for every sound and visual effect: a Game plays them
  *     through `effects` from `src/lib/bday26/effects-dom.ts` and needs no
  *     wiring here; this component's script binds the switch and stops every
@@ -48,7 +50,7 @@
  * `data-shell-best` (every place her Best score shows), `data-shell-prize-
  * icon` / `-sub`, `data-shell-score`, `data-shell-detail`,
  * `data-shell-improved`, `data-shell-prize-now`, and the buttons'
- * `data-shell-action="start|leave|stay|leave-round"`. Add an element, keep
+ * `data-shell-action="start|leave|stay|leave-round|escape"`. Add an element, keep
  * the attribute, and the binding keeps working.
  *
  * The wording of the confirm and result cards is the hiking prototype's
@@ -98,7 +100,9 @@ const hasStartSlot = Astro.slots.has("start");
       </div>
     </dl>
     <EffectsToggle />
-    <span class="hud-esc"><kbd>Esc</kbd> çık</span>
+    <button class="hud-exit" type="button" tabindex="-1" data-shell-action="escape" aria-label="Çık" title="Çık (Esc)">
+      <span aria-hidden="true">✕</span> Çık <kbd>Esc</kbd>
+    </button>
   </header>
 
   <section class="playfield" data-shell-playfield>
@@ -280,11 +284,28 @@ const hasStartSlot = Astro.slots.has("start");
     font-size: 22px;
     line-height: 1.1;
   }
-  .hud-esc {
-    color: var(--bd-muted);
+  .hud-exit {
+    /* Above the shell's screens (z-index 10), like the Efektler switch. */
+    position: relative;
+    z-index: 11;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 6px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    font: inherit;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 800;
+    color: var(--bd-ink-soft);
     white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+  }
+  .hud-exit:hover {
+    box-shadow: 0 0 0 2px var(--bd-accent);
   }
   .label {
     display: block;

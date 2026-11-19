@@ -355,7 +355,14 @@ export function mountGameShell(options: MountOptions): GameShell {
     leave: () => shell.leave(),
     stay: () => shell.stay(),
     "leave-round": () => shell.leaveRound(),
+    // The HUD's "✕ Çık": exactly what Esc does, whatever the phase.
+    escape: () => void shell.key("Escape"),
   };
+  // A HUD button never takes focus from the Game, so Enter and the Game's
+  // keys stay where they were.
+  main.addEventListener("mousedown", (event) => {
+    if ((event.target as Element).closest(".hud [data-shell-action]")) event.preventDefault();
+  });
   main.addEventListener("click", (event) => {
     const button = (event.target as Element).closest<HTMLElement>("[data-shell-action]");
     const action = button?.dataset.shellAction;
