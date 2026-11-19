@@ -11,9 +11,13 @@
  * WHAT IT RENDERS (every word Turkish, from the catalogue where it can be):
  *   - `.hud`: the Game's glyph and name on the left, the Game's own
  *     `<slot name="hud">` in the middle (its move counter, its km, its guess
- *     x/6), her Best score and the 95% bar on the right, and the Esc hint.
- *     With `effects`, the "Efektler: Açık/Kapalı" switch (`EffectsToggle`)
- *     sits before the Esc hint, above the screens so it is always reachable.
+ *     x/6), her Best score and the 95% bar on the right, then on every Game
+ *     the "Efektler: Açık/Kapalı" switch (`EffectsToggle`) and the Esc hint,
+ *     above the screens so the switch is always reachable. The switch is the
+ *     one preference for every sound and visual effect: a Game plays them
+ *     through `effects` from `src/lib/bday26/effects-dom.ts` and needs no
+ *     wiring here; this component's script binds the switch and stops every
+ *     effect loop whenever a screen covers the Round.
  *   - `.playfield`: the default slot, filling the rest of 1920×1080. It is
  *     `inert` whenever a screen is over it.
  *   - Three screens, absolutely over everything, one visible at a time by
@@ -66,12 +70,9 @@ interface Props {
   /** false: the page opens on the playfield, no start card (the slot
    *  machine, story 54). Pass the same `startScreen` to `mountGameShell`. */
   startScreen?: boolean;
-  /** Show the "Efektler: Açık/Kapalı" switch in the HUD; the page calls
-   *  `mountEffects()` (`src/lib/bday26/effects-dom.ts`). */
-  effects?: boolean;
 }
 
-const { game: id, keys, resultAside = false, startScreen = true, effects = false } = Astro.props;
+const { game: id, keys, resultAside = false, startScreen = true } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
 const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
@@ -96,7 +97,7 @@ const hasStartSlot = Astro.slots.has("start");
         <dd>{bar}</dd>
       </div>
     </dl>
-    {effects && <EffectsToggle />}
+    <EffectsToggle />
     <span class="hud-esc"><kbd>Esc</kbd> çık</span>
   </header>
 
@@ -203,6 +204,20 @@ const hasStartSlot = Astro.slots.has("start");
     </div>
   </div>
 </main>
+
+<script>
+  import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
+
+  bindEffectsToggles();
+  // A screen over the Round (start, the leave confirm, the result) is quiet:
+  // every effect loop stops; the Game starts its loops again when it plays.
+  const shellRoot = document.querySelector<HTMLElement>("[data-shell]");
+  if (shellRoot) {
+    new MutationObserver(() => {
+      if (shellRoot.dataset.shellPhase !== "playing") effects.stopLoops();
+    }).observe(shellRoot, { attributes: true, attributeFilter: ["data-shell-phase"] });
+  }
+</script>
 
 <style>
   .shell {

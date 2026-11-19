@@ -6,7 +6,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createEffectsPreference, forReducedMotion, milyonerCelebration, neredeCelebration, perfectRoundCelebration } from "./effects.ts";
+import { createEffects, createEffectsPreference, forReducedMotion, milyonerCelebration, neredeCelebration, perfectRoundCelebration } from "./effects.ts";
 
 /** A fixed random stream, so a test reads one known draw. */
 function seeded(seed: number) {
@@ -96,4 +96,80 @@ test("reduced motion: the same sound, far fewer particles", () => {
   assert.equal(calm.sound, "grand-fanfare");
   assert.ok(calm.particles <= full.particles / 5);
   assert.equal(forReducedMotion(milyonerCelebration(2, seeded(5))).particles, 0);
+});
+
+// ── the gate: every sound and visual goes through it ──────────────────
+
+/** A recording engine: what reached the speakers and the screen. */
+function recorder() {
+  const log: string[] = [];
+  const engine = {
+    play: (name: string) => void log.push(`play ${name}`),
+    loop: (name: string) => {
+      log.push(`start ${name}`);
+      return {
+        set: (p: Record<string, number>) => void log.push(`set ${name} ${JSON.stringify(p)}`),
+        stop: () => void log.push(`stop ${name}`),
+      };
+    },
+    burst: () => void log.push("burst"),
+    shake: () => void log.push("shake"),
+  };
+  return { log, engine };
+}
+
+test("with effects off, no sound, loop or burst reaches the engine", () => {
+  const { log, engine } = recorder();
+  const fx = createEffects(createEffectsPreference(memory({ "bday26:effects": "off" })), engine);
+  fx.unlock();
+  fx.sound("key");
+  fx.loop("engine").start({ speed: 1 });
+  fx.celebrate(perfectRoundCelebration(seeded(1)));
+  fx.miss();
+  assert.deepEqual(log, []);
+});
+
+test("switching effects off stops every running loop at once; on again, a wanted loop comes back", () => {
+  const { log, engine } = recorder();
+  const fx = createEffects(createEffectsPreference(memory()), engine);
+  fx.unlock();
+  const engineLoop = fx.loop("engine");
+  engineLoop.start({ speed: 0.2, throttle: 1 });
+  engineLoop.set({ speed: 0.4 });
+  log.length = 0;
+  fx.toggle();
+  assert.deepEqual(log, ["stop engine"]);
+  engineLoop.set({ speed: 0.6 });
+  fx.sound("bell");
+  assert.deepEqual(log, ["stop engine"]);
+  fx.toggle();
+  assert.deepEqual(log, ["stop engine", "start engine", 'set engine {"speed":0.6,"throttle":1}']);
+});
+
+test("nothing sounds before her first gesture; a loop asked for early starts on it", () => {
+  const { log, engine } = recorder();
+  const fx = createEffects(createEffectsPreference(memory()), engine);
+  fx.sound("key");
+  fx.loop("swoosh").start({ speed: 0.5 });
+  assert.deepEqual(log, []);
+  fx.unlock();
+  assert.deepEqual(log, ["start swoosh", 'set swoosh {"speed":0.5}']);
+  fx.sound("key");
+  assert.equal(log.at(-1), "play key");
+});
+
+test("stopLoops silences every loop until the Game starts it again", () => {
+  const { log, engine } = recorder();
+  const fx = createEffects(createEffectsPreference(memory()), engine);
+  fx.unlock();
+  const car = fx.loop("engine");
+  car.start();
+  fx.loop("traffic").start();
+  log.length = 0;
+  fx.stopLoops();
+  assert.deepEqual([...log].sort(), ["stop engine", "stop traffic"]);
+  car.set({ speed: 1 });
+  assert.equal(log.length, 2, "a stopped loop does not restart on set");
+  car.start();
+  assert.equal(log.at(-2), "start engine");
 });

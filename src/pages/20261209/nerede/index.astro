@@ -50,7 +50,7 @@ const LETTERS = ["A", "B", "C", "D"];
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="nerede" keys={KEYS} effects>
+  <GameShell game="nerede" keys={KEYS}>
     <span slot="hud">Fotoğraf <b data-index>0</b>/10 · Hata <b data-misses>0</b></span>
     <div class="stage" data-stage>
       <figure class="photo">
@@ -81,9 +81,8 @@ const LETTERS = ["A", "B", "C", "D"];
   import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
   import { clearMarks, createAnswerStep, markChoices } from "../../../lib/bday26/choice-quiz";
   import { neredeCelebration, perfectRoundCelebration } from "../../../lib/bday26/effects";
-  import { mountEffects } from "../../../lib/bday26/effects-dom";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
-  const effects = mountEffects();
 
   /** Photos in a Round (spec story 66). */
   const COUNT = 10;

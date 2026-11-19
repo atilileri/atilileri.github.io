@@ -66,7 +66,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
-  <GameShell game="milyoner" keys={KEYS} effects>
+  <GameShell game="milyoner" keys={KEYS}>
     <span slot="hud">Soru <b data-number>1</b>/12</span>
     <div class="stage" data-stage>
       <div class="main">
@@ -144,10 +144,9 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   import { milyonerScore } from "../../../lib/bday26/scores";
   import { createAnswerStep } from "../../../lib/bday26/choice-quiz";
   import { milyonerCelebration, perfectRoundCelebration } from "../../../lib/bday26/effects";
-  import { mountEffects } from "../../../lib/bday26/effects-dom";
+  import { effects } from "../../../lib/bday26/effects-dom";
 
   const POOL = parsePool(poolDocument);
-  const effects = mountEffects();
 
   const $ = <T extends Element = HTMLElement>(selector: string) => {
     const el = document.querySelector<T>(selector);

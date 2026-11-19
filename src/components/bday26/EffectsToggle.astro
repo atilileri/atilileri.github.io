@@ -1,8 +1,9 @@
 ---
 /**
- * EffectsToggle — "Efektler: Açık/Kapalı", the celebration switch in a
- * Game's HUD corner (GameShell's `effects` prop). `mountEffects()` in
- * `src/lib/bday26/effects-dom.ts` binds it by `data-effects-toggle`, paints
+ * EffectsToggle — "Efektler: Açık/Kapalı", the one switch for every sound
+ * and visual effect, in every Game's HUD corner (GameShell renders it).
+ * `bindEffectsToggles()` in `src/lib/bday26/effects-dom.ts` (called by
+ * GameShell's script) binds it by `data-effects-toggle`, paints
  * its icon (✨ on, 🔇 off), label and `aria-pressed` from her stored
  * preference, and flips it on a click. It never takes focus (tabindex -1),
  * so Enter and the Game's keys stay the Game's. It sits above the shell's

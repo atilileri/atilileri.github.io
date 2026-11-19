@@ -1,7 +1,13 @@
 /**
- * Celebration effects for the choice quizzes (Milyoner, "Bu nerede?"), added
- * after Atıl's play test: confetti on a canvas over the page and short sounds
- * made with Web Audio. This file is the pure side, pinned under `node --test`:
+ * Effects for every Game, added after Atıl's play tests: confetti on a canvas
+ * over the page and short sounds made with Web Audio (key ticks, footsteps,
+ * an engine, a swoosh, …). This file is the pure side, pinned under
+ * `node --test`:
+ *
+ *   - THE GATE, `createEffects`: the common API every Game's sounds and
+ *     visuals go through (`sound`, `loop`, `celebrate`, `miss`). Off means
+ *     no-op and every loop stops at once; nothing sounds before her first
+ *     gesture. The engine is injected, so the tests record it.
  *
  *   - her on/off switch, "Efektler: Açık/Kapalı", kept under its own
  *     `localStorage` key (`bday26:effects`). It is UI state: not progress, not
@@ -108,6 +114,176 @@ export function perfectRoundCelebration(rng: () => number): Celebration {
 /** `prefers-reduced-motion`: the sound stays; a small puff goes, a big one thins to a few. */
 export function forReducedMotion(c: Celebration): Celebration {
   return { ...c, particles: c.size === "puff" ? 0 : Math.floor(c.particles / 10) };
+}
+
+// ── the gate ────────────────────────────────────────────────────────
+
+/** Every one-shot sound a Game can ask for, all synthesised in `./effects-dom.ts`. */
+export type SoundName =
+  | Sound
+  | "bonk"
+  // Kelime avı
+  | "key"
+  | "backspace"
+  | "flip"
+  // Yürüyüş haritası
+  | "step"
+  // Hollanda'da sürüş
+  | "brake"
+  | "bell"
+  | "chatter"
+  | "splash"
+  | "bump"
+  | "warn"
+  // Kayak macerası
+  | "jump"
+  | "land"
+  | "ding"
+  | "crash"
+  | "checkpoint";
+
+/** The continuous sounds: started, steered by params each frame, stopped. */
+export type LoopName = "engine" | "traffic" | "swoosh";
+
+/** A loop's steering, each 0..1 (speed, throttle, …). */
+export type LoopParams = Record<string, number>;
+
+/** One running loop voice, as the engine plays it. */
+export type LoopVoice = { set(params: LoopParams): void; stop(): void };
+
+/** What really makes the sound and the picture: Web Audio and a canvas in the
+ *  browser (`./effects-dom.ts`), a recorder in the tests. */
+export type EffectsEngine = {
+  play(name: SoundName): void;
+  loop(name: LoopName): LoopVoice;
+  burst(c: Celebration, from?: unknown): void;
+  shake(el: unknown): void;
+};
+
+/** A Game's handle on one continuous sound. Every call is safe at any time:
+ *  with effects off, or before her first gesture, it only remembers. */
+export type Loop = {
+  /** Wanted from now on (idempotent), with these params merged in. */
+  start(params?: LoopParams): void;
+  /** Steer it; does not start a stopped loop. */
+  set(params: LoopParams): void;
+  /** Not wanted any more. */
+  stop(): void;
+};
+
+/**
+ * THE COMMON API every Game's effects go through. With the switch off every
+ * call is a no-op and running loops stop at once; before `unlock` (her first
+ * key or click, which the browser needs before any audio) sounds are dropped
+ * and wanted loops wait. A loop is a wish (wanted + params) and the engine
+ * voice exists only while it is wanted, effects are on and audio is unlocked,
+ * so switching back on brings a wanted loop back by itself.
+ */
+export type Effects = {
+  readonly on: boolean;
+  /** Flip the switch; returns the new state. */
+  toggle(): boolean;
+  /** Her first gesture happened: audio may start. */
+  unlock(): void;
+  /** One short sound. */
+  sound(name: SoundName): void;
+  /** The handle on a continuous sound; one per name, the same every call. */
+  loop(name: LoopName): Loop;
+  /** Every loop stops (pause, the leave confirm, a screen over the Round). */
+  stopLoops(): void;
+  /** Confetti and its sound; `from` aims a small burst at an element. */
+  celebrate(c: Celebration, from?: unknown): void;
+  /** A wrong answer: the bonk, and `chosen` shakes. */
+  miss(chosen?: unknown): void;
+  /** Called after every toggle with the new state (the HUD button repaints). */
+  onChange(listener: (on: boolean) => void): void;
+};
+
+export function createEffects(pref: EffectsPreference, engine: EffectsEngine): Effects {
+  let unlocked = false;
+  const loops = new Map<LoopName, { wanted: boolean; params: LoopParams; voice?: LoopVoice; sync(): void }>();
+  const listeners: ((on: boolean) => void)[] = [];
+  const live = () => pref.on && unlocked;
+  const syncAll = () => {
+    for (const l of loops.values()) l.sync();
+  };
+
+  const fx: Effects = {
+    get on() {
+      return pref.on;
+    },
+    toggle() {
+      const on = pref.toggle();
+      syncAll();
+      for (const f of listeners) f(on);
+      return on;
+    },
+    unlock() {
+      if (unlocked) return;
+      unlocked = true;
+      syncAll();
+    },
+    sound(name) {
+      if (live()) engine.play(name);
+    },
+    loop(name) {
+      let state = loops.get(name);
+      if (!state) {
+        const s: { wanted: boolean; params: LoopParams; voice?: LoopVoice; sync(): void } = {
+          wanted: false,
+          params: {},
+          sync() {
+            const should = s.wanted && live();
+            if (should && !s.voice) {
+              s.voice = engine.loop(name);
+              s.voice.set({ ...s.params });
+            } else if (!should && s.voice) {
+              s.voice.stop();
+              s.voice = undefined;
+            }
+          },
+        };
+        loops.set(name, s);
+        state = s;
+      }
+      const s = state;
+      return {
+        start(params) {
+          if (params) Object.assign(s.params, params);
+          const was = s.voice;
+          s.wanted = true;
+          s.sync();
+          if (params && was) was.set(params);
+        },
+        set(params) {
+          Object.assign(s.params, params);
+          s.voice?.set(params);
+        },
+        stop() {
+          s.wanted = false;
+          s.sync();
+        },
+      };
+    },
+    stopLoops() {
+      for (const l of loops.values()) l.wanted = false;
+      syncAll();
+    },
+    celebrate(c, from) {
+      if (!pref.on) return;
+      fx.sound(c.sound);
+      if (c.particles > 0) engine.burst(c, from);
+    },
+    miss(chosen) {
+      if (!pref.on) return;
+      fx.sound("bonk");
+      if (chosen) engine.shake(chosen);
+    },
+    onChange(listener) {
+      listeners.push(listener);
+    },
+  };
+  return fx;
 }
 
 export function createEffectsPreference(store: KeyValueStore): EffectsPreference {

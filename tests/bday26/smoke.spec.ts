@@ -484,7 +484,7 @@ test("\"Bu nerede?\" opens on its start screen, and Enter puts the first photo u
   expect(overflow).toEqual({ down: 0, across: 0 });
 });
 
-test("the Efektler switch flips off, stays off after a reload and on Milyoner too, and leaves Enter to the Game", async ({ page }) => {
+test("the Efektler switch flips off, stays off after a reload and on every other Game too, and leaves Enter to the Game", async ({ page }) => {
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/nerede/");
 
@@ -502,6 +502,9 @@ test("the Efektler switch flips off, stays off after a reload and on Milyoner to
   await page.reload();
   await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Kapalı");
   await page.goto("/20261209/milyoner/");
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Kapalı");
+  // One switch for every Game, not only the quizzes.
+  await page.goto("/20261209/kayak/");
   await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Kapalı");
 });
 

@@ -1,48 +1,88 @@
 /**
- * The browser side of the celebration effects (`./effects.ts` is the pure
- * side and says what they are for). Three parts, all started by
- * `mountEffects()`, once per page:
+ * The browser side of the effects (`./effects.ts` is the pure side: the
+ * on/off preference, the celebrations, and THE GATE every Game's effects go
+ * through). This module makes the one `effects` object every Game page
+ * imports:
  *
- *   - THE SWITCH. Every `[data-effects-toggle]` button (the HUD's, from
- *     `EffectsToggle.astro`) shows and flips her preference. It never takes
- *     focus, so Enter and the Game's keys stay the Game's.
- *   - CONFETTI. One fixed canvas over everything (the result veil too),
- *     `pointer-events: none`, made on the first celebration; its frame loop
- *     runs only while particles are alive.
- *   - SOUNDS. Synthesised with Web Audio, no files: a chime for a right
- *     answer (richer, then a fanfare, as the celebration grows) and a soft low
- *     bonk for a wrong one. The AudioContext is made on her first answer —
- *     a key or a click, so Chrome's autoplay rule is met.
+ *     import { effects } from "../../../lib/bday26/effects-dom";
+ *     effects.sound("key");                       // one short sound
+ *     const engine = effects.loop("engine");      // a continuous sound:
+ *     engine.start({ speed, throttle }); engine.set({ speed }); engine.stop();
+ *     effects.celebrate(c, el); effects.miss(el); // confetti + chime / bonk + shake
  *
- * Nothing here waits: `celebrate` and `miss` start their show and return, so
- * the Game's 1.5 s pause and "any key skips" are untouched. With the switch
- * off they do nothing at all — plain green and red. Under
- * `prefers-reduced-motion` the sound stays and the confetti thins
- * (`forReducedMotion`); the shake is switched off in CSS.
+ * With "Efektler: Kapalı" every call is a no-op and running loops stop the
+ * moment she switches; before her first key or click no sound starts (the
+ * browser's autoplay rule) and wanted loops wait for it. Loops also stop
+ * whenever a shell screen covers the Round (GameShell.astro's script calls
+ * `stopLoops`), so a pause, the leave confirm or the result is quiet.
+ *
+ * THE SWITCH. Every `[data-effects-toggle]` button (the HUD's, from
+ * `EffectsToggle.astro`, rendered by GameShell on every Game) is bound by
+ * `bindEffectsToggles()`. It never takes focus, so Enter and the Game's keys
+ * stay the Game's.
+ *
+ * THE ENGINE. Sounds are synthesised with Web Audio, no files: short, soft
+ * and through one master gain so the Games stay balanced. Confetti is one
+ * fixed canvas over everything, `pointer-events: none`, its frame loop
+ * running only while particles are alive; under `prefers-reduced-motion`
+ * the confetti thins (`forReducedMotion`) and the shake is off in CSS.
+ *
+ * Music is not an effect: the piano Games play through `./piano.ts` and
+ * ignore this switch.
  */
 import { openEffectsPreference } from "./browser.ts";
-import { forReducedMotion, type Celebration, type Shape, type Sound } from "./effects.ts";
+import {
+  createEffects,
+  forReducedMotion,
+  type Celebration,
+  type EffectsEngine,
+  type LoopName,
+  type LoopParams,
+  type LoopVoice,
+  type Shape,
+  type SoundName,
+} from "./effects.ts";
 
-export type Effects = {
-  readonly on: boolean;
-  /** A right answer: confetti and its sound. `from` aims a small burst at an element. */
-  celebrate(c: Celebration, from?: Element | null): void;
-  /** A wrong answer: the bonk, and her choice shakes. */
-  miss(chosen?: Element | null): void;
+export type { Effects, Loop } from "./effects.ts";
+
+const reduced = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+
+const engine: EffectsEngine = {
+  play: (name) => play(name),
+  loop: (name) => startLoop(name),
+  burst(c, from) {
+    const shown = reduced() ? forReducedMotion(c) : c;
+    if (shown.particles > 0) burst(shown, from instanceof Element ? from : null);
+  },
+  shake(el) {
+    if (el instanceof HTMLElement) shake(el);
+  },
 };
 
-export function mountEffects(): Effects {
-  const pref = openEffectsPreference();
-  const toggles = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-effects-toggle]"));
+/** The one effects object of this page: every Game's sounds and visuals. */
+export const effects = createEffects(openEffectsPreference(), engine);
 
+// Her first key or click unlocks audio (capture, so a Game that stops the
+// event still counts).
+for (const type of ["pointerdown", "keydown"] as const) {
+  window.addEventListener(type, () => effects.unlock(), { capture: true, once: true });
+}
+// A hidden tab is silent.
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) effects.stopLoops();
+});
+
+/** Binds every "Efektler: Açık/Kapalı" button: paints it, flips it. Once per page. */
+export function bindEffectsToggles(root: ParentNode = document) {
+  const toggles = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-effects-toggle]"));
   function paint() {
     for (const t of toggles) {
-      const label = `Efektler: ${pref.on ? "Açık" : "Kapalı"}`;
-      t.setAttribute("aria-pressed", String(pref.on));
+      const label = `Efektler: ${effects.on ? "Açık" : "Kapalı"}`;
+      t.setAttribute("aria-pressed", String(effects.on));
       t.title = label;
       t.setAttribute("aria-label", label);
       const icon = t.querySelector("[data-effects-icon]");
-      if (icon) icon.textContent = pref.on ? "✨" : "🔇";
+      if (icon) icon.textContent = effects.on ? "✨" : "🔇";
       const text = t.querySelector("[data-effects-label]");
       if (text) text.textContent = label;
     }
@@ -51,30 +91,12 @@ export function mountEffects(): Effects {
     t.addEventListener("mousedown", (e) => e.preventDefault());
     t.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (pref.toggle()) play("chime");
-      paint();
+      effects.unlock();
+      if (effects.toggle()) effects.sound("chime");
     });
   }
+  effects.onChange(paint);
   paint();
-
-  const reduced = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-
-  return {
-    get on() {
-      return pref.on;
-    },
-    celebrate(c, from) {
-      if (!pref.on) return;
-      play(c.sound);
-      const shown = reduced() ? forReducedMotion(c) : c;
-      if (shown.particles > 0) burst(shown, from);
-    },
-    miss(chosen) {
-      if (!pref.on) return;
-      play("bonk");
-      if (chosen instanceof HTMLElement) shake(chosen);
-    },
-  };
 }
 
 function shake(el: HTMLElement) {
@@ -87,27 +109,40 @@ function shake(el: HTMLElement) {
 // ── sounds ─────────────────────────────────────────────────────────
 
 let audio: AudioContext | undefined;
+let master: GainNode | undefined;
 
 function context(): AudioContext | undefined {
   try {
-    audio ??= new AudioContext();
+    if (!audio) {
+      audio = new AudioContext();
+      master = audio.createGain();
+      master.gain.value = 1;
+      master.connect(audio.destination);
+    }
     if (audio.state === "suspended") void audio.resume();
     return audio;
   } catch {
-    return undefined; // no Web Audio: a silent celebration
+    return undefined; // no Web Audio: a silent page
   }
 }
 
 const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
+const vary = (x: number, by = 0.08) => x * (1 + (Math.random() - 0.5) * 2 * by);
 
 /** One soft note: a quick attack, an exponential fade. */
 function note(ac: AudioContext, out: AudioNode, midi: number, at: number, length: number, type: OscillatorType, level: number) {
+  tone(ac, out, hz(midi), hz(midi), at, length, type, level);
+}
+
+/** A tone gliding from `f0` to `f1` Hz, with the same soft envelope. */
+function tone(ac: AudioContext, out: AudioNode, f0: number, f1: number, at: number, length: number, type: OscillatorType, level: number, attack = 0.012) {
   const osc = ac.createOscillator();
   const gain = ac.createGain();
   osc.type = type;
-  osc.frequency.value = hz(midi);
+  osc.frequency.setValueAtTime(f0, at);
+  if (f1 !== f0) osc.frequency.exponentialRampToValueAtTime(f1, at + length);
   gain.gain.setValueAtTime(0.0001, at);
-  gain.gain.exponentialRampToValueAtTime(level, at + 0.012);
+  gain.gain.exponentialRampToValueAtTime(level, at + attack);
   gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
   osc.connect(gain).connect(out);
   osc.start(at);
@@ -130,57 +165,117 @@ function brass(ac: AudioContext, out: AudioNode, midi: number, at: number, lengt
   note(ac, filter, midi - 12, at, length, "triangle", level * 0.6);
 }
 
-function play(sound: Sound | "bonk") {
-  const ac = context();
-  if (!ac) return;
-  const out = ac.createGain();
-  out.gain.value = 0.35;
-  out.connect(ac.destination);
-  const t = ac.currentTime + 0.02;
-  // A different key each time, so two chimes never sound quite the same.
-  const k = [0, 2, 4, 5, 7][Math.floor(Math.random() * 5)]!;
-  const C = 72 + k; // C5 and up
-  switch (sound) {
-    case "chime":
-      bell(ac, out, C + 4, t, 0.5);
-      bell(ac, out, C + 11, t + 0.09, 0.7);
-      break;
-    case "rich-chime":
-      [0, 4, 7, 12].forEach((d, i) => bell(ac, out, C + d, t + i * 0.07, 0.8, 0.42));
-      note(ac, out, C - 12, t, 0.9, "triangle", 0.15);
-      break;
-    case "fanfare": {
-      const B = 60 + k; // C4 and up
-      [0, 4, 7].forEach((d, i) => brass(ac, out, B + d, t + i * 0.11, 0.18));
-      [0, 4, 7, 12].forEach((d) => brass(ac, out, B + d, t + 0.36, 0.9, 0.16));
-      bell(ac, out, B + 24, t + 0.36, 1.0, 0.3);
-      break;
-    }
-    case "grand-fanfare": {
-      const B = 60 + k;
-      [0, 4, 7, 12, 7, 12].forEach((d, i) => brass(ac, out, B + d, t + i * 0.1, 0.16));
-      [0, 4, 7, 12, 16].forEach((d) => brass(ac, out, B + d, t + 0.62, 1.4, 0.14));
-      [24, 28, 31, 36].forEach((d, i) => bell(ac, out, B + d, t + 0.62 + i * 0.09, 1.2, 0.25));
-      break;
-    }
-    case "bonk": {
-      const osc = ac.createOscillator();
-      const gain = ac.createGain();
-      const filter = ac.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = 600;
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(190, t);
-      osc.frequency.exponentialRampToValueAtTime(85, t + 0.22);
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-      osc.connect(filter).connect(gain).connect(out);
-      osc.start(t);
-      osc.stop(t + 0.35);
-      break;
-    }
+let noiseBuffer: AudioBuffer | undefined;
+/** Two seconds of white noise, made once. */
+function noise(ac: AudioContext): AudioBuffer {
+  if (!noiseBuffer) {
+    noiseBuffer = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   }
+  return noiseBuffer;
+}
+
+/** A puff of filtered noise; the filter's frequency glides `f0` → `f1`. */
+function hiss(ac: AudioContext, out: AudioNode, at: number, length: number, level: number, filter: BiquadFilterType, f0: number, f1 = f0, q = 1, attack = 0.005) {
+  const src = ac.createBufferSource();
+  src.buffer = noise(ac);
+  const bq = ac.createBiquadFilter();
+  bq.type = filter;
+  bq.Q.value = q;
+  bq.frequency.setValueAtTime(f0, at);
+  if (f1 !== f0) bq.frequency.exponentialRampToValueAtTime(f1, at + length);
+  const gain = ac.createGain();
+  gain.gain.setValueAtTime(0.0001, at);
+  gain.gain.exponentialRampToValueAtTime(level, at + attack);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
+  src.connect(bq).connect(gain).connect(out);
+  src.start(at, Math.random() * 1.5);
+  src.stop(at + length + 0.05);
+}
+
+/** The one-shot sounds. Each is short; levels are balanced by ear. */
+const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: number) => void>> = {
+  chime: celebration((ac, out, t, C) => {
+    bell(ac, out, C + 4, t, 0.5);
+    bell(ac, out, C + 11, t + 0.09, 0.7);
+  }),
+  "rich-chime": celebration((ac, out, t, C) => {
+    [0, 4, 7, 12].forEach((d, i) => bell(ac, out, C + d, t + i * 0.07, 0.8, 0.42));
+    note(ac, out, C - 12, t, 0.9, "triangle", 0.15);
+  }),
+  fanfare: celebration((ac, out, t, C) => {
+    const B = C - 12; // C4 and up
+    [0, 4, 7].forEach((d, i) => brass(ac, out, B + d, t + i * 0.11, 0.18));
+    [0, 4, 7, 12].forEach((d) => brass(ac, out, B + d, t + 0.36, 0.9, 0.16));
+    bell(ac, out, B + 24, t + 0.36, 1.0, 0.3);
+  }),
+  "grand-fanfare": celebration((ac, out, t, C) => {
+    const B = C - 12;
+    [0, 4, 7, 12, 7, 12].forEach((d, i) => brass(ac, out, B + d, t + i * 0.1, 0.16));
+    [0, 4, 7, 12, 16].forEach((d) => brass(ac, out, B + d, t + 0.62, 1.4, 0.14));
+    [24, 28, 31, 36].forEach((d, i) => bell(ac, out, B + d, t + 0.62 + i * 0.09, 1.2, 0.25));
+  }),
+  bonk: celebration((ac, out, t) => {
+    const filter = ac.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 600;
+    filter.connect(out);
+    tone(ac, filter, 190, 85, t, 0.3, "sine", 0.7, 0.01);
+  }),
+};
+
+/** The quiz celebrations at their first, approved loudness: through a 0.35
+ *  gain, in a key drawn fresh (C5 and up) so two chimes never sound the same. */
+function celebration(make: (ac: AudioContext, out: AudioNode, t: number, C: number) => void) {
+  return (ac: AudioContext, out: AudioNode, t: number) => {
+    const g = ac.createGain();
+    g.gain.value = 0.35;
+    g.connect(out);
+    make(ac, g, t, 72 + [0, 2, 4, 5, 7][Math.floor(Math.random() * 5)]!);
+  };
+}
+
+function play(name: SoundName) {
+  const ac = context();
+  const make = SOUNDS[name];
+  if (!ac || !master || !make) return;
+  make(ac, master, ac.currentTime + 0.02);
+}
+
+// ── loops ──────────────────────────────────────────────────────────
+
+type LoopMaker = (ac: AudioContext, out: AudioNode) => { set(p: LoopParams, now: number): void; nodes: AudioScheduledSourceNode[] };
+
+const LOOPS: Partial<Record<LoopName, LoopMaker>> = {};
+
+/** A continuous sound: faded in, steered smoothly, faded out on stop. */
+function startLoop(name: LoopName): LoopVoice {
+  const ac = context();
+  const make = LOOPS[name];
+  if (!ac || !master || !make) return { set() {}, stop() {} };
+  const out = ac.createGain();
+  out.gain.setValueAtTime(0.0001, ac.currentTime);
+  out.gain.exponentialRampToValueAtTime(1, ac.currentTime + 0.15);
+  out.connect(master);
+  const voice = make(ac, out);
+  for (const n of voice.nodes) n.start();
+  let stopped = false;
+  return {
+    set(p) {
+      if (!stopped) voice.set(p, ac.currentTime);
+    },
+    stop() {
+      if (stopped) return;
+      stopped = true;
+      const now = ac.currentTime;
+      out.gain.cancelScheduledValues(now);
+      out.gain.setValueAtTime(out.gain.value || 0.0001, now);
+      out.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+      for (const n of voice.nodes) n.stop(now + 0.1);
+      setTimeout(() => out.disconnect(), 200);
+    },
+  };
 }
 
 // ── confetti ───────────────────────────────────────────────────────
