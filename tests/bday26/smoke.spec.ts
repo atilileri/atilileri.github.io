@@ -682,42 +682,97 @@ test("the Proof lists what she holds and won, and its check code is the tail of 
   await expect(back).toBeHidden();
 });
 
-test("Kelime avı: a short row is refused, the answer from its İpucu wins %100, and the hub tile shows it (#201)", async ({ page }) => {
+test("Kelime avı: a Round plays all ten words once each, a short row is refused, nine found and one not is %90, and the hub tile shows it (#201)", async ({ page }) => {
+  // Ten words, each turning over, and six rows on the last: more than the default minute on a busy run.
+  test.setTimeout(120_000);
   await seed(page, { best: {}, jackpot: false, log: [] });
   await page.goto("/20261209/wordle/");
   const start = page.getByRole("dialog", { name: "Kelime avı" });
   await expect(start).toContainText("Paper Apps: The Games");
+  await expect(start).toContainText("10 kelimenin hepsi, her turda farklı sırayla");
+  await expect(start).toContainText("kelimelerin ortalaması");
 
-  // Enter: the HUD, the hint from the first second, the whole grid of six rows.
   await page.keyboard.press("Enter");
-  await expect(page.getByText("Tahmin 1/6 · Şimdi bilirsen %100")).toBeVisible();
-  const hint = (await page.locator("[data-hint]").innerText()).trim();
-  const answer = ANSWERS.find((a) => a.hint === hint)?.answer;
-  expect(answer, `no answer has the hint "${hint}"`).toBeDefined();
-  await expect(page.getByRole("row")).toHaveCount(6);
-
-  // One letter and Enter: refused, nothing sent.
-  await page.keyboard.press("a");
-  await page.keyboard.press("Enter");
-  await expect(page.getByText("Eksik harf var")).toBeVisible();
-  await expect(page.getByText("Tahmin 1/6")).toBeVisible();
-
-  // Take it back and type the answer: plain letters on the physical keys,
-  // in small letters (so a dotted i must come up İ), and Ç Ğ I Ö Ş Ü on the
-  // on-screen keyboard — Playwright has no keydown for those.
-  await page.keyboard.press("Backspace");
   const keyboard = page.getByRole("group", { name: "Klavye" });
-  for (const letter of answer!.replace(/ /g, "")) {
-    const small = letter.toLocaleLowerCase("tr");
-    if (/^[a-z]$/.test(small)) await page.keyboard.press(small);
-    else await keyboard.getByRole("button", { name: letter, exact: true }).click();
+  const between = page.locator("[data-between]");
+  const seen: string[] = [];
+  for (let n = 1; n <= 10; n++) {
+    // The HUD, the hint from the first second, the whole grid of six rows.
+    await expect(page.locator("[data-word]")).toHaveText(String(n));
+    await expect(page.locator("[data-guess]")).toHaveText("1");
+    await expect(page.locator("[data-total]")).toHaveText(n === 1 ? "—" : "%100");
+    const hint = (await page.locator("[data-hint]").innerText()).trim();
+    const answer = ANSWERS.find((a) => a.hint === hint)?.answer;
+    expect(answer, `no answer has the hint "${hint}"`).toBeDefined();
+    seen.push(answer!);
+    await expect(page.getByRole("row")).toHaveCount(6);
+
+    if (n === 1) {
+      // One letter and Enter: refused, nothing sent.
+      await page.keyboard.press("a");
+      await page.keyboard.press("Enter");
+      await expect(page.getByText("Eksik harf var")).toBeVisible();
+      await expect(page.locator("[data-guess]")).toHaveText("1");
+      await page.keyboard.press("Backspace");
+    }
+
+    const letters = answer!.replace(/ /g, "");
+    if (n === 10) {
+      // The last word: six rows of Q, which is in no answer.
+      for (let g = 1; g <= 6; g++) {
+        await expect(page.locator("[data-guess]")).toHaveText(String(g));
+        for (let k = 0; k < letters.length; k++) await page.keyboard.press("q");
+        await page.keyboard.press("Enter");
+      }
+      await expect(between).toBeVisible();
+      await expect(between).toContainText("%0");
+      await expect(between).toContainText("Bu sefer olmadı");
+      await expect(between).toContainText("Sonuç");
+      // The answer in tiles, though she did not find it.
+      await expect(page.locator("[data-answer]")).toHaveText(letters);
+      await page.keyboard.press("Enter");
+      break;
+    }
+
+    // Type the answer: plain letters on the physical keys, in small letters
+    // (so a dotted i must come up İ), and Ç Ğ I Ö Ş Ü on the on-screen
+    // keyboard — Playwright has no keydown for those.
+    for (const letter of letters) {
+      const small = letter.toLocaleLowerCase("tr");
+      if (/^[a-z]$/.test(small)) await page.keyboard.press(small);
+      else await keyboard.getByRole("button", { name: letter, exact: true }).click();
+    }
+    await page.keyboard.press("Enter");
+    await expect(between).toBeVisible();
+    await expect(page.locator("[data-answer]")).toHaveText(letters);
+    await expect(between).toContainText("%100");
+    await expect(between).toContainText("1. tahminde buldun");
+    await expect(keyboard).toBeHidden();
+    if (n === 1) {
+      // The button works as well as Enter.
+      await page.getByRole("button", { name: /Sonraki kelime/ }).click();
+    } else {
+      await page.keyboard.press("Enter");
+    }
   }
-  await page.keyboard.press("Enter");
+  // Each of the ten answers came exactly once.
+  expect([...seen].sort()).toEqual(ANSWERS.map((a) => a.answer).sort());
+
   const result = page.getByRole("dialog", { name: "Tur bitti" });
   await expect(result).toBeVisible();
-  await expect(result).toContainText("%100");
-  await expect(result).toContainText("1. tahminde buldun");
-  await expect(result).toContainText("Küçük ödül kazandın: Paper Apps: The Games!");
+  await expect(result.locator("[data-shell-score]")).toHaveText("%90");
+  await expect(result).toContainText("9/10 kelime bulundu");
+  const words = result.locator("[data-words] li");
+  await expect(words).toHaveCount(10);
+  for (let i = 0; i < 9; i++) {
+    await expect(words.nth(i)).toContainText(seen[i]!);
+    await expect(words.nth(i)).toContainText("1 tahmin");
+    await expect(words.nth(i)).toContainText("%100");
+  }
+  await expect(words.nth(9)).toContainText(seen[9]!);
+  await expect(words.nth(9)).toContainText("bulunamadı");
+  await expect(words.nth(9)).toContainText("%0");
+  await expect(result.locator("[data-shell-prize-now]")).toBeHidden();
   const overflow = await page.evaluate(() => ({
     down: document.documentElement.scrollHeight - window.innerHeight,
     across: document.documentElement.scrollWidth - window.innerWidth,
@@ -726,8 +781,7 @@ test("Kelime avı: a short row is refused, the answer from its İpucu wins %100,
 
   await page.keyboard.press("Escape");
   await expect(page).toHaveURL(/\/20261209\/$/);
-  await expect(row(page, "Kelime avı")).toContainText("%100");
-  await expect(row(page, "Kelime avı")).toContainText("Kazandın!");
+  await expect(row(page, "Kelime avı")).toContainText("%90");
 });
 
 test("Yürüyüş haritası: three levels walked by number keys along the shortest route, the Round scores %100 and the hub tile shows it (#202)", async ({ page }) => {

@@ -13,13 +13,14 @@
  *     cursor skips, and Enter wants every letter cell filled;
  *   - the on-screen keyboard keeps a letter's best colour;
  *   - the 10 answers and hints of the #188 verdict table, OTUZ DÖRT included;
- *   - a new Round never brings the answer of the last one.
+ *   - a Round plays all ten answers once each, in an order the random
+ *     source decides.
  * Expected values are worked by hand from the Wordle rules and the verdict
  * table, not from the code. Randomness is injected.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ANSWERS, colour, createRound, pickAnswer, typedLetter, type WordleRound } from "./wordle.ts";
+import { ANSWERS, colour, createRound, shuffleAnswers, typedLetter, type WordleRound } from "./wordle.ts";
 
 /** Colours as one letter each, to read a row at a glance: G green, Y yellow, . grey. */
 const row = (guess: string, answer: string) =>
@@ -222,25 +223,26 @@ test("answers: every answer can be typed on her keyboard", () => {
   }
 });
 
-// ------------------------------------------------------------- the picker
+// ------------------------------------------------------- the Round order
 
-test("picker: any answer can come first", () => {
-  assert.equal(pickAnswer(undefined, () => 0), 0);
-  assert.equal(pickAnswer(undefined, () => 0.999), ANSWERS.length - 1);
-});
+/** A seeded stand-in for Math.random (a small LCG), so an order is repeatable. */
+const seeded = (seed: number) => () => {
+  seed = (seed * 1103515245 + 12345) % 2147483648;
+  return seed / 2147483648;
+};
 
-test("picker: never the answer of the last Round, whatever the random number", () => {
-  for (let last = 0; last < ANSWERS.length; last++) {
-    for (let r = 0; r < 1; r += 0.01) {
-      const next = pickAnswer(last, () => r);
-      assert.notEqual(next, last);
-      assert.ok(next >= 0 && next < ANSWERS.length);
-    }
+test("order: a Round plays every one of the ten answers exactly once", () => {
+  for (const random of [() => 0, () => 0.999, seeded(1), seeded(42)]) {
+    const order = shuffleAnswers(random);
+    assert.equal(order.length, 10);
+    assert.deepEqual([...order].sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   }
 });
 
-test("picker: every other answer can still follow", () => {
-  const seen = new Set<number>();
-  for (let r = 0; r < 1; r += 0.01) seen.add(pickAnswer(3, () => r));
-  assert.deepEqual([...seen].sort((a, b) => a - b), [0, 1, 2, 4, 5, 6, 7, 8, 9]);
+test("order: the order follows the random source, so Rounds differ", () => {
+  const orders = new Set([1, 2, 3, 4, 5].map((s) => shuffleAnswers(seeded(s)).join()));
+  assert.ok(orders.size > 1);
+  assert.notDeepEqual(shuffleAnswers(() => 0), shuffleAnswers(() => 0.999));
+  // The same random source gives the same order.
+  assert.deepEqual(shuffleAnswers(seeded(7)), shuffleAnswers(seeded(7)));
 });

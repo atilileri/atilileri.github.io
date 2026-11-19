@@ -9,9 +9,9 @@
  * WHAT IT HOLDS.
  *   - `ANSWERS`: the ten words and phrases with their one İpucu each, word
  *     for word the #188 table. She turns 34, so OTUZ DÖRT, not OTUZ BEŞ.
- *   - `pickAnswer`: the next Round's answer, never the last Round's. The
- *     random number is an argument, so the tests can pin every outcome; the
- *     page keeps "the last one" across reloads itself.
+ *   - `shuffleAnswers`: one Round's order. A Round plays all ten answers,
+ *     one after another, in a fresh order each Round. The random number is
+ *     an argument, so the tests can pin every outcome.
  *   - `typedLetter`: a key as she pressed it → a Turkish capital, through
  *     `toLocaleUpperCase("tr")`, so i → İ and ı → I (plain `toUpperCase`
  *     would make both I, and İYİ Kİ DOĞDUN could never be typed). Q, W and
@@ -19,7 +19,7 @@
  *     loose letters: C is not Ç, G is not Ğ (#188).
  *   - `colour`: Wordle colouring. Greens first; then yellows only up to the
  *     copies of that letter the answer has left; the rest grey.
- *   - `createRound`: one Round. Its grid row is the answer's shape: a
+ *   - `createRound`: one word of the Round. Its grid row is the answer's shape: a
  *     letter cell per letter and a fixed gap cell per space, which she
  *     never types and the caret skips. Any letters go (no dictionary, no
  *     vowel rule, #188), but Enter wants every letter cell filled. Six
@@ -60,14 +60,17 @@ export const ANSWERS: readonly Answer[] = [
 ];
 
 /**
- * The index in `ANSWERS` of the next Round's answer: any of the ten, but
- * never `last`, the one of the Round before. `random` is `Math.random` in
- * the page and a fixed number in the tests.
+ * One Round's order: the indexes of all ten `ANSWERS`, each exactly once,
+ * shuffled (Fisher–Yates). `random` is `Math.random` in the page and a
+ * fixed or seeded source in the tests, so every Round's order is new.
  */
-export function pickAnswer(last: number | undefined, random: () => number): number {
-  const others = last === undefined ? ANSWERS.length : ANSWERS.length - 1;
-  const i = Math.min(others - 1, Math.floor(random() * others));
-  return last !== undefined && i >= last ? i + 1 : i;
+export function shuffleAnswers(random: () => number): number[] {
+  const order = ANSWERS.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.min(i, Math.floor(random() * (i + 1)));
+    [order[i], order[j]] = [order[j]!, order[i]!];
+  }
+  return order;
 }
 
 /** The 29 letters of the Turkish alphabet, as capitals. */
@@ -124,7 +127,7 @@ export function colour(guess: readonly string[], answer: readonly string[]): Col
  *  answer's letters) or the fixed gap where the answer has a space. */
 export type Cell = { gap: true } | { gap: false; at: number };
 
-/** Guesses in a Round. */
+/** Guesses per word. */
 export const MAX_GUESSES = 6;
 
 /** A sent row: her letters (no gaps) and what each one learned. */
@@ -134,7 +137,7 @@ export type Guess = { letters: readonly string[]; colours: readonly Colour[] };
  *  goes on, found the answer, or used the sixth guess without it. */
 export type SubmitOutcome = "missing" | "next" | "solved" | "over";
 
-/** One Round of Wordle: one answer, up to six guesses. */
+/** One word of a Wordle Round: one answer, up to six guesses. */
 export type WordleRound = {
   /** The answer as she will see it on the result: Turkish capitals, spaces kept. */
   readonly answer: string;
