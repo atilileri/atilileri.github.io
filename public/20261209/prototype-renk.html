@@ -1,0 +1,582 @@
+<!doctype html>
+<!--
+  PROTOTYPE (#215) — throwaway. "How does Renk karıştır feel, and is ΔE 1.8
+  the right bar?" Not the real site. Decisions: #213.
+
+  Answers: does a pigment-like mix feel like real paint (blue + yellow =
+  green), and is "mean ΔE ≤ ~1.8 over 5 targets" (Round ≥ 95% with the −6
+  slope) hard but reachable in a few focused Rounds.
+
+  Mixing model: spectral.js 3.0.0 (Ronald van Wijnen, MIT, inlined below with
+  its licence) — single-constant Kubelka–Munk over 38 spectral bands. Each
+  tube's drop count n is passed as factor √n, so a tube's concentration is
+  n × tinting strength² × luminance: linear in drops (spectral.js's own factor
+  is squared). Blue and black get a tinting strength above 1 (panel knobs) so
+  one black drop darkens like real paint.
+  ΔE: CIEDE2000 on the two displayed sRGB colours (D65 Lab).
+
+  Variants (?variant= and the bottom bar, ← →): A the ticket's −6 slope with
+  a 12-drop cap, B a gentler −4, C a harsher −9, D −6 with an 8-drop cap.
+  F2 opens Atıl's panel: the hidden "reveal" toggle (live ΔE; also
+  ?reveal=1), the recipe, tinting strengths, the ambiguity list for the
+  current target, the state and a Round log.
+
+  The playable mechanic is plain JS; the screens around it (start card, HUD,
+  result card) follow stageshow's craft rules in plain CSS on the bday26
+  tokens, because the kit is React and this must be one self-contained file.
+-->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Prototip: Renk karıştır</title>
+<style>
+@font-face{font-family:"Nunito";font-weight:200 1000;font-display:swap;src:url("/20261209/fonts/nunito-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Nunito";font-weight:200 1000;font-display:swap;src:url("/20261209/fonts/nunito-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url("/20261209/fonts/baloo2-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Baloo 2";font-weight:400 800;font-display:swap;src:url("/20261209/fonts/baloo2-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{
+  --bd-font:"Nunito",system-ui,sans-serif; --bd-display:"Baloo 2","Nunito",system-ui,sans-serif;
+  --bd-mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --bd-bg:#fffaf5; --bd-paper:#fff; --bd-accent:#e0446a; --bd-accent-deep:#c2264f; --bd-accent-soft:#ffe6ec;
+  --bd-gold:#ffb703; --bd-ink:#3a2d2a; --bd-ink-soft:#5d4f4b; --bd-muted:#8d7d78; --bd-muted-3:#b9a8a3;
+  --bd-line:#f2e4df; --bd-line-soft:#f6ece8; --bd-track:#f6ebe7;
+  --bd-won:#2fb67c; --bd-won-bg:#effaf4; --bd-won-ink:#1f8a5b; --bd-wrong:#d9453d;
+  --shadow:0 1px 2px rgba(58,45,42,.06),0 10px 28px -8px rgba(58,45,42,.18);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);-webkit-font-smoothing:antialiased;display:flex;overflow:hidden}
+[hidden]{display:none!important}
+#game{position:relative;flex:1;min-width:0;display:grid;grid-template-rows:auto 1fr;}
+
+/* HUD */
+.hud{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:20px 24px 0;gap:16px}
+.pill{background:var(--bd-paper);border-radius:14px;box-shadow:var(--shadow);padding:10px 16px}
+.lbl{font-size:12px;font-weight:700;color:var(--bd-muted);line-height:1.3}
+.val{font-family:var(--bd-display);font-weight:700;color:var(--bd-ink);font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums}
+.hud .left{justify-self:start;display:flex;align-items:center;gap:12px}
+.hud .left .name{font-family:var(--bd-display);font-weight:800;font-size:22px;color:var(--bd-ink)}
+.tag{font-size:12px;font-weight:800;color:var(--bd-accent-deep);background:var(--bd-accent-soft);padding:4px 10px;border-radius:999px}
+.prog{display:flex;gap:8px;align-items:center}
+.prog i{width:30px;height:30px;border-radius:9px;background:var(--bd-track);display:block;position:relative;overflow:hidden}
+.prog i.cur{box-shadow:0 0 0 2px var(--bd-accent)}
+.prog i span{position:absolute;inset:0}
+.prog i span+span{left:50%}
+.hud .right{justify-self:end;display:flex;gap:12px}
+.hud .right .pill{display:flex;gap:20px}
+
+/* table */
+.table{display:grid;grid-template-columns:auto 380px;justify-content:center;gap:48px;padding:16px 40px 88px;min-height:0;align-items:center}
+.easel{display:flex;flex-direction:column;align-items:center;gap:28px}
+.chip{display:flex;border-radius:22px;overflow:hidden;box-shadow:var(--shadow);background:var(--bd-paper);padding:14px;gap:0}
+.chip.apart{gap:28px}
+.sw{width:400px;height:440px;position:relative;transition:background-color .18s ease}
+.chip:not(.apart) .sw:first-child{border-radius:12px 0 0 12px}
+.chip:not(.apart) .sw:last-child{border-radius:0 12px 12px 0}
+.chip.apart .sw{border-radius:12px}
+.sw.empty{background:repeating-linear-gradient(135deg,#f7efe9 0 12px,#fbf6f2 12px 24px)!important}
+.sw .cap{position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.92);color:var(--bd-ink);font-size:13px;font-weight:800;padding:5px 10px;border-radius:999px}
+.sw .emptyMsg{position:absolute;inset:0;display:grid;place-items:center;color:var(--bd-muted);font-weight:700}
+.sw .live{position:absolute;right:12px;top:12px;font:700 13px var(--bd-mono);background:#fff;color:var(--bd-ink);border:1.5px dashed var(--bd-accent);padding:4px 8px;border-radius:8px}
+.sw.pop{animation:pop .22s ease-out}
+@keyframes pop{50%{filter:brightness(1.06)}}
+.dropsRow{display:flex;align-items:center;gap:14px;min-height:28px}
+.drops{display:flex;gap:6px}
+.drops i{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);display:block}
+.drops i.slot{background:var(--bd-track);box-shadow:none}
+.drops i.last{outline:2px solid var(--bd-ink-soft);outline-offset:2px}
+.count{font-weight:800;color:var(--bd-ink-soft);font-variant-numeric:tabular-nums}
+.count.full{color:var(--bd-wrong)}
+.count.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.tubes{display:flex;gap:14px}
+.tube{width:128px;background:var(--bd-paper);border-radius:16px;box-shadow:var(--shadow);padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;border:0;cursor:pointer;font:inherit;color:inherit;transition:transform .1s}
+.tube.press{transform:translateY(2px) scale(.98)}
+.blob{width:54px;height:54px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;box-shadow:inset 0 -6px 10px rgba(0,0,0,.12),inset 0 0 0 1px rgba(0,0,0,.08)}
+.tube .nm{font-weight:800;font-size:14px;line-height:1.3}
+.tube .row{display:flex;align-items:center;justify-content:space-between;width:100%}
+.kbd{min-width:28px;height:28px;padding:0 7px;border-radius:7px;background:var(--bd-bg);border:1px solid var(--bd-line);box-shadow:0 1px 0 var(--bd-line);display:inline-grid;place-items:center;font-size:13px;font-weight:800;color:var(--bd-ink)}
+.tube .n{font-family:var(--bd-display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--bd-ink)}
+.tube .n.zero{color:var(--bd-muted-3)}
+
+/* side card: actions, then the reveal */
+.side{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--bd-paper);border-radius:20px;box-shadow:var(--shadow);padding:22px}
+.card .h{font-family:var(--bd-display);font-weight:800;font-size:22px;color:var(--bd-ink);line-height:1.2}
+.card p{margin:6px 0 0;color:var(--bd-ink-soft)}
+.btn{border:0;border-radius:999px;background:var(--bd-accent);color:#fff;font:800 15px var(--bd-font);padding:11px 18px;cursor:pointer;display:inline-flex;gap:10px;align-items:center;white-space:nowrap;box-shadow:0 4px 12px -6px var(--bd-accent)}
+.btn small{opacity:.85;font-weight:700;font-size:12px}
+.btn.sec{background:var(--bd-paper);color:var(--bd-accent-deep);box-shadow:0 0 0 1.5px var(--bd-accent-soft)}
+.btn:disabled{opacity:.45;cursor:default}
+.acts{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.reveal .de{display:flex;align-items:baseline;gap:10px;margin-top:4px}
+.reveal .de b{font-family:var(--bd-display);font-size:56px;line-height:1;color:var(--bd-ink);font-variant-numeric:tabular-nums}
+.reveal .de b.win{color:var(--bd-won)}
+.reveal .de span{color:var(--bd-muted);font-weight:700}
+.cmpT{width:100%;border-collapse:collapse;margin-top:14px;font-variant-numeric:tabular-nums}
+.cmpT th{font-size:12px;color:var(--bd-muted);font-weight:700;text-align:right;padding:0 4px 6px}
+.cmpT th:first-child{text-align:left}
+.cmpT td{padding:6px 4px;border-top:1px solid var(--bd-line-soft);text-align:right;font-weight:700}
+.cmpT td:first-child{text-align:left;font-weight:600}
+.cmpT td:first-child .dot{margin-right:8px;vertical-align:-1px}
+.cmpT td.off{color:var(--bd-wrong)}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);flex:none}
+.rule{font-size:13px;color:var(--bd-muted);margin-top:12px}
+
+/* overlays */
+.screen{position:absolute;inset:0;display:grid;place-items:center;background:rgba(58,45,42,.28);backdrop-filter:blur(3px);padding:16px;z-index:5}
+.screen .card{width:min(560px,100%);padding:28px;box-shadow:0 2px 6px rgba(0,0,0,.08),0 24px 60px rgba(0,0,0,.25)}
+.title{font-family:var(--bd-display);font-weight:800;font-size:34px;color:var(--bd-ink);line-height:1.1}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;margin-top:20px;padding:16px;background:var(--bd-bg);border-radius:14px}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px}
+.goal{font-size:13px;color:var(--bd-muted)}
+.goal b{color:var(--bd-ink)}
+.big{font-family:var(--bd-display);font-size:88px;font-weight:800;line-height:1;color:var(--bd-ink);font-variant-numeric:tabular-nums;margin-top:4px}
+.big.win{color:var(--bd-won)}
+.res{margin-top:16px;display:grid;gap:2px}
+.res div{display:grid;grid-template-columns:52px 1fr 64px 48px;gap:12px;align-items:center;padding:6px 0;border-top:1px solid var(--bd-line-soft);font-variant-numeric:tabular-nums}
+.pair{display:flex;height:26px;border-radius:7px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.pair span{flex:1}
+.res .r{text-align:right;font-weight:800;color:var(--bd-ink)}
+.res .m{color:var(--bd-muted);font-size:13px}
+.meta{display:flex;gap:18px;margin-top:14px;font-size:13px;color:var(--bd-muted)}
+.meta b{color:var(--bd-ink)}
+.verdict{margin-top:14px;padding:11px 14px;border-radius:14px;background:var(--bd-bg);font-weight:700;color:var(--bd-ink-soft)}
+.verdict.win{background:var(--bd-won-bg);color:var(--bd-won-ink)}
+
+/* variant switcher (prototype chrome, not the design) */
+#vbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:#1d1d1f;color:#fff;border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:20;font:600 13px system-ui,sans-serif}
+#vbar button{border:0;background:#333;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px}
+#vbar span{padding:0 10px;min-width:250px;text-align:center}
+
+/* Atıl's panel */
+#dbg{width:380px;flex-shrink:0;height:100%;overflow:auto;background:#fff;border-left:1px solid var(--bd-line);font-size:12.5px}
+#dbg header{position:sticky;top:0;background:#fff;padding:12px 14px;border-bottom:1px solid var(--bd-line);display:flex;justify-content:space-between;z-index:1}
+#dbg header b{font-size:12px;letter-spacing:.06em;color:var(--bd-accent)}
+#dbg header span{color:var(--bd-muted);font-size:11px}
+#dbg section{padding:10px 14px;border-bottom:1px solid var(--bd-line-soft)}
+#dbg h3{margin:0 0 8px;font-size:11px;font-weight:800;color:var(--bd-muted);letter-spacing:.04em;text-transform:uppercase}
+.chk{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.chk input,.knob input{accent-color:var(--bd-accent)}
+.knob{display:grid;grid-template-columns:1fr 56px;gap:2px 8px;align-items:center;margin-bottom:6px}
+.knob output{text-align:right;font:12px var(--bd-mono)}
+.knob input{grid-column:1/-1;width:100%;margin:0}
+.sel{display:grid;grid-template-columns:1fr 170px;gap:8px;align-items:center;margin-bottom:6px}
+.sel select{font:12px var(--bd-font);padding:3px;border-radius:6px;border:1px solid var(--bd-line)}
+#state,#amb{font:11.5px/1.5 var(--bd-mono);white-space:pre-wrap;margin:0}
+#log{font:11.5px var(--bd-mono);margin:0;padding:0;list-style:none}
+#log li{padding:3px 0;border-top:1px solid var(--bd-line-soft)}
+#log .win{color:var(--bd-won-ink)}
+.note{color:var(--bd-muted);font-size:11.5px;margin:4px 0 0}
+table.sim{width:100%;border-collapse:collapse;font:11px var(--bd-mono);margin-top:6px}
+table.sim td,table.sim th{padding:2px 3px;text-align:right;border-top:1px solid var(--bd-line-soft)}
+table.sim th{color:var(--bd-muted);font-weight:600}
+table.sim td:first-child,table.sim th:first-child{text-align:left}
+</style>
+</head>
+<body>
+<div id="game">
+  <div class="hud">
+    <div class="left"><span class="name">Renk karıştır</span><span class="tag">Puan vermez</span></div>
+    <div class="pill prog" id="prog" aria-label="Renkler"></div>
+    <div class="right"><div class="pill"><div><div class="lbl">Rekor</div><div class="val" id="vBest">—</div></div><div><div class="lbl">Resim seti</div><div class="val">%95</div></div></div></div>
+  </div>
+
+  <div class="table">
+    <div class="easel">
+      <div class="chip" id="chip">
+        <div class="sw" id="swT"><span class="cap">Hedef renk</span></div>
+        <div class="sw empty" id="swM"><span class="cap">Karışımın</span><span class="emptyMsg" id="emptyMsg">1–5 ile damla ekle</span><span class="live" id="live" hidden></span></div>
+      </div>
+      <div class="dropsRow"><div class="drops" id="drops"></div><span class="count" id="count">0 / 12 damla</span></div>
+      <div class="tubes" id="tubes"></div>
+    </div>
+    <div class="side">
+      <div class="card" id="cPlay">
+        <div class="h">Renk <span id="pIdx">1</span> / 5</div>
+        <p>Karışımı hedefe benzet. Renk farkı onayladıktan sonra görünür.</p>
+        <div class="acts"><button class="btn sec" id="bUndo">Geri al <small>⌫</small></button><button class="btn" id="bOk">Onayla <small>Enter</small></button></div>
+      </div>
+      <div class="card reveal" id="cRev" hidden>
+        <div class="lbl">Renk farkı (ΔE)</div>
+        <div class="de"><b id="rDe">0,0</b><span id="rPts">%100</span></div>
+        <table class="cmpT" id="rTab"></table>
+        <div class="acts"><button class="btn" id="bNext">Sonraki renk <small>Enter</small></button></div>
+        <div class="rule" id="rRule"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="sStart">
+    <div class="card">
+      <div class="title">Renk karıştır</div>
+      <p>Beş tüp boya, beş hedef renk. Her hedef en fazla <b id="iCap">12</b> damlalık gizli bir tariften geliyor, yani tam eşleşme her zaman mümkün. Damlaları ekle, karışımı hedefe benzet, onayla.</p>
+      <div class="keys">
+        <span class="kbd">1–5</span><span>Kırmızı, sarı, mavi, beyaz, siyah: bir damla ekle</span>
+        <span class="kbd">⌫</span><span>Son damlayı geri al</span>
+        <span class="kbd">Enter</span><span>Karışımı onayla</span>
+        <span class="kbd">Esc</span><span>Turdan çık</span>
+      </div>
+      <p class="rule" id="iRule"></p>
+      <div class="foot"><div class="goal">Rekor <b>%95</b> → <b>Resim seti</b></div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sExit" hidden>
+    <div class="card" style="width:420px">
+      <div class="title" style="font-size:24px">Turdan çıkılsın mı?</div>
+      <p>Yarım bırakılan tur skor vermez.</p>
+      <div class="foot"><span></span><div class="acts" style="margin:0"><button class="btn sec" id="bStay">Devam et <small>Esc</small></button><button class="btn" id="bLeave">Çık <small>Enter</small></button></div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sEnd" hidden>
+    <div class="card">
+      <div class="lbl">Tur bitti</div>
+      <div class="big" id="eScore">%0</div>
+      <div class="res" id="eRes"></div>
+      <div class="rule" id="eRule"></div>
+      <div class="meta"><span>Rekor <b id="eBest">%0</b></span><span>Resim seti <b>%95</b></span><span>Tur <b id="eTry">1</b></span></div>
+      <div class="verdict" id="eVerdict"></div>
+      <div class="foot"><span></span><div class="acts" style="margin:0"><button class="btn sec" id="bHub">Salona dön <small>Esc</small></button><button class="btn" id="bAgain">Yeni tur <small>Enter</small></button></div></div>
+    </div>
+  </div>
+</div>
+
+<aside id="dbg" hidden>
+  <header><b>PROTOTİP #215</b><span>F2 gizler</span></header>
+  <section><h3>Ayar (Atıl için)</h3>
+    <label class="chk"><input type="checkbox" id="kReveal"> Canlı ΔE göster (reveal, ?reveal=1)</label>
+    <label class="chk"><input type="checkbox" id="kRecipe"> Tarifi göster</label>
+    <label class="chk"><input type="checkbox" id="kApart"> Renk kartları ayrı (bitişik değil)</label>
+    <div class="sel"><span>Karışım modeli</span><select id="kModel"><option value="linear">KM, damlaya doğrusal (√n)</option><option value="native">KM, spectral.js yerel (n)</option><option value="rgb">RGB ortalama (karşılaştırma)</option></select></div>
+    <div class="knob"><span>Mavi boyama gücü</span><output id="oTB"></output><input type="range" id="kTB" min="1" max="3" step="0.1"></div>
+    <div class="knob"><span>Siyah boyama gücü</span><output id="oTK"></output><input type="range" id="kTK" min="1" max="5" step="0.1"></div>
+    <p class="note">Model ya da güç değişince tarif havuzu yeniden hesaplanır ve tur baştan başlar.</p>
+  </section>
+  <section><h3>Bu hedefin belirsizliği</h3><pre id="amb"></pre>
+    <p class="note">Hedefe en yakın 6 başka oran (aynı oranın katları, örn. 1:1 ve 2:2, tek sayılır). ΔE ≤ 1 olan her tarif de %100 verir.</p></section>
+  <section><h3>Simülasyon (Node, 600 hedef)</h3>
+    <p class="note">Açgözlü oyuncu: her adımda bir ya da iki damla değiştirip hedefe daha yakın görüneni seçer; takılınca karışımı ikiye katlayıp inceltir. Algı: JND eşiği + çarpımsal gürültü. p = bir turda %95+ olasılığı.</p>
+    <table class="sim">
+      <tr><th>oyuncu</th><th>tavan</th><th>ort. ΔE</th><th>−4</th><th>−6</th><th>−9</th></tr>
+      <tr><td>keskin (0,5)</td><td>12</td><td>1,01</td><td>.92</td><td>.80</td><td>.60</td></tr>
+      <tr><td>iyi (1,0)</td><td>12</td><td>1,55</td><td>.71</td><td>.53</td><td>.34</td></tr>
+      <tr><td>orta (1,5)</td><td>12</td><td>2,84</td><td>.39</td><td>.23</td><td>.11</td></tr>
+      <tr><td>zayıf (2,0)</td><td>12</td><td>3,28</td><td>.28</td><td>.13</td><td>.06</td></tr>
+      <tr><td>iyi (1,0)</td><td>8</td><td>1,12</td><td>.80</td><td>.65</td><td>.49</td></tr>
+      <tr><td>orta (1,5)</td><td>8</td><td>1,76</td><td>.61</td><td>.48</td><td>.36</td></tr>
+      <tr><td>tek damla, iyi</td><td>12</td><td>7,2</td><td>.00</td><td>.00</td><td>.00</td></tr>
+    </table>
+  </section>
+  <section><h3>Durum</h3><pre id="state"></pre></section>
+  <section><h3>Tur kaydı</h3><ul id="log"></ul></section>
+</aside>
+
+<div id="vbar"><button id="vPrev" aria-label="Önceki varyant">←</button><span id="vLbl"></span><button id="vNext" aria-label="Sonraki varyant">→</button></div>
+
+<script>
+// spectral.js 3.0.0 (https://github.com/rvanwijnen/spectral.js), npm "spectral.js@3.0.0",
+// spectral.min.js inlined verbatim so the page works offline.
+// MIT License
+//
+// Copyright (c) 2025 Ronald van Wijnen
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t=t||self).spectral={})}(this,(function(t){class e{constructor(...t){1===t.length&&("string"==typeof t[0]&&(this.sRGB=G(t[0]).slice(0,3),this.lRGB=l(this.sRGB),this.R=R(this.lRGB),this.XYZ=g(this.R)),Array.isArray(t[0])&&(38===t[0].length?(this.R=t[0],this.XYZ=g(this.R),this.lRGB=u(this.XYZ),this.sRGB=o(this.lRGB)):(this.sRGB=t[0],this.lRGB=l(this.sRGB),this.R=R(this.lRGB),this.XYZ=g(this.R))))}get OKLab(){return this._OKLab??=c(this.XYZ)}get OKLCh(){return this._OKLCh??=M(this.OKLab)}get KS(){return this._KS??=this.R.map((t=>i(t)))}get luminance(){return this._luminance??=Math.max(Number.EPSILON,this.XYZ[1])}get tintingStrength(){return this._tintingStrength??=1}set tintingStrength(t){this._tintingStrength=t}inGamut=({epsilon:t=0}={})=>r(this.lRGB,t);toGamut=({method:t="map"}={})=>{switch(t.toLowerCase()){case"clip":return new e(this.sRGB.map((t=>B.clamp(t,0,255))));case"map":return a(this);default:throw new TypeError(`Unknown method: '${t}'`)}};toString=({format:t="hex",method:e="map"}={})=>{let r;if(this.inGamut())r=this.sRGB;else switch(e.toLowerCase()){case"clip":r=this.sRGB.map((t=>B.clamp(t,0,255)));break;case"map":r=a(this).sRGB;break;default:throw new TypeError(`Unknown method: '${e}'`)}switch(t.toLowerCase()){case"hex":return`#${r.map((t=>t.toString(16).padStart(2,"0"))).join("").toUpperCase()}`;case"rgb":return`rgb(${r.join(", ")})`;default:throw new TypeError(`Unknown format: '${t}'`)}}}const r=(t,{epsilon:e=0}={})=>t.every((t=>t>=-e&&t<=1+e)),n=(t,e)=>{let[r,n,a]=t,[i,s,h]=e;return((r-i)**2+(n-s)**2+(a-h)**2)**.5},a=(t,{jnd:a=.03,e:i=1e-4}={})=>{let s=t.OKLCh[0];if(s>=1)return new e([255,255,255]);if(s<=0)return new e([0,0,0]);if(r(t.lRGB))return t;let h=t.OKLCh[2],l=0,c=t.OKLCh[1],M=!0,g=t.lRGB,R=m(g.map((t=>B.clamp(t)))),G=n(R,m(g));if(G<a)return new e(o(u(p(R))));for(;c-l>i;){const t=(l+c)/2;let e=f([s,t,h]),o=p(e);if(g=u(o),M&&r(g))l=t;else if(R=m(g.map((t=>B.clamp(t)))),G=n(R,e),G<a){if(a-G<i)break;M=!1,l=t}else c=t}return new e(o(u(p(R))))},i=t=>(1-t)**2/(2*t),s=t=>1+t-(t**2+2*t)**.5,h=(...t)=>{let r=new Array(38);for(let e=0;e<38;e++){let n=0,a=0;for(let[r,i]of t){let t=i**2*r.tintingStrength**2*r.luminance;a+=t,n+=r.KS[e]*t}r[e]=s(n/a)}return new e(r)},l=t=>t.map((t=>(t=>t>.04045?((t+.055)/1.055)**2.4:t/12.92)(t/255))),o=t=>t.map((t=>Math.round(255*(t=>t>.0031308?1.055*t**(1/2.4)-.055:12.92*t)(t)))),u=t=>B.mulMatVec(w.XYZ_RGB,t),m=t=>c((t=>B.mulMatVec(w.RGB_XYZ,t))(t)),c=t=>{let e=B.mulMatVec(w.XYZ_LMS,t).map((t=>Math.cbrt(t)));return B.mulMatVec(w.LMS_LAB,e)},p=t=>{let e=B.mulMatVec(w.LAB_LMS,t).map((t=>t**3));return B.mulMatVec(w.LMS_XYZ,e)},M=t=>{let[e,r,n]=t;const a=(r*r+n*n)**.5,i=180*Math.atan2(n,r)/Math.PI;return[e,a,i>=0?i:i+360]},f=t=>{let[e,r,n]=t;return[e,r*Math.cos(n*Math.PI/180),r*Math.sin(n*Math.PI/180)]},g=t=>B.mulMatVec(d.CMF,t),R=t=>{let e=Math.min(...t);t=[t[0]-e,t[1]-e,t[2]-e];let r=Math.min(t[1],t[2]),n=Math.min(t[0],t[2]),a=Math.min(t[0],t[1]),i=Math.max(0,Math.min(t[0]-t[2],t[0]-t[1])),s=Math.max(0,Math.min(t[1]-t[2],t[1]-t[0])),h=Math.max(0,Math.min(t[2]-t[1],t[2]-t[0]));const l=new Array(38);for(let t=0;t<38;t++)l[t]=Math.max(Number.EPSILON,e*L.W[t]+r*L.C[t]+n*L.M[t]+a*L.Y[t]+i*L.R[t]+s*L.G[t]+h*L.B[t]);return l},B={lerp:(t,e,r)=>t+(e-t)*r,clamp:(t,e=0,r=1)=>Math.min(Math.max(t,e),r),dot:(t,e)=>t.reduce(((t,r,n)=>t+r*e[n]),0),mulMatVec:(t,e)=>t.map((t=>B.dot(t,e)))},G=t=>"#"===t[0]?(t=4===t.length?t.replace(/./g,(t=>t+t)).slice(1):t.slice(1),[parseInt(t.substring(0,2),16),parseInt(t.substring(2,4),16),parseInt(t.substring(4,6),16),8===t.length?parseInt(t.substring(6,8),16)/255:1]):t.startsWith("rgb")?t.slice(t.indexOf("(")+1,-1).split(",").map(((t,e)=>e<3&&t.includes("%")?Math.round(2.55*parseFloat(t)):parseFloat(t))):NaN,L=Object.freeze({W:[1.00116072718764,1.00116065159728,1.00116031922747,1.00115867270789,1.00115259844552,1.00113252528998,1.00108500663327,1.00099687889453,1.00086525152274,1.0006962900094,1.00050496114888,1.00030808187992,1.00011966602013,.999952765968407,.999821836899297,.999738609557593,.999709551639612,.999731930210627,.999799436346195,.999900330316671,1.00002040652611,1.00014478793658,1.00025997903412,1.00035579697089,1.00042753780269,1.00047623344888,1.00050720967508,1.00052519156373,1.00053509606896,1.00054022097482,1.00054272816784,1.00054389569087,1.00054448212151,1.00054476959992,1.00054489887762,1.00054496254689,1.00054498927058,1.000544996993],C:[.970585001322962,.970592498143425,.970625348729891,.970786806119017,.971368673228248,.973163230621252,.976740223158765,.981587605491377,.986280265652949,.989949147689134,.99249270153842,.994145680405256,.995183975033212,.995756750110818,.99591281828671,.995606157834528,.994597600961854,.99221571549237,.986236452783249,.967943337264541,.891285004244943,.536202477862053,.154108119001878,.0574575093228929,.0315349873107007,.0222633920086335,.0182022841492439,.016299055973264,.0153656239334613,.0149111568733976,.0146954339898235,.0145964146717719,.0145470156699655,.0145228771899495,.0145120341118965,.0145066940939832,.0145044507314479,.0145038009464639],M:[.990673557319988,.990671524961979,.990662582353421,.990618107644795,.99045148087871,.989871081400204,.98828660875964,.984290692797504,.973934905625306,.941817838460145,.817390326195156,.432472805065729,.13845397825887,.0537347216940033,.0292174996673231,.021313651750859,.0201349530181136,.0241323096280662,.0372236145223627,.0760506552706601,.205375471942399,.541268903460439,.815841685086486,.912817704123976,.946339830166962,.959927696331991,.966260595230312,.969325970058424,.970854536721399,.971605066528128,.971962769757392,.972127272274509,.972209417745812,.972249577678424,.972267621998742,.97227650946215,.972280243306874,.97228132482656],Y:[.0210523371789306,.0210564627517414,.0210746178695038,.0211649058448753,.0215027957272504,.0226738799041561,.0258235649693629,.0334879385639851,.0519069663740307,.100749014833473,.239129899706847,.534804312272748,.79780757864303,.911449894067384,.953797963004507,.971241615465429,.979303123807588,.983380119507575,.985461246567755,.986435046976605,.986738250670141,.986617882445032,.986277776758643,.985860592444056,.98547492767621,.985176934765558,.984971574014181,.984846303415712,.984775351811199,.984738066625265,.984719648311765,.984711023391939,.984706683300676,.984704554393091,.98470359630937,.984703124077552,.98470292561509,.984702868122795],R:[.0315605737777207,.0315520718330149,.0315148215513658,.0313318044982702,.0306729857725527,.0286480476989607,.0246450407045709,.0192960753663651,.0142066612220556,.0102942608878609,.0076191460521811,.005898041083542,.0048233247781713,.0042298748350633,.0040599171299341,.0043533695594676,.0053434425970201,.0076917201010463,.0135969795736536,.0316975442661115,.107861196355249,.463812603168704,.847055405272011,.943185409393918,.968862150696558,.978030667473603,.982043643854306,.983923623718707,.984845484154382,.985294275814596,.985507295219825,.985605071539837,.985653849933578,.985677685033883,.985688391806122,.985693664690031,.985695879848205,.985696521463762],G:[.0095560747554212,.0095581580120851,.0095673245444588,.0096129126297349,.0097837090401843,.010378622705871,.0120026452378567,.0160977721473922,.026706190223168,.0595555440185881,.186039826532826,.570579820116159,.861467768400292,.945879089767658,.970465486474305,.97841363028445,.979589031411224,.975533536908632,.962288755397813,.92312157451312,.793434018943111,.459270135902429,.185574103666303,.0881774959955372,.05436302287667,.0406288447060719,.034221520431697,.0311185790956966,.0295708898336134,.0288108739348928,.0284486271324597,.0282820301724731,.0281988376490237,.0281581655342037,.0281398910216386,.0281308901665811,.0281271086805816,.0281260133612096],B:[.979404752502014,.97940070684313,.979382903470261,.979294364945594,.97896301460857,.977814466694043,.974724321133836,.967198482343973,.949079657530575,.900850128940977,.76315044546224,.465922171649319,.201263280451005,.0877524413419623,.0457176793291679,.0284706050521843,.020527176756985,.0165302792310211,.0145135107212858,.0136003508637687,.0133604258769571,.013548894314568,.0139594356366992,.014443425575357,.0148854440621406,.0152254296999746,.0154592848180209,.0156018026485961,.0156824871281936,.0157248764360615,.0157458108784121,.0157556123350225,.0157605443964911,.0157629637515278,.0157640525629106,.015764589232951,.0157648147772649,.0157648801149616]}),d=Object.freeze({CMF:[[646919989576e-16,.0002194098998132,.0011205743509343,.0037666134117111,.011880553603799,.0232864424191771,.0345594181969747,.0372237901162006,.0324183761091486,.021233205609381,.0104909907685421,.0032958375797931,.0005070351633801,.0009486742057141,.0062737180998318,.0168646241897775,.028689649025981,.0426748124691731,.0562547481311377,.0694703972677158,.0830531516998291,.0861260963002257,.0904661376847769,.0850038650591277,.0709066691074488,.0506288916373645,.035473961885264,.0214682102597065,.0125164567619117,.0068045816390165,.0034645657946526,.0014976097506959,.000769700480928,.0004073680581315,.0001690104031614,952245150365e-16,490309872958e-16,199961492222e-16],[1844289444e-15,62053235865e-16,310096046799e-16,.0001047483849269,.0003536405299538,.0009514714056444,.0022822631748318,.004207329043473,.0066887983719014,.0098883960193565,.0152494514496311,.0214183109449723,.0334229301575068,.0513100134918512,.070402083939949,.0878387072603517,.0942490536184085,.0979566702718931,.0941521856862608,.0867810237486753,.0788565338632013,.0635267026203555,.05374141675682,.042646064357412,.0316173492792708,.020885205921391,.0138601101360152,.0081026402038399,.004630102258803,.0024913800051319,.0012593033677378,.000541646522168,.0002779528920067,.0001471080673854,610327472927e-16,343873229523e-16,177059860053e-16,7220974913e-15],[.000305017147638,.0010368066663574,.0053131363323992,.0179543925899536,.0570775815345485,.113651618936287,.17335872618355,.196206575558657,.186082370706296,.139950475383207,.0891745294268649,.0478962113517075,.0281456253957952,.0161376622950514,.0077591019215214,.0042961483736618,.0020055092122156,.0008614711098802,.0003690387177652,.0001914287288574,.0001495555858975,923109285104e-16,681349182337e-16,288263655696e-16,157671820553e-16,39406041027e-16,1584012587e-15,0,0,0,0,0,0,0,0,0,0,0]]}),w=Object.freeze({RGB_XYZ:[[.41239079926595934,.357584339383878,.1804807884018343],[.21263900587151027,.715168678767756,.07219231536073371],[.01933081871559182,.11919477979462598,.9505321522496607]],XYZ_RGB:[[3.2409699419045226,-1.537383177570094,-.4986107602930034],[-.9692436362808796,1.8759675015077202,.04155505740717559],[.05563007969699366,-.20397695888897652,1.0569715142428786]],XYZ_LMS:[[.819022437996703,.3619062600528904,-.1288737815209879],[.0329836539323885,.9292868615863434,.0361446663506424],[.0481771893596242,.2642395317527308,.6335478284694309]],LMS_XYZ:[[1.2268798758459243,-.5578149944602171,.2813910456659647],[-.0405757452148008,1.112286803280317,-.0717110580655164],[-.0763729366746601,-.4214933324022432,1.5869240198367816]],LMS_LAB:[[.210454268309314,.7936177747023054,-.0040720430116193],[1.9779985324311684,-2.42859224204858,.450593709617411],[.0259040424655478,.7827717124575296,-.8086757549230774]],LAB_LMS:[[1,.3963377773761749,.2158037573099136],[1,-.1055613458156586,-.0638541728258133],[1,-.0894841775298119,-1.2914855480194092]]});t.Color=e,t.mix=h,t.palette=(t,e,r)=>{let n=new Array(r);for(let a=0;a<r;a++)n[a]=h([t,r-1-a],[e,a]);return n},t.gradient=(t,...e)=>{let r=null,n=null;for(const[a,i]of e)i<=t&&(!r||i>r[1])&&(r=[a,i]),i>=t&&(!n||i<n[1])&&(n=[a,i]);if(!r)return n[0];if(!n)return r[0];if(r[1]===n[1])return r[0];const a=(t-r[1])/(n[1]-r[1]);return h([r[0],1-a],[n[0],a])}}));
+</script>
+<script>
+"use strict";
+// ---------- variants and knobs ----------
+const VARIANTS = {
+  A: { slope: 6, cap: 12, name: 'Bilet: −6 / ΔE, 12 damla' },
+  B: { slope: 4, cap: 12, name: 'Yumuşak: −4 / ΔE, 12 damla' },
+  C: { slope: 9, cap: 12, name: 'Sert: −9 / ΔE, 12 damla' },
+  D: { slope: 6, cap: 8, name: 'Kısa tarif: −6 / ΔE, 8 damla' },
+};
+const VKEYS = Object.keys(VARIANTS);
+const params = new URLSearchParams(location.search);
+let vk = VARIANTS[params.get('variant')] ? params.get('variant') : 'A';
+const K = { reveal: params.get('reveal') === '1', recipe: false, apart: false, model: 'linear', tB: 1.4, tK: 2.5 };
+const V = () => VARIANTS[vk];
+const TUBES = [
+  { name: 'Kırmızı', hex: '#D7263D' }, { name: 'Sarı', hex: '#FCD200' }, { name: 'Mavi', hex: '#1B3F9E' },
+  { name: 'Beyaz', hex: '#FFFFFF' }, { name: 'Siyah', hex: '#1C1C1C' },
+];
+const ROUND_LEN = 5;
+const fmt = (x, d = 1) => x.toFixed(d).replace('.', ',');
+const $ = id => document.getElementById(id);
+
+// ---------- colour science ----------
+let pig = [];
+function buildPigments() {
+  pig = TUBES.map((t, i) => { const c = new spectral.Color(t.hex); c.tintingStrength = i === 2 ? K.tB : i === 4 ? K.tK : 1; return c; });
+}
+function mixHex(counts) {
+  const tot = counts.reduce((a, b) => a + b, 0);
+  if (!tot) return null;
+  if (K.model === 'rgb') {
+    const s = [0, 0, 0]; counts.forEach((n, i) => pig[i].sRGB.forEach((v, j) => s[j] += v * n));
+    return '#' + s.map(v => Math.round(v / tot).toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+  const parts = []; counts.forEach((n, i) => { if (n) parts.push([pig[i], K.model === 'linear' ? Math.sqrt(n) : n]); });
+  return spectral.mix(...parts).toString();
+}
+function hexToLab(hex) {
+  const v = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255).map(x => x > 0.04045 ? ((x + 0.055) / 1.055) ** 2.4 : x / 12.92);
+  let X = (0.4124564 * v[0] + 0.3575761 * v[1] + 0.1804375 * v[2]) / 0.95047;
+  let Y = 0.2126729 * v[0] + 0.7151522 * v[1] + 0.0721750 * v[2];
+  let Z = (0.0193339 * v[0] + 0.1191920 * v[1] + 0.9503041 * v[2]) / 1.08883;
+  const f = t => t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27 * t + 16) / 116;
+  X = f(X); Y = f(Y); Z = f(Z);
+  return [116 * Y - 16, 500 * (X - Y), 200 * (Y - Z)];
+}
+// CIEDE2000 (Sharma, Wu, Dalal 2005), kL = kC = kH = 1
+function de2000([L1, a1, b1], [L2, a2, b2]) {
+  const rad = Math.PI / 180, C1 = Math.hypot(a1, b1), C2 = Math.hypot(a2, b2), Cb = (C1 + C2) / 2;
+  const G = 0.5 * (1 - Math.sqrt(Cb ** 7 / (Cb ** 7 + 25 ** 7)));
+  const a1p = a1 * (1 + G), a2p = a2 * (1 + G), C1p = Math.hypot(a1p, b1), C2p = Math.hypot(a2p, b2);
+  const hue = (b, a) => { if (!a && !b) return 0; const x = Math.atan2(b, a) / rad; return x < 0 ? x + 360 : x; };
+  const h1p = hue(b1, a1p), h2p = hue(b2, a2p), dLp = L2 - L1, dCp = C2p - C1p;
+  let dhp = 0; if (C1p * C2p) { dhp = h2p - h1p; if (dhp > 180) dhp -= 360; else if (dhp < -180) dhp += 360; }
+  const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin(dhp * rad / 2);
+  const Lbp = (L1 + L2) / 2, Cbp = (C1p + C2p) / 2;
+  let hbp = h1p + h2p; if (C1p * C2p) { if (Math.abs(h1p - h2p) > 180) hbp += h1p + h2p < 360 ? 360 : -360; hbp /= 2; }
+  const T = 1 - 0.17 * Math.cos((hbp - 30) * rad) + 0.24 * Math.cos(2 * hbp * rad) + 0.32 * Math.cos((3 * hbp + 6) * rad) - 0.2 * Math.cos((4 * hbp - 63) * rad);
+  const dTh = 30 * Math.exp(-(((hbp - 275) / 25) ** 2)), RC = 2 * Math.sqrt(Cbp ** 7 / (Cbp ** 7 + 25 ** 7));
+  const SL = 1 + 0.015 * (Lbp - 50) ** 2 / Math.sqrt(20 + (Lbp - 50) ** 2), SC = 1 + 0.045 * Cbp, SH = 1 + 0.015 * Cbp * T;
+  const RT = -Math.sin(2 * dTh * rad) * RC;
+  return Math.sqrt((dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH));
+}
+const targetScore = de => Math.max(0, Math.min(100, Math.round(100 - V().slope * Math.max(0, de - 1))));
+
+// ---------- recipe pool: every proportion up to the cap ----------
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+let all = [], pool = [];
+function buildPool() {
+  buildPigments();
+  all = [];
+  const cap = V().cap;
+  (function rec(i, cur, tot) {
+    if (i === 5) { if (tot && cur.reduce(gcd) === 1) { const hex = mixHex(cur); all.push({ rec: cur.slice(), hex, lab: hexToLab(hex) }); } return; }
+    for (let n = 0; n + tot <= cap; n++) { cur[i] = n; rec(i + 1, cur, tot + n); }
+  })(0, [0, 0, 0, 0, 0], 0);
+  // a target uses 2–4 tubes and 3+ drops, and is neither near-black nor near-white
+  pool = all.filter(r => { const used = r.rec.filter(n => n).length, t = r.rec.reduce((a, b) => a + b); return used >= 2 && used <= 4 && t >= 3 && r.lab[0] >= 25 && r.lab[0] <= 90; });
+}
+function pickRound() {
+  for (let tries = 0; tries < 200; tries++) {
+    const out = [];
+    for (let k = 0; k < 400 && out.length < ROUND_LEN; k++) {
+      const c = pool[Math.floor(Math.random() * pool.length)];
+      if (out.every(o => de2000(o.lab, c.lab) >= 15)) out.push(c);
+    }
+    if (out.length === ROUND_LEN) return out;
+  }
+  return pool.slice(0, ROUND_LEN);
+}
+
+// ---------- state ----------
+let phase = 'start';         // start | play | judged | end | exit
+let prevPhase = 'play';
+let round = null;            // { targets, i, results }
+let drops = [];              // tube index per drop, in order (Backspace pops)
+const best = {};             // per variant, in memory only
+let tries = 0;
+const log = [];
+const counts = () => { const c = [0, 0, 0, 0, 0]; drops.forEach(t => c[t]++); return c; };
+const curTarget = () => round && round.targets[round.i];
+
+function newRound() {
+  round = { targets: pickRound(), i: 0, results: [] };
+  drops = []; tries++; phase = 'play'; render();
+}
+function addDrop(t) {
+  if (drops.length >= V().cap) { const c = $('count'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); return; }
+  drops.push(t);
+  const tb = $('tubes').children[t]; tb.classList.add('press'); setTimeout(() => tb.classList.remove('press'), 110);
+  const sw = $('swM'); sw.classList.remove('pop'); void sw.offsetWidth; sw.classList.add('pop');
+  render();
+}
+function undo() { if (drops.length) { drops.pop(); render(); } }
+function submit() {
+  if (!drops.length) return;
+  const t = curTarget(), c = counts(), hex = mixHex(c), de = de2000(t.lab, hexToLab(hex));
+  round.results.push({ mine: c, hex, de, score: targetScore(de) });
+  phase = 'judged'; render();
+}
+function next() {
+  if (round.i < ROUND_LEN - 1) { round.i++; drops = []; phase = 'play'; render(); return; }
+  const sc = Math.floor(round.results.reduce((a, r) => a + r.score, 0) / ROUND_LEN);
+  round.score = sc;
+  best[vk] = Math.max(best[vk] ?? 0, sc);
+  const meanDe = round.results.reduce((a, r) => a + r.de, 0) / ROUND_LEN;
+  log.unshift({ v: vk, sc, meanDe, des: round.results.map(r => r.de) });
+  phase = 'end'; render();
+}
+function toStart() { round = null; drops = []; phase = 'start'; render(); }
+
+// ---------- render ----------
+function recipeDots(c) { return c.map((n, i) => n ? `<span class="dot" style="background:${TUBES[i].hex}"></span>${n}` : '').filter(Boolean).join(' '); }
+function recipeTxt(c) { return c.map((n, i) => n ? `${n} ${TUBES[i].name.toLowerCase()}` : '').filter(Boolean).join(', '); }
+function ruleText() { return `Her renk: ΔE 1'e kadar %100, sonra her 1 ΔE için −${V().slope}. Tur skoru: beş rengin ortalaması. ΔE, CIEDE2000 renk farkıdır; 1'in altını göz ayırt edemez.`; }
+
+function render() {
+  const v = V(), t = curTarget(), c = counts(), hex = mixHex(c);
+  $('vLbl').textContent = `${vk} · ${v.name}`;
+  $('iCap').textContent = v.cap; $('iRule').textContent = ruleText();
+  $('vBest').textContent = best[vk] != null ? '%' + best[vk] : '—';
+  $('chip').classList.toggle('apart', K.apart);
+
+  // progress chips: done ones show target | hers
+  $('prog').innerHTML = Array.from({ length: ROUND_LEN }, (_, i) => {
+    const r = round && round.results[i], tt = round && round.targets[i];
+    const cls = round && i === round.i && phase !== 'end' ? 'cur' : '';
+    return `<i class="${cls}" title="Renk ${i + 1}">${r ? `<span style="background:${tt.hex}"></span><span style="background:${r.hex}"></span>` : ''}</i>`;
+  }).join('');
+
+  // swatches
+  $('swT').style.backgroundColor = t ? t.hex : '#efe6e0';
+  const sm = $('swM');
+  sm.classList.toggle('empty', !hex); sm.style.backgroundColor = hex || '';
+  $('emptyMsg').hidden = !!hex;
+  const live = $('live');
+  live.hidden = !(K.reveal && hex && t && phase === 'play');
+  if (!live.hidden) { const d = de2000(t.lab, hexToLab(hex)); live.textContent = `ΔE ${d.toFixed(2)} → %${targetScore(d)}`; }
+
+  // drops row
+  $('drops').innerHTML = Array.from({ length: v.cap }, (_, i) => i < drops.length
+    ? `<i class="${i === drops.length - 1 ? 'last' : ''}" style="background:${TUBES[drops[i]].hex}" title="${TUBES[drops[i]].name}"></i>` : '<i class="slot"></i>').join('');
+  const cnt = $('count'); cnt.textContent = `${drops.length} / ${v.cap} damla`; cnt.classList.toggle('full', drops.length >= v.cap);
+
+  // tubes
+  $('tubes').innerHTML = TUBES.map((tb, i) => `<button class="tube" data-t="${i}" tabindex="-1"><span class="blob" style="background:${tb.hex}"></span><span class="nm">${tb.name}</span><span class="row"><span class="kbd">${i + 1}</span><span class="n ${c[i] ? '' : 'zero'}">×${c[i]}</span></span></button>`).join('');
+
+  // side cards
+  $('pIdx').textContent = round ? round.i + 1 : 1;
+  $('bOk').disabled = !drops.length;
+  $('bUndo').disabled = !drops.length;
+  $('cPlay').hidden = phase === 'judged';
+  $('cRev').hidden = phase !== 'judged';
+  if (phase === 'judged') {
+    const r = round.results[round.i];
+    const d = $('rDe'); d.textContent = fmt(r.de); d.classList.toggle('win', r.de <= 1);
+    $('rPts').textContent = `→ %${r.score}`;
+    $('rTab').innerHTML = `<tr><th>Tüp</th><th>Tarif</th><th>Senin</th></tr>` + TUBES.map((tb, i) => (t.rec[i] || r.mine[i])
+      ? `<tr><td><span class="dot" style="background:${tb.hex}"></span>${tb.name}</td><td>${t.rec[i]}</td><td class="${proportionOff(t.rec, r.mine, i) ? 'off' : ''}">${r.mine[i]}</td></tr>` : '').join('');
+    $('bNext').innerHTML = round.i < ROUND_LEN - 1 ? 'Sonraki renk <small>Enter</small>' : 'Sonuç <small>Enter</small>';
+    const same = TUBES.every((_, i) => !proportionOff(t.rec, r.mine, i));
+    $('rRule').textContent = r.de <= 1 && !same ? 'Başka bir tarif, aynı renk: o da sayılır. Boyada siyahla beyaz birlikte, kırmızıyla mavinin yerini tutabilir.'
+      : 'Aynı oran da sayılır: 2 kırmızı + 2 sarı, 1 + 1 ile aynı renktir.';
+  }
+
+  // screens
+  $('sStart').hidden = phase !== 'start';
+  $('sExit').hidden = phase !== 'exit';
+  $('sEnd').hidden = phase !== 'end';
+  if (phase === 'end') {
+    const sc = round.score, win = sc >= 95;
+    const e = $('eScore'); e.textContent = '%' + sc; e.classList.toggle('win', win);
+    $('eRes').innerHTML = round.results.map((r, i) => `<div><span class="m">Renk ${i + 1}</span><span class="pair"><span style="background:${round.targets[i].hex}"></span><span style="background:${r.hex}"></span></span><span class="m">ΔE ${fmt(r.de)}</span><span class="r">%${r.score}</span></div>`).join('');
+    $('eRule').textContent = ruleText();
+    $('eBest').textContent = '%' + best[vk]; $('eTry').textContent = tries;
+    const ev = $('eVerdict'); ev.classList.toggle('win', best[vk] >= 95);
+    ev.textContent = best[vk] >= 95 ? (win ? 'Resim seti senin! Akrilik boya, tuval ve şövale.' : 'Resim setini zaten kazandın.')
+      : `Resim seti için rekorun en az %95 olmalı.`;
+  }
+  renderDbg();
+}
+// a tube is "off" when her share of it differs from the recipe's share by over half a drop
+function proportionOff(rec, mine, i) {
+  const tr = rec.reduce((a, b) => a + b), tm = mine.reduce((a, b) => a + b);
+  return Math.abs(mine[i] / tm - rec[i] / tr) * tm > 0.5;
+}
+
+function renderDbg() {
+  if ($('dbg').hidden) return;
+  const t = curTarget(), c = counts(), hex = mixHex(c);
+  let amb = t ? '(«Tarifi göster» açınca görünür)' : '—';
+  if (t && K.recipe) {
+    const near = all.filter(r => r.rec.join() !== t.rec.join()).map(r => ({ r, d: de2000(t.lab, r.lab) })).sort((a, b) => a.d - b.d).slice(0, 6);
+    amb = `hedef  ${t.rec.join(' ')}  ${t.hex}\n` + near.map(n => `ΔE ${n.d.toFixed(2).padStart(5)}  ${n.r.rec.join(' ')}  ${n.r.hex}`).join('\n') + `\n(sıra: K S M B Si)`;
+  }
+  $('amb').textContent = amb;
+  const st = [
+    `varyant ${vk}: eğim −${V().slope}, tavan ${V().cap} damla, model ${K.model}, güç mavi ${K.tB} siyah ${K.tK}`,
+    `aşama ${phase}; havuz ${pool.length} hedef / ${all.length} oran`,
+    t ? `hedef ${round.i + 1}/5 ${t.hex}  tarif: ${K.recipe ? recipeTxt(t.rec) : '(gizli)'}` : 'hedef —',
+    `damlalar [${drops.map(d => TUBES[d].name.slice(0, 2)).join(' ')}]  sayılar ${c.join(' ')}  karışım ${hex || '—'}`,
+    `canlı ΔE ${t && hex ? de2000(t.lab, hexToLab(hex)).toFixed(2) : '—'}`,
+    `sonuçlar ${round ? round.results.map(r => `${r.de.toFixed(2)}→${r.score}`).join(', ') || '—' : '—'}`,
+    `rekor ${JSON.stringify(best)}`,
+  ].join('\n');
+  $('state').textContent = st;
+  $('log').innerHTML = log.map(l => `<li class="${l.sc >= 95 ? 'win' : ''}">${l.v} · %${l.sc} · ort ΔE ${l.meanDe.toFixed(2)} · [${l.des.map(d => d.toFixed(1)).join(' ')}]</li>`).join('');
+}
+
+// ---------- input ----------
+document.addEventListener('keydown', ev => {
+  const inForm = ev.target.closest && ev.target.closest('input,select,textarea');
+  if (ev.key === 'F2') { ev.preventDefault(); $('dbg').hidden = !$('dbg').hidden; render(); return; }
+  if (!inForm && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) { ev.preventDefault(); cycle(ev.key === 'ArrowLeft' ? -1 : 1); return; }
+  if (inForm) return;
+  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } return; }
+  if (phase === 'exit') { if (ev.key === 'Enter') toStart(); else if (ev.key === 'Escape') { phase = prevPhase; render(); } return; }
+  if (phase === 'end') { if (ev.key === 'Enter') newRound(); else if (ev.key === 'Escape') toStart(); return; }
+  if (ev.key === 'Escape') { prevPhase = phase; phase = 'exit'; render(); return; }
+  if (phase === 'judged') { if (ev.key === 'Enter') { ev.preventDefault(); next(); } return; }
+  if (/^[1-5]$/.test(ev.key)) { addDrop(+ev.key - 1); return; }
+  if (ev.key === 'Backspace') { ev.preventDefault(); undo(); return; }
+  if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
+});
+$('tubes').addEventListener('click', ev => { const b = ev.target.closest('.tube'); if (b && phase === 'play') addDrop(+b.dataset.t); });
+$('bUndo').onclick = undo; $('bOk').onclick = submit; $('bNext').onclick = next;
+$('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = toStart;
+$('bStay').onclick = () => { phase = prevPhase; render(); }; $('bLeave').onclick = toStart;
+// buttons must not keep focus, or Enter would click them a second time
+document.addEventListener('click', ev => { if (ev.target.closest('button')) ev.target.closest('button').blur(); });
+
+function cycle(d) {
+  vk = VKEYS[(VKEYS.indexOf(vk) + d + VKEYS.length) % VKEYS.length];
+  const p = new URLSearchParams(location.search); p.set('variant', vk); history.replaceState(null, '', '?' + p);
+  buildPool(); toStart();
+}
+$('vPrev').onclick = () => cycle(-1); $('vNext').onclick = () => cycle(1);
+
+// panel knobs
+const kR = $('kReveal'), kRe = $('kRecipe'), kA = $('kApart'), kM = $('kModel'), kTB = $('kTB'), kTK = $('kTK');
+kR.checked = K.reveal; kM.value = K.model; kTB.value = K.tB; kTK.value = K.tK;
+const outs = () => { $('oTB').textContent = K.tB.toFixed(1); $('oTK').textContent = K.tK.toFixed(1); };
+kR.onchange = () => { K.reveal = kR.checked; kR.blur(); render(); };
+kRe.onchange = () => { K.recipe = kRe.checked; kRe.blur(); render(); };
+kA.onchange = () => { K.apart = kA.checked; kA.blur(); render(); };
+const rebuild = () => { buildPool(); toStart(); };
+kM.onchange = () => { K.model = kM.value; kM.blur(); rebuild(); };
+kTB.onchange = () => { K.tB = +kTB.value; outs(); rebuild(); };
+kTK.onchange = () => { K.tK = +kTK.value; outs(); rebuild(); };
+kTB.oninput = () => { K.tB = +kTB.value; outs(); }; kTK.oninput = () => { K.tK = +kTK.value; outs(); };
+outs();
+
+buildPool();
+render();
+</script>
+</body>
+</html>
