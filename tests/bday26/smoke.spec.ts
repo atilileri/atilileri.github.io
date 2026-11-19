@@ -540,6 +540,25 @@ test("the Müzik switch flips off on its own, leaves Efektler on, and stays off 
   await expect(page.getByRole("button", { name: /^Müzik/ })).toHaveAccessibleName("Müzik: Kapalı");
 });
 
+for (const game of ["kayak", "surus"]) {
+  test(`the ${game} HUD has both switches, each flipping only itself`, async ({ page }) => {
+    await seed(page, { best: {}, jackpot: false, log: [] });
+    await page.goto(`/20261209/${game}/`);
+
+    const musicToggle = page.getByRole("button", { name: /^Müzik/ });
+    const effectsToggle = page.getByRole("button", { name: /^Efektler/ });
+    await expect(musicToggle).toHaveAccessibleName("Müzik: Açık");
+    await expect(effectsToggle).toHaveAccessibleName("Efektler: Açık");
+    await musicToggle.click();
+    await expect(musicToggle).toHaveAccessibleName("Müzik: Kapalı");
+    await expect(effectsToggle).toHaveAccessibleName("Efektler: Açık");
+    await musicToggle.click();
+    await effectsToggle.click();
+    await expect(effectsToggle).toHaveAccessibleName("Efektler: Kapalı");
+    await expect(musicToggle).toHaveAccessibleName("Müzik: Açık");
+  });
+}
+
 test("\"Şarkıyı bil\" opens on its start screen with its keys, its prize and the piano's credit (#204)", async ({ page }) => {
   // No Round here: Enter would start the piano, and Game feel is Atıl's by hand.
   await seed(page, { best: {}, jackpot: false, log: [] });
