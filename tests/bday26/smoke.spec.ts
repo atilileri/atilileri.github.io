@@ -525,6 +525,21 @@ test("the Efektler switch flips off, stays off after a reload and on every other
   await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Kapalı");
 });
 
+test("the Müzik switch flips off on its own, leaves Efektler on, and stays off after a reload", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/hafiza/");
+
+  const toggle = page.getByRole("button", { name: /^Müzik/ });
+  await expect(toggle).toHaveAccessibleName("Müzik: Açık");
+  await toggle.click();
+  await expect(toggle).toHaveAccessibleName("Müzik: Kapalı");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Açık");
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: /^Müzik/ })).toHaveAccessibleName("Müzik: Kapalı");
+});
+
 test("\"Şarkıyı bil\" opens on its start screen with its keys, its prize and the piano's credit (#204)", async ({ page }) => {
   // No Round here: Enter would start the piano, and Game feel is Atıl's by hand.
   await seed(page, { best: {}, jackpot: false, log: [] });
