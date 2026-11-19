@@ -444,44 +444,55 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
   /** The car's engine. History: the first sawtooth growl was buzzy and too
    *  loud; its replacement (a 58→104 Hz sine plus a triangle, low-passed
    *  near 300–500 Hz) was pleasant but inaudible on Atıl's laptop, because
-   *  laptop speakers reproduce almost nothing below ~150 Hz: whatever its
-   *  gain, a hum that lives down there is mostly not heard.
+   *  laptop speakers reproduce almost nothing below ~150 Hz. The harmonic
+   *  rebuild (70→160 Hz, level 0.06–0.09) was heard, but Atıl asked for it
+   *  louder and lower.
    *
-   *  So the sound now lives in its harmonics. One oscillator plays a custom
-   *  wave, a rounded sum of eight harmonics falling off gently (no odd-only
-   *  hollowness, no saw edge), so with a 70→160 Hz fundamental harmonics 2–6
-   *  land in the ~150–900 Hz band small speakers do play, and the ear fills
-   *  in the low note it cannot hear (the "missing fundamental"). A soft
-   *  low-pass (Q 0.6, ~900 Hz idle to ~1400 Hz full speed and gas) rounds
-   *  off the top so it never buzzes; throttle opens it a little, so pressing
-   *  the gas brightens the tone as well as raising it. A fast, tiny
-   *  amplitude flutter (~11 Hz, ±6%) gives it life like firing cylinders,
-   *  plus a slow breath. Level about 0.06 at idle to 0.09 at full gas:
-   *  above the radio music (~0.04 peaks), below every one-shot.
+   *  So the sound lives in its harmonics, under a deep fundamental. One
+   *  oscillator plays a custom wave, a rounded sum of ten harmonics (no
+   *  odd-only hollowness, no saw edge) whose 3rd–8th are kept strong next
+   *  to the fundamental: with a 45→100 Hz fundamental they land in the
+   *  ~150–600 Hz band small speakers do play, and the ear fills in the low
+   *  note it cannot hear (the "missing fundamental"), so it reads as a deep
+   *  engine even on a laptop. A soft low-pass (Q 0.6, ~700 Hz idle to
+   *  ~1100 Hz full speed and gas) rounds off the top so it sounds deep and
+   *  never buzzes; throttle opens it a little, so pressing the gas brightens
+   *  the tone as well as raising it. A fast, tiny amplitude flutter (~9 Hz,
+   *  ±6%) gives it life like firing cylinders, plus a slow breath. Level
+   *  about 0.11 at idle to 0.15 at full gas: well above the radio music
+   *  (~0.04 peaks), below the loud one-shots. A gentle compressor on its
+   *  own output catches any peak, so it never clips.
    *  Params: speed, throttle (0..1). */
   engine(ac, out) {
-    const amps = [0, 1, 0.75, 0.55, 0.42, 0.3, 0.2, 0.12, 0.07];
+    const amps = [0, 1, 0.85, 0.8, 0.72, 0.62, 0.5, 0.36, 0.24, 0.14, 0.08];
     const wave = ac.createPeriodicWave(new Float32Array(amps.length), Float32Array.from(amps));
     const osc = ac.createOscillator();
     osc.setPeriodicWave(wave);
     const lp = ac.createBiquadFilter();
     lp.type = "lowpass";
     lp.Q.value = 0.6;
-    lp.frequency.value = 900;
+    lp.frequency.value = 700;
     const gain = ac.createGain();
     gain.gain.value = 0.0001;
-    osc.connect(lp).connect(gain).connect(out);
+    // The limiter: soft knee, high threshold, so it only touches the peaks.
+    const limiter = ac.createDynamicsCompressor();
+    limiter.threshold.value = -14;
+    limiter.knee.value = 8;
+    limiter.ratio.value = 6;
+    limiter.attack.value = 0.005;
+    limiter.release.value = 0.2;
+    osc.connect(lp).connect(gain).connect(limiter).connect(out);
     // The flutter: a small fast wobble in the level, scaled with it.
     const flutter = ac.createOscillator();
-    flutter.frequency.value = 11;
+    flutter.frequency.value = 9;
     const flutterDepth = ac.createGain();
-    flutterDepth.gain.value = 0.004;
+    flutterDepth.gain.value = 0.007;
     flutter.connect(flutterDepth).connect(gain.gain);
     // A slow, shallow breath, so it lives without wobbling.
     const lfo = ac.createOscillator();
     lfo.frequency.value = 0.7;
     const breath = ac.createGain();
-    breath.gain.value = 0.003;
+    breath.gain.value = 0.005;
     lfo.connect(breath).connect(gain.gain);
     let speed = 0;
     let throttle = 0;
@@ -490,12 +501,12 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
       set(p, now) {
         speed = Math.max(0, Math.min(1, p.speed ?? speed));
         throttle = Math.max(0, Math.min(1, p.throttle ?? throttle));
-        const f = 70 + speed * 80 + throttle * 10; // 70 Hz idle → 160 Hz flat out
+        const f = 45 + speed * 48 + throttle * 7; // 45 Hz idle → 100 Hz flat out
         smooth(osc.frequency, f, now, 0.25);
         // The flutter follows the revs a little, so it quickens too.
-        smooth(flutter.frequency, 9 + speed * 6, now, 0.3);
-        smooth(lp.frequency, 900 + speed * 300 + throttle * 200, now, 0.25);
-        const level = 0.06 + speed * 0.018 + throttle * 0.012;
+        smooth(flutter.frequency, 7 + speed * 5, now, 0.3);
+        smooth(lp.frequency, 700 + speed * 250 + throttle * 150, now, 0.25);
+        const level = 0.11 + speed * 0.025 + throttle * 0.015;
         smooth(gain.gain, level, now, 0.3);
         smooth(flutterDepth.gain, level * 0.06, now, 0.3);
       },
