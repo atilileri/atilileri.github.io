@@ -176,6 +176,13 @@ test("piano: the cap scales a partial Round too, rounded down", () => {
   assert.equal(pianoScore(50, 90, 0.7), 38); // 55.6% × 0.70 = 38.9
 });
 
+test("piano: each stray press cancels one hit, never below 0", () => {
+  assert.equal(pianoScore(240, 240, 1.0, 12), 95); // 228 net: the edge
+  assert.equal(pianoScore(240, 240, 1.0, 13), 94);
+  assert.equal(pianoScore(10, 100, 1.0, 50), 0);
+  assert.equal(pianoScore(120, 120, 0.85, 0), 85);
+});
+
 test("piano: no note hit scores 0, and so does a song without notes", () => {
   assert.equal(pianoScore(0, 120, 1.0), 0);
   assert.equal(pianoScore(0, 0, 1.0), 0);

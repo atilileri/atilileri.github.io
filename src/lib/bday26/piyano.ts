@@ -9,8 +9,7 @@
  *
  * THE CHART (`chartSong`). A song of `./piano-songs.ts`, typed in the song
  * format of `./song.ts`, becomes the list of notes that fall:
- *   - Tempo: the song's `bpm` × `tempoPct` (60% for all three, #180; Atıl
- *     re-checks it on the real songs). Times are ms from the song's first
+ *   - Tempo: the song's `bpm` × `tempoPct` (per song, `./piano-songs.ts`). Times are ms from the song's first
  *     beat; the page adds its own count-in before that.
  *   - Lanes: 6, on the physical keys S D F J K L (`LANE_KEYS`, matched on
  *     `KeyboardEvent.code`, so Turkish-Q and US layouts both work). The
@@ -27,12 +26,12 @@
  * engine's `latencyMs`, #180), and three questions:
  *   - `press(lane, ms)`: she pressed a lane's key at `ms` on the song clock.
  *     The offset comes off first (she hears and sees late, so she presses
- *     late). The earliest unhit note of that lane within ±170 ms
- *     (`HIT_WINDOW_MS`, inclusive) is hit; within ±85 ms it is "Tam!"
- *     (`PERFECT_MS`), otherwise "Erken" or "Geç" by the sign of the error.
+ *     late). The earliest unhit note of that lane within the window
+ *     (±170 ms, `HIT_WINDOW_MS`, unless the song carries its own; inclusive)
+ *     is hit; within half the window it is "Tam!", otherwise "Erken" or "Geç" by the sign of the error.
  *     Anything else is a stray press: counted and shown, no penalty (#180).
  *   - `advance(ms)`: the clock moved on. Every unhit note whose window has
- *     closed (more than 170 ms behind, after the same offset) becomes a
+ *     closed (more than the window behind, after the same offset) becomes a
  *     miss, once; the newly missed notes come back so the page can say
  *     "Kaçtı".
  *   - `done(ms)`: every note is judged and the song's length has passed.
@@ -118,11 +117,12 @@ export function chartSong(source: ChartSource): Chart {
   return { notes, repeats, lengthMs: repeats * onceMs };
 }
 
-/** ± how far from a note a press still hits it, ms (#180). */
+/** ± how far from a note a press still hits it, ms (#180). The default; a
+ *  song can carry its own (`windowMs` in `./piano-songs.ts`). */
 export const HIT_WINDOW_MS = 170;
 
-/** ± how close a hit must be to say "Tam!", ms (#180: half the window). */
-export const PERFECT_MS = 85;
+/** ± how close a hit must be to say "Tam!": always half the window (#180). */
+export const perfectMs = (windowMs: number) => windowMs / 2;
 
 /** What she reads over the hit line. */
 export type Verdict = "Tam!" | "Erken" | "Geç";
@@ -153,7 +153,8 @@ export type Round = {
 };
 
 /** One Round on a chart; `latencyMs` comes off every time she hands in. */
-export function createRound(chart: Chart, latencyMs: number): Round {
+export function createRound(chart: Chart, latencyMs: number, windowMs = HIT_WINDOW_MS): Round {
+  const exactMs = perfectMs(windowMs);
   const { notes } = chart;
   /** Per note: still falling, hit, or missed. */
   const state: ("wait" | "hit" | "miss")[] = notes.map(() => "wait");
@@ -169,13 +170,13 @@ export function createRound(chart: Chart, latencyMs: number): Round {
       const t = ms - latencyMs;
       for (let i = first; i < notes.length; i++) {
         const note = notes[i]!;
-        if (note.at - t > HIT_WINDOW_MS) break; // later notes are further still
+        if (note.at - t > windowMs) break; // later notes are further still
         if (state[i] !== "wait" || note.lane !== lane) continue;
         const errorMs = t - note.at;
-        if (Math.abs(errorMs) > HIT_WINDOW_MS) continue;
+        if (Math.abs(errorMs) > windowMs) continue;
         state[i] = "hit";
         hits += 1;
-        const exact = Math.abs(errorMs) <= PERFECT_MS;
+        const exact = Math.abs(errorMs) <= exactMs;
         if (exact) perfect += 1;
         return { kind: "hit", note, errorMs, verdict: exact ? "Tam!" : errorMs < 0 ? "Erken" : "Geç" };
       }
@@ -187,7 +188,7 @@ export function createRound(chart: Chart, latencyMs: number): Round {
       const missed: ChartNote[] = [];
       for (let i = first; i < notes.length; i++) {
         const note = notes[i]!;
-        if (t - note.at <= HIT_WINDOW_MS) break; // notes are in time order
+        if (t - note.at <= windowMs) break; // notes are in time order
         if (state[i] === "wait") {
           state[i] = "miss";
           misses += 1;
