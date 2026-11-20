@@ -32,13 +32,19 @@
  *   - İyi ki doğdun: the "Happy Birthday" tune she knows in Turkish, in C, in
  *     3/4, with its dotted pickup (G G) kept — that rhythm is the tune. Each
  *     pass ends on a held C and a bar's rest before the pickup comes again.
- *   - Hadi Bakalım (Sezen Aksu): the chorus, typed from memory by the agent;
- *     marked `unsure`.
+ *   - Für Elise (Beethoven, WoO 59): the right hand of the opening, in A
+ *     minor, 3/8 — the A section, the B phrase, a one-bar link, the A section
+ *     again. It replaced Hadi Bakalım (Sezen Aksu) after the review (G1):
+ *     that chorus was typed from a weak memory and Atıl heard it was wrong.
+ *     Für Elise was chosen because the agent knows its opening note for note;
+ *     only the link bar (12) is simplified. Still `unsure` until Atıl hears it.
  *   - Türk Marşı (Mozart, Rondo alla turca): copied verbatim from the
  *     prototype (`prototype/180-piano`), which Atıl played and tuned.
  *
- * Atıl re-checks tempo and fall speed on these real songs (#180, #187); the
- * values here are the verdict's start values.
+ * Tempo and fall speed started from the prototype verdict (#180) and were
+ * tuned by Atıl since: Zor on 2026-11-19 and after the review (E1), above.
+ * Für Elise took the Orta values of the song it replaced (60%, 240 px/s,
+ * ±170 ms) at its own tempo (♩ = 66, so a sixteenth falls every 379 ms).
  */
 
 export type PianoDifficulty = "Kolay" | "Orta" | "Zor";
@@ -85,22 +91,39 @@ export const PIANO_SONGS: readonly PianoSong[] = [
   {
     id: "orta",
     difficulty: "Orta",
-    name: "Hadi Bakalım",
-    by: "Sezen Aksu",
+    name: "Für Elise",
+    by: "Beethoven",
     cap: 0.85,
-    bpm: 110,
+    bpm: 66,
     tempoPct: 60,
     speed: 240,
     windowMs: 170,
-    src: `E5:.5 E5:.5 D5:.5 C5:.5 D5:1 R:1
-          C5:.5 C5:.5 B4:.5 A4:.5 B4:1 R:1
-          E5:.5 E5:.5 D5:.5 C5:.5 D5:.5 E5:.5 F5:1
-          E5:.5 D5:.5 C5:.5 B4:.5 A4:2
-          F5:.5 F5:.5 E5:.5 D5:.5 E5:1 R:1
-          D5:.5 D5:.5 C5:.5 B4:.5 C5:1 R:1
-          E5:.5 E5:.5 D5:.5 C5:.5 B4:.5 C5:.5 D5:1
-          C5:.5 B4:.5 A4:.5 G#4:.5 A4:2`,
-    unsure: "weak memory: the chorus's rhythm and shape; fix the pitches by ear",
+    // 3/8, one bar a line, the pickup alone on the first. A section (bars
+    // 1–8, second ending), the B phrase (9–11), one link bar (12, simplified:
+    // it skips the E6 bridge and leads straight back), the A section again,
+    // and a closing rest before the pickup comes round.
+    src: `E5:.25 D#5:.25
+          E5:.25 D#5:.25 E5:.25 B4:.25 D5:.25 C5:.25
+          A4:.5 R:.25 C4:.25 E4:.25 A4:.25
+          B4:.5 R:.25 E4:.25 G#4:.25 B4:.25
+          C5:.5 R:.25 E4:.25 E5:.25 D#5:.25
+          E5:.25 D#5:.25 E5:.25 B4:.25 D5:.25 C5:.25
+          A4:.5 R:.25 C4:.25 E4:.25 A4:.25
+          B4:.5 R:.25 E4:.25 C5:.25 B4:.25
+          A4:.5 R:.25 B4:.25 C5:.25 D5:.25
+          E5:.75 G4:.25 F5:.25 E5:.25
+          D5:.75 F4:.25 E5:.25 D5:.25
+          C5:.75 E4:.25 D5:.25 C5:.25
+          B4:.5 R:.25 E4:.25 E5:.25 D#5:.25
+          E5:.25 D#5:.25 E5:.25 B4:.25 D5:.25 C5:.25
+          A4:.5 R:.25 C4:.25 E4:.25 A4:.25
+          B4:.5 R:.25 E4:.25 G#4:.25 B4:.25
+          C5:.5 R:.25 E4:.25 E5:.25 D#5:.25
+          E5:.25 D#5:.25 E5:.25 B4:.25 D5:.25 C5:.25
+          A4:.5 R:.25 C4:.25 E4:.25 A4:.25
+          B4:.5 R:.25 E4:.25 C5:.25 B4:.25
+          A4:.5 R:.5`,
+    unsure: "replaces Hadi Bakalım (review G1); bar 12 is a simplified link — check it, and the whole, by ear",
   },
   {
     id: "zor",
@@ -127,4 +150,11 @@ export const PIANO_SONGS: readonly PianoSong[] = [
 export function songByChoice(key: string): PianoSong | undefined {
   const i = ["1", "2", "3"].indexOf(key);
   return i < 0 ? undefined : PIANO_SONGS[i];
+}
+
+/** The song with this id (`"kolay"`, `"orta"`, `"zor"`), or undefined: a
+ *  song card's `data-song`, or the level she played last as the page stored
+ *  it (review D5), which may be missing or stale. */
+export function songById(id: string | null | undefined): PianoSong | undefined {
+  return PIANO_SONGS.find((s) => s.id === id);
 }

@@ -678,7 +678,7 @@ test("Piyano opens on its start screen with the three songs and their caps; 3 pi
   await expect(start).toBeVisible();
   await expect(start).toContainText("Kanunda senin şarkın");
   const songs = start.getByRole("radiogroup", { name: "Şarkı" });
-  await expect(songs.getByRole("radio")).toHaveText([/Kolay.*İyi ki doğdun.*%70/, /Orta.*Hadi Bakalım.*%85/, /Zor.*Türk Marşı.*%100/]);
+  await expect(songs.getByRole("radio")).toHaveText([/Kolay.*İyi ki doğdun.*%70/, /Orta.*Für Elise.*%85/, /Zor.*Türk Marşı.*%100/]);
   await expect(songs.getByRole("radio", { name: /Kolay/ })).toHaveAttribute("aria-checked", "true");
 
   await page.keyboard.press("3");

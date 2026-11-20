@@ -17,12 +17,19 @@ The songs of the piano Game and the name-the-song pool, decided in
 | Level | Song | Notes |
 |---|---|---|
 | Kolay | İyi ki doğdun (Happy Birthday) | public domain in the EU |
-| Orta | Hadi Bakalım — Sezen Aksu (1991) | chorus melody |
+| Orta | Für Elise — Beethoven (WoO 59) | opening, right hand; public domain; waits for Atıl's ear |
 | Zor | Türk Marşı — Mozart | public domain |
 
 Start values from [Prototype: how does the piano Game feel?](https://github.com/atilileri/atilileri.github.io/issues/180):
-60% tempo, fall speed 190 / 240 / 300 px/s. Atıl re-checks them on these songs during the build.
-Each song repeats to about 90 s.
+60% tempo, fall speed 190 / 240 / 300 px/s. Atıl tuned Zor since: 65% tempo, 380 px/s and a ±100 ms
+hit window (review E1); Kolay and Orta keep ±170 ms. Each song repeats to about 90 s.
+
+**Orta changed** after the review (G1). Hadi Bakalım (Sezen Aksu, 1991) was typed from a weak memory
+and Atıl heard that it was wrong. The brief was another popular song whose melody the agent knows
+note for note. No Turkish pop melody met that bar, so the agent took Für Elise, which it knows exactly
+and which is among the best-known piano tunes in Turkey as anywhere: the A section, the B phrase, and
+the A section again. Bar 12, the link back from the B phrase, is simplified (the E6 bridge is left out). It still
+waits for Atıl's ear like the rest.
 
 ## Name-the-song
 
