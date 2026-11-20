@@ -519,8 +519,8 @@ const KM_UNITS = 200;
     const hard = scores[2];
     verdictEl.textContent =
       total >= PRIZE_BAR
-        ? "Üç zirve, %95 tamam!"
-        : `%95 için en önemlisi Seviye 3 (%50 sayar): orada %${hard} aldın.`;
+        ? `Üç zirve, %${PRIZE_BAR} tamam!`
+        : `%${PRIZE_BAR} için en önemlisi Seviye 3 (%${HIKING_LEVEL_WEIGHTS[2]} sayar): orada %${hard} aldın.`;
     verdictEl.classList.toggle("win", total >= PRIZE_BAR);
     shell.finish(total);
   }
