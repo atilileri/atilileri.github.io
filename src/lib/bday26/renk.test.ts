@@ -12,7 +12,20 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { deltaE, difference, hexToLab, mixColour, roundScore, targetScore, TUBES, type Lab } from "./renk.ts";
+import {
+  deltaE,
+  difference,
+  DROP_CAP,
+  hexToLab,
+  mixColour,
+  pickRound,
+  ROUND_TARGETS,
+  roundScore,
+  targetPool,
+  targetScore,
+  TUBES,
+  type Lab,
+} from "./renk.ts";
 
 test("one target: ΔE 0 and ΔE 1 are both 100 — a match better than 1 earns nothing extra", () => {
   assert.equal(targetScore(0), 100);
@@ -73,4 +86,47 @@ test("the mix: no drops is no colour; one tube alone is that tube's colour; 2 + 
   assert.equal(mixColour([0, 0, 0, 0, 0]), null);
   assert.ok(difference(mixColour([0, 0, 3, 0, 0])!, TUBES[2]!.hex) < 0.5);
   assert.equal(mixColour([2, 2, 0, 0, 0]), mixColour([1, 1, 0, 0, 0]));
+});
+
+/** A fixed random stream, so a test reads one known draw. */
+function seeded(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const POOL = targetPool();
+
+test("every target can be matched exactly within 12 drops: its hidden recipe makes it", () => {
+  assert.ok(POOL.length > 500, `only ${POOL.length} targets`);
+  for (const t of POOL) {
+    const drops = t.recipe.reduce((a, b) => a + b, 0);
+    assert.ok(drops >= 3 && drops <= DROP_CAP, `${t.recipe}: ${drops} drops`);
+    assert.equal(difference(mixColour(t.recipe)!, t.hex), 0);
+    assert.equal(targetScore(difference(mixColour(t.recipe)!, t.hex)), 100);
+  }
+});
+
+test("a target's recipe uses 2 to 4 tubes and is neither near-black nor near-white", () => {
+  for (const t of POOL) {
+    const tubes = t.recipe.filter((n) => n > 0).length;
+    assert.ok(tubes >= 2 && tubes <= 4, `${t.recipe}: ${tubes} tubes`);
+    const L = hexToLab(t.hex)[0];
+    assert.ok(L >= 25 && L <= 90, `${t.recipe} ${t.hex}: L* ${L}`);
+  }
+});
+
+test("a Round deals five targets from the pool, each at least ΔE 15 from the others", () => {
+  for (const seed of [1, 7, 42, 2026, 99991]) {
+    const round = pickRound(POOL, seeded(seed));
+    assert.equal(round.length, ROUND_TARGETS);
+    for (const t of round) assert.ok(POOL.includes(t));
+    for (let i = 0; i < round.length; i++) {
+      for (let j = i + 1; j < round.length; j++) {
+        assert.ok(difference(round[i]!.hex, round[j]!.hex) >= 15, `seed ${seed}: ${round[i]!.hex} and ${round[j]!.hex}`);
+      }
+    }
+  }
 });

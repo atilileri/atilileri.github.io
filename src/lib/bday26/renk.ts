@@ -129,6 +129,65 @@ export function difference(hexA: string, hexB: string): number {
   return deltaE(hexToLab(hexA), hexToLab(hexB));
 }
 
+// ── the targets ───────────────────────────────────────────────────────
+
+/** The most drops in one mix: hers and every hidden recipe's. */
+export const DROP_CAP = 12;
+/** Targets in one Round. */
+export const ROUND_TARGETS = 5;
+/** The least ΔE between two targets of the same Round. */
+export const TARGETS_APART = 15;
+
+/** One colour to match: its hidden recipe and the colour it makes. */
+export type Target = { recipe: Counts; hex: string; lab: Lab };
+
+const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+
+/**
+ * Every colour a Round may ask for (the verdict on #215): each proportion of
+ * the five tubes up to `DROP_CAP` drops (2 + 2 is 1 + 1, so only the
+ * smallest of each counts), using 2 to 4 tubes and at least 3 drops, with
+ * L* between 25 and 90 — no near-black, no near-white. Its recipe makes it,
+ * so a perfect match always exists. About 6,000 mixes: build it once.
+ */
+export function targetPool(): Target[] {
+  const pool: Target[] = [];
+  const cur = [0, 0, 0, 0, 0];
+  const visit = (i: number, total: number) => {
+    if (i === TUBES.length) {
+      const used = cur.filter((n) => n > 0).length;
+      if (total < 3 || used < 2 || used > 4 || cur.reduce(gcd) !== 1) return;
+      const hex = mixColour(cur)!;
+      const lab = hexToLab(hex);
+      if (lab[0] >= 25 && lab[0] <= 90) pool.push({ recipe: cur.slice(), hex, lab });
+      return;
+    }
+    for (let n = 0; n + total <= DROP_CAP; n++) {
+      cur[i] = n;
+      visit(i + 1, total + n);
+    }
+    cur[i] = 0;
+  };
+  visit(0, 0);
+  return pool;
+}
+
+/** Five targets for a Round, drawn from `pool`, each at least `TARGETS_APART`
+ *  from the others so no two look alike. */
+export function pickRound(pool: readonly Target[], rng: () => number): Target[] {
+  for (let tries = 0; tries < 200; tries++) {
+    const out: Target[] = [];
+    for (let k = 0; k < 400 && out.length < ROUND_TARGETS; k++) {
+      const c = pool[Math.floor(rng() * pool.length)]!;
+      if (out.every((o) => deltaE(o.lab, c.lab) >= TARGETS_APART)) out.push(c);
+    }
+    if (out.length === ROUND_TARGETS) return out;
+  }
+  throw new Error("bday26 renk: no five targets far enough apart");
+}
+
+// ── the scores ────────────────────────────────────────────────────────
+
 /** Up to this ΔE a target scores 100. */
 export const PERFECT_DE = 1;
 /** Score lost per ΔE above `PERFECT_DE`. */
