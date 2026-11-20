@@ -136,7 +136,8 @@ function bench() {
 test("holding Space fills the readout; letting go scores the step where it stopped", () => {
   const { b } = bench();
   assert.equal(b.press(1000), true);
-  near(b.value(1900), fillAt(grind, 0.9));
+  // 0.9 s held of the 1.8 s grind: 18 × 0.5^1.6 ≈ 5.94 g.
+  assert.ok(Math.abs(b.value(1900) - 5.94) < 0.01, `${b.value(1900)} g`);
   const r = b.release(2800)!;
   near(r.value, 18);
   assert.equal(r.score, 100);
