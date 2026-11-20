@@ -206,14 +206,6 @@ test("a buy at exactly the price goes through", () => {
   assert.equal(ledger.balance(), 0);
 });
 
-test("a Gift that left the shop is refused, whatever the Balance (#213)", () => {
-  const ledger = ledgerWith353Points();
-  assert.deepEqual(ledger.buy("resim"), { ok: false, reason: "retired" });
-  assert.deepEqual(ledger.buy("haftasonu"), { ok: false, reason: "retired" });
-  assert.equal(ledger.balance(), 353);
-  assert.equal(ledger.holds("resim"), false);
-});
-
 test("a Gift is held at most once: a second buy is refused", () => {
   const ledger = createLedger(memoryStore());
   for (const id of ["nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj"] as const) ledger.recordRound(id, 100);
@@ -481,30 +473,6 @@ test("Gifted points ride in the Save code and come back on restore in another br
   assert.equal(other.earned(), 353);
   assert.equal(other.balance(), 193);
   assert.deepEqual(other.gifted(), [{ points: 100, note: "sürpriz", at: AT }]);
-});
-
-test("a Save code made before the Prize Games restores: the retired weekend trip stays held and Returns half (#213)", async () => {
-  // Made when the weekend trip (480) and the paint set (310) were in the
-  // shop: 900 Points, the trip held, the paint set bought and Returned.
-  const before = {
-    best: { milyoner: 100, nerede: 100, hafiza: 100, wordle: 100, sarki: 100, piyano: 100, kadraj: 100, surus: 100, yuruyus: 100 },
-    jackpot: false,
-    log: [
-      { kind: "buy", gift: "haftasonu", paid: 480 },
-      { kind: "buy", gift: "resim", paid: 310 },
-      { kind: "return", gift: "resim", paid: 310 },
-    ],
-  };
-  const { code } = await encodeSaveCode(JSON.stringify(before));
-  const ledger = createLedger(memoryStore());
-  assert.equal((await ledger.restore(code)).ok, true);
-  assert.equal(ledger.earned(), 900);
-  // 900 − 480 − 310 + 155
-  assert.equal(ledger.balance(), 265);
-  assert.deepEqual([...ledger.held().entries()], [["haftasonu", 480]]);
-  assert.deepEqual(ledger.returnGift("haftasonu"), { ok: true, returned: 240 });
-  assert.equal(ledger.balance(), 505);
-  assert.deepEqual(ledger.buy("haftasonu"), { ok: false, reason: "retired" });
 });
 
 test("a Save code made before Gifted points existed still restores, with none", async () => {

@@ -18,16 +18,15 @@
  *     machine and the 3 Prize Games give none (#213). No bonus for a Small
  *     prize. 1,000 is the most, which follows from clamping every score to
  *     0..100 before it is kept.
- *   - Gifts held = Gifts whose last event is a buy. A retired Gift (#213)
- *     bought before it left the shop stays held until its Return.
+ *   - Gifts held = Gifts whose last event is a buy.
  *   - Balance = Points earned + Gifted points − Σ paid of every buy + Σ ½
  *     paid of every Return. Prices are multiples of 10, so a Return is
  *     always whole.
  *   - Gifted points are whole numbers above 0. They are NOT Points earned,
  *     so the 1,000 cap is for Game Points only. Only the newest gift can be
  *     undone (a typo), and not when its Points are already spent.
- *   - Buy needs: Gift in the shop (not retired), not held, Balance ≥
- *     catalogue price. The event stores paid = the catalogue price NOW.
+ *   - Buy needs: Gift not held, Balance ≥ catalogue price. The event stores
+ *     paid = the catalogue price NOW.
  *   - Return needs: Gift held. It gives back half of THAT buy's paid.
  *   - Small prize won = Best score ≥ 95 for a skill Game or a Prize Game;
  *     the jackpot flag for the slot machine.
@@ -180,7 +179,7 @@ export type RoundOutcome = {
 
 export type BuyOutcome =
   | { ok: true; paid: number }
-  | { ok: false; reason: "retired" | "held" | "balance" };
+  | { ok: false; reason: "held" | "balance" };
 
 export type GiftPointsOutcome =
   | { ok: true; points: number }
@@ -225,8 +224,7 @@ export type Ledger = {
   /** One finished Round. Keeps the higher of the old Best score and this
    *  one. `jackpot: true` on the slot machine sets the jackpot flag. */
   recordRound(id: GameId, score: number, outcome?: { jackpot?: boolean }): RoundOutcome;
-  /** Refused when the Gift is retired, when held, or when the Balance is
-   *  below the price. */
+  /** Refused when held or when the Balance is below the price. */
   buy(id: GiftId): BuyOutcome;
   /** Refused when not held. Gives back half of the price paid. */
   returnGift(id: GiftId): ReturnOutcome;
@@ -297,7 +295,6 @@ export function createLedger(store: KeyValueStore): Ledger {
 
     buy(id) {
       const gift = giftById(id);
-      if (gift.retired) return { ok: false, reason: "retired" };
       if (heldOf(p).has(id)) return { ok: false, reason: "held" };
       if (balanceOf(p) < gift.price) return { ok: false, reason: "balance" };
       const next = clone(p);

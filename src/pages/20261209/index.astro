@@ -7,8 +7,7 @@
  * prizes won) and the tools; a 4-column grid of the 14 Game tiles (the 10
  * skill Games, the 3 Prize Games, the slot machine; a Prize Game's tile and
  * the slot's say "Puan vermez" where a skill Game's show its Points); the Gift
- * shop as a right column that is always in view, Gifts held at the top. A
- * retired Gift (#213) has a row only while she holds it, so she can Return it.
+ * shop as a right column that is always in view, Gifts held at the top.
  * Each tile: Game name, one-line rule, Best score, the Points it earns, a
  * progress bar with the 95% mark, and the Small prize on its foot — a lock
  * and the prize's name until it is won, green "Kazandın!" after (how a prize
@@ -171,7 +170,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         <ul class="gifts" data-shop-list>
           {
             GIFTS.map((g) => (
-              <li class="gift" data-gift={g.id} hidden={g.retired} tabindex="0">
+              <li class="gift" data-gift={g.id} tabindex="0">
                 <span class="gicon" aria-hidden="true">{GIFT_ICON[g.id]}</span>
                 <div class="gtext">
                   <b class="gname">{g.name}</b>
@@ -338,9 +337,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       const isHeld = paid != null;
       const short = gift.price - balance;
       row.toggleAttribute("data-held", isHeld);
-      // A retired Gift (#213) is never for sale: its row shows only while
-      // she holds one bought before, so she can Return it.
-      if (gift.retired) row.hidden = !isHeld;
       const shortEl = $(row, "[data-short]");
       shortEl.hidden = isHeld || short <= 0;
       shortEl.textContent = `${fmt(short)} eksik`;
@@ -1033,10 +1029,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     align-items: center;
     padding: 7px 0;
     border-bottom: 1px solid var(--bd-line-soft);
-  }
-  /* A retired Gift's row, while she does not hold it (#213). */
-  .gift[hidden] {
-    display: none;
   }
   .mine .gift {
     border-bottom: 0;

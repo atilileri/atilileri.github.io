@@ -89,13 +89,6 @@ test("the Proof lists the Gifts she holds in shop order and the Small prizes she
   assert.equal(proof.prizes[6]?.desc, "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti.");
 });
 
-test("a retired Gift she bought before it left the shop is still on the Proof (#213)", async () => {
-  const ledger = createLedger(memoryStore());
-  ledger.replace({ best: { nerede: 100 }, jackpot: false, log: [{ kind: "buy", gift: "haftasonu", paid: 480 }] });
-  const proof = await proofOf(ledger, BIRTHDAY);
-  assert.deepEqual(proof.gifts.map((g) => g.name), ["Hafta sonu gezisi"]);
-});
-
 test("the Proof carries the day it is printed, written the Turkish way", async () => {
   assert.equal((await proofOf(anEvening(), BIRTHDAY)).date, "9 Aralık 2026");
   // A casual Round months later, printed then: a month with Turkish letters.

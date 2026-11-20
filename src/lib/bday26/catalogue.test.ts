@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { GAMES, GIFTS, SHOP_GIFTS } from "./catalogue.ts";
+import { GAMES, GIFTS } from "./catalogue.ts";
 
 test("every Gift price is a multiple of 10, so a Return is always whole", () => {
   for (const gift of GIFTS) assert.equal(gift.price % 10, 0, `${gift.id}: ${gift.price}`);
@@ -30,7 +30,7 @@ test("the hub has 14 Games: 10 skill Games, 3 Prize Games, the slot machine last
 // same day (Piyano's kanun song), so 14 − 2 = 12.
 test("the shop shows 12 Gifts; the weekend trip and the paint set are Small prizes now, not Gifts", () => {
   assert.deepEqual(
-    SHOP_GIFTS.map((g) => `${g.id} ${g.price}`),
+    GIFTS.map((g) => `${g.id} ${g.price}`),
     [
       "gezi 950",
       "objektif 850",
