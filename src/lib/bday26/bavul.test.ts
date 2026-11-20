@@ -215,6 +215,15 @@ test("the close question: Esc goes back to packing, Enter ends the Round once", 
   assert.deepEqual(run(asked, { t: "act" }).events, [{ kind: "finish" }]);
 });
 
+test("Enter on the close question ends the Round with the question closed, the bag as it was", () => {
+  const packed = run(newRound(0), { t: "list", i: LAPTOP }, { t: "act" }).state;
+  const asked = run(packed, { t: "close" }).state;
+  const done = run(asked, { t: "act" });
+  assert.deepEqual(done.events, [{ kind: "finish" }]);
+  assert.equal(done.state.closing, false);
+  assert.deepEqual(done.state.items, packed.items);
+});
+
 test("take out: Backspace on a packed item, or a list click while holding a bag item, puts it back on the list", () => {
   const packed = run(newRound(0), { t: "list", i: LAPTOP }, { t: "act" }).state;
   const out1 = run(packed, { t: "point", at: { fx: 1.5, fy: 1.5 } }, { t: "takeOut" }).state;

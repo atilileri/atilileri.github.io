@@ -392,9 +392,13 @@ export function step(s0: Round, a: Action): { state: Round; events: BavulEvent[]
   const s = clone(s0);
   const ev: BavulEvent[] = [];
   if (s.closing) {
-    // The close question: Enter / "Kapat" ends the Round, Esc / "Devam et" goes back.
-    if (a.t === "act") ev.push({ kind: "finish" });
-    else if (a.t === "cancel") s.closing = false;
+    // The close question: Enter / "Kapat" ends the Round (and closes the
+    // question, so the page keeps no state of its own), Esc / "Devam et"
+    // goes back.
+    if (a.t === "act") {
+      s.closing = false;
+      ev.push({ kind: "finish" });
+    } else if (a.t === "cancel") s.closing = false;
     return { state: s, events: ev };
   }
   switch (a.t) {
