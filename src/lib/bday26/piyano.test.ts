@@ -10,12 +10,14 @@
  * The expected numbers come from the prototype verdict (#180): 6 lanes on S D
  * F J K L, higher notes further right, 60% tempo, a hit window of ±170 ms
  * ("Tam!" within ±85 ms) after the +30 ms latency offset, misses for notes
- * that pass the window unhit, stray presses counted but free, and every song
- * repeated to about 90 s.
+ * that pass the window unhit, stray presses counted (the score takes one hit
+ * for each, `scores.ts`), and every song repeated to about 90 s.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chartSong, createRound, laneOfKey, type Chart } from "./piyano.ts";
+import { chartSong, createRound, laneOfKey, mistakeBudget, type Chart } from "./piyano.ts";
+import { PIANO_SONGS } from "./piano-songs.ts";
+import { prizeHintOf } from "./prize-hints.ts";
 
 // ------------------------------------------------------------------ keys
 
@@ -171,7 +173,7 @@ test("a song's own ±120 ms window: 120 late hits, 121 is stray, a miss comes af
   assert.equal(round.advance(1151).length, 1); // 121 ms: missed
 });
 
-test("a press on the wrong lane is a stray press: counted, no penalty, the note still waits", () => {
+test("a press on the wrong lane is a stray press: counted, and the note still waits", () => {
   const round = createRound(CHART, LATENCY);
   assert.equal(round.press(0, 1030).kind, "stray");
   assert.equal(round.press(5, 1030).kind, "stray");
@@ -231,4 +233,35 @@ test("a Round with every note missed still ends: unpressed notes all count as mi
   assert.equal(round.done(3000), true);
   assert.equal(round.misses, 3);
   assert.equal(round.hits, 0);
+});
+
+// --------------------------------------------------------- error budget
+// Zor's HUD says "Hata 4 / 10": her mistakes so far over the most she may
+// make and still score 95 (review D3). A missed note and a stray press each
+// cost one hit, so both are mistakes.
+
+test("a missed note and a stray press are each one mistake", () => {
+  const round = createRound(CHART, LATENCY);
+  round.press(2, 1030); // hit
+  round.press(0, 1030); // stray
+  round.advance(5000); // the other two notes pass unhit
+  assert.equal(round.mistakes, 3);
+});
+
+test("the budget is the most mistakes that still score 95: 10 of 210 notes on a 1.00 cap", () => {
+  // 200 / 210 = 95.2% → 95; 199 / 210 = 94.8% → 94.
+  assert.equal(mistakeBudget(210, 1.0), 10);
+  // 95 / 100 is exactly the edge.
+  assert.equal(mistakeBudget(100, 1.0), 5);
+});
+
+test("a song whose cap can never reach 95 has no budget", () => {
+  assert.equal(mistakeBudget(210, 0.85), undefined);
+  assert.equal(mistakeBudget(0, 1.0), undefined);
+});
+
+test("Zor's budget on the real chart is the number the start card's prize hint names", () => {
+  const zor = PIANO_SONGS.find((s) => s.difficulty === "Zor")!;
+  const hinted = Number(/en fazla (\d+) hata/.exec(prizeHintOf("piyano")!)![1]);
+  assert.equal(mistakeBudget(chartSong(zor).notes.length, zor.cap), hinted);
 });
