@@ -15,7 +15,7 @@
  * The slot machine has none: its prize is the jackpot, which no skill
  * reaches.
  */
-import { gameById, PRIZE_BAR, type GameId } from "./catalogue.ts";
+import { gameById, isLuckGame, PRIZE_BAR, type GameId } from "./catalogue.ts";
 import { skiMissesAllowed } from "./scores.ts";
 import { MEMORY_PRIZE_MOVES } from "./memory.ts";
 
@@ -52,5 +52,5 @@ export function prizeHintOf(id: GameId): string | undefined {
 /** How this Game's Small prize is won, after its name on the prize line:
  *  "%95 yapınca senin", or "Jackpot'ta senin" for the luck Game. */
 export function prizeHowOf(id: GameId): string {
-  return gameById(id).luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`;
+  return isLuckGame(gameById(id)) ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`;
 }

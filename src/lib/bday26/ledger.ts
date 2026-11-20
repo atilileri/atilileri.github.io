@@ -71,6 +71,7 @@ import {
   gameById,
   giftById,
   givesPoints,
+  isLuckGame,
   isGameId,
   isGiftId,
   type GameId,
@@ -159,7 +160,7 @@ export function balanceOf(p: Progress): number {
 
 /** Whether one Game's Small prize is won. */
 export function prizeWonOf(p: Progress, id: GameId): boolean {
-  if (gameById(id).luck) return p.jackpot;
+  if (isLuckGame(gameById(id))) return p.jackpot;
   return (p.best[id] ?? 0) >= PRIZE_BAR;
 }
 
@@ -324,7 +325,7 @@ export function createLedger(store: KeyValueStore): Ledger {
       const improved = before == null || kept > before;
       const next = clone(p);
       if (improved) next.best[id] = kept;
-      if (outcome?.jackpot && gameById(id).luck) next.jackpot = true;
+      if (outcome?.jackpot && isLuckGame(gameById(id))) next.jackpot = true;
       commit(next);
       return { best: p.best[id] ?? kept, improved, prizeWonNow: !wonBefore && prizeWonOf(p, id) };
     },

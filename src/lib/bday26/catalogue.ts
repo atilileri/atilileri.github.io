@@ -23,11 +23,14 @@
  * RULES THE DATA CARRIES.
  *   - A Game's `id` is its route slug: `/20261209/<id>/` (spec, "Route and
  *     page shell"). Short ASCII, no diacritics.
- *   - `luck: true` marks the slot machine: it gives no Points, and its Small
- *     prize is won by a jackpot, not by a 95% Best score.
- *   - `prizeGame: true` marks a Prize Game (#213; glossary "Prize Game"): it
- *     gives no Points, and its Small prize is won at a 95% Best score like a
- *     skill Game's. So the 1,000 the Games can give stays 10 × 100.
+ *   - `kind` says which of the three kinds a Game is (review M3), and the
+ *     helpers below are the only places that read it:
+ *       "skill": gives Points, and its Small prize is won at a 95% Best score.
+ *       "prize": a Prize Game (#213; glossary "Prize Game"): no Points, its
+ *         Small prize won at a 95% Best score like a skill Game's. So the
+ *         1,000 the Games can give stays 10 × 100.
+ *       "luck": the slot machine: no Points, and its Small prize is won by a
+ *         jackpot, not by a 95% Best score.
  *   - The weekend trip and the paint set left the shop to become the Small
  *     prizes of Bavul hazırla and Renk karıştır (#213). She had not played
  *     yet, so no saved progress holds them and their ids are gone.
@@ -61,16 +64,17 @@ export type GameId =
 
 export type SmallPrize = { name: string; desc: string };
 
+/** The three kinds of Game: a skill Game, a Prize Game, the luck Game. */
+export type GameKind = "skill" | "prize" | "luck";
+
 export type Game = {
   id: GameId;
   /** Turkish name, as the tile shows it. Draft until Atıl approves (#193). */
   name: string;
   /** The one-line rule, as she would read it on the tile. Draft, same. */
   rule: string;
-  /** The slot machine: no Points, Small prize on a jackpot. */
-  luck?: boolean;
-  /** A Prize Game (#213): no Points, Small prize at a 95% Best score. */
-  prizeGame?: boolean;
+  /** Skill, Prize Game, or the luck Game. Read it through the helpers. */
+  kind: GameKind;
   prize: SmallPrize;
 };
 
@@ -82,20 +86,20 @@ export const PRIZE_BAR = 95;
 export const MAX_POINTS = 1000;
 
 export const GAMES: readonly Game[] = [
-  { id: "milyoner", name: "Milyoner", rule: "12 soru, kolaydan zora", prize: { name: "Yemek Kartı", desc: "Ne istersen pişiriyorum." } },
-  { id: "nerede", name: "Bu nerede?", rule: "Fotoğraftaki yeri bul", prize: { name: "Paleis Het Loo gezisi", desc: "Apeldoorn'daki Paleis Het Loo sarayına bir gezi." } },
-  { id: "hafiza", name: "Hafıza kartları", rule: "8 çift fotoğrafı eşle", prize: { name: "Mei Wah'da akşam yemeği", desc: "Eindhoven'daki Mei Wah'da akşam yemeği." } },
-  { id: "wordle", name: "Kelime avı", rule: "Bizim kelimelerle Wordle", prize: { name: "Paper Apps: The Games", desc: "Gladden Design'ın kâğıt oyun defteri." } },
-  { id: "sarki", name: "Şarkıyı bil", rule: "İlk notalardan şarkıyı tanı", prize: { name: "Dodo'da kahvaltı", desc: "Sint Gerardusplein'deki Dodo coffee bar'da kahvaltı." } },
-  { id: "piyano", name: "Piyano", rule: "Düşen notalara bas", prize: { name: "Kanunda senin şarkın", desc: "Senin seçtiğin bir şarkıyı kanunda çalışıp sana çalıyorum." } },
-  { id: "kadraj", name: "Kadraj", rule: "Üçte bir kuralıyla kırp", prize: { name: "Sage bottomless portafiltre", desc: "Mükemmel shot'lar için Sage makinesine bottomless portafiltre." } },
-  { id: "surus", name: "Hollanda'da sürüş", rule: "Bisikletlilere yol ver, kanala düşme", prize: { name: "Çift bisiklet çantası", desc: "40 litreden büyük, iki taraflı bisiklet çantası." } },
-  { id: "yuruyus", name: "Yürüyüş haritası", rule: "Zirveye en kısa yolu çiz", prize: { name: "Piknik günü", desc: "Yeri sen seç, sepeti ben hazırlayayım." } },
-  { id: "kayak", name: "Kayak macerası", rule: "Kayalardan atla, bayrakları topla", prize: { name: "Termal spa günü", desc: "Senin seçtiğin bir termal spada bir gün." } },
-  { id: "bavul", name: "Bavul hazırla", rule: "Bavulu boşluksuz doldur, 23 kg'ı aşma", prizeGame: true, prize: { name: "Hafta sonu gezisi", desc: "Kassel, Brugge, Lüksemburg'da yürüyüş ya da senin seçtiğin bir hafta sonu." } },
-  { id: "renk", name: "Renk karıştır", rule: "Damlaları karıştır, hedef rengi tuttur", prizeGame: true, prize: { name: "Resim seti", desc: "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti." } },
-  { id: "barista", name: "Barista", rule: "Öğüt, sıkıştır, demle: yeşil bantta bırak", prizeGame: true, prize: { name: "Simon Levelt kahve tadım paketi", desc: "Simon Levelt'ten çekirdek kahve proefpakket'i." } },
-  { id: "slot", name: "Slot makinesi", rule: "Çevir, şansını dene", luck: true, prize: { name: "Kazımalı dünya haritası", desc: "Gittiğimiz yerleri kazıyacağımız bir dünya haritası yapbozu." } },
+  { id: "milyoner", name: "Milyoner", rule: "12 soru, kolaydan zora", kind: "skill", prize: { name: "Yemek Kartı", desc: "Ne istersen pişiriyorum." } },
+  { id: "nerede", name: "Bu nerede?", rule: "Fotoğraftaki yeri bul", kind: "skill", prize: { name: "Paleis Het Loo gezisi", desc: "Apeldoorn'daki Paleis Het Loo sarayına bir gezi." } },
+  { id: "hafiza", name: "Hafıza kartları", rule: "8 çift fotoğrafı eşle", kind: "skill", prize: { name: "Mei Wah'da akşam yemeği", desc: "Eindhoven'daki Mei Wah'da akşam yemeği." } },
+  { id: "wordle", name: "Kelime avı", rule: "Bizim kelimelerle Wordle", kind: "skill", prize: { name: "Paper Apps: The Games", desc: "Gladden Design'ın kâğıt oyun defteri." } },
+  { id: "sarki", name: "Şarkıyı bil", rule: "İlk notalardan şarkıyı tanı", kind: "skill", prize: { name: "Dodo'da kahvaltı", desc: "Sint Gerardusplein'deki Dodo coffee bar'da kahvaltı." } },
+  { id: "piyano", name: "Piyano", rule: "Düşen notalara bas", kind: "skill", prize: { name: "Kanunda senin şarkın", desc: "Senin seçtiğin bir şarkıyı kanunda çalışıp sana çalıyorum." } },
+  { id: "kadraj", name: "Kadraj", rule: "Üçte bir kuralıyla kırp", kind: "skill", prize: { name: "Sage bottomless portafiltre", desc: "Mükemmel shot'lar için Sage makinesine bottomless portafiltre." } },
+  { id: "surus", name: "Hollanda'da sürüş", rule: "Bisikletlilere yol ver, kanala düşme", kind: "skill", prize: { name: "Çift bisiklet çantası", desc: "40 litreden büyük, iki taraflı bisiklet çantası." } },
+  { id: "yuruyus", name: "Yürüyüş haritası", rule: "Zirveye en kısa yolu çiz", kind: "skill", prize: { name: "Piknik günü", desc: "Yeri sen seç, sepeti ben hazırlayayım." } },
+  { id: "kayak", name: "Kayak macerası", rule: "Kayalardan atla, bayrakları topla", kind: "skill", prize: { name: "Termal spa günü", desc: "Senin seçtiğin bir termal spada bir gün." } },
+  { id: "bavul", name: "Bavul hazırla", rule: "Bavulu boşluksuz doldur, 23 kg'ı aşma", kind: "prize", prize: { name: "Hafta sonu gezisi", desc: "Kassel, Brugge, Lüksemburg'da yürüyüş ya da senin seçtiğin bir hafta sonu." } },
+  { id: "renk", name: "Renk karıştır", rule: "Damlaları karıştır, hedef rengi tuttur", kind: "prize", prize: { name: "Resim seti", desc: "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti." } },
+  { id: "barista", name: "Barista", rule: "Öğüt, sıkıştır, demle: yeşil bantta bırak", kind: "prize", prize: { name: "Simon Levelt kahve tadım paketi", desc: "Simon Levelt'ten çekirdek kahve proefpakket'i." } },
+  { id: "slot", name: "Slot makinesi", rule: "Çevir, şansını dene", kind: "luck", prize: { name: "Kazımalı dünya haritası", desc: "Gittiğimiz yerleri kazıyacağımız bir dünya haritası yapbozu." } },
 ];
 
 export type GiftId =
@@ -139,7 +143,18 @@ export const GIFTS: readonly Gift[] = [
 /** True when a Game's Best score earns Points: a skill Game. The slot
  *  machine and the Prize Games earn none. */
 export function givesPoints(game: Game): boolean {
-  return !game.luck && !game.prizeGame;
+  return game.kind === "skill";
+}
+
+/** True for a Prize Game: no Points, its Small prize at a 95% Best score. */
+export function isPrizeGame(game: Game): boolean {
+  return game.kind === "prize";
+}
+
+/** True for the luck Game, the slot machine: its Small prize is won by a
+ *  jackpot, not by a Best score, and no 95% bar applies to it. */
+export function isLuckGame(game: Game): boolean {
+  return game.kind === "luck";
 }
 
 /** The Game with this id. Throws on an unknown id: the catalogue is closed. */

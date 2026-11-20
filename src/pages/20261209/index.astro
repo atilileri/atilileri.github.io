@@ -92,7 +92,7 @@ import Welcome from "../../components/bday26/Welcome.astro";
 import Admin from "../../components/bday26/Admin.astro";
 import EffectsToggle from "../../components/bday26/EffectsToggle.astro";
 import MusicToggle from "../../components/bday26/MusicToggle.astro";
-import { GAMES, GIFTS, PRIZE_BAR, givesPoints } from "../../lib/bday26/catalogue";
+import { GAMES, GIFTS, PRIZE_BAR, givesPoints, isLuckGame } from "../../lib/bday26/catalogue";
 import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
 
 const fmt = (n: number) => n.toLocaleString("tr-TR");
@@ -140,7 +140,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         <ul class="grid">
           {
             GAMES.map((g) => (
-              <li class="tile" data-game={g.id} data-luck={g.luck || undefined}>
+              <li class="tile" data-game={g.id} data-luck={isLuckGame(g) || undefined}>
                 <div class="tile-head">
                   <span class="icon" aria-hidden="true">{GAME_ICON[g.id]}</span>
                   <div class="tile-name">
@@ -155,7 +155,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   </div>
                   <span class="pts" data-points>{givesPoints(g) ? "Henüz oynamadın" : "Puan vermez"}</span>
                 </div>
-                {!g.luck && (
+                {!isLuckGame(g) && (
                   <div class="track" aria-hidden="true" title={`%${PRIZE_BAR} yapınca küçük ödül senin`}>
                     <div class="fill" data-fill style="width: 0%" />
                     <div class="mark" style={`left: ${PRIZE_BAR}%`} />

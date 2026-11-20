@@ -100,7 +100,7 @@
  * that script stops effect loops on every screen, holds the music while the
  * leave confirm asks, and plays the Small prize celebration.
  */
-import { gameById, PRIZE_BAR, type GameId } from "./catalogue.ts";
+import { gameById, isPrizeGame, PRIZE_BAR, type GameId } from "./catalogue.ts";
 import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "./icons.ts";
 import type { Ledger, RoundOutcome } from "./ledger.ts";
 import { prizeHintOf, prizeHowOf } from "./prize-hints.ts";
@@ -212,7 +212,7 @@ export type GameShell = {
 
 export function createGameShell(options: ShellOptions): GameShell {
   const { game, ledger, hooks, view, leave, resultScreen = true, startScreen = true, onPhase } = options;
-  const { prizeGame = false } = gameById(game);
+  const prizeGame = isPrizeGame(gameById(game));
   const hint = prizeHintOf(game);
   let phase: ShellPhase = "start";
 

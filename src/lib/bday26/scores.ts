@@ -68,7 +68,7 @@ export function memoryScore(moves: number): number {
  * Slot machine (#200; spec row "triple = 100 (jackpot), pair = 50, none =
  * 0"). The spin's outcome, as `spin` in `./slot.ts` drew it: that module
  * alone says what counts as three alike or two (review L6), so the rule is
- * written once. The luck Game (`luck` in the catalogue): it earns no
+ * written once. The luck Game (`kind: "luck"` in the catalogue): it earns no
  * Points, and only the jackpot wins its Small prize, so a 100 here wins
  * nothing more. The outcome is spelled here, not imported, so this file
  * still imports nothing.

@@ -75,7 +75,7 @@
  * and the Small prize line say so (`prizeHowOf`, shared with the shell's
  * painting), and it has no prize hint.
  */
-import { gameById, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
+import { gameById, isLuckGame, PRIZE_BAR, type GameId } from "../../lib/bday26/catalogue";
 import { GAME_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
 import { prizeHintOf, prizeHowOf } from "../../lib/bday26/prize-hints";
 import EffectsToggle from "./EffectsToggle.astro";
@@ -100,7 +100,7 @@ interface Props {
 const { game: id, keys, resultAside = false, startScreen = true, music } = Astro.props;
 const game = gameById(id);
 /** What a Round aims at: %95, or the jackpot for the luck Game. */
-const bar = game.luck ? "Jackpot" : `%${PRIZE_BAR}`;
+const bar = isLuckGame(game) ? "Jackpot" : `%${PRIZE_BAR}`;
 /** What %95 means here; the script hides it once the Small prize is won. */
 const hint = prizeHintOf(id);
 const hasResultSlot = Astro.slots.has("result");

@@ -1,5 +1,5 @@
 /*
- * Tests for the catalogue's one arithmetic promise.
+ * Tests for the catalogue's arithmetic promise and its three Game kinds.
  *
  *   node --test src/lib/bday26/catalogue.test.ts
  *
@@ -10,7 +10,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { GAMES, GIFTS } from "./catalogue.ts";
+import { GAMES, GIFTS, givesPoints, isLuckGame, isPrizeGame } from "./catalogue.ts";
 
 test("every Gift price is a multiple of 10, so a Return is always whole", () => {
   for (const gift of GIFTS) assert.equal(gift.price % 10, 0, `${gift.id}: ${gift.price}`);
@@ -22,8 +22,21 @@ test("the hub has 14 Games: 10 skill Games, 3 Prize Games, the slot machine last
     GAMES.map((g) => g.id).slice(-4),
     ["bavul", "renk", "barista", "slot"],
   );
-  assert.deepEqual(GAMES.filter((g) => g.prizeGame).map((g) => g.id), ["bavul", "renk", "barista"]);
-  assert.equal(GAMES.filter((g) => g.luck).length, 1);
+});
+
+test("only the 10 skill Games give Points", () => {
+  assert.deepEqual(
+    GAMES.filter(givesPoints).map((g) => g.id),
+    ["milyoner", "nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak"],
+  );
+});
+
+test("the Prize Games are Bavul hazırla, Renk karıştır and Barista", () => {
+  assert.deepEqual(GAMES.filter(isPrizeGame).map((g) => g.id), ["bavul", "renk", "barista"]);
+});
+
+test("the slot machine is the one luck Game", () => {
+  assert.deepEqual(GAMES.filter(isLuckGame).map((g) => g.id), ["slot"]);
 });
 
 // #213 says 11: it counted the 13 Gifts of main. De Slak joined the shop the
