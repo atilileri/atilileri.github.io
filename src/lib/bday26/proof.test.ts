@@ -36,8 +36,9 @@ const BIRTHDAY = new Date(2026, 11, 9);
 
 /**
  * An evening's progress: 683 Points (nerede, hafiza, kadraj, sarki and piyano
- * at 100, wordle at 95.5, milyoner at 88, the slot at 40 with the jackpot),
- * then Rocky Horror bought first and the paint set second.
+ * at 100, wordle at 95.5, milyoner at 88, the slot at 40 with the jackpot;
+ * Renk karıştır at 96 is a Prize Game and adds none), then Rocky Horror
+ * bought first and the photo course second.
  */
 function anEvening() {
   const ledger = createLedger(memoryStore());
@@ -48,25 +49,27 @@ function anEvening() {
   ledger.recordRound("piyano", 100);
   ledger.recordRound("wordle", 95.5);
   ledger.recordRound("milyoner", 88);
+  ledger.recordRound("renk", 96);
   ledger.recordRound("slot", 40, { jackpot: true });
   ledger.buy("rocky");
-  ledger.buy("resim");
+  ledger.buy("kurs");
   return ledger;
 }
 
 test("the Proof lists the Gifts she holds in shop order and the Small prizes she won, each with its line", async () => {
   const proof = await proofOf(anEvening(), BIRTHDAY);
 
-  // The paint set (310) sits above Rocky Horror (260) as the shop lists them,
-  // although it was bought second.
+  // The photo course (290) sits above Rocky Horror (260) as the shop lists
+  // them, although it was bought second.
   assert.deepEqual(
     proof.gifts.map((g) => g.name),
-    ["Resim seti", "Rocky Horror film gecesi"],
+    ["Online fotoğraf kursu", "Rocky Horror film gecesi"],
   );
-  assert.equal(proof.gifts[0]?.desc, "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti.");
+  assert.equal(proof.gifts[0]?.desc, "Udemy ya da Skillshare'de senin seçtiğin bir seyahat fotoğrafçılığı kursu.");
 
-  // Seven Small prizes: six skill Games at or over 95%, the slot by its
-  // jackpot. Milyoner at 88% is not there. Hub order, the slot last.
+  // Eight Small prizes: six skill Games at or over 95%, the Prize Game Renk
+  // karıştır at 96%, the slot by its jackpot. Milyoner at 88% is not there.
+  // Hub order: the Prize Game after the skill Games, the slot last.
   assert.deepEqual(
     proof.prizes.map((p) => p.name),
     [
@@ -76,11 +79,21 @@ test("the Proof lists the Gifts she holds in shop order and the Small prizes she
       "Dodo'da kahvaltı",
       "Kanunda senin şarkın",
       "Sage bottomless portafiltre",
+      "Resim seti",
       "Kazımalı dünya haritası",
     ],
   );
   assert.equal(proof.prizes[1]?.game, "Hafıza kartları");
   assert.equal(proof.prizes[1]?.desc, "Eindhoven'daki Mei Wah'da akşam yemeği.");
+  assert.equal(proof.prizes[6]?.game, "Renk karıştır");
+  assert.equal(proof.prizes[6]?.desc, "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti.");
+});
+
+test("a retired Gift she bought before it left the shop is still on the Proof (#213)", async () => {
+  const ledger = createLedger(memoryStore());
+  ledger.replace({ best: { nerede: 100 }, jackpot: false, log: [{ kind: "buy", gift: "haftasonu", paid: 480 }] });
+  const proof = await proofOf(ledger, BIRTHDAY);
+  assert.deepEqual(proof.gifts.map((g) => g.name), ["Hafta sonu gezisi"]);
 });
 
 test("the Proof carries the day it is printed, written the Turkish way", async () => {
@@ -105,8 +118,8 @@ test("the Proof prints the Save code Yedekle shows, with its last 6 characters a
   // The paper is the last backup: typed back in, it holds the same Gifts.
   const another = createLedger(memoryStore());
   assert.equal((await another.restore(proof.code)).ok, true);
-  assert.deepEqual([...another.held().keys()], ["rocky", "resim"]);
-  assert.deepEqual(another.prizesWon(), ["nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "slot"]);
+  assert.deepEqual([...another.held().keys()], ["rocky", "kurs"]);
+  assert.deepEqual(another.prizesWon(), ["nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "renk", "slot"]);
 });
 
 test("the Proof lists the Gifted points Atıl gave, with their notes and their sum, and none when he gave none", async () => {

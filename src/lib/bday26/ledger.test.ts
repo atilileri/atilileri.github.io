@@ -147,6 +147,37 @@ test("a jackpot flag on a skill Game means nothing", () => {
   assert.equal(ledger.prizeWon("slot"), false);
 });
 
+// ---------------------------------------------------------- Prize Games
+
+test("a Prize Game gives no Points, even at a Best score of 100", () => {
+  const ledger = createLedger(memoryStore());
+  for (const id of ["bavul", "renk", "barista"] as const) {
+    ledger.recordRound(id, 100);
+    assert.equal(ledger.bestOf(id), 100, id);
+    assert.equal(ledger.pointsOf(id), 0, id);
+  }
+  assert.equal(ledger.earned(), 0);
+  assert.equal(ledger.balance(), 0);
+});
+
+test("a Prize Game's Small prize is won at 95, not at 94", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.recordRound("barista", 94);
+  assert.equal(ledger.prizeWon("barista"), false);
+  assert.equal(ledger.recordRound("barista", 95).prizeWonNow, true);
+  assert.equal(ledger.prizeWon("barista"), true);
+  assert.deepEqual(ledger.prizesWon(), ["barista"]);
+});
+
+test("the Prize Games leave the most Points at 1,000: every Game at 100 earns exactly that", () => {
+  const ledger = createLedger(memoryStore());
+  for (const id of ["milyoner", "nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak", "bavul", "renk", "barista", "slot"] as const) {
+    ledger.recordRound(id, 100, { jackpot: true });
+  }
+  assert.equal(ledger.earned(), 1000);
+  assert.equal(ledger.prizesWon().length, 14);
+});
+
 // ------------------------------------------------------------ Gift shop
 
 test("a buy takes the price off the Balance at once and the Gift is held", () => {
@@ -173,6 +204,14 @@ test("a buy at exactly the price goes through", () => {
   assert.equal(ledger.balance(), 260);
   assert.equal(ledger.buy("rocky").ok, true);
   assert.equal(ledger.balance(), 0);
+});
+
+test("a Gift that left the shop is refused, whatever the Balance (#213)", () => {
+  const ledger = ledgerWith353Points();
+  assert.deepEqual(ledger.buy("resim"), { ok: false, reason: "retired" });
+  assert.deepEqual(ledger.buy("haftasonu"), { ok: false, reason: "retired" });
+  assert.equal(ledger.balance(), 353);
+  assert.equal(ledger.holds("resim"), false);
 });
 
 test("a Gift is held at most once: a second buy is refused", () => {
@@ -442,6 +481,30 @@ test("Gifted points ride in the Save code and come back on restore in another br
   assert.equal(other.earned(), 353);
   assert.equal(other.balance(), 193);
   assert.deepEqual(other.gifted(), [{ points: 100, note: "sürpriz", at: AT }]);
+});
+
+test("a Save code made before the Prize Games restores: the retired weekend trip stays held and Returns half (#213)", async () => {
+  // Made when the weekend trip (480) and the paint set (310) were in the
+  // shop: 900 Points, the trip held, the paint set bought and Returned.
+  const before = {
+    best: { milyoner: 100, nerede: 100, hafiza: 100, wordle: 100, sarki: 100, piyano: 100, kadraj: 100, surus: 100, yuruyus: 100 },
+    jackpot: false,
+    log: [
+      { kind: "buy", gift: "haftasonu", paid: 480 },
+      { kind: "buy", gift: "resim", paid: 310 },
+      { kind: "return", gift: "resim", paid: 310 },
+    ],
+  };
+  const { code } = await encodeSaveCode(JSON.stringify(before));
+  const ledger = createLedger(memoryStore());
+  assert.equal((await ledger.restore(code)).ok, true);
+  assert.equal(ledger.earned(), 900);
+  // 900 − 480 − 310 + 155
+  assert.equal(ledger.balance(), 265);
+  assert.deepEqual([...ledger.held().entries()], [["haftasonu", 480]]);
+  assert.deepEqual(ledger.returnGift("haftasonu"), { ok: true, returned: 240 });
+  assert.equal(ledger.balance(), 505);
+  assert.deepEqual(ledger.buy("haftasonu"), { ok: false, reason: "retired" });
 });
 
 test("a Save code made before Gifted points existed still restores, with none", async () => {

@@ -30,6 +30,9 @@ export const GAME_ICON: Record<GameId, string> = {
   surus: "🚲",
   yuruyus: "🥾",
   kayak: "⛷️",
+  bavul: "🧳",
+  renk: "🎨",
+  barista: "☕",
   slot: "🍒",
 };
 

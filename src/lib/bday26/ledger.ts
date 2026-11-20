@@ -15,20 +15,22 @@
  * THE RULES (spec, "Progress state"; glossary `docs/bday26/GLOSSARY.md`):
  *   - A Round can only raise a Best score. A lower score leaves no trace.
  *   - Points earned = Σ over the 10 skill Games of ⌊Best score⌋. The slot
- *     machine gives none. No bonus for a Small prize. 1,000 is the most,
- *     which follows from clamping every score to 0..100 before it is kept.
- *   - Gifts held = Gifts whose last event is a buy.
+ *     machine and the 3 Prize Games give none (#213). No bonus for a Small
+ *     prize. 1,000 is the most, which follows from clamping every score to
+ *     0..100 before it is kept.
+ *   - Gifts held = Gifts whose last event is a buy. A retired Gift (#213)
+ *     bought before it left the shop stays held until its Return.
  *   - Balance = Points earned + Gifted points − Σ paid of every buy + Σ ½
  *     paid of every Return. Prices are multiples of 10, so a Return is
  *     always whole.
  *   - Gifted points are whole numbers above 0. They are NOT Points earned,
  *     so the 1,000 cap is for Game Points only. Only the newest gift can be
  *     undone (a typo), and not when its Points are already spent.
- *   - Buy needs: Gift not held, Balance ≥ catalogue price. The event stores
- *     paid = the catalogue price NOW.
+ *   - Buy needs: Gift in the shop (not retired), not held, Balance ≥
+ *     catalogue price. The event stores paid = the catalogue price NOW.
  *   - Return needs: Gift held. It gives back half of THAT buy's paid.
- *   - Small prize won = Best score ≥ 95 for a skill Game; the jackpot flag for
- *     the slot machine.
+ *   - Small prize won = Best score ≥ 95 for a skill Game or a Prize Game;
+ *     the jackpot flag for the slot machine.
  *
  * STORAGE IS INJECTED. `createLedger(store)` takes anything with
  * `getItem`/`setItem` — `localStorage` in the browser, a Map in the tests —
@@ -67,6 +69,7 @@ import {
   PRIZE_BAR,
   gameById,
   giftById,
+  givesPoints,
   isGameId,
   isGiftId,
   type GameId,
@@ -108,9 +111,10 @@ export function emptyProgress(): Progress {
 
 // ------------------------------------------------------- derived values
 
-/** Points one Game earns from a Best score: ⌊score⌋, none for the slot. */
+/** Points one Game earns from a Best score: ⌊score⌋, none for the slot
+ *  machine or a Prize Game. */
 export function pointsOf(id: GameId, best: number | undefined): number {
-  if (best == null || gameById(id).luck) return 0;
+  if (best == null || !givesPoints(gameById(id))) return 0;
   return Math.floor(best);
 }
 
@@ -176,7 +180,7 @@ export type RoundOutcome = {
 
 export type BuyOutcome =
   | { ok: true; paid: number }
-  | { ok: false; reason: "held" | "balance" };
+  | { ok: false; reason: "retired" | "held" | "balance" };
 
 export type GiftPointsOutcome =
   | { ok: true; points: number }
@@ -221,7 +225,8 @@ export type Ledger = {
   /** One finished Round. Keeps the higher of the old Best score and this
    *  one. `jackpot: true` on the slot machine sets the jackpot flag. */
   recordRound(id: GameId, score: number, outcome?: { jackpot?: boolean }): RoundOutcome;
-  /** Refused when held or when the Balance is below the price. */
+  /** Refused when the Gift is retired, when held, or when the Balance is
+   *  below the price. */
   buy(id: GiftId): BuyOutcome;
   /** Refused when not held. Gives back half of the price paid. */
   returnGift(id: GiftId): ReturnOutcome;
@@ -292,6 +297,7 @@ export function createLedger(store: KeyValueStore): Ledger {
 
     buy(id) {
       const gift = giftById(id);
+      if (gift.retired) return { ok: false, reason: "retired" };
       if (heldOf(p).has(id)) return { ok: false, reason: "held" };
       if (balanceOf(p) < gift.price) return { ok: false, reason: "balance" };
       const next = clone(p);

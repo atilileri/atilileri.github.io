@@ -1,6 +1,7 @@
 /**
- * The birthday games catalogue (/20261209/, spec #192): the 11 Games with
- * their Small prizes, and the 14 Gifts with their prices. Data only — the
+ * The birthday games catalogue (/20261209/, spec #192): the 14 Games with
+ * their Small prizes, and the Gifts with their prices — 12 in the shop and 2
+ * retired (#213). Data only — the
  * ledger (`./ledger.ts`) turns it into Points, Balance and prizes, and the
  * hub and the Proof read it for names and text.
  *
@@ -13,9 +14,10 @@
  * #193. Change a name here and nowhere else — the tiles, the Game pages and
  * the Proof all read this table.
  *
- * ORDER MATTERS. `GAMES` is the hub's tile order (3 columns, 11 tiles, the
- * slot machine last). `GIFTS` is sorted by price, high to low, as #176 lists
- * them, and the shop shows them in that order. The price tiers of #176
+ * ORDER MATTERS. `GAMES` is the hub's tile order (3 columns, 14 tiles: the
+ * 10 skill Games, the 3 Prize Games, the slot machine last). `GIFTS` is
+ * sorted by price, high to low, as #176 lists them, and the shop shows
+ * `SHOP_GIFTS` (the same, minus the retired) in that order. The price tiers of #176
  * (1: 670–950, 2: 340–500, 3: 260–333) are NEVER shown and are not stored
  * here: she sees only prices.
  *
@@ -24,6 +26,14 @@
  *     page shell"). Short ASCII, no diacritics.
  *   - `luck: true` marks the slot machine: it gives no Points, and its Small
  *     prize is won by a jackpot, not by a 95% Best score.
+ *   - `prizeGame: true` marks a Prize Game (#213; glossary "Prize Game"): it
+ *     gives no Points, and its Small prize is won at a 95% Best score like a
+ *     skill Game's. So the 1,000 the Games can give stays 10 × 100.
+ *   - `retired: true` marks a Gift that left the shop: the weekend trip and
+ *     the paint set became the Small prizes of Bavul hazırla and Renk
+ *     karıştır (#213). A retired Gift is never bought again, but it stays
+ *     here so a Save code or a saved state that bought it still reads: a
+ *     held one stays held, shows in "Sende olanlar" and can be Returned.
  *   - Every price is a multiple of 10, so a Return (half back) is a whole
  *     number of Points. `catalogue.test.ts` pins that, because the ledger's
  *     arithmetic quietly relies on it.
@@ -47,7 +57,10 @@ export type GameId =
   | "sarki"
   | "wordle"
   | "yuruyus"
-  | "kayak";
+  | "kayak"
+  | "bavul"
+  | "renk"
+  | "barista";
 
 export type SmallPrize = { name: string; desc: string };
 
@@ -59,10 +72,13 @@ export type Game = {
   rule: string;
   /** The slot machine: no Points, Small prize on a jackpot. */
   luck?: boolean;
+  /** A Prize Game (#213): no Points, Small prize at a 95% Best score. */
+  prizeGame?: boolean;
   prize: SmallPrize;
 };
 
-/** The one Small prize bar: a skill Game's Best score at or above this wins. */
+/** The one Small prize bar: a skill Game's or a Prize Game's Best score at
+ *  or above this wins. */
 export const PRIZE_BAR = 95;
 
 /** The most Points she can ever earn: 10 skill Games × 100. */
@@ -79,6 +95,9 @@ export const GAMES: readonly Game[] = [
   { id: "surus", name: "Hollanda'da sürüş", rule: "Bisikletlilere yol ver, kanala düşme", prize: { name: "Çift bisiklet çantası", desc: "40 litreden büyük, iki taraflı bisiklet çantası." } },
   { id: "yuruyus", name: "Yürüyüş haritası", rule: "Zirveye en kısa yolu çiz", prize: { name: "Piknik günü", desc: "Yeri sen seç, sepeti ben hazırlayayım." } },
   { id: "kayak", name: "Kayak macerası", rule: "Kayalardan atla, bayrakları topla", prize: { name: "Termal spa günü", desc: "Senin seçtiğin bir termal spada bir gün." } },
+  { id: "bavul", name: "Bavul hazırla", rule: "Bavulu boşluksuz doldur, 23 kg'ı aşma", prizeGame: true, prize: { name: "Hafta sonu gezisi", desc: "Kassel, Brugge, Lüksemburg'da yürüyüş ya da senin seçtiğin bir hafta sonu." } },
+  { id: "renk", name: "Renk karıştır", rule: "Damlaları karıştır, hedef rengi tuttur", prizeGame: true, prize: { name: "Resim seti", desc: "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti." } },
+  { id: "barista", name: "Barista", rule: "Öğüt, sıkıştır, demle: yeşil bantta bırak", prizeGame: true, prize: { name: "Simon Levelt kahve tadım paketi", desc: "Simon Levelt'ten çekirdek kahve proefpakket'i." } },
   { id: "slot", name: "Slot makinesi", rule: "Çevir, şansını dene", luck: true, prize: { name: "Kazımalı dünya haritası", desc: "Gittiğimiz yerleri kazıyacağımız bir dünya haritası yapbozu." } },
 ];
 
@@ -105,24 +124,37 @@ export type Gift = {
   desc: string;
   /** In Points. A multiple of 10, always. */
   price: number;
+  /** Left the shop (#213): never bought again, still read from old progress. */
+  retired?: true;
 };
 
+/** Every Gift the ledger knows, retired ones included. The shop shows
+ *  `SHOP_GIFTS`; the Proof and the Save code read this. */
 export const GIFTS: readonly Gift[] = [
   { id: "gezi", name: "Bir haftalık gezi", price: 950, desc: "Mont-Saint-Martin, Gent, Brüksel ve Ourthe vadisinden geçen bir rota ya da senin seçtiğin bir haftalık gezi." },
   { id: "objektif", name: "Yeni objektif", price: 850, desc: "Senin seçtiğin bir objektif." },
   { id: "yinyin", name: "Yin Yin konseri", price: 800, desc: "Şubat 2027'de iki kişilik Yin Yin konseri: Haarlem, Antwerp ya da Groningen — şehri sen seç." },
   { id: "kayakekip", name: "Kayak ekipmanı", price: 750, desc: "Senin seçtiğin kayak ekipmanı." },
   { id: "pikap", name: "Pikap ve plak avı", price: 500, desc: "Audio-Technica AT-LP3XBTWH pikap ve VinylFarm.EU'da bir plak avı günü." },
-  { id: "haftasonu", name: "Hafta sonu gezisi", price: 480, desc: "Kassel, Brugge, Lüksemburg'da yürüyüş ya da senin seçtiğin bir hafta sonu." },
+  { id: "haftasonu", name: "Hafta sonu gezisi", price: 480, retired: true, desc: "Kassel, Brugge, Lüksemburg'da yürüyüş ya da senin seçtiğin bir hafta sonu." },
   { id: "karsu", name: "Karsu konseri", price: 450, desc: "30 Nisan 2027'de Eindhoven Muziekgebouw'da iki kişilik Karsu konseri." },
   { id: "atolye", name: "Fotoğraf atölyesi", price: 400, desc: "Amsterdam Photo Club ya da Travelmarks Fotodagen'de bir günlük seyahat fotoğrafçılığı atölyesi." },
   { id: "theragun", name: "Theragun Sense", price: 360, desc: "Therabody Theragun Sense masaj cihazı." },
   { id: "urban", name: "Urban Shopper hediyesi", price: 330, desc: "Strijp-S'teki Urban Shopper'dan bir saat ya da senin seçtiğin bir hediye." },
-  { id: "resim", name: "Resim seti", price: 310, desc: "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti." },
+  { id: "resim", name: "Resim seti", price: 310, retired: true, desc: "Akrilik boya, tuval ve şövale — Amsterdam ya da Van Bleiswijck seti." },
   { id: "kurs", name: "Online fotoğraf kursu", price: 290, desc: "Udemy ya da Skillshare'de senin seçtiğin bir seyahat fotoğrafçılığı kursu." },
   { id: "rocky", name: "Rocky Horror film gecesi", price: 260, desc: "The Rocky Horror Picture Show ile şarkılı, danslı bir film gecesi." },
   { id: "deslak", name: "De Slak'ta akşam yemeği", price: 100, desc: "Eindhoven'daki De Slak'ta akşam yemeği." },
 ];
+
+/** The Gifts she can buy, in the shop's order: every Gift but the retired. */
+export const SHOP_GIFTS: readonly Gift[] = GIFTS.filter((g) => !g.retired);
+
+/** True when a Game's Best score earns Points: a skill Game. The slot
+ *  machine and the Prize Games earn none. */
+export function givesPoints(game: Game): boolean {
+  return !game.luck && !game.prizeGame;
+}
 
 /** The Game with this id. Throws on an unknown id: the catalogue is closed. */
 export function gameById(id: GameId): Game {
