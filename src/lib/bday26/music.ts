@@ -17,14 +17,12 @@
  * not background music, and ignores this switch.
  */
 import type { KeyValueStore } from "./ledger.ts";
-import { createSwitchPreference, type EffectsPreference } from "./effects.ts";
+import { createSwitchPreference, type SwitchPreference } from "./switch-preference.ts";
 
 /** Her music switch's own key: "off" or "on"; missing means on. */
 export const MUSIC_KEY = "bday26:music";
 
-export type MusicPreference = EffectsPreference;
-
-export function createMusicPreference(store: KeyValueStore): MusicPreference {
+export function createMusicPreference(store: KeyValueStore): SwitchPreference {
   return createSwitchPreference(store, MUSIC_KEY);
 }
 
@@ -66,7 +64,7 @@ export type Music = {
   onChange(listener: (on: boolean) => void): void;
 };
 
-export function createMusic(pref: MusicPreference, engine: MusicEngine): Music {
+export function createMusic(pref: SwitchPreference, engine: MusicEngine): Music {
   let unlocked = false;
   let wanted: { track: TrackName; params: MusicParams } | undefined;
   let voice: { track: TrackName; voice: MusicVoice } | undefined;

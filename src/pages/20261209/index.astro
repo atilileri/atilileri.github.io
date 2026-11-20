@@ -291,6 +291,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     type Progress,
     type SaveCodeOutcome,
   } from "../../lib/bday26/ledger";
+  import type { SaveCodeProblem } from "../../lib/bday26/savecode";
   import { giftCelebration, sparkleCelebration } from "../../lib/bday26/effects";
   import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
   import { bindMusicToggles, music } from "../../lib/bday26/music-dom";
@@ -557,7 +558,8 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   const confirmRestore = $(geriYukle, "[data-restore-confirm]") as HTMLButtonElement;
   /** One Turkish sentence per refusal. "empty" shows nothing: she has not
    *  pasted yet. */
-  const REFUSED: Record<string, string> = {
+  const REFUSED: Record<SaveCodeProblem, string> = {
+    empty: "",
     check: "Bu kod tutmuyor: bir karakteri eksik ya da yanlış olabilir. Kodu yeniden kopyalayıp yapıştır.",
     payload: "Bu kod okunamadı. Yedekle'den aldığın kodu olduğu gibi yapıştır.",
   };
@@ -576,7 +578,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     if (seq === pasteSeq) showPasted(outcome);
   });
   function showPasted(outcome: SaveCodeOutcome | null) {
-    const refused = outcome && !outcome.ok ? (REFUSED[outcome.reason] ?? "") : "";
+    const refused = outcome && !outcome.ok ? REFUSED[outcome.reason] : "";
     pasteError.textContent = refused;
     pasteError.hidden = !refused;
     const pasted = outcome?.ok ? outcome.progress : null;
