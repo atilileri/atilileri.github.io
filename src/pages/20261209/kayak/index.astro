@@ -736,10 +736,20 @@ const KEYS = [
   /* ── HUD line (in the shell's bar) ──────────────────────────────── */
   .hud-line {
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .hud-line small {
     font-size: 15px;
     color: var(--bd-muted);
+  }
+  /* A 1366 px screen leaves the HUD's middle about 470 px: one line still. */
+  @media (max-width: 1600px) {
+    .hud-line {
+      font-size: 20px;
+    }
+    .hud-line small {
+      font-size: 13px;
+    }
   }
   .hud-line b.over {
     color: #c0392b;
