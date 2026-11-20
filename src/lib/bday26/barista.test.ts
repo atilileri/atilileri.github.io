@@ -14,7 +14,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { STEPS, createRound, fillAt, halfWidth, overflowed, roundScore, stepScore } from "./barista.ts";
+import { STEPS, createBench, createRound, fillAt, halfWidth, overflowed, roundScore, stepScore } from "./barista.ts";
+import { createEffects, createEffectsPreference } from "./effects.ts";
 
 const grind = STEPS[0];
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≈ ${b}`);
@@ -134,4 +135,109 @@ test("a Round has no score until its ninth step, and takes no tenth", () => {
   assert.equal(round.release(0), undefined);
   assert.equal(round.results.length, 9);
   assert.equal(round.score, 100);
+});
+
+// ── the bench: holding Space, and the sounds that go with it ─────────
+
+/** The real effects gate over an engine that writes down what it is asked. */
+function bench() {
+  const log: string[] = [];
+  const engine = {
+    play: (name: string) => void log.push(`play ${name}`),
+    loop: (name: string) => {
+      log.push(`start ${name}`);
+      return { set: () => {}, stop: () => void log.push(`stop ${name}`) };
+    },
+    burst: () => {},
+    shake: () => void log.push("shake"),
+  };
+  const fx = createEffects(createEffectsPreference({ getItem: () => null, setItem: () => {} }), engine);
+  fx.unlock();
+  return { log, b: createBench(fx, "the instruments") };
+}
+
+test("holding Space fills the readout; letting go scores the step where it stopped", () => {
+  const { b } = bench();
+  assert.equal(b.press(1000), true);
+  near(b.value(1900), fillAt(grind, 0.9));
+  const r = b.release(2800)!;
+  near(r.value, 18);
+  assert.equal(r.score, 100);
+  assert.equal(b.phase, "shown");
+  assert.equal(b.round.results.length, 1);
+});
+
+test("the grinder whirs while Space is held on the grind step and stops on release, with a chime in the band", () => {
+  const { log, b } = bench();
+  b.press(0);
+  assert.deepEqual(log, ["start grind"]);
+  b.release(1800);
+  assert.deepEqual(log, ["start grind", "stop grind", "play chime"]);
+});
+
+test("the tamp is one thud on the press; a release outside the band bonks and shakes", () => {
+  const { log, b } = bench();
+  b.press(0);
+  b.release(1800);
+  log.length = 0;
+  b.press(5000);
+  assert.deepEqual(log, ["play thud"]);
+  b.release(5100); // a tenth of a second: nowhere near 15 kg
+  assert.deepEqual(log, ["play thud", "play bonk", "shake"]);
+});
+
+test("the pour runs while Space is held on the pull step; Esc drops the hold, stops the pour and scores nothing", () => {
+  const { log, b } = bench();
+  b.press(0);
+  b.release(1800);
+  b.press(5000);
+  b.release(6500);
+  log.length = 0;
+  b.press(10000);
+  assert.deepEqual(log, ["start pour"]);
+  b.drop();
+  assert.deepEqual(log, ["start pour", "stop pour"]);
+  assert.equal(b.round.results.length, 2);
+  assert.equal(b.phase, "ready");
+  // The step waits for her: the next press is the same pull.
+  b.press(20000);
+  assert.equal(b.round.current()!.step.key, "pull");
+});
+
+test("held to the top, the step ends by itself at the top, scoring 0, and the grinder stops", () => {
+  const { log, b } = bench();
+  b.press(0);
+  assert.equal(b.tick(2000), undefined);
+  const r = b.tick(10000)!;
+  assert.equal(r.value, 24);
+  assert.equal(r.score, 0);
+  assert.deepEqual(log, ["start grind", "stop grind", "play bonk", "shake"]);
+  // The release that follows changes nothing.
+  assert.equal(b.release(10100), undefined);
+  assert.equal(b.round.results.length, 1);
+});
+
+test("after a step she has a quarter of a second to read it; then a press starts the next step", () => {
+  const { b } = bench();
+  b.press(0);
+  b.release(1800);
+  assert.equal(b.press(1900), false);
+  assert.equal(b.phase, "shown");
+  assert.equal(b.press(2100), true);
+  assert.equal(b.phase, "holding");
+  assert.equal(b.round.current()!.step.key, "tamp");
+});
+
+test("after the ninth step no press starts a tenth", () => {
+  const { b } = bench();
+  let t = 0;
+  for (let i = 0; i < 9; i++) {
+    const step = b.round.current()!.step;
+    b.press(t);
+    b.release(t + step.tt * 1000);
+    t += 10000;
+  }
+  assert.equal(b.round.done, true);
+  assert.equal(b.press(t), false);
+  assert.equal(b.round.score, 100);
 });

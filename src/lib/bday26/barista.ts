@@ -12,7 +12,12 @@
  * and fills once: holding to the top ends the step at the top, scoring 0.
  * A step scores by its distance from the target (`stepScore`), the Round is
  * the mean of its 9 steps.
+ *
+ * `createBench` is one Round at the bench with its sounds: Space down and up
+ * as times, the overflow, the hold dropped by Esc, and the effects each
+ * step asks for. The page feeds it keys and frames and draws what it says.
  */
+import type { Effects } from "./effects.ts";
 
 /** One step of a shot, as the page shows it. */
 export type Step = {
@@ -136,6 +141,98 @@ export function createRound(): Round {
     },
     get score() {
       return results.length >= total ? roundScore(results.map((r) => r.score)) : undefined;
+    },
+  };
+}
+
+// ── the bench: holding Space ─────────────────────────────────────────
+
+/** After a step, how long the next press waits, ms: a beat to read it. */
+export const READ_MS = 250;
+
+/** The part of the effects gate the bench plays through (`./effects.ts`). */
+export type BenchEffects = Pick<Effects, "sound" | "loop" | "stopLoops" | "miss">;
+
+export type Bench = {
+  /** ready: waiting for a press; holding: Space is down; shown: a step
+   *  just ended and its result is on screen. */
+  readonly phase: "ready" | "holding" | "shown";
+  readonly round: Round;
+  /** The step just ended, while `phase` is "shown". */
+  readonly last: StepResult | undefined;
+  /** The readout at time `now` (ms) while holding; 0 otherwise. */
+  value(now: number): number;
+  /** Space down at `now` (ms). False when it starts nothing. */
+  press(now: number): boolean;
+  /** Space up at `now`: the step scores where the fill stopped. */
+  release(now: number): StepResult | undefined;
+  /** A frame at `now`: held to the top, the step ends there by itself. */
+  tick(now: number): StepResult | undefined;
+  /** The hold is dropped unscored (Esc's confirm card): the step waits. */
+  drop(): void;
+};
+
+/**
+ * One Round at the bench, with its sounds: the grinder whirs while Space is
+ * held on the grind step, the tamp thuds on the press, the pour runs while
+ * Space is held on the pull step; every continuous sound stops when the
+ * step ends or the hold is dropped, then a chime in the band or a bonk (and
+ * `shakeTarget` shakes) outside it. Times are the page's ms clock.
+ */
+export function createBench(fx: BenchEffects, shakeTarget?: unknown): Bench {
+  const round = createRound();
+  let phase: Bench["phase"] = "ready";
+  let t0 = 0;
+  let shownAt = -Infinity;
+  let last: StepResult | undefined;
+
+  const heldStep = () => round.current()!.step;
+  const heldFor = (now: number) => (now - t0) / 1000;
+
+  function lock(value: number, now: number): StepResult | undefined {
+    const r = round.release(value);
+    fx.stopLoops();
+    phase = "shown";
+    shownAt = now;
+    last = r;
+    if (r?.inBand) fx.sound("chime");
+    else fx.miss(shakeTarget);
+    return r;
+  }
+
+  return {
+    get phase() {
+      return phase;
+    },
+    round,
+    get last() {
+      return phase === "shown" ? last : undefined;
+    },
+    value(now) {
+      return phase === "holding" ? fillAt(heldStep(), heldFor(now)) : 0;
+    },
+    press(now) {
+      if (phase === "holding" || round.done) return false;
+      if (phase === "shown" && now - shownAt < READ_MS) return false;
+      phase = "holding";
+      t0 = now;
+      const key = heldStep().key;
+      if (key === "grind") fx.loop("grind").start();
+      else if (key === "pull") fx.loop("pour").start();
+      else fx.sound("thud");
+      return true;
+    },
+    release(now) {
+      if (phase !== "holding") return undefined;
+      return lock(fillAt(heldStep(), heldFor(now)), now);
+    },
+    tick(now) {
+      if (phase !== "holding" || !overflowed(heldStep(), heldFor(now))) return undefined;
+      return lock(heldStep().max, now);
+    },
+    drop() {
+      if (phase === "holding") phase = "ready";
+      fx.stopLoops();
     },
   };
 }
