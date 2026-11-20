@@ -403,6 +403,38 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     hiss(ac, out, t, 0.09, 0.05, "bandpass", vary(900, 0.1), 3400, 1.4, 0.01);
     tone(ac, out, vary(700, 0.05), vary(1050, 0.05), t + 0.02, 0.05, "sine", 0.025, 0.004);
   },
+  // ── Bavul hazırla (the prototype's, #214) ──
+  /** An item lifted from the list or the bag: a soft rising pop. */
+  pick(ac, out, t) {
+    tone(ac, out, vary(420), vary(760), t, 0.07, "sine", 0.06, 0.004);
+    hiss(ac, out, t, 0.04, 0.02, "bandpass", 2600, 2600, 2, 0.002);
+  },
+  /** An item settling into the bag: a soft cloth thump and a click. */
+  place(ac, out, t) {
+    tone(ac, out, 170, 80, t, 0.14, "sine", 0.14, 0.004);
+    hiss(ac, out, t, 0.08, 0.035, "lowpass", 1100, 500, 0.8, 0.003);
+    tone(ac, out, vary(1400), vary(1200), t + 0.01, 0.03, "triangle", 0.02, 0.002);
+  },
+  /** An item back on the list: Backspace's dull tock, sliding up. */
+  "take-out"(ac, out, t) {
+    hiss(ac, out, t, 0.06, 0.04, "bandpass", 700, 1500, 2, 0.002);
+    tone(ac, out, vary(380, 0.04), 620, t, 0.08, "triangle", 0.04, 0.003);
+  },
+  /** The 23 kg gate: the bonk, knocked twice, not a buzzer. */
+  gate: celebration((ac, out, t) => {
+    const filter = ac.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 600;
+    filter.connect(out);
+    tone(ac, filter, 190, 85, t, 0.3, "sine", 0.7, 0.01);
+    tone(ac, filter, 170, 75, t + 0.16, 0.3, "sine", 0.5, 0.01);
+  }),
+  /** The bag closes: a zipper run and a clasp. */
+  zip(ac, out, t) {
+    for (let i = 0; i < 16; i++) hiss(ac, out, t + i * 0.028, 0.025, 0.03 + i * 0.002, "bandpass", 1800 + i * 160, 1800 + i * 160, 3, 0.002);
+    tone(ac, out, 900, 600, t + 0.5, 0.06, "triangle", 0.06, 0.002);
+    tone(ac, out, 160, 90, t + 0.5, 0.12, "sine", 0.1, 0.003);
+  },
 };
 
 /** The quiz celebrations at their first, approved loudness: through a 0.35

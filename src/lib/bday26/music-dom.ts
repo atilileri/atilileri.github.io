@@ -553,6 +553,40 @@ const TRACKS: Record<TrackName, Track> = {
       if (n) keys(s, n[1], t, dur * n[2] * 1.3, 0.03);
     },
   },
+
+  /**
+   * Bavul hazırla, "Yolculuk": a calm, light travel tune, the prototype's
+   * (#214). D major, 88 bpm, four bars (D – Bm – G – A), original: a soft
+   * "train" shaker on the eighths, a round bass on 1 and 3, plucked chords
+   * on the off-beats, a whistled tune, a little bell at the turn.
+   */
+  bavul: {
+    steps: 64,
+    bpm: () => 88,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const chords = [[62, 66, 69], [59, 62, 66], [59, 62, 67], [61, 64, 69]][bar]!;
+      const root = [38, 35, 43, 45][bar]!;
+      if (step % 2 === 0) shaker(s, t, step % 4 === 0 ? 0.009 : 0.005);
+      if (step === 0 || step === 8) bass(s, root, t, dur * 6, 0.05);
+      if (step === 6 || step === 14) blip(s, root + 7, t, dur * 2, "triangle", 0.03, 0.008);
+      if (step === 4 || step === 10 || step === 12) {
+        for (const m of chords) {
+          blip(s, m, t, dur * 2.2, "triangle", 0.012, 0.004);
+          blip(s, m + 12, t, dur * 1.2, "sine", 0.005, 0.003);
+        }
+      }
+      const tune: Line[] = [
+        [[0, 74, 4], [4, 78, 2], [6, 76, 2], [8, 74, 6]],
+        [[0, 71, 4], [4, 74, 2], [6, 78, 2], [8, 76, 6]],
+        [[0, 74, 3], [4, 71, 2], [6, 74, 2], [8, 79, 4], [12, 78, 4]],
+        [[0, 76, 6], [8, 73, 4], [12, 69, 4]],
+      ];
+      const n = at(tune[bar], step);
+      if (n) whistle(s, n[1], t, dur * n[2] * 1.1, 0.018);
+      if (bar === 3 && step === 14) tine(s, 86, t, 0.012, 1.2);
+    },
+  },
 };
 
 // ── the ski and the radio's own sounds ─────────────────────────────

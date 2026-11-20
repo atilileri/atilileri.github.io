@@ -170,7 +170,13 @@ export type SoundName =
   | "lever"
   | "reel-stop"
   | "pair-jingle"
-  | "no-win";
+  | "no-win"
+  // Bavul hazırla (rotate is "flip", refused "row-wrong", a must-have "row-good")
+  | "pick"
+  | "place"
+  | "take-out"
+  | "gate"
+  | "zip";
 
 /** The continuous sounds: started, steered by params each frame, stopped. */
 export type LoopName = "engine" | "traffic" | "swoosh" | "reels";
