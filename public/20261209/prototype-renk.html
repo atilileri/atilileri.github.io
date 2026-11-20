@@ -93,8 +93,11 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);-w
 @keyframes pop{50%{filter:brightness(1.06)}}
 .dropsRow{display:flex;align-items:center;gap:14px;min-height:28px}
 .drops{display:flex;gap:6px}
-.drops i{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);display:block}
-.drops i.slot{background:var(--bd-track);box-shadow:none}
+.drops i{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);display:block;position:relative;cursor:pointer;transition:transform .1s}
+/* a dropped colour is clickable: a click removes that one drop */
+.drops i:not(.slot):hover{transform:scale(1.25);box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.25)}
+.drops i:not(.slot):hover::after{content:"×";position:absolute;inset:0;display:grid;place-items:center;font:800 14px/1 var(--bd-font);color:#fff;background:rgba(58,45,42,.55);border-radius:50%}
+.drops i.slot{background:var(--bd-track);box-shadow:none;cursor:default}
 .drops i.last{outline:2px solid var(--bd-ink-soft);outline-offset:2px}
 .count{font-weight:800;color:var(--bd-ink-soft);font-variant-numeric:tabular-nums}
 .count.full{color:var(--bd-wrong)}
@@ -240,6 +243,7 @@ table.sim td:first-child,table.sim th:first-child{text-align:left}
       <div class="keys">
         <span class="kbd">1–5</span><span>Kırmızı, sarı, mavi, beyaz, siyah: bir damla ekle</span>
         <span class="kbd">⌫</span><span>Son damlayı geri al</span>
+        <span class="kbd">Tık</span><span>Damla sırasındaki bir damlaya tıkla: yalnız o damla çıkar</span>
         <span class="kbd">Enter</span><span>Karışımı onayla</span>
         <span class="kbd">Esc</span><span>Turdan çık</span>
       </div>
@@ -436,6 +440,8 @@ function addDrop(t) {
   render();
 }
 function undo() { if (drops.length) { drops.pop(); fx.sound('undo'); render(); } }
+/** A click on one dropped colour in the drop row removes just that drop. */
+function removeDrop(i) { if (i >= 0 && i < drops.length) { drops.splice(i, 1); fx.sound('undo'); render(); } }
 function submit() {
   if (!drops.length) return;
   const t = curTarget(), c = counts(), hex = mixHex(c), de = de2000(t.lab, hexToLab(hex));
@@ -492,7 +498,7 @@ function render() {
 
   // drops row
   $('drops').innerHTML = Array.from({ length: v.cap }, (_, i) => i < drops.length
-    ? `<i class="${i === drops.length - 1 ? 'last' : ''}" style="background:${TUBES[drops[i]].hex}" title="${TUBES[drops[i]].name}"></i>` : '<i class="slot"></i>').join('');
+    ? `<i data-i="${i}" class="${i === drops.length - 1 ? 'last' : ''}" style="background:${TUBES[drops[i]].hex}" title="${TUBES[drops[i]].name}: tıkla, çıkar"></i>` : '<i class="slot"></i>').join('');
   const cnt = $('count'); cnt.textContent = `${drops.length} / ${v.cap} damla`; cnt.classList.toggle('full', drops.length >= v.cap);
 
   // tubes
@@ -574,6 +580,9 @@ document.addEventListener('keydown', ev => {
   if (ev.key === 'Backspace') { ev.preventDefault(); undo(); return; }
   if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
 });
+// the drop row: <i> elements never take focus; mousedown is cancelled so nothing else does either
+$('drops').addEventListener('mousedown', ev => ev.preventDefault());
+$('drops').addEventListener('click', ev => { const d = ev.target.closest('i[data-i]'); if (d && phase === 'play') removeDrop(+d.dataset.i); });
 $('tubes').addEventListener('click', ev => { const b = ev.target.closest('.tube'); if (b && phase === 'play') addDrop(+b.dataset.t); });
 $('bUndo').onclick = undo; $('bOk').onclick = submit; $('bNext').onclick = next;
 $('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = toStart;
