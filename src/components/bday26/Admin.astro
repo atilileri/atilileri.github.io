@@ -14,7 +14,10 @@
  * THE DIALOG is a native <dialog> (Esc closes, focus stays inside, the hub
  * behind it is inert), soft and rounded in the hub's tokens. Two faces: the
  * lock (password; a wrong one shakes and says so in Turkish) and the desk
- * (amount with +10 / +50 / +100, an optional note, "Hediye et"; the gifts so
+ * (amount, 1 to 10 000, with +10 / +50 / +100; the form is `novalidate` so
+ * a wrong amount gets the module's Turkish sentence, not the browser's own
+ * bubble in whatever language the browser speaks; an optional note,
+ * "Hediye et"; the gifts so
  * far, newest first, with "Son hediyeyi geri al"). Closing locks it again.
  */
 ---
@@ -37,10 +40,10 @@
 
   <div class="adm-desk" data-admin-desk hidden>
     <p class="adm-sub">Bakiyesi şu an <b class="adm-balance" data-admin-balance>0</b> puan.</p>
-    <form class="adm-form" data-admin-form>
+    <form class="adm-form" data-admin-form novalidate>
       <label class="adm-label" for="adm-amount">Hediye puan</label>
       <div class="adm-row">
-        <input id="adm-amount" class="adm-input adm-amount" type="number" min="1" step="1" inputmode="numeric"
+        <input id="adm-amount" class="adm-input adm-amount" type="number" min="1" max="10000" step="1" inputmode="numeric"
           placeholder="0" data-admin-amount />
         <button class="bd-btn ghost small" type="button" data-admin-quick="10">+10</button>
         <button class="bd-btn ghost small" type="button" data-admin-quick="50">+50</button>

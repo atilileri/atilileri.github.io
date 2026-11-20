@@ -259,6 +259,37 @@ test("Gifts held are the ones whose last event is a buy", () => {
   assert.equal(ledger.balance(), 70);
 });
 
+// ------------------------------------------------- what the shop shows
+
+test("the shop asks the ledger: canBuy says yes only for a Gift not held whose price the Balance covers", () => {
+  const ledger = ledgerWith353Points();
+  assert.equal(ledger.canBuy("rocky"), true, "260 ≤ 353");
+  assert.equal(ledger.canBuy("theragun"), false, "360 > 353");
+  ledger.buy("rocky"); // 93 left
+  assert.equal(ledger.canBuy("rocky"), false, "held");
+  assert.equal(ledger.canBuy("deslak"), false, "100 > 93");
+});
+
+test("shortOf is how many Points a Gift still needs, and 0 when the Balance covers it", () => {
+  const ledger = ledgerWith353Points();
+  assert.equal(ledger.shortOf("theragun"), 7);
+  assert.equal(ledger.shortOf("gezi"), 597);
+  assert.equal(ledger.shortOf("rocky"), 0);
+});
+
+test("refundOf is the half a Return would give back, read from what she paid; none for a Gift not held", () => {
+  const store = memoryStore({
+    [STORAGE_KEY]: JSON.stringify({
+      best: { nerede: 100, hafiza: 100, wordle: 100, sarki: 100 },
+      jackpot: false,
+      log: [{ kind: "buy", gift: "rocky", paid: 300 }],
+    }),
+  });
+  const ledger = createLedger(store);
+  assert.equal(ledger.refundOf("rocky"), 150);
+  assert.equal(ledger.refundOf("kurs"), null);
+});
+
 // ---------------------------------------------------------- persistence
 
 test("progress survives: a ledger opened later on the same storage sees it all", () => {
@@ -272,6 +303,40 @@ test("progress survives: a ledger opened later on the same storage sees it all",
   assert.equal(second.balance(), 96);
   assert.deepEqual(second.prizesWon(), ["hafiza", "slot"]);
   assert.equal(second.holds("rocky"), false);
+});
+
+test("two ledgers on one storage never undo each other: a buy on an old page keeps the Best score set on a newer one", () => {
+  // The hub restored by Back (its ledger opened before the Game was played)
+  // and the Game page that set a new Best score: same browser, same key.
+  const store = memoryStore();
+  const hub = createLedger(store);
+  hub.recordRound("nerede", 100);
+  const game = createLedger(store);
+  game.recordRound("hafiza", 100);
+  game.recordRound("slot", 10, { jackpot: true });
+
+  // The old page sees the newer facts, and its buy is added to them.
+  assert.equal(hub.bestOf("hafiza"), 100);
+  assert.equal(hub.balance(), 200);
+  assert.deepEqual(hub.buy("deslak"), { ok: true, paid: 100 });
+
+  // A later visit finds all of it: both Best scores, the jackpot, the buy.
+  const later = createLedger(store);
+  assert.equal(later.bestOf("nerede"), 100);
+  assert.equal(later.bestOf("hafiza"), 100);
+  assert.deepEqual(later.prizesWon(), ["nerede", "hafiza", "slot"]);
+  assert.equal(later.holds("deslak"), true);
+  assert.equal(later.balance(), 100);
+});
+
+test("a buy the other page already made is refused on the old one, not made twice", () => {
+  const store = memoryStore();
+  const hub = createLedger(store);
+  hub.recordRound("nerede", 100);
+  const other = createLedger(store);
+  other.buy("deslak");
+  assert.deepEqual(hub.buy("deslak"), { ok: false, reason: "held" });
+  assert.equal(createLedger(store).balance(), 0);
 });
 
 test("progress is kept under the one key the spec names", () => {
@@ -397,22 +462,71 @@ test("a Return gives back half of the matching buy's paid, whatever the Return l
   assert.equal(balance, 223);
 });
 
-test("a Save code whose log Returns a Gift she did not hold is refused, and her progress stays", async () => {
+test("a Return with no buy before it is dropped alone: the rest of a Save code still restores", async () => {
+  // One broken line must not cost her every Best score and every Gift.
+  const forged = (log: unknown[]) =>
+    encodeSaveCode(JSON.stringify({ best: { nerede: 100, hafiza: 100, wordle: 100 }, jackpot: false, log }));
+
+  const neverBought = await forged([
+    { kind: "return", gift: "rocky", paid: 260 },
+    { kind: "buy", gift: "deslak", paid: 100 },
+  ]);
   const ledger = ledgerWith353Points();
-  const forged = (log: unknown[]) => encodeSaveCode(JSON.stringify({ best: { nerede: 100 }, jackpot: false, log }));
+  assert.equal((await ledger.restore(neverBought.code)).ok, true);
+  assert.equal(ledger.earned(), 300);
+  assert.deepEqual([...ledger.held().keys()], ["deslak"]);
+  assert.equal(ledger.balance(), 200);
 
-  const neverBought = await forged([{ kind: "return", gift: "rocky", paid: 260 }]);
-  assert.deepEqual(await ledger.restore(neverBought.code), { ok: false, reason: "payload" });
-
+  // Returned twice: the second Return gives nothing back.
   const returnedTwice = await forged([
     { kind: "buy", gift: "rocky", paid: 260 },
     { kind: "return", gift: "rocky", paid: 260 },
     { kind: "return", gift: "rocky", paid: 260 },
   ]);
-  assert.deepEqual(await ledger.restore(returnedTwice.code), { ok: false, reason: "payload" });
+  assert.equal((await ledger.restore(returnedTwice.code)).ok, true);
+  assert.deepEqual([...ledger.held().keys()], []);
+  assert.equal(ledger.balance(), 170); // 300 − 260 + 130
+});
 
-  assert.equal(ledger.earned(), 353);
-  assert.equal(ledger.balance(), 353);
+test("a stored state with a broken Return keeps her Best scores and Gifts", () => {
+  const store = memoryStore({
+    [STORAGE_KEY]: JSON.stringify({
+      best: { nerede: 100, hafiza: 100, wordle: 100 },
+      jackpot: true,
+      log: [
+        { kind: "buy", gift: "deslak", paid: 100 },
+        { kind: "return", gift: "kurs", paid: 290 },
+      ],
+    }),
+  });
+  const ledger = createLedger(store);
+  assert.equal(ledger.earned(), 300);
+  assert.equal(ledger.holds("deslak"), true);
+  assert.equal(ledger.prizeWon("slot"), true);
+  assert.equal(ledger.balance(), 200);
+});
+
+test("a Save code from before #213 restores: the weekend trip and the paint set leave the shop, the rest of her buys stay", async () => {
+  // #213 took "haftasonu" and "resim" out of the shop (they became Small
+  // prizes). A code saved before that holds their buys; it must still
+  // restore, with those two buys gone and nothing else touched.
+  const { code } = await encodeSaveCode(
+    JSON.stringify({
+      best: { nerede: 100, hafiza: 100, wordle: 100, sarki: 100, piyano: 100 },
+      jackpot: false,
+      log: [
+        { kind: "buy", gift: "haftasonu", paid: 300 },
+        { kind: "buy", gift: "rocky", paid: 260 },
+        { kind: "buy", gift: "resim", paid: 150 },
+        { kind: "return", gift: "resim", paid: 150 },
+      ],
+    }),
+  );
+  const ledger = createLedger(memoryStore());
+  assert.equal((await ledger.restore(code)).ok, true);
+  assert.deepEqual([...ledger.held().keys()], ["rocky"]);
+  assert.equal(ledger.earned(), 500);
+  assert.equal(ledger.balance(), 240);
 });
 
 // ------------------------------------------------------------ Gifted points

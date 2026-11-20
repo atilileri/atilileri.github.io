@@ -150,9 +150,14 @@ test("a buy she can afford lowers the Balance at once, and survives a reload", a
   await expect(kurs.getByRole("button", { name: "Al", exact: true })).toBeDisabled();
   await expect(kurs).toContainText("7 eksik");
 
-  // 260 ≤ 283: bought. The price leaves the Balance now, the Gift moves up.
+  // 260 ≤ 283: "Al" asks first (review C2); her yes buys it. The price
+  // leaves the Balance now, the Gift moves up.
   const rocky = row(page, "Rocky Horror film gecesi");
   await rocky.getByRole("button", { name: "Al", exact: true }).click();
+  const ask = page.getByRole("dialog", { name: "Rocky Horror film gecesi · 260 puan. Alıyor musun?" });
+  await expect(ask).toBeVisible();
+  await expect(balance(page)).toHaveText(["283", "283"]);
+  await ask.getByRole("button", { name: "Al", exact: true }).click();
   await expect(balance(page)).toHaveText(["23", "23"]);
   await expect(page.getByText("Sende olanlar")).toBeVisible();
   await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
@@ -206,23 +211,25 @@ test("a Return asks first; confirmed, half the price comes back and the Gift is 
   const rocky = row(page, "Rocky Horror film gecesi");
   const returnButton = rocky.getByRole("button", { name: "İade et · +130" });
 
-  // She changes her mind at the question: nothing moves.
-  const asked: string[] = [];
+  // The question is the hub's own card, never the browser's (review C3).
+  const native: string[] = [];
   page.on("dialog", (dialog) => {
-    asked.push(dialog.message());
+    native.push(dialog.message());
     void dialog.dismiss();
   });
+  const ask = page.getByRole("dialog", { name: "Rocky Horror film gecesi · 130 puan geri gelir. İade ediyor musun?" });
+
+  // She changes her mind at the question: nothing moves.
   await returnButton.click();
-  expect(asked).toHaveLength(1);
-  expect(asked[0]).toContain("Emin misin?");
-  expect(asked[0]).toContain("130 puan geri gelir");
+  await expect(ask).toBeVisible();
+  await ask.getByRole("button", { name: "Vazgeç" }).click();
+  await expect(ask).toBeHidden();
   await expect(balance(page)).toHaveText(["213", "213"]);
   await expect(returnButton).toBeVisible();
 
   // She confirms: half of what she paid is back, the Gift is in the shop again.
-  page.removeAllListeners("dialog");
-  page.on("dialog", (dialog) => void dialog.accept());
   await returnButton.click();
+  await ask.getByRole("button", { name: "İade et" }).click();
   await expect(balance(page)).toHaveText(["343", "343"]);
   await expect(page.getByText("Sende olanlar")).toBeHidden();
   const buyAgain = rocky.getByRole("button", { name: "Al", exact: true });
@@ -230,8 +237,10 @@ test("a Return asks first; confirmed, half the price comes back and the Gift is 
 
   // And a Return is not final: she buys it back.
   await buyAgain.click();
+  await page.getByRole("dialog", { name: /Alıyor musun\?$/ }).getByRole("button", { name: "Al", exact: true }).click();
   await expect(balance(page)).toHaveText(["83", "83"]);
   await expect(returnButton).toBeVisible();
+  expect(native).toEqual([]);
 });
 
 test("the hub has 14 tiles: the three Prize Games sit before the slot machine and give no Points (#213)", async ({ page }) => {
@@ -388,6 +397,7 @@ test("Yedekle shows a Save code; a typo is refused; the right code restores her 
   // A buy is followed by the backup prompt. It waits for her, however long
   // she looks away, and its button opens Yedekle.
   await row(page, "Rocky Horror film gecesi").getByRole("button", { name: "Al", exact: true }).click();
+  await page.getByRole("dialog", { name: /Alıyor musun\?$/ }).getByRole("button", { name: "Al", exact: true }).click();
   await expect(balance(page)).toHaveText(["23", "23"]);
   const prompt = page.getByRole("status").filter({ hasText: "Yedek kodunu" });
   await expect(prompt).toBeVisible();

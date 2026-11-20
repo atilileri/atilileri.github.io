@@ -38,9 +38,11 @@
  * and a shape change means a new key plus a migration, never a silent
  * re-read. `gifted` came later as an optional field: a state or Save code
  * without it reads as no gifts, so the shape stays `v1`. The ledger writes
- * after every Round, buy, Return and gift, and reads
- * once when created: two ledgers on one store do not see each other's
- * writes, so a page makes one and keeps it. The browser side (the pages)
+ * after every Round, buy, Return and gift, and looks at storage again before
+ * every read and every change, applying a change to what is stored NOW: a
+ * page restored by Back with old facts in memory, or a second tab, must
+ * never write those old facts over a newer Best score or buy. Two ledgers
+ * on one store therefore see each other's writes. The browser side (the pages)
  * calls `navigator.storage.persist()` once; that is a browser concern and
  * lives in `./browser.ts`, not here.
  *
@@ -210,6 +212,15 @@ export type Ledger = {
   /** Gift id → price paid, for every Gift held now. */
   held(): ReadonlyMap<GiftId, number>;
   holds(id: GiftId): boolean;
+  /** Whether `buy(id)` would go through now: not held, and the Balance
+   *  covers the catalogue price. The shop's "Al" asks this. */
+  canBuy(id: GiftId): boolean;
+  /** Points the Balance is short of the catalogue price; 0 when it covers
+   *  it. The shop's "N eksik". */
+  shortOf(id: GiftId): number;
+  /** What a Return would give back now (half of what that buy paid), or
+   *  null when the Gift is not held. */
+  refundOf(id: GiftId): number | null;
   prizeWon(id: GameId): boolean;
   prizesWon(): GameId[];
   /** Every gift of Points from Atıl, oldest first. */
@@ -242,29 +253,52 @@ export type Ledger = {
 };
 
 export function createLedger(store: KeyValueStore): Ledger {
-  let p = load(store);
+  // `seen` is the text storage held when this ledger last looked. Before any
+  // read or change the ledger looks again: text that moved was written by
+  // another page (a second tab, or a Game while this page sat in the back/
+  // forward cache), so its facts replace these. Text that did not move keeps
+  // these, which also keeps a change whose write the browser refused (quota
+  // full) for the rest of the visit.
+  let seen = read(store);
+  let p = parsed(seen);
+
+  function fresh(): Progress {
+    const now = read(store);
+    if (now !== seen) {
+      seen = now;
+      p = parsed(now);
+    }
+    return p;
+  }
 
   function commit(next: Progress) {
     p = next;
     store.setItem(STORAGE_KEY, JSON.stringify(p));
+    seen = read(store);
   }
 
   return {
-    progress: () => clone(p),
-    bestOf: (id) => p.best[id],
-    pointsOf: (id) => pointsOf(id, p.best[id]),
-    earned: () => earnedOf(p),
-    balance: () => balanceOf(p),
-    held: () => heldOf(p),
-    holds: (id) => heldOf(p).has(id),
-    prizeWon: (id) => prizeWonOf(p, id),
-    prizesWon: () => prizesWonOf(p),
-    gifted: () => clone(p).gifted ?? [],
-    giftedTotal: () => giftedOf(p),
+    progress: () => clone(fresh()),
+    bestOf: (id) => fresh().best[id],
+    pointsOf: (id) => pointsOf(id, fresh().best[id]),
+    earned: () => earnedOf(fresh()),
+    balance: () => balanceOf(fresh()),
+    held: () => heldOf(fresh()),
+    holds: (id) => heldOf(fresh()).has(id),
+    canBuy: (id) => !heldOf(fresh()).has(id) && balanceOf(p) >= giftById(id).price,
+    shortOf: (id) => Math.max(0, giftById(id).price - balanceOf(fresh())),
+    refundOf: (id) => {
+      const paid = heldOf(fresh()).get(id);
+      return paid == null ? null : paid / 2;
+    },
+    prizeWon: (id) => prizeWonOf(fresh(), id),
+    prizesWon: () => prizesWonOf(fresh()),
+    gifted: () => clone(fresh()).gifted ?? [],
+    giftedTotal: () => giftedOf(fresh()),
 
     giftPoints(points, note, at = new Date().toISOString()) {
       if (!Number.isInteger(points) || points <= 0) return { ok: false, reason: "points" };
-      const next = clone(p);
+      const next = clone(fresh());
       const trimmed = note?.trim();
       next.gifted = [...(next.gifted ?? []), { points, ...(trimmed ? { note: trimmed } : {}), at }];
       commit(next);
@@ -272,6 +306,7 @@ export function createLedger(store: KeyValueStore): Ledger {
     },
 
     undoLastGift() {
+      fresh();
       const last = p.gifted?.at(-1);
       if (!last) return { ok: false, reason: "none" };
       if (balanceOf(p) < last.points) return { ok: false, reason: "spent" };
@@ -283,6 +318,7 @@ export function createLedger(store: KeyValueStore): Ledger {
 
     recordRound(id, score, outcome) {
       const kept = clampScore(score);
+      fresh();
       const before = p.best[id];
       const wonBefore = prizeWonOf(p, id);
       const improved = before == null || kept > before;
@@ -295,6 +331,7 @@ export function createLedger(store: KeyValueStore): Ledger {
 
     buy(id) {
       const gift = giftById(id);
+      fresh();
       if (heldOf(p).has(id)) return { ok: false, reason: "held" };
       if (balanceOf(p) < gift.price) return { ok: false, reason: "balance" };
       const next = clone(p);
@@ -304,7 +341,7 @@ export function createLedger(store: KeyValueStore): Ledger {
     },
 
     returnGift(id) {
-      const paid = heldOf(p).get(id);
+      const paid = heldOf(fresh()).get(id);
       if (paid == null) return { ok: false, reason: "not-held" };
       const next = clone(p);
       next.log.push({ kind: "return", gift: id, paid });
@@ -316,7 +353,7 @@ export function createLedger(store: KeyValueStore): Ledger {
       commit(clone(next));
     },
 
-    toSaveCode: () => encodeSaveCode(JSON.stringify(p)),
+    toSaveCode: () => encodeSaveCode(JSON.stringify(fresh())),
 
     fromSaveCode: (text) => openSaveCode(text),
 
@@ -338,22 +375,29 @@ async function openSaveCode(text: string): Promise<SaveCodeOutcome> {
 
 // ------------------------------------------------------- load and parse
 
-function load(store: KeyValueStore): Progress {
-  let raw: string | null = null;
+/** The stored text, or null when there is none or storage throws (a
+ *  blocked browser profile: an empty start). */
+function read(store: KeyValueStore): string | null {
   try {
-    raw = store.getItem(STORAGE_KEY);
+    return store.getItem(STORAGE_KEY);
   } catch {
-    // A storage that throws (a blocked browser profile) is an empty start.
+    return null;
   }
+}
+
+function parsed(raw: string | null): Progress {
   return (raw && parseProgress(raw)) || emptyProgress();
 }
 
 /**
  * The JSON text of a `Progress`, checked field by field. Returns null when
- * the text is not JSON or not an object, or when its log Returns a Gift that
- * no buy before it left held (no code made here can carry one; the ledger
- * never writes it); drops any Best score, Gift event or field it does not
- * understand. Shared by `load` and by #196's Save code.
+ * the text is not JSON or not an object; drops any Best score, Gift event or
+ * field it does not understand, and a Return of a Gift that no buy before it
+ * left held (no code made here carries one, and that one line must not cost
+ * her the rest, review A2). A buy of a Gift no longer in the catalogue (#213
+ * took the weekend trip and the paint set out of the shop) is dropped the
+ * same way, so a Save code from before that change still restores. Shared by
+ * the ledger's reads and by #196's Save code.
  */
 export function parseProgress(text: string): Progress | null {
   let data: unknown;
@@ -381,7 +425,7 @@ export function parseProgress(text: string): Progress | null {
       if (typeof e.gift !== "string" || !isGiftId(e.gift)) continue;
       if (typeof e.paid !== "number" || !Number.isFinite(e.paid) || e.paid < 0) continue;
       if (e.kind === "buy") held.add(e.gift);
-      else if (!held.delete(e.gift)) return null;
+      else if (!held.delete(e.gift)) continue;
       out.log.push({ kind: e.kind, gift: e.gift, paid: e.paid });
     }
   }

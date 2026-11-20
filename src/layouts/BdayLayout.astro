@@ -16,6 +16,10 @@
  *     feed is built from the blog collection alone, so it never sees them.
  *   - `src/styles/bday26.css`: the fonts (Nunito, Baloo 2, self-hosted), the
  *     tokens (pink accent on cream) and the shared buttons.
+ *   - A page brought back by Back or Forward from the browser's back/forward
+ *     cache is reloaded at once: its memory is from before she left, and a
+ *     hub that shows an old Balance, or a Game that shows an old Best score,
+ *     is wrong even though the ledger would no longer write it (review A1).
  *
  * The page passes its `<title>`; its own layout lives in its own scoped
  * <style>, and its client code in its own <script>, which Astro bundles.
@@ -40,6 +44,11 @@ const { title } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <slot name="head" />
+    <script is:inline>
+      window.addEventListener("pageshow", (event) => {
+        if (event.persisted) location.reload();
+      });
+    </script>
   </head>
   <body>
     <slot />

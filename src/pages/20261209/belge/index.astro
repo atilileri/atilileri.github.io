@@ -8,7 +8,8 @@
  * WHAT IS ON THE PAPER, top to bottom, all Turkish: a greeting and today's
  * date written out ("9 Aralık 2026"); the Gifts she holds, each with its one
  * line; the Small prizes she won, each with the Game that gave it; the
- * Gifted points Atıl gave her, only when there are any; the check
+ * Gifted points Atıl gave her with their sum ("Atıl'dan hediye puan: 500"),
+ * only when there are any; the check
  * code in large letters with one line for Atıl on how he checks it; and the
  * full Save code in small monospace letters. Nothing else, so it reads at a
  * glance and fits one A4 page (story 92).
@@ -40,9 +41,12 @@
  * on a background colour — the headings say what each list is, and a won
  * prize is simply listed, not coloured. The Save code is small monospace
  * with `overflow-wrap: anywhere`, since base64url has no natural break and
- * must wrap, never overflow. The one-page fit is checked by hand in the print
- * preview (Atıl's list); the smoke test checks the content and that the UI
- * leaves under print media.
+ * must wrap, never overflow. To keep the paper to ONE A4 page however much
+ * she won (review H1), print sets every item on one line without its
+ * description (a gift from Atıl keeps its note on that line), the Small
+ * prizes in two columns, and the Save code smaller. The smoke prints the
+ * fullest Proof (4 Gifts, 9 Small prizes, a gift from Atıl) to PDF and
+ * counts one page.
  *
  * EMPTY STATE. Nothing held, nothing won: each list gives way to one line
  * ("Henüz …"), and the date, the check code and the code still print — a
@@ -86,6 +90,7 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
       <section class="block" aria-labelledby="gifted-heading" data-gifted hidden>
         <h2 class="h2" id="gifted-heading">Hediye puanlar</h2>
         <ul class="items" aria-labelledby="gifted-heading" data-gifted-list></ul>
+        <p class="gifted-total" data-gifted-total></p>
       </section>
 
       <section class="block check" aria-labelledby="check-heading">
@@ -161,6 +166,9 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
     $("[data-gifted-list]").replaceChildren(
       ...proof.gifted.items.map((g) => item(`+${g.points.toLocaleString("tr-TR")} puan`, g.note ?? "Atıl'dan hediye")),
     );
+    // Their sum, the number Atıl checks against the hub's "+N hediye puan".
+    $("[data-gifted-total]").textContent =
+      proof.gifted.total > 0 ? `Atıl'dan hediye puan: ${proof.gifted.total.toLocaleString("tr-TR")}` : "";
     $("[data-date]").textContent = proof.date;
     $("[data-check]").textContent = proof.check;
     $("[data-code]").textContent = proof.code;
@@ -302,6 +310,11 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
     font-size: 12.5px;
     color: var(--bd-ink-soft);
   }
+  .gifted-total {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 800;
+  }
   .empty {
     font-size: 14px;
     font-style: italic;
@@ -369,10 +382,68 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
       box-shadow: none;
     }
     .head {
-      padding-bottom: 5mm;
+      padding-bottom: 4mm;
+    }
+    .title {
+      font-size: 24px;
+    }
+    .greeting {
+      font-size: 12.5px;
+    }
+    .h2 {
+      margin-bottom: 2mm;
+      font-size: 15px;
+    }
+    /* One line per item, no description: the name (and, for a Small prize,
+       its Game) is what Atıl hands over; the shop and the hub carry the
+       rest. A gift from Atıl keeps its note on the same line, since there
+       the note is the only thing that says what it was for. */
+    .items {
+      gap: 0;
+    }
+    .items :global(li) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0 3mm;
+      padding: 1.2mm 0;
+      border: 0;
+      border-bottom: 0.5pt solid #ccc;
+      border-radius: 0;
+    }
+    .items :global(.item-head) {
+      font-size: 12.5px;
+    }
+    .items :global(.item-tag) {
+      font-size: 11px;
+    }
+    .items :global(.item-desc) {
+      display: none;
+    }
+    [data-gifted-list] :global(.item-desc) {
+      display: block;
+      font-size: 11px;
+    }
+    /* Up to 14 Small prizes: two columns keep them to half the height. */
+    [data-prizes] {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 8mm;
+    }
+    .gifted-total {
+      margin-top: 2mm;
+      font-size: 12.5px;
+    }
+    .for-atil,
+    .note {
+      font-size: 11px;
     }
     .check-code {
-      font-size: 40px;
+      padding: 6px 14px;
+      font-size: 32px;
+    }
+    .code {
+      font-size: 8px;
+      line-height: 1.4;
     }
   }
 </style>
