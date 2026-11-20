@@ -1,9 +1,950 @@
 ---
 /**
- * /20261209/bavul/ — placeholder until the Game is built on #219 (#213).
- * The build replaces this file.
+ * /20261209/bavul/ — "Bavul hazırla", a Prize Game (#219; verdict on #214).
+ * She packs an 8×6 suitcase for a trip card: fill every cell, put the
+ * card's 4 must-haves in, keep it at 23 kg or under so it closes. Score =
+ * 100 − 5 × empty cells − 10 × missing must-haves; 95% wins Hafta sonu
+ * gezisi. No Points, no time limit.
+ *
+ * HOW IT IS BUILT. Like every Game, three layers:
+ *   - `src/lib/bday26/bavul.ts` holds every rule: the items, the trip cards,
+ *     the score, and THE INPUT STATE MACHINE `step(state, action)`. It has
+ *     no DOM and is pinned under `node --test` (with each card's stored
+ *     perfect pack and heavy trap as test data).
+ *   - `GameShell` is everything around the Round (start, leave question,
+ *     result) and the one `recordRound`.
+ *   - This page is the painter and the input layer. Mouse, keyboard and the
+ *     buttons only turn her events into actions for `step`; the events that
+ *     come back (sounds, a toast, the leave question, the end of the Round)
+ *     are played here. Nothing else changes a Round.
+ *
+ * INPUT, as the prototype Atıl played (`prototype/214-bavul`): click a list
+ * row to take an item, click the bag to put it down (click-click, nothing
+ * is dragged); a second click on the held row, or on the background, lets
+ * it go back where it came from; right click turns it. Keys: Tab / ⇧Tab
+ * pick, arrows move, R turns, Enter puts down (or, empty-handed, picks up the
+ * packed item under the cursor), Backspace takes out, K closes. Esc lets go
+ * of the held item first; with an empty hand it is the shell's leave
+ * question. The buttons under the bag do the same and are the legend.
+ *
+ * Sound: the "Yolculuk" track (`music-dom.ts`, given to the shell) and the
+ * effects through `effects-dom.ts`, both under the HUD's switches.
  */
-import ComingSoon from "../../../components/bday26/ComingSoon.astro";
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+
+const game = gameById("bavul");
+
+const KEYS = [
+  { key: "Tık / Tab", does: "Listeden eşya seç (⇧ Tab: önceki)" },
+  { key: "Fare / ← ↑ → ↓", does: "Eşyayı bavulda gezdir" },
+  { key: "Tık / Enter", does: "Bavula koy · elin boşken: bavuldaki eşyayı al" },
+  { key: "Sağ tık / R", does: "Döndür" },
+  { key: "⌫ / listeye tık", does: "Çıkar: bavuldaki eşyayı listeye geri koy" },
+  { key: "K", does: "Bavulu kapat (elin boşken)" },
+  { key: "Esc", does: "Bırak ya da turdan çık" },
+];
 ---
 
-<ComingSoon game="bavul" />
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="bavul" keys={KEYS} music="bavul" resultAside>
+    <span slot="hud" class="hud-time">Süre <b data-time>0:00</b></span>
+
+    <div class="bavul" data-bavul>
+      <div class="side">
+        <section class="panel trip" aria-label="Gezi kartı">
+          <div class="lbl">Gezi kartı</div>
+          <div class="trip-name" data-trip-name></div>
+          <div class="musts" data-musts></div>
+        </section>
+        <section class="panel items" data-items aria-label="Eşyalar"></section>
+      </div>
+
+      <div class="board">
+        <div class="toast" data-toast role="status" aria-live="polite"></div>
+        <div class="canvas-box" data-canvas-box>
+          <canvas data-canvas aria-label="Bavul"></canvas>
+        </div>
+        <div class="hold" data-hold></div>
+        <div class="actions">
+          <button class="act" type="button" tabindex="-1" data-act="rotate">Döndür <kbd>R</kbd></button>
+          <button class="act main" type="button" tabindex="-1" data-act="place">Bavula koy <kbd>Enter</kbd></button>
+          <button class="act" type="button" tabindex="-1" data-act="out">Çıkar <kbd>⌫</kbd></button>
+          <button class="act" type="button" tabindex="-1" data-act="next">Sonraki eşya <kbd>Tab</kbd></button>
+          <button class="act" type="button" tabindex="-1" data-act="cancel">Bırak <kbd>Esc</kbd></button>
+          <button class="act" type="button" tabindex="-1" data-act="close">Bavulu kapat <kbd>K</kbd></button>
+        </div>
+        <p class="mhint">
+          Fare: listeden eşyaya tıkla, bavulda yerine tıkla · aynı eşyaya ya da boşluğa tıkla: bırak · bavuldaki eşyaya tıkla: al · sağ tık: döndür
+        </p>
+      </div>
+
+      <div class="side score-col">
+        <section class="panel score" aria-label="Bu turun skoru">
+          <div class="hand" data-hand>Elin boş</div>
+          <div class="lbl">Bu turun skoru</div>
+          <div class="big" data-big>%0</div>
+          <div class="rows" data-rows></div>
+          <p class="note">Skor = 100 − 5 × boş kare − 10 × eksik olmazsa olmaz. 23 kg'ı aşan bavul kapanmaz.</p>
+        </section>
+      </div>
+
+      <div class="close-veil" data-close hidden>
+        <div class="close-card" role="dialog" aria-labelledby="bavul-close-title">
+          <h2 id="bavul-close-title">Bavulu kapatıyor musun?</h2>
+          <p>Kapatınca tur biter ve bu skor yazılır.</p>
+          <div class="rows" data-close-rows></div>
+          <div class="close-foot">
+            <span>Skor <b data-close-score></b></span>
+            <span class="close-buttons">
+              <button class="bd-btn secondary" type="button" tabindex="-1" data-close-act="cancel">Devam et <kbd>Esc</kbd></button>
+              <button class="bd-btn primary" type="button" tabindex="-1" data-close-act="act">Kapat <kbd>Enter</kbd></button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div slot="result" class="result-extra">
+      <div class="rows" data-result-rows></div>
+      <p class="verdict" data-verdict></p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { effects } from "../../../lib/bday26/effects-dom";
+  import { smallPrizeCelebration, type SoundName } from "../../../lib/bday26/effects";
+  import {
+    BAG_H,
+    BAG_W,
+    CARDS,
+    ITEM_INFO,
+    KG_LIMIT,
+    breakdown,
+    can,
+    cellsAt,
+    dims,
+    drawCard,
+    itemsCovering,
+    newRound,
+    probe,
+    shapeOf,
+    step,
+    type Action,
+    type Breakdown,
+    type BavulSound,
+    type Cell,
+    type Point,
+    type Round,
+    type Verb,
+  } from "../../../lib/bday26/bavul";
+
+  const $ = <T extends HTMLElement = HTMLElement>(sel: string) => {
+    const el = document.querySelector<T>(sel);
+    if (!el) throw new Error(`bday26 bavul: ${sel} is missing`);
+    return el;
+  };
+  const playfield = $("[data-shell-playfield]");
+  const itemsEl = $("[data-items]");
+  const cv = $<HTMLCanvasElement>("[data-canvas]");
+  const canvasBox = $("[data-canvas-box]");
+  const holdEl = $("[data-hold]");
+  const toastEl = $("[data-toast]");
+  const timeEl = $("[data-time]");
+  const closeEl = $("[data-close]");
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-act]"));
+  const g = cv.getContext("2d")!;
+
+  /** Every sound of the machine, as the site's effects name them. */
+  const SOUND: Record<BavulSound, SoundName> = {
+    pick: "pick",
+    rotate: "flip",
+    place: "place",
+    out: "take-out",
+    refuse: "row-wrong",
+    gate: "gate",
+    must: "row-good",
+  };
+
+  let R: Round | null = null;
+  let lastCard: number | undefined;
+  let t0 = 0;
+  /** The Round's time once it is over (the clock stops at "Kapat"). */
+  let endedAt: number | null = null;
+  let toastTimer = 0;
+
+  const fmtKg = (x: number) => `${String(Math.round(x * 10) / 10).replace(".", ",")} kg`;
+  const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const elapsed = () => ((endedAt ?? performance.now()) - t0) / 1000;
+
+  // ── the one door into the machine ─────────────────────────────────
+
+  function dispatch(a: Action) {
+    if (shell.phase !== "playing" || !R) return;
+    const { state, events } = step(R, a);
+    R = state;
+    for (const e of events) {
+      if (e.kind === "sound") {
+        const name = SOUND[e.sound];
+        if (e.delay) window.setTimeout(() => effects.sound(name), e.delay);
+        else effects.sound(name);
+      } else if (e.kind === "toast") toast(e.text);
+      else if (e.kind === "leave") shell.askLeave();
+      else if (e.kind === "finish") finishRound();
+    }
+    paint();
+  }
+
+  function startRound() {
+    lastCard = drawCard(lastCard, Math.random);
+    R = newRound(lastCard);
+    t0 = performance.now();
+    endedAt = null;
+    lastPoint = "";
+    paint();
+  }
+
+  function finishRound() {
+    if (!R) return;
+    const b = breakdown(R);
+    endedAt = performance.now();
+    R = { ...R, closing: false };
+    $("[data-result-rows]").innerHTML = rowsHtml(b) + `<div class="row dim"><span>Süre</span><b>${mmss(elapsed())}</b></div>`;
+    $("[data-verdict]").textContent =
+      b.score >= 95 ? "" : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı. %95 için en çok 1 boş kare olabilir.`;
+    $("[data-verdict]").hidden = b.score >= 95;
+    effects.sound("zip");
+    const outcome = shell.finish(b.score, { detail: CARDS[R.card]!.name });
+    // The first 95 gets the shell's Small prize celebration; every later
+    // one still gets the fanfare, as in the prototype.
+    if (b.score >= 95 && !outcome?.prizeWonNow) window.setTimeout(() => effects.celebrate(smallPrizeCelebration(Math.random)), 900);
+    paint();
+  }
+
+  // Esc during a Round goes through the machine first: it lets go of the
+  // held item, answers the close question, and only with an empty hand asks
+  // to leave. Registered before `mountGameShell`, so it runs before the
+  // shell's own listener on the same target.
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape" || shell.phase !== "playing" || !R) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!event.repeat) dispatch({ t: "cancel", leave: true });
+    },
+    { capture: true },
+  );
+
+  const shell = mountGameShell({
+    game: "bavul",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound() {
+        R = null;
+        window.clearTimeout(toastTimer);
+      },
+    },
+  });
+
+  // ── keyboard layer: keys → actions ───────────────────────────────
+
+  const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  window.addEventListener("keydown", (event) => {
+    if (shell.phase !== "playing" || event.altKey || event.ctrlKey || event.metaKey) return;
+    const k = event.key;
+    const arrow = ARROWS[k];
+    let a: Action | null = null;
+    if (arrow) a = { t: "move", dx: arrow[0], dy: arrow[1] };
+    else if (k === "Tab") a = { t: "cycle", dir: event.shiftKey ? -1 : 1 };
+    else if (event.repeat) return;
+    else if (k === "Enter") a = { t: "act" };
+    else if (k === "r" || k === "R") a = { t: "rotate" };
+    else if (k === "Backspace") a = { t: "takeOut" };
+    else if (k === "k" || k === "K") a = { t: "close" };
+    if (!a) return;
+    event.preventDefault();
+    dispatch(a);
+  });
+
+  // ── mouse layer: clicks → the same actions ───────────────────────
+
+  let CS = 80;
+  const PAD = 26;
+  const TOPH = 34;
+  let dpr = 1;
+  const OX = PAD;
+  const OY = PAD + TOPH;
+  const pointOf = (event: MouseEvent): Point => ({ fx: (event.offsetX - OX) / CS, fy: (event.offsetY - OY) / CS });
+  const inBag = (p: Point) => p.fx >= 0 && p.fx < BAG_W && p.fy >= 0 && p.fy < BAG_H;
+  let lastPoint = "";
+
+  cv.addEventListener("pointermove", (event) => {
+    if (shell.phase !== "playing" || !R) return;
+    const p = pointOf(event);
+    if (!inBag(p)) return;
+    // Only a change of where the item would land is an action.
+    let where = `${Math.floor(p.fx)},${Math.floor(p.fy)}`;
+    if (R.hand) {
+      const it = R.items[R.hand.i]!;
+      const d = dims(shapeOf(it));
+      where = `${R.hand.i}:${it.rot}:${R.hand.origin === "list" ? `${Math.round(p.fx - d.w / 2)},${Math.round(p.fy - d.h / 2)}` : where}`;
+    }
+    if (where !== lastPoint) {
+      lastPoint = where;
+      dispatch({ t: "point", at: p });
+    }
+    cv.style.cursor = R.hand || itemsCovering(R, [{ x: Math.floor(p.fx), y: Math.floor(p.fy) }]).length ? "pointer" : "default";
+  });
+  cv.addEventListener("pointerleave", () => (lastPoint = ""));
+  cv.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const p = pointOf(event);
+    // The case around the bag counts as background.
+    dispatch(inBag(p) ? { t: "act", at: p } : { t: "cancel" });
+  });
+  itemsEl.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const row = (event.target as Element).closest<HTMLElement>("[data-i]");
+    dispatch({ t: "list", i: row ? Number(row.dataset.i) : null });
+  });
+  // The background: anything in the playfield that is not the bag, the
+  // list, a button or the close card lets the held item go back.
+  playfield.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    // The path as it was at dispatch: a list row the list handler just
+    // re-rendered is detached by now.
+    if (event.composedPath().some((el) => el instanceof Element && el.matches("canvas, [data-items], button, [data-close]"))) return;
+    dispatch({ t: "cancel" });
+  });
+  playfield.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    dispatch({ t: "rotate" });
+  });
+  for (const el of [itemsEl, cv]) el.addEventListener("dragstart", (e) => e.preventDefault());
+
+  // The buttons never take focus, so Enter and the keys stay the Game's.
+  const BUTTON: Record<Verb, Action> = {
+    rotate: { t: "rotate" },
+    place: { t: "act" },
+    out: { t: "takeOut" },
+    next: { t: "cycle", dir: 1 },
+    cancel: { t: "cancel" },
+    close: { t: "close" },
+  };
+  for (const b of buttons) {
+    b.addEventListener("mousedown", (e) => e.preventDefault());
+    b.addEventListener("click", () => dispatch(BUTTON[b.dataset.act as Verb]));
+  }
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-close-act]")) {
+    b.addEventListener("mousedown", (e) => e.preventDefault());
+    b.addEventListener("click", () => dispatch({ t: b.dataset.closeAct === "act" ? "act" : "cancel" }));
+  }
+
+  // ── painting ─────────────────────────────────────────────────────
+
+  function toast(text: string) {
+    toastEl.textContent = text;
+    toastEl.classList.add("on");
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toastEl.classList.remove("on"), 1600);
+  }
+
+  function rowsHtml(b: Breakdown) {
+    return (
+      [
+        ["Dolu", `${b.filled} / ${BAG_W * BAG_H} kare`, ""],
+        [`Boş kalan (${b.empty})`, b.empty ? `−${b.empty * 5}` : "0", b.empty ? "neg" : "ok"],
+        [`Eksik olmazsa olmaz (${b.missing.length})`, b.missing.length ? `−${b.missing.length * 10}` : "0", b.missing.length ? "neg" : "ok"],
+        ["Ağırlık", `${fmtKg(b.kg)} / ${KG_LIMIT} kg`, b.heavy ? "neg" : ""],
+        ["Bavul", b.heavy ? `kapanmaz: ${KG_LIMIT} kg'ı aştın` : "kapanır", b.heavy ? "neg" : "ok"],
+      ] as const
+    )
+      .map(([label, value, cls]) => `<div class="row ${cls}"><span>${label}</span><b>${value}</b></div>`)
+      .join("");
+  }
+
+  function paintSide(r: Round) {
+    const card = CARDS[r.card]!;
+    $("[data-trip-name]").textContent = card.name;
+    $("[data-musts]").innerHTML = card.musts
+      .map((k) => {
+        const ok = r.items.find((it) => it.key === k)!.placed;
+        return `<span class="chip ${ok ? "ok" : ""}">${ok ? "✓" : ITEM_INFO[k].emoji} ${ITEM_INFO[k].name}</span>`;
+      })
+      .join("");
+    const packed = r.items.filter((it) => it.placed).length;
+    itemsEl.innerHTML =
+      `<div class="head"><span>Bavulun yanında</span><span>${packed} / ${r.items.length} bavulda</span></div>` +
+      r.items
+        .map((it) => {
+          const info = ITEM_INFO[it.key];
+          const o = info.shapes[0]!;
+          const d = dims(o);
+          const on = new Set(o.map((c) => c.y * d.w + c.x));
+          let mini = "";
+          for (let i = 0; i < d.w * d.h; i++) mini += `<i style="background:${on.has(i) ? info.color : "transparent"}"></i>`;
+          const held = r.hand?.i === it.i;
+          const meta = held ? (r.hand!.origin === "list" ? "elinde" : "elinde (bavuldan)") : it.placed ? "bavulda" : `${info.cells} kare`;
+          const star = card.musts.includes(it.key) ? `<span class="star" aria-label="olmazsa olmaz">★</span>` : "";
+          return `<div class="it ${held ? "sel" : ""} ${it.placed ? "in" : ""}" data-i="${it.i}">
+            <div class="mini" style="grid-template-columns:repeat(${d.w},8px)">${mini}</div>
+            <div><div class="nm"><span class="e">${info.emoji}</span><span>${info.name}</span>${star}</div><div class="meta">${meta}</div></div>
+            <div class="tag">${fmtKg(info.kg)}</div></div>`;
+        })
+        .join("");
+  }
+
+  function paintHud(r: Round) {
+    const playing = shell.phase === "playing";
+    holdEl.style.visibility = playing ? "visible" : "hidden";
+    if (!r.hand) {
+      const under = itemsCovering(r, [r.cursor])[0];
+      holdEl.innerHTML = under
+        ? `<span>Elin boş · imleç: ${ITEM_INFO[under.key].emoji} ${ITEM_INFO[under.key].name}</span><span class="st">Enter / tık: al</span>`
+        : `<span>Elin boş: listeden bir eşya seç</span>`;
+    } else {
+      const info = ITEM_INFO[r.items[r.hand.i]!.key];
+      const p = probe(r)!;
+      const st = !p.ok ? `<span class="st bad">${p.why}</span>` : p.warn ? `<span class="st warn">${p.warn}</span>` : `<span class="st">Sığıyor</span>`;
+      holdEl.innerHTML = `<span class="e">${info.emoji}</span><span>${info.name}</span><span class="kg">${fmtKg(info.kg)}</span>${st}`;
+    }
+    for (const b of buttons) b.disabled = !(playing && can(r, b.dataset.act as Verb));
+    const b = breakdown(r);
+    const hand = $("[data-hand]");
+    hand.textContent = r.hand ? `Elinde: ${ITEM_INFO[r.items[r.hand.i]!.key].name} (${r.hand.origin === "list" ? "listeden" : "bavuldan"})` : "Elin boş";
+    hand.classList.toggle("on", !!r.hand);
+    const big = $("[data-big]");
+    big.textContent = `%${b.score}`;
+    big.classList.toggle("win", b.score >= 95);
+    $("[data-rows]").innerHTML = rowsHtml(b);
+    closeEl.hidden = !r.closing;
+    if (r.closing) {
+      $("[data-close-rows]").innerHTML = rowsHtml(b);
+      $("[data-close-score]").textContent = `%${b.score}`;
+    }
+  }
+
+  function paint() {
+    if (!R) return;
+    paintSide(R);
+    paintHud(R);
+  }
+
+  function resize() {
+    const w0 = canvasBox.clientWidth;
+    const h0 = canvasBox.clientHeight;
+    if (!w0 || !h0) return;
+    CS = Math.floor(Math.max(36, Math.min((w0 - 2 * PAD) / BAG_W, (h0 - 2 * PAD - TOPH) / BAG_H, 112)));
+    const w = BAG_W * CS + 2 * PAD;
+    const h = BAG_H * CS + 2 * PAD + TOPH;
+    dpr = window.devicePixelRatio || 1;
+    cv.style.width = `${w}px`;
+    cv.style.height = `${h}px`;
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+  }
+  new ResizeObserver(resize).observe(canvasBox);
+
+  function shade(hex: string, f: number) {
+    const n = parseInt(hex.slice(1), 16);
+    const m = (v: number) => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f)));
+    return `rgb(${m(n >> 16)},${m((n >> 8) & 255)},${m(n & 255)})`;
+  }
+
+  /** A piece as merged cells, inset only on its outer edges. */
+  function piece(cells: Cell[], color: string, opt: { alpha?: number; stroke?: string; dash?: number[]; emoji?: string } = {}) {
+    const set = new Set(cells.map((c) => `${c.x},${c.y}`));
+    const has = (x: number, y: number) => set.has(`${x},${y}`);
+    const ins = Math.max(3, CS * 0.05);
+    const rectOf = (x: number, y: number) => {
+      const l = has(x - 1, y) ? 0 : ins;
+      const r = has(x + 1, y) ? 0 : ins;
+      const t = has(x, y - 1) ? 0 : ins;
+      const b = has(x, y + 1) ? 0 : ins;
+      return [OX + x * CS + l, OY + y * CS + t, CS - l - r, CS - t - b] as const;
+    };
+    g.save();
+    g.globalAlpha = opt.alpha ?? 1;
+    g.fillStyle = color;
+    for (const c of cells) g.fillRect(...rectOf(c.x, c.y));
+    g.beginPath();
+    for (const { x, y } of cells) {
+      const [a, b, w, h] = rectOf(x, y);
+      if (!has(x, y - 1)) (g.moveTo(a, b), g.lineTo(a + w, b));
+      if (!has(x, y + 1)) (g.moveTo(a, b + h), g.lineTo(a + w, b + h));
+      if (!has(x - 1, y)) (g.moveTo(a, b), g.lineTo(a, b + h));
+      if (!has(x + 1, y)) (g.moveTo(a + w, b), g.lineTo(a + w, b + h));
+    }
+    g.strokeStyle = opt.stroke ?? shade(color, -0.35);
+    g.lineWidth = opt.stroke ? 3 : 1.5;
+    if (opt.dash) g.setLineDash(opt.dash);
+    g.stroke();
+    g.setLineDash([]);
+    if (opt.emoji) {
+      const cx = cells.reduce((s, c) => s + c.x, 0) / cells.length;
+      const cy = cells.reduce((s, c) => s + c.y, 0) / cells.length;
+      const near = cells.slice().sort((p, q) => Math.hypot(p.x - cx, p.y - cy) - Math.hypot(q.x - cx, q.y - cy))[0]!;
+      g.font = `${Math.round(CS * 0.48)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText(opt.emoji, OX + (near.x + 0.5) * CS, OY + (near.y + 0.5) * CS + 1);
+    }
+    g.restore();
+  }
+
+  let shownSecond = -1;
+  function frame(now: number) {
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = cv.width / dpr;
+    const h = cv.height / dpr;
+    g.clearRect(0, 0, w, h);
+    // The suitcase: handle, shell, lining, the grid.
+    const sx = PAD - 16;
+    const sy = TOPH + PAD - 16;
+    const sw = BAG_W * CS + 32;
+    const sh = BAG_H * CS + 32;
+    g.fillStyle = "#7a4b3a";
+    g.beginPath();
+    g.roundRect(w / 2 - 70, sy - 30, 140, 40, 14);
+    g.fill();
+    g.fillStyle = "#fffaf5";
+    g.beginPath();
+    g.roundRect(w / 2 - 48, sy - 18, 96, 22, 8);
+    g.fill();
+    g.fillStyle = "#c45a5a";
+    g.beginPath();
+    g.roundRect(sx, sy, sw, sh, 22);
+    g.fill();
+    g.fillStyle = "#a94646";
+    g.fillRect(sx + 40, sy, 10, sh);
+    g.fillRect(sx + sw - 50, sy, 10, sh);
+    g.fillStyle = "#f6ece2";
+    g.beginPath();
+    g.roundRect(OX - 4, OY - 4, BAG_W * CS + 8, BAG_H * CS + 8, 10);
+    g.fill();
+    g.strokeStyle = "rgba(122,75,58,.16)";
+    g.lineWidth = 1;
+    for (let x = 0; x <= BAG_W; x++) {
+      g.beginPath();
+      g.moveTo(OX + x * CS + 0.5, OY);
+      g.lineTo(OX + x * CS + 0.5, OY + BAG_H * CS);
+      g.stroke();
+    }
+    for (let y = 0; y <= BAG_H; y++) {
+      g.beginPath();
+      g.moveTo(OX, OY + y * CS + 0.5);
+      g.lineTo(OX + BAG_W * CS, OY + y * CS + 0.5);
+      g.stroke();
+    }
+    if (R) {
+      for (const it of R.items) if (it.placed) piece(cellsAt(it, it.placed.x, it.placed.y), ITEM_INFO[it.key].color, { emoji: ITEM_INFO[it.key].emoji });
+      if (shell.phase === "playing" || shell.phase === "confirm") {
+        if (R.hand) {
+          const it = R.items[R.hand.i]!;
+          const p = probe(R)!;
+          // Where a bag item came from: a faint outline, so "Bırak" is predictable.
+          if (typeof R.hand.origin === "object") {
+            const o = R.hand.origin;
+            piece(cellsAt({ ...it, rot: o.rot }, o.x, o.y), "#ffffff", { alpha: 0.5, stroke: "#b9a8a3", dash: [3, 4] });
+          }
+          piece(p.cells, ITEM_INFO[it.key].color, { alpha: 0.82, stroke: !p.ok ? "#d9453d" : p.warn ? "#b7791f" : "#2fb67c", dash: [7, 5], emoji: ITEM_INFO[it.key].emoji });
+        } else if (!R.closing) {
+          const pulse = 0.5 + 0.5 * Math.sin(now / 250);
+          g.strokeStyle = `rgba(224,68,106,${0.5 + 0.5 * pulse})`;
+          g.lineWidth = 3;
+          g.setLineDash([6, 4]);
+          g.strokeRect(OX + R.cursor.x * CS + 3, OY + R.cursor.y * CS + 3, CS - 6, CS - 6);
+          g.setLineDash([]);
+        }
+      }
+    }
+    const s = R ? Math.floor(elapsed()) : 0;
+    if (s !== shownSecond) {
+      shownSecond = s;
+      timeEl.textContent = mmss(s);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Before the first Round the start card covers an empty bag and a card.
+  paintSide(newRound(0));
+  resize();
+  requestAnimationFrame(frame);
+</script>
+
+<style>
+  .hud-time {
+    font-weight: 800;
+    color: var(--bd-muted);
+    font-size: 15px;
+  }
+  .hud-time b {
+    font: 800 22px/1 var(--bd-display);
+    color: var(--bd-ink);
+    font-variant-numeric: tabular-nums;
+    margin-left: 6px;
+  }
+  .bavul {
+    --shadow: 0 1px 2px rgb(58 45 42 / 0.06), 0 8px 24px rgb(58 45 42 / 0.1);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr) 400px;
+    gap: 16px;
+  }
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+  }
+  /* The result card docks over the right column, so the packed bag stays visible. */
+  :global([data-shell-phase="result"]) .score-col {
+    visibility: hidden;
+  }
+  .panel {
+    background: var(--bd-paper);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+  }
+  .lbl {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .trip-name {
+    font: 700 21px/1.2 var(--bd-display);
+    margin-top: 2px;
+  }
+  .musts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .musts :global(.chip) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 10px 4px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--bd-track);
+    color: var(--bd-ink-soft);
+  }
+  .musts :global(.chip.ok) {
+    background: var(--bd-won-bg);
+    color: var(--bd-won-ink);
+  }
+  .items {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px;
+  }
+  .items :global(.head) {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .items :global(.it) {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 5px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .items :global(.it:hover) {
+    background: var(--bd-line-soft);
+  }
+  .items :global(.it.sel) {
+    background: var(--bd-accent-soft);
+    box-shadow: inset 0 0 0 2px var(--bd-accent);
+  }
+  .items :global(.it.in) {
+    opacity: 0.45;
+  }
+  .items :global(.nm) {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.3;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .items :global(.star) {
+    color: var(--bd-gold);
+    font-size: 13px;
+  }
+  .items :global(.meta) {
+    font-size: 12px;
+    color: var(--bd-muted);
+  }
+  .items :global(.tag) {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--bd-ink-soft);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .items :global(.mini) {
+    display: grid;
+    gap: 1px;
+    justify-content: center;
+  }
+  .items :global(.mini i) {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  .board {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .canvas-box {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+  }
+  canvas {
+    display: block;
+    outline: none;
+    touch-action: none;
+    user-select: none;
+  }
+  .hold {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bd-paper);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    padding: 8px 18px;
+    font-weight: 700;
+    white-space: nowrap;
+    min-height: 44px;
+  }
+  .hold :global(.e) {
+    font-size: 20px;
+  }
+  .hold :global(.kg) {
+    color: var(--bd-muted);
+    font-weight: 600;
+  }
+  .hold :global(.st) {
+    font-size: 13px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--bd-won-bg);
+    color: var(--bd-won-ink);
+  }
+  .hold :global(.st.bad) {
+    background: var(--bd-wrong-bg);
+    color: var(--bd-wrong);
+  }
+  .hold :global(.st.warn) {
+    background: var(--bd-gift-bg);
+    color: var(--bd-gift-fg);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line), 0 1px 0 var(--bd-line);
+    font: 800 14px var(--bd-font);
+    color: var(--bd-ink);
+    padding: 8px 10px 8px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .act:hover:not(:disabled) {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .act:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .act.main {
+    background: var(--bd-accent);
+    color: #fff;
+    box-shadow: none;
+  }
+  .act.main kbd {
+    background: rgb(255 255 255 / 0.2);
+    color: #fff;
+    box-shadow: none;
+  }
+  .mhint {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--bd-muted);
+    text-align: center;
+  }
+  .toast {
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    transform: translateX(-50%);
+    background: var(--bd-wrong);
+    color: #fff;
+    font-weight: 800;
+    padding: 10px 18px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 4;
+  }
+  .toast:global(.on) {
+    opacity: 1;
+  }
+
+  .score .hand {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--bd-muted);
+    background: var(--bd-bg);
+    border-radius: 10px;
+    padding: 6px 10px;
+    margin-bottom: 12px;
+  }
+  .score .hand:global(.on) {
+    color: var(--bd-accent-deep);
+    background: var(--bd-accent-soft);
+  }
+  .big {
+    font: 800 64px/1 var(--bd-display);
+    letter-spacing: -0.02em;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .big:global(.win) {
+    color: var(--bd-won);
+  }
+  .rows {
+    margin-top: 14px;
+    display: grid;
+    gap: 2px;
+    text-align: left;
+  }
+  .rows :global(.row) {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+    border-top: 1px solid var(--bd-line-soft);
+    font-size: 14px;
+  }
+  .rows :global(.row b) {
+    font-variant-numeric: tabular-nums;
+    color: var(--bd-ink);
+    text-align: right;
+  }
+  .rows :global(.row.neg b) {
+    color: var(--bd-wrong);
+  }
+  .rows :global(.row.ok b) {
+    color: var(--bd-won-ink);
+  }
+  .rows :global(.row.dim),
+  .rows :global(.row.dim b) {
+    color: var(--bd-muted);
+  }
+  .note {
+    font-size: 12.5px;
+    color: var(--bd-muted);
+    margin: 10px 0 0;
+    line-height: 1.4;
+  }
+
+  .close-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    background: rgb(255 250 245 / 0.7);
+    backdrop-filter: blur(3px);
+  }
+  .close-veil[hidden] {
+    display: none;
+  }
+  .close-card {
+    width: 460px;
+    background: var(--bd-paper);
+    border-radius: 24px;
+    padding: 28px 30px 24px;
+    box-shadow: 0 0 0 1px var(--bd-line), 0 30px 70px -36px rgb(0 0 0 / 0.45);
+  }
+  .close-card h2 {
+    margin: 0;
+    font: 800 28px/1.1 var(--bd-display);
+    color: var(--bd-ink);
+  }
+  .close-card p {
+    margin: 8px 0 0;
+    color: var(--bd-ink-soft);
+  }
+  .close-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 18px;
+    color: var(--bd-muted);
+  }
+  .close-foot b {
+    color: var(--bd-ink);
+  }
+  .close-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .result-extra .rows {
+    margin-top: 0;
+    width: 100%;
+  }
+  .verdict {
+    margin: 10px 0 0;
+    font-weight: 700;
+    color: var(--bd-ink-soft);
+  }
+</style>

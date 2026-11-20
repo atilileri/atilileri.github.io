@@ -284,7 +284,7 @@ test("a weekend trip bought before it left the shop stays hers and can be Return
 });
 
 test("a Prize Game's route is its placeholder page until its build lands; Esc goes back to the hub (#213)", async ({ page }) => {
-  for (const [id, name] of [["bavul", "Bavul hazırla"], ["renk", "Renk karıştır"], ["barista", "Barista"]] as const) {
+  for (const [id, name] of [["renk", "Renk karıştır"], ["barista", "Barista"]] as const) {
     await page.goto(`${HUB}${id}/`);
     await expect(page.locator("html")).toHaveAttribute("lang", "tr");
     await expect(page.getByRole("heading", { name })).toBeVisible();
@@ -1116,3 +1116,119 @@ for (const { path, name } of [
     await expect(overlay).toBeHidden();
   });
 }
+
+// ── Bavul hazırla (#219) ─────────────────────────────────────────────
+
+test("Bavul hazırla: the start screen names Esc once, the prize, and both switches (#219)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/bavul/");
+  const start = page.getByRole("dialog", { name: "Bavul hazırla" });
+  await expect(start).toContainText("Bavulu boşluksuz doldur, 23 kg'ı aşma");
+  await expect(start).toContainText("Hafta sonu gezisi");
+  const esc = page.locator("[data-shell-screen=start] li").filter({ has: page.locator("kbd", { hasText: /^Esc$/ }) });
+  await expect(esc).toHaveCount(1);
+  await expect(esc).toContainText("Bırak ya da turdan çık");
+  await expect(page.getByRole("button", { name: /^Müzik/ })).toHaveAccessibleName("Müzik: Açık");
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Açık");
+});
+
+test("Bavul hazırla by keyboard alone: Tab picks, Enter packs, a full cell refuses, Esc lets go before it asks to leave, K closes (#219)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/bavul/");
+  await page.keyboard.press("Enter");
+  const hand = page.locator("[data-hand]");
+  const leave = page.getByRole("dialog", { name: "Turdan çıkılsın mı?" });
+  await expect(hand).toHaveText("Elin boş");
+  await expect(page.getByText("0 / 16 bavulda")).toBeVisible();
+
+  // Tab, Enter: the laptop goes into the top left corner, the hand is empty.
+  await page.keyboard.press("Tab");
+  await expect(hand).toHaveText("Elinde: Laptop (listeden)");
+  await page.keyboard.press("Enter");
+  await expect(hand).toHaveText("Elin boş");
+  await expect(page.getByText("1 / 16 bavulda")).toBeVisible();
+
+  // The books hang at the cursor, over the laptop: refused, still held.
+  await page.keyboard.press("Tab");
+  await expect(hand).toHaveText("Elinde: Kitaplar (listeden)");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status").filter({ hasText: "Burası dolu" })).toBeVisible();
+  await expect(hand).toHaveText("Elinde: Kitaplar (listeden)");
+
+  // Esc while holding only lets go; the leave question waits for an empty hand.
+  await page.keyboard.press("Escape");
+  await expect(hand).toHaveText("Elin boş");
+  await expect(leave).toBeHidden();
+
+  // K asks; Esc goes back to packing; K, Enter closes the bag and ends the Round.
+  const close = page.getByRole("dialog", { name: "Bavulu kapatıyor musun?" });
+  await page.keyboard.press("k");
+  await expect(close).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(close).toBeHidden();
+  await expect(leave).toBeHidden();
+  await page.keyboard.press("k");
+  await page.keyboard.press("Enter");
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  await expect(result.locator("[data-shell-score]")).toHaveText("%0"); // 42 empty cells
+  await expect(result).toContainText("Boş kalan (42)");
+
+  // Enter is a new Round on an empty bag; Esc with an empty hand asks; Enter leaves.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("0 / 16 bavulda")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(leave).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Bavul hazırla")).toContainText("%0");
+  await expect(row(page, "Bavul hazırla")).toContainText("Puan vermez");
+  await expect(page.getByText("1/14 oynandı")).toBeVisible();
+});
+
+test("Bavul hazırla by mouse alone: the card's perfect pack scores %100, wins Hafta sonu gezisi, and the hub tile shows it with no Points (#219)", async ({ page }) => {
+  const { PACKS, placements } = await import("../../src/lib/bday26/bavul-packs.ts");
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/bavul/");
+  await page.getByRole("button", { name: /Başla/ }).click();
+  const hand = page.locator("[data-hand]");
+  const trip = (await page.locator("[data-trip-name]").innerText()).trim();
+  const pack = PACKS[trip];
+  expect(pack, trip).toBeTruthy();
+
+  // A second click on the held row lets it go again.
+  const rowOf = (i: number) => page.locator(`[data-items] [data-i="${i}"]`);
+  await rowOf(0).click();
+  await expect(hand).toHaveText("Elinde: Laptop (listeden)");
+  await rowOf(0).click();
+  await expect(hand).toHaveText("Elin boş");
+
+  // The canvas: 26 px padding, 34 px more on top for the handle, 8 cells across.
+  const box = (await page.locator("[data-canvas]").boundingBox())!;
+  const cs = (box.width - 52) / 8;
+  const at = (fx: number, fy: number) => ({ x: box.x + 26 + fx * cs, y: box.y + 60 + fy * cs });
+
+  for (const p of placements(pack!.ok)) {
+    // A list item hangs from its middle: aim the middle of its box.
+    const c = at(p.left + p.w / 2, p.top + p.h / 2);
+    await rowOf(p.i).click();
+    for (let t = 0; t < p.turns; t++) await page.mouse.click(c.x, c.y, { button: "right" });
+    await page.mouse.click(c.x, c.y);
+    await expect(hand).toHaveText("Elin boş");
+  }
+  await expect(page.locator("[data-big]")).toHaveText("%100");
+
+  await page.getByRole("button", { name: /Bavulu kapat/ }).click();
+  await page.getByRole("dialog", { name: "Bavulu kapatıyor musun?" }).getByRole("button", { name: /Kapat/ }).click();
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result.locator("[data-shell-score]")).toHaveText("%100");
+  await expect(result).toContainText(trip);
+  await expect(result).toContainText("Küçük ödül kazandın: Hafta sonu gezisi!");
+
+  await result.getByRole("button", { name: /Salona dön/ }).click();
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Bavul hazırla")).toContainText("%100");
+  await expect(row(page, "Bavul hazırla")).toContainText("Kazandın!");
+  await expect(row(page, "Bavul hazırla")).toContainText("Puan vermez");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+});
