@@ -21,6 +21,7 @@ import {
   memoryScore,
   milyonerScore,
   missScore,
+  pianoAccuracy,
   pianoScore,
   renkRoundScore,
   renkTargetScore,
@@ -165,8 +166,8 @@ test("Wordle Round: the mean is rounded down", () => {
 // ------------------------------------------------------------------ piano
 // Spec: hit accuracy × song cap (Kolay 0.70, Orta 0.85, Zor 1.00); 95% means
 // 95% accuracy on Zor (#205, #180). Accuracy is the notes she hit out of all
-// the notes the song dropped; stray presses cost nothing. Read as a percent
-// and rounded down, like every score she sees.
+// the notes the song dropped, less one hit per stray press (2026-11-19).
+// Read as a percent and rounded down, like every score she sees.
 
 test("piano: every note hit on Zor is a perfect 100", () => {
   assert.equal(pianoScore(240, 240, 1.0), 100);
@@ -204,6 +205,14 @@ test("piano: each stray press cancels one hit, never below 0", () => {
 test("piano: no note hit scores 0, and so does a song without notes", () => {
   assert.equal(pianoScore(0, 120, 1.0), 0);
   assert.equal(pianoScore(0, 0, 1.0), 0);
+});
+
+test("piano: the accuracy she reads is hits less strays over all notes, unrounded, never below 0", () => {
+  assert.equal(pianoAccuracy(228, 240), 95);
+  assert.equal(pianoAccuracy(240, 240, 12), 95);
+  assert.equal(pianoAccuracy(1, 3), 100 / 3);
+  assert.equal(pianoAccuracy(10, 100, 50), 0);
+  assert.equal(pianoAccuracy(0, 0), 0);
 });
 
 // ------------------------------------------------------------- hiking map

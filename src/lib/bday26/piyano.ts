@@ -29,15 +29,23 @@
  *     late). The earliest unhit note of that lane within the window
  *     (±170 ms, `HIT_WINDOW_MS`, unless the song carries its own; inclusive)
  *     is hit; within half the window it is "Tam!", otherwise "Erken" or "Geç" by the sign of the error.
- *     Anything else is a stray press: counted and shown, no penalty (#180).
+ *     Anything else is a stray press: counted and shown, and it cancels one
+ *     hit in the score (Atıl, 2026-11-19; #180 had let strays go free).
  *   - `advance(ms)`: the clock moved on. Every unhit note whose window has
  *     closed (more than the window behind, after the same offset) becomes a
  *     miss, once; the newly missed notes come back so the page can say
  *     "Kaçtı".
  *   - `done(ms)`: every note is judged and the song's length has passed.
- * `hits`, `misses`, `strays` and `perfect` are the HUD's counts. The score
- * is `pianoScore(hits, notes.length, cap)` in `./scores.ts`: a note never
- * pressed is a miss, so hits ÷ all notes is her accuracy.
+ * `hits`, `misses`, `strays` and `perfect` are the HUD's counts, and
+ * `mistakes` is misses plus strays. The score is `pianoScore(hits,
+ * notes.length, cap, strays)` in `./scores.ts`: a note never pressed is a
+ * miss and each stray press cancels a hit, so (hits − strays) ÷ all notes is
+ * her accuracy (`pianoAccuracy`).
+ *
+ * THE BUDGET (`mistakeBudget`). The most mistakes a song allows and still
+ * scores the Small prize bar: Zor's HUD shows it as "Hata 4 / 10" (review
+ * D3). It asks `pianoScore` itself, so it moves with the rule; the shared
+ * prize hint names the same number (`piyano.test.ts` checks they agree).
  *
  * WHAT IT LEAVES OUT. Which note sounds on a hit (the page calls the
  * engine's `note(midi)` with the hit's note), the count-in, pause (the page
@@ -45,6 +53,8 @@
  * after), and the prototype's tuning panel, bot, guide melody and timing
  * histogram (all dropped by the verdict).
  */
+import { PRIZE_BAR } from "./catalogue.ts";
+import { pianoScore } from "./scores.ts";
 import { parseSong } from "./song.ts";
 
 /** The six lanes, left to right, as `KeyboardEvent.code`s (#180 layout B). */
@@ -148,6 +158,8 @@ export type Round = {
   readonly hits: number;
   readonly misses: number;
   readonly strays: number;
+  /** Misses plus strays: each costs her one hit. */
+  readonly mistakes: number;
   /** Hits that were "Tam!". */
   readonly perfect: number;
 };
@@ -210,8 +222,21 @@ export function createRound(chart: Chart, latencyMs: number, windowMs = HIT_WIND
     get strays() {
       return strays;
     },
+    get mistakes() {
+      return misses + strays;
+    },
     get perfect() {
       return perfect;
     },
   };
+}
+
+/** The most mistakes (misses plus strays) a song of `notes` notes and this
+ *  `cap` allows while still scoring the Small prize bar; undefined when even
+ *  a flawless Round falls short (Kolay, Orta). */
+export function mistakeBudget(notes: number, cap: number): number | undefined {
+  if (pianoScore(notes, notes, cap) < PRIZE_BAR) return undefined;
+  let m = 0;
+  while (m < notes && pianoScore(notes - m - 1, notes, cap) >= PRIZE_BAR) m += 1;
+  return m;
 }

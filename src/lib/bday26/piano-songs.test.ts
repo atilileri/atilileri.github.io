@@ -5,7 +5,7 @@
  *   node --test src/lib/bday26/piano-songs.test.ts
  *
  * The expected values are the spec's and the verdict's, not the data's:
- * Kolay İyi ki doğdun capped at 0.70, Orta Hadi Bakalım at 0.85, Zor Türk
+ * Kolay İyi ki doğdun capped at 0.70, Orta Für Elise at 0.85, Zor Türk
  * Marşı at 1.00; 60 / 60 / 65% tempo; fall speeds 190 / 240 / 380 px/s; each song
  * repeated to about 90 s (read as 80–100 s, since a song repeats whole);
  * six lanes, so every song reaches both outer keys. Whether a melody sounds
@@ -13,15 +13,15 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PIANO_SONGS, songByChoice } from "./piano-songs.ts";
+import { PIANO_SONGS, songByChoice, songById } from "./piano-songs.ts";
 import { chartSong } from "./piyano.ts";
 
-test("three songs, easy to hard: Kolay İyi ki doğdun, Orta Hadi Bakalım, Zor Türk Marşı", () => {
+test("three songs, easy to hard: Kolay İyi ki doğdun, Orta Für Elise, Zor Türk Marşı", () => {
   assert.deepEqual(
     PIANO_SONGS.map((s) => [s.difficulty, s.name]),
     [
       ["Kolay", "İyi ki doğdun"],
-      ["Orta", "Hadi Bakalım"],
+      ["Orta", "Für Elise"],
       ["Zor", "Türk Marşı"],
     ],
   );
@@ -45,10 +45,10 @@ test("Kolay and Orta play at 60% tempo, Zor at 65%; they fall at 190, 240 and 38
   );
 });
 
-test("Zor alone has the narrow window: ±170, ±170, ±90 ms", () => {
+test("Zor alone has the narrow window: ±170, ±170, ±100 ms", () => {
   assert.deepEqual(
     PIANO_SONGS.map((s) => s.windowMs),
-    [170, 170, 90],
+    [170, 170, 100],
   );
 });
 
@@ -72,4 +72,11 @@ test("the start screen's 1, 2, 3 pick Kolay, Orta, Zor; other keys pick nothing"
   assert.equal(songByChoice("3")?.difficulty, "Zor");
   assert.equal(songByChoice("4"), undefined);
   assert.equal(songByChoice("Enter"), undefined);
+});
+
+test("a stored level id finds its song again; nothing stored or a stale id finds none (review D5)", () => {
+  assert.equal(songById("zor")?.difficulty, "Zor");
+  assert.equal(songById("orta")?.difficulty, "Orta");
+  assert.equal(songById(null), undefined);
+  assert.equal(songById("hadi-bakalim"), undefined);
 });

@@ -132,10 +132,18 @@ export function drivingScore(heavy: number, light: number): number {
  */
 export function pianoScore(hits: number, notes: number, cap: number, strays = 0): number {
   if (notes <= 0) return 0;
-  const net = Math.max(0, hits - strays);
-  const score = Math.floor((net * 100 * cap) / notes + 1e-9);
+  const score = Math.floor((pianoNet(hits, strays) * 100 * cap) / notes + 1e-9);
   return Math.min(100, Math.max(0, score));
 }
+
+/** The piano accuracy she reads on the result card, in percent and not
+ *  rounded: the hits a stray press has not cancelled, over all the notes. */
+export function pianoAccuracy(hits: number, notes: number, strays = 0): number {
+  return notes > 0 ? (pianoNet(hits, strays) * 100) / notes : 0;
+}
+
+/** Hits less one per stray press, never below 0. */
+const pianoNet = (hits: number, strays: number) => Math.max(0, hits - strays);
 
 /** The hiking map's free margin: this many percent over the shortest is still 100. */
 export const HIKING_MARGIN = 10;

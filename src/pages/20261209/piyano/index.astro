@@ -6,14 +6,19 @@
  * and hears the note only when she hits it.
  *
  * WHAT SHE SEES. The shell's start screen with the three songs under the
- * keys legend — 1 Kolay İyi ki doğdun (tavan %70), 2 Orta Hadi Bakalım (tavan
+ * keys legend — 1 Kolay İyi ki doğdun (tavan %70), 2 Orta Für Elise (tavan
  * %85), 3 Zor Türk Marşı (tavan %100) — picked with 1 2 3 or a click, Enter
- * to start. Then the field: six lanes, the hit line near the bottom, the key
+ * to start. The level she played last is picked already (localStorage
+ * `bday26:piyano:level`, review D5); a first visit picks Kolay. Then the field: six lanes, the hit line near the bottom, the key
  * caps S D F J K L under it, falling notes, a countdown before the first
  * one, a thin progress bar, and "Tam!" / "Erken" / "Geç" / "Kaçtı" over the
- * line. The HUD says the song and Vuruş / Kaçan / Boş basış. After about
+ * line. The HUD says the song and Vuruş / Kaçan / Boş basış, and on Zor
+ * "Hata 4 / 10": her mistakes so far over the most that still scores 95
+ * (`mistakeBudget`, review D3). R starts the same song again at once and
+ * records nothing (review F1). After about
  * 90 s the shell's result card: `pianoScore` (hits minus stray presses, as
- * accuracy, × the song's cap), the formula as the detail line, and the song picker again so "Yeni
+ * accuracy, × the song's cap), the formula as the detail line (its accuracy
+ * from `pianoAccuracy`), and the song picker again so "Yeni
  * tur" can be another song. The Best score is the highest over all songs:
  * one Game id, and the ledger keeps the maximum.
  *
@@ -29,8 +34,11 @@
  * `KeyboardEvent.timeStamp`, so a press is judged at the moment she pressed,
  * not when the handler ran. The song clock is ms since the first beat:
  * negative during the lead-in (long enough for the first note to fall from
- * the top, and never shorter than four beats). Pause (the shell's confirm
- * card) freezes it; resume shifts its origin by the pause. `piyano.ts` judges
+ * the top, and never shorter than four beats). It freezes under her pause (P,
+ * a lost window focus or a hidden tab: `createPause` of `pause-dom.ts` and
+ * the shared `PauseOverlay.astro`; only P lifts it, review B1) and under the
+ * shell's confirm card; the held samples stop, and when neither holds it any
+ * more its origin moves on by the pause, so no note is lost. `piyano.ts` judges
  * every press and every passing note against the chart with the engine's
  * `latencyMs` (+30 ms); this page owns no rule.
  *
@@ -41,6 +49,7 @@
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
+import PauseOverlay from "../../../components/bday26/PauseOverlay.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
 import { PIANO_CREDIT } from "../../../lib/bday26/piano";
 import { PIANO_SONGS } from "../../../lib/bday26/piano-songs";
@@ -50,6 +59,8 @@ const game = gameById("piyano");
 const KEYS = [
   { key: "S D F J K L", does: "Nota çizgiye değince bas; boş basış bir vuruşu siler" },
   { key: "1 2 3", does: "Şarkıyı seç" },
+  { key: "P", does: "Duraklat / devam et" },
+  { key: "R", does: "Baştan başla" },
   { key: "Esc", does: "Turdan çık" },
 ];
 
@@ -69,7 +80,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     <span slot="hud"
       ><b data-hud-song>—</b> · Vuruş <b data-hud-hits>0</b> · Kaçan <b data-hud-misses>0</b> · Boş basış <b
         data-hud-strays>0</b
-      ></span
+      ><span class="budget" data-hud-budget hidden> · Hata <b data-hud-mistakes>0 / 0</b></span></span
     >
 
     <div slot="start" class="picker" role="radiogroup" aria-label="Şarkı">
@@ -96,6 +107,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
         <span class="when-failed">Piyano sesi yüklenemedi; tur sessiz oynanıyor.</span>
       </p>
       <p class="credit">{PIANO_CREDIT}</p>
+      <PauseOverlay />
     </div>
 
     <div slot="result" class="again">
@@ -120,18 +132,22 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   import { cssVar } from "../../../lib/bday26/css";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { createPiano } from "../../../lib/bday26/piano";
-  import { PIANO_SONGS, songByChoice, type PianoSong } from "../../../lib/bday26/piano-songs";
+  import { PIANO_SONGS, songByChoice, songById, type PianoSong } from "../../../lib/bday26/piano-songs";
   import {
     chartSong,
     createRound,
     LANE_LABELS,
     laneOfKey,
+    mistakeBudget,
     type Chart,
     type ChartNote,
-    type Round,
+    type Round as Judge,
     type Verdict,
   } from "../../../lib/bday26/piyano";
-  import { pianoScore } from "../../../lib/bday26/scores";
+  import { pianoAccuracy, pianoScore } from "../../../lib/bday26/scores";
+  import { effects } from "../../../lib/bday26/effects-dom";
+  import { music } from "../../../lib/bday26/music-dom";
+  import { createPause } from "../../../lib/bday26/pause-dom";
 
   /** Hit line: this many CSS px above the field's bottom; the key caps sit below it. */
   const HIT_FROM_BOTTOM = 96;
@@ -150,6 +166,8 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     hits: document.querySelector<HTMLElement>("[data-hud-hits]"),
     misses: document.querySelector<HTMLElement>("[data-hud-misses]"),
     strays: document.querySelector<HTMLElement>("[data-hud-strays]"),
+    budget: document.querySelector<HTMLElement>("[data-hud-budget]"),
+    mistakes: document.querySelector<HTMLElement>("[data-hud-mistakes]"),
   };
   const songButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-song]"));
   if (!stage || !field || !judgeEl || !countEl || !progressEl || Object.values(hud).some((el) => !el)) {
@@ -162,7 +180,25 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   });
 
   // ── the song she picked ───────────────────────────────────────────
-  let song: PianoSong = PIANO_SONGS[0]!;
+  /** Where the level she played last is kept, so the start card picks it
+   *  again (review D5). Storage may be blocked: then it is Kolay each time. */
+  const LEVEL_KEY = "bday26:piyano:level";
+  function storedLevel(): string | null {
+    try {
+      return localStorage.getItem(LEVEL_KEY);
+    } catch {
+      return null;
+    }
+  }
+  function storeLevel(id: string) {
+    try {
+      localStorage.setItem(LEVEL_KEY, id);
+    } catch {
+      // the next visit picks Kolay
+    }
+  }
+
+  let song: PianoSong = songById(storedLevel()) ?? PIANO_SONGS[0]!;
 
   function pick(next: PianoSong) {
     song = next;
@@ -172,15 +208,18 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   pick(song);
 
   // ── one Round ─────────────────────────────────────────────────────
-  type Play = {
+  type Round = {
     song: PianoSong;
     chart: Chart;
-    round: Round;
+    judge: Judge;
+    /** The most mistakes that still score 95; undefined below Zor. */
+    budget: number | undefined;
     /** Song-clock ms before the first beat: the lead-in. */
     leadMs: number;
     msPerBeat: number;
     /** `performance.now()` of song-clock 0; undefined while the piano loads. */
     origin?: number;
+    /** When the song clock froze (her pause or the confirm card); undefined while it runs. */
     pausedAt?: number;
     hit: Set<ChartNote>;
     missed: Set<ChartNote>;
@@ -188,23 +227,32 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     pressedAt: number[];
     down: boolean[];
   };
-  let play: Play | undefined;
+  let round: Round | undefined;
   let frame = 0;
+  /** The shell's confirm card ("Turdan çıkılsın mı?") is open over the Round. */
+  let confirming = false;
 
   /** The song clock at a `performance.now()` time. */
-  const songMs = (p: Play, at: number) => at - p.origin! - p.leadMs;
+  const songMs = (r: Round, at: number) => at - r.origin! - r.leadMs;
 
+  /** Start the picked song from its lead-in: Enter on a card, or R during a
+   *  Round (the Round before it records nothing). */
   function startRound() {
     stopLoop();
+    piano.stop();
+    pause.clear();
+    confirming = false;
+    storeLevel(song.id);
     const chart = chartSong(song);
     const msPerBeat = (60_000 * 100) / (song.bpm * song.tempoPct);
     // Long enough for the first note to fall from the top of the field.
     const fallMs = (fieldSize().hitY / song.speed) * 1000;
     const leadMs = Math.max(4 * msPerBeat, fallMs + 400 - (chart.notes[0]?.at ?? 0));
-    const p: Play = {
+    const p: Round = {
       song,
       chart,
-      round: createRound(chart, piano.latencyMs, song.windowMs),
+      judge: createRound(chart, piano.latencyMs, song.windowMs),
+      budget: mistakeBudget(chart.notes.length, song.cap),
       leadMs,
       msPerBeat,
       hit: new Set(),
@@ -212,13 +260,13 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
       pressedAt: LANE_LABELS.map(() => -Infinity),
       down: LANE_LABELS.map(() => false),
     };
-    play = p;
+    round = p;
     paintHud();
     progressEl!.style.width = "0%";
     judgeEl!.textContent = "";
     // Inside her Enter or Başla click: the gesture that may start sound.
     piano.unlock().then(() => {
-      if (play !== p) return; // left or restarted while the samples loaded
+      if (round !== p) return; // left or restarted while the samples loaded
       p.origin = performance.now();
       if (p.pausedAt !== undefined) p.pausedAt = p.origin;
       else startLoop();
@@ -227,10 +275,18 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   }
 
   function paintHud() {
-    hud.song!.textContent = play?.song.name ?? song.name;
-    hud.hits!.textContent = String(play?.round.hits ?? 0);
-    hud.misses!.textContent = String(play?.round.misses ?? 0);
-    hud.strays!.textContent = String(play?.round.strays ?? 0);
+    const r = round;
+    hud.song!.textContent = r?.song.name ?? song.name;
+    hud.hits!.textContent = String(r?.judge.hits ?? 0);
+    hud.misses!.textContent = String(r?.judge.misses ?? 0);
+    hud.strays!.textContent = String(r?.judge.strays ?? 0);
+    // Zor only: "Hata 4 / 10", her mistakes over the most that still scores 95.
+    const budget = r?.budget;
+    hud.budget!.hidden = budget === undefined;
+    if (r && budget !== undefined) {
+      hud.mistakes!.textContent = `${r.judge.mistakes} / ${budget}`;
+      hud.budget!.toggleAttribute("data-over", r.judge.mistakes > budget);
+    }
   }
 
   function showJudge(text: Verdict | "Kaçtı") {
@@ -242,10 +298,10 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   }
 
   function tick(now: number) {
-    const p = play;
-    if (!p || p.origin === undefined) return;
+    const p = round;
+    if (!p || p.origin === undefined || p.pausedAt !== undefined) return;
     const t = songMs(p, now);
-    const missed = p.round.advance(t);
+    const missed = p.judge.advance(t);
     if (missed.length) {
       for (const n of missed) p.missed.add(n);
       showJudge("Kaçtı");
@@ -257,23 +313,22 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     countEl!.textContent = beatsLeft > 4 ? "Hazır ol" : String(beatsLeft);
     progressEl!.style.width = `${Math.min(100, Math.max(0, (t / p.chart.lengthMs) * 100))}%`;
     draw(t);
-    if (p.round.done(t)) {
+    if (p.judge.done(t)) {
       finishRound(p);
       return;
     }
     frame = requestAnimationFrame(tick);
   }
 
-  function finishRound(p: Play) {
+  function finishRound(p: Round) {
     stopLoop();
-    play = undefined;
+    round = undefined;
+    pause.clear();
     const notes = p.chart.notes.length;
-    const { hits, strays } = p.round;
+    const { hits, strays } = p.judge;
     const cap = Math.round(p.song.cap * 100);
-    // Each stray press cancels one hit (`pianoScore`).
-    const net = Math.max(0, hits - strays);
-    const accuracy = notes ? (net / notes) * 100 : 0;
-    const accText = accuracy.toLocaleString("tr-TR", { maximumFractionDigits: 1 });
+    // Each stray press cancels one hit (`pianoAccuracy`, `pianoScore`).
+    const accText = pianoAccuracy(hits, notes, strays).toLocaleString("tr-TR", { maximumFractionDigits: 1 });
     shell.finish(pianoScore(hits, notes, p.song.cap, strays), {
       detail: `${p.song.name} · ${hits}/${notes} vuruş − ${strays} boş basış · %${accText} isabet × %${cap} şarkı tavanı`,
     });
@@ -289,26 +344,68 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     countEl!.hidden = true;
   }
 
+  /** Stop the song clock where it is: her pause or the confirm card. The
+   *  field stays as it was, the held keys let go, the samples fall silent. */
+  function freeze() {
+    const r = round;
+    if (!r || r.pausedAt !== undefined) return;
+    r.pausedAt = performance.now();
+    r.down.fill(false);
+    stopLoop();
+    piano.stop();
+  }
+
+  /** Run the song clock again once nothing holds it: its origin moves on by
+   *  the pause, so the next note is exactly as far off as when it froze. */
+  function thaw() {
+    const r = round;
+    if (!r || r.pausedAt === undefined || confirming || pause.paused) return;
+    if (r.origin !== undefined) {
+      r.origin += performance.now() - r.pausedAt;
+      r.pausedAt = undefined;
+      startLoop();
+    } else {
+      r.pausedAt = undefined; // still loading: the unlock starts the loop
+    }
+  }
+
+  /** Her pause: P, a lost window focus or a hidden tab; only P lifts it
+   *  (`src/lib/bday26/pause-dom.ts`, the shared `PauseOverlay.astro`). */
+  const pause = createPause({
+    canPause: () => round !== undefined,
+    loop: { start: thaw, stop: freeze },
+    keys: { clear: () => void round?.down.fill(false) },
+    effects,
+    music,
+  });
+
   // ── keys ──────────────────────────────────────────────────────────
   // Her first key or click anywhere unlocks the piano, before the shell
   // takes the key: the samples load while she reads the start screen.
   window.addEventListener("keydown", () => piano.unlock(), { capture: true });
   window.addEventListener("pointerdown", () => piano.unlock(), { capture: true });
 
-  // The shell has taken Esc, and every key on its own screens: what arrives
-  // here is a key during the Round.
+  // The shell has taken Esc, and every key on its own screens (Enter and a
+  // held key's repeats there too): what arrives here is a key during the
+  // Round. P is `pause`'s. R starts the song again, once per press.
   window.addEventListener("keydown", (event) => {
-    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || !round) return;
+    if (event.code === "KeyR") {
+      event.preventDefault();
+      if (!event.repeat) startRound();
+      return;
+    }
     const lane = laneOfKey(event.code);
-    if (lane === undefined || !play) return;
+    if (lane === undefined) return;
     event.preventDefault();
-    if (event.repeat || play.origin === undefined || play.pausedAt !== undefined) return;
-    const t = songMs(play, event.timeStamp);
-    play.down[lane] = true;
-    play.pressedAt[lane] = t;
-    const j = play.round.press(lane, t);
+    const r = round;
+    if (event.repeat || r.origin === undefined || r.pausedAt !== undefined) return;
+    const t = songMs(r, event.timeStamp);
+    r.down[lane] = true;
+    r.pressedAt[lane] = t;
+    const j = r.judge.press(lane, t);
     if (j.kind === "hit") {
-      play.hit.add(j.note);
+      r.hit.add(j.note);
       piano.note(j.note.midi, { duration: Math.min(1.6, Math.max(0.35, j.note.durationMs / 1000)) });
       showJudge(j.verdict);
     }
@@ -316,7 +413,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   });
   window.addEventListener("keyup", (event) => {
     const lane = laneOfKey(event.code);
-    if (lane !== undefined && play) play.down[lane] = false;
+    if (lane !== undefined && round) round.down[lane] = false;
   });
 
   // ── drawing ───────────────────────────────────────────────────────
@@ -350,7 +447,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     const lanes = LANE_LABELS.length;
     const laneW = Math.min(LANE_MAX, (w - 32) / lanes);
     const x0 = (w - laneW * lanes) / 2;
-    const p = play;
+    const p = round;
     const speed = (p?.song ?? song).speed / 1000; // px per ms
     ctx.clearRect(0, 0, w, h);
 
@@ -442,27 +539,20 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
       startRound,
       abandonRound: () => {
         stopLoop();
-        play = undefined;
+        round = undefined;
+        confirming = false;
+        pause.clear();
         piano.stop();
       },
-      // The confirm card: the song clock freezes, the field stays as it was.
+      // The confirm card: the song clock freezes, the field stays as it was;
+      // "Devam et" runs it again unless her own pause still holds it.
       pause: () => {
-        if (!play) return;
-        play.pausedAt = performance.now();
-        play.down.fill(false);
-        stopLoop();
-        piano.stop();
+        confirming = true;
+        freeze();
       },
       resume: () => {
-        const p = play;
-        if (!p || p.pausedAt === undefined) return;
-        if (p.origin !== undefined) {
-          p.origin += performance.now() - p.pausedAt;
-          p.pausedAt = undefined;
-          startLoop();
-        } else {
-          p.pausedAt = undefined; // still loading: the unlock starts the loop
-        }
+        confirming = false;
+        thaw();
       },
       screenKey: (key) => {
         const next = songByChoice(key);
@@ -474,7 +564,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   // A click on a song card picks it, on the start card and the result card.
   for (const b of songButtons) {
     b.addEventListener("click", () => {
-      const next = PIANO_SONGS.find((s) => s.id === b.dataset.song);
+      const next = songById(b.dataset.song);
       if (next) pick(next);
     });
   }
@@ -660,6 +750,10 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   .stage[data-piano="loading"] .when-loading,
   .stage[data-piano="failed"] .when-failed {
     display: inline;
+  }
+  /* Zor's "Hata" past the budget: the Small prize is gone this Round. */
+  .budget[data-over] b {
+    color: var(--bd-wrong-ink);
   }
   .when-failed {
     color: var(--bd-wrong-ink);
