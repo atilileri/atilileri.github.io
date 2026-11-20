@@ -157,6 +157,13 @@ export const CARDS: readonly TripCard[] = [
   { name: "Kuzey Denizi'nde sahil", musts: ["sapka", "atki", "kamera", "matara"] },
 ];
 
+/** The card for the next Round: random, never the one of the Round before. */
+export function drawCard(last: number | undefined, rng: () => number): number {
+  if (last == null) return Math.floor(rng() * CARDS.length) % CARDS.length;
+  const i = Math.floor(rng() * (CARDS.length - 1)) % (CARDS.length - 1);
+  return i >= last ? i + 1 : i;
+}
+
 // ------------------------------------------------------------------ the Round
 
 export type Item = { i: number; key: ItemKey; rot: number; placed: Cell | null };
