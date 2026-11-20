@@ -14,10 +14,12 @@
  * the panel from opening by accident and keeps the surprise. Unlocked lasts
  * until the dialog closes; nothing is stored, so every opening asks again.
  *
- * WHAT IT DECIDES: nothing. A gift and an undo go through the ledger
- * (`giftPoints`, `undoLastGift`), which refuses a number that is not a whole
- * number above 0 and an undo whose Points are already spent; this module
- * turns each refusal into one Turkish sentence. The hub is told through
+ * WHAT IT DECIDES: one thing, the size of a gift. The amount must be a
+ * whole number from 1 to `GIFT_MAX` (10 000, review A4) before it reaches
+ * the ledger. A gift and an undo then go through the ledger (`giftPoints`,
+ * `undoLastGift`), which refuses a number that is not a whole number above 0
+ * and an undo whose Points are already spent; this module turns each
+ * refusal into one Turkish sentence. The hub is told through
  * `onClose(changed)` so it can repaint, make the Balance hop and offer the
  * backup prompt — once, when the dialog closes, because the hub's toast sits
  * behind the modal while it is open.
@@ -26,6 +28,22 @@ import type { Ledger } from "./ledger.ts";
 
 /** Atıl's password. Public on purpose; see the header. */
 const PASSWORD = "1047";
+
+/** The most one gift can be (review A4): the Games give 1,000 Points in
+ *  all, so ten times that is already more than any gift Atıl means; it keeps
+ *  a stray key or a pasted 1e308 out of her Balance. */
+export const GIFT_MAX = 10_000;
+
+export type GiftAmount = { ok: true; points: number } | { ok: false; message: string };
+
+/** The amount field as Atıl typed it: digits only, 1 to `GIFT_MAX`, or one
+ *  Turkish sentence that says what goes there. */
+export function readGiftAmount(raw: string): GiftAmount {
+  const text = raw.trim();
+  const points = /^\d+$/.test(text) ? Number(text) : Number.NaN;
+  if (points >= 1 && points <= GIFT_MAX) return { ok: true, points };
+  return { ok: false, message: `1 ile ${fmt(GIFT_MAX)} arasında bir tam sayı yaz.` };
+}
 
 const fmt = (n: number) => Math.round(n).toLocaleString("tr-TR");
 const DATE = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
@@ -135,16 +153,17 @@ export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminO
   for (const quick of root.querySelectorAll<HTMLButtonElement>("[data-admin-quick]")) {
     quick.addEventListener("click", () => {
       const now = Number(amount.value) || 0;
-      amount.value = String(Math.max(0, Math.floor(now)) + Number(quick.dataset.adminQuick));
+      amount.value = String(Math.min(GIFT_MAX, Math.max(0, Math.floor(now)) + Number(quick.dataset.adminQuick)));
       amount.focus();
     });
   }
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const outcome = ledger.giftPoints(Number(amount.value), note.value || undefined);
-    if (!outcome.ok) {
-      say("Bir tam sayı yaz, en az 1.", "no");
+    const read = readGiftAmount(amount.value);
+    const outcome = read.ok ? ledger.giftPoints(read.points, note.value || undefined) : null;
+    if (!outcome?.ok) {
+      say(read.ok ? "Bu hediye verilemedi." : read.message, "no");
       amount.focus();
       return;
     }
