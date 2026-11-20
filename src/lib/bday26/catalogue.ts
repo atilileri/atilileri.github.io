@@ -14,7 +14,7 @@
  * #193. Change a name here and nowhere else — the tiles, the Game pages and
  * the Proof all read this table.
  *
- * ORDER MATTERS. `GAMES` is the hub's tile order (3 columns, 14 tiles: the
+ * ORDER MATTERS. `GAMES` is the hub's tile order (4 columns on her screen, 14 tiles: the
  * 10 skill Games, the 3 Prize Games, the slot machine last). `GIFTS` is
  * sorted by price, high to low, as #176 lists them, and the shop shows
  * `SHOP_GIFTS` (the same, minus the retired) in that order. The price tiers of #176

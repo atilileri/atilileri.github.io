@@ -36,7 +36,7 @@ const HUB = "/20261209/";
  *   - wordle 95.5 → 95 Points (rounded down), won at the 95 bar
  *   - slot 40 with the jackpot → no Points, Small prize won by the jackpot
  *   - piyano never played
- * Points earned 283, Balance 283, 3 Small prizes, 4 of 11 Games played.
+ * Points earned 283, Balance 283, 3 Small prizes, 4 of 14 Games played.
  */
 const AN_EVENING = {
   best: { hafiza: 100, milyoner: 88, wordle: 95.5, slot: 40 },
@@ -111,7 +111,7 @@ test("her progress shows on the tiles and in the strip", async ({ page }) => {
   await expect(page.locator('[data-stat="earned"]')).toHaveText("283");
   await expect(page.locator('[data-stat="balance"]')).toHaveText(["283", "283"]);
   await expect(page.locator('[data-stat="prizes"]')).toHaveText("3");
-  await expect(page.getByText("4/11 oynandı")).toBeVisible();
+  await expect(page.getByText("4/14 oynandı")).toBeVisible();
 
   // A won Small prize is green and says so; a locked one shows only its name
   // (how to win it is the welcome screen's to say).
@@ -234,10 +234,69 @@ test("a Return asks first; confirmed, half the price comes back and the Gift is 
   await expect(returnButton).toBeVisible();
 });
 
+test("the hub has 14 tiles: the three Prize Games sit before the slot machine and give no Points (#213)", async ({ page }) => {
+  await seed(page, { best: { renk: 96 }, jackpot: false, log: [] });
+  await page.goto(HUB);
+
+  const names = page.locator("li[data-game] h3");
+  await expect(names).toHaveCount(14);
+  await expect(names.nth(10)).toHaveText("Bavul hazırla");
+  await expect(names.nth(11)).toHaveText("Renk karıştır");
+  await expect(names.nth(12)).toHaveText("Barista");
+  await expect(names.nth(13)).toHaveText("Slot makinesi");
+  for (const name of ["Bavul hazırla", "Renk karıştır", "Barista"]) {
+    await expect(row(page, name)).toContainText("Puan vermez");
+  }
+
+  // 96 on a Prize Game: a Best score and its Small prize, no Points.
+  await expect(row(page, "Renk karıştır")).toContainText("%96");
+  await expect(row(page, "Renk karıştır")).toContainText("Resim seti");
+  await expect(row(page, "Renk karıştır")).toContainText("Kazandın!");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+  await expect(page.locator('[data-stat="prizes"]')).toHaveText("1");
+  await expect(row(page, "Barista")).toContainText("Simon Levelt kahve tadım paketi");
+});
+
+test("the shop shows 12 Gifts; the weekend trip and the paint set are no longer for sale (#213)", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const shop = page.locator("[data-shop-list] li[data-gift]:visible");
+  await expect(shop).toHaveCount(12);
+  await expect(shop.filter({ hasText: "Hafta sonu gezisi" })).toHaveCount(0);
+  await expect(shop.filter({ hasText: "Resim seti" })).toHaveCount(0);
+});
+
+test("a weekend trip bought before it left the shop stays hers and can be Returned, never bought again (#213)", async ({ page }) => {
+  // 573 earned, the trip bought at its old price: 573 − 480 = 93.
+  const best = { ...A_LATER_EVENING.best, sarki: 100 };
+  await seed(page, { best, jackpot: true, log: [{ kind: "buy", gift: "haftasonu", paid: 480 }] });
+  await page.goto(HUB);
+  await expect(balance(page)).toHaveText(["93", "93"]);
+  await expect(page.getByText("Sende olanlar")).toBeVisible();
+  const trip = page.locator("[data-shop]").getByRole("listitem").filter({ hasText: "Hafta sonu gezisi" });
+  await expect(trip.getByRole("button", { name: "İade et · +240" })).toBeVisible();
+
+  page.on("dialog", (dialog) => void dialog.accept());
+  await trip.getByRole("button", { name: "İade et · +240" }).click();
+  await expect(balance(page)).toHaveText(["333", "333"]);
+  await expect(page.getByText("Sende olanlar")).toBeHidden();
+  await expect(trip).toBeHidden();
+});
+
+test("a Prize Game's route is its placeholder page until its build lands; Esc goes back to the hub (#213)", async ({ page }) => {
+  for (const [id, name] of [["bavul", "Bavul hazırla"], ["renk", "Renk karıştır"], ["barista", "Barista"]] as const) {
+    await page.goto(`${HUB}${id}/`);
+    await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+    await expect(page.getByRole("heading", { name })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page).toHaveURL(HUB);
+  }
+});
+
 /**
  * The hub at her 1920×1080 screen, two smaller laptops and a phone: it may
  * scroll down, never across, and every tile keeps its content inside its
- * card (cards grow, the grid reflows 3 → 2 → 1, the shop drops below on a
+ * card (cards grow, the grid reflows 4 → 3 → 2 → 1, the shop drops below on a
  * phone). "Inside" is measured by the boxes she sees: every element of a
  * tile lies within the tile's own rectangle.
  */
@@ -286,8 +345,11 @@ for (const [width, height] of [
     expect(await extent()).toEqual(before);
     await page.mouse.move(width / 2, 10);
 
-    // On her own screen the shop is still all in view beside the tiles.
+    // On her own screen the whole hub fits, all 14 tiles, with no scroll
+    // down either (spec story 12), and the shop is all in view beside them.
     if (width === 1920) {
+      const down = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+      expect(down).toBeLessThanOrEqual(0);
       await expect(row(page, "Rocky Horror film gecesi")).toBeInViewport({ ratio: 1 });
       await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
     }
@@ -470,7 +532,7 @@ test("a Game opens on its start screen, and a Round she leaves scores nothing (#
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Hafıza kartları")).toContainText("Henüz oynamadın");
-  await expect(page.getByText("0/11 oynandı")).toBeVisible();
+  await expect(page.getByText("0/14 oynandı")).toBeVisible();
 });
 
 for (const game of ["hafiza", "nerede", "milyoner", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak"]) {
@@ -710,7 +772,7 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await expect(row(page, "Slot makinesi")).toContainText(/%(0|50|100)/);
   await expect(row(page, "Slot makinesi")).toContainText("Puan vermez");
   await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
-  await expect(page.getByText("1/11 oynandı")).toBeVisible();
+  await expect(page.getByText("1/14 oynandı")).toBeVisible();
 });
 
 test("the Proof lists what she holds and won, and its check code is the tail of the Save code Yedekle shows (#197)", async ({ page }) => {

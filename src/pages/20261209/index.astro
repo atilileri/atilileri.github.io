@@ -4,15 +4,18 @@
  * the hub prototype's variant A, verdict on #178).
  *
  * WHAT SHE SEES. A top strip with her totals (Points earned, Balance, Small
- * prizes won) and the tools; a 3-column grid of the 11 Game tiles; the Gift
- * shop as a right column that is always in view, Gifts held at the top.
+ * prizes won) and the tools; a 4-column grid of the 14 Game tiles (the 10
+ * skill Games, the 3 Prize Games, the slot machine; a Prize Game's tile and
+ * the slot's say "Puan vermez" where a skill Game's show its Points); the Gift
+ * shop as a right column that is always in view, Gifts held at the top. A
+ * retired Gift (#213) has a row only while she holds it, so she can Return it.
  * Each tile: Game name, one-line rule, Best score, the Points it earns, a
  * progress bar with the 95% mark, and the Small prize on its foot — a lock
  * and the prize's name until it is won, green "Kazandın!" after (how a prize
  * is won is the welcome screen's to say, not every tile's). The whole page
  * fits 1920×1080 with no scroll (spec story 12). On a smaller screen the
  * tiles keep their content and the page scrolls down, never across: the grid
- * goes 3 → 2 → 1 columns by the width it has, and on a phone the shop drops
+ * goes 4 → 3 → 2 → 1 columns by the width it has, and on a phone the shop drops
  * below the tiles. Beside the tiles the shop scrolls inside itself, in the
  * unlikely state where she holds nearly every Gift.
  *
@@ -73,7 +76,7 @@ import Welcome from "../../components/bday26/Welcome.astro";
 import Admin from "../../components/bday26/Admin.astro";
 import EffectsToggle from "../../components/bday26/EffectsToggle.astro";
 import MusicToggle from "../../components/bday26/MusicToggle.astro";
-import { GAMES, GIFTS, PRIZE_BAR } from "../../lib/bday26/catalogue";
+import { GAMES, GIFTS, PRIZE_BAR, givesPoints } from "../../lib/bday26/catalogue";
 import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
 
 const fmt = (n: number) => n.toLocaleString("tr-TR");
@@ -134,7 +137,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                     <span class="label">Rekor</span>
                     <b class="best" data-best>—</b>
                   </div>
-                  <span class="pts" data-points>{g.luck ? "Puan vermez" : "Henüz oynamadın"}</span>
+                  <span class="pts" data-points>{givesPoints(g) ? "Henüz oynamadın" : "Puan vermez"}</span>
                 </div>
                 {!g.luck && (
                   <div class="track" aria-hidden="true">
@@ -168,7 +171,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         <ul class="gifts" data-shop-list>
           {
             GIFTS.map((g) => (
-              <li class="gift" data-gift={g.id} tabindex="0">
+              <li class="gift" data-gift={g.id} hidden={g.retired} tabindex="0">
                 <span class="gicon" aria-hidden="true">{GIFT_ICON[g.id]}</span>
                 <div class="gtext">
                   <b class="gname">{g.name}</b>
@@ -250,7 +253,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // the ledger). `render()` is idempotent and runs after every change.
   import { mountAdmin } from "../../lib/bday26/admin";
   import { openLedger } from "../../lib/bday26/browser";
-  import { GAMES, GIFTS, giftById, isGiftId } from "../../lib/bday26/catalogue";
+  import { GAMES, GIFTS, giftById, givesPoints, isGiftId } from "../../lib/bday26/catalogue";
   import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "../../lib/bday26/icons";
   import {
     balanceOf,
@@ -308,7 +311,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       const won = ledger.prizeWon(game.id);
       tile.toggleAttribute("data-won", won);
       $(tile, "[data-best]").textContent = best == null ? "—" : pct(best);
-      $(tile, "[data-points]").textContent = game.luck
+      $(tile, "[data-points]").textContent = !givesPoints(game)
         ? "Puan vermez"
         : best == null
           ? "Henüz oynamadın"
@@ -335,6 +338,9 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       const isHeld = paid != null;
       const short = gift.price - balance;
       row.toggleAttribute("data-held", isHeld);
+      // A retired Gift (#213) is never for sale: its row shows only while
+      // she holds one bought before, so she can Return it.
+      if (gift.retired) row.hidden = !isHeld;
       const shortEl = $(row, "[data-short]");
       shortEl.hidden = isHeld || short <= 0;
       shortEl.textContent = `${fmt(short)} eksik`;
@@ -788,6 +794,13 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     grid-auto-rows: 1fr;
     gap: 12px;
   }
+  /* Her 1920×1080 screen: 14 tiles in 4 rows of 4, so the page still fits
+     with no scroll (#213; at 3 columns the fifth row ran 43 px over). */
+  @container games (min-width: 1300px) {
+    .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
   @container games (max-width: 760px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1021,6 +1034,10 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     padding: 7px 0;
     border-bottom: 1px solid var(--bd-line-soft);
   }
+  /* A retired Gift's row, while she does not hold it (#213). */
+  .gift[hidden] {
+    display: none;
+  }
   .mine .gift {
     border-bottom: 0;
   }
@@ -1079,7 +1096,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     }
   }
   /* Price and "N eksik" stacked, the button beside them: two lines at most,
-     so 14 Gifts and a held block fit the column at 1080 without scrolling. */
+     so 12 Gifts and a held block fit the column at 1080 without scrolling. */
   .buy {
     flex: none;
     display: grid;
