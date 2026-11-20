@@ -16,6 +16,7 @@
  * reaches.
  */
 import { gameById, PRIZE_BAR, type GameId } from "./catalogue.ts";
+import { skiMissesAllowed } from "./scores.ts";
 
 const HINTS: Record<GameId, string | undefined> = {
   milyoner: `%${PRIZE_BAR} için 12 sorunun 12'si`,
@@ -32,7 +33,8 @@ const HINTS: Record<GameId, string | undefined> = {
   surus: `%${PRIZE_BAR} için ağır hata yok, en fazla 1 hafif hata`,
   // 15% over the shortest is 95 on each map, so on all three it is 95.
   yuruyus: `%${PRIZE_BAR} için her haritada rotan en kısadan en fazla %15 uzun olsun`,
-  kayak: `%${PRIZE_BAR} için en çok 3 bayrak kaçır`,
+  // The ski HUD's "Kaçan n / en çok 3" reads the same rule.
+  kayak: `%${PRIZE_BAR} için en çok ${skiMissesAllowed(PRIZE_BAR)} bayrak kaçır`,
   bavul: `%${PRIZE_BAR} için olmazsa olmazların hepsi bavulda, en çok 1 boş kare`,
   // Four at 100 and the fifth at ΔE 5 (76) is 95.2; at ΔE 5.5 it is 94.6.
   renk: `%${PRIZE_BAR} için dört renk tam (ΔE ≤ 1), beşincisi ΔE 5'e kadar`,

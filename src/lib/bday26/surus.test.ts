@@ -23,6 +23,7 @@ import {
   ROUTE_LENGTH_M,
   START,
   bikeLaneStep,
+  cameraEase,
   createDrive,
   freshHold,
   freshWrongWay,
@@ -30,6 +31,7 @@ import {
   impactMistake,
   overtimeDue,
   speedingStep,
+  speedingWarned,
   stepDrive,
   wrongWayStep,
   yieldConflict,
@@ -69,6 +71,17 @@ test("speeding: staying fast counts once; a second after slowing down it can cou
   r = holdFor((h, dt) => speedingStep(h, 25, dt), r.hold, 1.2);
   r = holdFor((h, dt) => speedingStep(h, 45, dt), r.hold, 1.6);
   assert.equal(r.fired, 1);
+});
+
+test("speeding warning: on from the first moment over 33 km/h until the mistake lands, then off", () => {
+  assert.equal(speedingWarned(freshHold()), false, "not speeding");
+  const half = holdFor((h, dt) => speedingStep(h, 34, dt), freshHold(), 0.5);
+  assert.equal(speedingWarned(half.hold), true, "0.5 s over: the mistake is coming");
+  const late = holdFor((h, dt) => speedingStep(h, 34, dt), freshHold(), 1.6);
+  assert.equal(late.fired, 1);
+  assert.equal(speedingWarned(late.hold), false, "it counted: nothing left to warn about");
+  const slow = holdFor((h, dt) => speedingStep(h, 25, dt), half.hold, 0.2);
+  assert.equal(speedingWarned(slow.hold), false, "slowed down in time");
 });
 
 // --------------------------------------------------------------- bike lane
@@ -230,4 +243,23 @@ test("full gas down the first street is a speeding mistake within six seconds", 
   while (d.t < 6 && !d.mistakes.length) stepDrive(d, gas, 1 / 60);
   assert.deepEqual(d.mistakes.map((m) => m.id), ["speed"]);
   assert.match(d.mistakes[0]!.detail, /km\/sa$/);
+});
+
+// ------------------------------------------------------------------ camera
+// The prototype eased the camera 8% of the way each frame, at 60 fps. The
+// same easing must hold on a 144 Hz screen and a slow laptop alike.
+
+test("camera: one 60 fps frame closes 8% of the gap, as the prototype did", () => {
+  assert.ok(Math.abs(cameraEase(1 / 60) - 0.08) < 1e-9);
+});
+
+test("camera: the same second of play moves it the same way at 30, 60 or 144 fps", () => {
+  const after = (fps: number) => {
+    let cam = 0;
+    for (let i = 0; i < fps; i++) cam += (100 - cam) * cameraEase(1 / fps);
+    return cam;
+  };
+  // 1 − 0.92^60 of the way in one second, whatever the frame rate.
+  const expected = 100 * (1 - 0.92 ** 60);
+  for (const fps of [30, 60, 144]) assert.ok(Math.abs(after(fps) - expected) < 1e-6, `${fps} fps: ${after(fps)}`);
 });

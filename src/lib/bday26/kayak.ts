@@ -249,6 +249,7 @@ export type Input = {
 
 /** What happened in a step, for the page to show (sparks, "+1", messages). */
 export type RunEvent =
+  | { kind: "takeoff"; x: number; y: number }
   | { kind: "flag"; x: number; y: number }
   | { kind: "land"; x: number; y: number }
   | { kind: "fall"; x: number; y: number }
@@ -279,6 +280,16 @@ export function createRun(): Run {
 /** The flags she holds now. */
 export function flagsHeld(run: Run): number {
   return run.course.flags.reduce((n, f) => n + (f.got ? 1 : 0), 0);
+}
+
+/** How far behind her a flag can still be taken, px: past this it is gone. */
+const REACH = TUNING.radius + 4;
+
+/** The flags she has left behind her, out of reach and not taken: the ones
+ *  that cost her score. A fall sends her back to a checkpoint, so the ones
+ *  missed past it are ahead of her again and count no more. */
+export function flagsMissed(run: Run): number {
+  return run.course.flags.reduce((n, f) => n + (!f.got && f.x < run.x - REACH ? 1 : 0), 0);
 }
 
 /** How many checkpoints she has passed. */
@@ -331,6 +342,7 @@ export function stepRun(run: Run, input: Input, dt: number): RunEvent[] {
     run.onGround = false;
     run.coyote = 0;
     run.jumpBuf = 0;
+    events.push({ kind: "takeoff", x: run.x, y: run.y });
   }
   const px = run.x;
   run.x += run.vx * dt;
@@ -376,7 +388,7 @@ export function stepRun(run: Run, input: Input, dt: number): RunEvent[] {
   const cy = run.y - PICKUP_Y;
   const rr = P.radius * P.radius;
   for (const f of course.flags) {
-    if (f.got || Math.abs(f.x - run.x) > P.radius + 4) continue;
+    if (f.got || Math.abs(f.x - run.x) > REACH) continue;
     const dx = f.x - run.x;
     const dy = f.y - cy;
     if (dx * dx + dy * dy < rr) {

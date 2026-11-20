@@ -25,6 +25,7 @@ import {
   pianoScore,
   renkRoundScore,
   renkTargetScore,
+  skiMissesAllowed,
   skiScore,
   slotScore,
   wordleRoundScore,
@@ -350,6 +351,12 @@ test("ski: 68 flags falls short of 95", () => {
 test("ski: half the flags is 50, and none is 0", () => {
   assert.equal(skiScore(36, true), 50);
   assert.equal(skiScore(0, true), 0);
+});
+
+test("ski: at the 95% bar she may miss 3 flags (69 of 72); at 100% none, at 50% 36", () => {
+  assert.equal(skiMissesAllowed(95), 3);
+  assert.equal(skiMissesAllowed(100), 0);
+  assert.equal(skiMissesAllowed(50), 36);
 });
 
 test("ski: a Round that does not reach the finish has no score, whatever it collected", () => {

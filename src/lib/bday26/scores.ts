@@ -107,6 +107,11 @@ export function wordleRoundScore(words: readonly number[]): number {
   return Math.min(100, Math.max(0, Math.floor(sum / words.length)));
 }
 
+/** What one driving mistake costs, in points, by kind: the weights of
+ *  `drivingScore`, for the page's "−%10" on the start card, the toasts and
+ *  the result list. */
+export const DRIVING_PENALTY = { heavy: 10, light: 3 } as const;
+
 /**
  * Driving in the Netherlands, "Hollanda'da sürüş" (#206; spec row "100 −
  * 10 × heavy − 3 × light"). `heavy` and `light` are the mistakes of one
@@ -117,7 +122,7 @@ export function wordleRoundScore(words: readonly number[]): number {
  * two are 94. The weights are the prototype's (#181), which Atıl played.
  */
 export function drivingScore(heavy: number, light: number): number {
-  return Math.min(100, Math.max(0, 100 - 10 * heavy - 3 * light));
+  return Math.min(100, Math.max(0, 100 - DRIVING_PENALTY.heavy * heavy - DRIVING_PENALTY.light * light));
 }
 
 /**
@@ -214,6 +219,19 @@ export const SKI_FLAGS = 72;
 export function skiScore(flags: number, finished: boolean): number | undefined {
   if (!finished) return undefined;
   return Math.min(100, Math.max(0, Math.floor((flags * 100) / SKI_FLAGS)));
+}
+
+/**
+ * How many of the 72 flags she may miss and still finish at `bar` or more:
+ * 3 at the Small prize's 95. The prize hint and the ski HUD's "Kaçan n / en
+ * çok 3" both read it, so neither writes the number itself. `bar` comes in
+ * as an argument (the caller passes `PRIZE_BAR`) because this file imports
+ * nothing.
+ */
+export function skiMissesAllowed(bar: number): number {
+  let missed = 0;
+  while (missed < SKI_FLAGS && (skiScore(SKI_FLAGS - missed - 1, true) ?? 0) >= bar) missed++;
+  return missed;
 }
 
 /** Bavul hazırla: points lost per empty cell of the 8×6 bag. */

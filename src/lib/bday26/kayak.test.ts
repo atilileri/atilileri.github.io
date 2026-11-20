@@ -15,7 +15,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { COURSE_SEED, TUNING, buildCourse, createRun, flagsHeld, pressJump, stepRun, FIXED_STEP, type Run, type RunEvent } from "./kayak.ts";
+import { COURSE_SEED, TUNING, buildCourse, createRun, flagsHeld, flagsMissed, ground, pressJump, stepRun, FIXED_STEP, type Run, type RunEvent } from "./kayak.ts";
 
 test("the locked course holds exactly 72 flags over 105 s, a checkpoint every 20 s", () => {
   const course = buildCourse(COURSE_SEED);
@@ -115,4 +115,50 @@ test("a fall costs only time: the clock keeps running through it", () => {
   assert.ok(run.time - at >= 0.85, `the crash took ${run.time - at} s`);
   assert.equal(run.falls, 1);
   assert.equal(run.finished, false);
+});
+
+test("a jump says so once, when she leaves the snow: one take-off, none while she flies or rides off a lip", () => {
+  const run = createRun();
+  const input = { faster: false, slower: false, jumpHeld: true };
+  pressJump(run);
+  const first = stepRun(run, input, FIXED_STEP);
+  assert.equal(first.filter((e) => e.kind === "takeoff").length, 1);
+  // The rest of the jump, until she lands: no second take-off.
+  const rest = ride(run, { until: (_r, events) => events.some((e) => e.kind === "land"), skip: () => true });
+  assert.equal(rest.filter((e) => e.kind === "takeoff").length, 0);
+  // Riding off a crevasse's lip without pressing jump is no take-off.
+  const lip = createRun();
+  const gap = lip.course.gaps[0]!;
+  Object.assign(lip, { x: gap.x - 5, y: ground(gap.x - 5) });
+  const off: RunEvent[] = [];
+  while (lip.onGround) off.push(...stepRun(lip, input, FIXED_STEP));
+  assert.equal(off.filter((e) => e.kind === "takeoff").length, 0);
+});
+
+test("flags missed: none at the start; a flag behind her, out of reach and not taken, counts; a fall gives it back", () => {
+  const run = createRun();
+  assert.equal(flagsMissed(run), 0);
+  // Her test skier takes the first flag; ride to just past it with it left on the course.
+  const first = run.course.flags[0]!;
+  ride(run, { until: (r) => r.x > first.x - 200 });
+  first.got = true; // keep the ride from taking it …
+  ride(run, { until: (r) => r.x > first.x + 40 });
+  first.got = false; // … then leave it behind her, untaken
+  assert.equal(flagsMissed(run), 1);
+  // Still within reach is not missed yet.
+  const near = createRun();
+  Object.assign(near, { x: first.x + 10 });
+  assert.equal(flagsMissed(near), 0);
+  // A fall before the first checkpoint sends her back to the start: the flag is ahead again.
+  ride(run, { until: (r) => r.crash > 0, skip: () => true });
+  ride(run, { until: (r) => r.crash <= 0, skip: () => true });
+  assert.equal(run.x, 0);
+  assert.equal(flagsMissed(run), 0);
+});
+
+test("flags missed: at the finish, every flag is either held or missed", () => {
+  const run = createRun();
+  ride(run, { until: (r) => r.finished });
+  assert.ok(flagsMissed(run) > 0, "the test skier misses some");
+  assert.equal(flagsHeld(run) + flagsMissed(run), 72);
 });

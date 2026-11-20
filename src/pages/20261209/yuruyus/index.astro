@@ -31,6 +31,8 @@
  *   - Backspace or Z undoes one step; a click on a junction already on the
  *     route cuts the route back to it;
  *   - Enter at the summit confirms. Esc is the shell's (it asks first).
+ *   - A held key's auto-repeats do nothing: a held Enter would confirm and
+ *     at once skip the reveal, a held digit would walk on past the junction.
  *
  * HOW IT IS BUILT. Three layers:
  *   - `src/lib/bday26/yuruyus.ts`: the three levels of maps (the prototype's
@@ -517,8 +519,8 @@ const KM_UNITS = 200;
     const hard = scores[2];
     verdictEl.textContent =
       total >= PRIZE_BAR
-        ? "Üç zirve, %95 tamam!"
-        : `%95 için en önemlisi Seviye 3 (%50 sayar): orada %${hard} aldın.`;
+        ? `Üç zirve, %${PRIZE_BAR} tamam!`
+        : `%${PRIZE_BAR} için en önemlisi Seviye 3 (%${HIKING_LEVEL_WEIGHTS[2]} sayar): orada %${hard} aldın.`;
     verdictEl.classList.toggle("win", total >= PRIZE_BAR);
     shell.finish(total);
   }
@@ -556,12 +558,17 @@ const KM_UNITS = 200;
   nextBtn.addEventListener("click", next);
 
   // The shell has taken Esc, and every key on its own screens; what arrives
-  // here during a Round is hers.
+  // here during a Round is hers. Every key here is one step, so a held key's
+  // repeats are dropped (still kept from the page: no Backspace navigation).
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (shell.phase !== "playing") return;
     const key = event.key;
-    if (!event.repeat && /^([1-9]|Backspace|z|Z|Enter)$/.test(key)) effects.sound("key");
+    if (event.repeat) {
+      if (/^([1-9]|Backspace|z|Z|Enter)$/.test(key)) event.preventDefault();
+      return;
+    }
+    if (/^([1-9]|Backspace|z|Z|Enter)$/.test(key)) effects.sound("key");
     if (confirmed) {
       if (key === "Enter") {
         event.preventDefault();

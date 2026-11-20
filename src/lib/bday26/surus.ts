@@ -124,7 +124,8 @@ export const MISTAKES: readonly { id: MistakeId; kind: MistakeKind; label: strin
   { id: "bikelane", kind: "light", label: "Bisiklet yolunda sürme", toast: "Bisiklet yolundasın" },
   { id: "overtime", kind: "light", label: "Süre aşımı", toast: "Süre aşıldı" },
 ];
-const MISTAKE = Object.fromEntries(MISTAKES.map((m) => [m.id, m])) as Record<MistakeId, (typeof MISTAKES)[number]>;
+/** Each mistake's kind and words, by id: the toasts and the result list read it. */
+export const MISTAKE_BY_ID = Object.fromEntries(MISTAKES.map((m) => [m.id, m])) as Record<MistakeId, (typeof MISTAKES)[number]>;
 
 /** One mistake as it happened. */
 export type Mistake = {
@@ -473,6 +474,13 @@ export function speedingStep(h: Hold, kmh: number, dt: number) {
   return holdStep(h, kmh > RULES.limit + RULES.tol, dt, RULES.speedHold);
 }
 
+/** Is a speeding mistake on its way? She is over the limit plus the
+ *  tolerance and it has not counted yet: the 1.5 s of grace, when the page
+ *  pulses her speed amber so she can still brake in time. */
+export function speedingWarned(h: Hold): boolean {
+  return h.on > 0 && !h.fired;
+}
+
 /** Driving on a bike lane (not a crossing) for more than 0.8 s. */
 export function bikeLaneStep(h: Hold, tile: Tile, dt: number) {
   return holdStep(h, tile === "b" || tile === "B" || tile === "p", dt, RULES.laneHold);
@@ -532,6 +540,16 @@ export function hitsCyclist(car: Pose, kmh: number, c: CyclistView): boolean {
 /** Is the next over-time mistake due, `steps` of them already counted? */
 export function overtimeDue(t: number, steps: number): boolean {
   return t >= RULES.timeLimit + steps * RULES.timeRepeat;
+}
+
+// ---------------------------------------------------------------- camera
+
+/** The share of the gap to its target the camera closes in `dt` seconds.
+ *  The prototype closed 8% per frame at 60 fps; this is that easing in
+ *  time, not frames, so a 144 Hz screen does not make the camera snappier
+ *  and a slow frame does not make it lag (review B4). */
+export function cameraEase(dt: number): number {
+  return 1 - Math.pow(0.92, dt * 60);
 }
 
 // ---------------------------------------------------------------- one drive
@@ -596,7 +614,7 @@ export const carKmh = (d: Drive) => Math.abs(toKmh(d.car.v));
 export function stepDrive(d: Drive, input: Input, dt: number): Mistake[] {
   const made: Mistake[] = [];
   const fire = (id: MistakeId, detail = "") => {
-    const m: Mistake = { at: d.t, id, kind: MISTAKE[id].kind, detail };
+    const m: Mistake = { at: d.t, id, kind: MISTAKE_BY_ID[id].kind, detail };
     d.mistakes.push(m);
     made.push(m);
   };
