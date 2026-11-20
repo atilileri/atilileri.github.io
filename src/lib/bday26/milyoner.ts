@@ -76,7 +76,7 @@ export function parsePool(markdown: string): PoolQuestion[] {
 }
 
 /** One question of a Round, as she sees it. */
-export type Question = {
+export type MilyonerQuestion = {
   /** 1..12, its rung on the ladder. */
   readonly number: number;
   readonly topic: string;
@@ -89,7 +89,7 @@ export type Question = {
 };
 
 /** The twelve questions of one Round, drawn from `pool` with `rng`. */
-export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Question[] {
+export function buildRound(pool: readonly PoolQuestion[], rng: () => number): MilyonerQuestion[] {
   const topics = [...new Set(pool.map((q) => q.topic))];
   const again = topics[Math.floor(rng() * topics.length)]!;
   const bands: [Band, string[]][] = [
@@ -111,7 +111,7 @@ export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Qu
 }
 
 /** "Yarı yarıya": the indices of the two wrong choices it takes away. */
-export function halve(question: Question, rng: () => number): number[] {
+export function halve(question: MilyonerQuestion, rng: () => number): number[] {
   const wrong = [0, 1, 2, 3].filter((i) => i !== question.answer);
   return shuffle(wrong, rng).slice(0, 2);
 }
@@ -131,7 +131,7 @@ const HARD_HONESTY = 0.7;
  * choices are left), and the others share the rest by random weights of
  * 0.2–1, which keeps every other bar below 40% and so below the leader.
  */
-export function askAudience(question: Question, rng: () => number, gone: readonly number[] = []): number[] {
+export function askAudience(question: MilyonerQuestion, rng: () => number, gone: readonly number[] = []): number[] {
   const open = [0, 1, 2, 3].filter((i) => !gone.includes(i));
   const wrong = open.filter((i) => i !== question.answer);
   const honest = question.number <= HONEST_UP_TO || rng() < HARD_HONESTY;

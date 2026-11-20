@@ -26,14 +26,15 @@
  *
  * WHAT IS HERE AND WHAT IS NOT. `buildRound` draws and shuffles with an
  * injected random source, so a test can pin a Round and the page can pass
- * `Math.random`. Counting misses, the 1.5 s pause after an answer, the keys
- * and the painting are the page's; the score is `missScore` in `./scores.ts`.
+ * `Math.random`. The answer state (her picks, the misses), the keys 1–4 / A–D
+ * and the 1.5 s step are the choice quizzes' shared `./choice-quiz.ts`; the
+ * painting is the page's; the score is `missScore` in `./scores.ts`.
  */
 import { shuffle } from "./shuffle.ts";
 import type { Photo } from "./photos.ts";
 
 /** One photo of the Round and the four places under it. */
-export type Question = {
+export type PlaceQuestion = {
   readonly photo: Photo;
   /** Four different places in display order, A to D. */
   readonly choices: readonly string[];
@@ -43,7 +44,7 @@ export type Question = {
 
 /** The ten questions of one Round, drawn from `pool` with `rng`, which
  *  returns [0, 1) like `Math.random`. */
-export function buildRound(pool: readonly Photo[], rng: () => number, count = 10): Question[] {
+export function buildRound(pool: readonly Photo[], rng: () => number, count = 10): PlaceQuestion[] {
   const places = [...new Set(pool.map((p) => p.place))];
   const inside = insideOf(pool);
   const drawn = shuffle(pool, rng).slice(0, count);
