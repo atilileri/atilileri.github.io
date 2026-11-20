@@ -118,7 +118,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
           {
             LETTERS.map((letter, i) => (
               <div class="bar">
-                <span class="pct" data-pct={i}>0%</span>
+                <span class="pct" data-pct={i}>%0</span>
                 <span class="track">
                   <span class="fill" data-fill={i} />
                 </span>
@@ -230,7 +230,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   function showAudience(bars: number[] | null) {
     audienceEl.classList.toggle("shown", bars != null);
     (bars ?? [0, 0, 0, 0]).forEach((pct, i) => {
-      $(`[data-pct="${i}"]`).textContent = `${pct}%`;
+      // Turkish puts the sign first: %56.
+      $(`[data-pct="${i}"]`).textContent = `%${pct}`;
       $(`[data-fill="${i}"]`).style.height = `${pct}%`;
     });
   }
