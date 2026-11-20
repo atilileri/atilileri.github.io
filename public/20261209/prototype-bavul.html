@@ -16,8 +16,11 @@
   Keys: arrows move the held item, R rotates, Enter puts it in, Tab / Shift+Tab
   next / previous item, Backspace takes an item out (the one under the held
   item, else the last one placed), K closes the bag (asks first), Esc leaves.
-  Mouse: drag an item from the list onto the bag, or pick it and click; right
-  click rotates; click a packed item (empty hand) to take it out and drag it.
+  Mouse (click-click, no dragging): click an item in the list, the ghost follows
+  the pointer over the bag, click a cell to drop it (refused if it does not fit).
+  Click a packed item to pick it up, click again to drop it elsewhere; a click
+  on the list's empty part, Esc or Çıkar puts it back beside the bag. Right
+  click rotates. (Atıl could not drag in the previous version.)
   The buttons under the bag do the same and show their keys. F2: tweak panel.
 
   Sound: the live Games' approach (src/lib/bday26/{audio,music,effects}-dom.ts)
@@ -86,7 +89,7 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 .chip.ok{background:var(--bd-won-bg);color:var(--bd-won-ink)}
 #items{flex:1;min-height:0;overflow:auto;padding:8px}
 #items .head{display:flex;justify-content:space-between;padding:4px 8px 8px;font-size:12px;font-weight:700;color:var(--bd-muted)}
-.it{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:10px;cursor:grab;user-select:none;touch-action:none}
+.it{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:10px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
 .it:hover{background:var(--bd-line-soft)}
 .it.sel{background:var(--bd-accent-soft);box-shadow:inset 0 0 0 2px var(--bd-accent)}
 .it.in{opacity:.45}
@@ -100,7 +103,7 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 
 /* board */
 #boardWrap{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#cv{display:block;outline:none;touch-action:none}
+#cv{display:block;outline:none;touch-action:none;user-select:none;-webkit-user-drag:none}
 #hold{display:flex;align-items:center;gap:12px;background:var(--bd-paper);border-radius:999px;box-shadow:var(--shadow);padding:8px 18px;font-weight:700;white-space:nowrap;min-height:44px}
 #hold .e{font-size:20px}
 #hold .st{font-weight:700;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--bd-won-bg);color:var(--bd-won-ink)}
@@ -206,7 +209,7 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
       <button class="act" type="button" tabindex="-1" data-act="next">Sonraki eşya <span class="k">Tab</span></button>
       <button class="act" type="button" tabindex="-1" data-act="close">Bavulu kapat <span class="k">K</span></button>
     </div>
-    <div class="mhint">Fare: eşyayı listeden bavula sürükle ya da tıkla, sonra yerine tıkla · sağ tık döndürür · oklar taşır</div>
+    <div class="mhint">Fare: eşyaya tıkla, sonra bavulda yerine tıkla · bavuldaki eşyayı da tıklayıp taşıyabilirsin · sağ tık döndürür</div>
   </div>
 
   <div class="side">
@@ -527,7 +530,7 @@ function clampHeld() {
   const d = dims(shapeOf(R.items[R.held]));
   R.x = Math.max(0, Math.min(W - d.w, R.x)); R.y = Math.max(0, Math.min(H - d.h, R.y));
 }
-function hold(i) { R.held = i; R.grab = null; clampHeld(); }
+function hold(i) { R.held = i; R.grab = null; R.fromBag = false; clampHeld(); }
 function unplacedFrom(start, dir) {
   const n = R.items.length;
   for (let k = 1; k <= n; k++) { const j = ((start + dir * k) % n + n) % n; if (!R.items[j].placed) return j; }
@@ -547,7 +550,8 @@ function rotate() {
   const d0 = dims(shapeOf(it)); it.rot = (it.rot + 1) % n; const d1 = dims(shapeOf(it));
   R.x += Math.round((d0.w - d1.w) / 2); R.y += Math.round((d0.h - d1.h) / 2); R.grab = null; clampHeld(); changed();
 }
-function place() {
+// auto: the keyboard hands her the next item; a mouse drop leaves the hand empty
+function place(auto = true) {
   if (phase !== 'play' || R.held < 0) return false;
   const p = probe();
   if (!p.ok) { toast(p.why); fx.sound('refuse'); return false; }
@@ -555,16 +559,22 @@ function place() {
   it.placed = { x: R.x, y: R.y }; R.order.push(it.i);
   fx.sound('place');
   if (R.card.m.includes(it.key) && !R.mustDone.has(it.key)) { R.mustDone.add(it.key); setTimeout(() => fx.sound('must'), 140); }
-  R.held = unplacedFrom(it.i, 1); R.grab = null; clampHeld(); changed();
+  R.held = auto ? unplacedFrom(it.i, 1) : -1; R.grab = null; R.fromBag = false; clampHeld(); changed();
   return true;
 }
 function lift(it) {
   const x = it.placed.x, y = it.placed.y; it.placed = null; R.order = R.order.filter(i => i !== it.i);
   if (R.card.m.includes(it.key)) R.mustDone.delete(it.key);
-  R.held = it.i; R.x = x; R.y = y; R.grab = null; clampHeld(); fx.sound('out'); changed();
+  R.held = it.i; R.x = x; R.y = y; R.grab = null; R.fromBag = false; clampHeld(); fx.sound('out'); changed();
+}
+// an item picked up from the bag with the mouse, put back beside the bag
+function putBack() {
+  if (phase !== 'play' || R.held < 0) return;
+  R.held = -1; R.fromBag = false; R.grab = null; fx.sound('out'); changed();
 }
 function takeOut() {
   if (phase !== 'play') return;
+  if (R.held >= 0 && R.fromBag) { putBack(); return; }
   const cells = R.held >= 0 ? cellsAt(R.items[R.held], R.x, R.y) : [[R.x, R.y]];
   const under = overlapping(cells);
   if (under.length) { lift(under[0]); return; }
@@ -616,7 +626,7 @@ document.addEventListener('keydown', ev => {
   if (phase === 'result') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') { phase = 'start'; show(); } return; }
   if (phase !== 'play') return;
   const k = ev.key;
-  if (k === 'Escape') { phase = 'exit'; show(); return; }
+  if (k === 'Escape') { if (R.held >= 0 && R.fromBag) putBack(); else { phase = 'exit'; show(); } return; }
   if (k.startsWith('Arrow')) { ev.preventDefault(); move(k === 'ArrowLeft' ? -1 : k === 'ArrowRight' ? 1 : 0, k === 'ArrowUp' ? -1 : k === 'ArrowDown' ? 1 : 0); return; }
   if (k === 'r' || k === 'R') { rotate(); return; }
   if (k === 'Enter') { ev.preventDefault(); place(); return; }
@@ -633,39 +643,50 @@ let dpr = 1, CS = 80, PAD = 26, TOPH = 34;
 const OX = () => PAD, OY = () => PAD + TOPH;
 const cellAt = ev => ({ x: Math.floor((ev.offsetX - OX()) / CS), y: Math.floor((ev.offsetY - OY()) / CS) });
 const inBag = c => c.x >= 0 && c.x < W && c.y >= 0 && c.y < H;
-let drag = null;    // { from: 'list' | 'bag', startX, startY, moved }
+// ONE mouse model, click-click: a click picks an item (from the list, or a packed one
+// from the bag), the ghost follows the pointer snapped to cells, the next click on the
+// bag drops it there (same rules as Enter). Nothing is ever dragged.
 function follow(c) {
-  // the held item hangs from the cell it was grabbed by, or from its middle
+  // the held item hangs from the cell it was picked by, or from its middle
   const it = R.items[R.held], d = dims(shapeOf(it));
   const g = R.grab || { x: Math.floor((d.w - 1) / 2), y: Math.floor((d.h - 1) / 2) };
   const nx = c.x - g.x, ny = c.y - g.y;
-  if (nx !== R.x || ny !== R.y) { R.x = nx; R.y = ny; clampHeld(); changed(); }
+  if (nx !== R.x || ny !== R.y) { R.x = nx; R.y = ny; clampHeld(); updateHud(); updateState(); }
 }
 cv.addEventListener('pointermove', ev => {
   if (phase !== 'play') return;
   const c = cellAt(ev);
-  if (drag && (c.x !== drag.cx || c.y !== drag.cy)) drag.moved = true;
   if (R.held >= 0 && inBag(c)) follow(c);
   else if (R.held < 0 && inBag(c)) { R.x = c.x; R.y = c.y; }
-  cv.style.cursor = R.held >= 0 ? 'grabbing' : overlapping([[c.x, c.y]]).length ? 'grab' : 'default';
+  cv.style.cursor = R.held >= 0 || overlapping([[c.x, c.y]]).length ? 'pointer' : 'default';
 });
 cv.addEventListener('pointerdown', ev => {
   if (phase !== 'play' || ev.button !== 0) return;
+  ev.preventDefault();
   const c = cellAt(ev); if (!inBag(c)) return;
-  if (R.held >= 0) { follow(c); place(); return; }
+  if (R.held >= 0) { follow(c); place(false); return; }
   const under = overlapping([[c.x, c.y]]);
   if (under.length) {
-    const it = under[0], gx = c.x - it.placed.x, gy = c.y - it.placed.y;
-    lift(it); R.grab = { x: gx, y: gy }; drag = { from: 'bag', cx: c.x, cy: c.y, moved: false };
+    const it = under[0], g = { x: c.x - it.placed.x, y: c.y - it.placed.y };
+    it.placed = null; R.order = R.order.filter(i => i !== it.i);
+    if (R.card.m.includes(it.key)) R.mustDone.delete(it.key);
+    R.held = it.i; R.grab = g; R.fromBag = true; R.x = c.x - g.x; R.y = c.y - g.y; clampHeld();
+    fx.sound('pick'); changed();
   }
 });
-window.addEventListener('pointerup', ev => {
-  if (!drag || phase !== 'play') { drag = null; return; }
-  const onCanvas = ev.target === cv, c = onCanvas ? cellAt(ev) : null;
-  // a drag that ends over the bag puts the item down; a plain click keeps it in hand
-  if (onCanvas && inBag(c) && R.held >= 0 && (drag.from === 'list' || drag.moved)) { follow(c); place(); }
-  drag = null;
+// the list: a click on an item picks it; a click on the list's empty part while holding
+// an item taken from the bag puts it back beside the bag. Bound once (the rows re-render).
+$('items').addEventListener('pointerdown', ev => {
+  if (phase !== 'play' || ev.button !== 0) return;
+  ev.preventDefault();
+  const el = ev.target.closest('.it');
+  if (!el) { if (R.held >= 0 && R.fromBag) putBack(); return; }
+  const it = R.items[+el.dataset.i];
+  if (it.placed) { lift(it); return; }
+  if (R.held !== it.i) { hold(it.i); fx.sound('pick'); changed(); }
+  else if (R.fromBag) { R.fromBag = false; fx.sound('out'); changed(); }
 });
+for (const el of [$('items'), cv]) el.addEventListener('dragstart', ev => ev.preventDefault());
 document.addEventListener('contextmenu', ev => { if (phase === 'play' && ev.target.closest && ev.target.closest('#game')) { ev.preventDefault(); rotate(); } });
 
 // ---------- screens / HUD ----------
@@ -700,19 +721,11 @@ function renderSide() {
     R.items.map(it => {
       const c = CAT[it.key], o = SHAPES[it.key][0], d = dims(o), set = new Set(o.map(([x, y]) => y * d.w + x));
       let mini = ''; for (let i = 0; i < d.w * d.h; i++) mini += `<i style="background:${set.has(i) ? c.c : 'transparent'}"></i>`;
-      return `<div class="it ${R.held === it.i && phase === 'play' ? 'sel' : ''} ${it.placed ? 'in' : ''}" data-i="${it.i}">
+      return `<div draggable="false" class="it ${R.held === it.i && phase === 'play' ? 'sel' : ''} ${it.placed ? 'in' : ''}" data-i="${it.i}">
         <div class="mini" style="grid-template-columns:repeat(${d.w},8px)">${mini}</div>
         <div><div class="nm"><span class="e">${c.e}</span><span>${c.n}</span>${R.card.m.includes(it.key) ? '<span class="star">★</span>' : ''}</div><div class="meta">${it.placed ? 'bavulda' : o.length + ' kare'}</div></div>
         <div class="tag">${fmtKg(c.kg)}</div></div>`;
     }).join('');
-  $('items').querySelectorAll('.it').forEach(el => el.onpointerdown = ev => {
-    if (phase !== 'play' || ev.button !== 0) return;
-    ev.preventDefault();
-    const it = R.items[+el.dataset.i];
-    if (it.placed) { lift(it); return; }
-    if (R.held !== it.i) { hold(it.i); fx.sound('pick'); changed(); }
-    drag = { from: 'list', moved: false };
-  });
 }
 function updateHud() {
   $('vRound').textContent = R && !R.preview ? `Tur ${rounds + (phase === 'result' ? 0 : 1)}` : '';
@@ -880,7 +893,7 @@ function updateState() {
 }
 
 // ---------- boot ----------
-window.__bavul = { get R() { return R; }, get phase() { return phase; }, newRound, applySolution, breakdown, askClose, closeBag, music, fx };
+window.__bavul = { get R() { return R; }, get phase() { return phase; }, newRound, applySolution, breakdown, askClose, closeBag, music, fx, geom: () => ({ CS, ox: OX(), oy: OY() }) };
 paintToggles();
 window.addEventListener('resize', resize);
 show(); resize();
