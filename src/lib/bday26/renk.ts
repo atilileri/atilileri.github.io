@@ -186,6 +186,61 @@ export function pickRound(pool: readonly Target[], rng: () => number): Target[] 
   throw new Error("bday26 renk: no five targets far enough apart");
 }
 
+// ── her drops ─────────────────────────────────────────────────────────
+// Her mix is the list of tubes she dropped, in order (0–4, `TUBES` order):
+// Backspace takes the last back, a click on a drop in the row takes back
+// just that one. Every function returns a new list.
+
+/** One drop of `tube` more; the same list when it already holds `DROP_CAP`. */
+export function addDrop(drops: readonly number[], tube: number): readonly number[] {
+  return drops.length >= DROP_CAP ? drops : [...drops, tube];
+}
+
+/** Backspace: the last drop taken back. */
+export function removeLast(drops: readonly number[]): number[] {
+  return drops.slice(0, -1);
+}
+
+/** A click on the drop at `index`: only that one taken back. */
+export function removeAt(drops: readonly number[], index: number): number[] {
+  return drops.filter((_, i) => i !== index);
+}
+
+/** Drops per tube, in `TUBES` order. */
+export function countsOf(drops: readonly number[]): number[] {
+  const c = TUBES.map(() => 0);
+  for (const t of drops) c[t]! += 1;
+  return c;
+}
+
+/** Whether two recipes are the same proportions: her share of every tube is
+ *  within half a drop of the recipe's (2 + 2 is 1 + 1). */
+export function sameProportion(recipe: Counts, mine: Counts): boolean {
+  const tr = recipe.reduce((a, b) => a + b, 0);
+  const tm = mine.reduce((a, b) => a + b, 0);
+  return recipe.every((n, i) => Math.abs((mine[i] ?? 0) / tm - n / tr) * tm <= 0.5);
+}
+
+/** What Enter says about her mix against `target`. */
+export type Verdict = {
+  /** Her colour. */
+  hex: string;
+  /** Drops per tube. */
+  counts: number[];
+  dE: number;
+  score: number;
+  /** A different recipe that still looks the same (ΔE ≤ 1): it counts. */
+  otherRecipe: boolean;
+};
+
+/** Judge her drops (at least one) against the target. */
+export function judge(target: Target, drops: readonly number[]): Verdict {
+  const counts = countsOf(drops);
+  const hex = mixColour(counts)!;
+  const dE = deltaE(target.lab, hexToLab(hex));
+  return { hex, counts, dE, score: targetScore(dE), otherRecipe: dE <= PERFECT_DE && !sameProportion(target.recipe, counts) };
+}
+
 // ── the scores ────────────────────────────────────────────────────────
 
 /** Up to this ΔE a target scores 100. */

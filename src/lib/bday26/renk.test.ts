@@ -13,6 +13,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  addDrop,
+  countsOf,
+  judge,
+  removeAt,
+  removeLast,
   deltaE,
   difference,
   DROP_CAP,
@@ -21,10 +26,12 @@ import {
   pickRound,
   ROUND_TARGETS,
   roundScore,
+  sameProportion,
   targetPool,
   targetScore,
   TUBES,
   type Lab,
+  type Target,
 } from "./renk.ts";
 
 test("one target: ΔE 0 and ΔE 1 are both 100 — a match better than 1 earns nothing extra", () => {
@@ -116,6 +123,59 @@ test("a target's recipe uses 2 to 4 tubes and is neither near-black nor near-whi
     const L = hexToLab(t.hex)[0];
     assert.ok(L >= 25 && L <= 90, `${t.recipe} ${t.hex}: L* ${L}`);
   }
+});
+
+test("drops: 1–5 add one, Backspace takes the last back, a click takes back just the one clicked", () => {
+  let drops: readonly number[] = [];
+  drops = addDrop(drops, 0);
+  drops = addDrop(drops, 2);
+  drops = addDrop(drops, 0);
+  drops = addDrop(drops, 4);
+  assert.deepEqual(drops, [0, 2, 0, 4]);
+  assert.deepEqual(countsOf(drops), [2, 0, 1, 0, 1]);
+  assert.deepEqual(removeLast(drops), [0, 2, 0]);
+  assert.deepEqual(removeAt(drops, 1), [0, 0, 4]);
+  assert.deepEqual(drops, [0, 2, 0, 4], "the old list is left as it was");
+  assert.deepEqual(removeLast([]), []);
+  assert.deepEqual(removeAt([1], 3), [1], "a drop that is not there changes nothing");
+});
+
+test("drops: the 13th is refused", () => {
+  let drops: readonly number[] = [];
+  for (let i = 0; i < DROP_CAP; i++) drops = addDrop(drops, i % 5);
+  assert.equal(drops.length, 12);
+  assert.equal(addDrop(drops, 1), drops);
+});
+
+test("judging a mix: its ΔE and score; a different recipe within ΔE 1 counts, and says so", () => {
+  const target = POOL.find((t) => t.recipe.join() === "2,1,0,0,0")!;
+  const exact = judge(target, [0, 1, 0]);
+  assert.equal(exact.dE, 0);
+  assert.equal(exact.score, 100);
+  assert.equal(exact.otherRecipe, false);
+  assert.equal(judge(target, [0, 0, 0, 0, 1, 1]).otherRecipe, false, "4 + 2 is the same recipe as 2 + 1");
+
+  const off = judge(target, [0, 1]);
+  assert.ok(off.dE > 1);
+  assert.equal(off.score, targetScore(off.dE));
+  assert.equal(off.otherRecipe, false, "a miss is not another recipe");
+
+  // Some target in the pool has a clearly different recipe within ΔE 1 of it
+  // (paint has twins: black with white can stand in for red with blue).
+  let twin: readonly [Target, Target] | undefined;
+  for (const t of POOL) {
+    const u = POOL.find((u) => deltaE(t.lab, u.lab) <= 1 && !sameProportion(t.recipe, u.recipe));
+    if (u) {
+      twin = [t, u];
+      break;
+    }
+  }
+  assert.ok(twin, "the pool has two recipes that look alike");
+  const [t, u] = twin;
+  const drops = u.recipe.flatMap((n, i) => Array<number>(n).fill(i));
+  const verdict = judge(t, drops);
+  assert.equal(verdict.score, 100);
+  assert.equal(verdict.otherRecipe, true);
 });
 
 test("a Round deals five targets from the pool, each at least ΔE 15 from the others", () => {
