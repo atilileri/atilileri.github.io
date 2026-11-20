@@ -10,6 +10,9 @@
  * The music's tracks are written at levels well under the effects' (see the
  * BALANCE note in `./music-dom.ts`); the bus halves them once more, so the
  * effects always sit on top. No Web Audio means a silent page, never an error.
+ *
+ * `unlockOnGesture` is the one gesture listener both layers use to let sound
+ * start: it keeps listening until the context really runs.
  */
 
 let audio: AudioContext | undefined;
@@ -27,6 +30,50 @@ export function context(): AudioContext | undefined {
   } catch {
     return undefined; // no Web Audio: a silent page
   }
+}
+
+/** The page's AudioContext if a sound already made one; never creates it. */
+function existing(): AudioContext | undefined {
+  return audio;
+}
+
+/** What the unlock needs to see of an AudioContext. */
+type Unlockable = Pick<EventTarget, "addEventListener"> & { readonly state: string; resume(): Promise<void> };
+
+/**
+ * Her keys and clicks unlock audio (the browser's autoplay rule) until it
+ * really plays (review B5). On every `pointerdown` and `keydown` (capture
+ * phase, so a Game that stops the event still counts) it calls `unlock` —
+ * the effects' or the music's, which only lets sound start — and resumes
+ * the page's AudioContext if a sound made one that the browser left
+ * "suspended": Chrome does that when the first key is one it does not count
+ * as a gesture (Esc, a modifier), and a single `once` listener then left
+ * the music silent for good. The listener goes when the context reports
+ * "running". `target` and `audio` are for `audio-dom.test.ts`.
+ */
+export function unlockOnGesture(
+  unlock: () => void,
+  { target = window, audio: peek = existing }: { target?: EventTarget; audio?: () => Unlockable | undefined } = {},
+): void {
+  const types = ["pointerdown", "keydown"] as const;
+  let watched: Unlockable | undefined;
+  const done = () => {
+    for (const type of types) target.removeEventListener(type, onGesture, { capture: true });
+  };
+  function onGesture() {
+    unlock();
+    const ac = peek();
+    if (!ac) return; // nothing has sounded yet: keep listening
+    if (ac.state === "running") return done();
+    void ac.resume();
+    if (watched !== ac) {
+      watched = ac;
+      ac.addEventListener("statechange", () => {
+        if (ac.state === "running") done();
+      });
+    }
+  }
+  for (const type of types) target.addEventListener(type, onGesture, { capture: true });
 }
 
 /** A layer's bus into the speakers (made once). */

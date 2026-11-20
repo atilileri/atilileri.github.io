@@ -12,7 +12,8 @@
  *
  * With "Efektler: Kapalı" every call is a no-op and running loops stop the
  * moment she switches; before her first key or click no sound starts (the
- * browser's autoplay rule) and wanted loops wait for it. Loops also stop
+ * browser's autoplay rule) and wanted loops wait for it; her gestures keep
+ * unlocking until audio really runs (`unlockOnGesture` in `./audio-dom.ts`). Loops also stop
  * whenever a shell screen covers the Round (GameShell.astro's script calls
  * `stopLoops`), so a pause, the leave confirm or the result is quiet.
  *
@@ -31,7 +32,7 @@
  * switch, and the piano Games play through `./piano.ts` and
  * ignore this switch.
  */
-import { bus, context, hz, noise } from "./audio-dom.ts";
+import { bus, context, hz, noise, unlockOnGesture } from "./audio-dom.ts";
 import { openEffectsPreference } from "./browser.ts";
 import { bindSwitches } from "./switch-dom.ts";
 import {
@@ -65,11 +66,8 @@ const engine: EffectsEngine = {
 /** The one effects object of this page: every Game's sounds and visuals. */
 export const effects = createEffects(openEffectsPreference(), engine);
 
-// Her first key or click unlocks audio (capture, so a Game that stops the
-// event still counts).
-for (const type of ["pointerdown", "keydown"] as const) {
-  window.addEventListener(type, () => effects.unlock(), { capture: true, once: true });
-}
+// Her keys and clicks unlock audio until the AudioContext really runs.
+unlockOnGesture(() => effects.unlock());
 // A hidden tab is silent.
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) effects.stopLoops();
