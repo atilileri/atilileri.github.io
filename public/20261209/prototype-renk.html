@@ -15,8 +15,17 @@
   one black drop darkens like real paint.
   ΔE: CIEDE2000 on the two displayed sRGB colours (D65 Lab).
 
-  Variants (?variant= and the bottom bar, ← →): A the ticket's −6 slope with
-  a 12-drop cap, B a gentler −4, C a harsher −9, D −6 with an 8-drop cap.
+  Tuning (Atıl's verdict after the first build): variant A is final — −6 per
+  ΔE above 1, a 12-drop cap. The variant bar is gone.
+
+  Sound, like the live Games (src/lib/bday26/music*.ts, effects*.ts,
+  audio-dom.ts), reproduced inline: Web Audio synthesis, no files, one
+  AudioContext made on her first key or click, an effects bus at 1 and a
+  music bus at 0.5. "Müzik: Açık/Kapalı" and "Efektler: Açık/Kapalı" use
+  the live site's own localStorage keys (bday26:music, bday26:effects), on by
+  default, and never take focus. The music (a calm painting-studio loop)
+  pauses while the leave confirm is open and while the tab is hidden.
+
   F2 opens Atıl's panel: the hidden "reveal" toggle (live ΔE; also
   ?reveal=1), the recipe, tinting strengths, the ambiguity list for the
   current target, the state and a Round log.
@@ -146,10 +155,21 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);-w
 .verdict{margin-top:14px;padding:11px 14px;border-radius:14px;background:var(--bd-bg);font-weight:700;color:var(--bd-ink-soft)}
 .verdict.win{background:var(--bd-won-bg);color:var(--bd-won-ink)}
 
-/* variant switcher (prototype chrome, not the design) */
-#vbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:#1d1d1f;color:#fff;border-radius:999px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:20;font:600 13px system-ui,sans-serif}
-#vbar button{border:0;background:#333;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px}
-#vbar span{padding:0 10px;min-width:250px;text-align:center}
+/* sound switches: like the live MusicToggle / EffectsToggle, above the screens */
+.snd{position:relative;z-index:11;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.snd button{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border:0;border-radius:999px;background:var(--bd-paper);box-shadow:0 0 0 1.5px var(--bd-line);font:800 13px var(--bd-font);color:var(--bd-ink-soft);white-space:nowrap;cursor:pointer;outline:none}
+.snd button:hover{box-shadow:0 0 0 2px var(--bd-accent)}
+.snd button[aria-pressed="false"]{color:var(--bd-muted)}
+.snd button span:first-child{font-size:18px;line-height:1}
+/* ΔE explainer on the start card */
+.what{margin-top:14px;border-radius:14px;background:var(--bd-bg);padding:0}
+.what summary{list-style:none;cursor:pointer;padding:10px 14px;font-weight:800;color:var(--bd-accent-deep);outline:none}
+.what summary::-webkit-details-marker{display:none}
+.what summary::before{content:"▸ ";display:inline-block;width:1em}
+.what[open] summary::before{content:"▾ "}
+.what p{margin:0;padding:0 14px 12px 34px;color:var(--bd-ink-soft)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
+.bd-shake{animation:shake .35s}
 
 /* Atıl's panel */
 #dbg{width:380px;flex-shrink:0;height:100%;overflow:auto;background:#fff;border-left:1px solid var(--bd-line);font-size:12.5px}
@@ -181,7 +201,11 @@ table.sim td:first-child,table.sim th:first-child{text-align:left}
   <div class="hud">
     <div class="left"><span class="name">Renk karıştır</span><span class="tag">Puan vermez</span></div>
     <div class="pill prog" id="prog" aria-label="Renkler"></div>
-    <div class="right"><div class="pill"><div><div class="lbl">Rekor</div><div class="val" id="vBest">—</div></div><div><div class="lbl">Resim seti</div><div class="val">%95</div></div></div></div>
+    <div class="right"><div class="pill"><div><div class="lbl">Rekor</div><div class="val" id="vBest">—</div></div><div><div class="lbl">Resim seti</div><div class="val">%95</div></div></div>
+      <div class="snd">
+        <button type="button" tabindex="-1" data-toggle="music" aria-pressed="true"><span aria-hidden="true">🎵</span><span>Müzik: Açık</span></button>
+        <button type="button" tabindex="-1" data-toggle="effects" aria-pressed="true"><span aria-hidden="true">✨</span><span>Efektler: Açık</span></button>
+      </div></div>
   </div>
 
   <div class="table">
@@ -219,6 +243,8 @@ table.sim td:first-child,table.sim th:first-child{text-align:left}
         <span class="kbd">Enter</span><span>Karışımı onayla</span>
         <span class="kbd">Esc</span><span>Turdan çık</span>
       </div>
+      <details class="what" id="what"><summary tabindex="-1">ΔE nedir?</summary>
+        <p>ΔE, iki rengin insan gözüne ne kadar farklı göründüğünü ölçer. 0 aynı renk demek; 1–2 civarındaki farkı çoğu kişi göremez, daha büyük sayılar açıkça farklı renkler demek.</p></details>
       <p class="rule" id="iRule"></p>
       <div class="foot"><div class="goal">Rekor <b>%95</b> → <b>Resim seti</b></div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
     </div>
@@ -275,7 +301,6 @@ table.sim td:first-child,table.sim th:first-child{text-align:left}
   <section><h3>Tur kaydı</h3><ul id="log"></ul></section>
 </aside>
 
-<div id="vbar"><button id="vPrev" aria-label="Önceki varyant">←</button><span id="vLbl"></span><button id="vNext" aria-label="Sonraki varyant">→</button></div>
 
 <script>
 // spectral.js 3.0.0 (https://github.com/rvanwijnen/spectral.js), npm "spectral.js@3.0.0",
@@ -305,18 +330,11 @@ table.sim td:first-child,table.sim th:first-child{text-align:left}
 </script>
 <script>
 "use strict";
-// ---------- variants and knobs ----------
-const VARIANTS = {
-  A: { slope: 6, cap: 12, name: 'Bilet: −6 / ΔE, 12 damla' },
-  B: { slope: 4, cap: 12, name: 'Yumuşak: −4 / ΔE, 12 damla' },
-  C: { slope: 9, cap: 12, name: 'Sert: −9 / ΔE, 12 damla' },
-  D: { slope: 6, cap: 8, name: 'Kısa tarif: −6 / ΔE, 8 damla' },
-};
-const VKEYS = Object.keys(VARIANTS);
+// ---------- tuning (final: −6 per ΔE above 1, 12 drops) and knobs ----------
+const TUNING = { slope: 6, cap: 12 };
+const V = () => TUNING;
 const params = new URLSearchParams(location.search);
-let vk = VARIANTS[params.get('variant')] ? params.get('variant') : 'A';
 const K = { reveal: params.get('reveal') === '1', recipe: false, apart: false, model: 'linear', tB: 1.4, tK: 2.5 };
-const V = () => VARIANTS[vk];
 const TUBES = [
   { name: 'Kırmızı', hex: '#D7263D' }, { name: 'Sarı', hex: '#FCD200' }, { name: 'Mavi', hex: '#1B3F9E' },
   { name: 'Beyaz', hex: '#FFFFFF' }, { name: 'Siyah', hex: '#1C1C1C' },
@@ -399,7 +417,7 @@ let phase = 'start';         // start | play | judged | end | exit
 let prevPhase = 'play';
 let round = null;            // { targets, i, results }
 let drops = [];              // tube index per drop, in order (Backspace pops)
-const best = {};             // per variant, in memory only
+let best = null;            // in memory only
 let tries = 0;
 const log = [];
 const counts = () => { const c = [0, 0, 0, 0, 0]; drops.forEach(t => c[t]++); return c; };
@@ -410,40 +428,50 @@ function newRound() {
   drops = []; tries++; phase = 'play'; render();
 }
 function addDrop(t) {
-  if (drops.length >= V().cap) { const c = $('count'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); return; }
+  if (drops.length >= V().cap) { const c = $('count'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); fx.sound('full'); return; }
   drops.push(t);
+  fx.sound('drop', t);
   const tb = $('tubes').children[t]; tb.classList.add('press'); setTimeout(() => tb.classList.remove('press'), 110);
   const sw = $('swM'); sw.classList.remove('pop'); void sw.offsetWidth; sw.classList.add('pop');
   render();
 }
-function undo() { if (drops.length) { drops.pop(); render(); } }
+function undo() { if (drops.length) { drops.pop(); fx.sound('undo'); render(); } }
 function submit() {
   if (!drops.length) return;
   const t = curTarget(), c = counts(), hex = mixHex(c), de = de2000(t.lab, hexToLab(hex));
-  round.results.push({ mine: c, hex, de, score: targetScore(de) });
+  const score = targetScore(de);
+  round.results.push({ mine: c, hex, de, score });
   phase = 'judged'; render();
+  fx.sound('submit');
+  // the verdict a beat after the brush stroke: a match, close, or a miss
+  setTimeout(() => {
+    if (de <= 1) { fx.sound('match'); fx.confetti('puff', $('cRev')); }
+    else if (score >= 70) fx.sound('close');
+    else { fx.sound('miss'); fx.shake($('cRev')); }
+  }, 260);
 }
 function next() {
   if (round.i < ROUND_LEN - 1) { round.i++; drops = []; phase = 'play'; render(); return; }
   const sc = Math.floor(round.results.reduce((a, r) => a + r.score, 0) / ROUND_LEN);
   round.score = sc;
-  best[vk] = Math.max(best[vk] ?? 0, sc);
+  best = Math.max(best ?? 0, sc);
   const meanDe = round.results.reduce((a, r) => a + r.de, 0) / ROUND_LEN;
-  log.unshift({ v: vk, sc, meanDe, des: round.results.map(r => r.de) });
+  log.unshift({ sc, meanDe, des: round.results.map(r => r.de) });
   phase = 'end'; render();
+  if (sc >= 95) { fx.sound('prize'); fx.confetti('shower'); }
 }
 function toStart() { round = null; drops = []; phase = 'start'; render(); }
 
 // ---------- render ----------
 function recipeDots(c) { return c.map((n, i) => n ? `<span class="dot" style="background:${TUBES[i].hex}"></span>${n}` : '').filter(Boolean).join(' '); }
 function recipeTxt(c) { return c.map((n, i) => n ? `${n} ${TUBES[i].name.toLowerCase()}` : '').filter(Boolean).join(', '); }
-function ruleText() { return `Her renk: ΔE 1'e kadar %100, sonra her 1 ΔE için −${V().slope}. Tur skoru: beş rengin ortalaması. ΔE, CIEDE2000 renk farkıdır; 1'in altını göz ayırt edemez.`; }
+function ruleText() { return `Her renk: ΔE 1'e kadar %100, sonra her 1 ΔE için −${V().slope}. Tur skoru: beş rengin ortalaması. ΔE, CIEDE2000 renk farkıdır.`; }
 
 function render() {
   const v = V(), t = curTarget(), c = counts(), hex = mixHex(c);
-  $('vLbl').textContent = `${vk} · ${v.name}`;
   $('iCap').textContent = v.cap; $('iRule').textContent = ruleText();
-  $('vBest').textContent = best[vk] != null ? '%' + best[vk] : '—';
+  $('vBest').textContent = best != null ? '%' + best : '—';
+  if (phase === 'exit') music.hold('confirm'); else music.release('confirm');
   $('chip').classList.toggle('apart', K.apart);
 
   // progress chips: done ones show target | hers
@@ -497,9 +525,9 @@ function render() {
     const e = $('eScore'); e.textContent = '%' + sc; e.classList.toggle('win', win);
     $('eRes').innerHTML = round.results.map((r, i) => `<div><span class="m">Renk ${i + 1}</span><span class="pair"><span style="background:${round.targets[i].hex}"></span><span style="background:${r.hex}"></span></span><span class="m">ΔE ${fmt(r.de)}</span><span class="r">%${r.score}</span></div>`).join('');
     $('eRule').textContent = ruleText();
-    $('eBest').textContent = '%' + best[vk]; $('eTry').textContent = tries;
-    const ev = $('eVerdict'); ev.classList.toggle('win', best[vk] >= 95);
-    ev.textContent = best[vk] >= 95 ? (win ? 'Resim seti senin! Akrilik boya, tuval ve şövale.' : 'Resim setini zaten kazandın.')
+    $('eBest').textContent = '%' + best; $('eTry').textContent = tries;
+    const ev = $('eVerdict'); ev.classList.toggle('win', best >= 95);
+    ev.textContent = best >= 95 ? (win ? 'Resim seti senin! Akrilik boya, tuval ve şövale.' : 'Resim setini zaten kazandın.')
       : `Resim seti için rekorun en az %95 olmalı.`;
   }
   renderDbg();
@@ -520,25 +548,24 @@ function renderDbg() {
   }
   $('amb').textContent = amb;
   const st = [
-    `varyant ${vk}: eğim −${V().slope}, tavan ${V().cap} damla, model ${K.model}, güç mavi ${K.tB} siyah ${K.tK}`,
+    `eğim −${V().slope}, tavan ${V().cap} damla, model ${K.model}, güç mavi ${K.tB} siyah ${K.tK}`,
     `aşama ${phase}; havuz ${pool.length} hedef / ${all.length} oran`,
     t ? `hedef ${round.i + 1}/5 ${t.hex}  tarif: ${K.recipe ? recipeTxt(t.rec) : '(gizli)'}` : 'hedef —',
     `damlalar [${drops.map(d => TUBES[d].name.slice(0, 2)).join(' ')}]  sayılar ${c.join(' ')}  karışım ${hex || '—'}`,
     `canlı ΔE ${t && hex ? de2000(t.lab, hexToLab(hex)).toFixed(2) : '—'}`,
     `sonuçlar ${round ? round.results.map(r => `${r.de.toFixed(2)}→${r.score}`).join(', ') || '—' : '—'}`,
-    `rekor ${JSON.stringify(best)}`,
+    `rekor ${best ?? '—'}; müzik ${music.on ? 'açık' : 'kapalı'}${music.playing ? ' (çalıyor)' : ''}, efektler ${fx.on ? 'açık' : 'kapalı'}`,
   ].join('\n');
   $('state').textContent = st;
-  $('log').innerHTML = log.map(l => `<li class="${l.sc >= 95 ? 'win' : ''}">${l.v} · %${l.sc} · ort ΔE ${l.meanDe.toFixed(2)} · [${l.des.map(d => d.toFixed(1)).join(' ')}]</li>`).join('');
+  $('log').innerHTML = log.map(l => `<li class="${l.sc >= 95 ? 'win' : ''}">%${l.sc} · ort ΔE ${l.meanDe.toFixed(2)} · [${l.des.map(d => d.toFixed(1)).join(' ')}]</li>`).join('');
 }
 
 // ---------- input ----------
 document.addEventListener('keydown', ev => {
   const inForm = ev.target.closest && ev.target.closest('input,select,textarea');
   if (ev.key === 'F2') { ev.preventDefault(); $('dbg').hidden = !$('dbg').hidden; render(); return; }
-  if (!inForm && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) { ev.preventDefault(); cycle(ev.key === 'ArrowLeft' ? -1 : 1); return; }
   if (inForm) return;
-  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } return; }
+  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); fx.sound('start'); newRound(); } return; }
   if (phase === 'exit') { if (ev.key === 'Enter') toStart(); else if (ev.key === 'Escape') { phase = prevPhase; render(); } return; }
   if (phase === 'end') { if (ev.key === 'Enter') newRound(); else if (ev.key === 'Escape') toStart(); return; }
   if (ev.key === 'Escape') { prevPhase = phase; phase = 'exit'; render(); return; }
@@ -554,12 +581,8 @@ $('bStay').onclick = () => { phase = prevPhase; render(); }; $('bLeave').onclick
 // buttons must not keep focus, or Enter would click them a second time
 document.addEventListener('click', ev => { if (ev.target.closest('button')) ev.target.closest('button').blur(); });
 
-function cycle(d) {
-  vk = VKEYS[(VKEYS.indexOf(vk) + d + VKEYS.length) % VKEYS.length];
-  const p = new URLSearchParams(location.search); p.set('variant', vk); history.replaceState(null, '', '?' + p);
-  buildPool(); toStart();
-}
-$('vPrev').onclick = () => cycle(-1); $('vNext').onclick = () => cycle(1);
+// the ΔE explainer opens by click and never keeps focus, so Enter stays "Başla"
+$('what').querySelector('summary').addEventListener('mousedown', e => e.preventDefault());
 
 // panel knobs
 const kR = $('kReveal'), kRe = $('kRecipe'), kA = $('kApart'), kM = $('kModel'), kTB = $('kTB'), kTK = $('kTK');
@@ -575,7 +598,275 @@ kTK.onchange = () => { K.tK = +kTK.value; outs(); rebuild(); };
 kTB.oninput = () => { K.tB = +kTB.value; outs(); }; kTK.oninput = () => { K.tK = +kTK.value; outs(); };
 outs();
 
+// ---------- sound: the live Games' approach, inline ----------
+// audio-dom.ts: one AudioContext, made on the first sound; two buses.
+const audio = (() => {
+  let ac, buses = {}, noiseBuf;
+  const LEVEL = { effects: 1, music: 0.5 };
+  function context() {
+    try { if (!ac) ac = new AudioContext(); if (ac.state === 'suspended') ac.resume(); return ac; }
+    catch { return undefined; } // no Web Audio: a silent page
+  }
+  function bus(name) {
+    const c = context(); if (!c) return undefined;
+    if (!buses[name]) { const g = c.createGain(); g.gain.value = LEVEL[name]; g.connect(c.destination); buses[name] = g; }
+    return buses[name];
+  }
+  function noise(c) {
+    if (!noiseBuf) { noiseBuf = c.createBuffer(1, c.sampleRate * 2, c.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    return noiseBuf;
+  }
+  return { context, bus, noise };
+})();
+const hz = m => 440 * 2 ** ((m - 69) / 12);
+
+// effects.ts createSwitchPreference: the live site's keys, "off"/"on", missing = on
+function switchPref(key) {
+  let on = true;
+  try { on = localStorage.getItem(key) !== 'off'; } catch {}
+  return { get on() { return on; }, toggle() { on = !on; try { localStorage.setItem(key, on ? 'on' : 'off'); } catch {} return on; } };
+}
+
+// shared voices (effects-dom.ts)
+function tone(ac, out, f0, f1, at, len, type, level, attack = 0.012) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, at);
+  if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, at + len);
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g).connect(out); o.start(at); o.stop(at + len + 0.05);
+}
+const note = (ac, out, m, at, len, type, level, attack) => tone(ac, out, hz(m), hz(m), at, len, type, level, attack);
+function bell(ac, out, m, at, len, level = 0.5) { note(ac, out, m, at, len, 'sine', level); note(ac, out, m + 19, at, len * 0.6, 'sine', level * 0.18); }
+function brass(ac, out, m, at, len, level = 0.22) {
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1800; f.connect(out);
+  note(ac, f, m, at, len, 'sawtooth', level); note(ac, f, m - 12, at, len, 'triangle', level * 0.6);
+}
+function hiss(ac, out, at, len, level, type, f0, f1 = f0, q = 1, attack = 0.005) {
+  const src = ac.createBufferSource(); src.buffer = audio.noise(ac);
+  const bq = ac.createBiquadFilter(); bq.type = type; bq.Q.value = q; bq.frequency.setValueAtTime(f0, at);
+  if (f1 !== f0) bq.frequency.exponentialRampToValueAtTime(f1, at + len);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  src.connect(bq).connect(g).connect(out); src.start(at, Math.random() * 1.5); src.stop(at + len + 0.05);
+}
+// the quiz celebrations' loudness: through a 0.35 gain, in a key drawn fresh (C5 and up)
+const celebration = make => (ac, out, t) => { const g = ac.createGain(); g.gain.value = 0.35; g.connect(out); make(ac, g, t, 72 + [0, 2, 4, 5, 7][Math.floor(Math.random() * 5)]); };
+
+// one note per tube on a pentatonic, so a recipe has a little tune
+const TUBE_NOTE = [67, 72, 62, 76, 57]; // red G4, yellow C5, blue D4, white E5, black A3
+const SOUNDS = {
+  /** A drop into the paint: a soft round "plip" gliding down onto its tube's note. */
+  drop(ac, out, t, tube) {
+    const m = TUBE_NOTE[tube] ?? 67;
+    tone(ac, out, hz(m + 7), hz(m), t, 0.16, 'sine', 0.07, 0.004);
+    note(ac, out, m + 12, t + 0.01, 0.08, 'sine', 0.012, 0.003);
+    hiss(ac, out, t, 0.05, 0.008, 'bandpass', 1800, 900, 2, 0.003);
+  },
+  /** A drop taken back: a short upward lift, quieter than the drop. */
+  undo(ac, out, t) { tone(ac, out, hz(60), hz(67), t, 0.11, 'sine', 0.04, 0.006); },
+  /** The cup is full: a dull low knock, not a buzzer. */
+  full(ac, out, t) {
+    const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500; f.connect(out);
+    tone(ac, f, 150, 90, t, 0.18, 'sine', 0.12, 0.008);
+  },
+  /** Submit: a soft brush stroke across canvas. */
+  submit(ac, out, t) { hiss(ac, out, t, 0.32, 0.035, 'bandpass', 1200, 3200, 0.8, 0.06); },
+  /** A Round starts: a quiet two-note pick-up. */
+  start(ac, out, t) { bell(ac, out, 79, t, 0.25, 0.05); bell(ac, out, 84, t + 0.09, 0.35, 0.05); },
+  /** ΔE ≤ 1: the live chime. */
+  match: celebration((ac, out, t, C) => { bell(ac, out, C + 4, t, 0.5); bell(ac, out, C + 11, t + 0.09, 0.7); }),
+  /** Close (score 70+): the live "row-good", two quick rising notes. */
+  close(ac, out, t) { bell(ac, out, 79, t, 0.22, 0.08); bell(ac, out, 84, t + 0.08, 0.3, 0.08); },
+  /** A miss: the live "row-wrong", a soft two-note fall. */
+  miss(ac, out, t) { note(ac, out, 62, t, 0.16, 'triangle', 0.07); note(ac, out, 57, t + 0.12, 0.26, 'triangle', 0.07); },
+  /** A Round at 95%+: the live Small prize's "ta-da-daa". */
+  prize: celebration((ac, out, t, C) => {
+    const B = C - 12;
+    brass(ac, out, B + 7, t, 0.12); brass(ac, out, B + 7, t + 0.13, 0.12);
+    [0, 4, 7, 12].forEach(d => brass(ac, out, B + d + 5, t + 0.28, 0.9, 0.15));
+    bell(ac, out, B + 29, t + 0.28, 1.0, 0.3);
+  }),
+};
+
+// confetti (effects-dom.ts, trimmed): one fixed canvas, a frame loop only while pieces live
+const confettiFx = (() => {
+  let cv, parts = [], running = false;
+  const COLORS = ['#D7263D', '#FCD200', '#1B3F9E', '#2fb67c', '#e0446a', '#ffb703'];
+  function surface() {
+    if (!cv) { cv = document.createElement('canvas'); cv.className = 'confetti'; cv.setAttribute('aria-hidden', 'true'); document.body.append(cv); }
+    const dpr = devicePixelRatio || 1, w = innerWidth, h = innerHeight;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); return g;
+  }
+  function burst(size, from) {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const falling = size === 'shower', n = Math.round((falling ? 200 : 30) * (reduced ? 0.3 : 1));
+    surface();
+    let ox = innerWidth / 2, oy = innerHeight / 2;
+    if (from) { const r = from.getBoundingClientRect(); ox = r.left + r.width / 2; oy = r.top + 40; }
+    for (let i = 0; i < n; i++) {
+      const a = (90 + (Math.random() - 0.5) * (falling ? 40 : 60)) * Math.PI / 180, sp = falling ? 2 + Math.random() * 4 : 5 + Math.random() * 8;
+      parts.push({ x: falling ? Math.random() * innerWidth : ox, y: falling ? -20 - Math.random() * innerHeight * 0.5 : oy,
+        vx: Math.cos(a) * sp, vy: -Math.sin(a) * sp, spin: Math.random() * 6, turn: (Math.random() - 0.5) * 0.3,
+        size: 5 + Math.random() * 6, color: COLORS[i % COLORS.length], round: Math.random() < 0.4, life: 0, ttl: (falling ? 200 : 60) + Math.random() * 50 });
+    }
+    if (!running) { running = true; requestAnimationFrame(frame); }
+  }
+  function frame() {
+    const g = surface(); g.clearRect(0, 0, innerWidth, innerHeight);
+    parts = parts.filter(p => p.life < p.ttl && p.y < innerHeight + 40);
+    for (const p of parts) {
+      p.life++; p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.18; p.x += p.vx + Math.sin(p.life / 9 + p.spin) * 0.6; p.y += p.vy; p.spin += p.turn;
+      g.save(); g.globalAlpha = Math.min(1, (p.ttl - p.life) / 25); g.translate(p.x, p.y); g.rotate(p.spin);
+      g.scale(1, Math.max(0.15, Math.abs(Math.cos(p.spin * 1.7)))); g.fillStyle = p.color;
+      if (p.round) { g.beginPath(); g.arc(0, 0, p.size / 2, 0, 7); g.fill(); } else g.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      g.restore();
+    }
+    if (parts.length) requestAnimationFrame(frame); else { running = false; g.clearRect(0, 0, innerWidth, innerHeight); }
+  }
+  return { burst };
+})();
+
+// effects.ts createEffects: off = no-op; nothing before her first gesture
+const fx = (() => {
+  const pref = switchPref('bday26:effects');
+  let unlocked = false;
+  return {
+    get on() { return pref.on; },
+    toggle() { return pref.toggle(); },
+    unlock() { unlocked = true; },
+    sound(name, arg) {
+      if (!pref.on || !unlocked) return;
+      const ac = audio.context(), out = audio.bus('effects');
+      if (ac && out && SOUNDS[name]) SOUNDS[name](ac, out, ac.currentTime + 0.02, arg);
+    },
+    confetti(size, from) { if (pref.on) confettiFx.burst(size, from); },
+    shake(el) { if (!pref.on || !el) return; el.classList.remove('bd-shake'); void el.offsetWidth; el.classList.add('bd-shake'); },
+  };
+})();
+
+// music.ts createMusic + music-dom.ts startTrack: one track, a 16th-note sequencer
+// scheduled ahead on the AudioContext clock; it sounds only while the switch is
+// on, after her first gesture, and while nothing holds it (leave confirm, hidden tab)
+const music = (() => {
+  const pref = switchPref('bday26:music');
+  const FADE = 0.8, AHEAD = 0.12;
+  let unlocked = false, wanted = false, voice = null;
+  const holds = new Set();
+  function start() {
+    const ac = audio.context(), into = audio.bus('music');
+    if (!ac || !into) return { stop() {} };
+    const out = ac.createGain(), now = ac.currentTime;
+    out.gain.setValueAtTime(0, now); out.gain.linearRampToValueAtTime(1, now + FADE); out.connect(into);
+    let step = 0, next = now + 0.05;
+    const tick = () => {
+      while (next < ac.currentTime + AHEAD) {
+        const dur = 60 / ATOLYE.bpm / 4;
+        ATOLYE.play({ ac, out, t: next, dur, step: step % 16, bar: Math.floor(step / 16) });
+        next += dur; step = (step + 1) % ATOLYE.steps;
+      }
+    };
+    tick();
+    const timer = setInterval(tick, 25);
+    let stopped = false;
+    return { stop() {
+      if (stopped) return; stopped = true;
+      const at = ac.currentTime;
+      out.gain.cancelScheduledValues(at); out.gain.setValueAtTime(out.gain.value, at); out.gain.linearRampToValueAtTime(0, at + FADE);
+      setTimeout(() => { clearInterval(timer); out.disconnect(); }, (FADE + AHEAD + 0.3) * 1000);
+    } };
+  }
+  function sync() {
+    const should = wanted && pref.on && unlocked && holds.size === 0;
+    if (voice && !should) { voice.stop(); voice = null; }
+    if (should && !voice) voice = start();
+  }
+  return {
+    get on() { return pref.on; }, get playing() { return !!voice; },
+    toggle() { const on = pref.toggle(); sync(); return on; },
+    unlock() { if (!unlocked) { unlocked = true; sync(); } },
+    want() { wanted = true; sync(); },
+    hold(r) { if (!holds.has(r)) { holds.add(r); sync(); } },
+    release(r) { if (holds.has(r)) { holds.delete(r); sync(); } },
+  };
+})();
+
+// instruments (music-dom.ts)
+function blip(s, m, at, len, type, level, attack = 0.01, detune = 0) {
+  const o = s.ac.createOscillator(), g = s.ac.createGain();
+  o.type = type; o.frequency.value = hz(m); o.detune.value = detune;
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g).connect(s.out); o.start(at); o.stop(at + len + 0.05);
+}
+function pad(s, notes, at, len, level, cutoff = 1000) {
+  const g = s.ac.createGain(), lp = s.ac.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = cutoff; lp.connect(s.out);
+  g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(level, at + Math.min(0.8, len * 0.3)); g.gain.setValueAtTime(level, at + len * 0.75); g.gain.linearRampToValueAtTime(0, at + len);
+  g.connect(lp);
+  for (const m of notes) for (const d of [-7, 7]) { const o = s.ac.createOscillator(); o.type = 'triangle'; o.frequency.value = hz(m); o.detune.value = d; o.connect(g); o.start(at); o.stop(at + len + 0.05); }
+}
+/** A nylon-string pluck: a triangle with a quick bright sine on top, ringing out. */
+function pluck(s, m, at, len, level = 0.024) { blip(s, m, at, len, 'triangle', level, 0.004); blip(s, m + 12, at, len * 0.25, 'sine', level * 0.3, 0.002); }
+function tine(s, m, at, level = 0.014, len = 1.6) { blip(s, m, at, len, 'sine', level, 0.003); blip(s, m + 24, at, len * 0.3, 'sine', level * 0.25, 0.002); }
+function brush(s, at, level = 0.004) {
+  const src = s.ac.createBufferSource(); src.buffer = audio.noise(s.ac);
+  const bq = s.ac.createBiquadFilter(); bq.type = 'bandpass'; bq.frequency.value = 3000; bq.Q.value = 0.7;
+  const g = s.ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + 0.04); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.22);
+  src.connect(bq).connect(g).connect(s.out); src.start(at, Math.random() * 1.5); src.stop(at + 0.3);
+}
+
+/**
+ * Atölye: a calm painting studio. 68 bpm, four bars of Fmaj7 – Em7 – Dm9 –
+ * Cmaj7 (slow, open, a little Lydian): a soft pad, a low bass on the bar, a
+ * nylon pluck picking the chord, a music-box tine for a tune that moves only
+ * every half bar, and a brush on 2 and 4 you barely hear. Original; the
+ * busiest moment stays under the live tracks' ~0.08.
+ */
+const ATOLYE = {
+  steps: 64, bpm: 68,
+  play(s) {
+    const { step, bar, t, dur } = s;
+    const chords = [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 64], [48, 52, 55, 59]];
+    const roots = [41, 40, 38, 36];
+    const tune = [[[0, 76], [8, 72]], [[0, 74], [8, 71]], [[0, 69], [8, 72]], [[0, 71], [10, 67]]];
+    const ch = chords[bar];
+    if (step === 0) pad(s, ch, t, dur * 16, 0.014, 900);
+    if (step === 0) { blip(s, roots[bar], t, dur * 12, 'sine', 0.045, 0.02); blip(s, roots[bar] + 12, t, dur * 8, 'triangle', 0.016, 0.02); }
+    const pick = [0, 2, 1, 3, 2, 1, 3, 1];
+    if (step % 2 === 0 && step !== 14) pluck(s, ch[pick[step / 2]] + 12, t, dur * 5, step === 0 ? 0.026 : 0.018);
+    const n = tune[bar].find(([st]) => st === step);
+    if (n) tine(s, n[1] + 12, t, 0.012, 2.2);
+    if (step === 4 || step === 12) brush(s, t);
+  },
+};
+
+// her first key or click unlocks audio (capture, like the live pages)
+for (const type of ['pointerdown', 'keydown']) addEventListener(type, () => { fx.unlock(); music.unlock(); }, { capture: true, once: true });
+document.addEventListener('visibilitychange', () => { if (document.hidden) music.hold('hidden'); else music.release('hidden'); });
+
+// the two switches: never take focus, repaint on flip
+function paintToggles() {
+  for (const b of document.querySelectorAll('[data-toggle]')) {
+    const isMusic = b.dataset.toggle === 'music', on = isMusic ? music.on : fx.on;
+    const label = `${isMusic ? 'Müzik' : 'Efektler'}: ${on ? 'Açık' : 'Kapalı'}`;
+    b.setAttribute('aria-pressed', String(on)); b.title = label; b.setAttribute('aria-label', label);
+    b.children[0].textContent = on ? (isMusic ? '🎵' : '✨') : '🔇';
+    b.children[1].textContent = label;
+  }
+  renderDbg();
+}
+for (const b of document.querySelectorAll('[data-toggle]')) {
+  b.addEventListener('mousedown', e => e.preventDefault());
+  b.addEventListener('click', e => {
+    e.stopPropagation(); fx.unlock(); music.unlock();
+    if (b.dataset.toggle === 'music') music.toggle();
+    else if (fx.toggle()) fx.sound('match');
+    paintToggles();
+  });
+}
+paintToggles();
+
 buildPool();
+music.want();
 render();
 </script>
 </body>
