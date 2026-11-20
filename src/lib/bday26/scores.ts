@@ -172,6 +172,11 @@ export function hikingRoundScore(levels: readonly [number, number, number]): num
   return Math.min(100, Math.max(0, Math.floor(sum / 100 + 1e-9)));
 }
 
+/** Photo framing: the best photos of a Round that carry its weight. */
+export const FRAMING_BEST = 4;
+/** Photo framing: the share, in percent, the worst photo counts for. */
+export const FRAMING_WORST_SHARE = 5;
+
 /**
  * Photo framing, "Kadraj" (#203; spec row "0.95 × mean of best 4 photos +
  * 0.05 × worst"). `photos` are the five per-photo scores of one Round, each
@@ -185,9 +190,10 @@ export function hikingRoundScore(levels: readonly [number, number, number]): num
 export function framingScore(photos: readonly number[]): number {
   if (photos.length === 0) return 0;
   const sorted = [...photos].sort((a, b) => b - a);
-  const best4 = sorted.slice(0, 4).reduce((sum, s) => sum + s, 0);
+  const best = sorted.slice(0, FRAMING_BEST).reduce((sum, s) => sum + s, 0);
   const worst = sorted[sorted.length - 1]!;
-  return Math.min(100, Math.max(0, (95 * best4 + 20 * worst) / 400));
+  const sum = (100 - FRAMING_WORST_SHARE) * best + FRAMING_BEST * FRAMING_WORST_SHARE * worst;
+  return Math.min(100, Math.max(0, sum / (FRAMING_BEST * 100)));
 }
 
 /** The ski course's flags (#179: the Dengeli course, seed 7). */
