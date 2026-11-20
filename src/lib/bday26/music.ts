@@ -34,7 +34,7 @@ export function milyonerIntensity(n: number): number {
 }
 
 /** Every place with its own background music. */
-export type TrackName = "hub" | "milyoner" | "nerede" | "hafiza" | "slot" | "kayak" | "surus" | "renk" | "barista";
+export type TrackName = "hub" | "milyoner" | "nerede" | "hafiza" | "slot" | "kayak" | "surus" | "renk" | "barista" | "bavul";
 
 /** A track's steering (Milyoner's band, its "Son kararın mı?" tension). */
 export type MusicParams = Record<string, number>;

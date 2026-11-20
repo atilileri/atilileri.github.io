@@ -187,7 +187,13 @@ export type SoundName =
   | "paint-full"
   | "brush"
   // Barista
-  | "thud";
+  | "thud"
+  // Bavul hazırla (rotate is "flip", refused "row-wrong", a must-have "row-good")
+  | "pick"
+  | "place"
+  | "take-out"
+  | "gate"
+  | "zip";
 
 /** The continuous sounds: started, steered by params each frame, stopped. */
 export type LoopName = "engine" | "traffic" | "swoosh" | "reels" | "grind" | "pour";
