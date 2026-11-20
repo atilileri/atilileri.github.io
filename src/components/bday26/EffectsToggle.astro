@@ -1,58 +1,17 @@
 ---
 /**
  * EffectsToggle — "Efektler: Açık/Kapalı", the one switch for every sound
- * and visual effect, in every Game's HUD corner (GameShell renders it).
- * `bindEffectsToggles()` in `src/lib/bday26/effects-dom.ts` (called by
- * GameShell's script) binds it by `data-effects-toggle`, paints
- * its icon (✨ on, 🔇 off), label and `aria-pressed` from her stored
- * preference, and flips it on a click. It never takes focus (tabindex -1),
- * so Enter and the Game's keys stay the Game's. It sits above the shell's
- * screens, so she can switch it on the start and result cards too.
+ * and visual effect: `PrefSwitch` with `kind="effects"`, kept under its own
+ * name for GameShell and the hub. Bound by `bindEffectsToggles()` in
+ * `src/lib/bday26/effects-dom.ts`. Pass `focusable` on the hub so Tab
+ * reaches it; inside a Game leave it out (see `PrefSwitch.astro`).
  */
+import PrefSwitch from "./PrefSwitch.astro";
+
+interface Props {
+  /** Reachable by Tab (the hub). Default false (a Game). */
+  focusable?: boolean;
+}
 ---
 
-<button
-  class="fx-toggle"
-  type="button"
-  tabindex="-1"
-  data-effects-toggle
-  aria-pressed="true"
-  aria-label="Efektler: Açık"
-  title="Efektler: Açık"
->
-  <span class="fx-icon" data-effects-icon aria-hidden="true">✨</span>
-  <span class="fx-label" data-effects-label>Efektler: Açık</span>
-</button>
-
-<style>
-  .fx-toggle {
-    /* Above the shell's screens (z-index 10), so it stays reachable. */
-    position: relative;
-    z-index: 11;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px 6px 8px;
-    border: 0;
-    border-radius: 999px;
-    background: var(--bd-paper);
-    box-shadow: 0 0 0 1.5px var(--bd-line);
-    font: inherit;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--bd-ink-soft);
-    white-space: nowrap;
-    cursor: pointer;
-    outline: none;
-  }
-  .fx-toggle:hover {
-    box-shadow: 0 0 0 2px var(--bd-accent);
-  }
-  .fx-toggle[aria-pressed="false"] {
-    color: var(--bd-muted);
-  }
-  .fx-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-</style>
+<PrefSwitch kind="effects" focusable={Astro.props.focusable} />

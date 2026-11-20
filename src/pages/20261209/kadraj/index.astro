@@ -275,10 +275,9 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
     const total = framingScore(scores);
     const n95 = scores.filter((s) => s >= PRIZE_BAR).length;
     paintThumbs(scores);
-    verdict.textContent =
-      total >= PRIZE_BAR
-        ? "Dört kare neredeyse kusursuz: %95 tamam!"
-        : `%95 için dört fotoğrafın neredeyse kusursuz olmalı (şimdi ${n95} tane %95 ve üstü).`;
+    // Under the bar the shell's card says what %95 asks (the prize hint).
+    verdict.textContent = total >= PRIZE_BAR ? "Dört kare neredeyse kusursuz: %95 tamam!" : "";
+    verdict.hidden = total < PRIZE_BAR;
     verdict.classList.toggle("win", total >= PRIZE_BAR);
     shell.finish(total, { detail: `${n95}/5 fotoğraf %95 ve üstü` });
   }

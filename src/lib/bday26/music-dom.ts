@@ -13,11 +13,14 @@
  * switch next to "Efektler"; the hub plays "hub" from its own script. A
  * hidden tab is silent and picks the track up again when she comes back.
  * Nothing sounds before her first key or click (the browser's autoplay
- * rule); a track asked for earlier waits for it.
+ * rule); a track asked for earlier waits for it, and her gestures keep
+ * unlocking until audio really runs, so a first key the browser does not
+ * count (Esc) cannot leave the music silent (`unlockOnGesture`).
  *
- * THE SWITCH. Every `[data-music-toggle]` button (`MusicToggle.astro`) is
- * bound by `bindMusicToggles()`. Like the effects' switch it never takes
- * focus, so Enter and the Game's keys stay the Game's.
+ * THE SWITCH. Every "Müzik" switch (`MusicToggle.astro`) is bound by
+ * `bindMusicToggles()`, a thin call to the binder both switches share
+ * (`./switch-dom.ts`). Like the effects' switch a click never takes focus,
+ * so Enter and the Game's keys stay the Game's.
  *
  * THE SYNTH. Every track is written here as a few bars of chords, bass,
  * melody and percussion for a small step sequencer (16th notes, scheduled
@@ -40,8 +43,9 @@
  * Nobody has listened to these tracks yet: they want Atıl's ears before
  * the evening.
  */
-import { bus, context, hz, noise } from "./audio-dom.ts";
+import { bus, context, hz, noise, unlockOnGesture } from "./audio-dom.ts";
 import { openMusicPreference } from "./browser.ts";
+import { bindSwitches } from "./switch-dom.ts";
 import { createMusic, type MusicEngine, type MusicParams, type TrackName } from "./music.ts";
 
 export type { Music, TrackName } from "./music.ts";
@@ -55,39 +59,17 @@ const engine: MusicEngine = { start: (track, params) => startTrack(track, params
 /** The one music object of this page. */
 export const music = createMusic(openMusicPreference(), engine);
 
-for (const type of ["pointerdown", "keydown"] as const) {
-  window.addEventListener(type, () => music.unlock(), { capture: true, once: true });
-}
+// Her keys and clicks unlock the music until the AudioContext really runs.
+unlockOnGesture(() => music.unlock());
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) music.hold("hidden");
   else music.release("hidden");
 });
 
-/** Binds every "Müzik: Açık/Kapalı" button: paints it, flips it. Once per page. */
+/** Binds every "Müzik: Açık/Kapalı" switch (`./switch-dom.ts`): paints it,
+ *  flips it. Once per page. */
 export function bindMusicToggles(root: ParentNode = document) {
-  const toggles = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-music-toggle]"));
-  function paint() {
-    for (const t of toggles) {
-      const label = `Müzik: ${music.on ? "Açık" : "Kapalı"}`;
-      t.setAttribute("aria-pressed", String(music.on));
-      t.title = label;
-      t.setAttribute("aria-label", label);
-      const icon = t.querySelector("[data-music-icon]");
-      if (icon) icon.textContent = music.on ? "🎵" : "🔇";
-      const text = t.querySelector("[data-music-label]");
-      if (text) text.textContent = label;
-    }
-  }
-  for (const t of toggles) {
-    t.addEventListener("mousedown", (e) => e.preventDefault());
-    t.addEventListener("click", (e) => {
-      e.stopPropagation();
-      music.unlock();
-      music.toggle();
-    });
-  }
-  music.onChange(paint);
-  paint();
+  bindSwitches("music", music, { root });
 }
 
 // ── the sequencer ──────────────────────────────────────────────────

@@ -15,7 +15,8 @@
  * the last checkpoint and the flags she took since then are back on the
  * slope. Crossing the finish ends the Round on the shell's result card: the
  * score (`skiScore`, flags ÷ 72, rounded down), "x / 72 bayrak · Süre ·
- * düşüş" as the detail, and below 95 how many flags the Small prize wants.
+ * düşüş" as the detail; while the Small prize is still to win, the shell's
+ * prize hint says how many flags it wants (`src/lib/bday26/prize-hints.ts`).
  * Speed, time and falls earn nothing; a Round she leaves before the finish
  * scores nothing (the shell records nothing for it).
  *
@@ -24,11 +25,11 @@
  * slower, P pause, R restart the Round from the start line (not scored).
  * Enter starts and Esc asks to leave; both are the shell's — the prototype's
  * Esc pause became the shell's confirm, during which the slope stands still
- * (the shell's `pause` / `resume`). When the window loses focus the Round
- * pauses as P does, as the prototype did, and waits for P: a skier who came
- * back to a running slope would already be in the next rock. The overlay
- * is `PauseOverlay.astro`, shared with the driving Game, which pauses by the
- * same rule. The
+ * (the shell's `pause` / `resume`). When the window loses focus or the tab
+ * is hidden the Round pauses as P does, as the prototype did, and waits for
+ * P: a skier who came back to a running slope would already be in the next
+ * rock. The overlay is `PauseOverlay.astro` and the rule
+ * `src/lib/bday26/pause-dom.ts`, both shared with the driving Game. The
  * prototype's tuning panel, presets, seed box, play log, Best and its own
  * result card are gone: the course is fixed, the shell and the ledger own
  * the rest.
@@ -86,8 +87,6 @@ const KEYS = [
         <PauseOverlay />
       </div>
     </div>
-
-    <p slot="result" class="verdict" data-verdict hidden></p>
   </GameShell>
 </BdayLayout>
 
@@ -114,18 +113,17 @@ const KEYS = [
   } from "../../../lib/bday26/kayak";
   import { effects } from "../../../lib/bday26/effects-dom";
   import { music } from "../../../lib/bday26/music-dom";
+  import { createPause } from "../../../lib/bday26/pause-dom";
 
   const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
   const view = $<HTMLElement>("[data-view]");
   const cv = $<HTMLCanvasElement>("[data-slope]");
   const ctx = cv.getContext("2d")!;
   const toastEl = $<HTMLElement>("[data-toast]");
-  const pausedEl = $<HTMLElement>("[data-pause-overlay]");
   /** The skis on the snow: a swoosh that follows her speed (the shared effects switch). */
   const swoosh = effects.loop("swoosh");
   const progEl = $<HTMLElement>("[data-prog]");
   const progFill = $<HTMLElement>("[data-prog-fill]");
-  const verdictEl = $<HTMLElement>("[data-verdict]");
   const hud = {
     flags: $<HTMLElement>("[data-hud-flags]"),
     time: $<HTMLElement>("[data-hud-time]"),
@@ -140,8 +138,6 @@ const KEYS = [
   /** Where the camera keeps her on the stage: 260 px from the left, 330 px from the top. */
   const CAM_X = 260;
   const CAM_Y = 330;
-  /** The Small prize's flag count: 95% of 72, rounded up (69). */
-  const NEED_95 = Math.ceil((95 * SKI_FLAGS) / 100);
 
   const ACCENT = cssVar("--bd-accent");
   const ACCENT_DEEP = cssVar("--bd-accent-deep");
@@ -151,8 +147,9 @@ const KEYS = [
   type Pop = { x: number; y: number; life: number };
 
   let run: Run = createRun();
-  /** idle: no Round (or it ended); play: the slope moves; paused: P or a lost focus. */
-  let mode: "idle" | "play" | "paused" = "idle";
+  /** idle: no Round (or it ended); play: a Round is on, and the slope moves
+   *  unless her pause (`pause`) or the shell's confirm card holds it. */
+  let mode: "idle" | "play" = "idle";
   /** The shell's confirm card is open over the Round. */
   let confirming = false;
   let particles: Particle[] = [];
@@ -177,32 +174,17 @@ const KEYS = [
   function startRound() {
     loop.stop();
     resetRun();
-    keys.clear();
+    pause.clear();
     mode = "play";
-    pausedEl.hidden = true;
-    music.release("pause");
-    verdictEl.hidden = true;
     paintHud();
     loop.start();
   }
 
-  /** The slope moves only in play and with no confirm card over it. */
-  const loop = createFrameLoop({ canRun: () => mode === "play" && !confirming, frame: tick, maxDt: MAX_DT });
+  /** The slope moves only in play, with no pause and no confirm card over it. */
+  const loop = createFrameLoop({ canRun: () => mode === "play" && !pause.paused && !confirming, frame: tick, maxDt: MAX_DT });
 
-  function setPaused(on: boolean) {
-    if (mode === "idle") return;
-    mode = on ? "paused" : "play";
-    pausedEl.hidden = !on;
-    keys.clear();
-    if (on) {
-      loop.stop();
-      effects.stopLoops();
-      music.hold("pause");
-    } else {
-      music.release("pause");
-      loop.start();
-    }
-  }
+  /** Her pause: P, a lost focus or a hidden tab; only P lifts it. */
+  const pause = createPause({ canPause: () => mode !== "idle", loop, keys, effects, music });
 
   function input() {
     return {
@@ -278,8 +260,6 @@ const KEYS = [
     toastEl.classList.remove("show");
     const got = flagsHeld(run);
     const score = skiScore(got, true)!;
-    verdictEl.textContent = `Küçük ödül için en az ${NEED_95} bayrak (%95) gerekli.`;
-    verdictEl.hidden = score >= 95;
     const falls = run.falls ? `${run.falls} düşüş` : "hiç düşmeden";
     shell.finish(score, { detail: `${got} / ${SKI_FLAGS} bayrak · Süre ${fmtTime(run.time)} · ${falls}` });
   }
@@ -313,28 +293,21 @@ const KEYS = [
   // ── keys ──────────────────────────────────────────────────────────
   // The shell takes Esc during a Round and every key on its own screens:
   // what arrives here is a key while she skis (or while she has paused).
+  // P and a lost focus are `pause`'s (`src/lib/bday26/pause-dom.ts`).
   const HELD = new Set(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyD"]);
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || mode === "idle") return;
     const code = event.code;
     if (HELD.has(code)) event.preventDefault();
-    if (code === "KeyP") {
-      if (!event.repeat) setPaused(mode === "play");
-      return;
-    }
     if (code === "KeyR") {
       if (!event.repeat) startRound();
       return;
     }
-    if (mode !== "play") return;
+    if (pause.paused) return;
     if (HELD.has(code)) keys.add(code);
     if (!event.repeat && (code === "Space" || code === "ArrowUp" || code === "KeyW")) pressJump(run);
   });
   window.addEventListener("keyup", (event) => keys.delete(event.code));
-  window.addEventListener("blur", () => {
-    keys.clear();
-    if (mode === "play") setPaused(true);
-  });
 
   // ── drawing: the prototype's, on its 960 × 540 stage ─────────────
   /** Draw-only noise for the scenery (the prototype's `hash`). */
@@ -728,9 +701,7 @@ const KEYS = [
         loop.stop();
         effects.stopLoops();
         mode = "idle";
-        keys.clear();
-        pausedEl.hidden = true;
-        music.release("pause");
+        pause.clear();
       },
       // The confirm card: the slope stands still until she answers.
       pause: () => {
@@ -844,15 +815,5 @@ const KEYS = [
   .toast.show {
     opacity: 1;
     transform: translate(-50%, 0);
-  }
-  /* ── result card ────────────────────────────────────────────────── */
-  .verdict {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--bd-muted);
-  }
-  .verdict[hidden] {
-    display: none;
   }
 </style>

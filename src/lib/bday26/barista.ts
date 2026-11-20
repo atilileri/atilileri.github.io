@@ -10,14 +10,16 @@
  * ×0.8 / ×0.62 for shots 1–3 (`halfWidth`). The fill accelerates —
  * value = target·(t/tt)^1.6, so it runs 1.6× the base speed at the target —
  * and fills once: holding to the top ends the step at the top, scoring 0.
- * A step scores by its distance from the target (`stepScore`), the Round is
- * the mean of its 9 steps.
+ * A step scores by its distance from the target in half-widths
+ * (`baristaStepScore`), the Round is the mean of its 9 steps
+ * (`baristaRoundScore`); both live in `./scores.ts` with every Game's score.
  *
  * `createBench` is one Round at the bench with its sounds: Space down and up
  * as times, the overflow, the hold dropped by Esc, and the effects each
  * step asks for. The page feeds it keys and frames and draws what it says.
  */
 import type { Effects } from "./effects.ts";
+import { baristaRoundScore, baristaStepScore } from "./scores.ts";
 
 /** One step of a shot, as the page shows it. */
 export type Step = {
@@ -48,8 +50,6 @@ export const BAND_MS = 100;
 export const NARROW = [1, 0.8, 0.62] as const;
 /** The fill's exponent: 1.6× the base speed at the target. */
 export const ACCEL_EXP = 1.6;
-/** The score at the band edge; 0 at twice the half-width. */
-export const EDGE_SCORE = 85;
 
 /** The band's half-width in the step's unit, for shot 0, 1 or 2. */
 export function halfWidth(step: Step, shot: number): number {
@@ -67,26 +67,14 @@ export function overflowed(step: Step, t: number): boolean {
   return fillAt(step, t) >= step.max;
 }
 
-/** The flat-top curve: `d` is the distance from the target in half-widths. */
-function curve(d: number): number {
-  if (d <= 0.5) return 100;
-  if (d <= 1) return 100 - (100 - EDGE_SCORE) * (d - 0.5) * 2;
-  return Math.max(0, EDGE_SCORE - EDGE_SCORE * (d - 1));
-}
-
-/** A step's score, 0..100 rounded: 100 across the inner half of the band,
- *  85 at its edge, 0 at twice the half-width and beyond. */
-export function stepScore(step: Step, shot: number, value: number): number {
-  return Math.round(curve(Math.abs(value - step.target) / halfWidth(step, shot)));
+/** A step's score for a release at `value`: its distance from the target
+ *  measured against this shot's band (`baristaStepScore` in `./scores.ts`). */
+function stepScoreAt(step: Step, shot: number, value: number): number {
+  return baristaStepScore(value - step.target, halfWidth(step, shot));
 }
 
 /** Shots in a Round; each has the three steps. */
 export const SHOTS = 3;
-
-/** A Round's score: the mean of its 9 step scores, 0..100, not rounded. */
-export function roundScore(steps: readonly number[]): number {
-  return steps.reduce((a, b) => a + b, 0) / steps.length;
-}
 
 /** One step she let go of. */
 export type StepResult = {
@@ -129,7 +117,7 @@ export function createRound(): Round {
       const hw = halfWidth(at.step, at.shot);
       const lo = at.step.target - hw;
       const hi = at.step.target + hw;
-      const r: StepResult = { shot: at.shot, stepIndex: at.stepIndex, value, lo, hi, inBand: value >= lo && value <= hi, score: stepScore(at.step, at.shot, value) };
+      const r: StepResult = { shot: at.shot, stepIndex: at.stepIndex, value, lo, hi, inBand: value >= lo && value <= hi, score: stepScoreAt(at.step, at.shot, value) };
       results.push(r);
       return r;
     },
@@ -140,7 +128,7 @@ export function createRound(): Round {
       return results.length >= total;
     },
     get score() {
-      return results.length >= total ? roundScore(results.map((r) => r.score)) : undefined;
+      return results.length >= total ? baristaRoundScore(results.map((r) => r.score)) : undefined;
     },
   };
 }

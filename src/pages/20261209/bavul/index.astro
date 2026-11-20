@@ -117,7 +117,7 @@ const KEYS = [
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { effects } from "../../../lib/bday26/effects-dom";
-  import { smallPrizeCelebration, type SoundName } from "../../../lib/bday26/effects";
+  import type { SoundName } from "../../../lib/bday26/effects";
   import {
     BAG_H,
     BAG_W,
@@ -215,13 +215,11 @@ const KEYS = [
     R = { ...R, closing: false };
     $("[data-result-rows]").innerHTML = rowsHtml(b) + `<div class="row dim"><span>Süre</span><b>${mmss(elapsed())}</b></div>`;
     $("[data-verdict]").textContent =
-      b.score >= 95 ? "" : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı. %95 için en çok 1 boş kare olabilir.`;
+      b.score >= 95 ? "" : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı.`;
     $("[data-verdict]").hidden = b.score >= 95;
     effects.sound("zip");
-    const outcome = shell.finish(b.score, { detail: CARDS[R.card]!.name });
-    // The first 95 gets the shell's Small prize celebration; every later
-    // one still gets the fanfare, as in the prototype.
-    if (b.score >= 95 && !outcome?.prizeWonNow) window.setTimeout(() => effects.celebrate(smallPrizeCelebration(Math.random)), 900);
+    // At 95 or more the shell celebrates the Small prize, won now or before.
+    shell.finish(b.score, { detail: CARDS[R.card]!.name });
     paint();
   }
 

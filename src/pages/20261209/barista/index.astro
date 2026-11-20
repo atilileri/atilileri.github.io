@@ -21,10 +21,9 @@
  * SOUND, through the site's switches (GameShell's "Efektler" and "Müzik"):
  * the café loop "Kahve molası", the grinder while Space is held on the grind
  * step, a thud on the tamp, the pour while Space is held on the pull step,
- * a chime in the band and a bonk (and a shake) outside it, and confetti with
- * a fanfare for a Round at 95% or more (the first one gets the shell's Small
- * prize call instead). Continuous sounds stop on release, on Esc, and when a
- * shell screen covers the Round.
+ * a chime in the band and a bonk (and a shake) outside it; the shell plays
+ * the Small prize celebration for every Round at 95% or more. Continuous
+ * sounds stop on release, on Esc, and when a shell screen covers the Round.
  *
  * HOW IT IS BUILT. `src/lib/bday26/barista.ts` owns every rule — the steps,
  * the band, the fill, the score, the Round, and the bench that turns Space
@@ -236,7 +235,6 @@ const LETTERS = ["Ö", "S", "D"];
 <script>
   import { ACCEL_EXP, STEPS, createBench, halfWidth, type Bench, type StepResult } from "../../../lib/bday26/barista";
   import { openLedger } from "../../../lib/bday26/browser";
-  import { smallPrizeCelebration } from "../../../lib/bday26/effects";
   import { effects } from "../../../lib/bday26/effects-dom";
   import { mountGameShell } from "../../../lib/bday26/shell";
 
@@ -375,12 +373,8 @@ const LETTERS = ["Ö", "S", "D"];
       cell.textContent = String(r.score);
       cell.className = `c ${grade(r.score)}`;
     }
-    const outcome = shell.finish(score);
-    // 95 or more: confetti and a fanfare as the card lands. The first one
-    // wins the Small prize, and the shell plays its own call for that.
-    if (outcome && score >= 95 && !outcome.prizeWonNow) {
-      window.setTimeout(() => effects.celebrate({ ...smallPrizeCelebration(Math.random), sound: "fanfare" }), 450);
-    }
+    // At 95 or more the shell celebrates the Small prize, won now or before.
+    shell.finish(score);
   }
 
   // ── drawing ───────────────────────────────────────────────────────
