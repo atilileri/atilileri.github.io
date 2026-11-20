@@ -212,6 +212,15 @@ export type Ledger = {
   /** Gift id → price paid, for every Gift held now. */
   held(): ReadonlyMap<GiftId, number>;
   holds(id: GiftId): boolean;
+  /** Whether `buy(id)` would go through now: not held, and the Balance
+   *  covers the catalogue price. The shop's "Al" asks this. */
+  canBuy(id: GiftId): boolean;
+  /** Points the Balance is short of the catalogue price; 0 when it covers
+   *  it. The shop's "N eksik". */
+  shortOf(id: GiftId): number;
+  /** What a Return would give back now (half of what that buy paid), or
+   *  null when the Gift is not held. */
+  refundOf(id: GiftId): number | null;
   prizeWon(id: GameId): boolean;
   prizesWon(): GameId[];
   /** Every gift of Points from Atıl, oldest first. */
@@ -276,6 +285,12 @@ export function createLedger(store: KeyValueStore): Ledger {
     balance: () => balanceOf(fresh()),
     held: () => heldOf(fresh()),
     holds: (id) => heldOf(fresh()).has(id),
+    canBuy: (id) => !heldOf(fresh()).has(id) && balanceOf(p) >= giftById(id).price,
+    shortOf: (id) => Math.max(0, giftById(id).price - balanceOf(fresh())),
+    refundOf: (id) => {
+      const paid = heldOf(fresh()).get(id);
+      return paid == null ? null : paid / 2;
+    },
     prizeWon: (id) => prizeWonOf(fresh(), id),
     prizesWon: () => prizesWonOf(fresh()),
     gifted: () => clone(fresh()).gifted ?? [],

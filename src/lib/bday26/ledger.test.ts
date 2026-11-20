@@ -259,6 +259,37 @@ test("Gifts held are the ones whose last event is a buy", () => {
   assert.equal(ledger.balance(), 70);
 });
 
+// ------------------------------------------------- what the shop shows
+
+test("the shop asks the ledger: canBuy says yes only for a Gift not held whose price the Balance covers", () => {
+  const ledger = ledgerWith353Points();
+  assert.equal(ledger.canBuy("rocky"), true, "260 ≤ 353");
+  assert.equal(ledger.canBuy("theragun"), false, "360 > 353");
+  ledger.buy("rocky"); // 93 left
+  assert.equal(ledger.canBuy("rocky"), false, "held");
+  assert.equal(ledger.canBuy("deslak"), false, "100 > 93");
+});
+
+test("shortOf is how many Points a Gift still needs, and 0 when the Balance covers it", () => {
+  const ledger = ledgerWith353Points();
+  assert.equal(ledger.shortOf("theragun"), 7);
+  assert.equal(ledger.shortOf("gezi"), 597);
+  assert.equal(ledger.shortOf("rocky"), 0);
+});
+
+test("refundOf is the half a Return would give back, read from what she paid; none for a Gift not held", () => {
+  const store = memoryStore({
+    [STORAGE_KEY]: JSON.stringify({
+      best: { nerede: 100, hafiza: 100, wordle: 100, sarki: 100 },
+      jackpot: false,
+      log: [{ kind: "buy", gift: "rocky", paid: 300 }],
+    }),
+  });
+  const ledger = createLedger(store);
+  assert.equal(ledger.refundOf("rocky"), 150);
+  assert.equal(ledger.refundOf("kurs"), null);
+});
+
 // ---------------------------------------------------------- persistence
 
 test("progress survives: a ledger opened later on the same storage sees it all", () => {
