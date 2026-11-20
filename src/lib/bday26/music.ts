@@ -1,11 +1,13 @@
 /**
- * Background music for the hub and six Games (Milyoner, "Bu nerede?",
- * Hafıza kartları, the slot machine, the ski and driving Games): short loops synthesised with
- * Web Audio, no files. This file is the pure side, pinned under `node --test`:
+ * Background music for the hub and nine Games (Milyoner, "Bu nerede?",
+ * Hafıza kartları, the slot machine, the ski and driving Games, and the
+ * three Prize Games): short loops synthesised with Web Audio, no files.
+ * This file is the pure side, pinned under `node --test`:
  *
  *   - her switch, "Müzik: Açık/Kapalı", under its own `localStorage` key
- *     (`bday26:music`), on by default, built like the effects' switch and
- *     independent of it: UI state, not progress, not in the Save code.
+ *     (`bday26:music`), on by default, built on the same
+ *     `./switch-preference.ts` as the effects' switch and independent of
+ *     it: UI state, not progress, not in the Save code.
  *   - THE GATE, `createMusic`: one track at a time; it sounds only while the
  *     switch is on, after her first gesture, and while nothing holds it (the
  *     shell's leave confirm, a hidden tab). Switching on, or the last hold

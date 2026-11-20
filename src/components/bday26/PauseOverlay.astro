@@ -1,15 +1,15 @@
 ---
 /**
- * The pause overlay the real-time Games share: Hollanda'da sürüş (surus) and
- * Kayak macerası (kayak). Drop it inside the playfield's positioned box; it
- * covers that box when shown.
+ * The pause overlay the real-time Games share: Hollanda'da sürüş (surus),
+ * Kayak macerası (kayak) and Piyano (piyano). Drop it inside the playfield's
+ * positioned box; it covers that box when shown.
  *
- * THE RULE IT ANNOUNCES is `src/lib/bday26/pause-dom.ts`'s, one helper both
- * pages call (`createPause`): P pauses and P resumes; a lost window focus or
- * a hidden tab pauses too and stays paused when she comes back, until she
- * presses P. While it shows, the clock, the physics and the timers stand
- * still. The helper toggles `hidden` on the element carrying
- * `data-pause-overlay`; nothing here has a script.
+ * THE RULE IT ANNOUNCES is `src/lib/bday26/pause-dom.ts`'s, one helper the
+ * three pages call (`createPause`): P pauses and P resumes; a lost window
+ * focus or a hidden tab pauses too and stays paused when she comes back,
+ * until she presses P. While it shows, the clock, the physics (or the
+ * falling notes) and the timers stand still. The helper toggles `hidden` on
+ * the element carrying `data-pause-overlay`; nothing here has a script.
  */
 ---
 
