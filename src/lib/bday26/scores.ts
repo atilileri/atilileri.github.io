@@ -208,6 +208,19 @@ export function skiScore(flags: number, finished: boolean): number | undefined {
   return Math.min(100, Math.max(0, Math.floor((flags * 100) / SKI_FLAGS)));
 }
 
+/**
+ * How many of the 72 flags she may miss and still finish at `bar` or more:
+ * 3 at the Small prize's 95. The prize hint and the ski HUD's "Kaçan n / en
+ * çok 3" both read it, so neither writes the number itself. `bar` comes in
+ * as an argument (the caller passes `PRIZE_BAR`) because this file imports
+ * nothing.
+ */
+export function skiMissesAllowed(bar: number): number {
+  let missed = 0;
+  while (missed < SKI_FLAGS && (skiScore(SKI_FLAGS - missed - 1, true) ?? 0) >= bar) missed++;
+  return missed;
+}
+
 /** Bavul hazırla: points lost per empty cell of the 8×6 bag. */
 export const BAVUL_EMPTY_PENALTY = 5;
 /** Bavul hazırla: points lost per must-have (★) left out. */

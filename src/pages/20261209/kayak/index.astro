@@ -10,7 +10,12 @@
  * the jumps. Blue "KONTROL n" gates mark the four checkpoints (every 20 s at
  * the base speed), a red "BİTİŞ" gate the finish after 105 s. A thin bar at
  * the top of the slope shows how far she is, with a tick per checkpoint. The
- * HUD bar says Bayrak x / 72, Süre and Kontrol n / 4. A fall tumbles her for
+ * HUD bar says Bayrak x / 72, Kaçan n / en çok 3 and Kontrol n / 4: time
+ * earns nothing, so the HUD counts the flags she has left behind instead
+ * (`flagsMissed`), against the most the Small prize allows
+ * (`skiMissesAllowed(PRIZE_BAR)`, the rule the prize hint reads too); past
+ * it the count turns red. The clock moved off the HUD to a small pill on
+ * the slope, under the progress bar's right end. A fall tumbles her for
  * 0.9 s and says "Düştün! Kontrol noktasına dönülüyor"; she stands again at
  * the last checkpoint and the flags she took since then are back on the
  * slope. Crossing the finish ends the Round on the shell's result card: the
@@ -48,12 +53,13 @@
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import PauseOverlay from "../../../components/bday26/PauseOverlay.astro";
-import { gameById } from "../../../lib/bday26/catalogue";
-import { SKI_FLAGS } from "../../../lib/bday26/scores";
+import { gameById, PRIZE_BAR } from "../../../lib/bday26/catalogue";
+import { SKI_FLAGS, skiMissesAllowed } from "../../../lib/bday26/scores";
 import { COURSE_SEED, buildCourse } from "../../../lib/bday26/kayak";
 
 const game = gameById("kayak");
 const CHECKPOINTS = buildCourse(COURSE_SEED).checkpoints.length;
+const MISSES_ALLOWED = skiMissesAllowed(PRIZE_BAR);
 
 const KEYS = [
   { key: "Boşluk / ↑ / W", does: "Zıpla (basılı tut: daha yüksek)" },
@@ -68,9 +74,9 @@ const KEYS = [
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
   <GameShell game="kayak" keys={KEYS} music="kayak">
     <span slot="hud" class="hud-line"
-      >Bayrak <b data-hud-flags>0 / {SKI_FLAGS}</b> · Süre <b data-hud-time>0:00.0</b> · Kontrol <b data-hud-cp
-        >0 / {CHECKPOINTS}</b
-      ></span
+      >Bayrak <b data-hud-flags>0 / {SKI_FLAGS}</b> · Kaçan <b data-hud-missed>0</b><small
+        > / en çok {MISSES_ALLOWED}</small
+      > · Kontrol <b data-hud-cp>0 / {CHECKPOINTS}</b></span
     >
 
     <p slot="start" class="intro">
@@ -83,6 +89,7 @@ const KEYS = [
       <div class="view" data-view>
         <canvas data-slope aria-label="Kayak pisti, yandan"></canvas>
         <div class="prog" data-prog aria-hidden="true"><div class="fill" data-prog-fill></div><div class="end"></div></div>
+        <p class="clock"><span class="lbl">Süre</span> <b data-hud-time>0:00.0</b></p>
         <p class="toast" data-toast aria-live="polite"></p>
         <PauseOverlay />
       </div>
@@ -95,13 +102,15 @@ const KEYS = [
   import { cssVar } from "../../../lib/bday26/css";
   import { createFrameLoop } from "../../../lib/bday26/frame-loop";
   import { mountGameShell } from "../../../lib/bday26/shell";
-  import { SKI_FLAGS, skiScore } from "../../../lib/bday26/scores";
+  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
+  import { SKI_FLAGS, skiMissesAllowed, skiScore } from "../../../lib/bday26/scores";
   import {
     FIXED_STEP,
     TUNING,
     checkpointsReached,
     createRun,
     flagsHeld,
+    flagsMissed,
     gapAt,
     ground,
     pressJump,
@@ -126,6 +135,7 @@ const KEYS = [
   const progFill = $<HTMLElement>("[data-prog-fill]");
   const hud = {
     flags: $<HTMLElement>("[data-hud-flags]"),
+    missed: $<HTMLElement>("[data-hud-missed]"),
     time: $<HTMLElement>("[data-hud-time]"),
     cp: $<HTMLElement>("[data-hud-cp]"),
   };
@@ -138,6 +148,9 @@ const KEYS = [
   /** Where the camera keeps her on the stage: 260 px from the left, 330 px from the top. */
   const CAM_X = 260;
   const CAM_Y = 330;
+
+  /** The most flags she may miss for the Small prize (the prize hint's rule). */
+  const MISSES_ALLOWED = skiMissesAllowed(PRIZE_BAR);
 
   const ACCENT = cssVar("--bd-accent");
   const ACCENT_DEEP = cssVar("--bd-accent-deep");
@@ -273,6 +286,9 @@ const KEYS = [
     const total = run.course.checkpoints.length;
     hud.flags.textContent = `${flagsHeld(run)} / ${run.course.flags.length}`;
     hud.time.textContent = fmtTime(run.time);
+    const missed = flagsMissed(run);
+    hud.missed.textContent = String(missed);
+    hud.missed.classList.toggle("over", missed > MISSES_ALLOWED);
     hud.cp.textContent = `${checkpointsReached(run)} / ${total}`;
     progFill.style.width = `${Math.min(100, (100 * run.x) / run.course.finishX)}%`;
     progEl.querySelectorAll<HTMLElement>(".tick").forEach((t, i) => t.classList.toggle("on", !!run.course.checkpoints[i]?.reached));
@@ -721,6 +737,13 @@ const KEYS = [
   .hud-line {
     font-variant-numeric: tabular-nums;
   }
+  .hud-line small {
+    font-size: 15px;
+    color: var(--bd-muted);
+  }
+  .hud-line b.over {
+    color: #c0392b;
+  }
 
   /* ── start card ─────────────────────────────────────────────────── */
   .intro {
@@ -791,6 +814,29 @@ const KEYS = [
     height: 24px;
     border-radius: 2px;
     background: repeating-linear-gradient(#1d2a3a 0 4px, #fff 4px 8px);
+  }
+  .clock {
+    /* Under the progress bar's right end: the time earns nothing, so it sits on the slope, not in the HUD. */
+    position: absolute;
+    right: 24px;
+    top: 42px;
+    margin: 0;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.75);
+    color: #1d2a3a;
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+  .clock .lbl {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5b6b80;
   }
   .toast {
     position: absolute;
