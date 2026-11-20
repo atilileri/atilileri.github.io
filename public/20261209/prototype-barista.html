@@ -6,15 +6,25 @@
   band. One Round = 3 shots, the band narrows each shot; each step scores
   0–100 by distance from the band centre; the Round is the mean of the 9 steps.
 
-  Open tuning, switchable from the floating bottom bar (and the URL):
-    ?band=wide|medium|narrow     band half-width, as a time window at the fill speed
-    ?speed=constant|accel|osc    fills once at a constant speed / fills once, speeding up /
-                                 swings back and forth until she lets go
-    ?curve=linear|flat           100 at the centre falling to 85 at the edge /
-                                 100 across the inner half of the band, then to 85 at the edge
-  Keys on the bar: ← → band, ↑ ↓ speed, C curve. F2 opens Atıl's panel
-  (full state, step log, her measured timing spread, the "95% in how many
-  Rounds" simulator). ?bar=0 hides the bar.
+  Atıl's verdict (after the first play, 2026-11-20): one version only —
+    band  = medium (85 ms half-width at shot 1, ×1 / ×0.8 / ×0.62 per shot)
+    fill  = accelerating (value = target·(t/tt)^1.6, so 1.6× faster at the target)
+    curve = flat-top (100 across the inner half of the band, 85 at the edge,
+            0 at twice the half-width)
+  The variant bar is gone. ?band=<ms> overrides the half-width for a test
+  play (e.g. ?band=135). F2 opens Atıl's panel: full state, step log, her
+  measured timing spread, and the "95% in how many Rounds" simulator with a
+  table of band half-widths for this fill and curve.
+
+  Sound, like the live Games (music-dom.ts, effects-dom.ts, audio-dom.ts),
+  inline: Web Audio synthesis, no files. A cosy café loop on the music bus;
+  effects on the effects bus: the grinder whirr and the espresso pour are
+  continuous while Space is held, the tamp thud lands on the press, then an
+  in-band chime or an out-of-band bonk (with a shake), and confetti with a
+  fanfare at ≥95%. Two switches in the HUD, "Müzik" and "Efektler", on by
+  default, never take focus. Nothing sounds before her first key or click;
+  the music pauses on the leave confirm and in a hidden tab. The switches
+  live in memory here (the live site stores them in localStorage).
 
   The playable mechanic is plain JS + inline SVG; the screens around it
   (start, HUD, result) follow stageshow's craft rules in plain CSS on the
@@ -80,7 +90,7 @@ kbd{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 
 .mean .v{font:800 24px/1.05 var(--bd-display);font-variant-numeric:tabular-nums}
 
 /* ── playfield ─────────────────────────────────────────────── */
-.playfield{position:relative;display:grid;grid-template-rows:auto minmax(0,auto) auto;align-content:center;justify-items:center;padding:16px 28px 84px;gap:18px;min-height:0}
+.playfield{position:relative;display:grid;grid-template-rows:auto minmax(0,auto) auto;align-content:center;justify-items:center;padding:16px 28px 40px;gap:18px;min-height:0}
 .stepbar{display:flex;align-items:baseline;gap:14px}
 .stepbar .n{font:800 15px var(--bd-font);color:var(--bd-muted);letter-spacing:.02em}
 .stepbar .t{font:800 34px/1 var(--bd-display);color:var(--bd-ink)}
@@ -156,16 +166,16 @@ kbd{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 
 .grid9 .r{text-align:left;font-weight:700;padding-right:6px;align-self:center}
 
 /* ── prototype chrome (for Atıl, not Çağla) ───────────────── */
-#vbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;display:flex;gap:6px;align-items:center;background:#1d1d1f;color:#f2f2f3;border-radius:999px;padding:6px 8px;box-shadow:0 1px 2px rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.3);font:600 12.5px system-ui,sans-serif}
-#vbar[hidden]{display:none}
-#vbar .g{display:flex;align-items:center;gap:2px;padding:0 4px}
-#vbar .g+.g{border-left:1px solid rgba(255,255,255,.15);padding-left:8px}
-#vbar button{border:0;background:transparent;color:#f2f2f3;font:inherit;border-radius:999px;width:24px;height:24px;cursor:pointer}
-#vbar button:hover{background:rgba(255,255,255,.12)}
-#vbar .k{color:#9a9aa0;margin-right:4px}
-#vbar .v{min-width:86px;text-align:center}
-#vbar .kb{color:#7d7d84;font-size:11px;margin-left:2px}
-#vbar .tag{background:#e8743b;color:#fff;border-radius:999px;padding:3px 8px;font-size:11px;letter-spacing:.04em}
+/* sound switches (as EffectsToggle.astro / MusicToggle.astro) */
+.fx-toggle{position:relative;z-index:11;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border:0;border-radius:999px;background:var(--bd-paper);box-shadow:0 0 0 1.5px var(--bd-line);font:800 13px var(--bd-font);color:var(--bd-ink-soft);white-space:nowrap;cursor:pointer;outline:none}
+.fx-toggle:hover{box-shadow:0 0 0 2px var(--bd-accent)}
+.fx-toggle[aria-pressed="false"]{color:var(--bd-muted)}
+.fx-icon{font-size:18px;line-height:1}
+.hud-exit{position:relative;z-index:11}
+.bd-confetti{position:fixed;inset:0;width:100vw;height:100vh;z-index:50;pointer-events:none}
+.bd-shake{animation:bd-shake .42s ease-in-out}
+@keyframes bd-shake{0%,100%{translate:0}20%{translate:-9px}40%{translate:8px}60%{translate:-5px}80%{translate:3px}}
+@media (prefers-reduced-motion: reduce){.bd-shake{animation:none}}
 #dbg{width:360px;flex-shrink:0;height:100vh;overflow:auto;background:#fff;border-left:1px solid rgba(0,0,0,.1);font:12.5px/1.45 system-ui,sans-serif;color:#333}
 #dbg[hidden]{display:none}
 #dbg header{position:sticky;top:0;background:#fff;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.1);display:flex;justify-content:space-between;z-index:1}
@@ -204,6 +214,8 @@ kbd{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 
       <div><dt class="label">Rekor</dt><dd id="vBest">—</dd></div>
       <div><dt class="label">Hedef</dt><dd>%95</dd></div>
     </dl>
+    <button class="fx-toggle" id="tFx" type="button" tabindex="-1" aria-pressed="true" title="Efektler: Açık"><span class="fx-icon" aria-hidden="true">✨</span><span class="lbl">Efektler: Açık</span></button>
+    <button class="fx-toggle" id="tMusic" type="button" tabindex="-1" aria-pressed="true" title="Müzik: Açık"><span class="fx-icon" aria-hidden="true">🎵</span><span class="lbl">Müzik: Açık</span></button>
     <button class="hud-exit" id="bExit" tabindex="-1">Çık <kbd>Esc</kbd></button>
   </header>
 
@@ -385,28 +397,21 @@ kbd{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 
     <div class="knob"><label for="kLapse">Dalgınlık (%, adım başı; σ×4)</label><output id="oLapse">3</output><input id="kLapse" type="range" min="0" max="10" step="1" value="3"></div>
     <table id="simT"></table>
     <div class="sum" id="simSum"></div>
-    <p class="note">Model: her adımda bırakma anı, hedefe göre N(0, σ) ms sapar; sapma × hedefteki dolum hızı = birim hatası. Bant yarı genişliği de ms olarak tanımlı (çekim 1/2/3: ×1, ×0,8, ×0,62). Hızlanan dolum hedefte 1,6 kat hızlı, yani aynı bant zamanda 1,6 kat dar. Salınan dolum sabitle aynı hızda (model farkı yok; fark: taşma yok, acele yok). p = bir turda %95+ olasılığı; 1/p = beklenen tur. «Öğrenme» sütunu: σ ilk turda 60 ms, her tur 5 ms iner, 40'ta durur; ilk %95'in beklenen turu.</p>
+    <p class="note">Model: her adımda bırakma anı, hedefe göre N(0, σ) ms sapar; sapma × hedefteki dolum hızı = birim hatası. Bant yarı genişliği ms olarak, sabit taban hızında tanımlı (çekim 1/2/3: ×1, ×0,8, ×0,62). Hızlanan dolum hedefte 1,6 kat hızlı, yani aynı bant zamanda 1,6 kat dar. Tablo: hızlanan dolum + düz tepe eğri, farklı bant yarı genişlikleriyle; seçili satır şu anki ayar. p = bir turda %95+ olasılığı; 1/p = beklenen tur. «Öğrenme» sütunu: σ ilk turda 60 ms, her tur 5 ms iner, 40'ta durur; ilk %95'in beklenen turu. Başka bir bantla oynamak için: <code>?band=135</code>.</p>
   </section>
   <section><h3>Adım kaydı</h3><ul id="log"></ul></section>
 </aside>
 
-<nav id="vbar" aria-label="Prototip varyantları">
-  <span class="tag">#216</span>
-  <div class="g"><span class="k">Bant</span><button data-d="band" data-s="-1" title="←">‹</button><span class="v" id="vbBand"></span><button data-d="band" data-s="1" title="→">›</button><span class="kb">← →</span></div>
-  <div class="g"><span class="k">Dolum</span><button data-d="speed" data-s="-1" title="↓">‹</button><span class="v" id="vbSpeed"></span><button data-d="speed" data-s="1" title="↑">›</button><span class="kb">↑ ↓</span></div>
-  <div class="g"><span class="k">Eğri</span><button data-d="curve" data-s="-1">‹</button><span class="v" id="vbCurve"></span><button data-d="curve" data-s="1">›</button><span class="kb">C</span></div>
-</nav>
-
 <script>
 "use strict";
-// ---------- the open tuning (the variants) ----------
-const OPTS = {
-  band:  [['wide','Geniş'],['medium','Orta'],['narrow','Dar']],
-  speed: [['constant','Sabit'],['accel','Hızlanan'],['osc','Salınan']],
-  curve: [['linear','Doğrusal'],['flat','Düz tepe']],
-};
-// Band half-width at shot 1, as a time window (ms) at the constant fill speed.
-const BAND_MS = { wide: 120, medium: 85, narrow: 65 };
+// ---------- the tuning (Atıl's verdict: medium · accelerating · flat-top) ----------
+const qs = new URLSearchParams(location.search);
+// Band half-width at shot 1, as a time window (ms) at the constant base speed.
+// ?band=<ms> overrides it for a test play; the default is Atıl's "medium".
+const BAND_MS = { medium: 85 };
+const bandQ = +qs.get('band');
+if (bandQ >= 20 && bandQ <= 400) BAND_MS.custom = bandQ;
+const V = { band: BAND_MS.custom ? 'custom' : 'medium', speed: 'accel', curve: 'flat' };
 const NARROW = [1, 0.8, 0.62];          // shot 1, 2, 3
 const ACCEL_EXP = 1.6;                  // accel: value = target·(t/tt)^1.6 → 1.6× faster at the target
 const EDGE = 85;                        // score at the band edge; 0 at twice the half-width
@@ -414,9 +419,6 @@ const CURVES = {
   linear: d => d <= 1 ? 100 - (100 - EDGE) * d : Math.max(0, EDGE - EDGE * (d - 1)),
   flat:   d => d <= .5 ? 100 : d <= 1 ? 100 - (100 - EDGE) * (d - .5) * 2 : Math.max(0, EDGE - EDGE * (d - 1)),
 };
-const qs = new URLSearchParams(location.search);
-const V = {};
-for (const d in OPTS) { const v = qs.get(d); V[d] = OPTS[d].some(o => o[0] === v) ? v : (d === 'band' ? 'medium' : d === 'speed' ? 'constant' : 'flat'); }
 
 // ---------- the three steps ----------
 // tt = seconds from 0 to the target at the constant speed.
@@ -453,15 +455,325 @@ const pct = v => '%' + Math.round(v);
 const S = () => STEPS[step];
 const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
 
+// ---------- sound: the live Games' approach, inline ----------
+// audio-dom.ts: one AudioContext, made on the first sound (after her first
+// gesture), and two buses so each layer has its own level:
+//   effects ── gain 1   ─┐
+//   music   ── gain 0.5 ─┴─► destination
+// No Web Audio means a silent page, never an error.
+let AC; const BUS = {}; const LEVEL = { effects: 1, music: 0.5 };
+let unlocked = false;   // her first key or click (the browser's autoplay rule)
+function ctx() {
+  try { if (!AC) AC = new AudioContext(); if (AC.state === 'suspended') AC.resume(); return AC; }
+  catch { return undefined; }
+}
+function bus(name) {
+  const ac = ctx(); if (!ac) return undefined;
+  if (!BUS[name]) { const g = ac.createGain(); g.gain.value = LEVEL[name]; g.connect(ac.destination); BUS[name] = g; }
+  return BUS[name];
+}
+const hz = m => 440 * 2 ** ((m - 69) / 12);
+let NOISE;
+function noise(ac) {
+  if (!NOISE) { NOISE = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate); const d = NOISE.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  return NOISE;
+}
+
+// effects-dom.ts's small instruments
+function tone(ac, out, f0, f1, at, len, type, level, attack = 0.012) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f0, at); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, at + len);
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g).connect(out); o.start(at); o.stop(at + len + 0.05);
+}
+const note = (ac, out, m, at, len, type, level) => tone(ac, out, hz(m), hz(m), at, len, type, level);
+function bell(ac, out, m, at, len, level = 0.5) { note(ac, out, m, at, len, 'sine', level); note(ac, out, m + 19, at, len * 0.6, 'sine', level * 0.18); }
+function brass(ac, out, m, at, len, level = 0.22) {
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1800; f.connect(out);
+  note(ac, f, m, at, len, 'sawtooth', level); note(ac, f, m - 12, at, len, 'triangle', level * 0.6);
+}
+function hiss(ac, out, at, len, level, filter, f0, f1 = f0, q = 1, attack = 0.005) {
+  const src = ac.createBufferSource(); src.buffer = noise(ac);
+  const bq = ac.createBiquadFilter(); bq.type = filter; bq.Q.value = q; bq.frequency.setValueAtTime(f0, at); if (f1 !== f0) bq.frequency.exponentialRampToValueAtTime(f1, at + len);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  src.connect(bq).connect(g).connect(out); src.start(at, Math.random() * 1.5); src.stop(at + len + 0.05);
+}
+// The quiz celebrations' loudness: through a 0.35 gain, in a fresh key (C5 and up).
+function celebration(make) {
+  return (ac, out, t) => { const g = ac.createGain(); g.gain.value = 0.35; g.connect(out); make(ac, g, t, 72 + [0, 2, 4, 5, 7][Math.floor(Math.random() * 5)]); };
+}
+const SOUNDS = {
+  /** In the band: the live Games' chime. */
+  chime: celebration((ac, out, t, C) => { bell(ac, out, C + 4, t, 0.5); bell(ac, out, C + 11, t + 0.09, 0.7); }),
+  /** Out of the band: the live Games' bonk. */
+  bonk: celebration((ac, out, t) => { const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 600; f.connect(out); tone(ac, f, 190, 85, t, 0.3, 'sine', 0.7, 0.01); }),
+  /** The tamper meeting the coffee: a soft low thud, a little grit, a faint metal tick. */
+  thud(ac, out, t) {
+    tone(ac, out, 115, 48, t, 0.24, 'sine', 0.2, 0.004);
+    hiss(ac, out, t, 0.14, 0.05, 'lowpass', 1100, 250, 0.7, 0.004);
+    tone(ac, out, 2100, 1900, t, 0.04, 'triangle', 0.012, 0.002);
+  },
+  /** A Round at ≥95 after the prize is won: the live "fanfare". */
+  fanfare: celebration((ac, out, t, C) => {
+    const B = C - 12;
+    [0, 4, 7].forEach((d, i) => brass(ac, out, B + d, t + i * 0.11, 0.18));
+    [0, 4, 7, 12].forEach(d => brass(ac, out, B + d, t + 0.36, 0.9, 0.16));
+    bell(ac, out, B + 24, t + 0.36, 1.0, 0.3);
+  }),
+  /** The first ≥95: the live Small prize call. */
+  'prize-fanfare': celebration((ac, out, t, C) => {
+    const B = C - 12;
+    brass(ac, out, B + 7, t, 0.12); brass(ac, out, B + 7, t + 0.13, 0.12);
+    [0, 4, 7, 12].forEach(d => brass(ac, out, B + d + 5, t + 0.28, 0.9, 0.15));
+    bell(ac, out, B + 29, t + 0.28, 1.0, 0.3);
+  }),
+};
+function noiseLoop(ac) { const s = ac.createBufferSource(); s.buffer = noise(ac); s.loop = true; s.loopStart = 0; s.loopEnd = 2; return s; }
+// Continuous sounds, faded in over 0.15 s and out over 0.08 s (startLoop in effects-dom.ts).
+// BALANCE: like the live real-time Games, they sit near the music, under the one-shots.
+const LOOPS = {
+  /** The grinder: a motor hum (sawtooth, low-passed, pitch rising a touch as it spins up)
+   *  under the burrs' crunch (band-passed noise, flutter at ~28 Hz). */
+  grind(ac, out) {
+    const motor = ac.createOscillator(); motor.type = 'sawtooth';
+    const t = ac.currentTime; motor.frequency.setValueAtTime(70, t); motor.frequency.exponentialRampToValueAtTime(118, t + 0.35); motor.frequency.linearRampToValueAtTime(126, t + 4);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.8;
+    const mg = ac.createGain(); mg.gain.value = 0.05;
+    motor.connect(lp).connect(mg).connect(out);
+    const crunch = noiseLoop(ac);
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 0.9;
+    const cg = ac.createGain(); cg.gain.value = 0.035;
+    const lfo = ac.createOscillator(); lfo.frequency.value = 28; const depth = ac.createGain(); depth.gain.value = 0.018;
+    lfo.connect(depth).connect(cg.gain);
+    crunch.connect(bp).connect(cg).connect(out);
+    return { nodes: [motor, crunch, lfo] };
+  },
+  /** The pour: the machine's pump buzz, a soft stream (low-passed noise that wobbles),
+   *  a thin trickle on top, and a drip now and then. */
+  pour(ac, out) {
+    const pump = ac.createOscillator(); pump.type = 'sawtooth'; pump.frequency.value = 100;
+    const plp = ac.createBiquadFilter(); plp.type = 'lowpass'; plp.frequency.value = 380;
+    const pg = ac.createGain(); pg.gain.value = 0.022;
+    pump.connect(plp).connect(pg).connect(out);
+    const stream = noiseLoop(ac);
+    const slp = ac.createBiquadFilter(); slp.type = 'lowpass'; slp.frequency.value = 750; slp.Q.value = 0.6;
+    const sg = ac.createGain(); sg.gain.value = 0.045;
+    const wob = ac.createOscillator(); wob.frequency.value = 3.3; const wd = ac.createGain(); wd.gain.value = 0.014; wob.connect(wd).connect(sg.gain);
+    stream.connect(slp).connect(sg).connect(out);
+    const trickle = noiseLoop(ac);
+    const tbp = ac.createBiquadFilter(); tbp.type = 'bandpass'; tbp.frequency.value = 2400; tbp.Q.value = 2;
+    const tg = ac.createGain(); tg.gain.value = 0.01;
+    trickle.connect(tbp).connect(tg).connect(out);
+    let timer = 0;
+    const drip = () => { const at = ac.currentTime + 0.01; tone(ac, out, 700 + Math.random() * 300, 1300 + Math.random() * 400, at, 0.06, 'sine', 0.022, 0.003); timer = setTimeout(drip, 160 + Math.random() * 260); };
+    timer = setTimeout(drip, 200);
+    return { nodes: [pump, stream, wob, trickle], end() { clearTimeout(timer); } };
+  },
+};
+function startLoop(name) {
+  const ac = ctx(), master = bus('effects'), make = LOOPS[name];
+  if (!ac || !master || !make) return { stop() {} };
+  const out = ac.createGain();
+  out.gain.setValueAtTime(0.0001, ac.currentTime); out.gain.exponentialRampToValueAtTime(1, ac.currentTime + 0.15);
+  out.connect(master);
+  const v = make(ac, out);
+  for (const n of v.nodes) n.start();
+  let stopped = false;
+  return {
+    name,
+    stop() {
+      if (stopped) return; stopped = true;
+      const now = ac.currentTime;
+      out.gain.cancelScheduledValues(now); out.gain.setValueAtTime(out.gain.value || 0.0001, now); out.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+      for (const n of v.nodes) n.stop(now + 0.1);
+      if (v.end) v.end();
+      setTimeout(() => out.disconnect(), 200);
+    },
+  };
+}
+
+// THE GATE for effects (effects.ts): with "Efektler: Kapalı" every call is a no-op and
+// running loops stop at once; before her first gesture nothing sounds.
+const fx = {
+  on: true, loops: new Set(),
+  sound(name) { if (!this.on || !unlocked) return; const ac = ctx(), m = bus('effects'); if (ac && m && SOUNDS[name]) SOUNDS[name](ac, m, ac.currentTime + 0.02); },
+  loop(name) { if (!this.on || !unlocked) return; this.stopLoops(); this.loops.add(startLoop(name)); },
+  stopLoops() { for (const v of this.loops) v.stop(); this.loops.clear(); },
+  active() { return [...this.loops].map(v => v.name); },
+  shake(el) {
+    if (!this.on || !el) return;
+    el.classList.remove('bd-shake'); void el.offsetWidth; el.classList.add('bd-shake');
+    el.addEventListener('animationend', () => el.classList.remove('bd-shake'), { once: true });
+  },
+  celebrate(sound) { if (!this.on) return; this.sound(sound); confetti(reducedMotion() ? 20 : 200); },
+  toggle() { this.on = !this.on; if (!this.on) this.stopLoops(); paintToggles(); return this.on; },
+};
+
+// THE GATE for music (music.ts): one track; it sounds only while the switch is on, after her
+// first gesture, and while nothing holds it (the leave confirm, a hidden tab).
+const music = {
+  on: true, holds: new Set(), voice: null,
+  update() {
+    const want = this.on && unlocked && this.holds.size === 0;
+    if (want && !this.voice) this.voice = startTrack();
+    else if (!want && this.voice) { this.voice.stop(); this.voice = null; }
+  },
+  hold(k) { this.holds.add(k); this.update(); },
+  release(k) { this.holds.delete(k); this.update(); },
+  toggle() { this.on = !this.on; this.update(); paintToggles(); return this.on; },
+};
+for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => { unlocked = true; ctx(); music.update(); }, { capture: true, once: true });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { fx.stopLoops(); music.hold('hidden'); } else music.release('hidden');
+});
+
+// The switches: like EffectsToggle/MusicToggle, they never take focus (tabindex -1 and no
+// focus on mousedown), so Space and Enter stay the Game's.
+function paintToggles() {
+  for (const [id, on, name, icon] of [['tFx', fx.on, 'Efektler', '✨'], ['tMusic', music.on, 'Müzik', '🎵']]) {
+    const t = document.getElementById(id), label = `${name}: ${on ? 'Açık' : 'Kapalı'}`;
+    t.setAttribute('aria-pressed', String(on)); t.title = label; t.setAttribute('aria-label', label);
+    t.querySelector('.fx-icon').textContent = on ? icon : '🔇'; t.querySelector('.lbl').textContent = label;
+  }
+}
+for (const id of ['tFx', 'tMusic']) {
+  const t = document.getElementById(id);
+  t.addEventListener('mousedown', e => e.preventDefault());
+  t.addEventListener('click', e => {
+    e.stopPropagation(); unlocked = true;
+    if (id === 'tFx') { if (fx.toggle()) fx.sound('chime'); } else music.toggle();
+  });
+}
+
+// The music: a step sequencer (16ths, scheduled 0.12 s ahead on the audio clock, so the
+// loop is seamless), as music-dom.ts. Fades in and out over 0.8 s.
+const FADE = 0.8, AHEAD = 0.12;
+function startTrack() {
+  const ac = ctx(), into = bus('music');
+  if (!ac || !into) return { stop() {} };
+  const out = ac.createGain(), now = ac.currentTime;
+  out.gain.setValueAtTime(0, now); out.gain.linearRampToValueAtTime(1, now + FADE); out.connect(into);
+  let step = 0, next = now + 0.05;
+  const tick = () => {
+    while (next < ac.currentTime + AHEAD) {
+      const dur = 60 / CAFE.bpm / 4;
+      CAFE.play({ ac, out, t: next, dur, step: step % 16, bar: Math.floor(step / 16) });
+      next += dur; step = (step + 1) % CAFE.steps;
+    }
+  };
+  tick();
+  const timer = setInterval(tick, 25);
+  let stopped = false;
+  return {
+    stop() {
+      if (stopped) return; stopped = true;
+      const at = ac.currentTime;
+      out.gain.cancelScheduledValues(at); out.gain.setValueAtTime(out.gain.value, at); out.gain.linearRampToValueAtTime(0, at + FADE);
+      setTimeout(() => { clearInterval(timer); out.disconnect(); }, (FADE + AHEAD + 0.3) * 1000);
+    },
+  };
+}
+// music-dom.ts's instruments
+function blip(s, m, at, len, type, level, attack = 0.01, detune = 0) {
+  const o = s.ac.createOscillator(), g = s.ac.createGain();
+  o.type = type; o.frequency.value = hz(m); o.detune.value = detune;
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g).connect(s.out); o.start(at); o.stop(at + len + 0.05);
+}
+function mBass(s, m, at, len, level) { blip(s, m, at, len, 'triangle', level, 0.008); blip(s, m - 12, at, len, 'sine', level * 0.7, 0.008); }
+function mKeys(s, m, at, len, level) { blip(s, m, at, len, 'sine', level, 0.006); blip(s, m, at, len * 0.4, 'triangle', level * 0.35, 0.004); }
+function mVibe(s, m, at, len, level) { blip(s, m, at, len, 'sine', level, 0.004); blip(s, m, at, len, 'sine', level * 0.6, 0.004, 9); blip(s, m + 12, at, len * 0.25, 'sine', level * 0.2, 0.003); }
+function mNoise(s, at, len, level, type, freq, q = 1, attack = 0.002) {
+  const src = s.ac.createBufferSource(); src.buffer = noise(s.ac); src.loop = true;
+  const bq = s.ac.createBiquadFilter(); bq.type = type; bq.Q.value = q; bq.frequency.value = freq;
+  const g = s.ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  src.connect(bq).connect(g).connect(s.out); src.start(at, Math.random() * 1.5); src.stop(at + len + 0.05);
+}
+function mKick(s, at, level) {
+  const o = s.ac.createOscillator(), g = s.ac.createGain();
+  o.frequency.setValueAtTime(110, at); o.frequency.exponentialRampToValueAtTime(45, at + 0.14);
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.22);
+  o.connect(g).connect(s.out); o.start(at); o.stop(at + 0.25);
+}
+/**
+ * Kahve molası: a cosy café loop, original. B♭ major, 84 bpm, swung 8ths, four bars of a
+ * ii–V–I–VI turnaround (Cm9 – F13 – B♭maj9 – G7): a walking bass, electric-piano chords in a
+ * Charleston rhythm, a vibraphone tune, brushes (ride on the beat, a swung shaker) and a soft
+ * kick. The busiest moment stays near 0.08, under the effects (music-dom.ts BALANCE).
+ */
+const CAFE = {
+  steps: 64, bpm: 84,
+  play(s) {
+    const { step, bar, t, dur } = s;
+    const sw = step % 4 === 2 ? dur * 0.3 : 0;   // swing the off-beat 8ths
+    const chords = [[58, 62, 63, 67], [57, 62, 63, 67], [57, 60, 62, 65], [53, 59, 63, 65]];
+    const walk = [[48, 51, 55, 53], [53, 57, 60, 52], [46, 50, 53, 45], [43, 47, 50, 49]];
+    const tune = [
+      [[0, 74, 3], [6, 72, 2], [10, 70, 5]],
+      [[0, 72, 2], [4, 69, 2], [8, 67, 6]],
+      [[2, 69, 2], [4, 70, 2], [6, 74, 4], [12, 77, 4]],
+      [[0, 75, 4], [6, 74, 2], [8, 71, 7]],
+    ];
+    if (step % 4 === 0) mBass(s, walk[bar][step / 4], t, dur * 3.6, 0.045);
+    if (step === 0) for (const m of chords[bar]) mKeys(s, m, t, dur * 5, 0.014);
+    if (step === 6) for (const m of chords[bar]) mKeys(s, m, t + dur * 0.3, dur * 3, 0.011);
+    const n = tune[bar].find(([st]) => st === step);
+    if (n) mVibe(s, n[1], t + sw, dur * n[2] * 1.4, 0.024);
+    if (step % 4 === 0) mNoise(s, t, 0.22, 0.008, 'highpass', 6500, 0.6);
+    if (step % 4 === 2) mNoise(s, t + sw, 0.08, 0.006, 'bandpass', 5000, 1.2, 0.015);
+    if (step === 0 || step === 10) mKick(s, t, 0.03);
+  },
+};
+
+// Confetti: one fixed canvas over everything, pointer-events none, a frame loop only while
+// pieces are alive (effects-dom.ts, the "shower" size: it rains from the top).
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+const PALETTES = [['#e8735a', '#f6c453', '#5bb98c', '#6aa7e8', '#c486e0'], ['#ff8fab', '#ffd166', '#ffffff', '#f4978e', '#fbc4ab'], ['#d4a017', '#f6e27a', '#fff3b0', '#e09f3e', '#ffffff'], ['#c98d52', '#5b3a29', '#ffd7a0', '#e0446a', '#ffffff']];
+let CV, parts = [], running = false;
+function surface() {
+  if (!CV) { CV = document.createElement('canvas'); CV.className = 'bd-confetti'; CV.setAttribute('aria-hidden', 'true'); document.body.append(CV); }
+  const dpr = window.devicePixelRatio || 1, w = innerWidth, h = innerHeight;
+  if (CV.width !== Math.round(w * dpr) || CV.height !== Math.round(h * dpr)) { CV.width = Math.round(w * dpr); CV.height = Math.round(h * dpr); }
+  const g = CV.getContext('2d'); g?.setTransform(dpr, 0, 0, dpr, 0, 0); return g;
+}
+function confetti(n) {
+  if (!surface()) return;
+  const colors = PALETTES[Math.floor(Math.random() * PALETTES.length)], shapes = ['square', 'circle', 'strip', 'star'];
+  for (let i = 0; i < n; i++) {
+    const a = (270 + (Math.random() - 0.5) * 40) * Math.PI / 180, sp = 2 + Math.random() * 4;
+    parts.push({ x: Math.random() * innerWidth, y: -20 - Math.random() * innerHeight * 0.5, vx: Math.cos(a) * sp, vy: -Math.sin(a) * sp, spin: Math.random() * 6.3, turn: (Math.random() - 0.5) * 0.3,
+      size: 7 + Math.random() * 6, color: colors[i % colors.length], shape: shapes[Math.floor(Math.random() * 4)], life: 0, ttl: 200 + Math.random() * 50 });
+  }
+  if (!running) { running = true; requestAnimationFrame(frame); }
+}
+function frame() {
+  const g = surface(); if (!g) return;
+  g.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter(p => p.life < p.ttl && p.y < innerHeight + 40);
+  for (const p of parts) {
+    p.life++; p.vx *= 0.985; p.vy = p.vy * 0.985 + 0.18; p.x += p.vx + Math.sin(p.life / 9 + p.spin) * 0.6; p.y += p.vy; p.spin += p.turn;
+    g.save(); g.globalAlpha = Math.min(1, (p.ttl - p.life) / 25); g.translate(p.x, p.y); g.rotate(p.spin); g.fillStyle = p.color;
+    const s = p.size; g.scale(1, Math.max(0.15, Math.abs(Math.cos(p.spin * 1.7))));
+    if (p.shape === 'square') g.fillRect(-s / 2, -s / 2, s, s);
+    else if (p.shape === 'strip') g.fillRect(-s / 5, -s, 2 * s / 5, 2 * s);
+    else if (p.shape === 'circle') { g.beginPath(); g.arc(0, 0, s / 2, 0, 6.2832); g.fill(); }
+    else { g.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? s / 4 : s / 1.6, a = i * Math.PI / 5 - Math.PI / 2; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); } g.closePath(); g.fill(); }
+    g.restore();
+  }
+  if (parts.length) requestAnimationFrame(frame); else { running = false; g.clearRect(0, 0, innerWidth, innerHeight); }
+}
+
 // ---------- round flow ----------
 function newRound() { phase = 'play'; shot = 0; step = 0; sub = 'ready'; scores = []; cur = 0; render(); }
 function press(ts) {
-  if (phase !== 'play' || sub === 'holding') return;
+  if (phase !== 'play' || sub === 'holding' || scores.length === 9) return;   // the Round is over: the result is on its way
   if (sub === 'shown') {
     if (performance.now() - shownAt < 250) return;   // a beat to read the last step
     advance();
   }
   sub = 'holding'; t0 = ts; held = 0; cur = 0; render(); requestAnimationFrame(tick);
+  const k = S().key;
+  if (k === 'grind') fx.loop('grind'); else if (k === 'pull') fx.loop('pour'); else fx.sound('thud');
 }
 function release(ts) {
   if (phase !== 'play' || sub !== 'holding') return;
@@ -474,6 +786,8 @@ function lock() {
               errMs: (cur - s.target) / speedAtTarget(s) * 1000, held, band: V.band, speed: V.speed, curve: V.curve };
   scores.push(r); allSteps.push(r);
   sub = 'shown'; shownAt = performance.now();
+  fx.stopLoops();
+  if (r.v >= r.lo && r.v <= r.hi) fx.sound('chime'); else { fx.sound('bonk'); fx.shake(document.querySelector('.instr')); }
   logStep(r); render();
   if (scores.length === 9) setTimeout(finish, 1100);
 }
@@ -495,6 +809,8 @@ function finish() {
   if (first95) prizeWon = true;
   lastResult = { sc, improved: improved && sc > 0, first95, rows: scores.slice() };
   phase = 'result'; render();
+  // ≥95: confetti and a fanfare as the result card lands; the first one is the Small prize's call.
+  if (sc >= 95) setTimeout(() => fx.celebrate(first95 ? 'prize-fanfare' : 'fanfare'), 450);
 }
 
 // ---------- drawing ----------
@@ -603,7 +919,9 @@ function render() {
     $('lVer').textContent = (inB ? 'Bantta! ' : 'Bant dışı · ') + (Math.abs(dv) < 0.05 ? 'tam merkez' : `merkezden ${dv > 0 ? '+' : '−'}${fmt(Math.abs(dv))} ${ls.unit}`) + ` (${ls.name}, çekim ${lr.shot + 1})`;
   } else L.classList.add('empty');
   if (phase === 'result') fillResult();
-  renderVbar(); renderDbg();
+  if (phase !== 'play') fx.stopLoops();   // a screen over the Round is quiet (GameShell's stopLoops)
+  if (phase === 'exit') music.hold('confirm'); else music.release('confirm');
+  renderDbg();
 }
 
 function fillResult() {
@@ -625,44 +943,24 @@ document.addEventListener('keydown', ev => {
   if (ev.key === 'F2') { ev.preventDefault(); toggleDbg(); return; }
   if (ev.target.closest && ev.target.closest('#dbg')) return;
   if (ev.code === 'Space') ev.preventDefault();
-  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') toHub(); else vbarKey(ev); return; }
+  if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') toHub(); return; }
   if (phase === 'exit') { if (ev.key === 'Enter') { ev.preventDefault(); leave(); } else if (ev.key === 'Escape') stay(); return; }
-  if (phase === 'result') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') toHub(); else vbarKey(ev); return; }
+  if (phase === 'result') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } else if (ev.key === 'Escape') toHub(); return; }
   if (phase === 'play') {
-    if (ev.key === 'Escape') { if (sub === 'holding') sub = 'ready'; phase = 'exit'; render(); return; }
+    if (ev.key === 'Escape') { askLeave(); return; }
     if (ev.code === 'Space') { if (!ev.repeat) press(ev.timeStamp); return; }
-    if (sub !== 'holding') vbarKey(ev);
   }
 });
 document.addEventListener('keyup', ev => { if (ev.code === 'Space') { ev.preventDefault(); release(ev.timeStamp); } });
-window.addEventListener('blur', () => release(performance.now()));
+window.addEventListener('blur', () => { release(performance.now()); fx.stopLoops(); });
 function leave() { phase = 'start'; scores = []; sub = 'ready'; render(); }
 function stay() { phase = 'play'; render(); }
 function toHub() { phase = 'start'; scores = []; sub = 'ready'; render(); }  // the prototype has no hub; the start screen stands in for it
 $('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = toHub; $('bHub0').onclick = toHub;
-$('bStay').onclick = stay; $('bLeave').onclick = leave; $('bExit').onclick = () => { if (phase === 'play') { sub = sub === 'holding' ? 'ready' : sub; phase = 'exit'; render(); } };
+$('bStay').onclick = stay; $('bLeave').onclick = leave; $('bExit').onclick = () => { if (phase === 'play') askLeave(); };
+function askLeave() { if (sub === 'holding') sub = 'ready'; fx.stopLoops(); phase = 'exit'; render(); }
 for (const b of document.querySelectorAll('button')) b.addEventListener('keydown', ev => { if (ev.code === 'Space') ev.preventDefault(); });
 for (const b of document.querySelectorAll('button')) b.addEventListener('keyup', ev => { if (ev.code === 'Space') ev.preventDefault(); });
-
-// ---------- variant bar ----------
-function cycle(d, s) {
-  const o = OPTS[d], i = o.findIndex(x => x[0] === V[d]);
-  V[d] = o[(i + s + o.length) % o.length][0];
-  const u = new URL(location.href); u.searchParams.set(d, V[d]); history.replaceState(null, '', u);
-  if (phase === 'play' && sub === 'shown' && scores.length < 9) { /* the change applies from the next step */ }
-  render(); runSim();
-}
-function vbarKey(ev) {
-  if (ev.key === 'ArrowLeft') cycle('band', -1); else if (ev.key === 'ArrowRight') cycle('band', 1);
-  else if (ev.key === 'ArrowUp') { ev.preventDefault(); cycle('speed', 1); } else if (ev.key === 'ArrowDown') { ev.preventDefault(); cycle('speed', -1); }
-  else if (ev.key === 'c' || ev.key === 'C') cycle('curve', 1);
-}
-for (const b of document.querySelectorAll('#vbar button')) b.onclick = () => { cycle(b.dataset.d, +b.dataset.s); b.blur(); };
-function renderVbar() {
-  const nm = d => OPTS[d].find(x => x[0] === V[d])[1];
-  $('vbBand').textContent = nm('band') + ' · ' + BAND_MS[V.band] + ' ms'; $('vbSpeed').textContent = nm('speed'); $('vbCurve').textContent = nm('curve');
-}
-if (qs.get('bar') === '0') $('vbar').hidden = true;
 
 // ---------- Atıl's panel ----------
 function toggleDbg() { $('dbg').hidden = !$('dbg').hidden; if (!$('dbg').hidden) runSim(); }
@@ -670,7 +968,7 @@ $('toggleDbg').onclick = toggleDbg;
 function renderDbg() {
   if ($('dbg').hidden) return;
   const lines = STEPS.map(s => `${s.name.padEnd(11)} hedef ${fmt(s.target)} ${s.unit}  bant ±` + [0, 1, 2].map(k => fmt(halfWidth(s, k), 2)).join(' / ') + ` ${s.unit}`);
-  $('cfg').textContent = `bant  ${V.band} (${BAND_MS[V.band]} ms × 1 / 0,8 / 0,62)\ndolum ${V.speed}${V.speed === 'accel' ? ' (hedefte ×1,6)' : ''}\neğri  ${V.curve} (kenar = ${EDGE}, 2× yarı genişlikte 0)\n` + lines.join('\n');
+  $('cfg').textContent = `bant  ${V.band === 'custom' ? '?band=' : 'orta '}${BAND_MS[V.band]} ms × 1 / 0,8 / 0,62\ndolum ${V.speed}${V.speed === 'accel' ? ' (hedefte ×1,6)' : ''}\neğri  ${V.curve} (kenar = ${EDGE}, 2× yarı genişlikte 0)\n` + lines.join('\n');
   const s = S(), last = scores[scores.length - 1];
   $('state').textContent =
 `faz        ${phase} / ${sub}
@@ -697,34 +995,36 @@ function logStep(r) {
 
 // ---------- simulator ----------
 function gauss() { let u = 0; while (!u) u = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random()); }
-function simRound(band, speed, curve, sigma, lapse) {
-  let s = 0; const f = speed === 'accel' ? ACCEL_EXP : 1;
+function simRound(ms, sigma, lapse) {     // Atıl's fill (accelerating) and curve (flat-top), band half-width `ms` at shot 1
+  let s = 0;
   for (let sh = 0; sh < 3; sh++) for (let st = 0; st < 3; st++) {
-    const hw = BAND_MS[band] * NARROW[sh] / f, sg = Math.random() < lapse ? sigma * 4 : sigma;
-    s += Math.round(CURVES[curve](Math.abs(gauss() * sg) / hw));
+    const hw = ms * NARROW[sh] / ACCEL_EXP, sg = Math.random() < lapse ? sigma * 4 : sigma;
+    s += Math.round(CURVES.flat(Math.abs(gauss() * sg) / hw));
   }
   return s / 9;
 }
-function simP(band, speed, curve, sigma, lapse, N = 4000) { let h = 0, m = 0; for (let i = 0; i < N; i++) { const r = simRound(band, speed, curve, sigma, lapse); m += r; if (r >= 95) h++; } return [h / N, m / N]; }
-function simLearn(band, speed, curve, lapse, N = 1500) {
+function simP(ms, sigma, lapse, N = 4000) { let h = 0, m = 0; for (let i = 0; i < N; i++) { const r = simRound(ms, sigma, lapse); m += r; if (r >= 95) h++; } return [h / N, m / N]; }
+function simLearn(ms, lapse, N = 1500) {
   let tot = 0;
-  for (let i = 0; i < N; i++) { let k = 0; while (k < 60 && simRound(band, speed, curve, Math.max(40, 60 - 5 * k), lapse) < 95) k++; tot += k + 1; }
+  for (let i = 0; i < N; i++) { let k = 0; while (k < 60 && simRound(ms, Math.max(40, 60 - 5 * k), lapse) < 95) k++; tot += k + 1; }
   return tot / N;
 }
 function runSim() {
   if ($('dbg').hidden) return;
   const sigma = +$('kSig').value, lapse = +$('kLapse').value / 100;
   $('oSig').textContent = sigma; $('oLapse').textContent = $('kLapse').value;
-  let h = '<tr><th>bant · eğri</th><th>ort.</th><th>p</th><th>1/p</th><th>5 turda</th><th>öğrenme</th></tr>';
+  let h = '<tr><th>bant (ms)</th><th>ort.</th><th>p</th><th>1/p</th><th>5 turda</th><th>öğrenme</th></tr>';
   let curRow = null;
-  for (const b of ['wide', 'medium', 'narrow']) for (const c of ['linear', 'flat']) {
-    const [p, m] = simP(b, V.speed, c, sigma, lapse), L = simLearn(b, V.speed, c, lapse);
-    const isCur = b === V.band && c === V.curve;
+  const now = BAND_MS[V.band];
+  const list = [...new Set([85, 100, 110, 120, 130, 135, 140, 150, now])].sort((x, y) => x - y);
+  for (const ms of list) {
+    const [p, m] = simP(ms, sigma, lapse), L = simLearn(ms, lapse);
+    const isCur = ms === now;
     if (isCur) curRow = { p, m, L };
-    h += `<tr class="${isCur ? 'cur' : ''}"><td>${b} · ${c}</td><td>${m.toFixed(1)}</td><td>${p.toFixed(2)}</td><td>${p ? (1 / p).toFixed(1) : '∞'}</td><td>${(1 - Math.pow(1 - p, 5)).toFixed(2)}</td><td>${L >= 60 ? '60+' : L.toFixed(1)}</td></tr>`;
+    h += `<tr class="${isCur ? 'cur' : ''}"><td>${ms}${ms === 85 ? ' (orta)' : ''}</td><td>${m.toFixed(1)}</td><td>${p.toFixed(2)}</td><td>${p ? (1 / p).toFixed(1) : '∞'}</td><td>${(1 - Math.pow(1 - p, 5)).toFixed(2)}</td><td>${L >= 60 ? '60+' : L.toFixed(1)}</td></tr>`;
   }
   $('simT').innerHTML = h;
-  $('simSum').innerHTML = `Dolum <b>${V.speed}</b>, σ ${sigma} ms: seçili ayarda bir turda %95+ olasılığı <b>${(curRow.p * 100).toFixed(0)}%</b>, yani ortalama <b>${curRow.p ? (1 / curRow.p).toFixed(1) : '∞'} tur</b>; öğrenerek ilk %95 ≈ <b>${curRow.L.toFixed(1)}. tur</b>.`;
+  $('simSum').innerHTML = `Hızlanan dolum, düz tepe, bant ${now} ms, σ ${sigma} ms: bir turda %95+ olasılığı <b>${(curRow.p * 100).toFixed(0)}%</b>, yani ortalama <b>${curRow.p ? (1 / curRow.p).toFixed(1) : '∞'} tur</b>; öğrenerek ilk %95 ≈ <b>${curRow.L >= 60 ? '60+' : curRow.L.toFixed(1)}. tur</b>.`;
   renderDbg();
 }
 $('kSig').oninput = runSim; $('kLapse').oninput = runSim;
