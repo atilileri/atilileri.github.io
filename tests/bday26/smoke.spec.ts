@@ -1020,7 +1020,7 @@ test("Hollanda'da sürüş: full gas down the first street, the HUD names the sp
   await expect(page.getByText("Hız sınırını aştın")).toBeVisible({ timeout: 12_000 });
   await page.keyboard.up("ArrowUp");
   await expect(page.locator("[data-hud-score]")).toHaveText("%97");
-  await expect(page.getByText("1 hafif")).toBeVisible();
+  await expect(page.getByText("1 hafif", { exact: true })).toBeVisible();
 });
 
 test("Kayak macerası: riding into the first rock is a fall, P stops the clock, and a Round left before the finish scores nothing (#207)", async ({ page }) => {

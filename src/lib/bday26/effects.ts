@@ -116,8 +116,10 @@ export function giftCelebration(rng: () => number): Celebration {
   return { ...celebration("grand", rng), sound: "gift-fanfare" };
 }
 
-/** A Small prize won (a Round first lifts the Best score to 95, or a jackpot):
- *  a shower, smaller than a Gift's, and a short brass call. */
+/** A Small prize won (a Round first lifts the Best score to 95, or a jackpot)
+ *  and, in a Prize Game, every later Round at 95 (the shell's
+ *  `RoundResult.celebrate`): a shower, smaller than a Gift's, and a short
+ *  brass call. */
 export function smallPrizeCelebration(rng: () => number): Celebration {
   return { ...celebration("shower", rng), sound: "prize-fanfare" };
 }
