@@ -30,10 +30,23 @@
  * owns no state; after every buy or Return it re-renders from the ledger.
  *
  * The buy button is disabled, not hidden, when the Balance is short (spec
- * story 20), with "N eksik" beside the price (the prototype's hint). A Return
- * asks "Emin misin? …" with the Gift's name and the half that comes back
- * (story 23) through the browser's own confirm(): one dialog, no custom
- * modal to keep in step with the keyboard.
+ * story 20), with "N eksik" beside the price (the prototype's hint) once she
+ * has played a Round; on a first visit only the price shows (review C4).
+ * Which buttons are enabled, the "eksik" count and the half a Return gives
+ * back are the ledger's answers (`canBuy`, `shortOf`, `refundOf`, review K1).
+ * A buy and a Return both ask first on one in-page card in the panels' look
+ * (review C2, C3): "‹Gift› · 260 puan. Alıyor musun?" and "‹Gift› · 130 puan
+ * geri gelir. İade ediyor musun?". Enter says yes, Esc no, a held Enter's
+ * repeats are ignored, and Tab stays on the card.
+ *
+ * THE SHOP IS ONE TAB STOP (review C5): the row she was last on carries
+ * tabindex 0, the rest -1 (their buttons too); Up and Down move between
+ * Gifts, Enter opens the row's card. Focus opens a description as before.
+ *
+ * FRESH PROGRESS. Another tab's change repaints the hub through the
+ * `storage` event; a hub restored by Back is reloaded by `BdayLayout`; and
+ * the ledger re-reads storage before every call, so an old page can never
+ * write old facts over new ones (review A1).
  *
  * THE WELCOME SCREEN (#195) is `src/components/bday26/Welcome.astro`,
  * dropped in at the foot of the page: it opens by itself on her first visit
@@ -50,7 +63,9 @@
  * the hub repaints. No file download, no state in the URL. After every buy
  * the toast carries the backup prompt: "Yedek kodunu almayı unutma." with a
  * "Yedekle" button that opens the panel and a "Sonra" that closes it; it
- * stays until she presses one (spec story 29).
+ * stays until she presses one or opens a panel (spec story 29). The toast
+ * lives in the shop column under "Sende olanlar", where the Gift she just
+ * bought lands, so it never covers a Game's "Oyna" (review C1).
  *
  * ATIL'S CORNER (`src/components/bday26/Admin.astro`, behaviour in
  * `src/lib/bday26/admin.ts`) is a faded 🎂 in the page's bottom-left corner
@@ -144,6 +159,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   <div class="track" aria-hidden="true" title={`%${PRIZE_BAR} yapınca küçük ödül senin`}>
                     <div class="fill" data-fill style="width: 0%" />
                     <div class="mark" style={`left: ${PRIZE_BAR}%`} />
+                    <span class="mark-label" style={`left: ${PRIZE_BAR}%`}>%{PRIZE_BAR}</span>
                   </div>
                 )}
                 <div class="prize">
@@ -159,7 +175,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
           }
         </ul>
       </section>
-                    <span class="mark-label" style={`left: ${PRIZE_BAR}%`}>%{PRIZE_BAR}</span>
 
       <aside class="shop" aria-labelledby="shop-heading" data-shop>
         <div class="shop-head">
@@ -170,10 +185,17 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
           <span class="label">Sende olanlar</span>
           <ul class="gifts" data-mine-list></ul>
         </div>
-        <ul class="gifts" data-shop-list>
+        <div class="toast" role="status" aria-live="polite" data-toast>
+          <span class="toast-text" data-toast-text></span>
+          <span class="toast-buttons">
+            <button class="bd-btn small toast-action" type="button" data-toast-action hidden></button>
+            <button class="bd-btn small toast-later" type="button" data-toast-later hidden>Sonra</button>
+          </span>
+        </div>
+        <ul class="gifts" data-shop-list aria-label="Hediyeler" aria-keyshortcuts="ArrowUp ArrowDown Enter">
           {
-            GIFTS.map((g) => (
-              <li class="gift" data-gift={g.id} tabindex="0">
+            GIFTS.map((g, i) => (
+              <li class="gift" data-gift={g.id} tabindex={i === 0 ? 0 : -1}>
                 <span class="gicon" aria-hidden="true">{GIFT_ICON[g.id]}</span>
                 <div class="gtext">
                   <b class="gname">{g.name}</b>
@@ -182,8 +204,8 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                 <div class="buy">
                   <b class="price">{fmt(g.price)}</b>
                   <span class="short" data-short hidden></span>
-                  <button class="bd-btn primary small" type="button" data-buy disabled>Al</button>
-                  <button class="bd-btn secondary small" type="button" data-return hidden>İade et</button>
+                  <button class="bd-btn primary small" type="button" tabindex="-1" data-buy disabled>Al</button>
+                  <button class="bd-btn secondary small" type="button" tabindex="-1" data-return hidden>İade et</button>
                 </div>
               </li>
             ))
@@ -192,11 +214,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       </aside>
     </div>
 
-    <div class="toast" role="status" aria-live="polite" data-toast>
-      <span data-toast-text></span>
-      <button class="bd-btn small toast-action" type="button" data-toast-action hidden></button>
-      <button class="bd-btn small toast-later" type="button" data-toast-later hidden>Sonra</button>
-    </div>
     <Admin />
   </div>
   <Welcome />
@@ -214,6 +231,14 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     <div class="panel-actions">
       <button class="bd-btn ghost" type="button" data-close>Kapat</button>
       <button class="bd-btn primary" type="button" data-copy>Kopyala</button>
+    </div>
+  </dialog>
+
+  <dialog class="panel confirm" data-confirm aria-labelledby="confirm-heading">
+    <h2 class="h2" id="confirm-heading" data-confirm-text></h2>
+    <div class="panel-actions">
+      <button class="bd-btn ghost" type="button" data-confirm-cancel>Vazgeç</button>
+      <button class="bd-btn primary" type="button" data-confirm-ok></button>
     </div>
   </dialog>
 
@@ -255,7 +280,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // the ledger). `render()` is idempotent and runs after every change.
   import { mountAdmin } from "../../lib/bday26/admin";
   import { openLedger } from "../../lib/bday26/browser";
-  import { GAMES, GIFTS, giftById, givesPoints, isGiftId } from "../../lib/bday26/catalogue";
+  import { GAMES, GIFTS, giftById, givesPoints, isGiftId, type GiftId } from "../../lib/bday26/catalogue";
   import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "../../lib/bday26/icons";
   import {
     balanceOf,
@@ -328,30 +353,39 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   }
 
   function renderShop() {
-    const held = ledger.held();
-    const balance = ledger.balance();
     const mineList = $(document, "[data-mine-list]");
     const shopList = $(document, "[data-shop-list]");
+    // "N eksik" waits for her first Round: on a first visit every Gift would
+    // say it, and the shop would read as a list of what she cannot have.
+    const played = GAMES.some((g) => ledger.bestOf(g.id) != null);
+    let anyHeld = false;
     // Rows are moved, not rebuilt: a held Gift's row goes up into "Sende
-    // olanlar", a Returned one comes back down, catalogue order kept.
+    // olanlar", a Returned one comes back down, catalogue order kept. A
+    // move drops focus, so the row she was on gets it back.
+    const focused = document.activeElement;
     for (const gift of GIFTS) {
       const row = $(document, `[data-gift="${gift.id}"]`);
-      const paid = held.get(gift.id);
-      const isHeld = paid != null;
-      const short = gift.price - balance;
+      const refund = ledger.refundOf(gift.id);
+      const isHeld = refund != null;
+      anyHeld ||= isHeld;
+      const short = ledger.shortOf(gift.id);
       row.toggleAttribute("data-held", isHeld);
       const shortEl = $(row, "[data-short]");
-      shortEl.hidden = isHeld || short <= 0;
+      shortEl.hidden = isHeld || short === 0 || !played;
       shortEl.textContent = `${fmt(short)} eksik`;
       const buy = $(row, "[data-buy]") as HTMLButtonElement;
       buy.hidden = isHeld;
-      buy.disabled = short > 0;
+      buy.disabled = !ledger.canBuy(gift.id);
       const ret = $(row, "[data-return]");
       ret.hidden = !isHeld;
-      if (isHeld) ret.textContent = `İade et · +${fmt(paid / 2)}`;
+      if (isHeld) ret.textContent = `İade et · +${fmt(refund)}`;
       (isHeld ? mineList : shopList).appendChild(row);
     }
-    $(document, "[data-mine]").hidden = held.size === 0;
+    $(document, "[data-mine]").hidden = !anyHeld;
+    if (focused instanceof HTMLElement && focused !== document.activeElement && focused.isConnected) {
+      focused.focus({ preventScroll: true });
+    }
+    rove(activeRow());
   }
 
   function render() {
@@ -446,9 +480,11 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   for (const row of document.querySelectorAll<HTMLElement>("[data-gift]")) openable(row);
 
   // ── the one line of feedback ─────────────────────────────────────────
-  // A toast is text, or a prompt: text and two buttons. After a buy the
-  // prompt asks for a backup, as the spec asks (story 29): "Yedekle" opens
-  // the panel, "Sonra" closes it, and it waits until she presses one. Plain
+  // A toast is text, or a prompt: text and two buttons. It sits in the shop
+  // column, under "Sende olanlar" where a bought Gift lands, so it never
+  // covers a Game's "Oyna" (review C1). After a buy the prompt asks for a
+  // backup, as the spec asks (story 29): "Yedekle" opens the panel, "Sonra"
+  // closes it, and it waits until she presses one or opens a panel. Plain
   // text fades after 3 s.
   const toast = $(document, "[data-toast]");
   const toastText = $(toast, "[data-toast-text]");
@@ -457,19 +493,23 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   let toastTimer = 0;
   let onToastAction: (() => void) | null = null;
   function say(text: string, action?: { label: string; run: () => void }) {
+    toast.setAttribute("data-show", "");
     toastText.textContent = text;
     toastAction.hidden = toastLater.hidden = !action;
     toastAction.textContent = action?.label ?? "";
     onToastAction = action?.run ?? null;
-    toast.setAttribute("data-show", "");
     window.clearTimeout(toastTimer);
-    if (!action) toastTimer = window.setTimeout(() => toast.removeAttribute("data-show"), 3200);
+    if (!action) toastTimer = window.setTimeout(hush, 3200);
+  }
+  function hush() {
+    window.clearTimeout(toastTimer);
+    toast.removeAttribute("data-show");
   }
   toastAction.addEventListener("click", () => {
-    toast.removeAttribute("data-show");
+    hush();
     onToastAction?.();
   });
-  toastLater.addEventListener("click", () => toast.removeAttribute("data-show"));
+  toastLater.addEventListener("click", hush);
 
   // ── the Save code panels ─────────────────────────────────────────────
   // Two native <dialog>s: Esc closes, focus stays inside, and the top layer
@@ -489,6 +529,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   const codeField = $(yedekle, "[data-savecode-field]") as HTMLTextAreaElement;
   const copyStatus = $(yedekle, "[data-copy-status]");
   async function openYedekle() {
+    hush();
     const { code } = await ledger.toSaveCode();
     codeField.value = code;
     copyStatus.textContent = "";
@@ -520,6 +561,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     payload: "Bu kod okunamadı. Yedekle'den aldığın kodu olduğu gibi yapıştır.",
   };
   function openGeriYukle() {
+    hush();
     pasteField.value = "";
     showPasted(null);
     geriYukle.showModal();
@@ -569,35 +611,152 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   $(document, '[data-tool="yedekle"]').addEventListener("click", () => void openYedekle());
   $(document, '[data-tool="geri-yukle"]').addEventListener("click", openGeriYukle);
 
-  // ── the shop's two actions ───────────────────────────────────────────
-  // One listener on the shop: rows move between lists, so the buttons are
-  // found at click time, not bound once. The ledger decides; a refused buy
-  // changes nothing on screen, since the button for it is already disabled.
-  // A Return asks first (spec story 23) with the browser's own confirm():
-  // the half that comes back is the ledger's number, read before asking.
-  $(document, "[data-shop]").addEventListener("click", (event) => {
-    const button = (event.target as Element).closest<HTMLButtonElement>(
-      "button[data-buy], button[data-return]",
-    );
-    const row = button?.closest<HTMLElement>("[data-gift]");
-    const id = row?.dataset.gift;
-    if (!button || button.disabled || !id || !isGiftId(id)) return;
-    const gift = giftById(id);
+  // ── the confirm card ─────────────────────────────────────────────────
+  // A buy and a Return each ask first (spec stories 20 and 23; review C2,
+  // C3) on one card in the panels' look. Enter is the card's yes (unless
+  // she has moved to "Vazgeç"), Esc and "Vazgeç" its no. A held key repeats:
+  // a repeated Enter does nothing, so the Enter that opened the card cannot
+  // also answer it. Tab stays on the card's two buttons. The numbers in the
+  // question are the ledger's, read before asking; the change is the
+  // ledger's too, made only after her yes.
+  const card = $(document, "dialog[data-confirm]") as HTMLDialogElement;
+  const cardText = $(card, "[data-confirm-text]");
+  const cardOk = $(card, "[data-confirm-ok]") as HTMLButtonElement;
+  const cardCancel = $(card, "[data-confirm-cancel]") as HTMLButtonElement;
+  let onYes: (() => void) | null = null;
+  let cameFrom: Element | null = null;
+  function ask(question: string, yes: string, run: () => void) {
+    cardText.textContent = question;
+    cardOk.textContent = yes;
+    onYes = run;
+    cameFrom = document.activeElement;
+    card.showModal();
+    cardOk.focus();
+  }
+  function answer(yes: boolean) {
+    const run = yes ? onYes : null;
+    onYes = null;
+    card.close();
+    back();
+    run?.();
+  }
+  /** Focus back on the row she asked from, when she asked from a row. */
+  function back() {
+    if (cameFrom instanceof HTMLElement && cameFrom.matches("[data-gift]") && cameFrom.isConnected) {
+      cameFrom.focus({ preventScroll: true });
+    }
+  }
+  cardOk.addEventListener("click", () => answer(true));
+  cardCancel.addEventListener("click", () => answer(false));
+  card.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!event.repeat) answer(document.activeElement !== cardCancel);
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+      (document.activeElement === cardOk ? cardCancel : cardOk).focus();
+    }
+  });
+  // Esc: the browser's "cancel" comes at once, its "close" a task later.
+  // The no is settled at once; the late "close" only puts focus back if
+  // nothing has it, and never touches a card asked again in between.
+  card.addEventListener("cancel", () => {
+    onYes = null;
+  });
+  card.addEventListener("close", () => {
+    if (!card.open && (document.activeElement === document.body || document.activeElement == null)) back();
+  });
 
-    if (button.hasAttribute("data-buy")) {
-      if (ledger.buy(id).ok) {
+  // ── the shop's two actions ───────────────────────────────────────────
+  // "Al" and "İade et" are found at click time (rows move between lists).
+  // The ledger decides: "Al" is enabled only when it says `canBuy`, and a
+  // buy it refuses after her yes (another tab bought it, or spent the
+  // Points) is said in the toast.
+  function askBuy(id: GiftId) {
+    const gift = giftById(id);
+    if (!ledger.canBuy(id)) return;
+    ask(`${gift.name} · ${fmt(gift.price)} puan. Alıyor musun?`, "Al", () => {
+      const outcome = ledger.buy(id);
+      render();
+      if (outcome.ok) {
         // A Gift is the biggest moment of the evening: fanfare and confetti.
         effects.celebrate(giftCelebration(Math.random));
         say(`${gift.name} senin! Yedek kodunu almayı unutma.`, { label: "Yedekle", run: () => void openYedekle() });
+      } else {
+        say(outcome.reason === "held" ? `${gift.name} zaten sende.` : "Bakiyen bu hediyeye yetmiyor.");
       }
-    } else {
-      const paid = ledger.held().get(id);
-      if (paid == null) return;
-      const half = fmt(paid / 2);
-      if (!window.confirm(`Emin misin? ${gift.name} iade edilecek, ${half} puan geri gelir.`)) return;
-      if (ledger.returnGift(id).ok) say(`${gift.name} iade edildi, ${half} puan geri geldi.`);
+    });
+  }
+  function askReturn(id: GiftId) {
+    const gift = giftById(id);
+    const half = ledger.refundOf(id);
+    if (half == null) return;
+    ask(`${gift.name} · ${fmt(half)} puan geri gelir. İade ediyor musun?`, "İade et", () => {
+      const outcome = ledger.returnGift(id);
+      render();
+      if (outcome.ok) say(`${gift.name} iade edildi, ${fmt(outcome.returned)} puan geri geldi.`);
+    });
+  }
+  /** Buy or Return, whichever the row offers now. */
+  function act(row: HTMLElement) {
+    const id = row.dataset.gift;
+    if (!id || !isGiftId(id)) return;
+    if (ledger.holds(id)) askReturn(id);
+    else askBuy(id);
+  }
+
+  const shop = $(document, "[data-shop]");
+  shop.addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>("button[data-buy], button[data-return]");
+    const row = button?.closest<HTMLElement>("[data-gift]");
+    if (!button || button.disabled || !row) return;
+    act(row);
+  });
+
+  // ── the shop by keyboard: one Tab stop ───────────────────────────────
+  // The Gift list is one stop in the Tab order (review C5): the row she was
+  // last on carries tabindex 0, every other row and every button -1. Up and
+  // Down move between Gifts across both lists, Home and End to the ends,
+  // Enter opens the row's Buy or Return card. Focus still opens a
+  // description, as a resting pointer does.
+  function rows() {
+    return [...shop.querySelectorAll<HTMLElement>("[data-gift]")];
+  }
+  let active: HTMLElement | null = null;
+  function activeRow(): HTMLElement {
+    return active ?? rows()[0];
+  }
+  function rove(to: HTMLElement) {
+    active = to;
+    for (const row of rows()) row.tabIndex = row === to ? 0 : -1;
+  }
+  shop.addEventListener("focusin", (event) => {
+    const row = (event.target as Element).closest<HTMLElement>("[data-gift]");
+    if (row) rove(row);
+  });
+  shop.addEventListener("keydown", (event) => {
+    const row = event.target as HTMLElement;
+    if (!row.matches("[data-gift]")) return;
+    const all = rows();
+    const at = all.indexOf(row);
+    const to =
+      event.key === "ArrowDown"
+        ? all[Math.min(at + 1, all.length - 1)]
+        : event.key === "ArrowUp"
+          ? all[Math.max(at - 1, 0)]
+          : event.key === "Home"
+            ? all[0]
+            : event.key === "End"
+              ? all[all.length - 1]
+              : null;
+    if (to) {
+      event.preventDefault();
+      rove(to);
+      to.focus();
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (!event.repeat) act(row);
     }
-    render();
   });
 
   // ── Atıl's corner ────────────────────────────────────────────────────
@@ -906,6 +1065,25 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     background: var(--bd-ink);
     border-radius: 1px;
   }
+  /* "%95" just left of the tick, under the bar, in the gap above the prize
+     line, so the tile is no taller (review D4). The track's title says what
+     the tick is for; the strip below widens its hover target. */
+  .mark-label {
+    position: absolute;
+    top: calc(100% + 1px);
+    transform: translateX(calc(-100% - 3px));
+    font-size: 9px;
+    line-height: 9px;
+    font-weight: 800;
+    color: var(--bd-muted-2);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .track::before {
+    content: "";
+    position: absolute;
+    inset: -6px 0 -10px;
+  }
   .prize {
     display: flex;
     align-items: center;
@@ -1073,25 +1251,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       opacity 0.3s ease-out,
       color 0.3s ease-out;
   }
-  /* "%95" just left of the tick, under the bar, in the gap above the prize
-     line, so the tile is no taller (review D4). The track's title says what
-     the tick is for; the strip below widens its hover target. */
-  .mark-label {
-    position: absolute;
-    top: calc(100% + 1px);
-    transform: translateX(calc(-100% - 3px));
-    font-size: 9px;
-    line-height: 9px;
-    font-weight: 800;
-    color: var(--bd-muted-2);
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .track::before {
-    content: "";
-    position: absolute;
-    inset: -6px 0 -10px;
-  }
   /* Open (the script sets it after a short hover, or on focus): up to four
      lines, the script animating the height between the two. */
   .gift[data-open] .gdesc {
@@ -1147,37 +1306,50 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   }
 
   /* ── toast ───────────────────────────────────────────────────── */
+  /* In the shop column, in the flow under "Sende olanlar": it pushes the
+     list down while it shows, and never lies over a tile (review C1). */
   .toast {
-    position: fixed;
-    left: 50%;
-    bottom: 22px;
-    transform: translate(-50%, 8px);
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    margin: 2px 0 8px;
+    padding: 9px 12px;
     background: var(--bd-ink);
     color: #fff;
     font-weight: 700;
-    font-size: 14px;
-    padding: 10px 16px;
-    border-radius: 999px;
-    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition:
-      opacity 0.2s ease,
-      transform 0.2s ease,
-      visibility 0.2s;
+    font-size: 13.5px;
+    line-height: 1.35;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.45);
   }
   .toast[data-show] {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, 0);
-    pointer-events: auto;
+    display: flex;
+    animation: toast-in 0.22s ease-out;
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .toast[data-show] {
+      animation: none;
+    }
+  }
+  .toast-text {
+    flex: 1 1 180px;
+  }
+  .toast-buttons {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
   }
   .toast-action {
     background: #fff;
     color: var(--bd-ink);
     padding: 5px 11px;
-    margin-left: 6px;
   }
   .toast-action:hover {
     background: var(--bd-accent-soft);
@@ -1187,7 +1359,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     background: transparent;
     color: #fff;
     padding: 5px 11px;
-    margin-left: 2px;
   }
   .toast-later:hover {
     background: rgb(255 255 255 / 0.14);
@@ -1205,6 +1376,15 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   }
   .panel::backdrop {
     background: rgb(58 45 42 / 0.45);
+  }
+  /* The Buy / Return card: the panels' look, one question, two buttons. */
+  .panel.confirm {
+    width: min(460px, calc(100vw - 48px));
+  }
+  .confirm .h2 {
+    display: block;
+    font-size: 19px;
+    line-height: 1.35;
   }
   .panel .h2 {
     margin-bottom: 6px;

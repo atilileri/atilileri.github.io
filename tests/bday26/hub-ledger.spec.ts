@@ -89,6 +89,144 @@ test("with no gift from Atıl the Proof prints no gifted total", async ({ page }
   await expect(page.getByText("Atıl'dan hediye puan")).toHaveCount(0);
 });
 
+// ───────────────────────────────────────── the shop (review C1–C5, K1)
+
+for (const [width, height] of [
+  [1920, 1080],
+  [1366, 768],
+] as const) {
+  test(`at ${width}×${height} the backup prompt sits in the shop, covers no "Oyna", and leaves when Yedekle opens (review C1)`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await seed(page, AN_EVENING);
+    await page.goto(HUB);
+    await row(page, "Rocky Horror film gecesi").getByRole("button", { name: "Al", exact: true }).click();
+    await page.getByRole("dialog", { name: /Alıyor musun\?$/ }).getByRole("button", { name: "Al", exact: true }).click();
+
+    const prompt = page.getByRole("status").filter({ hasText: "Yedek kodunu" });
+    await expect(prompt).toBeInViewport({ ratio: 1 });
+    const box = (await prompt.boundingBox())!;
+    const shop = (await page.locator("[data-shop]").boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(shop.x);
+    expect(box.x + box.width).toBeLessThanOrEqual(shop.x + shop.width);
+
+    const covered: string[] = [];
+    for (const play of await page.getByRole("link", { name: "Oyna" }).all()) {
+      const b = await play.boundingBox();
+      if (!b) continue;
+      const apart =
+        b.x + b.width <= box.x || box.x + box.width <= b.x || b.y + b.height <= box.y || box.y + box.height <= b.y;
+      if (!apart) covered.push((await play.getAttribute("href")) ?? "?");
+    }
+    expect(covered).toEqual([]);
+
+    await page.getByRole("navigation", { name: "Araçlar" }).getByRole("button", { name: "Yedekle" }).click();
+    await expect(page.getByRole("dialog", { name: "Yedekle" })).toBeVisible();
+    await expect(prompt).toBeHidden();
+  });
+}
+
+test("by keyboard: Enter on a Gift asks first, a held Enter cannot answer, Esc says no, Enter says yes (review C2)", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const rocky = row(page, "Rocky Horror film gecesi");
+  const ask = page.getByRole("dialog", { name: "Rocky Horror film gecesi · 260 puan. Alıyor musun?" });
+  await rocky.focus();
+
+  // Held down: the first Enter opens the card, its repeats answer nothing.
+  await page.keyboard.down("Enter");
+  await expect(ask).toBeVisible();
+  await page.keyboard.down("Enter");
+  await page.keyboard.down("Enter");
+  await page.keyboard.up("Enter");
+  await expect(ask).toBeVisible();
+  await expect(balance(page)).toHaveText(["283", "283"]);
+
+  // Tab stays on the card's two buttons; Enter on "Vazgeç" is a no.
+  const yes = ask.getByRole("button", { name: "Al", exact: true });
+  const no = ask.getByRole("button", { name: "Vazgeç" });
+  await expect(yes).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(no).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(yes).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(no).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(ask).toBeHidden();
+  await expect(balance(page)).toHaveText(["283", "283"]);
+  await expect(rocky).toBeFocused();
+
+  // Esc is a no too, and focus comes back to the Gift.
+  await page.keyboard.press("Enter");
+  await expect(ask).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(ask).toBeHidden();
+  await expect(balance(page)).toHaveText(["283", "283"]);
+  await expect(rocky).toBeFocused();
+
+  // Enter, Enter: bought.
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  await expect(ask).toBeHidden();
+  await expect(balance(page)).toHaveText(["23", "23"]);
+  await expect(rocky.getByRole("button", { name: "İade et · +130" })).toBeVisible();
+  await expect(rocky).toBeFocused();
+
+  // On a held Gift, Enter asks for the Return the same way.
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("dialog", { name: "Rocky Horror film gecesi · 130 puan geri gelir. İade ediyor musun?" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(balance(page)).toHaveText(["23", "23"]);
+});
+
+test("before her first Round no Gift says \"eksik\", only its price; after one, a Gift she cannot afford does (review C4)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [], gifted: [{ points: 50, at: "2026-12-09T10:00:00.000Z" }] });
+  await page.goto(HUB);
+  await expect(balance(page)).toHaveText(["50", "50"]);
+  await expect(row(page, "Bir haftalık gezi")).toContainText("950");
+  await expect(page.locator("[data-shop]").getByText(/eksik/).locator("visible=true")).toHaveCount(0);
+
+  // One Round of Milyoner at %10: 60 Points in all, 890 short of the trip.
+  await page.evaluate(() => {
+    const p = JSON.parse(localStorage.getItem("bday26:v1")!);
+    p.best = { milyoner: 10 };
+    localStorage.setItem("bday26:v1", JSON.stringify(p));
+  });
+  await page.reload();
+  await expect(row(page, "Bir haftalık gezi")).toContainText("890 eksik");
+});
+
+test("the shop is one Tab stop: Up and Down move between Gifts, and Tab comes back to the one she was on (review C5)", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const inShop = () => page.evaluate(() => document.activeElement?.closest("[data-shop]") != null);
+
+  // From the last Game's "Oyna", Tab lands on the first Gift, and the next
+  // Tab leaves the shop: no second Gift, no "Al" on the way.
+  await page.getByRole("link", { name: "Oyna" }).last().focus();
+  await page.keyboard.press("Tab");
+  await expect(row(page, "Bir haftalık gezi")).toBeFocused();
+  await page.keyboard.press("Tab");
+  expect(await inShop()).toBe(false);
+
+  await page.keyboard.press("Shift+Tab");
+  await expect(row(page, "Bir haftalık gezi")).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(row(page, "Yeni objektif")).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(row(page, "Yin Yin konseri")).toBeFocused();
+  await page.keyboard.press("ArrowUp");
+  await expect(row(page, "Yeni objektif")).toBeFocused();
+  await page.keyboard.press("End");
+  await expect(row(page, "De Slak'ta akşam yemeği")).toBeFocused();
+
+  // Away and back: the shop remembers the Gift she was on.
+  await page.keyboard.press("Tab");
+  expect(await inShop()).toBe(false);
+  await page.keyboard.press("Shift+Tab");
+  await expect(row(page, "De Slak'ta akşam yemeği")).toBeFocused();
+});
+
 // ───────────────────────────────────────────── the tiles (review D4)
 
 test("every tile with a bar labels its tick %95 and says what it is for; the slot has no bar (review D4)", async ({ page }) => {
