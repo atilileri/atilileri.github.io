@@ -403,7 +403,40 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     hiss(ac, out, t, 0.09, 0.05, "bandpass", vary(900, 0.1), 3400, 1.4, 0.01);
     tone(ac, out, vary(700, 0.05), vary(1050, 0.05), t + 0.02, 0.05, "sine", 0.025, 0.004);
   },
+  // ── Renk karıştır (the prototype on #215) ──
+  // A drop into the paint: a soft round "plip" gliding down onto its tube's
+  // note, on a pentatonic, so a recipe plays a little tune.
+  "paint-red": paintDrop(67), // G4
+  "paint-yellow": paintDrop(72), // C5
+  "paint-blue": paintDrop(62), // D4
+  "paint-white": paintDrop(76), // E5
+  "paint-black": paintDrop(57), // A3
+  /** A drop taken back: a short upward lift, quieter than the drop. */
+  "paint-lift"(ac, out, t) {
+    tone(ac, out, hz(60), hz(67), t, 0.11, "sine", 0.04, 0.006);
+  },
+  /** The 12th drop is the last: a dull low knock, not a buzzer. */
+  "paint-full"(ac, out, t) {
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 500;
+    lp.connect(out);
+    tone(ac, lp, 150, 90, t, 0.18, "sine", 0.12, 0.008);
+  },
+  /** Enter: a soft brush stroke across canvas. */
+  brush(ac, out, t) {
+    hiss(ac, out, t, 0.32, 0.035, "bandpass", 1200, 3200, 0.8, 0.06);
+  },
 };
+
+/** Renk karıştır's drop on the tube's note `midi`. */
+function paintDrop(midi: number) {
+  return (ac: AudioContext, out: AudioNode, t: number) => {
+    tone(ac, out, hz(midi + 7), hz(midi), t, 0.16, "sine", 0.07, 0.004);
+    tone(ac, out, hz(midi + 12), hz(midi + 12), t + 0.01, 0.08, "sine", 0.012, 0.003);
+    hiss(ac, out, t, 0.05, 0.008, "bandpass", 1800, 900, 2, 0.003);
+  };
+}
 
 /** The quiz celebrations at their first, approved loudness: through a 0.35
  *  gain, in a key drawn fresh (C5 and up) so two chimes never sound the same. */

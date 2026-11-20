@@ -553,6 +553,42 @@ const TRACKS: Record<TrackName, Track> = {
       if (n) keys(s, n[1], t, dur * n[2] * 1.3, 0.03);
     },
   },
+
+  /**
+   * Renk karıştır, "Atölye": a calm painting studio (the prototype on #215,
+   * which Atıl played). 68 bpm, four bars of Fmaj7 – Em7 – Dm9 – Cmaj7 (slow,
+   * open, a little Lydian): a soft pad, a low bass on the bar, a nylon pluck
+   * picking the chord, a music-box tine for a tune that moves only every
+   * half bar, and a brush on 2 and 4 you barely hear. Original; its busiest
+   * moment stays under the other tracks' ~0.08.
+   */
+  renk: {
+    steps: 64,
+    bpm: () => 68,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const chords = [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 64], [48, 52, 55, 59]];
+      const roots = [41, 40, 38, 36];
+      const tune = [[[0, 76], [8, 72]], [[0, 74], [8, 71]], [[0, 69], [8, 72]], [[0, 71], [10, 67]]];
+      const ch = chords[bar]!;
+      if (step === 0) {
+        pad(s, ch, t, dur * 16, 0.014, "triangle", 900);
+        blip(s, roots[bar]!, t, dur * 12, "sine", 0.045, 0.02);
+        blip(s, roots[bar]! + 12, t, dur * 8, "triangle", 0.016, 0.02);
+      }
+      // The nylon pluck: a triangle with a quick bright sine on top.
+      const pick = [0, 2, 1, 3, 2, 1, 3, 1];
+      if (step % 2 === 0 && step !== 14) {
+        const m = ch[pick[step / 2]!]! + 12;
+        const level = step === 0 ? 0.026 : 0.018;
+        blip(s, m, t, dur * 5, "triangle", level, 0.004);
+        blip(s, m + 12, t, dur * 1.25, "sine", level * 0.3, 0.002);
+      }
+      const n = tune[bar]!.find(([st]) => st === step);
+      if (n) tine(s, n[1]! + 12, t, 0.012, 2.2);
+      if (step === 4 || step === 12) noiseHit(s, t, 0.22, 0.004, "bandpass", 3000, 0.7, 0.04);
+    },
+  },
 };
 
 // ── the ski and the radio's own sounds ─────────────────────────────
