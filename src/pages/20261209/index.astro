@@ -9,7 +9,9 @@
  * the slot's say "Puan vermez" where a skill Game's show its Points); the Gift
  * shop as a right column that is always in view, Gifts held at the top.
  * Each tile: Game name, one-line rule, Best score, the Points it earns, a
- * progress bar with the 95% mark, and the Small prize on its foot — a lock
+ * progress bar with the 95% mark, labelled "%95" with the tooltip "%95
+ * yapınca küçük ödül senin" (review D4; the slot has no bar), and the Small
+ * prize on its foot — a lock
  * and the prize's name until it is won, green "Kazandın!" after (how a prize
  * is won is the welcome screen's to say, not every tile's). The whole page
  * fits 1920×1080 with no scroll (spec story 12). On a smaller screen the
@@ -139,7 +141,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   <span class="pts" data-points>{givesPoints(g) ? "Henüz oynamadın" : "Puan vermez"}</span>
                 </div>
                 {!g.luck && (
-                  <div class="track" aria-hidden="true">
+                  <div class="track" aria-hidden="true" title={`%${PRIZE_BAR} yapınca küçük ödül senin`}>
                     <div class="fill" data-fill style="width: 0%" />
                     <div class="mark" style={`left: ${PRIZE_BAR}%`} />
                   </div>
@@ -157,6 +159,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
           }
         </ul>
       </section>
+                    <span class="mark-label" style={`left: ${PRIZE_BAR}%`}>%{PRIZE_BAR}</span>
 
       <aside class="shop" aria-labelledby="shop-heading" data-shop>
         <div class="shop-head">
@@ -1069,6 +1072,25 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
       opacity 0.3s ease-out,
       color 0.3s ease-out;
+  }
+  /* "%95" just left of the tick, under the bar, in the gap above the prize
+     line, so the tile is no taller (review D4). The track's title says what
+     the tick is for; the strip below widens its hover target. */
+  .mark-label {
+    position: absolute;
+    top: calc(100% + 1px);
+    transform: translateX(calc(-100% - 3px));
+    font-size: 9px;
+    line-height: 9px;
+    font-weight: 800;
+    color: var(--bd-muted-2);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .track::before {
+    content: "";
+    position: absolute;
+    inset: -6px 0 -10px;
   }
   /* Open (the script sets it after a short hover, or on focus): up to four
      lines, the script animating the height between the two. */

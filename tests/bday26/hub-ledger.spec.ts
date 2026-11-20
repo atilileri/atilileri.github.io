@@ -88,3 +88,15 @@ test("with no gift from Atıl the Proof prints no gifted total", async ({ page }
   await expect(page.getByRole("list", { name: "Kazandığın küçük ödüller" }).getByRole("listitem")).toHaveCount(3);
   await expect(page.getByText("Atıl'dan hediye puan")).toHaveCount(0);
 });
+
+// ───────────────────────────────────────────── the tiles (review D4)
+
+test("every tile with a bar labels its tick %95 and says what it is for; the slot has no bar (review D4)", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const tip = "%95 yapınca küçük ödül senin";
+  await expect(page.getByTitle(tip)).toHaveCount(13);
+  await expect(row(page, "Milyoner").getByTitle(tip)).toHaveText("%95");
+  await expect(row(page, "Milyoner").getByTitle(tip).getByText("%95")).toBeVisible();
+  await expect(row(page, "Slot makinesi").getByTitle(tip)).toHaveCount(0);
+});
