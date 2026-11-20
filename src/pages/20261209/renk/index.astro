@@ -1,9 +1,829 @@
 ---
 /**
- * /20261209/renk/ — placeholder until the Game is built on #218 (#213).
- * The build replaces this file.
+ * /20261209/renk/ — colour mixing, "Renk karıştır", a Prize Game (#218;
+ * decisions #213, prototype and verdict #215, which Atıl played).
+ *
+ * WHAT SHE SEES. A target colour and her own mix as two swatches touching,
+ * five tubes of paint under them (red, yellow, blue, white, black), and the
+ * row of drops she has put in, up to 12. The mix changes with every drop;
+ * the colour difference (ΔE) stays hidden until she confirms. Then a card
+ * shows the ΔE, the target's score and the hidden recipe beside hers; Enter
+ * goes on. After the fifth target the shell's result card shows the Round
+ * score (the mean of the five) and the five pairs, each with its ΔE and
+ * score. No Points: her Best score counts only for the Small prize, Resim
+ * seti, at 95%.
+ *
+ * KEYS (keyboard-first; the mouse works too):
+ *   - 1–5 add one drop of red, yellow, blue, white, black (or click a tube);
+ *   - Backspace takes the last drop back;
+ *   - a click on a drop in the drop row takes back just that drop (an extra,
+ *     added after Atıl's play test);
+ *   - Enter confirms the mix; on the reveal, Enter goes to the next colour.
+ *   Esc is the shell's (it asks first; a left Round scores nothing).
+ *
+ * HOW IT IS BUILT. Three layers:
+ *   - `src/lib/bday26/renk.ts`: the paint mix (spectral.js 3.0.0, vendored
+ *     with its MIT licence), CIEDE2000, the target pool and a Round's five,
+ *     her drops, the verdict on a mix and the scores, pure and pinned under
+ *     `node --test`.
+ *   - `GameShell`: the start, confirm-leave and result screens, the music
+ *     ("Atölye", with its Müzik switch) and the one `recordRound`.
+ *   - This page: paints the swatches, the drops and the tubes, plays the
+ *     effects, and owns no rule.
  */
-import ComingSoon from "../../../components/bday26/ComingSoon.astro";
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { DROP_CAP, ROUND_TARGETS, SLOPE, TUBES } from "../../../lib/bday26/renk";
+
+const game = gameById("renk");
+
+const KEYS = [
+  { key: "1–5", does: "Kırmızı, sarı, mavi, beyaz, siyah: bir damla ekle" },
+  { key: "⌫", does: "Son damlayı geri al" },
+  { key: "Tık", does: "Damla sırasındaki bir damlaya tıkla: yalnız o damla çıkar" },
+  { key: "Enter", does: "Karışımı onayla" },
+  { key: "Esc", does: "Turdan çık" },
+];
+
+/** The scoring rule, as she reads it on both cards. */
+const RULE = `Her renk: ΔE 1'e kadar %100, sonra her 1 ΔE için −${SLOPE}. Tur skoru: beş rengin ortalaması. ΔE, CIEDE2000 renk farkıdır.`;
+/** spectral.js is MIT: its licence travels in the vendored file; this is the visible credit. */
+const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisansı";
 ---
 
-<ComingSoon game="renk" />
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="renk" keys={KEYS} music="renk">
+    <span slot="hud" class="hud-line"
+      ><span>Renk <b data-index>1</b>/{ROUND_TARGETS}</span><span class="prog" data-prog aria-hidden="true"></span></span
+    >
+
+    <div slot="start" class="note">
+      <p>
+        Beş tüp boya, beş hedef renk. Her hedef en fazla {DROP_CAP} damlalık gizli bir tariften geliyor, yani tam eşleşme
+        her zaman mümkün. Damlaları ekle, karışımı hedefe benzet, onayla.
+      </p>
+      <p class="what">
+        <b>ΔE nedir?</b> ΔE, iki rengin insan gözüne ne kadar farklı göründüğünü ölçer. 0 aynı renk demek; 1–2 civarındaki
+        farkı çoğu kişi göremez, daha büyük sayılar açıkça farklı renkler demek.
+      </p>
+      <p class="formula">{RULE}</p>
+    </div>
+
+    <div class="renk" data-renk>
+      <div class="easel">
+        <div class="chip">
+          <div class="sw" data-target><span class="cap">Hedef renk</span></div>
+          <div class="sw empty" data-mix>
+            <span class="cap">Karışımın</span><span class="empty-msg" data-empty-msg>1–5 ile damla ekle</span>
+          </div>
+        </div>
+        <div class="drops-row">
+          <div class="drops" data-drops></div>
+          <span class="count" data-count>0 / {DROP_CAP} damla</span>
+        </div>
+        <div class="tubes" data-tubes>
+          {
+            TUBES.map((t, i) => (
+              <button class="tube" type="button" tabindex="-1" data-tube={i}>
+                <span class="blob" style={`background:${t.hex}`} />
+                <span class="nm">{t.name}</span>
+                <span class="row">
+                  <kbd>{i + 1}</kbd>
+                  <span class="n zero" data-tube-count>
+                    ×0
+                  </span>
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="card" data-play-card>
+          <div class="h">Renk <span data-index>1</span> / {ROUND_TARGETS}</div>
+          <p>Karışımı hedefe benzet. Renk farkı onayladıktan sonra görünür.</p>
+          <div class="acts">
+            <button class="bd-btn secondary" type="button" tabindex="-1" data-undo>Geri al <kbd>⌫</kbd></button>
+            <button class="bd-btn primary" type="button" tabindex="-1" data-ok>Onayla <kbd>Enter</kbd></button>
+          </div>
+        </div>
+        <div class="card reveal" data-reveal hidden>
+          <div class="label">Renk farkı (ΔE)</div>
+          <div class="de"><b data-de>0,0</b><span data-pts>→ %100</span></div>
+          <table class="cmp" data-cmp></table>
+          <div class="acts">
+            <button class="bd-btn primary" type="button" tabindex="-1" data-next>Sonraki renk <kbd>Enter</kbd></button>
+          </div>
+          <p class="why" data-why></p>
+        </div>
+        <p class="credit">{CREDIT}</p>
+      </div>
+    </div>
+
+    <div slot="result" class="note">
+      <div class="res" data-res></div>
+      <p class="verdict" data-verdict></p>
+      <p class="formula">{RULE}</p>
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
+  import { renkMatchCelebration, smallPrizeCelebration, type SoundName } from "../../../lib/bday26/effects";
+  import { effects } from "../../../lib/bday26/effects-dom";
+  import {
+    addDrop,
+    countsOf,
+    DROP_CAP,
+    judge,
+    mixColour,
+    pickRound,
+    removeAt,
+    removeLast,
+    ROUND_TARGETS,
+    offTubes,
+    roundScore,
+    targetPool,
+    TUBES,
+    type Target,
+    type Verdict,
+  } from "../../../lib/bday26/renk";
+
+  /** Each tube's drop sound, in `TUBES` order. */
+  const DROP_SOUND: SoundName[] = ["paint-red", "paint-yellow", "paint-blue", "paint-white", "paint-black"];
+  /** The verdict's sound comes a beat after the brush stroke (the prototype's). */
+  const VERDICT_MS = 260;
+  /** A target this good is "close": two rising notes, no shake. */
+  const CLOSE = 70;
+
+  const $ = <T extends Element = HTMLElement>(sel: string): T => {
+    const el = document.querySelector<T>(sel);
+    if (!el) throw new Error(`bday26 renk: the page is missing ${sel}`);
+    return el;
+  };
+  const swTarget = $("[data-target]");
+  const swMix = $("[data-mix]");
+  const emptyMsg = $("[data-empty-msg]");
+  const dropsEl = $("[data-drops]");
+  const countEl = $("[data-count]");
+  const tubesEl = $("[data-tubes]");
+  const tubeCounts = Array.from(document.querySelectorAll<HTMLElement>("[data-tube-count]"));
+  const tubeButtons = Array.from(document.querySelectorAll<HTMLElement>("[data-tube]"));
+  const playCard = $("[data-play-card]");
+  const undoBtn = $<HTMLButtonElement>("[data-undo]");
+  const okBtn = $<HTMLButtonElement>("[data-ok]");
+  const revealCard = $("[data-reveal]");
+  const deEl = $("[data-de]");
+  const ptsEl = $("[data-pts]");
+  const cmpEl = $("[data-cmp]");
+  const nextBtn = $<HTMLButtonElement>("[data-next]");
+  const whyEl = $("[data-why]");
+  const progEl = $("[data-prog]");
+  const resEl = $("[data-res]");
+  const verdictEl = $("[data-verdict]");
+
+  const fmt = (x: number) => x.toFixed(1).replace(".", ",");
+
+  // ------------------------------------------------------------ the Round
+
+  const pool = targetPool();
+  let targets: Target[] = [];
+  let idx = 0;
+  let drops: readonly number[] = [];
+  let results: Verdict[] = [];
+  /** Confirmed: the reveal is up and the tubes take no drops. */
+  let judged = false;
+  let verdictTimer = 0;
+
+  const target = () => targets[idx]!;
+
+  function startRound() {
+    targets = pickRound(pool, Math.random);
+    idx = 0;
+    results = [];
+    beginTarget();
+  }
+
+  function beginTarget() {
+    drops = [];
+    judged = false;
+    paint();
+  }
+
+  function add(tube: number) {
+    if (judged || shell.phase !== "playing") return;
+    const next = addDrop(drops, tube);
+    if (next === drops) {
+      effects.sound("paint-full");
+      restart(countEl, "full-shake");
+      return;
+    }
+    drops = next;
+    effects.sound(DROP_SOUND[tube]!);
+    restart(tubeButtons[tube]!, "press");
+    paint();
+  }
+
+  function takeBack(index?: number) {
+    if (judged || !drops.length || shell.phase !== "playing") return;
+    drops = index == null ? removeLast(drops) : removeAt(drops, index);
+    effects.sound("paint-lift");
+    paint();
+  }
+
+  function confirmMix() {
+    if (judged || !drops.length || shell.phase !== "playing") return;
+    const v = judge(target(), drops);
+    results[idx] = v;
+    judged = true;
+    paint();
+    effects.sound("brush");
+    window.clearTimeout(verdictTimer);
+    verdictTimer = window.setTimeout(() => {
+      if (v.dE <= 1) effects.celebrate(renkMatchCelebration(Math.random), revealCard);
+      else if (v.score >= CLOSE) effects.sound("row-good");
+      else {
+        effects.sound("row-wrong");
+        if (effects.on) restart(revealCard, "bd-shake");
+      }
+    }, VERDICT_MS);
+  }
+
+  function next() {
+    if (!judged || shell.phase !== "playing") return;
+    if (idx + 1 < ROUND_TARGETS) {
+      idx += 1;
+      beginTarget();
+      return;
+    }
+    judged = false;
+    const score = roundScore(results.map((r) => r.score));
+    const matched = results.filter((r) => r.dE <= 1).length;
+    paintResult();
+    const outcome = shell.finish(score, { detail: `${matched}/${ROUND_TARGETS} renk tam eşleşti (ΔE ≤ 1)` });
+    const won = ledger.prizeWon("renk");
+    verdictEl.textContent = won
+      ? outcome?.prizeWonNow
+        ? "Resim seti senin! Akrilik boya, tuval ve şövale."
+        : "Resim setini zaten kazandın."
+      : `Resim seti için rekorun en az %${PRIZE_BAR} olmalı.`;
+    verdictEl.classList.toggle("win", won);
+    // The Small prize's fanfare at 95%: the shell plays it the one time the
+    // prize is won; every later Round at 95% gets it here.
+    if (score >= PRIZE_BAR && !outcome?.prizeWonNow) {
+      window.setTimeout(() => effects.celebrate(smallPrizeCelebration(Math.random)), 900);
+    }
+  }
+
+  /** Restart a one-shot CSS animation class on `el`. */
+  function restart(el: HTMLElement, cls: string) {
+    el.classList.remove(cls);
+    void el.offsetWidth;
+    el.classList.add(cls);
+    el.addEventListener("animationend", () => el.classList.remove(cls), { once: true });
+  }
+
+  // ----------------------------------------------------------- the paint
+
+  function paint() {
+    const t = targets[idx];
+    const counts = countsOf(drops);
+    const hex = mixColour(counts);
+
+    for (const el of document.querySelectorAll("[data-index]")) el.textContent = String(idx + 1);
+    progEl.innerHTML = Array.from({ length: ROUND_TARGETS }, (_, i) => {
+      const r = results[i];
+      const cls = i === idx && !r ? "cur" : "";
+      return `<i class="${cls}">${r ? `<span style="background:${targets[i]!.hex}"></span><span style="background:${r.hex}"></span>` : ""}</i>`;
+    }).join("");
+
+    swTarget.style.backgroundColor = t ? t.hex : "";
+    swMix.classList.toggle("empty", !hex);
+    swMix.style.backgroundColor = hex ?? "";
+    emptyMsg.hidden = !!hex;
+
+    dropsEl.classList.toggle("locked", judged);
+    dropsEl.innerHTML = Array.from({ length: DROP_CAP }, (_, i) => {
+      if (i >= drops.length) return `<i class="slot"></i>`;
+      const tube = TUBES[drops[i]!]!;
+      const last = i === drops.length - 1 ? " last" : "";
+      return `<i class="drop${last}" data-i="${i}" style="background:${tube.hex}" title="${tube.name}: tıkla, çıkar"></i>`;
+    }).join("");
+    countEl.textContent = `${drops.length} / ${DROP_CAP} damla`;
+    countEl.classList.toggle("full", drops.length >= DROP_CAP);
+
+    tubeCounts.forEach((el, i) => {
+      el.textContent = `×${counts[i]}`;
+      el.classList.toggle("zero", !counts[i]);
+    });
+
+    undoBtn.disabled = !drops.length;
+    okBtn.disabled = !drops.length;
+    playCard.hidden = judged;
+    revealCard.hidden = !judged;
+    if (judged && t) paintReveal(t, results[idx]!);
+  }
+
+  function paintReveal(t: Target, v: Verdict) {
+    deEl.textContent = fmt(v.dE);
+    deEl.classList.toggle("win", v.dE <= 1);
+    ptsEl.textContent = `→ %${v.score}`;
+    const off = offTubes(t.recipe, v.counts);
+    cmpEl.innerHTML =
+      `<tr><th>Tüp</th><th>Tarif</th><th>Senin</th></tr>` +
+      TUBES.map((tube, i) =>
+        t.recipe[i] || v.counts[i]
+          ? `<tr><td><span class="dot" style="background:${tube.hex}"></span>${tube.name}</td><td>${t.recipe[i]}</td><td class="${off[i] ? "off" : ""}">${v.counts[i]}</td></tr>`
+          : "",
+      ).join("");
+    nextBtn.innerHTML = `${idx + 1 < ROUND_TARGETS ? "Sonraki renk" : "Sonuç"} <kbd>Enter</kbd>`;
+    whyEl.textContent =
+      v.otherRecipe
+        ?"Başka bir tarif, aynı renk: o da sayılır. Boyada siyahla beyaz birlikte, kırmızıyla mavinin yerini tutabilir."
+        : "Aynı oran da sayılır: 2 kırmızı + 2 sarı, 1 + 1 ile aynı renktir.";
+  }
+
+  /** The five pairs on the result card: target | hers, ΔE, score. */
+  function paintResult() {
+    resEl.innerHTML = results
+      .map(
+        (r, i) =>
+          `<div><span class="m">Renk ${i + 1}</span>` +
+          `<span class="pair"><span style="background:${targets[i]!.hex}"></span><span style="background:${r.hex}"></span></span>` +
+          `<span class="m">ΔE ${fmt(r.dE)}</span><b class="${r.score >= PRIZE_BAR ? "win" : ""}">%${r.score}</b></div>`,
+      )
+      .join("");
+  }
+
+  const ledger = openLedger();
+  const shell = mountGameShell({
+    game: "renk",
+    ledger,
+    hooks: {
+      startRound,
+      abandonRound: () => window.clearTimeout(verdictTimer),
+    },
+  });
+
+  // ---------------------------------------------------------------- mouse
+  // Nothing on the playfield takes focus, so Enter and Backspace stay hers.
+
+  for (const el of [tubesEl, dropsEl, playCard, revealCard]) {
+    el.addEventListener("mousedown", (event) => event.preventDefault());
+  }
+  tubesEl.addEventListener("click", (event) => {
+    const b = (event.target as Element).closest<HTMLElement>("[data-tube]");
+    if (b) add(Number(b.dataset.tube));
+  });
+  dropsEl.addEventListener("click", (event) => {
+    const d = (event.target as Element).closest<HTMLElement>("[data-i]");
+    if (d) takeBack(Number(d.dataset.i));
+  });
+  undoBtn.addEventListener("click", () => takeBack());
+  okBtn.addEventListener("click", confirmMix);
+  nextBtn.addEventListener("click", next);
+
+  // ----------------------------------------------------------------- keys
+  // The shell has taken Esc, and every key on its own screens; what arrives
+  // here during a Round is hers.
+
+  window.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (shell.phase !== "playing" || event.repeat) return;
+    const key = event.key;
+    if (judged) {
+      if (key === "Enter") {
+        event.preventDefault();
+        next();
+      }
+      return;
+    }
+    if (/^[1-5]$/.test(key)) add(Number(key) - 1);
+    else if (key === "Backspace") takeBack();
+    else if (key === "Enter") confirmMix();
+    else return;
+    event.preventDefault();
+  });
+</script>
+
+<style>
+  .renk {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: auto 380px;
+    justify-content: center;
+    align-items: center;
+    gap: 48px;
+  }
+
+  /* ── the easel: the two swatches, the drops, the tubes ────────── */
+  .easel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+  }
+  .chip {
+    display: flex;
+    padding: 14px;
+    border-radius: 22px;
+    background: var(--bd-paper);
+    box-shadow:
+      0 1px 2px rgb(58 45 42 / 0.06),
+      0 10px 28px -8px rgb(58 45 42 / 0.18);
+  }
+  .sw {
+    position: relative;
+    width: 400px;
+    height: min(440px, calc(100vh - 430px));
+    transition: background-color 0.18s ease;
+  }
+  .sw:first-child {
+    border-radius: 12px 0 0 12px;
+  }
+  .sw:last-child {
+    border-radius: 0 12px 12px 0;
+  }
+  .sw.empty {
+    background: repeating-linear-gradient(135deg, #f7efe9 0 12px, #fbf6f2 12px 24px) !important;
+  }
+  .cap {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.92);
+    color: var(--bd-ink);
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .empty-msg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--bd-muted);
+    font-weight: 700;
+  }
+  .empty-msg[hidden] {
+    display: none;
+  }
+
+  .drops-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 28px;
+  }
+  .drops {
+    display: flex;
+    gap: 6px;
+  }
+  .drops :global(i) {
+    position: relative;
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+    transition: transform 0.1s;
+  }
+  /* A dropped colour is clickable: a click takes that one drop back. */
+  .drops :global(i.drop) {
+    cursor: pointer;
+  }
+  .drops:not(.locked) :global(i.drop:hover) {
+    transform: scale(1.25);
+    box-shadow:
+      inset 0 0 0 1px rgb(0 0 0 / 0.12),
+      0 2px 6px rgb(0 0 0 / 0.25);
+  }
+  .drops:not(.locked) :global(i.drop:hover::after) {
+    content: "×";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgb(58 45 42 / 0.55);
+    color: #fff;
+    font: 800 14px/1 var(--bd-font);
+  }
+  .drops.locked :global(i.drop) {
+    cursor: default;
+  }
+  .drops :global(i.slot) {
+    background: var(--bd-track);
+    box-shadow: none;
+  }
+  .drops :global(i.last) {
+    outline: 2px solid var(--bd-ink-soft);
+    outline-offset: 2px;
+  }
+  .count {
+    font-weight: 800;
+    color: var(--bd-ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .count.full {
+    color: var(--bd-wrong);
+  }
+  .count:global(.full-shake) {
+    animation: nudge 0.3s;
+  }
+
+  .tubes {
+    display: flex;
+    gap: 14px;
+  }
+  .tube {
+    width: 128px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 12px 12px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--bd-paper);
+    box-shadow:
+      0 1px 2px rgb(58 45 42 / 0.06),
+      0 10px 28px -8px rgb(58 45 42 / 0.18);
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .tube:global(.press) {
+    animation: press 0.12s;
+  }
+  .blob {
+    width: 54px;
+    height: 54px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow:
+      inset 0 -6px 10px rgb(0 0 0 / 0.12),
+      inset 0 0 0 1px rgb(0 0 0 / 0.08);
+  }
+  .nm {
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .tube kbd {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 7px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 7px;
+    border: 1px solid var(--bd-line);
+    background: var(--bd-bg);
+    box-shadow: 0 1px 0 var(--bd-line);
+    font: 800 13px var(--bd-font);
+    color: var(--bd-ink);
+  }
+  .n {
+    font-family: var(--bd-display);
+    font-weight: 700;
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  .n.zero {
+    color: var(--bd-muted-3);
+  }
+
+  /* ── the side: actions, then the reveal ─────────────────────── */
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .card {
+    padding: 22px;
+    border-radius: 20px;
+    background: var(--bd-paper);
+    box-shadow:
+      0 1px 2px rgb(58 45 42 / 0.06),
+      0 10px 28px -8px rgb(58 45 42 / 0.18);
+  }
+  .card[hidden] {
+    display: none;
+  }
+  .card .h {
+    font-family: var(--bd-display);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1.2;
+  }
+  .card p {
+    margin-top: 6px;
+    color: var(--bd-ink-soft);
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  /* :global because a button's label (with its kbd) is rewritten by script. */
+  .acts :global(kbd) {
+    font: inherit;
+    font-size: 0.8em;
+    opacity: 0.85;
+    margin-left: 4px;
+  }
+  .label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .de {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .de b {
+    font-family: var(--bd-display);
+    font-size: 56px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .de b:global(.win) {
+    color: var(--bd-won);
+  }
+  .de span {
+    color: var(--bd-muted);
+    font-weight: 700;
+  }
+  .cmp {
+    width: 100%;
+    margin-top: 14px;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  .cmp :global(th) {
+    padding: 0 4px 6px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .cmp :global(td) {
+    padding: 6px 4px;
+    border-top: 1px solid var(--bd-line-soft);
+    text-align: right;
+    font-weight: 700;
+  }
+  .cmp :global(th:first-child),
+  .cmp :global(td:first-child) {
+    text-align: left;
+  }
+  .cmp :global(td.off) {
+    color: var(--bd-wrong);
+  }
+  .cmp :global(.dot) {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    border-radius: 50%;
+    vertical-align: -1px;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
+  }
+  .why {
+    font-size: 13px;
+    color: var(--bd-muted) !important;
+    margin-top: 12px !important;
+  }
+  /* spectral.js's licence asks for its notice (in the vendored file); the credit stays small and quiet. */
+  .credit {
+    margin: 0;
+    font-size: 12px;
+    color: var(--bd-muted);
+  }
+
+  /* ── HUD ─────────────────────────────────────────────────────── */
+  .hud-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .prog {
+    display: inline-flex;
+    gap: 8px;
+  }
+  .prog :global(i) {
+    position: relative;
+    display: block;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 9px;
+    background: var(--bd-track);
+  }
+  .prog :global(i.cur) {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .prog :global(i span) {
+    position: absolute;
+    inset: 0;
+  }
+  .prog :global(i span + span) {
+    left: 50%;
+  }
+
+  /* ── the cards' notes ────────────────────────────────────────── */
+  .note {
+    display: grid;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--bd-ink-soft);
+    text-align: left;
+  }
+  .what b {
+    color: var(--bd-accent-deep);
+  }
+  .formula {
+    padding: 8px 12px;
+    border-radius: var(--bd-radius-sm);
+    background: var(--bd-track);
+    font-size: 14px;
+    color: var(--bd-muted);
+  }
+  .res {
+    display: grid;
+    gap: 2px;
+  }
+  .res :global(div) {
+    display: grid;
+    grid-template-columns: 60px 1fr 64px 48px;
+    gap: 12px;
+    align-items: center;
+    padding: 5px 0;
+    border-top: 1px solid var(--bd-line-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .res :global(.pair) {
+    display: flex;
+    height: 26px;
+    overflow: hidden;
+    border-radius: 7px;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+  }
+  .res :global(.pair span) {
+    flex: 1;
+  }
+  .res :global(.m) {
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .res :global(b) {
+    text-align: right;
+    color: var(--bd-ink);
+  }
+  .res :global(b.win) {
+    color: var(--bd-won-ink);
+  }
+  .verdict {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--bd-ink);
+  }
+  .verdict:global(.win) {
+    color: var(--bd-won-ink);
+  }
+
+  @keyframes nudge {
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+  @keyframes press {
+    50% {
+      transform: translateY(2px) scale(0.98);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .count:global(.full-shake),
+    .tube:global(.press) {
+      animation: none;
+    }
+  }
+</style>

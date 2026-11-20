@@ -267,7 +267,7 @@ test("the shop shows 12 Gifts; the weekend trip and the paint set are no longer 
 });
 
 test("a Prize Game's route is its placeholder page until its build lands; Esc goes back to the hub (#213)", async ({ page }) => {
-  for (const [id, name] of [["bavul", "Bavul hazırla"], ["renk", "Renk karıştır"], ["barista", "Barista"]] as const) {
+  for (const [id, name] of [["bavul", "Bavul hazırla"], ["barista", "Barista"]] as const) {
     await page.goto(`${HUB}${id}/`);
     await expect(page.locator("html")).toHaveAttribute("lang", "tr");
     await expect(page.getByRole("heading", { name })).toBeVisible();
@@ -1102,3 +1102,57 @@ for (const { path, name } of [
     await expect(overlay).toBeHidden();
   });
 }
+
+test("Renk karıştır: drops by keys, Backspace and a click take them back, 12 is the cap; five colours make a Round, its Best score reaches the tile and no Points (#218)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/renk/");
+  const start = page.getByRole("dialog", { name: "Renk karıştır" });
+  await expect(start).toContainText("Resim seti");
+  await expect(start).toContainText("ΔE nedir?");
+  const esc = start.locator("li").filter({ has: page.locator("kbd", { hasText: /^Esc$/ }) });
+  await expect(esc).toHaveCount(1);
+  await expect(esc).toContainText("Turdan çık");
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Renk 1/5")).toBeVisible();
+  const count = page.getByText(/^\d+ \/ 12 damla$/);
+  await expect(count).toHaveText("0 / 12 damla");
+
+  // 1 2 3: red, yellow, blue. Backspace takes the blue back; a click on the red takes just the red.
+  for (const k of ["1", "2", "3"]) await page.keyboard.press(k);
+  await expect(count).toHaveText("3 / 12 damla");
+  await page.keyboard.press("Backspace");
+  await expect(count).toHaveText("2 / 12 damla");
+  await page.getByTitle("Kırmızı: tıkla, çıkar").click();
+  await expect(count).toHaveText("1 / 12 damla");
+  await expect(page.getByTitle("Sarı: tıkla, çıkar")).toHaveCount(1);
+
+  // Up to 12 drops, and a 13th is refused.
+  for (let i = 0; i < 12; i++) await page.keyboard.press("4");
+  await expect(count).toHaveText("12 / 12 damla");
+
+  // Enter shows the ΔE; Enter again goes on. The other four: one drop each.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Renk farkı (ΔE)")).toBeVisible();
+  await page.keyboard.press("Enter");
+  for (let i = 2; i <= 5; i++) {
+    await expect(page.getByText(`Renk ${i}/5`)).toBeVisible();
+    await page.keyboard.press(String(i));
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: i < 5 ? /Sonraki renk/ : /Sonuç/ })).toBeVisible();
+    await page.keyboard.press("Enter");
+  }
+
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  for (let i = 1; i <= 5; i++) await expect(result).toContainText(`Renk ${i}`);
+  const score = (await result.locator("[data-shell-score]").innerText()).trim();
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Renk karıştır")).toContainText(score);
+  await expect(row(page, "Renk karıştır")).toContainText("Puan vermez");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+});
