@@ -104,6 +104,8 @@ import { gameById, isPrizeGame, PRIZE_BAR, type GameId } from "./catalogue.ts";
 import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "./icons.ts";
 import type { Ledger, RoundOutcome } from "./ledger.ts";
 import { prizeHintOf, prizeHowOf } from "./prize-hints.ts";
+import { one } from "./dom.ts";
+import { formatPoints, formatScore } from "./format.ts";
 
 /** The hub, where "Salona dön" goes. */
 export const HUB_URL = "/20261209/";
@@ -230,8 +232,8 @@ export function createGameShell(options: ShellOptions): GameShell {
     const pointsLine = prizeGame
       ? "Bu oyun puan vermez"
       : gained > 0
-        ? `+${gained} puan · toplam ${ledger.earned().toLocaleString("tr-TR")}`
-        : `Rekorun %${Math.floor(outcome.best)} · puanın değişmedi`;
+        ? `+${gained} puan · toplam ${formatPoints(ledger.earned())}`
+        : `Rekorun ${formatScore(outcome.best)} · puanın değişmedi`;
     const celebrate = outcome.prizeWonNow || (prizeGame && score >= PRIZE_BAR);
     return { ...outcome, score, detail, bestFlash, pointsLine, celebrate };
   }
@@ -356,20 +358,18 @@ export type MountOptions = {
  */
 export function mountGameShell(options: MountOptions): GameShell {
   const root = options.root ?? document;
-  const main = one(root, "[data-shell]");
+  const main = one("[data-shell]", root);
   const screens = Array.from(root.querySelectorAll<HTMLElement>("[data-shell-screen]"));
-  const playfield = one(root, "[data-shell-playfield]");
+  const playfield = one("[data-shell-playfield]", root);
   const { prize } = gameById(options.game);
   const prizeHow = prizeHowOf(options.game);
 
-  /** A score as she reads it: %88, rounded down like the Points it earns. */
-  const pct = (score: number) => `%${Math.floor(score)}`;
   const fill = (selector: string, text: string) => {
     for (const el of root.querySelectorAll<HTMLElement>(selector)) el.textContent = text;
   };
   /** One optional line of the result card: its text, or hidden. */
   const line = (selector: string, text: string | undefined) => {
-    const el = one(root, selector);
+    const el = one(selector, root);
     el.textContent = text ?? "";
     el.hidden = !text;
   };
@@ -379,7 +379,7 @@ export function mountGameShell(options: MountOptions): GameShell {
     // The playfield takes no clicks or focus while a screen is over it.
     playfield.inert = screen.phase !== "playing";
 
-    fill("[data-shell-best]", screen.best == null ? "—" : pct(screen.best));
+    fill("[data-shell-best]", screen.best == null ? "—" : formatScore(screen.best));
     fill("[data-shell-prize-icon]", screen.prizeWon ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON);
     fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : prizeHow);
     for (const el of root.querySelectorAll<HTMLElement>("[data-shell-hint]")) {
@@ -389,7 +389,7 @@ export function mountGameShell(options: MountOptions): GameShell {
 
     const r = screen.result;
     if (r) {
-      fill("[data-shell-score]", pct(r.score));
+      fill("[data-shell-score]", formatScore(r.score));
       line("[data-shell-detail]", r.detail);
       line("[data-shell-points]", r.pointsLine);
       line("[data-shell-best-flash]", r.bestFlash);
@@ -459,10 +459,4 @@ export function mountGameShell(options: MountOptions): GameShell {
   });
 
   return shell;
-}
-
-function one(root: ParentNode, selector: string): HTMLElement {
-  const el = root.querySelector<HTMLElement>(selector);
-  if (!el) throw new Error(`bday26 shell: GameShell.astro is missing ${selector}`);
-  return el;
 }

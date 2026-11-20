@@ -166,6 +166,7 @@ const NOTE = marked(LOVE_NOTE.text);
 </BdayLayout>
 
 <script>
+  import { one, restartAnimation } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
@@ -183,25 +184,20 @@ const NOTE = marked(LOVE_NOTE.text);
   /** A gap cell's width, in cells. Keep in step with `.cell.gap` below. */
   const GAP_WIDTH = 0.42;
 
-  const $ = <T extends HTMLElement>(selector: string) => {
-    const el = document.querySelector<T>(selector);
-    if (!el) throw new Error(`bday26 wordle: the page markup is missing ${selector}`);
-    return el;
-  };
-  const boardEl = $("[data-board]");
-  const hintEl = $("[data-hint]");
-  const shapeEl = $("[data-shape]");
-  const wordEl = $("[data-word]");
-  const guessEl = $("[data-guess]");
-  const totalEl = $("[data-total]");
-  const toastEl = $("[data-toast]");
-  const kbEl = $("[data-kb]");
-  const betweenEl = $("[data-between]");
-  const answerEl = $("[data-answer]");
-  const wordScoreEl = $("[data-word-score]");
-  const wordWhyEl = $("[data-word-why]");
-  const nextBtn = $<HTMLButtonElement>("[data-next]");
-  const wordsEl = $("[data-words]");
+  const boardEl = one("[data-board]");
+  const hintEl = one("[data-hint]");
+  const shapeEl = one("[data-shape]");
+  const wordEl = one("[data-word]");
+  const guessEl = one("[data-guess]");
+  const totalEl = one("[data-total]");
+  const toastEl = one("[data-toast]");
+  const kbEl = one("[data-kb]");
+  const betweenEl = one("[data-between]");
+  const answerEl = one("[data-answer]");
+  const wordScoreEl = one("[data-word-score]");
+  const wordWhyEl = one("[data-word-why]");
+  const nextBtn = one<HTMLButtonElement>("[data-next]");
+  const wordsEl = one("[data-words]");
   const keyEls = new Map(
     Array.from(document.querySelectorAll<HTMLButtonElement>("[data-key]")).map((b) => [b.dataset.key!, b]),
   );
@@ -306,9 +302,7 @@ const NOTE = marked(LOVE_NOTE.text);
   function shake() {
     const rowEl = boardEl.children[word.guesses.length] as HTMLElement | undefined;
     if (!rowEl) return;
-    rowEl.classList.remove("shake");
-    void rowEl.offsetWidth;
-    rowEl.classList.add("shake");
+    restartAnimation(rowEl, "shake");
   }
 
   function bounce(r: number) {

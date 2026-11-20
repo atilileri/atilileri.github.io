@@ -113,6 +113,7 @@ const RULE = `Skor: en iyi ${FRAMING_BEST} fotoğrafın ortalamasının %${100 -
 </BdayLayout>
 
 <script>
+  import { one } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { FRAMING_BEST, FRAMING_WORST_SHARE, framingScore } from "../../../lib/bday26/scores";
@@ -156,23 +157,18 @@ const RULE = `Skor: en iyi ${FRAMING_BEST} fotoğrafın ortalamasının %${100 -
    *  shuffled (`order`). */
   const FRAMING_PHOTOS = PHOTOS.flatMap((p) => (p.subject ? [{ file: p.file, subject: p.subject }] : []));
 
-  const $ = <T extends Element = HTMLElement>(sel: string): T => {
-    const el = document.querySelector<T>(sel);
-    if (!el) throw new Error(`bday26 kadraj: the page is missing ${sel}`);
-    return el;
-  };
-  const stage = $("[data-stage]");
-  const img = $<HTMLImageElement>("[data-photo]");
-  const overlay = $<SVGSVGElement>("[data-overlay]");
-  const legend = $("[data-legend]");
-  const revealBox = $("[data-reveal]");
-  const photoScore = $("[data-photo-score]");
-  const why = $("[data-why]");
-  const go = $<HTMLButtonElement>("[data-go]");
-  const indexEl = $("[data-index]");
-  const dots = $("[data-dots]");
-  const thumbs = $("[data-thumbs]");
-  const verdict = $("[data-verdict]");
+  const stage = one("[data-stage]");
+  const img = one<HTMLImageElement>("[data-photo]");
+  const overlay = one<SVGSVGElement>("[data-overlay]");
+  const legend = one("[data-legend]");
+  const revealBox = one("[data-reveal]");
+  const photoScore = one("[data-photo-score]");
+  const why = one("[data-why]");
+  const go = one<HTMLButtonElement>("[data-go]");
+  const indexEl = one("[data-index]");
+  const dots = one("[data-dots]");
+  const thumbs = one("[data-thumbs]");
+  const verdict = one("[data-verdict]");
 
   // ---------------------------------------------------------- the photos
   // All five load as the page opens; a photo's size is its natural size.

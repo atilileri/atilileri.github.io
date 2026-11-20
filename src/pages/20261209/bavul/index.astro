@@ -115,6 +115,8 @@ const KEYS = [
 </BdayLayout>
 
 <script>
+  import { formatTenths } from "../../../lib/bday26/format";
+  import { one } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { effects } from "../../../lib/bday26/effects-dom";
@@ -146,19 +148,14 @@ const KEYS = [
   import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
   import { BAVUL_EMPTY_PENALTY, BAVUL_MUST_PENALTY } from "../../../lib/bday26/scores";
 
-  const $ = <T extends HTMLElement = HTMLElement>(sel: string) => {
-    const el = document.querySelector<T>(sel);
-    if (!el) throw new Error(`bday26 bavul: ${sel} is missing`);
-    return el;
-  };
-  const playfield = $("[data-shell-playfield]");
-  const itemsEl = $("[data-items]");
-  const cv = $<HTMLCanvasElement>("[data-canvas]");
-  const canvasBox = $("[data-canvas-box]");
-  const holdEl = $("[data-hold]");
-  const toastEl = $("[data-toast]");
-  const timeEl = $("[data-time]");
-  const closeEl = $("[data-close]");
+  const playfield = one("[data-shell-playfield]");
+  const itemsEl = one("[data-items]");
+  const cv = one<HTMLCanvasElement>("[data-canvas]");
+  const canvasBox = one("[data-canvas-box]");
+  const holdEl = one("[data-hold]");
+  const toastEl = one("[data-toast]");
+  const timeEl = one("[data-time]");
+  const closeEl = one("[data-close]");
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-act]"));
   const ctx = cv.getContext("2d")!;
 
@@ -180,7 +177,7 @@ const KEYS = [
   let endedAt: number | null = null;
   let toastTimer = 0;
 
-  const fmtKg = (x: number) => `${String(Math.round(x * 10) / 10).replace(".", ",")} kg`;
+  const fmtKg = (x: number) => `${formatTenths(x)} kg`;
   const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
   const elapsed = () => ((endedAt ?? performance.now()) - t0) / 1000;
 
@@ -236,10 +233,10 @@ const KEYS = [
     if (!round) return;
     const b = breakdown(round);
     endedAt = performance.now();
-    $("[data-result-rows]").innerHTML = rowsHtml(b) + `<div class="row dim"><span>Süre</span><b>${mmss(elapsed())}</b></div>`;
-    $("[data-verdict]").textContent =
+    one("[data-result-rows]").innerHTML = rowsHtml(b) + `<div class="row dim"><span>Süre</span><b>${mmss(elapsed())}</b></div>`;
+    one("[data-verdict]").textContent =
       b.score >= PRIZE_BAR ? "" : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı.`;
-    $("[data-verdict]").hidden = b.score >= PRIZE_BAR;
+    one("[data-verdict]").hidden = b.score >= PRIZE_BAR;
     effects.sound("zip");
     // At 95 or more the shell celebrates the Small prize, won now or before.
     shell.finish(b.score, { detail: CARDS[round.card]!.name });
@@ -400,8 +397,8 @@ const KEYS = [
 
   function paintSide(r: Round) {
     const card = CARDS[r.card]!;
-    $("[data-trip-name]").textContent = card.name;
-    $("[data-musts]").innerHTML = card.musts
+    one("[data-trip-name]").textContent = card.name;
+    one("[data-musts]").innerHTML = card.musts
       .map((k) => {
         const ok = r.items.find((it) => it.key === k)!.placed;
         return `<span class="chip ${ok ? "ok" : ""}">${ok ? "✓" : ITEM_INFO[k].emoji} ${ITEM_INFO[k].name}</span>`;
@@ -445,22 +442,22 @@ const KEYS = [
     }
     for (const b of buttons) b.disabled = !(playing && can(r, b.dataset.act as Verb));
     const b = breakdown(r);
-    const hand = $("[data-hand]");
+    const hand = one("[data-hand]");
     hand.textContent = r.hand ? `Elinde: ${ITEM_INFO[r.items[r.hand.i]!.key].name} (${r.hand.origin === "list" ? "listeden" : "bavuldan"})` : "Elin boş";
     hand.classList.toggle("on", !!r.hand);
     // The fill leads while she packs (review F6: an empty bag opened on
     // "%0" and a long minus); the score is the line under it.
-    const big = $("[data-big]");
+    const big = one("[data-big]");
     big.textContent = `${b.filled} / ${BAG_W * BAG_H} kare`;
     big.classList.toggle("win", b.filled === BAG_W * BAG_H);
-    const live = $("[data-live-score]");
+    const live = one("[data-live-score]");
     live.textContent = `%${b.score}`;
     live.classList.toggle("win", b.score >= PRIZE_BAR);
-    $("[data-rows]").innerHTML = rowsHtml(b, false);
+    one("[data-rows]").innerHTML = rowsHtml(b, false);
     closeEl.hidden = !r.closing;
     if (r.closing) {
-      $("[data-close-rows]").innerHTML = rowsHtml(b);
-      $("[data-close-score]").textContent = `%${b.score}`;
+      one("[data-close-rows]").innerHTML = rowsHtml(b);
+      one("[data-close-score]").textContent = `%${b.score}`;
     }
   }
 

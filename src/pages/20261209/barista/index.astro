@@ -236,59 +236,60 @@ const LETTERS = ["Ö", "S", "D"];
 </BdayLayout>
 
 <script>
+  import { formatDecimal, formatScore } from "../../../lib/bday26/format";
+  import { one } from "../../../lib/bday26/dom";
   import { ACCEL_EXP, STEPS, createBench, halfWidth, type Bench } from "../../../lib/bday26/barista";
   import { openLedger } from "../../../lib/bday26/browser";
   import { effects } from "../../../lib/bday26/effects-dom";
   import { mountGameShell } from "../../../lib/bday26/shell";
 
-  const $ = <T extends Element = HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
   const all = <T extends Element = HTMLElement>(sel: string) => Array.from(document.querySelectorAll<T>(sel));
 
   const el = {
     pips: all("[data-pip]"),
     shots: all("[data-shot]"),
-    mean: $("[data-mean]"),
-    stepN: $("[data-step-n]"),
-    stepName: $("[data-step-name]"),
-    goalTarget: $("[data-goal-target]"),
-    goalBand: $("[data-goal-band]"),
-    scene: $("[data-scene]"),
+    mean: one("[data-mean]"),
+    stepN: one("[data-step-n]"),
+    stepName: one("[data-step-name]"),
+    goalTarget: one("[data-goal-target]"),
+    goalBand: one("[data-goal-band]"),
+    scene: one("[data-scene]"),
     scenes: all<SVGSVGElement>("[data-scene-step]"),
-    grindTimer: $<SVGTextElement>("[data-grind-timer]"),
-    grindScale: $<SVGTextElement>("[data-grind-scale]"),
-    grindMound: $<SVGEllipseElement>("[data-grind-mound]"),
-    tampBed: $<SVGRectElement>("[data-tamp-bed]"),
-    tamper: $<SVGGElement>("[data-tamper]"),
-    tampArrows: $<SVGGElement>("[data-tamp-arrows]"),
-    pullLamp: $<SVGCircleElement>("[data-pull-lamp]"),
-    pullScale: $<SVGTextElement>("[data-pull-scale]"),
-    pullLiquid: $<SVGRectElement>("[data-pull-liquid]"),
-    pullCrema: $<SVGRectElement>("[data-pull-crema]"),
-    instr: $("[data-instr]"),
-    readoutLabel: $("[data-readout-label]"),
-    readoutValue: $("[data-readout-value]"),
-    readoutUnit: $("[data-readout-unit]"),
-    readoutTimer: $("[data-readout-timer]"),
-    gauge: $<SVGSVGElement>("[data-gauge]"),
-    gaugeTrack: $<SVGPathElement>("[data-gauge-track]"),
-    gaugeBand: $<SVGPathElement>("[data-gauge-band]"),
-    gaugeBandIn: $<SVGPathElement>("[data-gauge-band-in]"),
-    gaugeNeedle: $<SVGLineElement>("[data-gauge-needle]"),
-    meter: $("[data-meter]"),
-    meterBand: $("[data-meter-band]"),
-    meterCentre: $("[data-meter-centre]"),
-    meterFill: $("[data-meter-fill]"),
-    meterNeedle: $("[data-meter-needle]"),
-    meterMax: $("[data-meter-max]"),
-    meterTarget: $("[data-meter-target]"),
-    last: $("[data-last]"),
-    lastValue: $("[data-last-value]"),
-    lastBand: $("[data-last-band]"),
-    lastScore: $("[data-last-score]"),
-    lastMean: $("[data-last-mean]"),
-    lastVerdict: $("[data-last-verdict]"),
-    hint: $("[data-hint]"),
-    hintText: $("[data-hint-text]"),
+    grindTimer: one<SVGTextElement>("[data-grind-timer]"),
+    grindScale: one<SVGTextElement>("[data-grind-scale]"),
+    grindMound: one<SVGEllipseElement>("[data-grind-mound]"),
+    tampBed: one<SVGRectElement>("[data-tamp-bed]"),
+    tamper: one<SVGGElement>("[data-tamper]"),
+    tampArrows: one<SVGGElement>("[data-tamp-arrows]"),
+    pullLamp: one<SVGCircleElement>("[data-pull-lamp]"),
+    pullScale: one<SVGTextElement>("[data-pull-scale]"),
+    pullLiquid: one<SVGRectElement>("[data-pull-liquid]"),
+    pullCrema: one<SVGRectElement>("[data-pull-crema]"),
+    instr: one("[data-instr]"),
+    readoutLabel: one("[data-readout-label]"),
+    readoutValue: one("[data-readout-value]"),
+    readoutUnit: one("[data-readout-unit]"),
+    readoutTimer: one("[data-readout-timer]"),
+    gauge: one<SVGSVGElement>("[data-gauge]"),
+    gaugeTrack: one<SVGPathElement>("[data-gauge-track]"),
+    gaugeBand: one<SVGPathElement>("[data-gauge-band]"),
+    gaugeBandIn: one<SVGPathElement>("[data-gauge-band-in]"),
+    gaugeNeedle: one<SVGLineElement>("[data-gauge-needle]"),
+    meter: one("[data-meter]"),
+    meterBand: one("[data-meter-band]"),
+    meterCentre: one("[data-meter-centre]"),
+    meterFill: one("[data-meter-fill]"),
+    meterNeedle: one("[data-meter-needle]"),
+    meterMax: one("[data-meter-max]"),
+    meterTarget: one("[data-meter-target]"),
+    last: one("[data-last]"),
+    lastValue: one("[data-last-value]"),
+    lastBand: one("[data-last-band]"),
+    lastScore: one("[data-last-score]"),
+    lastMean: one("[data-last-mean]"),
+    lastVerdict: one("[data-last-verdict]"),
+    hint: one("[data-hint]"),
+    hintText: one("[data-hint-text]"),
     cells: all("[data-result-cell]"),
   };
 
@@ -297,8 +298,6 @@ const LETTERS = ["Ö", "S", "D"];
   /** After the ninth step, the result card waits this long, ms. */
   const FINISH_MS = 1100;
 
-  const fmt = (v: number, d = 1) => v.toFixed(d).replace(".", ",");
-  const pct = (v: number) => `%${Math.floor(v)}`;
   const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
   const grade = (score: number) => (score >= 95 ? "hi" : score >= 80 ? "mid" : "lo");
 
@@ -408,13 +407,13 @@ const LETTERS = ["Ö", "S", "D"];
       pip.className = `pip ${r ? grade(r.score) : isCur ? "cur" : ""}`;
       pip.textContent = r ? String(r.score) : ["Ö", "S", "D"][i % 3]!;
     });
-    el.mean.textContent = results.length ? pct(mean(results.map((r) => r.score))) : "—";
+    el.mean.textContent = results.length ? formatScore(mean(results.map((r) => r.score))) : "—";
 
     // The step and its target.
     el.stepN.textContent = `Çekim ${shot + 1} / 3 · Adım ${stepIndex + 1} / 3`;
     el.stepName.textContent = s.name;
-    el.goalTarget.textContent = `${fmt(s.target)} ${s.unit}`;
-    el.goalBand.textContent = `${fmt(s.target - hw)}–${fmt(s.target + hw)} ${s.unit}`;
+    el.goalTarget.textContent = `${formatDecimal(s.target)} ${s.unit}`;
+    el.goalBand.textContent = `${formatDecimal(s.target - hw)}–${formatDecimal(s.target + hw)} ${s.unit}`;
     for (const svg of el.scenes) svg.toggleAttribute("hidden", svg.dataset.sceneStep !== s.key);
     el.readoutLabel.textContent = s.label;
     el.readoutUnit.textContent = s.unit;
@@ -434,7 +433,7 @@ const LETTERS = ["Ö", "S", "D"];
     el.meterBand.style.width = `${((2 * hw) / s.max) * 100}%`;
     el.meterCentre.style.left = `${(s.target / s.max) * 100}%`;
     el.meterTarget.style.left = `${(s.target / s.max) * 100}%`;
-    el.meterTarget.textContent = `${fmt(s.target, 0)} ${s.unit}`;
+    el.meterTarget.textContent = `${formatDecimal(s.target, 0)} ${s.unit}`;
     el.meterMax.textContent = `${s.max} ${s.unit}`;
 
     const holding = bench.phase === "holding";
@@ -457,14 +456,14 @@ const LETTERS = ["Ö", "S", "D"];
     if (lr) {
       const ls = STEPS[lr.stepIndex]!;
       const dv = lr.value - ls.target;
-      el.lastValue.textContent = `${fmt(lr.value)} ${ls.unit}`;
-      el.lastBand.textContent = `${fmt(lr.lo)}–${fmt(lr.hi)}`;
+      el.lastValue.textContent = `${formatDecimal(lr.value)} ${ls.unit}`;
+      el.lastBand.textContent = `${formatDecimal(lr.lo)}–${formatDecimal(lr.hi)}`;
       el.lastScore.textContent = String(lr.score);
-      el.lastMean.textContent = pct(mean(results.map((r) => r.score)));
+      el.lastMean.textContent = formatScore(mean(results.map((r) => r.score)));
       el.lastVerdict.className = `verdict ${lr.inBand ? "hit" : "miss"}`;
       el.lastVerdict.textContent =
         (lr.inBand ? "Bantta! " : "Bant dışı · ") +
-        (Math.abs(dv) < 0.05 ? "tam merkez" : `merkezden ${dv > 0 ? "+" : "−"}${fmt(Math.abs(dv))} ${ls.unit}`) +
+        (Math.abs(dv) < 0.05 ? "tam merkez" : `merkezden ${dv > 0 ? "+" : "−"}${formatDecimal(Math.abs(dv))} ${ls.unit}`) +
         ` (${ls.name}, çekim ${lr.shot + 1})`;
     }
     draw(now);
@@ -481,7 +480,7 @@ const LETTERS = ["Ö", "S", "D"];
     const f = v / s.max;
     const holding = bench.phase === "holding";
 
-    el.readoutValue.textContent = fmt(v);
+    el.readoutValue.textContent = formatDecimal(v);
     if (s.key === "pull") el.readoutTimer.textContent = `${Math.round((held * SHOT_SECONDS) / s.tt)} sn`;
     if (s.key === "tamp") {
       const [x, y] = gPt(f, 92);
@@ -495,8 +494,8 @@ const LETTERS = ["Ö", "S", "D"];
       const g = v / s.target; // 1 at the dose
       el.grindMound.setAttribute("ry", String(Math.min(26, 18 * g)));
       el.grindMound.setAttribute("rx", String(30 + 16 * Math.min(1.2, g)));
-      el.grindScale.textContent = `${fmt(v)} g`;
-      el.grindTimer.textContent = fmt(held);
+      el.grindScale.textContent = `${formatDecimal(v)} g`;
+      el.grindTimer.textContent = formatDecimal(held);
     } else if (s.key === "tamp") {
       el.tamper.setAttribute("transform", `translate(0 ${36 + f * 14})`);
       el.tampBed.setAttribute("y", String(306 + 4 + f * 14));
@@ -509,7 +508,7 @@ const LETTERS = ["Ö", "S", "D"];
       const ch = Math.min(h, 3 + h * 0.18);
       el.pullCrema.setAttribute("y", String(378 - h));
       el.pullCrema.setAttribute("height", String(ch));
-      el.pullScale.textContent = `${fmt(v)} g`;
+      el.pullScale.textContent = `${formatDecimal(v)} g`;
       el.pullLamp.setAttribute("fill", holding ? "#ffb703" : "#6e5e58");
     }
   }

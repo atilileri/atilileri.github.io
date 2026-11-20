@@ -98,6 +98,7 @@ const KEYS = [
 </BdayLayout>
 
 <script>
+  import { one } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { cssVar } from "../../../lib/bday26/css";
   import { createFrameLoop } from "../../../lib/bday26/frame-loop";
@@ -124,20 +125,19 @@ const KEYS = [
   import { music } from "../../../lib/bday26/music-dom";
   import { createPause } from "../../../lib/bday26/pause-dom";
 
-  const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
-  const view = $<HTMLElement>("[data-view]");
-  const cv = $<HTMLCanvasElement>("[data-slope]");
+  const view = one<HTMLElement>("[data-view]");
+  const cv = one<HTMLCanvasElement>("[data-slope]");
   const ctx = cv.getContext("2d")!;
-  const toastEl = $<HTMLElement>("[data-toast]");
+  const toastEl = one<HTMLElement>("[data-toast]");
   /** The skis on the snow: a swoosh that follows her speed (the shared effects switch). */
   const swoosh = effects.loop("swoosh");
-  const progEl = $<HTMLElement>("[data-prog]");
-  const progFill = $<HTMLElement>("[data-prog-fill]");
+  const progEl = one<HTMLElement>("[data-prog]");
+  const progFill = one<HTMLElement>("[data-prog-fill]");
   const hud = {
-    flags: $<HTMLElement>("[data-hud-flags]"),
-    missed: $<HTMLElement>("[data-hud-missed]"),
-    time: $<HTMLElement>("[data-hud-time]"),
-    cp: $<HTMLElement>("[data-hud-cp]"),
+    flags: one<HTMLElement>("[data-hud-flags]"),
+    missed: one<HTMLElement>("[data-hud-missed]"),
+    time: one<HTMLElement>("[data-hud-time]"),
+    cp: one<HTMLElement>("[data-hud-cp]"),
   };
 
   /** The prototype's stage, px: everything is drawn on it, then scaled to the screen. */
