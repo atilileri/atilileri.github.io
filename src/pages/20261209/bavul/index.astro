@@ -83,8 +83,9 @@ const KEYS = [
       <div class="side score-col">
         <section class="panel score" aria-label="Bu turun skoru">
           <div class="hand" data-hand>Elin boş</div>
-          <div class="lbl">Bu turun skoru</div>
-          <div class="big" data-big>%0</div>
+          <div class="lbl">Doluluk</div>
+          <div class="big" data-big>0 / 48 kare</div>
+          <div class="live">Bu turun skoru <b data-live-score>%0</b></div>
           <div class="rows" data-rows></div>
           <p class="note">Skor = 100 − 5 × boş kare − 10 × eksik olmazsa olmaz. 23 kg'ı aşan bavul kapanmaz.</p>
         </section>
@@ -142,6 +143,8 @@ const KEYS = [
     type Round,
     type Verb,
   } from "../../../lib/bday26/bavul";
+  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
+  import { BAVUL_EMPTY_PENALTY, BAVUL_MUST_PENALTY } from "../../../lib/bday26/scores";
 
   const $ = <T extends HTMLElement = HTMLElement>(sel: string) => {
     const el = document.querySelector<T>(sel);
@@ -157,7 +160,7 @@ const KEYS = [
   const timeEl = $("[data-time]");
   const closeEl = $("[data-close]");
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-act]"));
-  const g = cv.getContext("2d")!;
+  const ctx = cv.getContext("2d")!;
 
   /** Every sound of the machine, as the site's effects name them. */
   const SOUND: Record<BavulSound, SoundName> = {
@@ -170,8 +173,8 @@ const KEYS = [
     must: "row-good",
   };
 
-  let R: Round | null = null;
-  let lastCard: number | undefined;
+  /** The Round in play; null before the first and after she leaves one. */
+  let round: Round | null = null;
   let t0 = 0;
   /** The Round's time once it is over (the clock stops at "Kapat"). */
   let endedAt: number | null = null;
@@ -184,9 +187,9 @@ const KEYS = [
   // ── the one door into the machine ─────────────────────────────────
 
   function dispatch(a: Action) {
-    if (shell.phase !== "playing" || !R) return;
-    const { state, events } = step(R, a);
-    R = state;
+    if (shell.phase !== "playing" || !round) return;
+    const { state, events } = step(round, a);
+    round = state;
     for (const e of events) {
       if (e.kind === "sound") {
         const name = SOUND[e.sound];
@@ -199,9 +202,30 @@ const KEYS = [
     paint();
   }
 
+  /** The last Round's trip card, kept for the tab so "Salona dön" or a
+   *  reload does not deal it straight again (#214: never the same twice in
+   *  a row). Not progress: a browser that refuses storage only forgets it. */
+  const LAST_CARD_KEY = "bday26:bavul:last";
+  function lastCard(): number | undefined {
+    try {
+      const n = JSON.parse(sessionStorage.getItem(LAST_CARD_KEY) ?? "null");
+      return Number.isInteger(n) && n >= 0 && n < CARDS.length ? (n as number) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  function rememberCard(card: number) {
+    try {
+      sessionStorage.setItem(LAST_CARD_KEY, JSON.stringify(card));
+    } catch {
+      // Storage refused: the next Round may repeat this card after a reload.
+    }
+  }
+
   function startRound() {
-    lastCard = drawCard(lastCard, Math.random);
-    R = newRound(lastCard);
+    const card = drawCard(lastCard(), Math.random);
+    rememberCard(card);
+    round = newRound(card);
     t0 = performance.now();
     endedAt = null;
     lastPoint = "";
@@ -209,17 +233,16 @@ const KEYS = [
   }
 
   function finishRound() {
-    if (!R) return;
-    const b = breakdown(R);
+    if (!round) return;
+    const b = breakdown(round);
     endedAt = performance.now();
-    R = { ...R, closing: false };
     $("[data-result-rows]").innerHTML = rowsHtml(b) + `<div class="row dim"><span>Süre</span><b>${mmss(elapsed())}</b></div>`;
     $("[data-verdict]").textContent =
-      b.score >= 95 ? "" : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı.`;
-    $("[data-verdict]").hidden = b.score >= 95;
+      b.score >= PRIZE_BAR ? "" : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı.`;
+    $("[data-verdict]").hidden = b.score >= PRIZE_BAR;
     effects.sound("zip");
     // At 95 or more the shell celebrates the Small prize, won now or before.
-    shell.finish(b.score, { detail: CARDS[R.card]!.name });
+    shell.finish(b.score, { detail: CARDS[round.card]!.name });
     paint();
   }
 
@@ -230,7 +253,7 @@ const KEYS = [
   window.addEventListener(
     "keydown",
     (event) => {
-      if (event.key !== "Escape" || shell.phase !== "playing" || !R) return;
+      if (event.key !== "Escape" || shell.phase !== "playing" || !round) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       if (!event.repeat) dispatch({ t: "cancel", leave: true });
@@ -244,7 +267,7 @@ const KEYS = [
     hooks: {
       startRound,
       abandonRound() {
-        R = null;
+        round = null;
         window.clearTimeout(toastTimer);
       },
     },
@@ -272,32 +295,32 @@ const KEYS = [
 
   // ── mouse layer: clicks → the same actions ───────────────────────
 
-  let CS = 80;
+  let cellPx = 80;
   const PAD = 26;
   const TOPH = 34;
   let dpr = 1;
   const OX = PAD;
   const OY = PAD + TOPH;
-  const pointOf = (event: MouseEvent): Point => ({ fx: (event.offsetX - OX) / CS, fy: (event.offsetY - OY) / CS });
+  const pointOf = (event: MouseEvent): Point => ({ fx: (event.offsetX - OX) / cellPx, fy: (event.offsetY - OY) / cellPx });
   const inBag = (p: Point) => p.fx >= 0 && p.fx < BAG_W && p.fy >= 0 && p.fy < BAG_H;
   let lastPoint = "";
 
   cv.addEventListener("pointermove", (event) => {
-    if (shell.phase !== "playing" || !R) return;
+    if (shell.phase !== "playing" || !round) return;
     const p = pointOf(event);
     if (!inBag(p)) return;
     // Only a change of where the item would land is an action.
     let where = `${Math.floor(p.fx)},${Math.floor(p.fy)}`;
-    if (R.hand) {
-      const it = R.items[R.hand.i]!;
+    if (round.hand) {
+      const it = round.items[round.hand.i]!;
       const d = dims(shapeOf(it));
-      where = `${R.hand.i}:${it.rot}:${R.hand.origin === "list" ? `${Math.round(p.fx - d.w / 2)},${Math.round(p.fy - d.h / 2)}` : where}`;
+      where = `${round.hand.i}:${it.rot}:${round.hand.origin === "list" ? `${Math.round(p.fx - d.w / 2)},${Math.round(p.fy - d.h / 2)}` : where}`;
     }
     if (where !== lastPoint) {
       lastPoint = where;
       dispatch({ t: "point", at: p });
     }
-    cv.style.cursor = R.hand || itemsCovering(R, [{ x: Math.floor(p.fx), y: Math.floor(p.fy) }]).length ? "pointer" : "default";
+    cv.style.cursor = round.hand || itemsCovering(round, [{ x: Math.floor(p.fx), y: Math.floor(p.fy) }]).length ? "pointer" : "default";
   });
   cv.addEventListener("pointerleave", () => (lastPoint = ""));
   cv.addEventListener("pointerdown", (event) => {
@@ -355,12 +378,18 @@ const KEYS = [
     toastTimer = window.setTimeout(() => toastEl.classList.remove("on"), 1600);
   }
 
-  function rowsHtml(b: Breakdown) {
+  /** The score's lines; `filled: false` leaves out the fill, for the live
+   *  panel, which leads with it. */
+  function rowsHtml(b: Breakdown, filled = true) {
     return (
       [
-        ["Dolu", `${b.filled} / ${BAG_W * BAG_H} kare`, ""],
-        [`Boş kalan (${b.empty})`, b.empty ? `−${b.empty * 5}` : "0", b.empty ? "neg" : "ok"],
-        [`Eksik olmazsa olmaz (${b.missing.length})`, b.missing.length ? `−${b.missing.length * 10}` : "0", b.missing.length ? "neg" : "ok"],
+        ...(filled ? ([["Dolu", `${b.filled} / ${BAG_W * BAG_H} kare`, ""]] as const) : []),
+        [`Boş kalan (${b.empty})`, b.empty ? `−${b.empty * BAVUL_EMPTY_PENALTY}` : "0", b.empty ? "neg" : "ok"],
+        [
+          `Eksik olmazsa olmaz (${b.missing.length})`,
+          b.missing.length ? `−${b.missing.length * BAVUL_MUST_PENALTY}` : "0",
+          b.missing.length ? "neg" : "ok",
+        ],
         ["Ağırlık", `${fmtKg(b.kg)} / ${KG_LIMIT} kg`, b.heavy ? "neg" : ""],
         ["Bavul", b.heavy ? `kapanmaz: ${KG_LIMIT} kg'ı aştın` : "kapanır", b.heavy ? "neg" : "ok"],
       ] as const
@@ -419,10 +448,15 @@ const KEYS = [
     const hand = $("[data-hand]");
     hand.textContent = r.hand ? `Elinde: ${ITEM_INFO[r.items[r.hand.i]!.key].name} (${r.hand.origin === "list" ? "listeden" : "bavuldan"})` : "Elin boş";
     hand.classList.toggle("on", !!r.hand);
+    // The fill leads while she packs (review F6: an empty bag opened on
+    // "%0" and a long minus); the score is the line under it.
     const big = $("[data-big]");
-    big.textContent = `%${b.score}`;
-    big.classList.toggle("win", b.score >= 95);
-    $("[data-rows]").innerHTML = rowsHtml(b);
+    big.textContent = `${b.filled} / ${BAG_W * BAG_H} kare`;
+    big.classList.toggle("win", b.filled === BAG_W * BAG_H);
+    const live = $("[data-live-score]");
+    live.textContent = `%${b.score}`;
+    live.classList.toggle("win", b.score >= PRIZE_BAR);
+    $("[data-rows]").innerHTML = rowsHtml(b, false);
     closeEl.hidden = !r.closing;
     if (r.closing) {
       $("[data-close-rows]").innerHTML = rowsHtml(b);
@@ -431,18 +465,18 @@ const KEYS = [
   }
 
   function paint() {
-    if (!R) return;
-    paintSide(R);
-    paintHud(R);
+    if (!round) return;
+    paintSide(round);
+    paintHud(round);
   }
 
   function resize() {
     const w0 = canvasBox.clientWidth;
     const h0 = canvasBox.clientHeight;
     if (!w0 || !h0) return;
-    CS = Math.floor(Math.max(36, Math.min((w0 - 2 * PAD) / BAG_W, (h0 - 2 * PAD - TOPH) / BAG_H, 112)));
-    const w = BAG_W * CS + 2 * PAD;
-    const h = BAG_H * CS + 2 * PAD + TOPH;
+    cellPx = Math.floor(Math.max(36, Math.min((w0 - 2 * PAD) / BAG_W, (h0 - 2 * PAD - TOPH) / BAG_H, 112)));
+    const w = BAG_W * cellPx + 2 * PAD;
+    const h = BAG_H * cellPx + 2 * PAD + TOPH;
     dpr = window.devicePixelRatio || 1;
     cv.style.width = `${w}px`;
     cv.style.height = `${h}px`;
@@ -461,110 +495,110 @@ const KEYS = [
   function piece(cells: Cell[], color: string, opt: { alpha?: number; stroke?: string; dash?: number[]; emoji?: string } = {}) {
     const set = new Set(cells.map((c) => `${c.x},${c.y}`));
     const has = (x: number, y: number) => set.has(`${x},${y}`);
-    const ins = Math.max(3, CS * 0.05);
+    const ins = Math.max(3, cellPx * 0.05);
     const rectOf = (x: number, y: number) => {
       const l = has(x - 1, y) ? 0 : ins;
       const r = has(x + 1, y) ? 0 : ins;
       const t = has(x, y - 1) ? 0 : ins;
       const b = has(x, y + 1) ? 0 : ins;
-      return [OX + x * CS + l, OY + y * CS + t, CS - l - r, CS - t - b] as const;
+      return [OX + x * cellPx + l, OY + y * cellPx + t, cellPx - l - r, cellPx - t - b] as const;
     };
-    g.save();
-    g.globalAlpha = opt.alpha ?? 1;
-    g.fillStyle = color;
-    for (const c of cells) g.fillRect(...rectOf(c.x, c.y));
-    g.beginPath();
+    ctx.save();
+    ctx.globalAlpha = opt.alpha ?? 1;
+    ctx.fillStyle = color;
+    for (const c of cells) ctx.fillRect(...rectOf(c.x, c.y));
+    ctx.beginPath();
     for (const { x, y } of cells) {
       const [a, b, w, h] = rectOf(x, y);
-      if (!has(x, y - 1)) (g.moveTo(a, b), g.lineTo(a + w, b));
-      if (!has(x, y + 1)) (g.moveTo(a, b + h), g.lineTo(a + w, b + h));
-      if (!has(x - 1, y)) (g.moveTo(a, b), g.lineTo(a, b + h));
-      if (!has(x + 1, y)) (g.moveTo(a + w, b), g.lineTo(a + w, b + h));
+      if (!has(x, y - 1)) (ctx.moveTo(a, b), ctx.lineTo(a + w, b));
+      if (!has(x, y + 1)) (ctx.moveTo(a, b + h), ctx.lineTo(a + w, b + h));
+      if (!has(x - 1, y)) (ctx.moveTo(a, b), ctx.lineTo(a, b + h));
+      if (!has(x + 1, y)) (ctx.moveTo(a + w, b), ctx.lineTo(a + w, b + h));
     }
-    g.strokeStyle = opt.stroke ?? shade(color, -0.35);
-    g.lineWidth = opt.stroke ? 3 : 1.5;
-    if (opt.dash) g.setLineDash(opt.dash);
-    g.stroke();
-    g.setLineDash([]);
+    ctx.strokeStyle = opt.stroke ?? shade(color, -0.35);
+    ctx.lineWidth = opt.stroke ? 3 : 1.5;
+    if (opt.dash) ctx.setLineDash(opt.dash);
+    ctx.stroke();
+    ctx.setLineDash([]);
     if (opt.emoji) {
       const cx = cells.reduce((s, c) => s + c.x, 0) / cells.length;
       const cy = cells.reduce((s, c) => s + c.y, 0) / cells.length;
       const near = cells.slice().sort((p, q) => Math.hypot(p.x - cx, p.y - cy) - Math.hypot(q.x - cx, q.y - cy))[0]!;
-      g.font = `${Math.round(CS * 0.48)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
-      g.textAlign = "center";
-      g.textBaseline = "middle";
-      g.fillText(opt.emoji, OX + (near.x + 0.5) * CS, OY + (near.y + 0.5) * CS + 1);
+      ctx.font = `${Math.round(cellPx * 0.48)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(opt.emoji, OX + (near.x + 0.5) * cellPx, OY + (near.y + 0.5) * cellPx + 1);
     }
-    g.restore();
+    ctx.restore();
   }
 
   let shownSecond = -1;
   function frame(now: number) {
-    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const w = cv.width / dpr;
     const h = cv.height / dpr;
-    g.clearRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
     // The suitcase: handle, shell, lining, the grid.
     const sx = PAD - 16;
     const sy = TOPH + PAD - 16;
-    const sw = BAG_W * CS + 32;
-    const sh = BAG_H * CS + 32;
-    g.fillStyle = "#7a4b3a";
-    g.beginPath();
-    g.roundRect(w / 2 - 70, sy - 30, 140, 40, 14);
-    g.fill();
-    g.fillStyle = "#fffaf5";
-    g.beginPath();
-    g.roundRect(w / 2 - 48, sy - 18, 96, 22, 8);
-    g.fill();
-    g.fillStyle = "#c45a5a";
-    g.beginPath();
-    g.roundRect(sx, sy, sw, sh, 22);
-    g.fill();
-    g.fillStyle = "#a94646";
-    g.fillRect(sx + 40, sy, 10, sh);
-    g.fillRect(sx + sw - 50, sy, 10, sh);
-    g.fillStyle = "#f6ece2";
-    g.beginPath();
-    g.roundRect(OX - 4, OY - 4, BAG_W * CS + 8, BAG_H * CS + 8, 10);
-    g.fill();
-    g.strokeStyle = "rgba(122,75,58,.16)";
-    g.lineWidth = 1;
+    const sw = BAG_W * cellPx + 32;
+    const sh = BAG_H * cellPx + 32;
+    ctx.fillStyle = "#7a4b3a";
+    ctx.beginPath();
+    ctx.roundRect(w / 2 - 70, sy - 30, 140, 40, 14);
+    ctx.fill();
+    ctx.fillStyle = "#fffaf5";
+    ctx.beginPath();
+    ctx.roundRect(w / 2 - 48, sy - 18, 96, 22, 8);
+    ctx.fill();
+    ctx.fillStyle = "#c45a5a";
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, sw, sh, 22);
+    ctx.fill();
+    ctx.fillStyle = "#a94646";
+    ctx.fillRect(sx + 40, sy, 10, sh);
+    ctx.fillRect(sx + sw - 50, sy, 10, sh);
+    ctx.fillStyle = "#f6ece2";
+    ctx.beginPath();
+    ctx.roundRect(OX - 4, OY - 4, BAG_W * cellPx + 8, BAG_H * cellPx + 8, 10);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(122,75,58,.16)";
+    ctx.lineWidth = 1;
     for (let x = 0; x <= BAG_W; x++) {
-      g.beginPath();
-      g.moveTo(OX + x * CS + 0.5, OY);
-      g.lineTo(OX + x * CS + 0.5, OY + BAG_H * CS);
-      g.stroke();
+      ctx.beginPath();
+      ctx.moveTo(OX + x * cellPx + 0.5, OY);
+      ctx.lineTo(OX + x * cellPx + 0.5, OY + BAG_H * cellPx);
+      ctx.stroke();
     }
     for (let y = 0; y <= BAG_H; y++) {
-      g.beginPath();
-      g.moveTo(OX, OY + y * CS + 0.5);
-      g.lineTo(OX + BAG_W * CS, OY + y * CS + 0.5);
-      g.stroke();
+      ctx.beginPath();
+      ctx.moveTo(OX, OY + y * cellPx + 0.5);
+      ctx.lineTo(OX + BAG_W * cellPx, OY + y * cellPx + 0.5);
+      ctx.stroke();
     }
-    if (R) {
-      for (const it of R.items) if (it.placed) piece(cellsAt(it, it.placed.x, it.placed.y), ITEM_INFO[it.key].color, { emoji: ITEM_INFO[it.key].emoji });
+    if (round) {
+      for (const it of round.items) if (it.placed) piece(cellsAt(it, it.placed.x, it.placed.y), ITEM_INFO[it.key].color, { emoji: ITEM_INFO[it.key].emoji });
       if (shell.phase === "playing" || shell.phase === "confirm") {
-        if (R.hand) {
-          const it = R.items[R.hand.i]!;
-          const p = probe(R)!;
+        if (round.hand) {
+          const it = round.items[round.hand.i]!;
+          const p = probe(round)!;
           // Where a bag item came from: a faint outline, so "Bırak" is predictable.
-          if (typeof R.hand.origin === "object") {
-            const o = R.hand.origin;
+          if (typeof round.hand.origin === "object") {
+            const o = round.hand.origin;
             piece(cellsAt({ ...it, rot: o.rot }, o.x, o.y), "#ffffff", { alpha: 0.5, stroke: "#b9a8a3", dash: [3, 4] });
           }
           piece(p.cells, ITEM_INFO[it.key].color, { alpha: 0.82, stroke: !p.ok ? "#d9453d" : p.warn ? "#b7791f" : "#2fb67c", dash: [7, 5], emoji: ITEM_INFO[it.key].emoji });
-        } else if (!R.closing) {
+        } else if (!round.closing) {
           const pulse = 0.5 + 0.5 * Math.sin(now / 250);
-          g.strokeStyle = `rgba(224,68,106,${0.5 + 0.5 * pulse})`;
-          g.lineWidth = 3;
-          g.setLineDash([6, 4]);
-          g.strokeRect(OX + R.cursor.x * CS + 3, OY + R.cursor.y * CS + 3, CS - 6, CS - 6);
-          g.setLineDash([]);
+          ctx.strokeStyle = `rgba(224,68,106,${0.5 + 0.5 * pulse})`;
+          ctx.lineWidth = 3;
+          ctx.setLineDash([6, 4]);
+          ctx.strokeRect(OX + round.cursor.x * cellPx + 3, OY + round.cursor.y * cellPx + 3, cellPx - 6, cellPx - 6);
+          ctx.setLineDash([]);
         }
       }
     }
-    const s = R ? Math.floor(elapsed()) : 0;
+    const s = round ? Math.floor(elapsed()) : 0;
     if (s !== shownSecond) {
       shownSecond = s;
       timeEl.textContent = mmss(s);
@@ -848,12 +882,26 @@ const KEYS = [
     background: var(--bd-accent-soft);
   }
   .big {
-    font: 800 64px/1 var(--bd-display);
+    font: 800 44px/1 var(--bd-display);
+    white-space: nowrap;
     letter-spacing: -0.02em;
     margin-top: 4px;
     font-variant-numeric: tabular-nums;
   }
   .big:global(.win) {
+    color: var(--bd-won);
+  }
+  .live {
+    margin-top: 8px;
+    font-weight: 700;
+    color: var(--bd-muted);
+  }
+  .live b {
+    font: 800 22px/1 var(--bd-display);
+    color: var(--bd-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .live b:global(.win) {
     color: var(--bd-won);
   }
   .rows {

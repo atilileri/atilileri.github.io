@@ -18,6 +18,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  cropWord,
   drag,
   grabAt,
   grow,
@@ -25,6 +26,7 @@ import {
   nudge,
   reset,
   ringRadius,
+  roundOrder,
   scoreCrop,
   shrink,
   startFraming,
@@ -186,4 +188,48 @@ test("grab: inside the box moves it, near a corner or an edge resizes, outside d
   assert.deepEqual(grabAt(box, { x: 92, y: 250 }, 16, 10), { dx: -1, dy: 0 });
   assert.deepEqual(grabAt(box, { x: 300, y: 405 }, 16, 10), { dx: 0, dy: 1 });
   assert.equal(grabAt(box, { x: 50, y: 50 }, 16, 10), null);
+});
+
+// ------------------------------------------------------- a Round's order
+
+/** A dice that throws these numbers in turn (each 0 ≤ n < 1), then 0. */
+function dice(...throws: number[]) {
+  return () => throws.shift() ?? 0;
+}
+
+test("a Round deals the same five photos in a shuffled order, read off the dice (review E4)", () => {
+  const photos = ["a", "b", "c", "d", "e"] as const;
+  // Fisher–Yates from the end, one throw per place: 0.99 keeps e in the
+  // fifth, 0 brings a's place-mate d to the front, 0.5 swaps the third with
+  // the second, 0.99 keeps the second.
+  assert.deepEqual(roundOrder(photos, dice(0.99, 0, 0.5, 0.99)), ["d", "c", "b", "a", "e"]);
+  // Always 0: each photo swaps with the first in turn.
+  assert.deepEqual(roundOrder(photos, dice()), ["b", "c", "d", "e", "a"]);
+  assert.deepEqual(photos, ["a", "b", "c", "d", "e"], "the list it was given is left as it was");
+});
+
+test("every photo comes once in a Round, whatever the dice", () => {
+  const photos = [1, 2, 3, 4, 5];
+  let seed = 7;
+  const rng = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+  const orders = new Set<string>();
+  for (let i = 0; i < 50; i++) {
+    const order = roundOrder(photos, rng);
+    assert.deepEqual([...order].sort(), photos);
+    orders.add(order.join());
+  }
+  assert.ok(orders.size > 10, `only ${orders.size} different orders in 50 Rounds`);
+});
+
+test("the one-word verdict on a photo, from the prototype's thresholds", () => {
+  assert.equal(cropWord(100), "Kusursuz");
+  assert.equal(cropWord(97), "Kusursuz");
+  assert.equal(cropWord(96), "Çok iyi");
+  assert.equal(cropWord(90), "Çok iyi");
+  assert.equal(cropWord(89), "İyi");
+  assert.equal(cropWord(70), "İyi");
+  assert.equal(cropWord(69), "Fena değil");
+  assert.equal(cropWord(40), "Fena değil");
+  assert.equal(cropWord(39), "Odak noktası uzakta");
+  assert.equal(cropWord(0), "Odak noktası uzakta");
 });

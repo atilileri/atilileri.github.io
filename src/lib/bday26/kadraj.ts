@@ -1,8 +1,9 @@
 /**
  * Photo framing, "Kadraj" (/20261209/kadraj/, ticket #203; spec #192 "Photo
  * framing", stories 71–73): the crop box she moves over one photo, and the
- * score one crop earns. Pure: no DOM, no randomness, no ledger, so
- * `kadraj.test.ts` pins every rule under `node --test`. The page
+ * score one crop earns, and the order a Round deals its photos in. Pure: no
+ * DOM, no ledger, and the only randomness is the `rng` handed to
+ * `roundOrder`, so `kadraj.test.ts` pins every rule under `node --test`. The page
  * (`src/pages/20261209/kadraj/index.astro`) is the painter and the mouse; it
  * owns no rule about the box or the score.
  *
@@ -94,11 +95,44 @@ export function ringRadius(crop: Crop): number {
   return (percent / 100) * Math.hypot(crop.w, crop.h);
 }
 
+/** The one-word verdict on a photo's score, from the score down (the
+ *  prototype's, #184): the reveal leads with it. */
+const CROP_WORDS: readonly (readonly [number, string])[] = [
+  [97, "Kusursuz"],
+  [90, "Çok iyi"],
+  [70, "İyi"],
+  [40, "Fena değil"],
+  [0, "Odak noktası uzakta"],
+];
+
+/** What the reveal calls a photo's score: "Kusursuz" from 97 down to
+ *  "Odak noktası uzakta" under 40. */
+export function cropWord(score: number): string {
+  return CROP_WORDS.find(([from]) => score >= from)?.[1] ?? CROP_WORDS[CROP_WORDS.length - 1]![1];
+}
+
 /** Distance (percent of the diagonal) to score: flat 100, then a straight line to 0. */
 function curve(distance: number): number {
   if (distance <= PERFECT_RADIUS) return 100;
   if (distance >= ZERO_RADIUS) return 0;
   return Math.round(100 * (1 - (distance - PERFECT_RADIUS) / (ZERO_RADIUS - PERFECT_RADIUS)));
+}
+
+// ------------------------------------------------------- a Round's order
+
+/**
+ * The photos of one Round in the order she meets them: the same five every
+ * Round, shuffled (review E4, the owner's decision; the spec had them fixed
+ * in `photos.json` order). A Fisher–Yates shuffle on a copy, one throw of
+ * `rng` (0 ≤ n < 1) per place from the last.
+ */
+export function roundOrder<T>(photos: readonly T[], rng: () => number): T[] {
+  const out = [...photos];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [out[i], out[j]] = [out[j]!, out[i]!];
+  }
+  return out;
 }
 
 // ---------------------------------------------------------- the crop box

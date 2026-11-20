@@ -1340,7 +1340,8 @@ test("Bavul hazırla by mouse alone: the card's perfect pack scores %100, wins H
     await page.mouse.click(c.x, c.y);
     await expect(hand).toHaveText("Elin boş");
   }
-  await expect(page.locator("[data-big]")).toHaveText("%100");
+  await expect(page.locator("[data-big]")).toHaveText("48 / 48 kare");
+  await expect(page.locator("[data-live-score]")).toHaveText("%100");
 
   await page.getByRole("button", { name: /Bavulu kapat/ }).click();
   await page.getByRole("dialog", { name: "Bavulu kapatıyor musun?" }).getByRole("button", { name: /Kapat/ }).click();

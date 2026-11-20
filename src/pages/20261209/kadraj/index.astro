@@ -4,8 +4,9 @@
  * framing", stories 71–73; feel from the prototype #184, which Atıl played:
  * "defaults as built, forgiving radius").
  *
- * WHAT SHE SEES. Five of our photos, always the same five in the same order
- * (the ones with a Subject point, `subject` in `photos.json`). Each fills a
+ * WHAT SHE SEES. Five of our photos, always the same five (the ones with a
+ * Subject point, `subject` in `photos.json`), in a new order each Round
+ * (`roundOrder`, review E4; the spec had them in a fixed order). Each fills a
  * dark stage with a white crop box over it, the whole photo at first, the
  * rule-of-thirds lines on. She moves and sizes the box and confirms with
  * Enter or "Kırp". There is no live score: the Subject point (*Odak
@@ -14,7 +15,8 @@
  * nearest thirds point (white ring) and the green 95% ring around it, with
  * the photo's score under the stage. Enter goes on; after the fifth, the
  * shell's result card shows the Round score and the five crops, each with
- * its score, the weakest tagged as the one that counts only 5%.
+ * its score, the weakest tagged as the one that counts only 5%
+ * (`FRAMING_WORST_SHARE`).
  *
  * KEYS (keyboard-first; the mouse works too):
  *   - arrows move the box (Shift: 5× faster);
@@ -44,9 +46,13 @@
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
-import { gameById } from "../../../lib/bday26/catalogue";
+import { gameById, PRIZE_BAR } from "../../../lib/bday26/catalogue";
+import { PHOTOS } from "../../../lib/bday26/photos";
+import { FRAMING_BEST, FRAMING_WORST_SHARE } from "../../../lib/bday26/scores";
 
 const game = gameById("kadraj");
+/** Photos in a Round: every photo with a Subject point. */
+const PHOTO_COUNT = PHOTOS.filter((p) => p.subject).length;
 
 const KEYS = [
   { key: "Fare", does: "İçinden sürükle: taşı · köşe ve kenardan: boyutlandır" },
@@ -61,12 +67,12 @@ const KEYS = [
 ];
 
 /** The Round formula, as she reads it on both cards. */
-const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşük fotoğrafın %5'i.";
+const RULE = `Skor: en iyi ${FRAMING_BEST} fotoğrafın ortalamasının %${100 - FRAMING_WORST_SHARE}'i + en düşük fotoğrafın %${FRAMING_WORST_SHARE}'i.`;
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
   <GameShell game="kadraj" keys={KEYS}>
-    <span slot="hud" class="hud-line"><span>Fotoğraf <b data-index>1</b>/5</span><span class="dots" data-dots></span></span>
+    <span slot="hud" class="hud-line"><span>Fotoğraf <b data-index>1</b>/{PHOTO_COUNT}</span><span class="dots" data-dots></span></span>
 
     <div slot="start" class="note">
       <p>
@@ -109,10 +115,11 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
-  import { framingScore } from "../../../lib/bday26/scores";
+  import { FRAMING_BEST, FRAMING_WORST_SHARE, framingScore } from "../../../lib/bday26/scores";
   import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
   import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
   import {
+    cropWord,
     drag,
     grabAt,
     grow,
@@ -120,6 +127,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
     nudge,
     reset,
     ringRadius,
+    roundOrder,
     scoreCrop,
     shrink,
     startFraming,
@@ -144,8 +152,9 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
   /** The reveal's zoom takes this long (CSS `.photo.zooming` matches). */
   const ZOOM_MS = 460;
 
-  /** The five framing photos, fixed, in `photos.json` order (spec). */
-  const ROUND = PHOTOS.flatMap((p) => (p.subject ? [{ file: p.file, subject: p.subject }] : []));
+  /** The five framing photos, in `photos.json` order; each Round deals them
+   *  shuffled (`order`). */
+  const FRAMING_PHOTOS = PHOTOS.flatMap((p) => (p.subject ? [{ file: p.file, subject: p.subject }] : []));
 
   const $ = <T extends Element = HTMLElement>(sel: string): T => {
     const el = document.querySelector<T>(sel);
@@ -169,7 +178,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
   // All five load as the page opens; a photo's size is its natural size.
 
   const loaded = new Map<string, Promise<Size>>();
-  for (const { file } of ROUND) {
+  for (const { file } of FRAMING_PHOTOS) {
     const pre = new Image();
     pre.src = photoUrl(file);
     loaded.set(
@@ -185,6 +194,8 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
 
   type Done = { file: string; photo: Size; crop: Crop; subject: Point; scored: CropScore };
 
+  /** This Round's photos, in the order she meets them. */
+  let order = FRAMING_PHOTOS;
   let idx = 0;
   let results: Done[] = [];
   /** The box on the current photo; undefined while the photo loads. */
@@ -200,7 +211,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
 
   async function beginPhoto() {
     const mine = ++ticket;
-    const { file, subject: s } = ROUND[idx]!;
+    const { file, subject: s } = order[idx]!;
     framing = undefined;
     revealing = false;
     window.clearTimeout(zoomTimer);
@@ -223,6 +234,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
   }
 
   function startRound() {
+    order = roundOrder(FRAMING_PHOTOS, Math.random);
     idx = 0;
     results = [];
     thirdsOn = true;
@@ -238,7 +250,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
   function confirmCrop() {
     if (revealing || !framing || shell.phase !== "playing") return;
     const scored = scoreCrop(framing.crop, subject);
-    results[idx] = { file: ROUND[idx]!.file, photo: framing.photo, crop: framing.crop, subject, scored };
+    results[idx] = { file: order[idx]!.file, photo: framing.photo, crop: framing.crop, subject, scored };
     revealing = true;
     dragging = undefined;
 
@@ -252,20 +264,20 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
 
     photoScore.textContent = `%${scored.score}`;
     photoScore.classList.toggle("win", scored.score >= PRIZE_BAR);
-    why.innerHTML = `<b>${words(scored.score)}.</b> ${
+    why.innerHTML = `<b>${cropWord(scored.score)}.</b> ${
       scored.inside
-        ? "Turuncu nokta odak noktası, beyaz halka en yakın kesişim. Yeşil alanın içi %95 ve üstü."
+        ? `Turuncu nokta odak noktası, beyaz halka en yakın kesişim. Yeşil alanın içi %${PRIZE_BAR} ve üstü.`
         : "Odak noktası kadrajın dışında kaldı."
     }`;
     legend.hidden = true;
     revealBox.hidden = false;
-    go.innerHTML = `${idx + 1 < ROUND.length ? "Sonraki fotoğraf" : "Sonuç"} <kbd>Enter</kbd>`;
+    go.innerHTML = `${idx + 1 < order.length ? "Sonraki fotoğraf" : "Sonuç"} <kbd>Enter</kbd>`;
     paint();
   }
 
   function next() {
     if (!revealing || shell.phase !== "playing") return;
-    if (idx + 1 < ROUND.length) {
+    if (idx + 1 < order.length) {
       idx += 1;
       void beginPhoto();
       return;
@@ -276,19 +288,10 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
     const n95 = scores.filter((s) => s >= PRIZE_BAR).length;
     paintThumbs(scores);
     // Under the bar the shell's card says what %95 asks (the prize hint).
-    verdict.textContent = total >= PRIZE_BAR ? "Dört kare neredeyse kusursuz: %95 tamam!" : "";
+    verdict.textContent = total >= PRIZE_BAR ? `${FRAMING_BEST} kare neredeyse kusursuz: %${PRIZE_BAR} tamam!` : "";
     verdict.hidden = total < PRIZE_BAR;
     verdict.classList.toggle("win", total >= PRIZE_BAR);
-    shell.finish(total, { detail: `${n95}/5 fotoğraf %95 ve üstü` });
-  }
-
-  /** The prototype's one-word verdict on a photo's score. */
-  function words(score: number): string {
-    if (score >= 97) return "Kusursuz";
-    if (score >= 90) return "Çok iyi";
-    if (score >= 70) return "İyi";
-    if (score >= 40) return "Fena değil";
-    return "Odak noktası uzakta";
+    shell.finish(total, { detail: `${n95}/${order.length} fotoğraf %${PRIZE_BAR} ve üstü` });
   }
 
   // ------------------------------------------------- photo ↔ stage pixels
@@ -323,7 +326,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
 
   function paintHud() {
     indexEl.textContent = String(idx + 1);
-    dots.innerHTML = ROUND.map((_, i) => {
+    dots.innerHTML = order.map((_, i) => {
       const r = results[i];
       const cls = r ? (r.scored.score >= PRIZE_BAR ? "dot hi" : "dot done") : i === idx ? "dot now" : "dot";
       return `<span class="${cls}">${r ? r.scored.score : i + 1}</span>`;
@@ -410,7 +413,7 @@ const RULE = "Skor: en iyi dört fotoğrafın ortalamasının %95'i + en düşü
           `<g class="thumb-thirds">${lines}</g>` +
           `<circle cx="${r.subject.x}" cy="${r.subject.y}" r="${dot}" class="thumb-dot"/></svg>` +
           `<figcaption><b class="${r.scored.score >= PRIZE_BAR ? "win" : ""}">%${r.scored.score}</b>` +
-          `<span>${i === worst ? "en düşük · %5" : ""}</span></figcaption></figure>`
+          `<span>${i === worst ? `en düşük · %${FRAMING_WORST_SHARE}` : ""}</span></figcaption></figure>`
         );
       })
       .join("");

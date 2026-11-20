@@ -191,15 +191,6 @@ const LETTERS = ["Ö", "S", "D"];
             <line data-gauge-needle x1="160" y1="150" x2="160" y2="50" stroke="#3a2d2a" stroke-width="5" stroke-linecap="round"></line>
             <circle cx="160" cy="150" r="10" fill="#3a2d2a"></circle>
           </svg>
-          <div data-meter-wrap>
-            <div class="meter" data-meter>
-              <div class="band" data-meter-band><div class="band-in"></div></div>
-              <div class="centre" data-meter-centre></div>
-              <div class="fill" data-meter-fill></div>
-              <div class="needle" data-meter-needle></div>
-            </div>
-            <div class="scale"><span>0</span><span data-meter-max>24 g</span></div>
-          </div>
           <div class="last empty" data-last>
             <div>Bıraktığın<b data-last-value>—</b></div>
             <div>Bant<b data-last-band>—</b></div>
@@ -207,6 +198,18 @@ const LETTERS = ["Ö", "S", "D"];
             <div>Tur ortalaması<b data-last-mean>—</b></div>
             <div class="verdict" data-last-verdict></div>
           </div>
+        </div>
+      </div>
+
+      <div class="meter-wrap">
+        <div class="meter" data-meter>
+          <div class="band" data-meter-band><div class="band-in"></div></div>
+          <div class="centre" data-meter-centre></div>
+          <div class="fill" data-meter-fill></div>
+          <div class="needle" data-meter-needle></div>
+        </div>
+        <div class="scale">
+          <span>0</span><span class="mid" data-meter-target>18 g</span><span data-meter-max>24 g</span>
         </div>
       </div>
 
@@ -233,7 +236,7 @@ const LETTERS = ["Ö", "S", "D"];
 </BdayLayout>
 
 <script>
-  import { ACCEL_EXP, STEPS, createBench, halfWidth, type Bench, type StepResult } from "../../../lib/bday26/barista";
+  import { ACCEL_EXP, STEPS, createBench, halfWidth, type Bench } from "../../../lib/bday26/barista";
   import { openLedger } from "../../../lib/bday26/browser";
   import { effects } from "../../../lib/bday26/effects-dom";
   import { mountGameShell } from "../../../lib/bday26/shell";
@@ -271,13 +274,13 @@ const LETTERS = ["Ö", "S", "D"];
     gaugeBand: $<SVGPathElement>("[data-gauge-band]"),
     gaugeBandIn: $<SVGPathElement>("[data-gauge-band-in]"),
     gaugeNeedle: $<SVGLineElement>("[data-gauge-needle]"),
-    meterWrap: $("[data-meter-wrap]"),
     meter: $("[data-meter]"),
     meterBand: $("[data-meter-band]"),
     meterCentre: $("[data-meter-centre]"),
     meterFill: $("[data-meter-fill]"),
     meterNeedle: $("[data-meter-needle]"),
     meterMax: $("[data-meter-max]"),
+    meterTarget: $("[data-meter-target]"),
     last: $("[data-last]"),
     lastValue: $("[data-last-value]"),
     lastBand: $("[data-last-band]"),
@@ -337,27 +340,26 @@ const LETTERS = ["Ö", "S", "D"];
   window.addEventListener("keyup", (event) => {
     if (event.code !== "Space") return;
     event.preventDefault();
-    const r = bench.release(event.timeStamp);
-    if (r) locked(r);
+    if (bench.release(event.timeStamp)) locked();
   });
   // A lost focus lets go, as the prototype did: the step scores where it stopped.
   window.addEventListener("blur", () => {
-    const r = bench.release(performance.now());
-    if (r) locked(r);
+    if (bench.release(performance.now())) locked();
   });
 
   function frame(now: number) {
     if (bench.phase !== "holding") return;
-    const r = bench.tick(now);
-    if (r) {
-      locked(r);
+    if (bench.tick(now)) {
+      locked();
       return;
     }
     draw(now);
     requestAnimationFrame(frame);
   }
 
-  function locked(_r: StepResult) {
+  /** A step just ended (released, or held to the top): paint its result and,
+   *  after the ninth, queue the result card. */
+  function locked() {
     paint(performance.now());
     if (bench.round.done) finishTimer = window.setTimeout(finishRound, FINISH_MS);
   }
@@ -418,20 +420,22 @@ const LETTERS = ["Ö", "S", "D"];
     el.readoutUnit.textContent = s.unit;
     el.readoutTimer.hidden = s.key !== "pull";
 
-    // The band: a dial for the tamp, a bar for the grind and the pull.
+    // The band: the wide bar under the bench on every step (review E3: the
+    // bar was a 340 px strip beside the scene); the tamp keeps its dial too,
+    // the scene's own gauge.
     const dial = s.key === "tamp";
     el.gauge.toggleAttribute("hidden", !dial);
-    el.meterWrap.hidden = dial;
     if (dial) {
       el.gaugeTrack.setAttribute("d", gArc(0, 1, 110));
       el.gaugeBand.setAttribute("d", gArc((s.target - hw) / s.max, (s.target + hw) / s.max, 110));
       el.gaugeBandIn.setAttribute("d", gArc((s.target - hw / 2) / s.max, (s.target + hw / 2) / s.max, 110));
-    } else {
-      el.meterBand.style.left = `${((s.target - hw) / s.max) * 100}%`;
-      el.meterBand.style.width = `${((2 * hw) / s.max) * 100}%`;
-      el.meterCentre.style.left = `${(s.target / s.max) * 100}%`;
-      el.meterMax.textContent = `${s.max} ${s.unit}`;
     }
+    el.meterBand.style.left = `${((s.target - hw) / s.max) * 100}%`;
+    el.meterBand.style.width = `${((2 * hw) / s.max) * 100}%`;
+    el.meterCentre.style.left = `${(s.target / s.max) * 100}%`;
+    el.meterTarget.style.left = `${(s.target / s.max) * 100}%`;
+    el.meterTarget.textContent = `${fmt(s.target, 0)} ${s.unit}`;
+    el.meterMax.textContent = `${s.max} ${s.unit}`;
 
     const holding = bench.phase === "holding";
     const last = bench.last;
@@ -483,10 +487,9 @@ const LETTERS = ["Ö", "S", "D"];
       const [x, y] = gPt(f, 92);
       el.gaugeNeedle.setAttribute("x2", String(x));
       el.gaugeNeedle.setAttribute("y2", String(y));
-    } else {
-      el.meterFill.style.width = `${f * 100}%`;
-      el.meterNeedle.style.left = `${f * 100}%`;
     }
+    el.meterFill.style.width = `${f * 100}%`;
+    el.meterNeedle.style.left = `${f * 100}%`;
 
     if (s.key === "grind") {
       const g = v / s.target; // 1 at the dose
@@ -552,7 +555,7 @@ const LETTERS = ["Ö", "S", "D"];
     --machine: #3a2d2a;
     --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
     display: grid;
-    grid-template-rows: auto minmax(0, auto) auto;
+    grid-template-rows: auto minmax(0, auto) auto auto;
     align-content: center;
     justify-items: center;
     gap: 18px;
@@ -666,7 +669,7 @@ const LETTERS = ["Ö", "S", "D"];
     gap: 28px;
     align-items: center;
     min-height: 0;
-    height: min(640px, calc(100vh - 260px));
+    height: min(600px, calc(100vh - 360px));
     width: min(1080px, 100%);
   }
   .scene {
@@ -727,9 +730,14 @@ const LETTERS = ["Ö", "S", "D"];
     font: 600 22px/1 var(--mono);
     color: #ffd7a0;
   }
+  /* The band meter spans the bench: at 1920 × 1080 the narrowest band (the
+     pull, shot 3) is about 40 px, the widest (the grind, shot 1) 90 px. */
+  .meter-wrap {
+    width: min(1080px, 100%);
+  }
   .meter {
     position: relative;
-    height: 46px;
+    height: 56px;
     border-radius: 12px;
     background: var(--bd-track);
     overflow: hidden;
@@ -763,8 +771,8 @@ const LETTERS = ["Ö", "S", "D"];
   .meter .fill {
     position: absolute;
     left: 0;
-    top: 13px;
-    bottom: 13px;
+    top: 16px;
+    bottom: 16px;
     border-radius: 0 6px 6px 0;
     background: var(--coffee);
     width: 0;
@@ -773,8 +781,8 @@ const LETTERS = ["Ö", "S", "D"];
     position: absolute;
     top: 4px;
     bottom: 4px;
-    width: 4px;
-    margin-left: -2px;
+    width: 6px;
+    margin-left: -3px;
     border-radius: 2px;
     background: var(--bd-ink);
     left: 0;
@@ -786,18 +794,27 @@ const LETTERS = ["Ö", "S", "D"];
     background: var(--bd-wrong);
   }
   .scale {
+    position: relative;
     display: flex;
     justify-content: space-between;
     margin-top: 4px;
     font-weight: 700;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--bd-muted-2);
     font-variant-numeric: tabular-nums;
   }
+  .scale .mid {
+    position: absolute;
+    transform: translateX(-50%);
+    color: var(--bd-won-ink);
+  }
+  /* The dial gives way first when the screen is short (1366 × 768): the
+     band meter under the bench carries the band. */
   .gauge {
     display: block;
     width: 100%;
     height: auto;
+    max-height: max(120px, calc(100vh - 610px));
   }
   .gauge[hidden] {
     display: none;

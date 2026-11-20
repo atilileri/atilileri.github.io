@@ -133,8 +133,14 @@ export function difference(hexA: string, hexB: string): number {
 
 // ── the targets ───────────────────────────────────────────────────────
 
-/** The most drops in one mix: hers and every hidden recipe's. */
+/** The most drops in her mix. A hidden recipe stays within `TARGET_DROPS`,
+ *  so she has room to overshoot and correct. */
 export const DROP_CAP = 12;
+/** The most drops in a hidden recipe (review E2: #215 allowed 12, a median
+ *  of 10, and 95% asked for near-perfect recipes found blind). */
+export const TARGET_DROPS = 10;
+/** The most tubes in a hidden recipe (review E2: #215 allowed 4). */
+export const TARGET_TUBES = 3;
 /** Targets in one Round. */
 export const ROUND_TARGETS = 5;
 /** The least ΔE between two targets of the same Round. */
@@ -146,11 +152,12 @@ export type Target = { recipe: Counts; hex: string; lab: Lab };
 const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
 
 /**
- * Every colour a Round may ask for (the verdict on #215): each proportion of
- * the five tubes up to `DROP_CAP` drops (2 + 2 is 1 + 1, so only the
- * smallest of each counts), using 2 to 4 tubes and at least 3 drops, with
- * L* between 25 and 90 — no near-black, no near-white. Its recipe makes it,
- * so a perfect match always exists. About 6,000 mixes: build it once.
+ * Every colour a Round may ask for (the verdict on #215, made simpler by
+ * review E2): each proportion of the five tubes up to `TARGET_DROPS` drops
+ * (2 + 2 is 1 + 1, so only the smallest of each counts), using 2 to
+ * `TARGET_TUBES` tubes and at least 3 drops, with L* between 25 and 90 — no
+ * near-black, no near-white. Its recipe makes it, so a perfect match always
+ * exists. About 1,100 mixes, a median of 8 drops: build it once.
  */
 export function targetPool(): Target[] {
   const pool: Target[] = [];
@@ -158,13 +165,13 @@ export function targetPool(): Target[] {
   const visit = (i: number, total: number) => {
     if (i === TUBES.length) {
       const used = cur.filter((n) => n > 0).length;
-      if (total < 3 || used < 2 || used > 4 || cur.reduce(gcd) !== 1) return;
+      if (total < 3 || used < 2 || used > TARGET_TUBES || cur.reduce(gcd) !== 1) return;
       const hex = mixColour(cur)!;
       const lab = hexToLab(hex);
       if (lab[0] >= 25 && lab[0] <= 90) pool.push({ recipe: cur.slice(), hex, lab });
       return;
     }
-    for (let n = 0; n + total <= DROP_CAP; n++) {
+    for (let n = 0; n + total <= TARGET_DROPS; n++) {
       cur[i] = n;
       visit(i + 1, total + n);
     }
