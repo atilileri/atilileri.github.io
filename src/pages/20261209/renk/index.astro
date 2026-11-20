@@ -5,8 +5,11 @@
  *
  * WHAT SHE SEES. A target colour and her own mix as two swatches touching,
  * five tubes of paint under them (red, yellow, blue, white, black), and the
- * row of drops she has put in, up to 12. The mix changes with every drop;
- * the colour difference (ΔE) stays hidden until she confirms. Then a card
+ * row of drops she has put in, up to 12 (a hidden recipe needs at most 10,
+ * from at most 3 tubes). The mix changes with every drop, and so does the
+ * "Yakınlık" meter beside it: the score this mix would get now, from its
+ * ΔE on the score's own scale (review E2, the owner's decision; #215 hid
+ * all of it until Enter). The ΔE number itself still waits for Enter. Then a card
  * shows the ΔE, the target's score and the hidden recipe beside hers; Enter
  * goes on. After the fifth target the shell's result card shows the Round
  * score (the mean of the five) and the five pairs, each with its ΔE and
@@ -34,7 +37,7 @@
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
-import { DROP_CAP, ROUND_TARGETS, TUBES } from "../../../lib/bday26/renk";
+import { DROP_CAP, ROUND_TARGETS, TARGET_DROPS, TARGET_TUBES, TUBES } from "../../../lib/bday26/renk";
 import { RENK_SLOPE } from "../../../lib/bday26/scores";
 
 const game = gameById("renk");
@@ -61,8 +64,9 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
 
     <div slot="start" class="note">
       <p>
-        Beş tüp boya, beş hedef renk. Her hedef en fazla {DROP_CAP} damlalık gizli bir tariften geliyor, yani tam eşleşme
-        her zaman mümkün. Damlaları ekle, karışımı hedefe benzet, onayla.
+        Beş tüp boya, beş hedef renk. Her hedef en fazla {TARGET_TUBES} tüpten, en fazla {TARGET_DROPS} damlalık gizli bir
+        tariften geliyor, yani tam eşleşme her zaman mümkün. Damlaları ekle, karışımı hedefe benzet, onayla. Yakınlık
+        göstergesi her damlada, onaylarsan o renkten alacağın puanı gösterir.
       </p>
       <p class="what">
         <b>ΔE nedir?</b> ΔE, iki rengin insan gözüne ne kadar farklı göründüğünü ölçer. 0 aynı renk demek; 1–2 civarındaki
@@ -104,7 +108,11 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
       <div class="side">
         <div class="card" data-play-card>
           <div class="h">Renk <span data-index>1</span> / {ROUND_TARGETS}</div>
-          <p>Karışımı hedefe benzet. Renk farkı onayladıktan sonra görünür.</p>
+          <div class="near" data-near>
+            <div class="near-top"><span class="label">Yakınlık</span><b data-near-pct>—</b></div>
+            <div class="near-bar" aria-hidden="true"><span data-near-fill></span></div>
+          </div>
+          <p>Karışımı hedefe benzet. Yakınlık, onaylarsan alacağın puandır.</p>
           <div class="acts">
             <button class="bd-btn secondary" type="button" tabindex="-1" data-undo>Geri al <kbd>⌫</kbd></button>
             <button class="bd-btn primary" type="button" tabindex="-1" data-ok>Onayla <kbd>Enter</kbd></button>
@@ -134,7 +142,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
-  import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
+  import { gameById, PRIZE_BAR } from "../../../lib/bday26/catalogue";
   import { renkMatchCelebration, type SoundName } from "../../../lib/bday26/effects";
   import { effects } from "../../../lib/bday26/effects-dom";
   import {
@@ -153,7 +161,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
     type Target,
     type Verdict,
   } from "../../../lib/bday26/renk";
-  import { renkRoundScore } from "../../../lib/bday26/scores";
+  import { RENK_PERFECT_DE, renkRoundScore } from "../../../lib/bday26/scores";
 
   /** Each tube's drop sound, in `TUBES` order. */
   const DROP_SOUND: SoundName[] = ["paint-red", "paint-yellow", "paint-blue", "paint-white", "paint-black"];
@@ -187,6 +195,10 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
   const progEl = $("[data-prog]");
   const resEl = $("[data-res]");
   const verdictEl = $("[data-verdict]");
+  const nearEl = $("[data-near]");
+  const nearPct = $("[data-near-pct]");
+  const nearFill = $("[data-near-fill]");
+  const prize = gameById("renk").prize;
 
   const fmt = (x: number) => x.toFixed(1).replace(".", ",");
 
@@ -246,7 +258,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
     effects.sound("brush");
     window.clearTimeout(verdictTimer);
     verdictTimer = window.setTimeout(() => {
-      if (v.dE <= 1) effects.celebrate(renkMatchCelebration(Math.random), revealCard);
+      if (v.dE <= RENK_PERFECT_DE) effects.celebrate(renkMatchCelebration(Math.random), revealCard);
       else if (v.score >= CLOSE) effects.sound("row-good");
       else {
         effects.sound("row-wrong");
@@ -264,15 +276,21 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
     }
     judged = false;
     const score = renkRoundScore(results.map((r) => r.score));
-    const matched = results.filter((r) => r.dE <= 1).length;
+    const matched = results.filter((r) => r.dE <= RENK_PERFECT_DE).length;
     paintResult();
-    const outcome = shell.finish(score, { detail: `${matched}/${ROUND_TARGETS} renk tam eşleşti (ΔE ≤ 1)` });
+    const outcome = shell.finish(score, {
+      detail: `${matched}/${ROUND_TARGETS} renk tam eşleşti (ΔE ≤ ${RENK_PERFECT_DE})`,
+    });
+    // The shell's result card names the prize the Round it is won and shows
+    // the 95% hint until then; this line adds what the prize holds, or that
+    // it is already hers.
     const won = ledger.prizeWon("renk");
     verdictEl.textContent = won
       ? outcome?.prizeWonNow
-        ? "Resim seti senin! Akrilik boya, tuval ve şövale."
-        : "Resim setini zaten kazandın."
-      : `Resim seti için rekorun en az %${PRIZE_BAR} olmalı.`;
+        ? prize.desc
+        : `Küçük ödülü zaten kazandın: ${prize.name}.`
+      : "";
+    verdictEl.hidden = !won;
     verdictEl.classList.toggle("win", won);
     // At 95% or more the shell celebrates the Small prize, won now or before.
   }
@@ -319,6 +337,12 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
       el.classList.toggle("zero", !counts[i]);
     });
 
+    // The live meter: what Enter would score now, on the score's own scale.
+    const near = t && drops.length && !judged ? judge(t, drops).score : null;
+    nearPct.textContent = near == null ? "—" : `%${near}`;
+    nearFill.style.width = `${near ?? 0}%`;
+    nearEl.classList.toggle("hi", near != null && near >= PRIZE_BAR);
+
     undoBtn.disabled = !drops.length;
     okBtn.disabled = !drops.length;
     playCard.hidden = judged;
@@ -328,7 +352,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
 
   function paintReveal(t: Target, v: Verdict) {
     deEl.textContent = fmt(v.dE);
-    deEl.classList.toggle("win", v.dE <= 1);
+    deEl.classList.toggle("win", v.dE <= RENK_PERFECT_DE);
     ptsEl.textContent = `→ %${v.score}`;
     const off = offTubes(t.recipe, v.counts);
     cmpEl.innerHTML =
@@ -641,6 +665,41 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
     font-size: 0.8em;
     opacity: 0.85;
     margin-left: 4px;
+  }
+  .near {
+    margin-top: 14px;
+  }
+  .near-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .near-top b {
+    font-family: var(--bd-display);
+    font-size: 40px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .near.hi .near-top b {
+    color: var(--bd-won);
+  }
+  .near-bar {
+    height: 14px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--bd-track);
+  }
+  .near-bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--bd-accent);
+    transition: width 0.18s ease;
+  }
+  .near.hi .near-bar span {
+    background: var(--bd-won);
   }
   .label {
     font-size: 12px;
