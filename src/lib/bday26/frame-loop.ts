@@ -5,9 +5,9 @@
  * tab never jumps the world forward.
  *
  * `start()` runs only when the page's `canRun()` says so: each page keeps
- * its own reasons to stand still (no Round, the shell's confirm card, a lost
- * window focus, her P pause) as its own flags, sets them, and calls `stop()`
- * or `start()`. The frame returns false when the Round is over; the loop
+ * its own reasons to stand still (no Round, the shell's confirm card, her
+ * pause from `./pause-dom.ts`: P, a lost focus, a hidden tab) as its own
+ * flags, sets them, and calls `stop()` or `start()`. The frame returns false when the Round is over; the loop
  * then ends without another frame.
  *
  * The piano (piyano) keeps its own loop: it runs on an absolute song clock,

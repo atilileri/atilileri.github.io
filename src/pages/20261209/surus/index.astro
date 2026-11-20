@@ -24,9 +24,10 @@
  * once stopped), ←→/A D steer, Space handbrake. Enter starts and Esc asks to
  * leave; both are the shell's. While the confirm card is open the simulation
  * stands still (the shell's `pause`/`resume`). P pauses and P resumes; a
- * lost window focus pauses too and waits for P, as the ski Game does — the
- * shared `PauseOverlay.astro` says so, and the clock, the countdown and the
- * toasts stand still under it. The
+ * lost window focus or a hidden tab pauses too and waits for P, as the ski
+ * Game does — the shared `PauseOverlay.astro` says so, the shared
+ * `src/lib/bday26/pause-dom.ts` does it, and the clock, the countdown and
+ * the toasts stand still under it. The
  * prototype's own Esc pause, debug panel, end screen, Best and tries are
  * gone: the shell and the ledger own those.
  *
@@ -143,6 +144,7 @@ const LIMIT = formatClock(RULES.timeLimit);
   } from "../../../lib/bday26/surus";
   import { effects } from "../../../lib/bday26/effects-dom";
   import { music } from "../../../lib/bday26/music-dom";
+  import { createPause } from "../../../lib/bday26/pause-dom";
 
   const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
   const stage = $<HTMLElement>("[data-stage]");
@@ -151,7 +153,6 @@ const LIMIT = formatClock(RULES.timeLimit);
   const mini = $<HTMLCanvasElement>("[data-mini]").getContext("2d")!;
   const toasts = $<HTMLElement>("[data-toasts]");
   const countEl = $<HTMLElement>("[data-count]");
-  const pauseEl = $<HTMLElement>("[data-pause-overlay]");
   const hud = {
     time: $<HTMLElement>("[data-hud-time]"),
     score: $<HTMLElement>("[data-hud-score]"),
@@ -183,7 +184,6 @@ const LIMIT = formatClock(RULES.timeLimit);
   let phase: "idle" | "countdown" | "driving" = "idle";
   let countdown = 0;
   let paused = false; // the shell's confirm card
-  let held = false; // her P pause, or a lost window focus: only P lifts it
   const cam = { x: 0, y: 0 };
   const keys = new Set<string>();
 
@@ -200,7 +200,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     phase = "countdown";
     countdown = COUNTDOWN;
     paused = false;
-    setHeld(false);
+    pause.clear();
     // A new Round retunes the car radio: a short sweep of static.
     music.set({ tune: ++tunes });
     countEl.hidden = false;
@@ -285,23 +285,13 @@ const LIMIT = formatClock(RULES.timeLimit);
   }
 
   /** The town moves in a Round, with no confirm card and no pause. */
-  const loop = createFrameLoop({ canRun: () => phase !== "idle" && !paused && !held, frame: tick, maxDt: 0.033 });
+  const loop = createFrameLoop({ canRun: () => phase !== "idle" && !paused && !pause.paused, frame: tick, maxDt: 0.033 });
 
-  /** Her pause: P, or a lost focus. The overlay says so; the town, the
-   *  clock, the countdown and the toasts all stand still under it. */
-  function setHeld(on: boolean) {
-    held = on;
-    pauseEl.hidden = !on;
-    keys.clear();
-    if (on) {
-      loop.stop();
-      effects.stopLoops();
-      music.hold("pause");
-    } else {
-      music.release("pause");
-      loop.start();
-    }
-  }
+  /** Her pause: P, a lost focus or a hidden tab; only P lifts it. The
+   *  overlay says so; the town, the clock, the countdown and the toasts all
+   *  stand still under it (`src/lib/bday26/pause-dom.ts`). */
+  const pause = createPause({ canPause: () => phase !== "idle", loop, keys, effects, music });
+
   /** How many times the radio has been retuned (each Round bumps it). */
   let tunes = 0;
 
@@ -370,24 +360,16 @@ const LIMIT = formatClock(RULES.timeLimit);
   // ── keys ──────────────────────────────────────────────────────────
   // The shell takes Esc during a Round and every key on its own screens:
   // what arrives here is a key while she drives (or while she has paused).
+  // P and a lost focus are `pause`'s.
   const DRIVE_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD", "Space"]);
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || phase === "idle") return;
-    if (event.code === "KeyP") {
-      if (!event.repeat) setHeld(!held);
-      return;
-    }
     if (!DRIVE_KEYS.has(event.code)) return;
     event.preventDefault();
-    if (!held) keys.add(event.code);
+    if (!pause.paused) keys.add(event.code);
   });
   window.addEventListener("keyup", (event) => keys.delete(event.code));
-  // A lost focus pauses as P does, and waits for P: coming back to the
-  // window does not drive on by itself.
-  window.addEventListener("blur", () => {
-    keys.clear();
-    if (phase !== "idle" && !held) setHeld(true);
-  });
+
 
   // ── the town, drawn once ──────────────────────────────────────────
   const world = document.createElement("canvas");
@@ -696,10 +678,7 @@ const LIMIT = formatClock(RULES.timeLimit);
         loop.stop();
         effects.stopLoops();
         phase = "idle";
-        held = false;
-        pauseEl.hidden = true;
-        music.release("pause");
-        keys.clear();
+        pause.clear();
       },
       // The confirm card: the town stands still until she answers.
       pause: () => {

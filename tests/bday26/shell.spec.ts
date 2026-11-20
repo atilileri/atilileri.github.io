@@ -114,3 +114,40 @@ test("a skill Game Round that changes no Points says so, with the Best score as 
   await expect(result).not.toContainText("Yeni rekor!");
   await expect(result).toContainText("%95 için 12 sorunun 12'si");
 });
+for (const { path, name } of [
+  { path: "/20261209/surus/", name: "Hollanda'da sürüş" },
+  { path: "/20261209/kayak/", name: "Kayak macerası" },
+]) {
+  test(`${name}: a hidden tab pauses the Round, and only P resumes it (L1)`, async ({ page }) => {
+    await seed(page, { best: {}, jackpot: false, log: [] });
+    await page.goto(path);
+    await expect(page.getByRole("dialog", { name })).toBeVisible();
+    await page.keyboard.press("Enter");
+    const overlay = page.getByRole("status").filter({ hasText: "Duraklatıldı" });
+    const time = page.locator("[data-hud-time]");
+    await expect(time).not.toHaveText(/^0:00(\.0)?$/, { timeout: 6000 });
+    await expect(overlay).toBeHidden();
+
+    // The tab goes to the background (no window blur: only the page hides).
+    await page.evaluate(() => {
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await expect(overlay).toBeVisible();
+    const held = await time.innerText();
+
+    // Back in front: still paused until P.
+    await page.evaluate(() => {
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "visible" });
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await page.waitForTimeout(400);
+    await expect(overlay).toBeVisible();
+    await expect(time).toHaveText(held);
+    await page.keyboard.press("p");
+    await expect(overlay).toBeHidden();
+    await expect(time).not.toHaveText(held);
+  });
+}
