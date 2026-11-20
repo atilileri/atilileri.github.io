@@ -16,10 +16,10 @@
  * whenever a shell screen covers the Round (GameShell.astro's script calls
  * `stopLoops`), so a pause, the leave confirm or the result is quiet.
  *
- * THE SWITCH. Every `[data-effects-toggle]` button (the HUD's, from
- * `EffectsToggle.astro`, rendered by GameShell on every Game) is bound by
- * `bindEffectsToggles()`. It never takes focus, so Enter and the Game's keys
- * stay the Game's.
+ * THE SWITCH. Every "Efektler" switch (`EffectsToggle.astro`, rendered by
+ * GameShell on every Game and by the hub) is bound by `bindEffectsToggles()`,
+ * a thin call to the binder both switches share (`./switch-dom.ts`). A click
+ * never takes focus, so Enter and the Game's keys stay the Game's.
  *
  * THE ENGINE. Sounds are synthesised with Web Audio, no files: short, soft
  * and through the effects bus (`./audio-dom.ts`) so the Games stay balanced. Confetti is one
@@ -33,6 +33,7 @@
  */
 import { bus, context, hz, noise } from "./audio-dom.ts";
 import { openEffectsPreference } from "./browser.ts";
+import { bindSwitches } from "./switch-dom.ts";
 import {
   createEffects,
   forReducedMotion,
@@ -74,31 +75,10 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) effects.stopLoops();
 });
 
-/** Binds every "Efektler: Açık/Kapalı" button: paints it, flips it. Once per page. */
+/** Binds every "Efektler: Açık/Kapalı" switch (`./switch-dom.ts`): paints
+ *  it, flips it, and chimes when it turns on. Once per page. */
 export function bindEffectsToggles(root: ParentNode = document) {
-  const toggles = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-effects-toggle]"));
-  function paint() {
-    for (const t of toggles) {
-      const label = `Efektler: ${effects.on ? "Açık" : "Kapalı"}`;
-      t.setAttribute("aria-pressed", String(effects.on));
-      t.title = label;
-      t.setAttribute("aria-label", label);
-      const icon = t.querySelector("[data-effects-icon]");
-      if (icon) icon.textContent = effects.on ? "✨" : "🔇";
-      const text = t.querySelector("[data-effects-label]");
-      if (text) text.textContent = label;
-    }
-  }
-  for (const t of toggles) {
-    t.addEventListener("mousedown", (e) => e.preventDefault());
-    t.addEventListener("click", (e) => {
-      e.stopPropagation();
-      effects.unlock();
-      if (effects.toggle()) effects.sound("chime");
-    });
-  }
-  effects.onChange(paint);
-  paint();
+  bindSwitches("effects", effects, { root, afterToggle: (on) => on && effects.sound("chime") });
 }
 
 function shake(el: HTMLElement) {

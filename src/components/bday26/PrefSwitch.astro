@@ -1,0 +1,78 @@
+---
+/**
+ * PrefSwitch — one on/off switch of the site (review L5): "Efektler:
+ * Açık/Kapalı" (`kind="effects"`, every sound and visual effect) or "Müzik:
+ * Açık/Kapalı" (`kind="music"`, the background music). GameShell renders
+ * them in every Game's HUD (through `EffectsToggle` and `MusicToggle`), the
+ * hub in its header. `bindSwitches` in `src/lib/bday26/switch-dom.ts`
+ * (called as `bindEffectsToggles()` / `bindMusicToggles()`) binds it by
+ * `data-switch`, paints its icon, label and `aria-pressed` from her stored
+ * preference, and flips it on a click; a click never moves focus.
+ *
+ * FOCUS (review F4). Inside a Game the switch stays out of the Tab order
+ * (`tabindex="-1"`, the default), so Enter and the Game's keys stay the
+ * Game's. On the hub, where nothing else owns the keys, pass `focusable`:
+ * Tab then reaches it, Enter or Space flips it, and it shows a focus ring.
+ * It sits above the shell's screens (z-index 11), so she can switch it on
+ * the start and result cards too.
+ */
+import { SWITCH_LOOK, switchLabel, type SwitchKind } from "../../lib/bday26/switch-dom";
+
+interface Props {
+  kind: SwitchKind;
+  /** Reachable by Tab (the hub). Default false: out of the Tab order (a Game). */
+  focusable?: boolean;
+}
+
+const { kind, focusable = false } = Astro.props;
+const label = switchLabel(kind, true);
+---
+
+<button
+  class="bd-switch"
+  type="button"
+  tabindex={focusable ? undefined : -1}
+  data-switch={kind}
+  aria-pressed="true"
+  aria-label={label}
+  title={label}
+>
+  <span class="icon" data-switch-icon aria-hidden="true">{SWITCH_LOOK[kind].on}</span>
+  <span data-switch-label>{label}</span>
+</button>
+
+<style>
+  .bd-switch {
+    /* Above the shell's screens (z-index 10), so it stays reachable. */
+    position: relative;
+    z-index: 11;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px 6px 8px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bd-paper);
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--bd-ink-soft);
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+  }
+  .bd-switch:hover {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+  }
+  .bd-switch:focus-visible {
+    box-shadow: 0 0 0 3px var(--bd-accent);
+  }
+  .bd-switch[aria-pressed="false"] {
+    color: var(--bd-muted);
+  }
+  .icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+</style>

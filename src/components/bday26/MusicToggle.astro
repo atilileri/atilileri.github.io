@@ -1,56 +1,17 @@
 ---
 /**
- * MusicToggle — "Müzik: Açık/Kapalı", the background music's own switch,
- * next to "Efektler" in the HUD of every Game that has music (GameShell
- * renders it when given `music`) and on the hub. `bindMusicToggles()` in
- * `src/lib/bday26/music-dom.ts` binds it by `data-music-toggle`, paints its
- * icon (🎵 on, 🔇 off), label and `aria-pressed` from her stored preference,
- * and flips it on a click. Like the effects' switch it never takes focus and
- * sits above the shell's screens.
+ * MusicToggle — "Müzik: Açık/Kapalı", the background music's own switch:
+ * `PrefSwitch` with `kind="music"`, kept under its own name for GameShell
+ * (Games given `music`) and the hub. Bound by `bindMusicToggles()` in
+ * `src/lib/bday26/music-dom.ts`. Pass `focusable` on the hub so Tab
+ * reaches it; inside a Game leave it out (see `PrefSwitch.astro`).
  */
+import PrefSwitch from "./PrefSwitch.astro";
+
+interface Props {
+  /** Reachable by Tab (the hub). Default false (a Game). */
+  focusable?: boolean;
+}
 ---
 
-<button
-  class="music-toggle"
-  type="button"
-  tabindex="-1"
-  data-music-toggle
-  aria-pressed="true"
-  aria-label="Müzik: Açık"
-  title="Müzik: Açık"
->
-  <span class="music-icon" data-music-icon aria-hidden="true">🎵</span>
-  <span class="music-label" data-music-label>Müzik: Açık</span>
-</button>
-
-<style>
-  .music-toggle {
-    position: relative;
-    z-index: 11;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px 6px 8px;
-    border: 0;
-    border-radius: 999px;
-    background: var(--bd-paper);
-    box-shadow: 0 0 0 1.5px var(--bd-line);
-    font: inherit;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--bd-ink-soft);
-    white-space: nowrap;
-    cursor: pointer;
-    outline: none;
-  }
-  .music-toggle:hover {
-    box-shadow: 0 0 0 2px var(--bd-accent);
-  }
-  .music-toggle[aria-pressed="false"] {
-    color: var(--bd-muted);
-  }
-  .music-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-</style>
+<PrefSwitch kind="music" focusable={Astro.props.focusable} />

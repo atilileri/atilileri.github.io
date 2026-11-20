@@ -15,9 +15,10 @@
  * Nothing sounds before her first key or click (the browser's autoplay
  * rule); a track asked for earlier waits for it.
  *
- * THE SWITCH. Every `[data-music-toggle]` button (`MusicToggle.astro`) is
- * bound by `bindMusicToggles()`. Like the effects' switch it never takes
- * focus, so Enter and the Game's keys stay the Game's.
+ * THE SWITCH. Every "Müzik" switch (`MusicToggle.astro`) is bound by
+ * `bindMusicToggles()`, a thin call to the binder both switches share
+ * (`./switch-dom.ts`). Like the effects' switch a click never takes focus,
+ * so Enter and the Game's keys stay the Game's.
  *
  * THE SYNTH. Every track is written here as a few bars of chords, bass,
  * melody and percussion for a small step sequencer (16th notes, scheduled
@@ -42,6 +43,7 @@
  */
 import { bus, context, hz, noise } from "./audio-dom.ts";
 import { openMusicPreference } from "./browser.ts";
+import { bindSwitches } from "./switch-dom.ts";
 import { createMusic, type MusicEngine, type MusicParams, type TrackName } from "./music.ts";
 
 export type { Music, TrackName } from "./music.ts";
@@ -63,31 +65,10 @@ document.addEventListener("visibilitychange", () => {
   else music.release("hidden");
 });
 
-/** Binds every "Müzik: Açık/Kapalı" button: paints it, flips it. Once per page. */
+/** Binds every "Müzik: Açık/Kapalı" switch (`./switch-dom.ts`): paints it,
+ *  flips it. Once per page. */
 export function bindMusicToggles(root: ParentNode = document) {
-  const toggles = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-music-toggle]"));
-  function paint() {
-    for (const t of toggles) {
-      const label = `Müzik: ${music.on ? "Açık" : "Kapalı"}`;
-      t.setAttribute("aria-pressed", String(music.on));
-      t.title = label;
-      t.setAttribute("aria-label", label);
-      const icon = t.querySelector("[data-music-icon]");
-      if (icon) icon.textContent = music.on ? "🎵" : "🔇";
-      const text = t.querySelector("[data-music-label]");
-      if (text) text.textContent = label;
-    }
-  }
-  for (const t of toggles) {
-    t.addEventListener("mousedown", (e) => e.preventDefault());
-    t.addEventListener("click", (e) => {
-      e.stopPropagation();
-      music.unlock();
-      music.toggle();
-    });
-  }
-  music.onChange(paint);
-  paint();
+  bindSwitches("music", music, { root });
 }
 
 // ── the sequencer ──────────────────────────────────────────────────

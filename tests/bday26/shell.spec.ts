@@ -151,3 +151,17 @@ for (const { path, name } of [
     await expect(time).not.toHaveText(held);
   });
 }
+
+test("inside a Game both switches stay out of the Tab order, and still flip on a click (L5, F4)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/hafiza/");
+  for (const name of [/^Efektler/, /^Müzik/]) {
+    const toggle = page.getByRole("button", { name });
+    await expect(toggle).toHaveAttribute("tabindex", "-1");
+  }
+  const music = page.getByRole("button", { name: /^Müzik/ });
+  await music.click();
+  await expect(music).toHaveAccessibleName("Müzik: Kapalı");
+  await expect(music.locator("[data-switch-icon]")).toHaveText("🔇");
+  await expect(page.getByRole("button", { name: /^Efektler/ }).locator("[data-switch-icon]")).toHaveText("✨");
+});
