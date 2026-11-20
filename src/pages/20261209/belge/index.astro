@@ -8,7 +8,8 @@
  * WHAT IS ON THE PAPER, top to bottom, all Turkish: a greeting and today's
  * date written out ("9 Aralık 2026"); the Gifts she holds, each with its one
  * line; the Small prizes she won, each with the Game that gave it; the
- * Gifted points Atıl gave her, only when there are any; the check
+ * Gifted points Atıl gave her with their sum ("Atıl'dan hediye puan: 500"),
+ * only when there are any; the check
  * code in large letters with one line for Atıl on how he checks it; and the
  * full Save code in small monospace letters. Nothing else, so it reads at a
  * glance and fits one A4 page (story 92).
@@ -86,6 +87,7 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
       <section class="block" aria-labelledby="gifted-heading" data-gifted hidden>
         <h2 class="h2" id="gifted-heading">Hediye puanlar</h2>
         <ul class="items" aria-labelledby="gifted-heading" data-gifted-list></ul>
+        <p class="gifted-total" data-gifted-total></p>
       </section>
 
       <section class="block check" aria-labelledby="check-heading">
@@ -161,6 +163,9 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
     $("[data-gifted-list]").replaceChildren(
       ...proof.gifted.items.map((g) => item(`+${g.points.toLocaleString("tr-TR")} puan`, g.note ?? "Atıl'dan hediye")),
     );
+    // Their sum, the number Atıl checks against the hub's "+N hediye puan".
+    $("[data-gifted-total]").textContent =
+      proof.gifted.total > 0 ? `Atıl'dan hediye puan: ${proof.gifted.total.toLocaleString("tr-TR")}` : "";
     $("[data-date]").textContent = proof.date;
     $("[data-check]").textContent = proof.check;
     $("[data-code]").textContent = proof.code;
@@ -301,6 +306,11 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
   .items :global(.item-desc) {
     font-size: 12.5px;
     color: var(--bd-ink-soft);
+  }
+  .gifted-total {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 800;
   }
   .empty {
     font-size: 14px;
