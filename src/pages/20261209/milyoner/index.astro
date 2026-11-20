@@ -329,11 +329,19 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   }
   // Esc on "Son kararın mı?" is "Vazgeç", not the shell's leave question.
   // Registered before `mountGameShell`, so on the same target and phase this
-  // listener runs first; it keeps Esc only in that one state.
+  // listener runs first; it keeps Esc only in that one state, and the
+  // repeats of a held Esc in play, which would otherwise reach the shell
+  // right after "Vazgeç" and ask to leave too.
   window.addEventListener(
     "keydown",
     (event) => {
-      if (event.key !== "Escape" || shell.phase !== "playing" || stepNow() !== "confirming") return;
+      if (event.key !== "Escape" || shell.phase !== "playing") return;
+      if (event.repeat) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      if (stepNow() !== "confirming") return;
       event.preventDefault();
       event.stopImmediatePropagation();
       cancel();

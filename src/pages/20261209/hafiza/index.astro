@@ -155,7 +155,9 @@ const CARDS = Array.from({ length: 16 }, (_, i) => i);
       paint();
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      turn(cursor);
+      // A held key turns one card; its repeats would restart a wrong pair's
+      // second each time and keep it up. Arrows repeat, on purpose.
+      if (!event.repeat) turn(cursor);
     }
   });
 </script>

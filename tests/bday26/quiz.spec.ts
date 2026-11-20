@@ -129,3 +129,39 @@ test("the slot machine: every jackpot puts the Small prize up large, and the nex
   await expect(page.locator("[data-spins]")).toHaveText("3", { timeout: 5000 });
   await expect(banner).toBeHidden();
 });
+
+test("held keys do one thing: a held Enter in Hafıza lets a wrong pair settle, a held Esc on \"Son kararın mı?\" only takes it back (repeat audit)", async ({ page }) => {
+  // A random source of 0 deals two different photos on the first two cards.
+  await page.addInitScript(() => (Math.random = () => 0));
+  await fresh(page);
+  await page.goto("/20261209/hafiza/");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Hamle 0 / 15")).toBeVisible();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Hamle 1 / 15")).toBeVisible();
+  await expect(page.getByRole("button", { name: /, açık$/ })).toHaveCount(2);
+  // Enter held on the second card: its repeats must not hold the pair up
+  // past its second (they used to restart the wait on every repeat).
+  await page.keyboard.down("Enter");
+  for (let i = 0; i < 8; i++) {
+    await page.waitForTimeout(200);
+    await page.keyboard.down("Enter");
+  }
+  await expect(page.getByRole("button", { name: /, açık$/ })).toHaveCount(0, { timeout: 150 });
+  await page.keyboard.up("Enter");
+
+  await page.goto("/20261209/milyoner/");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("b");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Son kararın mı?")).toBeVisible();
+  await page.keyboard.down("Escape");
+  await page.keyboard.down("Escape");
+  await page.keyboard.down("Escape");
+  await page.keyboard.up("Escape");
+  await expect(page.getByText("Son kararın mı?")).toBeHidden();
+  await expect(page.getByText("Turdan çıkılsın mı?")).toBeHidden();
+  await expect(page.getByText("Soru 1/12")).toBeVisible();
+});
