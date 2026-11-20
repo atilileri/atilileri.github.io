@@ -99,21 +99,20 @@ test("memory match: very many moves score 0, never less", () => {
 });
 
 // ------------------------------------------------------------ slot machine
-// Spec: triple = 100 (the jackpot), pair = 50, none = 0 (#200, #182). The
-// reels are what she sees; the score reads them and nothing else.
+// Spec: triple = 100 (the jackpot), pair = 50, none = 0 (#200, #182). Which
+// of the three a spin is, `spin` in ./slot.ts decides (and slot.test.ts pins);
+// the score prices that outcome and nothing else (review L6).
 
-test("slot machine: three alike is the jackpot, 100", () => {
-  assert.equal(slotScore(["heart", "heart", "heart"]), 100);
+test("slot machine: the jackpot is 100", () => {
+  assert.equal(slotScore("jackpot"), 100);
 });
 
-test("slot machine: two alike is 50, wherever the odd one sits", () => {
-  assert.equal(slotScore(["camera", "camera", "ski"]), 50);
-  assert.equal(slotScore(["camera", "ski", "camera"]), 50);
-  assert.equal(slotScore(["ski", "camera", "camera"]), 50);
+test("slot machine: a pair is 50", () => {
+  assert.equal(slotScore("pair"), 50);
 });
 
-test("slot machine: three different is 0", () => {
-  assert.equal(slotScore(["camera", "ski", "note"]), 0);
+test("slot machine: none alike is 0", () => {
+  assert.equal(slotScore("none"), 0);
 });
 
 // ---------------------------------------------------------- Turkish Wordle

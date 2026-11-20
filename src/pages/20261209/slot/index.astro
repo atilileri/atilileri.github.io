@@ -29,11 +29,12 @@
  * HOW IT IS BUILT. The odds are not here: `spin(Math.random)` in
  * `src/lib/bday26/slot.ts` draws the outcome first (jackpot at exactly 1 in
  * 30) and dresses three reels to match; `slotScore` in `scores.ts` prices
- * them. This page is the animation and the painter: each reel is a strip of
- * the six symbols three times over, moved by one CSS variable `--pos` (in
- * cells) from a requestAnimationFrame loop that runs the strip at a blur
- * until that reel's stop time, then eases it onto the drawn symbol. A
- * visitor who asked for reduced motion gets the stops without the run.
+ * that outcome. This page is the animation and the painter: each reel is
+ * a strip of the six symbols three times over, moved by one CSS variable
+ * `--pos` (in cells) from a requestAnimationFrame loop that runs the strip
+ * at a blur until that reel's stop time, then eases it onto the drawn
+ * symbol. A visitor who asked for reduced motion gets the stops without
+ * the run.
  */
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
@@ -244,7 +245,7 @@ const LIGHTS = Array.from({ length: 15 });
     spinning = false;
     whirr.stop();
     const drawn = current!;
-    const score = slotScore(drawn.reels);
+    const score = slotScore(drawn.outcome);
     const outcome = shell.finish(score, { jackpot: drawn.outcome === "jackpot" });
     spins += 1;
     spinsEl.textContent = String(spins);
