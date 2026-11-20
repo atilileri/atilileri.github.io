@@ -7,10 +7,10 @@
  * Expected values come from the verdict on #214, not from the code: score =
  * 100 − 5 × empty cells − 10 × missing must-haves, floor 0; 23 kg is a gate
  * on closing; the input table (select, cancel, place / pick up, move, rotate,
- * take out, close). The stored packs below are the prototype's exact-cover
- * search results (`prototype/214-bavul`, SOL): per card the lightest perfect
- * pack ("ok", ≤ 23 kg) and a heavy one ("heavy", a trap). They are test data
- * only: she never sees them.
+ * take out, close). The stored packs (`bavul-packs.ts`) are the prototype's
+ * exact-cover search results (`prototype/214-bavul`, SOL): per card the
+ * lightest perfect pack ("ok", ≤ 23 kg) and a heavy one ("heavy", a trap).
+ * They are test data only: she never sees them.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -32,27 +32,7 @@ import {
   type BavulEvent,
   type Round,
 } from "./bavul.ts";
-
-/** Per card: the lightest perfect pack (≤ 23 kg) and a heavy perfect pack
- *  (a trap). One letter per cell: A = ITEMS[0] (laptop), B = ITEMS[1], … */
-const PACKS: Record<string, { ok: string[]; heavy: string[] }> = {
-  "Lüksemburg'da yürüyüş": {
-    ok: ["EEEMMMDC", "EIFFDDDC", "IIIFFPDC", "KIHHPPPC", "KKHLGGPC", "KHHLLGGG"], // 20 kg
-    heavy: ["EMMMDDDF", "ELLBBDFF", "EELBBDFJ", "AACCCCCJ", "AAOOGGJJ", "AAOOOGGG"], // 27 kg
-  },
-  "Brugge'de şehir turu": {
-    ok: ["LGGGJJJC", "LLIGGKJC", "NIIIKKKC", "NPIHHFDC", "NPPHFFDC", "PPHHFDDD"], // 19.5 kg
-    heavy: ["LCCCCCJJ", "LLNNNDJG", "AAADDDJG", "AAAFFDGG", "BBOOFFGE", "BBOOOEEE"], // 27 kg
-  },
-  "Kassel'de müze günü": {
-    ok: ["HCCCCCFG", "HHHAAFFG", "BBHAAFGG", "BBPAADGK", "OOPPPDKK", "OOOPDDDK"], // 21.5 kg
-    heavy: ["HCCCCCOO", "HHHBBJOO", "MDHBBJOK", "MDDDJJKK", "MDEAAALK", "EEEAAALL"], // 26.5 kg
-  },
-  "Kuzey Denizi'nde sahil": {
-    ok: ["PCCCCCLL", "PPPFHHIL", "MPFFHIII", "MDFHHKIJ", "MDGGKKKJ", "DDDGGGJJ"], // 19.5 kg
-    heavy: ["PMMMFAAA", "PPPFFAAA", "LPJFDDDO", "LLJJJDOO", "BBEEEDOO", "BBECCCCC"], // 26.5 kg
-  },
-};
+import { PACKS } from "./bavul-packs.ts";
 
 /** Run actions in order; the last state and every event on the way. */
 function run(state: Round, ...actions: Action[]): { state: Round; events: BavulEvent[] } {
