@@ -213,12 +213,17 @@ export function countsOf(drops: readonly number[]): number[] {
   return c;
 }
 
-/** Whether two recipes are the same proportions: her share of every tube is
- *  within half a drop of the recipe's (2 + 2 is 1 + 1). */
-export function sameProportion(recipe: Counts, mine: Counts): boolean {
+/** Per tube: is her share of it more than half a drop off the recipe's? The
+ *  reveal marks those tubes. */
+export function offTubes(recipe: Counts, mine: Counts): boolean[] {
   const tr = recipe.reduce((a, b) => a + b, 0);
   const tm = mine.reduce((a, b) => a + b, 0);
-  return recipe.every((n, i) => Math.abs((mine[i] ?? 0) / tm - n / tr) * tm <= 0.5);
+  return recipe.map((n, i) => Math.abs((mine[i] ?? 0) / tm - n / tr) * tm > 0.5);
+}
+
+/** Whether two recipes are the same proportions, no tube off (2 + 2 is 1 + 1). */
+export function sameProportion(recipe: Counts, mine: Counts): boolean {
+  return !offTubes(recipe, mine).some(Boolean);
 }
 
 /** What Enter says about her mix against `target`. */
