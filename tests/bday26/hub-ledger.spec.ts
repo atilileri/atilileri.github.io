@@ -89,6 +89,79 @@ test("with no gift from Atıl the Proof prints no gifted total", async ({ page }
   await expect(page.getByText("Atıl'dan hediye puan")).toHaveCount(0);
 });
 
+// ──────────────────────────────────────────── fresh progress (review A1)
+
+/** 283 Points, as AN_EVENING, but the slot machine never played. */
+const NO_SLOT_YET = { best: { hafiza: 100, milyoner: 88, wordle: 95.5 }, jackpot: false, log: [] };
+
+test("Back to the hub after a Round, then a buy: the new Best score survives (review A1)", async ({ baseURL }) => {
+  // Playwright turns the back/forward cache off, and its headless shell has
+  // none at all; this case needs it on, the way her Chrome has it, so it
+  // runs in full Chromium (new headless) without Playwright's switch.
+  const browser = await chromium.launch({ channel: "chromium", ignoreDefaultArgs: ["--disable-back-forward-cache"] });
+  try {
+    const context = await browser.newContext({ baseURL, viewport: { width: 1920, height: 1080 } });
+    await context.addInitScript((p) => {
+      if (localStorage.getItem("bday26:v1") == null) localStorage.setItem("bday26:v1", JSON.stringify(p));
+      localStorage.setItem("bday26:welcome", "seen");
+      // Note whether a page came back from the cache, so the case knows it
+      // tested what it means to.
+      addEventListener("pageshow", (event) => {
+        if (event.persisted) sessionStorage.setItem("restored-from-bfcache", "yes");
+      });
+    }, NO_SLOT_YET);
+    const page = await context.newPage();
+
+    await page.goto(HUB);
+    await expect(balance(page)).toHaveText(["283", "283"]);
+    const slot = row(page, "Slot makinesi");
+    await expect(slot.locator("[data-best]")).toHaveText("—");
+
+    // A Round on the slot machine: one spin.
+    await slot.getByRole("link", { name: "Oyna" }).click();
+    await expect(page).toHaveURL(/\/20261209\/slot\/$/);
+    await page.keyboard.press(" ");
+    await expect(page.getByRole("status")).toContainText(/%\d+/, { timeout: 5000 });
+
+    // Back: the hub shows the Round, not what it held when she left.
+    // (A page restored from the cache fires no "load"; wait for the commit.)
+    await page.goBack({ waitUntil: "commit" });
+    await expect(page).toHaveURL(/\/20261209\/$/);
+    await expect(slot.locator("[data-best]")).toHaveText(/^%\d+$/);
+    expect(await page.evaluate(() => sessionStorage.getItem("restored-from-bfcache"))).toBe("yes");
+    const best = await slot.locator("[data-best]").textContent();
+
+    // A buy now keeps that Best score, on this visit and the next.
+    await row(page, "Rocky Horror film gecesi").getByRole("button", { name: "Al", exact: true }).click();
+    await page.getByRole("dialog", { name: /Alıyor musun\?$/ }).getByRole("button", { name: "Al", exact: true }).click();
+    await expect(balance(page)).toHaveText(["23", "23"]);
+    await page.reload();
+    await expect(slot.locator("[data-best]")).toHaveText(best!);
+    await expect(balance(page)).toHaveText(["23", "23"]);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("a buy in a second tab repaints the hub in the first (review A1)", async ({ context }) => {
+  await context.addInitScript((p) => {
+    if (localStorage.getItem("bday26:v1") == null) localStorage.setItem("bday26:v1", JSON.stringify(p));
+    localStorage.setItem("bday26:welcome", "seen");
+  }, AN_EVENING);
+  const first = await context.newPage();
+  await first.goto(HUB);
+  await expect(balance(first)).toHaveText(["283", "283"]);
+
+  const second = await context.newPage();
+  await second.goto(HUB);
+  await row(second, "Rocky Horror film gecesi").getByRole("button", { name: "Al", exact: true }).click();
+  await second.getByRole("dialog", { name: /Alıyor musun\?$/ }).getByRole("button", { name: "Al", exact: true }).click();
+  await expect(balance(second)).toHaveText(["23", "23"]);
+
+  await expect(balance(first)).toHaveText(["23", "23"]);
+  await expect(row(first, "Rocky Horror film gecesi").getByRole("button", { name: "İade et · +130" })).toBeVisible();
+});
+
 // ───────────────────────────────────────── the shop (review C1–C5, K1)
 
 for (const [width, height] of [

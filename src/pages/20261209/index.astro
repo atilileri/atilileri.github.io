@@ -287,6 +287,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     earnedOf,
     heldOf,
     prizesWonOf,
+    STORAGE_KEY,
     type Progress,
     type SaveCodeOutcome,
   } from "../../lib/bday26/ledger";
@@ -782,6 +783,13 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       mainStat.setAttribute("data-hop", "");
       say("Bakiye güncellendi! Yedek kodunu almayı unutma.", { label: "Yedekle", run: () => void openYedekle() });
     },
+  });
+
+  // Another tab changed her progress (a Round, a buy, a restore): paint
+  // what the ledger now says. A page restored by Back is reloaded by the
+  // layout instead (review A1).
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORAGE_KEY || event.key === null) render();
   });
 
   render();
