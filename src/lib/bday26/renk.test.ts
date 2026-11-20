@@ -12,7 +12,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { deltaE, difference, roundScore, targetScore, type Lab } from "./renk.ts";
+import { deltaE, difference, hexToLab, mixColour, roundScore, targetScore, TUBES, type Lab } from "./renk.ts";
 
 test("one target: ΔE 0 and ΔE 1 are both 100 — a match better than 1 earns nothing extra", () => {
   assert.equal(targetScore(0), 100);
@@ -56,4 +56,21 @@ test("the colour difference is CIEDE2000: Sharma, Wu and Dalal's test pairs", ()
 test("the difference of two shown colours: none for the same colour, large for black and white", () => {
   assert.equal(difference("#488A41", "#488A41"), 0);
   assert.ok(difference("#000000", "#FFFFFF") > 99);
+});
+
+/** "#RRGGBB" as [r, g, b], 0..255. */
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+
+test("the mix behaves like paint: blue and yellow give a green, not a grey", () => {
+  const green = mixColour([0, 1, 1, 0, 0]);
+  assert.ok(green);
+  const [r, g, b] = rgb(green);
+  assert.ok(g! > r! && g! > b!, `${green} is not green`);
+  assert.ok(hexToLab(green)[1] < -20, `${green} has too little green in it`);
+});
+
+test("the mix: no drops is no colour; one tube alone is that tube's colour; 2 + 2 is 1 + 1", () => {
+  assert.equal(mixColour([0, 0, 0, 0, 0]), null);
+  assert.ok(difference(mixColour([0, 0, 3, 0, 0])!, TUBES[2]!.hex) < 0.5);
+  assert.equal(mixColour([2, 2, 0, 0, 0]), mixColour([1, 1, 0, 0, 0]));
 });

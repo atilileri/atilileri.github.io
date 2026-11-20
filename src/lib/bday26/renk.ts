@@ -14,7 +14,48 @@
  * so 95% means about four near-exact matches and one small miss (the ΔE
  * above 1, summed over the five, at most ~4.2): the correction to #213's
  * "95% ≈ mean ΔE 1.8".
+ *
+ * THE MIX (`mixColour`). spectral.js 3.0.0 (Ronald van Wijnen, MIT; vendored
+ * with its licence in `./vendor/spectral.js`), a single-constant
+ * Kubelka–Munk model over 38 spectral bands, so blue and yellow make green
+ * as paint does, not grey as RGB averaging would. Five tubes (`TUBES`): red,
+ * yellow, blue, white, black. A tube with n drops goes in with the factor √n:
+ * spectral.js squares the factor, so a tube's weight is linear in its drops.
+ * Blue tints at 1.4 and black at 2.5, so one black drop darkens like real
+ * paint. Mixes are proportions: 2 + 2 is the same colour as 1 + 1.
+ * The colour difference is CIEDE2000 (`deltaE`) on the two colours as shown.
  */
+import { Color, mix } from "./vendor/spectral.js";
+
+/** The five tubes, in key order 1–5. */
+export const TUBES = [
+  { name: "Kırmızı", hex: "#D7263D" },
+  { name: "Sarı", hex: "#FCD200" },
+  { name: "Mavi", hex: "#1B3F9E" },
+  { name: "Beyaz", hex: "#FFFFFF" },
+  { name: "Siyah", hex: "#1C1C1C" },
+] as const;
+
+/** Tinting strength per tube (the verdict: blue 1.4, black 2.5). */
+const STRENGTH = [1, 1, 1.4, 1, 2.5];
+
+/** Drops per tube, in `TUBES` order. */
+export type Counts = readonly number[];
+
+const PIGMENTS = TUBES.map((t, i) => {
+  const c = new Color(t.hex);
+  c.tintingStrength = STRENGTH[i]!;
+  return c;
+});
+
+/** The colour these drops make, "#RRGGBB"; null when there are none. */
+export function mixColour(counts: Counts): string | null {
+  const parts: [Color, number][] = [];
+  counts.forEach((n, i) => {
+    if (n > 0) parts.push([PIGMENTS[i]!, Math.sqrt(n)]);
+  });
+  return parts.length ? mix(...parts).toString() : null;
+}
 
 /** A colour in CIELAB (D65): [L*, a*, b*]. */
 export type Lab = readonly [number, number, number];
