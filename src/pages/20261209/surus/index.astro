@@ -37,7 +37,9 @@
  * calls `stepDrive` once per animation frame (dt clamped to 33 ms, no fixed
  * step, as in the prototype), and draws: the town once to an offscreen
  * canvas, then each frame the camera (zoom 1.5, looking 0.6 s ahead, easing
- * 8% a frame, clamped to the town's edge), the route line, the checkpoint,
+ * as the prototype's 8% a frame at 60 fps but by time, `cameraEase`, so
+ * any frame rate feels the same; clamped to the town's edge), the route
+ * line, the checkpoint,
  * the cyclists and the car. The drawing is the prototype's, recoloured to
  * the birthday look: the car, the route and the checkpoint in the site's
  * rose accent instead of the prototype's orange.
@@ -129,6 +131,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     ROUTE,
     RULES,
     SINK_S,
+    cameraEase,
     carKmh,
     createDrive,
     formatClock,
@@ -168,10 +171,10 @@ const LIMIT = formatClock(RULES.timeLimit);
   const PRICE = { heavy: 10, light: 3 } as const;
   const { x: RX, y: RY, island: R1, ring: R2, cycleIn: R3, cycleOut: R4, zone: RZ } = ROUNDABOUT;
 
-  /** The prototype's view settings (#181): zoom, look-ahead s, camera easing. */
+  /** The prototype's view settings (#181): zoom, look-ahead s. The camera's
+   *  easing is `cameraEase`, by time. */
   const ZOOM = 1.5;
   const LOOK = 0.6;
-  const EASE = 0.08;
   /** The countdown before the clock runs, s; the cyclists ride through it. */
   const COUNTDOWN = 3;
 
@@ -276,7 +279,7 @@ const LIMIT = formatClock(RULES.timeLimit);
       sounds(dt, made, keysNow);
     }
     ageToasts(dt);
-    render(now);
+    render(now, dt);
     paintHud();
     if (drive.done) {
       finishRound();
@@ -511,15 +514,17 @@ const LIMIT = formatClock(RULES.timeLimit);
     render(performance.now());
   }
 
-  function render(now: number) {
+  /** One frame of the town; `dt` s since the last moves the camera (0: it stays). */
+  function render(now: number, dt = 0) {
     const car = drive.car;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = "#cfd8c4";
     ctx.fillRect(0, 0, W, Hh);
     const tx = car.x + Math.cos(car.a) * car.v * LOOK;
     const ty = car.y + Math.sin(car.a) * car.v * LOOK;
-    cam.x += (tx - cam.x) * EASE;
-    cam.y += (ty - cam.y) * EASE;
+    const ease = cameraEase(dt);
+    cam.x += (tx - cam.x) * ease;
+    cam.y += (ty - cam.y) * ease;
     ctx.save();
     const hw = W / 2 / ZOOM;
     const hh = Hh / 2 / ZOOM;

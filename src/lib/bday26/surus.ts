@@ -534,6 +534,16 @@ export function overtimeDue(t: number, steps: number): boolean {
   return t >= RULES.timeLimit + steps * RULES.timeRepeat;
 }
 
+// ---------------------------------------------------------------- camera
+
+/** The share of the gap to its target the camera closes in `dt` seconds.
+ *  The prototype closed 8% per frame at 60 fps; this is that easing in
+ *  time, not frames, so a 144 Hz screen does not make the camera snappier
+ *  and a slow frame does not make it lag (review B4). */
+export function cameraEase(dt: number): number {
+  return 1 - Math.pow(0.92, dt * 60);
+}
+
 // ---------------------------------------------------------------- one drive
 
 /** The car: pose, speed px/s (negative = reverse), wheel angle rad. */
