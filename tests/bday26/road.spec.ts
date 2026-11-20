@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { LEVELS, choices, shortestRoute } from "../../src/lib/bday26/yuruyus.ts";
 
 /**
  * The review fixes of the three real-time Games (driving, ski, hiking): what
@@ -93,4 +94,31 @@ test("Hollanda'da sürüş: over the limit, her speed pulses amber before the mi
   await expect(pill).not.toHaveClass(/warn/);
   await expect(pill).toHaveClass(/fast/);
   await page.keyboard.up("ArrowUp");
+});
+
+test("Yürüyüş haritası: a held Enter at the summit confirms once and the reveal stays (B2)", async ({ page }) => {
+  await fresh(page);
+  await page.goto("/20261209/yuruyus/");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("[data-hud-level]")).toHaveText("Seviye 1/3");
+  const name = (await page.locator("[data-hud-map]").innerText()).trim();
+  const map = LEVELS[0]!.maps.find((m) => m.name === name)!;
+  const best = shortestRoute(map);
+  for (let i = 1; i < best.route.length; i++) {
+    await page.keyboard.press(String(choices(map, best.route.slice(0, i)).indexOf(best.route[i]!) + 1));
+  }
+  await expect(page.getByText("Zirvedesin. Rotan hazır mı?")).toBeVisible();
+
+  // Enter goes down and stays down: the second keydown is the key's auto-repeat.
+  await page.keyboard.down("Enter");
+  await page.keyboard.down("Enter");
+  await page.waitForTimeout(300);
+  await page.keyboard.up("Enter");
+  await expect(page.locator("[data-level-score]")).toHaveText("%100");
+  await expect(page.getByRole("button", { name: /Sonraki seviye/ })).toBeVisible();
+  await expect(page.locator("[data-hud-level]")).toHaveText("Seviye 1/3");
+
+  // A fresh press goes on.
+  await page.keyboard.press("Enter");
+  await expect(page.locator("[data-hud-level]")).toHaveText("Seviye 2/3");
 });
