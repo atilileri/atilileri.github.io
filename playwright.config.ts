@@ -10,7 +10,7 @@ import { defineConfig, devices } from "@playwright/test";
  * The port is dedicated so a `npm run dev` or `npm run preview` already open
  * on 4321/4322 cannot be mistaken for the Deck under test.
  */
-const PORT = 4331;
+const PORT = Number(process.env.PW_PORT ?? 4331);
 
 export default defineConfig({
   testDir: "./tests",
