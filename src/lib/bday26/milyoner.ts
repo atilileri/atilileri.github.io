@@ -40,6 +40,7 @@
  * `Math.random`), so a test can pin a Round and the page passes
  * `Math.random`. The score is `milyonerScore` in `./scores.ts`.
  */
+import { shuffle } from "./shuffle.ts";
 
 /** The five topics, in the document's order (#185: no "Biz" topic). */
 export const TOPICS = ["Tiyatro", "Fotoğrafçılık", "Doğa yürüyüşü", "90'lar Türk popu", "Dünya hitleri"] as const;
@@ -93,8 +94,8 @@ export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Qu
   const again = topics[Math.floor(rng() * topics.length)]!;
   const bands: [Band, string[]][] = [
     ["Kolay", shuffle([...topics, again], rng)],
-    ["Orta", shuffle([...topics], rng).slice(0, 4)],
-    ["Zor", shuffle([...topics], rng).slice(0, 2)],
+    ["Orta", shuffle(topics, rng).slice(0, 4)],
+    ["Zor", shuffle(topics, rng).slice(0, 2)],
   ];
   const picked: PoolQuestion[] = [];
   for (const [band, bandTopics] of bands) {
@@ -104,7 +105,7 @@ export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Qu
     }
   }
   return picked.map((q, i) => {
-    const choices = shuffle([...q.choices], rng);
+    const choices = shuffle(q.choices, rng);
     return { number: i + 1, topic: q.topic, band: q.band, text: q.text, choices, answer: choices.indexOf(q.choices[0]!) };
   });
 }
@@ -145,13 +146,4 @@ export function askAudience(question: Question, rng: () => number, gone: readonl
   others.forEach((i, k) => (bars[i] = Math.round((rest * weights[k]!) / sum)));
   bars[leader] = 100 - bars.reduce((a, b) => a + b, 0);
   return bars;
-}
-
-/** Fisher–Yates, in place, with the given random source. */
-function shuffle<T>(items: T[], rng: () => number): T[] {
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [items[i], items[j]] = [items[j]!, items[i]!];
-  }
-  return items;
 }

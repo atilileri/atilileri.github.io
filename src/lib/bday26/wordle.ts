@@ -37,6 +37,8 @@
  * place in that array. Every Turkish capital is one UTF-16 unit (İ is
  * U+0130), so a letter is one string element.
  */
+import { shuffle } from "./shuffle.ts";
+
 
 /** One answer and its one İpucu. */
 export type Answer = { answer: string; hint: string };
@@ -61,16 +63,14 @@ export const ANSWERS: readonly Answer[] = [
 
 /**
  * One Round's order: the indexes of all ten `ANSWERS`, each exactly once,
- * shuffled (Fisher–Yates). `random` is `Math.random` in the page and a
+ * shuffled (`./shuffle.ts`). `random` is `Math.random` in the page and a
  * fixed or seeded source in the tests, so every Round's order is new.
  */
 export function shuffleAnswers(random: () => number): number[] {
-  const order = ANSWERS.map((_, i) => i);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.min(i, Math.floor(random() * (i + 1)));
-    [order[i], order[j]] = [order[j]!, order[i]!];
-  }
-  return order;
+  return shuffle(
+    ANSWERS.map((_, i) => i),
+    random,
+  );
 }
 
 /** The 29 letters of the Turkish alphabet, as capitals. */

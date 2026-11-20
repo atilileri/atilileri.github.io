@@ -21,6 +21,7 @@
  * 1.5 s wait, the painting and the key events are the page's; `choiceOfKey`
  * only says which choice a key means.
  */
+import { shuffle } from "./shuffle.ts";
 
 /** One question: the song's title, the 4 choices as shown, and which one is right. */
 export type Question = {
@@ -32,7 +33,7 @@ export type Question = {
 
 /** Draw `count` songs from the pool, each with `wrong` other titles. `rng` returns [0, 1) like `Math.random`. */
 export function dealQuiz(pool: readonly string[], rng: () => number, count = 10, wrong = 3): Question[] {
-  const drawn = shuffle([...pool], rng).slice(0, count);
+  const drawn = shuffle(pool, rng).slice(0, count);
   return drawn.map((title) => {
     const others = shuffle(
       pool.filter((t) => t !== title),
@@ -41,15 +42,6 @@ export function dealQuiz(pool: readonly string[], rng: () => number, count = 10,
     const choices = shuffle([title, ...others], rng);
     return { title, choices, answer: choices.indexOf(title) };
   });
-}
-
-/** Fisher–Yates, in place, with the given random source. */
-function shuffle<T>(items: T[], rng: () => number): T[] {
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [items[i], items[j]] = [items[j]!, items[i]!];
-  }
-  return items;
 }
 
 export type Quiz = {

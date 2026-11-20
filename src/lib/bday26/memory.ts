@@ -19,21 +19,13 @@
  * keyboard cursor and the painting are the page's: a board never sets a
  * timeout, it offers `settle()` for whoever does.
  */
+import { shuffle } from "./shuffle.ts";
 
 /** Picks `pairs` different photos from the pool and lays each one twice,
  *  shuffled. `rng` returns [0, 1) like `Math.random`. */
 export function dealBoard(pool: readonly string[], rng: () => number, pairs = 8): string[] {
-  const chosen = shuffle([...pool], rng).slice(0, pairs);
+  const chosen = shuffle(pool, rng).slice(0, pairs);
   return shuffle([...chosen, ...chosen], rng);
-}
-
-/** Fisher–Yates, in place, with the given random source. */
-function shuffle<T>(items: T[], rng: () => number): T[] {
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [items[i], items[j]] = [items[j]!, items[i]!];
-  }
-  return items;
 }
 
 export type Card = {
