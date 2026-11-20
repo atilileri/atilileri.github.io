@@ -120,6 +120,9 @@ test("Back to the hub after a Round, then a buy: the new Best score survives (re
     // A Round on the slot machine: one spin.
     await slot.getByRole("link", { name: "Oyna" }).click();
     await expect(page).toHaveURL(/\/20261209\/slot\/$/);
+    // The page's module script binds Space; under a full suite's load a key
+    // pressed at URL change can land before it does.
+    await page.waitForLoadState("load");
     await page.keyboard.press(" ");
     await expect(page.getByRole("status")).toContainText(/%\d+/, { timeout: 5000 });
 
