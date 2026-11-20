@@ -10,6 +10,8 @@
  * WHAT IT HOLDS.
  *   - `ANSWERS`: the ten words and phrases with their one İpucu each, word
  *     for word the #188 table. She turns 34, so OTUZ DÖRT, not OTUZ BEŞ.
+ *   - `LOVE_NOTE`: the result card's letter, the ten words read as one
+ *     message from Atıl.
  *   - `shuffleAnswers`: one Round's order. A Round plays all ten answers,
  *     one after another, in a fresh order each Round, and never opens on
  *     the word the last Round ended on. The random number is an argument,
@@ -69,6 +71,20 @@ export const ANSWERS: readonly Answer[] = [
   { answer: "ŞARAP", hint: "Üzümden yapılır, akşam yemeğinde kadehe dökülür" },
   { answer: "OTUZ DÖRT", hint: "Bu yıl pastadaki mum sayısı, yazıyla" },
 ];
+
+/**
+ * The result card's note (review E5, Atıl's decision): the ten words are
+ * the same every Round, so the Round is framed as a letter that reads them
+ * as one message from him. Built from the words and their hints alone, no
+ * fact beyond them; `wordle.test.ts` checks every answer is in it, so an
+ * edit to `ANSWERS` above asks for an edit here.
+ */
+export const LOVE_NOTE = {
+  text:
+    "Çağla'm, aşkım, sevdicek: bu on kelimenin hepsi senin için. Kendi Dilimde'nin sahnesi, " +
+    "spa, bir kadeh şarap ve pastada otuz dört mum. İyi ki doğdun, seni seviyorum.",
+  from: "Atıl",
+} as const;
 
 /**
  * One Round's order: the indexes of all ten `ANSWERS`, each exactly once,

@@ -23,6 +23,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   ANSWERS,
+  LOVE_NOTE,
   colour,
   createWord,
   createWordleRound,
@@ -225,6 +226,12 @@ test("answers: the ten of the #188 verdict, each with its İpucu", () => {
   assert.equal(ANSWERS.find((a) => a.answer === "OTUZ DÖRT")?.hint, "Bu yıl pastadaki mum sayısı, yazıyla");
   assert.equal(ANSWERS.find((a) => a.answer === "ATIL")?.hint, "Bu oyunu senin için yapan adamın adı");
   for (const a of ANSWERS) assert.ok(a.hint.length > 0, a.answer);
+});
+
+test("love note: the result card's note reads all ten words, signed by Atıl", () => {
+  const note = `${LOVE_NOTE.text} ${LOVE_NOTE.from}`.toLocaleLowerCase("tr");
+  for (const { answer } of ANSWERS) assert.ok(note.includes(answer.toLocaleLowerCase("tr")), answer);
+  assert.equal(LOVE_NOTE.from, "Atıl");
 });
 
 test("answers: every answer can be typed on her keyboard", () => {
