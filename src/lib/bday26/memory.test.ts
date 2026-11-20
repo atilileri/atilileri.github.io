@@ -14,7 +14,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createBoard, dealBoard } from "./memory.ts";
+import { MEMORY_PRIZE_MOVES, createBoard, dealBoard } from "./memory.ts";
 
 /** The 21 square crops, named like the real ones. */
 const SQUARES = Array.from({ length: 21 }, (_, i) => `p${String(i + 1).padStart(2, "0")}-sq.webp`);
@@ -109,4 +109,8 @@ test("the Round is over when all 8 pairs are matched; a perfect game is 8 moves"
   }
   assert.equal(board.done, true);
   assert.equal(board.moves, 8);
+});
+
+test("the HUD's target is 15 moves: the most that still scores the Small prize's 95 (#194)", () => {
+  assert.equal(MEMORY_PRIZE_MOVES, 15);
 });

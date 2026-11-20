@@ -19,7 +19,20 @@
  * keyboard cursor and the painting are the page's: a board never sets a
  * timeout, it offers `settle()` for whoever does.
  */
+import { PRIZE_BAR } from "./catalogue.ts";
+import { memoryScore } from "./scores.ts";
 import { shuffle } from "./shuffle.ts";
+
+/**
+ * The most moves a Round may take and still score the Small prize's bar:
+ * read off `memoryScore`, so the HUD's "Hamle 4 / 15" and the prize hint
+ * (`./prize-hints.ts`) follow the score rule if it ever changes.
+ */
+export const MEMORY_PRIZE_MOVES = (() => {
+  let moves = 8;
+  while (memoryScore(moves + 1) >= PRIZE_BAR) moves += 1;
+  return moves;
+})();
 
 /** Picks `pairs` different photos from the pool and lays each one twice,
  *  shuffled. `rng` returns [0, 1) like `Math.random`. */

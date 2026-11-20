@@ -16,11 +16,12 @@
  * reaches.
  */
 import { gameById, PRIZE_BAR, type GameId } from "./catalogue.ts";
+import { MEMORY_PRIZE_MOVES } from "./memory.ts";
 
 const HINTS: Record<GameId, string | undefined> = {
   milyoner: `%${PRIZE_BAR} için 12 sorunun 12'si`,
   nerede: `%${PRIZE_BAR} için en fazla 1 hata`,
-  hafiza: `%${PRIZE_BAR} için en fazla 15 hamle`,
+  hafiza: `%${PRIZE_BAR} için en fazla ${MEMORY_PRIZE_MOVES} hamle`,
   // The Round is the mean of the ten word scores, rounded down; four guesses
   // is 95, so ten words in at most four keeps the bar.
   wordle: `%${PRIZE_BAR} için on kelimenin hepsini en fazla 4 tahminde bul`,
