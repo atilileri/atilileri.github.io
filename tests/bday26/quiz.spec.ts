@@ -97,3 +97,35 @@ test("Kelime avı: the word she saw last never opens the next Round, and the pag
   const shown = ANSWERS.find((a) => a.hint === hint)!.answer;
   expect(await page.evaluate(() => sessionStorage.getItem("bday26:wordle:last"))).toBe(shown);
 });
+
+test("the slot machine: every jackpot puts the Small prize up large, and the next spin takes it down (review F5)", async ({ page }) => {
+  // A random source of 0 draws the jackpot on every spin.
+  await page.addInitScript(() => (Math.random = () => 0));
+  await fresh(page);
+  await page.goto("/20261209/slot/");
+  const banner = page.locator("[data-jackpot-banner]");
+  await expect(banner).toBeHidden();
+
+  await page.keyboard.press(" ");
+  await expect(page.getByRole("status")).toContainText("Jackpot", { timeout: 5000 });
+  await expect(banner).toBeVisible();
+  await expect(banner).toHaveText(/Küçük ödül kazandın:\s*Kazımalı dünya haritası!/);
+  const size = await banner.locator(".jb-name").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  expect(size).toBeGreaterThanOrEqual(32);
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: "test-results/quiz-slot-jackpot.png" });
+
+  // A second jackpot, after the prize is already hers: the big line again.
+  await page.keyboard.press(" ");
+  await expect(banner).toBeHidden();
+  await expect(page.locator("[data-spins]")).toHaveText("2", { timeout: 5000 });
+  await expect(banner).toBeVisible();
+
+  // A spin that is no jackpot takes it down.
+  await page.evaluate(() => (Math.random = () => 0.5));
+  await page.keyboard.press(" ");
+  await expect(page.locator("[data-spins]")).toHaveText("3", { timeout: 5000 });
+  await expect(banner).toBeHidden();
+});
