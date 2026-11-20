@@ -51,6 +51,7 @@ test("Milyoner: a miss with both jokers unused says \"Jokerlerin duruyordu\"; af
   const bars = page.getByRole("figure", { name: "Seyircinin oyları" });
   await expect(bars).toContainText(/%\d+/);
   await expect(bars).not.toContainText(/\d%/);
+  await page.waitForTimeout(700); // the bars grow for 0.6 s
   await page.screenshot({ path: "test-results/quiz-milyoner-audience.png" });
   await missAMilyonerQuestion(page);
   await expect(page.getByText("Jokerlerin duruyordu")).toBeHidden();
