@@ -24,7 +24,8 @@ const HINTS: Record<GameId, string | undefined> = {
   nerede: `%${PRIZE_BAR} için en fazla 1 hata`,
   hafiza: `%${PRIZE_BAR} için en fazla ${MEMORY_PRIZE_MOVES} hamle`,
   // The Round is the mean of the ten word scores, rounded down; four guesses
-  // is 95, so ten words in at most four keeps the bar.
+  // is 95, so ten words in at most four keeps the bar. That is enough, not
+  // needed: quick words can pay for a slow one (review I4, `wordleRoundScore`).
   wordle: `%${PRIZE_BAR} için on kelimenin hepsini en fazla 4 tahminde bul`,
   sarki: `%${PRIZE_BAR} için en fazla 1 hata`,
   // Türk Marşı drops 210 notes on Zor (cap 1.00): 200 hits is 95, 199 is 94.
