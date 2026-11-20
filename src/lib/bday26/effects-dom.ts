@@ -403,6 +403,14 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     hiss(ac, out, t, 0.09, 0.05, "bandpass", vary(900, 0.1), 3400, 1.4, 0.01);
     tone(ac, out, vary(700, 0.05), vary(1050, 0.05), t + 0.02, 0.05, "sine", 0.025, 0.004);
   },
+  // ── Barista ──
+  /** The tamper meeting the coffee: a soft low thud, a little grit, a faint
+   *  metal tick (the prototype's, #216). */
+  thud(ac, out, t) {
+    tone(ac, out, 115, 48, t, 0.24, "sine", 0.2, 0.004);
+    hiss(ac, out, t, 0.14, 0.05, "lowpass", 1100, 250, 0.7, 0.004);
+    tone(ac, out, 2100, 1900, t, 0.04, "triangle", 0.012, 0.002);
+  },
 };
 
 /** The quiz celebrations at their first, approved loudness: through a 0.35
@@ -593,6 +601,84 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
         smooth(gain.gain, 0.014 * (p.level ?? 1), now, 0.5);
       },
     };
+  },
+  /** Barista's grinder, while Space is held on the grind step (the
+   *  prototype's, #216): a motor hum (sawtooth, low-passed, its pitch rising
+   *  a touch as it spins up) under the burrs' crunch (band-passed noise with
+   *  a ~28 Hz flutter). No params. */
+  grind(ac, out) {
+    const motor = ac.createOscillator();
+    motor.type = "sawtooth";
+    const t = ac.currentTime;
+    motor.frequency.setValueAtTime(70, t);
+    motor.frequency.exponentialRampToValueAtTime(118, t + 0.35);
+    motor.frequency.linearRampToValueAtTime(126, t + 4);
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 900;
+    lp.Q.value = 0.8;
+    const mg = ac.createGain();
+    mg.gain.value = 0.05;
+    motor.connect(lp).connect(mg).connect(out);
+    const crunch = noiseLoop(ac);
+    const bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 2600;
+    bp.Q.value = 0.9;
+    const cg = ac.createGain();
+    cg.gain.value = 0.035;
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 28;
+    const depth = ac.createGain();
+    depth.gain.value = 0.018;
+    lfo.connect(depth).connect(cg.gain);
+    crunch.connect(bp).connect(cg).connect(out);
+    return { nodes: [motor, crunch, lfo], set() {} };
+  },
+  /** Barista's pour, while Space is held on the pull step (the
+   *  prototype's, #216): the pump's buzz, a soft stream (low-passed noise
+   *  that wobbles), a thin trickle on top and a drip now and then. The drips
+   *  end with the stream's source. No params. */
+  pour(ac, out) {
+    const pump = ac.createOscillator();
+    pump.type = "sawtooth";
+    pump.frequency.value = 100;
+    const plp = ac.createBiquadFilter();
+    plp.type = "lowpass";
+    plp.frequency.value = 380;
+    const pg = ac.createGain();
+    pg.gain.value = 0.022;
+    pump.connect(plp).connect(pg).connect(out);
+    const stream = noiseLoop(ac);
+    const slp = ac.createBiquadFilter();
+    slp.type = "lowpass";
+    slp.frequency.value = 750;
+    slp.Q.value = 0.6;
+    const sg = ac.createGain();
+    sg.gain.value = 0.045;
+    const wob = ac.createOscillator();
+    wob.frequency.value = 3.3;
+    const wd = ac.createGain();
+    wd.gain.value = 0.014;
+    wob.connect(wd).connect(sg.gain);
+    stream.connect(slp).connect(sg).connect(out);
+    const trickle = noiseLoop(ac);
+    const tbp = ac.createBiquadFilter();
+    tbp.type = "bandpass";
+    tbp.frequency.value = 2400;
+    tbp.Q.value = 2;
+    const tg = ac.createGain();
+    tg.gain.value = 0.01;
+    trickle.connect(tbp).connect(tg).connect(out);
+    let timer = 0;
+    const drip = () => {
+      const at = ac.currentTime + 0.01;
+      tone(ac, out, 700 + Math.random() * 300, 1300 + Math.random() * 400, at, 0.06, "sine", 0.022, 0.003);
+      timer = window.setTimeout(drip, 160 + Math.random() * 260);
+    };
+    timer = window.setTimeout(drip, 200);
+    stream.addEventListener("ended", () => window.clearTimeout(timer));
+    return { nodes: [pump, stream, wob, trickle], set() {} };
   },
 };
 

@@ -553,6 +553,38 @@ const TRACKS: Record<TrackName, Track> = {
       if (n) keys(s, n[1], t, dur * n[2] * 1.3, 0.03);
     },
   },
+
+  /**
+   * Barista, "Kahve molası": a cosy café loop, original (the prototype's,
+   * #216, which Atıl heard and kept). B♭ major, 84 bpm, swung 8ths, four
+   * bars of a ii–V–I–VI turnaround (Cm9 – F13 – B♭maj9 – G7): a walking
+   * bass, electric-piano chords in a Charleston rhythm, a vibraphone tune,
+   * brushes (ride on the beat, a swung shaker) and a soft kick.
+   */
+  barista: {
+    steps: 64,
+    bpm: () => 84,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const sw = step % 4 === 2 ? dur * 0.3 : 0; // swing the off-beat 8ths
+      const chords = [[58, 62, 63, 67], [57, 62, 63, 67], [57, 60, 62, 65], [53, 59, 63, 65]][bar]!;
+      const walk = [[48, 51, 55, 53], [53, 57, 60, 52], [46, 50, 53, 45], [43, 47, 50, 49]][bar]!;
+      const tune: Line[] = [
+        [[0, 74, 3], [6, 72, 2], [10, 70, 5]],
+        [[0, 72, 2], [4, 69, 2], [8, 67, 6]],
+        [[2, 69, 2], [4, 70, 2], [6, 74, 4], [12, 77, 4]],
+        [[0, 75, 4], [6, 74, 2], [8, 71, 7]],
+      ];
+      if (step % 4 === 0) bass(s, walk[step / 4]!, t, dur * 3.6, 0.045);
+      if (step === 0) for (const m of chords) keys(s, m, t, dur * 5, 0.014);
+      if (step === 6) for (const m of chords) keys(s, m, t + dur * 0.3, dur * 3, 0.011);
+      const n = at(tune[bar], step);
+      if (n) vibe(s, n[1], t + sw, dur * n[2] * 1.4, 0.024);
+      if (step % 4 === 0) noiseHit(s, t, 0.22, 0.008, "highpass", 6500, 0.6);
+      if (step % 4 === 2) noiseHit(s, t + sw, 0.08, 0.006, "bandpass", 5000, 1.2, 0.015);
+      if (step === 0 || step === 10) kick(s, t, 0.03);
+    },
+  },
 };
 
 // ── the ski and the radio's own sounds ─────────────────────────────

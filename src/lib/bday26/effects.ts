@@ -170,10 +170,12 @@ export type SoundName =
   | "lever"
   | "reel-stop"
   | "pair-jingle"
-  | "no-win";
+  | "no-win"
+  // Barista
+  | "thud";
 
 /** The continuous sounds: started, steered by params each frame, stopped. */
-export type LoopName = "engine" | "traffic" | "swoosh" | "reels";
+export type LoopName = "engine" | "traffic" | "swoosh" | "reels" | "grind" | "pour";
 
 /** A loop's steering, each 0..1 (speed, throttle, …). */
 export type LoopParams = Record<string, number>;
