@@ -62,15 +62,25 @@
  * WHAT THE SCREENS SAY (Turkish only; wording from the hiking prototype's
  * cards, verdict on #183, and the hub's tiles, #193):
  *   - Start: name, rule, keys, "Başla · Enter", "Salona dön · Esc", her Best
- *     score and the Small prize line ("Küçük ödül: X · %95 yapınca senin" /
- *     "Kazandın!"). Esc here leaves at once; no Round is running.
+ *     score, the Small prize line ("Küçük ödül: X · %95 yapınca senin" /
+ *     "Kazandın!", `prizeHowOf`) and, until the prize is won, what %95 means
+ *     in this Game ("%95 için en fazla 15 hamle", `prizeHintOf` in
+ *     `./prize-hints.ts`). Esc here leaves at once; no Round is running.
  *   - Confirm (Esc during a Round): "Turdan çıkılsın mı?" / "Yarım bırakılan
  *     tur skor vermez." / "Devam et · Esc", "Çık · Enter" (stories 35–36).
- *   - Result: "Tur bitti", the score as %N, `detail`, "Rekor %N" (with "Yeni
- *     rekor!" when this Round raised it, never for a first-ever %0), "Hedef
- *     %95" (with "Küçük ödül kazandın: X!" the one time it is won), "Yeni
- *     tur · Enter", "Salona dön · Esc" (stories 33–34).
- *
+ *   - Result: "Tur bitti", the score as %N, `detail`, the Points line ("+8
+ *     puan · toplam 510" after a raise that earned Points, "Rekorun %88 ·
+ *     puanın değişmedi" otherwise, "Bu oyun puan vermez" in a Prize Game),
+ *     "Rekor %N" (with "İlk rekorun!" on a first Round or "Yeni rekor!" on a
+ *     raise, both only from %20 up, `CHEER_FROM`), "Hedef %95" (with "Küçük
+ *     ödül kazandın: X!" the one time it is won), the prize hint again while
+ *     the prize is still to win, "Yeni tur · Enter", "Salona dön · Esc"
+ *     (stories 33–34).
+ *   - The Small prize celebration: the result card that wins it celebrates,
+ *     and in a Prize Game every Round at %95 or more does, won before or not
+ *     (`RoundResult.celebrate`). A Game page adds no celebration of its own
+ *     for the prize.
+
  * WHAT REACHES THE LEDGER. Exactly one `recordRound(game, score, {jackpot})`
  * per finished Round, from `finish`, and nothing from a Round she leaves:
  * `leaveRound` calls your `abandonRound` and goes to the hub (story 36).
@@ -85,26 +95,43 @@
  * by their `data-shell-*` attributes, paints them from the screen the
  * controller emits, and feeds it keys and clicks. Games call the second; the
  * first is for the tests and for anyone who needs the shell somewhere the
- * component is not.
+ * component is not. The controller's `onPhase` hook, and the result's
+ * `celebrate`, reach the component's own script through `setShellFrame`:
+ * that script stops effect loops on every screen, holds the music while the
+ * leave confirm asks, and plays the Small prize celebration.
  */
 import { gameById, PRIZE_BAR, type GameId } from "./catalogue.ts";
+import { PRIZE_LOCKED_ICON, PRIZE_WON_ICON } from "./icons.ts";
 import type { Ledger, RoundOutcome } from "./ledger.ts";
+import { prizeHintOf, prizeHowOf } from "./prize-hints.ts";
 
 /** The hub, where "Salona dön" goes. */
 export const HUB_URL = "/20261209/";
 
-/** Fired on `[data-shell]` when a result screen shows a Small prize won by
- *  this very Round (the one time it unlocks); GameShell celebrates it. */
-export const PRIZE_WON_EVENT = "bday26:prize-won";
+/** A raised Best score is cheered only from here up: "Yeni rekor!" over a
+ *  5% Round would only mock her (review D6). */
+export const CHEER_FROM = 20;
 
 export type ShellPhase = "start" | "playing" | "confirm" | "result";
 
-/** What the result card shows for one finished Round. */
+/** What the result card shows for one finished Round. `improved` is the
+ *  ledger's (any raise counts); the card cheers through `bestFlash`. */
 export type RoundResult = RoundOutcome & {
   /** The Round's score, 0..100, as the Game handed it in. */
   score: number;
   /** One line under the score, the Game's own words. */
   detail?: string;
+  /** The flash under the Best score: "İlk rekorun!" for a first Round, "Yeni
+   *  rekor!" for a raised one, and nothing when the new Best is under
+   *  `CHEER_FROM` or nothing was raised. */
+  bestFlash?: "Yeni rekor!" | "İlk rekorun!";
+  /** What the Round did to her Points: "+8 puan · toplam 510" after a raise
+   *  that earned some, "Rekorun %88 · puanın değişmedi" otherwise, "Bu oyun
+   *  puan vermez" in a Prize Game. Undefined for the slot machine. */
+  pointsLine?: string;
+  /** The card celebrates the Small prize: on the Round that wins it, and in
+   *  a Prize Game on every Round at the bar, since the prize is its point. */
+  celebrate: boolean;
 };
 
 /** What she sees: the one screen the shell shows now. */
@@ -114,6 +141,9 @@ export type ShellScreen = {
   best: number | undefined;
   /** Whether the Small prize is won, as of now. */
   prizeWon: boolean;
+  /** What %95 means in this Game (`prizeHintOf`), while the Small prize is
+   *  still to win; undefined once won, and always for the slot machine. */
+  prizeHint?: string;
   /** Only on the result screen. */
   result?: RoundResult;
 };
@@ -153,6 +183,10 @@ export type ShellOptions = {
   /** false: no start screen, the first Round starts at once (the slot
    *  machine, story 54). Default true. */
   startScreen?: boolean;
+  /** Told every phase the shell shows, right after `view` paints it — every
+   *  time, so the slot machine's next Round repeats "playing". The frame
+   *  around the Round uses it to quiet effects and hold music. */
+  onPhase?: (phase: ShellPhase) => void;
 };
 
 export type GameShell = {
@@ -177,11 +211,29 @@ export type GameShell = {
 };
 
 export function createGameShell(options: ShellOptions): GameShell {
-  const { game, ledger, hooks, view, leave, resultScreen = true, startScreen = true } = options;
+  const { game, ledger, hooks, view, leave, resultScreen = true, startScreen = true, onPhase } = options;
+  const { prizeGame = false } = gameById(game);
+  const hint = prizeHintOf(game);
   let phase: ShellPhase = "start";
 
   function show(result?: RoundResult) {
-    view({ phase, best: ledger.bestOf(game), prizeWon: ledger.prizeWon(game), result });
+    const prizeWon = ledger.prizeWon(game);
+    view({ phase, best: ledger.bestOf(game), prizeWon, prizeHint: prizeWon ? undefined : hint, result });
+    onPhase?.(phase);
+  }
+
+  /** The result card's lines for a Round the ledger just recorded. */
+  function resultOf(score: number, outcome: RoundOutcome, first: boolean, pointsBefore: number, detail?: string): RoundResult {
+    const cheered = outcome.improved && outcome.best >= CHEER_FROM;
+    const bestFlash = !cheered ? undefined : first ? "İlk rekorun!" : "Yeni rekor!";
+    const gained = ledger.pointsOf(game) - pointsBefore;
+    const pointsLine = prizeGame
+      ? "Bu oyun puan vermez"
+      : gained > 0
+        ? `+${gained} puan · toplam ${ledger.earned().toLocaleString("tr-TR")}`
+        : `Rekorun %${Math.floor(outcome.best)} · puanın değişmedi`;
+    const celebrate = outcome.prizeWonNow || (prizeGame && score >= PRIZE_BAR);
+    return { ...outcome, score, detail, bestFlash, pointsLine, celebrate };
   }
 
   const shell: GameShell = {
@@ -195,12 +247,12 @@ export function createGameShell(options: ShellOptions): GameShell {
     },
     finish(score, extra) {
       if (phase !== "playing") return undefined;
+      const first = ledger.bestOf(game) == null;
+      const pointsBefore = ledger.pointsOf(game);
       const outcome = ledger.recordRound(game, score, { jackpot: extra?.jackpot });
       if (resultScreen) {
         phase = "result";
-        // A first-ever 0 is kept as the Best score, but "Yeni rekor!" over
-        // %0 would only mock her: the flash needs a score above nothing.
-        show({ ...outcome, improved: outcome.improved && outcome.best > 0, score, detail: extra?.detail });
+        show(resultOf(score, outcome, first, pointsBefore, extra?.detail));
       } else {
         shell.start();
       }
@@ -258,6 +310,30 @@ export function createGameShell(options: ShellOptions): GameShell {
 
 // ------------------------------------------------------ the browser binding
 
+/**
+ * The frame around the Round: what `GameShell.astro`'s own script does with
+ * effects and music, which this file cannot import (they touch `window` at
+ * load, and the controller runs under `node --test`). The component's script
+ * hands it over once with `setShellFrame`; `mountGameShell` then tells it
+ * every phase and every celebration. A frame set after the shell mounted
+ * hears the current phase at once.
+ */
+export type ShellFrame = {
+  /** Every phase the shell shows (see `ShellOptions.onPhase`). */
+  onPhase?(phase: ShellPhase): void;
+  /** A result card that celebrates the Small prize (`RoundResult.celebrate`). */
+  celebrate?(): void;
+};
+
+let frame: ShellFrame | undefined;
+let mounted: GameShell | undefined;
+
+/** `GameShell.astro`'s script, once per page: its effects and music hooks. */
+export function setShellFrame(next: ShellFrame) {
+  frame = next;
+  if (mounted) next.onPhase?.(mounted.phase);
+}
+
 export type MountOptions = {
   game: GameId;
   ledger: Ledger;
@@ -283,14 +359,19 @@ export function mountGameShell(options: MountOptions): GameShell {
   const main = one(root, "[data-shell]");
   const screens = Array.from(root.querySelectorAll<HTMLElement>("[data-shell-screen]"));
   const playfield = one(root, "[data-shell-playfield]");
-  const { prize, luck } = gameById(options.game);
-  /** How the Small prize is won, as the hub's tile says it. */
-  const prizeHow = luck ? "Jackpot'ta senin" : `%${PRIZE_BAR} yapınca senin`;
+  const { prize } = gameById(options.game);
+  const prizeHow = prizeHowOf(options.game);
 
   /** A score as she reads it: %88, rounded down like the Points it earns. */
   const pct = (score: number) => `%${Math.floor(score)}`;
   const fill = (selector: string, text: string) => {
     for (const el of root.querySelectorAll<HTMLElement>(selector)) el.textContent = text;
+  };
+  /** One optional line of the result card: its text, or hidden. */
+  const line = (selector: string, text: string | undefined) => {
+    const el = one(root, selector);
+    el.textContent = text ?? "";
+    el.hidden = !text;
   };
 
   function paint(screen: ShellScreen) {
@@ -299,20 +380,21 @@ export function mountGameShell(options: MountOptions): GameShell {
     playfield.inert = screen.phase !== "playing";
 
     fill("[data-shell-best]", screen.best == null ? "—" : pct(screen.best));
-    fill("[data-shell-prize-icon]", screen.prizeWon ? "🎁" : "🔒");
+    fill("[data-shell-prize-icon]", screen.prizeWon ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON);
     fill("[data-shell-prize-sub]", screen.prizeWon ? "Kazandın!" : prizeHow);
+    for (const el of root.querySelectorAll<HTMLElement>("[data-shell-hint]")) {
+      el.textContent = screen.prizeHint ?? "";
+      el.hidden = !screen.prizeHint;
+    }
 
     const r = screen.result;
     if (r) {
       fill("[data-shell-score]", pct(r.score));
-      const detail = one(root, "[data-shell-detail]");
-      detail.textContent = r.detail ?? "";
-      detail.hidden = !r.detail;
-      one(root, "[data-shell-improved]").hidden = !r.improved;
-      const now = one(root, "[data-shell-prize-now]");
-      now.hidden = !r.prizeWonNow;
-      now.textContent = `Küçük ödül kazandın: ${prize.name}!`;
-      if (r.prizeWonNow) main.dispatchEvent(new CustomEvent(PRIZE_WON_EVENT));
+      line("[data-shell-detail]", r.detail);
+      line("[data-shell-points]", r.pointsLine);
+      line("[data-shell-best-flash]", r.bestFlash);
+      line("[data-shell-prize-now]", r.prizeWonNow ? `Küçük ödül kazandın: ${prize.name}!` : undefined);
+      if (r.celebrate) frame?.celebrate?.();
     }
 
     let shown: HTMLElement | undefined;
@@ -333,7 +415,9 @@ export function mountGameShell(options: MountOptions): GameShell {
     startScreen: options.startScreen,
     view: paint,
     leave: options.leave ?? (() => window.location.assign(HUB_URL)),
+    onPhase: (phase) => frame?.onPhase?.(phase),
   });
+  mounted = shell;
 
   // Keys: capture phase on window, so a key the shell takes never reaches a
   // Game's own listener. Browser shortcuts (Ctrl/Alt/Meta) are left alone.

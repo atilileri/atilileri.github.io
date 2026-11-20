@@ -15,7 +15,8 @@
  * the last checkpoint and the flags she took since then are back on the
  * slope. Crossing the finish ends the Round on the shell's result card: the
  * score (`skiScore`, flags ÷ 72, rounded down), "x / 72 bayrak · Süre ·
- * düşüş" as the detail, and below 95 how many flags the Small prize wants.
+ * düşüş" as the detail; while the Small prize is still to win, the shell's
+ * prize hint says how many flags it wants (`src/lib/bday26/prize-hints.ts`).
  * Speed, time and falls earn nothing; a Round she leaves before the finish
  * scores nothing (the shell records nothing for it).
  *
@@ -86,8 +87,6 @@ const KEYS = [
         <PauseOverlay />
       </div>
     </div>
-
-    <p slot="result" class="verdict" data-verdict hidden></p>
   </GameShell>
 </BdayLayout>
 
@@ -125,7 +124,6 @@ const KEYS = [
   const swoosh = effects.loop("swoosh");
   const progEl = $<HTMLElement>("[data-prog]");
   const progFill = $<HTMLElement>("[data-prog-fill]");
-  const verdictEl = $<HTMLElement>("[data-verdict]");
   const hud = {
     flags: $<HTMLElement>("[data-hud-flags]"),
     time: $<HTMLElement>("[data-hud-time]"),
@@ -140,8 +138,6 @@ const KEYS = [
   /** Where the camera keeps her on the stage: 260 px from the left, 330 px from the top. */
   const CAM_X = 260;
   const CAM_Y = 330;
-  /** The Small prize's flag count: 95% of 72, rounded up (69). */
-  const NEED_95 = Math.ceil((95 * SKI_FLAGS) / 100);
 
   const ACCENT = cssVar("--bd-accent");
   const ACCENT_DEEP = cssVar("--bd-accent-deep");
@@ -181,7 +177,6 @@ const KEYS = [
     mode = "play";
     pausedEl.hidden = true;
     music.release("pause");
-    verdictEl.hidden = true;
     paintHud();
     loop.start();
   }
@@ -278,8 +273,6 @@ const KEYS = [
     toastEl.classList.remove("show");
     const got = flagsHeld(run);
     const score = skiScore(got, true)!;
-    verdictEl.textContent = `Küçük ödül için en az ${NEED_95} bayrak (%95) gerekli.`;
-    verdictEl.hidden = score >= 95;
     const falls = run.falls ? `${run.falls} düşüş` : "hiç düşmeden";
     shell.finish(score, { detail: `${got} / ${SKI_FLAGS} bayrak · Süre ${fmtTime(run.time)} · ${falls}` });
   }
@@ -844,15 +837,5 @@ const KEYS = [
   .toast.show {
     opacity: 1;
     transform: translate(-50%, 0);
-  }
-  /* ── result card ────────────────────────────────────────────────── */
-  .verdict {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--bd-muted);
-  }
-  .verdict[hidden] {
-    display: none;
   }
 </style>

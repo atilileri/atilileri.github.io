@@ -101,13 +101,11 @@ test("a finished Round shows its score, the Best score and the 95% bar, and the 
   g.shell.key("Enter");
   g.shell.finish(90, { detail: "16 hamle" });
   assert.equal(g.screen.phase, "result");
-  assert.deepEqual(g.screen.result, {
-    score: 90,
-    best: 90,
-    improved: true,
-    prizeWonNow: false,
-    detail: "16 hamle",
-  });
+  assert.equal(g.screen.result?.score, 90);
+  assert.equal(g.screen.result?.best, 90);
+  assert.equal(g.screen.result?.improved, true);
+  assert.equal(g.screen.result?.prizeWonNow, false);
+  assert.equal(g.screen.result?.detail, "16 hamle");
   assert.equal(g.screen.prizeWon, false);
   assert.equal(g.ledger.bestOf("hafiza"), 90);
 });
@@ -132,20 +130,153 @@ test("a lower Round keeps the old Best score, and the result says it was not imp
   g.shell.finish(80);
   g.shell.key("Enter");
   g.shell.finish(60);
-  assert.deepEqual(g.screen.result, { score: 60, best: 80, improved: false, prizeWonNow: false, detail: undefined });
+  assert.equal(g.screen.result?.score, 60);
+  assert.equal(g.screen.result?.best, 80);
+  assert.equal(g.screen.result?.improved, false);
+  assert.equal(g.screen.result?.bestFlash, undefined, "no flash for a lower Round");
   assert.equal(g.ledger.bestOf("hafiza"), 80);
 });
 
-test("a first-ever 0 is kept as the Best score, but the result does not cheer it as a new one", () => {
+test("a first-ever 0 is kept as the Best score, but the result does not cheer it", () => {
   const g = openGame();
   g.shell.key("Enter");
   g.shell.finish(0);
-  assert.equal(g.screen.result?.improved, false, "no \"Yeni rekor!\" for %0");
+  assert.equal(g.screen.result?.bestFlash, undefined, "no flash for %0");
   assert.equal(g.ledger.bestOf("hafiza"), 0);
+});
 
+// --------------------------------------------- the Best score flash (D6)
+// "Yeni rekor!" only when the new Best is 20 or more; a first Round says
+// "İlk rekorun!" instead, and nothing below 20.
+
+test("a first Round below 20 gets no flash; at 20 or more it says İlk rekorun!", () => {
+  const low = openGame();
+  low.shell.key("Enter");
+  low.shell.finish(5);
+  assert.equal(low.screen.result?.bestFlash, undefined);
+
+  const first = openGame();
+  first.shell.key("Enter");
+  first.shell.finish(20);
+  assert.equal(first.screen.result?.bestFlash, "İlk rekorun!");
+});
+
+test("a raised Best score says Yeni rekor! only when it reaches 20", () => {
+  const g = openGame();
   g.shell.key("Enter");
-  g.shell.finish(10);
-  assert.equal(g.screen.result?.improved, true, "the first score above it is");
+  g.shell.finish(5);
+  g.shell.key("Enter");
+  g.shell.finish(15);
+  assert.equal(g.screen.result?.improved, true);
+  assert.equal(g.screen.result?.bestFlash, undefined, "15 is higher, but still under 20");
+  g.shell.key("Enter");
+  g.shell.finish(40);
+  assert.equal(g.screen.result?.bestFlash, "Yeni rekor!");
+  g.shell.key("Enter");
+  g.shell.finish(30);
+  assert.equal(g.screen.result?.bestFlash, undefined, "a lower Round raises nothing");
+});
+
+// ------------------------------------------------- the Points line (D1)
+
+test("a new Best score in a skill Game says the Points it brought and the total earned", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.recordRound("milyoner", 91); // 91 Points already earned elsewhere
+  ledger.recordRound("hafiza", 80);
+  const g = openGame("hafiza", ledger);
+  g.shell.key("Enter");
+  g.shell.finish(88.6);
+  assert.equal(g.screen.result?.pointsLine, "+8 puan · toplam 179");
+});
+
+test("a Round that leaves the Points as they were says so, with the Best score as she reads it", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.recordRound("hafiza", 88.4);
+  const g = openGame("hafiza", ledger);
+  g.shell.key("Enter");
+  g.shell.finish(60);
+  assert.equal(g.screen.result?.pointsLine, "Rekorun %88 · puanın değişmedi");
+  // A higher score inside the same whole percent is a new Best but no new Point.
+  g.shell.key("Enter");
+  g.shell.finish(88.9);
+  assert.equal(g.screen.result?.pointsLine, "Rekorun %88 · puanın değişmedi");
+});
+
+test("the total earned is written the Turkish way: 1.000 at the top", () => {
+  const ledger = createLedger(memoryStore());
+  for (const id of ["milyoner", "nerede", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak"] as const) {
+    ledger.recordRound(id, 100);
+  }
+  ledger.recordRound("hafiza", 99);
+  const g = openGame("hafiza", ledger);
+  g.shell.key("Enter");
+  g.shell.finish(100);
+  assert.equal(g.screen.result?.pointsLine, "+1 puan · toplam 1.000");
+});
+
+test("a Prize Game's result says it gives no Points", () => {
+  const g = openGame("bavul");
+  g.shell.key("Enter");
+  g.shell.finish(70);
+  assert.equal(g.screen.result?.pointsLine, "Bu oyun puan vermez");
+});
+
+// ------------------------------------------------- the prize hint (D2)
+
+test("the start and result screens carry the Game's prize hint until the Small prize is won", () => {
+  const g = openGame("hafiza");
+  assert.equal(g.screen.prizeHint, "%95 için en fazla 15 hamle");
+  g.shell.key("Enter");
+  g.shell.finish(90);
+  assert.equal(g.screen.prizeHint, "%95 için en fazla 15 hamle");
+  g.shell.key("Enter");
+  g.shell.finish(95);
+  assert.equal(g.screen.prizeHint, undefined, "won: nothing left to explain");
+});
+
+// ------------------------------------------- the Small prize celebration (L2)
+
+test("a skill Game celebrates its Small prize once, on the Round that wins it", () => {
+  const g = openGame("hafiza");
+  g.shell.key("Enter");
+  g.shell.finish(95);
+  assert.equal(g.screen.result?.celebrate, true);
+  g.shell.key("Enter");
+  g.shell.finish(100);
+  assert.equal(g.screen.result?.celebrate, false);
+});
+
+test("a Prize Game celebrates every Round at 95 or more, won before or not", () => {
+  const g = openGame("barista");
+  g.shell.key("Enter");
+  g.shell.finish(94.9);
+  assert.equal(g.screen.result?.celebrate, false);
+  g.shell.key("Enter");
+  g.shell.finish(96);
+  assert.equal(g.screen.result?.celebrate, true, "the Round that wins it");
+  g.shell.key("Enter");
+  g.shell.finish(95);
+  assert.equal(g.screen.result?.celebrate, true, "and every later one at the bar");
+});
+
+// ------------------------------------------------------ the phase hook (M4)
+
+test("onPhase hears every screen the shell shows, in order", () => {
+  const phases: string[] = [];
+  const shell = createGameShell({
+    game: "hafiza",
+    ledger: createLedger(memoryStore()),
+    hooks: { startRound: () => {} },
+    view: () => {},
+    leave: () => {},
+    onPhase: (phase) => void phases.push(phase),
+  });
+  shell.key("Enter");
+  shell.key("Escape");
+  shell.key("Escape");
+  shell.finish(50);
+  shell.key("Enter");
+  assert.deepEqual(phases, ["start", "playing", "confirm", "playing", "result", "playing"]);
 });
 
 test("one finished Round is recorded once: a second finish without a new Round changes nothing", () => {
@@ -227,6 +358,8 @@ test("the slot machine has no result screen: a finish is recorded and the next R
   assert.deepEqual(outcome, { best: 50, improved: true, prizeWonNow: false });
   assert.equal(g.ledger.bestOf("slot"), 50);
   assert.equal(g.ledger.earned(), 0, "and the slot machine gives no Points");
+  assert.equal(g.screen.result, undefined, "and no result, so no Points line either");
+  assert.equal(g.screen.prizeHint, undefined, "the jackpot has no hint");
 
   const jackpot = g.shell.finish(100, { jackpot: true });
   assert.equal(jackpot?.prizeWonNow, true);

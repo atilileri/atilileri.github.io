@@ -101,7 +101,6 @@ const LIMIT = formatClock(RULES.timeLimit);
     </div>
 
     <div slot="result" class="mistakes">
-      <p class="verdict" data-verdict></p>
       <ul data-mistakes></ul>
     </div>
   </GameShell>
@@ -162,7 +161,6 @@ const LIMIT = formatClock(RULES.timeLimit);
     speed: $<HTMLElement>("[data-speed]"),
     speedPill: $<HTMLElement>("[data-speed-pill]"),
   };
-  const verdictEl = $<HTMLElement>("[data-verdict]");
   const mistakesEl = $<HTMLElement>("[data-mistakes]");
 
   const LABEL = Object.fromEntries(MISTAKES.map((m) => [m.id, m]));
@@ -313,8 +311,6 @@ const LIMIT = formatClock(RULES.timeLimit);
     phase = "idle";
     const { heavy, light } = tally(drive.mistakes);
     const score = drivingScore(heavy, light);
-    verdictEl.textContent = score >= 95 ? "" : "%95 için: hiç ağır hata yok, en fazla bir hafif hata.";
-    verdictEl.hidden = score >= 95;
     mistakesEl.replaceChildren(
       ...(drive.mistakes.length
         ? drive.mistakes.map((m) => row(formatClock(m.at), LABEL[m.id]!.label + (m.detail ? ` · ${m.detail}` : ""), `−%${PRICE[m.kind]}`, m.kind))
@@ -926,15 +922,6 @@ const LIMIT = formatClock(RULES.timeLimit);
     display: grid;
     gap: 8px;
     width: 100%;
-  }
-  .verdict {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--bd-muted);
-  }
-  .verdict[hidden] {
-    display: none;
   }
   .mistakes ul {
     margin: 0;

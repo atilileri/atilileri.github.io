@@ -135,7 +135,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
-  import { renkMatchCelebration, smallPrizeCelebration, type SoundName } from "../../../lib/bday26/effects";
+  import { renkMatchCelebration, type SoundName } from "../../../lib/bday26/effects";
   import { effects } from "../../../lib/bday26/effects-dom";
   import {
     addDrop,
@@ -274,11 +274,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
         : "Resim setini zaten kazandın."
       : `Resim seti için rekorun en az %${PRIZE_BAR} olmalı.`;
     verdictEl.classList.toggle("win", won);
-    // The Small prize's fanfare at 95%: the shell plays it the one time the
-    // prize is won; every later Round at 95% gets it here.
-    if (score >= PRIZE_BAR && !outcome?.prizeWonNow) {
-      window.setTimeout(() => effects.celebrate(smallPrizeCelebration(Math.random)), 900);
-    }
+    // At 95% or more the shell celebrates the Small prize, won now or before.
   }
 
   /** Restart a one-shot CSS animation class on `el`. */
