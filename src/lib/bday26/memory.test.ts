@@ -98,7 +98,7 @@ test("a card already up, or matched, cannot be turned again and costs no move", 
   assert.equal(board.moves, 1);
 });
 
-test("the Round is over when all 8 pairs are matched; a perfect game is 8 moves", () => {
+test("the Round is over when all 8 pairs are matched; a perfect Round is 8 moves", () => {
   const board = createBoard(DEAL);
   for (let i = 0; i < 16; i++) {
     if (board.cards[i]?.matched) continue;

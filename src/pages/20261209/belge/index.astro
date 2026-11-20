@@ -118,14 +118,10 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
   // The Proof's one job on the client: lay out what `proofOf` returns. No
   // rule is computed here; every name, the date and both codes come from the
   // ledger through that one function (spec #192 "Modules").
+  import { formatPoints } from "../../../lib/bday26/format";
+  import { one } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { proofOf, type Proof } from "../../../lib/bday26/proof";
-
-  function $(selector: string): HTMLElement {
-    const el = document.querySelector<HTMLElement>(selector);
-    if (!el) throw new Error(`bday26 proof: missing ${selector}`);
-    return el;
-  }
 
   /** One item on the paper: the name, a tag beside it (the Game, for a
    *  Small prize), and its one line under. Built with textContent: the
@@ -158,23 +154,23 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
   }
 
   function paint(proof: Proof) {
-    fill($("[data-gifts]"), $("[data-gifts-empty]"), proof.gifts.map((g) => item(g.name, g.desc)));
-    fill($("[data-prizes]"), $("[data-prizes-empty]"), proof.prizes.map((p) => item(p.name, p.desc, p.game)));
+    fill(one("[data-gifts]"), one("[data-gifts-empty]"), proof.gifts.map((g) => item(g.name, g.desc)));
+    fill(one("[data-prizes]"), one("[data-prizes-empty]"), proof.prizes.map((p) => item(p.name, p.desc, p.game)));
     // Gifted points only when Atıl gave some: a section that only ever says
     // "none" would be noise on the paper.
-    $("[data-gifted]").hidden = proof.gifted.items.length === 0;
-    $("[data-gifted-list]").replaceChildren(
-      ...proof.gifted.items.map((g) => item(`+${g.points.toLocaleString("tr-TR")} puan`, g.note ?? "Atıl'dan hediye")),
+    one("[data-gifted]").hidden = proof.gifted.items.length === 0;
+    one("[data-gifted-list]").replaceChildren(
+      ...proof.gifted.items.map((g) => item(`+${formatPoints(g.points)} puan`, g.note ?? "Atıl'dan hediye")),
     );
     // Their sum, the number Atıl checks against the hub's "+N hediye puan".
-    $("[data-gifted-total]").textContent =
-      proof.gifted.total > 0 ? `Atıl'dan hediye puan: ${proof.gifted.total.toLocaleString("tr-TR")}` : "";
-    $("[data-date]").textContent = proof.date;
-    $("[data-check]").textContent = proof.check;
-    $("[data-code]").textContent = proof.code;
+    one("[data-gifted-total]").textContent =
+      proof.gifted.total > 0 ? `Atıl'dan hediye puan: ${formatPoints(proof.gifted.total)}` : "";
+    one("[data-date]").textContent = proof.date;
+    one("[data-check]").textContent = proof.check;
+    one("[data-code]").textContent = proof.code;
   }
 
-  $("[data-print]").addEventListener("click", () => window.print());
+  one("[data-print]").addEventListener("click", () => window.print());
   void proofOf(openLedger(), new Date()).then(paint);
 </script>
 

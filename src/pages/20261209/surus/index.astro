@@ -117,6 +117,7 @@ const LIMIT = formatClock(RULES.timeLimit);
 </BdayLayout>
 
 <script>
+  import { one } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { cssVar } from "../../../lib/bday26/css";
   import { createFrameLoop } from "../../../lib/bday26/frame-loop";
@@ -157,23 +158,22 @@ const LIMIT = formatClock(RULES.timeLimit);
   import { music } from "../../../lib/bday26/music-dom";
   import { createPause } from "../../../lib/bday26/pause-dom";
 
-  const $ = <T extends Element>(sel: string) => document.querySelector<T>(sel)!;
-  const stage = $<HTMLElement>("[data-stage]");
-  const cv = $<HTMLCanvasElement>("[data-town]");
+  const stage = one<HTMLElement>("[data-stage]");
+  const cv = one<HTMLCanvasElement>("[data-town]");
   const ctx = cv.getContext("2d")!;
-  const mini = $<HTMLCanvasElement>("[data-mini]").getContext("2d")!;
-  const toasts = $<HTMLElement>("[data-toasts]");
-  const countEl = $<HTMLElement>("[data-count]");
+  const mini = one<HTMLCanvasElement>("[data-mini]").getContext("2d")!;
+  const toasts = one<HTMLElement>("[data-toasts]");
+  const countEl = one<HTMLElement>("[data-count]");
   const hud = {
-    time: $<HTMLElement>("[data-hud-time]"),
-    score: $<HTMLElement>("[data-hud-score]"),
-    heavy: $<HTMLElement>("[data-hud-heavy]"),
-    light: $<HTMLElement>("[data-hud-light]"),
-    next: $<HTMLElement>("[data-hud-next]"),
-    speed: $<HTMLElement>("[data-speed]"),
-    speedPill: $<HTMLElement>("[data-speed-pill]"),
+    time: one<HTMLElement>("[data-hud-time]"),
+    score: one<HTMLElement>("[data-hud-score]"),
+    heavy: one<HTMLElement>("[data-hud-heavy]"),
+    light: one<HTMLElement>("[data-hud-light]"),
+    next: one<HTMLElement>("[data-hud-next]"),
+    speed: one<HTMLElement>("[data-speed]"),
+    speedPill: one<HTMLElement>("[data-speed-pill]"),
   };
-  const mistakesEl = $<HTMLElement>("[data-mistakes]");
+  const mistakesEl = one<HTMLElement>("[data-mistakes]");
 
   const { x: RX, y: RY, island: R1, ring: R2, cycleIn: R3, cycleOut: R4, zone: RZ } = ROUNDABOUT;
 

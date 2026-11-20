@@ -1,11 +1,13 @@
 /**
- * Background music for the hub and six Games (Milyoner, "Bu nerede?",
- * Hafıza kartları, the slot machine, the ski and driving Games): short loops synthesised with
- * Web Audio, no files. This file is the pure side, pinned under `node --test`:
+ * Background music for the hub and nine Games (Milyoner, "Bu nerede?",
+ * Hafıza kartları, the slot machine, the ski and driving Games, and the
+ * three Prize Games): short loops synthesised with Web Audio, no files.
+ * This file is the pure side, pinned under `node --test`:
  *
  *   - her switch, "Müzik: Açık/Kapalı", under its own `localStorage` key
- *     (`bday26:music`), on by default, built like the effects' switch and
- *     independent of it: UI state, not progress, not in the Save code.
+ *     (`bday26:music`), on by default, built on the same
+ *     `./switch-preference.ts` as the effects' switch and independent of
+ *     it: UI state, not progress, not in the Save code.
  *   - THE GATE, `createMusic`: one track at a time; it sounds only while the
  *     switch is on, after her first gesture, and while nothing holds it (the
  *     shell's leave confirm, a hidden tab). Switching on, or the last hold
@@ -17,14 +19,12 @@
  * not background music, and ignores this switch.
  */
 import type { KeyValueStore } from "./ledger.ts";
-import { createSwitchPreference, type EffectsPreference } from "./effects.ts";
+import { createSwitchPreference, type SwitchPreference } from "./switch-preference.ts";
 
 /** Her music switch's own key: "off" or "on"; missing means on. */
 export const MUSIC_KEY = "bday26:music";
 
-export type MusicPreference = EffectsPreference;
-
-export function createMusicPreference(store: KeyValueStore): MusicPreference {
+export function createMusicPreference(store: KeyValueStore): SwitchPreference {
   return createSwitchPreference(store, MUSIC_KEY);
 }
 
@@ -66,7 +66,7 @@ export type Music = {
   onChange(listener: (on: boolean) => void): void;
 };
 
-export function createMusic(pref: MusicPreference, engine: MusicEngine): Music {
+export function createMusic(pref: SwitchPreference, engine: MusicEngine): Music {
   let unlocked = false;
   let wanted: { track: TrackName; params: MusicParams } | undefined;
   let voice: { track: TrackName; voice: MusicVoice } | undefined;

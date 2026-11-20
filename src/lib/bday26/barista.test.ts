@@ -18,6 +18,7 @@ import assert from "node:assert/strict";
 import { STEPS, createBench, createRound, fillAt, halfWidth, overflowed } from "./barista.ts";
 import { baristaStepScore } from "./scores.ts";
 import { createEffects, createEffectsPreference } from "./effects.ts";
+import { memoryStore } from "./test-store.ts";
 
 const grind = STEPS[0];
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≈ ${b}`);
@@ -128,7 +129,7 @@ function bench() {
     burst: () => {},
     shake: () => void log.push("shake"),
   };
-  const fx = createEffects(createEffectsPreference({ getItem: () => null, setItem: () => {} }), engine);
+  const fx = createEffects(createEffectsPreference(memoryStore()), engine);
   fx.unlock();
   return { log, b: createBench(fx, "the instruments") };
 }

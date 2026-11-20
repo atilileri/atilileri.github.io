@@ -34,8 +34,9 @@
  */
 import { createLedger, type KeyValueStore, type Ledger } from "./ledger.ts";
 import { createWelcome, type Welcome } from "./welcome.ts";
-import { createEffectsPreference, type EffectsPreference } from "./effects.ts";
-import { createMusicPreference, type MusicPreference } from "./music.ts";
+import { createEffectsPreference } from "./effects.ts";
+import { createMusicPreference } from "./music.ts";
+import type { SwitchPreference } from "./switch-preference.ts";
 
 /** What this module reads off `window`. Any of it may be missing or throw. */
 export type BrowserLike = {
@@ -58,12 +59,12 @@ export function openWelcome(win: BrowserLike = window): Welcome {
 }
 
 /** Her "Efektler: Açık/Kapalı" switch on this browser: UI state, its own key. */
-export function openEffectsPreference(win: BrowserLike = window): EffectsPreference {
+export function openEffectsPreference(win: BrowserLike = window): SwitchPreference {
   return createEffectsPreference(storageOf(win));
 }
 
 /** Her "Müzik: Açık/Kapalı" switch on this browser: UI state, its own key. */
-export function openMusicPreference(win: BrowserLike = window): MusicPreference {
+export function openMusicPreference(win: BrowserLike = window): SwitchPreference {
   return createMusicPreference(storageOf(win));
 }
 

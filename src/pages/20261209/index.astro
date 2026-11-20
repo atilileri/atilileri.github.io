@@ -80,22 +80,19 @@
  * warm, quiet track from her first click or key. A buy gets the biggest
  * fanfare and confetti; a gift from Atıl's corner a light sparkle.
  *
- * PLACEHOLDERS, on purpose: "Hoş geldin" (the welcome screen, #195) is a
- * disabled button until its ticket lands; "Belge" links to the Proof page
- * (#197) and every "Oyna" links to its Game's route, which exists once that
- * Game is built. The Turkish Game names and one-line rules are the
- * prototype's draft and are approved or edited by Atıl on #193 — edit them
- * in the catalogue, not here.
+ * LINKS. "Belge" opens the Proof page (#197) and every "Oyna" its Game's
+ * route, `/20261209/<id>/`; all 14 Games are built. The Turkish Game names
+ * and one-line rules are the prototype's draft and are approved or edited
+ * by Atıl on #193 — edit them in the catalogue, not here.
  */
 import BdayLayout from "../../layouts/BdayLayout.astro";
 import Welcome from "../../components/bday26/Welcome.astro";
 import Admin from "../../components/bday26/Admin.astro";
 import EffectsToggle from "../../components/bday26/EffectsToggle.astro";
 import MusicToggle from "../../components/bday26/MusicToggle.astro";
-import { GAMES, GIFTS, PRIZE_BAR, givesPoints } from "../../lib/bday26/catalogue";
+import { GAMES, GIFTS, PRIZE_BAR, givesPoints, isLuckGame } from "../../lib/bday26/catalogue";
 import { GAME_ICON, GIFT_ICON, PRIZE_LOCKED_ICON } from "../../lib/bday26/icons";
-
-const fmt = (n: number) => n.toLocaleString("tr-TR");
+import { formatPoints } from "../../lib/bday26/format";
 ---
 
 <BdayLayout title="İyi ki doğdun Çağla!">
@@ -140,7 +137,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
         <ul class="grid">
           {
             GAMES.map((g) => (
-              <li class="tile" data-game={g.id} data-luck={g.luck || undefined}>
+              <li class="tile" data-game={g.id} data-luck={isLuckGame(g) || undefined}>
                 <div class="tile-head">
                   <span class="icon" aria-hidden="true">{GAME_ICON[g.id]}</span>
                   <div class="tile-name">
@@ -155,7 +152,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   </div>
                   <span class="pts" data-points>{givesPoints(g) ? "Henüz oynamadın" : "Puan vermez"}</span>
                 </div>
-                {!g.luck && (
+                {!isLuckGame(g) && (
                   <div class="track" aria-hidden="true" title={`%${PRIZE_BAR} yapınca küçük ödül senin`}>
                     <div class="fill" data-fill style="width: 0%" />
                     <div class="mark" style={`left: ${PRIZE_BAR}%`} />
@@ -202,7 +199,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
                   <p class="gdesc">{g.desc}</p>
                 </div>
                 <div class="buy">
-                  <b class="price">{fmt(g.price)}</b>
+                  <b class="price">{formatPoints(g.price)}</b>
                   <span class="short" data-short hidden></span>
                   <button class="bd-btn primary small" type="button" tabindex="-1" data-buy disabled>Al</button>
                   <button class="bd-btn secondary small" type="button" tabindex="-1" data-return hidden>İade et</button>
@@ -291,6 +288,9 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     type Progress,
     type SaveCodeOutcome,
   } from "../../lib/bday26/ledger";
+  import type { SaveCodeProblem } from "../../lib/bday26/savecode";
+  import { one, restartAttributeAnimation } from "../../lib/bday26/dom";
+  import { formatPoints, formatScore } from "../../lib/bday26/format";
   import { giftCelebration, sparkleCelebration } from "../../lib/bday26/effects";
   import { bindEffectsToggles, effects } from "../../lib/bday26/effects-dom";
   import { bindMusicToggles, music } from "../../lib/bday26/music-dom";
@@ -303,59 +303,48 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   bindMusicToggles();
   music.play("hub");
 
-  /** Whole Points, written the Turkish way: 1.000. */
-  const fmt = (n: number) => Math.round(n).toLocaleString("tr-TR");
-  /** A score as she reads it: %88. Rounded down, like the Points it earns. */
-  const pct = (score: number) => `%${Math.floor(score)}`;
-
-  function $(root: ParentNode, selector: string): HTMLElement {
-    const el = root.querySelector<HTMLElement>(selector);
-    if (!el) throw new Error(`bday26 hub: missing ${selector}`);
-    return el;
-  }
-
   function renderStrip() {
     const stats: Record<string, string> = {
-      earned: fmt(ledger.earned()),
-      balance: fmt(ledger.balance()),
+      earned: formatPoints(ledger.earned()),
+      balance: formatPoints(ledger.balance()),
       prizes: String(ledger.prizesWon().length),
     };
     for (const el of document.querySelectorAll<HTMLElement>("[data-stat]")) {
       el.textContent = stats[el.dataset.stat ?? ""] ?? el.textContent;
     }
     const gifted = ledger.giftedTotal();
-    const badge = $(document, "[data-gifted-badge]");
+    const badge = one("[data-gifted-badge]");
     badge.hidden = gifted === 0;
-    badge.textContent = `+${fmt(gifted)} hediye puan`;
-    $(document, "[data-played]").textContent = String(
+    badge.textContent = `+${formatPoints(gifted)} hediye puan`;
+    one("[data-played]").textContent = String(
       GAMES.filter((g) => ledger.bestOf(g.id) != null).length,
     );
   }
 
   function renderTiles() {
     for (const game of GAMES) {
-      const tile = $(document, `[data-game="${game.id}"]`);
+      const tile = one(`[data-game="${game.id}"]`);
       const best = ledger.bestOf(game.id);
       const won = ledger.prizeWon(game.id);
       tile.toggleAttribute("data-won", won);
-      $(tile, "[data-best]").textContent = best == null ? "—" : pct(best);
-      $(tile, "[data-points]").textContent = !givesPoints(game)
+      one("[data-best]", tile).textContent = best == null ? "—" : formatScore(best);
+      one("[data-points]", tile).textContent = !givesPoints(game)
         ? "Puan vermez"
         : best == null
           ? "Henüz oynamadın"
-          : `${fmt(ledger.pointsOf(game.id))} puan`;
+          : `${formatPoints(ledger.pointsOf(game.id))} puan`;
       const fill = tile.querySelector<HTMLElement>("[data-fill]");
       if (fill) fill.style.width = `${best ?? 0}%`;
-      $(tile, "[data-prize-icon]").textContent = won ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON;
-      const prizeSub = $(tile, "[data-prize-sub]");
+      one("[data-prize-icon]", tile).textContent = won ? PRIZE_WON_ICON : PRIZE_LOCKED_ICON;
+      const prizeSub = one("[data-prize-sub]", tile);
       prizeSub.hidden = !won;
       prizeSub.textContent = won ? "Kazandın!" : "";
     }
   }
 
   function renderShop() {
-    const mineList = $(document, "[data-mine-list]");
-    const shopList = $(document, "[data-shop-list]");
+    const mineList = one("[data-mine-list]");
+    const shopList = one("[data-shop-list]");
     // "N eksik" waits for her first Round: on a first visit every Gift would
     // say it, and the shop would read as a list of what she cannot have.
     const played = GAMES.some((g) => ledger.bestOf(g.id) != null);
@@ -365,24 +354,24 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     // move drops focus, so the row she was on gets it back.
     const focused = document.activeElement;
     for (const gift of GIFTS) {
-      const row = $(document, `[data-gift="${gift.id}"]`);
+      const row = one(`[data-gift="${gift.id}"]`);
       const refund = ledger.refundOf(gift.id);
       const isHeld = refund != null;
       anyHeld ||= isHeld;
       const short = ledger.shortOf(gift.id);
       row.toggleAttribute("data-held", isHeld);
-      const shortEl = $(row, "[data-short]");
+      const shortEl = one("[data-short]", row);
       shortEl.hidden = isHeld || short === 0 || !played;
-      shortEl.textContent = `${fmt(short)} eksik`;
-      const buy = $(row, "[data-buy]") as HTMLButtonElement;
+      shortEl.textContent = `${formatPoints(short)} eksik`;
+      const buy = one("[data-buy]", row) as HTMLButtonElement;
       buy.hidden = isHeld;
       buy.disabled = !ledger.canBuy(gift.id);
-      const ret = $(row, "[data-return]");
+      const ret = one("[data-return]", row);
       ret.hidden = !isHeld;
-      if (isHeld) ret.textContent = `İade et · +${fmt(refund)}`;
+      if (isHeld) ret.textContent = `İade et · +${formatPoints(refund)}`;
       (isHeld ? mineList : shopList).appendChild(row);
     }
-    $(document, "[data-mine]").hidden = !anyHeld;
+    one("[data-mine]").hidden = !anyHeld;
     if (focused instanceof HTMLElement && focused !== document.activeElement && focused.isConnected) {
       focused.focus({ preventScroll: true });
     }
@@ -405,7 +394,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   const HOVER_INTENT_MS = 120;
   const calm = window.matchMedia("(prefers-reduced-motion: reduce)");
   function openable(row: HTMLElement) {
-    const desc = $(row, ".gdesc");
+    const desc = one(".gdesc", row);
     let timer = 0;
     let open = false;
     /** Animate the description's height from where it is now to `to`. */
@@ -487,10 +476,10 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // backup, as the spec asks (story 29): "Yedekle" opens the panel, "Sonra"
   // closes it, and it waits until she presses one or opens a panel. Plain
   // text fades after 3 s.
-  const toast = $(document, "[data-toast]");
-  const toastText = $(toast, "[data-toast-text]");
-  const toastAction = $(toast, "[data-toast-action]") as HTMLButtonElement;
-  const toastLater = $(toast, "[data-toast-later]") as HTMLButtonElement;
+  const toast = one("[data-toast]");
+  const toastText = one("[data-toast-text]", toast);
+  const toastAction = one("[data-toast-action]", toast) as HTMLButtonElement;
+  const toastLater = one("[data-toast-later]", toast) as HTMLButtonElement;
   let toastTimer = 0;
   let onToastAction: (() => void) | null = null;
   function say(text: string, action?: { label: string; run: () => void }) {
@@ -519,7 +508,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // ledger to read what she pasted and shows the ledger's own numbers for
   // both sides; only her confirm writes, through `restore`.
   function panel(name: string): HTMLDialogElement {
-    const dialog = $(document, `dialog[data-panel="${name}"]`) as HTMLDialogElement;
+    const dialog = one(`dialog[data-panel="${name}"]`) as HTMLDialogElement;
     for (const close of dialog.querySelectorAll("[data-close]")) {
       close.addEventListener("click", () => dialog.close());
     }
@@ -527,8 +516,8 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   }
 
   const yedekle = panel("yedekle");
-  const codeField = $(yedekle, "[data-savecode-field]") as HTMLTextAreaElement;
-  const copyStatus = $(yedekle, "[data-copy-status]");
+  const codeField = one("[data-savecode-field]", yedekle) as HTMLTextAreaElement;
+  const copyStatus = one("[data-copy-status]", yedekle);
   async function openYedekle() {
     hush();
     const { code } = await ledger.toSaveCode();
@@ -537,7 +526,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     yedekle.showModal();
   }
   codeField.addEventListener("focus", () => codeField.select());
-  $(yedekle, "[data-copy]").addEventListener("click", async () => {
+  one("[data-copy]", yedekle).addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(codeField.value);
       copyStatus.textContent = "Kopyalandı!";
@@ -551,13 +540,14 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   });
 
   const geriYukle = panel("geri-yukle");
-  const pasteField = $(geriYukle, "[data-restore-field]") as HTMLTextAreaElement;
-  const pasteError = $(geriYukle, "[data-restore-error]");
-  const compare = $(geriYukle, "[data-compare]");
-  const confirmRestore = $(geriYukle, "[data-restore-confirm]") as HTMLButtonElement;
+  const pasteField = one("[data-restore-field]", geriYukle) as HTMLTextAreaElement;
+  const pasteError = one("[data-restore-error]", geriYukle);
+  const compare = one("[data-compare]", geriYukle);
+  const confirmRestore = one("[data-restore-confirm]", geriYukle) as HTMLButtonElement;
   /** One Turkish sentence per refusal. "empty" shows nothing: she has not
    *  pasted yet. */
-  const REFUSED: Record<string, string> = {
+  const REFUSED: Record<SaveCodeProblem, string> = {
+    empty: "",
     check: "Bu kod tutmuyor: bir karakteri eksik ya da yanlış olabilir. Kodu yeniden kopyalayıp yapıştır.",
     payload: "Bu kod okunamadı. Yedekle'den aldığın kodu olduğu gibi yapıştır.",
   };
@@ -576,7 +566,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     if (seq === pasteSeq) showPasted(outcome);
   });
   function showPasted(outcome: SaveCodeOutcome | null) {
-    const refused = outcome && !outcome.ok ? (REFUSED[outcome.reason] ?? "") : "";
+    const refused = outcome && !outcome.ok ? REFUSED[outcome.reason] : "";
     pasteError.textContent = refused;
     pasteError.hidden = !refused;
     const pasted = outcome?.ok ? outcome.progress : null;
@@ -589,8 +579,8 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   /** The four lines of a summary, the way the hub writes them. */
   function summarise(p: Progress): Record<string, string> {
     return {
-      earned: fmt(earnedOf(p)),
-      balance: fmt(balanceOf(p)),
+      earned: formatPoints(earnedOf(p)),
+      balance: formatPoints(balanceOf(p)),
       held: [...heldOf(p).keys()].map((id) => giftById(id).name).join(", ") || "—",
       prizes: `${prizesWonOf(p).length}/${GAMES.length}`,
     };
@@ -609,8 +599,8 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     say("İlerlemen geri yüklendi.");
   });
 
-  $(document, '[data-tool="yedekle"]').addEventListener("click", () => void openYedekle());
-  $(document, '[data-tool="geri-yukle"]').addEventListener("click", openGeriYukle);
+  one('[data-tool="yedekle"]').addEventListener("click", () => void openYedekle());
+  one('[data-tool="geri-yukle"]').addEventListener("click", openGeriYukle);
 
   // ── the confirm card ─────────────────────────────────────────────────
   // A buy and a Return each ask first (spec stories 20 and 23; review C2,
@@ -620,10 +610,10 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // also answer it. Tab stays on the card's two buttons. The numbers in the
   // question are the ledger's, read before asking; the change is the
   // ledger's too, made only after her yes.
-  const card = $(document, "dialog[data-confirm]") as HTMLDialogElement;
-  const cardText = $(card, "[data-confirm-text]");
-  const cardOk = $(card, "[data-confirm-ok]") as HTMLButtonElement;
-  const cardCancel = $(card, "[data-confirm-cancel]") as HTMLButtonElement;
+  const card = one("dialog[data-confirm]") as HTMLDialogElement;
+  const cardText = one("[data-confirm-text]", card);
+  const cardOk = one("[data-confirm-ok]", card) as HTMLButtonElement;
+  const cardCancel = one("[data-confirm-cancel]", card) as HTMLButtonElement;
   let onYes: (() => void) | null = null;
   let cameFrom: Element | null = null;
   function ask(question: string, yes: string, run: () => void) {
@@ -676,7 +666,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   function askBuy(id: GiftId) {
     const gift = giftById(id);
     if (!ledger.canBuy(id)) return;
-    ask(`${gift.name} · ${fmt(gift.price)} puan. Alıyor musun?`, "Al", () => {
+    ask(`${gift.name} · ${formatPoints(gift.price)} puan. Alıyor musun?`, "Al", () => {
       const outcome = ledger.buy(id);
       render();
       if (outcome.ok) {
@@ -692,10 +682,10 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     const gift = giftById(id);
     const half = ledger.refundOf(id);
     if (half == null) return;
-    ask(`${gift.name} · ${fmt(half)} puan geri gelir. İade ediyor musun?`, "İade et", () => {
+    ask(`${gift.name} · ${formatPoints(half)} puan geri gelir. İade ediyor musun?`, "İade et", () => {
       const outcome = ledger.returnGift(id);
       render();
-      if (outcome.ok) say(`${gift.name} iade edildi, ${fmt(outcome.returned)} puan geri geldi.`);
+      if (outcome.ok) say(`${gift.name} iade edildi, ${formatPoints(outcome.returned)} puan geri geldi.`);
     });
   }
   /** Buy or Return, whichever the row offers now. */
@@ -706,7 +696,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
     else askBuy(id);
   }
 
-  const shop = $(document, "[data-shop]");
+  const shop = one("[data-shop]");
   shop.addEventListener("click", (event) => {
     const button = (event.target as Element).closest<HTMLButtonElement>("button[data-buy], button[data-return]");
     const row = button?.closest<HTMLElement>("[data-gift]");
@@ -763,7 +753,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
   // ── Atıl's corner ────────────────────────────────────────────────────
   // Gifted points go through this page's ledger. The toast sits behind the
   // modal, so the repaint, the hop and the backup prompt wait for it to close.
-  const mainStat = $(document, ".stat[data-main]");
+  const mainStat = one(".stat[data-main]");
   let gifted = false;
   mountAdmin(document, {
     ledger,
@@ -778,9 +768,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR");
       gifted = false;
       if (!changed) return;
       render();
-      mainStat.removeAttribute("data-hop");
-      void mainStat.offsetWidth; // restart the animation
-      mainStat.setAttribute("data-hop", "");
+      restartAttributeAnimation(mainStat, "data-hop");
       say("Bakiye güncellendi! Yedek kodunu almayı unutma.", { label: "Yedekle", run: () => void openYedekle() });
     },
   });

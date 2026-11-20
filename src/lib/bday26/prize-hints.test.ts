@@ -11,7 +11,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { GAMES, PRIZE_BAR, type GameId } from "./catalogue.ts";
+import { GAMES, isLuckGame, PRIZE_BAR, type GameId } from "./catalogue.ts";
 import { chartSong } from "./piyano.ts";
 import { PIANO_SONGS } from "./piano-songs.ts";
 import { prizeHintOf, prizeHowOf } from "./prize-hints.ts";
@@ -48,7 +48,7 @@ const reaches = (score: number | undefined) => (score ?? 0) >= PRIZE_BAR;
 test("every Game but the slot machine has a hint, and every hint starts from %95", () => {
   for (const game of GAMES) {
     const hint = prizeHintOf(game.id);
-    if (game.luck) {
+    if (isLuckGame(game)) {
       assert.equal(hint, undefined, "the jackpot needs no hint");
     } else {
       assert.ok(hint, `${game.id} has a hint`);

@@ -17,21 +17,12 @@ function seeded(seed: number) {
   };
 }
 
-function memory(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial));
-  return {
-    data,
-    getItem: (k: string) => data.get(k) ?? null,
-    setItem: (k: string, v: string) => void data.set(k, v),
-  };
-}
-
 test("effects are on for a first visit", () => {
-  assert.equal(createEffectsPreference(memory()).on, true);
+  assert.equal(createEffectsPreference(memoryStore()).on, true);
 });
 
 test("turning effects off is remembered on the next visit, and on again too", () => {
-  const store = memory();
+  const store = memoryStore();
   createEffectsPreference(store).toggle();
   assert.equal(createEffectsPreference(store).on, false);
   createEffectsPreference(store).toggle();
@@ -39,14 +30,7 @@ test("turning effects off is remembered on the next visit, and on again too", ()
 });
 
 test("a blocked storage still gives effects, on by default, and the switch works for this visit", () => {
-  const blocked = {
-    getItem: (): string | null => {
-      throw new Error("SecurityError");
-    },
-    setItem: () => {
-      throw new Error("QuotaExceeded");
-    },
-  };
+  const blocked = blockedStore();
   const pref = createEffectsPreference(blocked);
   assert.equal(pref.on, true);
   assert.equal(pref.toggle(), false);
@@ -120,7 +104,7 @@ function recorder() {
 
 test("with effects off, no sound, loop or burst reaches the engine", () => {
   const { log, engine } = recorder();
-  const fx = createEffects(createEffectsPreference(memory({ "bday26:effects": "off" })), engine);
+  const fx = createEffects(createEffectsPreference(memoryStore({ "bday26:effects": "off" })), engine);
   fx.unlock();
   fx.sound("key");
   fx.loop("engine").start({ speed: 1 });
@@ -131,7 +115,7 @@ test("with effects off, no sound, loop or burst reaches the engine", () => {
 
 test("switching effects off stops every running loop at once; on again, a wanted loop comes back", () => {
   const { log, engine } = recorder();
-  const fx = createEffects(createEffectsPreference(memory()), engine);
+  const fx = createEffects(createEffectsPreference(memoryStore()), engine);
   fx.unlock();
   const engineLoop = fx.loop("engine");
   engineLoop.start({ speed: 0.2, throttle: 1 });
@@ -148,7 +132,7 @@ test("switching effects off stops every running loop at once; on again, a wanted
 
 test("nothing sounds before her first gesture; a loop asked for early starts on it", () => {
   const { log, engine } = recorder();
-  const fx = createEffects(createEffectsPreference(memory()), engine);
+  const fx = createEffects(createEffectsPreference(memoryStore()), engine);
   fx.sound("key");
   fx.loop("swoosh").start({ speed: 0.5 });
   assert.deepEqual(log, []);
@@ -160,7 +144,7 @@ test("nothing sounds before her first gesture; a loop asked for early starts on 
 
 test("stopLoops silences every loop until the Game starts it again", () => {
   const { log, engine } = recorder();
-  const fx = createEffects(createEffectsPreference(memory()), engine);
+  const fx = createEffects(createEffectsPreference(memoryStore()), engine);
   fx.unlock();
   const car = fx.loop("engine");
   car.start();
@@ -195,6 +179,7 @@ test("the slot's jackpot: the Small prize's shower with its own bigger fanfare, 
 
 // Renk karıştır (#218), imported here so the Prize Game builds append apart.
 import { renkMatchCelebration } from "./effects.ts";
+import { memoryStore, blockedStore } from "./test-store.ts";
 
 test("Renk karıştır: a matched colour is a small puff with the chime, smaller than a Small prize", () => {
   const match = renkMatchCelebration(seeded(3));

@@ -7,18 +7,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createMusic, createMusicPreference, milyonerIntensity, MUSIC_KEY, type MusicEngine, type TrackName } from "./music.ts";
-
-function memory(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial));
-  return {
-    data,
-    getItem: (k: string) => data.get(k) ?? null,
-    setItem: (k: string, v: string) => void data.set(k, v),
-  };
-}
+import { memoryStore, blockedStore } from "./test-store.ts";
 
 test("music is on for a first visit, and off is remembered under its own key", () => {
-  const store = memory();
+  const store = memoryStore();
   assert.equal(createMusicPreference(store).on, true);
   createMusicPreference(store).toggle();
   assert.equal(createMusicPreference(store).on, false);
@@ -28,14 +20,7 @@ test("music is on for a first visit, and off is remembered under its own key", (
 });
 
 test("a blocked storage still gives music, on by default, and the switch works for this visit", () => {
-  const blocked = {
-    getItem: (): string | null => {
-      throw new Error("SecurityError");
-    },
-    setItem: () => {
-      throw new Error("QuotaExceeded");
-    },
-  };
+  const blocked = blockedStore();
   const pref = createMusicPreference(blocked);
   assert.equal(pref.on, true);
   assert.equal(pref.toggle(), false);
@@ -58,7 +43,7 @@ function recorder() {
 }
 
 function onPref(on = true) {
-  return createMusicPreference(memory(on ? {} : { [MUSIC_KEY]: "off" }));
+  return createMusicPreference(memoryStore(on ? {} : { [MUSIC_KEY]: "off" }));
 }
 
 test("no music before her first gesture; the track asked for starts on it", () => {

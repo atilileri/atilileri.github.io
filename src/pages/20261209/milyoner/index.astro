@@ -147,6 +147,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
 </BdayLayout>
 
 <script>
+  import { one } from "../../../lib/bday26/dom";
   import poolDocument from "../../../../docs/bday26/milyoner-questions.md?raw";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
@@ -160,23 +161,18 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
 
   const POOL = parsePool(poolDocument);
 
-  const $ = <T extends Element = HTMLElement>(selector: string) => {
-    const el = document.querySelector<T>(selector);
-    if (!el) throw new Error(`bday26 milyoner: ${selector} is missing`);
-    return el;
-  };
-  const stage = $("[data-stage]");
-  const numberEl = $("[data-number]");
-  const topicEl = $("[data-topic]");
-  const bandEl = $("[data-band]");
-  const textEl = $("[data-text]");
-  const prompt = $("[data-prompt]");
-  const audienceEl = $("[data-audience]");
-  const jokersLeftEl = $("[data-jokers-left]");
+  const stage = one("[data-stage]");
+  const numberEl = one("[data-number]");
+  const topicEl = one("[data-topic]");
+  const bandEl = one("[data-band]");
+  const textEl = one("[data-text]");
+  const prompt = one("[data-prompt]");
+  const audienceEl = one("[data-audience]");
+  const jokersLeftEl = one("[data-jokers-left]");
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-choice]"));
   const rungs = Array.from(document.querySelectorAll<HTMLElement>("[data-rung]"));
-  const halveButton = $<HTMLButtonElement>('[data-joker="halve"]');
-  const audienceButton = $<HTMLButtonElement>('[data-joker="audience"]');
+  const halveButton = one<HTMLButtonElement>('[data-joker="halve"]');
+  const audienceButton = one<HTMLButtonElement>('[data-joker="audience"]');
 
   /** One question's life: she picks, she is asked, she sees the answer.
    *  "answered" is her locked pick in the Round (`quiz.picked`); the two
@@ -238,8 +234,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     audienceEl.classList.toggle("shown", bars != null);
     (bars ?? [0, 0, 0, 0]).forEach((pct, i) => {
       // Turkish puts the sign first: %56.
-      $(`[data-pct="${i}"]`).textContent = `%${pct}`;
-      $(`[data-fill="${i}"]`).style.height = `${pct}%`;
+      one(`[data-pct="${i}"]`).textContent = `%${pct}`;
+      one(`[data-fill="${i}"]`).style.height = `${pct}%`;
     });
   }
 

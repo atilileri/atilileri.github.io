@@ -7,6 +7,7 @@
  * `aria-pressed` from the preference, repaints on every change, and flips
  * the preference on a click. `./effects-dom.ts` (`bindEffectsToggles`) and
  * `./music-dom.ts` (`bindMusicToggles`) call it with their own object.
+ * What a switch stores is `./switch-preference.ts`.
  *
  * A click never moves focus (mousedown is cancelled), so Enter and a Game's
  * keys stay where they were; whether Tab reaches the switch is the

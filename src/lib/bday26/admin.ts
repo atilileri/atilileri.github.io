@@ -25,6 +25,8 @@
  * behind the modal while it is open.
  */
 import type { Ledger } from "./ledger.ts";
+import { one, restartAttributeAnimation } from "./dom.ts";
+import { formatPoints } from "./format.ts";
 
 /** Atıl's password. Public on purpose; see the header. */
 const PASSWORD = "1047";
@@ -42,10 +44,9 @@ export function readGiftAmount(raw: string): GiftAmount {
   const text = raw.trim();
   const points = /^\d+$/.test(text) ? Number(text) : Number.NaN;
   if (points >= 1 && points <= GIFT_MAX) return { ok: true, points };
-  return { ok: false, message: `1 ile ${fmt(GIFT_MAX)} arasında bir tam sayı yaz.` };
+  return { ok: false, message: `1 ile ${formatPoints(GIFT_MAX)} arasında bir tam sayı yaz.` };
 }
 
-const fmt = (n: number) => Math.round(n).toLocaleString("tr-TR");
 const DATE = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
 
 export type AdminOptions = {
@@ -57,24 +58,19 @@ export type AdminOptions = {
 };
 
 export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminOptions) {
-  const $ = <T extends HTMLElement = HTMLElement>(selector: string): T => {
-    const el = root.querySelector<T>(selector);
-    if (!el) throw new Error(`bday26 admin: missing ${selector}`);
-    return el;
-  };
-  const dialog = $<HTMLDialogElement>("dialog[data-admin]");
-  const lock = $<HTMLFormElement>("[data-admin-lock]");
-  const pass = $<HTMLInputElement>("[data-admin-pass]");
-  const passError = $("[data-admin-pass-error]");
-  const desk = $("[data-admin-desk]");
-  const form = $<HTMLFormElement>("[data-admin-form]");
-  const amount = $<HTMLInputElement>("[data-admin-amount]");
-  const note = $<HTMLInputElement>("[data-admin-note]");
-  const status = $("[data-admin-status]");
-  const balance = $("[data-admin-balance]");
-  const list = $("[data-admin-list]");
-  const empty = $("[data-admin-empty]");
-  const undo = $<HTMLButtonElement>("[data-admin-undo]");
+  const dialog = one<HTMLDialogElement>("dialog[data-admin]", root);
+  const lock = one<HTMLFormElement>("[data-admin-lock]", root);
+  const pass = one<HTMLInputElement>("[data-admin-pass]", root);
+  const passError = one("[data-admin-pass-error]", root);
+  const desk = one("[data-admin-desk]", root);
+  const form = one<HTMLFormElement>("[data-admin-form]", root);
+  const amount = one<HTMLInputElement>("[data-admin-amount]", root);
+  const note = one<HTMLInputElement>("[data-admin-note]", root);
+  const status = one("[data-admin-status]", root);
+  const balance = one("[data-admin-balance]", root);
+  const list = one("[data-admin-list]", root);
+  const empty = one("[data-admin-empty]", root);
+  const undo = one<HTMLButtonElement>("[data-admin-undo]", root);
   let changed = false;
 
   function lockUp() {
@@ -91,14 +87,14 @@ export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminO
   }
 
   function paint() {
-    balance.textContent = fmt(ledger.balance());
+    balance.textContent = formatPoints(ledger.balance());
     const gifts = ledger.gifted();
     list.replaceChildren(
       ...gifts
         .map((g) => {
           const li = document.createElement("li");
           const pts = document.createElement("b");
-          pts.textContent = `+${fmt(g.points)}`;
+          pts.textContent = `+${formatPoints(g.points)}`;
           const text = document.createElement("span");
           text.className = "adm-note";
           text.textContent = g.note ?? "—";
@@ -116,11 +112,7 @@ export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminO
     undo.disabled = gifts.length === 0;
   }
 
-  function hop(el: HTMLElement) {
-    el.removeAttribute("data-hop");
-    void el.offsetWidth; // restart the animation
-    el.setAttribute("data-hop", "");
-  }
+  const hop = (el: HTMLElement) => restartAttributeAnimation(el, "data-hop");
 
   for (const trigger of document.querySelectorAll("[data-open-admin]")) {
     trigger.addEventListener("click", () => {
@@ -136,9 +128,7 @@ export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminO
     if (pass.value.trim() !== PASSWORD) {
       passError.hidden = false;
       pass.select();
-      lock.removeAttribute("data-shake");
-      void lock.offsetWidth;
-      lock.setAttribute("data-shake", "");
+      restartAttributeAnimation(lock, "data-shake");
       return;
     }
     lock.hidden = true;
@@ -170,7 +160,7 @@ export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminO
     changed = true;
     amount.value = "";
     note.value = "";
-    say(`+${fmt(outcome.points)} puan hediye edildi 🎉`, "ok");
+    say(`+${formatPoints(outcome.points)} puan hediye edildi 🎉`, "ok");
     paint();
     hop(balance);
     onGift?.();
@@ -189,7 +179,7 @@ export function mountAdmin(root: ParentNode, { ledger, onClose, onGift }: AdminO
       return;
     }
     changed = true;
-    say(`+${fmt(outcome.points)} puanlık son hediye geri alındı.`, "ok");
+    say(`+${formatPoints(outcome.points)} puanlık son hediye geri alındı.`, "ok");
     paint();
   });
 

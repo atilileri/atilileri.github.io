@@ -22,14 +22,10 @@
  * button's markup.
  */
 import type { KeyValueStore } from "./ledger.ts";
+import { createSwitchPreference, type SwitchPreference } from "./switch-preference.ts";
 
 /** Her switch's own key: "off" or "on"; missing means on. */
 export const EFFECTS_KEY = "bday26:effects";
-
-export type EffectsPreference = {
-  readonly on: boolean;
-  toggle(): boolean;
-};
 
 export type Size = "puff" | "burst" | "shower" | "grand";
 export type Sound = "chime" | "rich-chime" | "fanfare" | "grand-fanfare" | "gift-fanfare" | "prize-fanfare" | "jackpot-fanfare" | "sparkle";
@@ -254,7 +250,7 @@ export type Effects = {
   onChange(listener: (on: boolean) => void): void;
 };
 
-export function createEffects(pref: EffectsPreference, engine: EffectsEngine): Effects {
+export function createEffects(pref: SwitchPreference, engine: EffectsEngine): Effects {
   let unlocked = false;
   const loops = new Map<LoopName, { wanted: boolean; params: LoopParams; voice?: LoopVoice; sync(): void }>();
   const listeners: ((on: boolean) => void)[] = [];
@@ -341,32 +337,6 @@ export function createEffects(pref: EffectsPreference, engine: EffectsEngine): E
   return fx;
 }
 
-export function createEffectsPreference(store: KeyValueStore): EffectsPreference {
+export function createEffectsPreference(store: KeyValueStore): SwitchPreference {
   return createSwitchPreference(store, EFFECTS_KEY);
-}
-
-/** An on/off switch kept under `key` ("on"/"off", missing means on): the
- *  effects' and the music's. A storage that throws leaves it on, and a flip
- *  then lasts the visit. */
-export function createSwitchPreference(store: KeyValueStore, key: string): EffectsPreference {
-  let on = true;
-  try {
-    on = store.getItem(key) !== "off";
-  } catch {
-    // Storage blocked: the switch stays on, the default.
-  }
-  return {
-    get on() {
-      return on;
-    },
-    toggle() {
-      on = !on;
-      try {
-        store.setItem(key, on ? "on" : "off");
-      } catch {
-        // Quota full or blocked: the switch holds for this visit only.
-      }
-      return on;
-    },
-  };
 }

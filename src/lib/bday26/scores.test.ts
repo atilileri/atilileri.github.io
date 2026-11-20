@@ -118,8 +118,8 @@ test("slot machine: none alike is 0", () => {
 });
 
 // ---------------------------------------------------------- Turkish Wordle
-// Spec: 1–3 guesses = 100, 4 = 95, 5 = 80, 6 = 65, unsolved = 0; 95% means
-// solved in at most 4 guesses (#201, #188, #174).
+// Spec: 1–3 guesses = 100, 4 = 95, 5 = 80, 6 = 65, unsolved = 0 (#201,
+// #188, #174). These price one word; the 95% bar is the Round's (below).
 
 test("Wordle: solved in 1, 2 or 3 guesses is a perfect 100", () => {
   assert.equal(wordleScore(1, true), 100);
@@ -127,7 +127,7 @@ test("Wordle: solved in 1, 2 or 3 guesses is a perfect 100", () => {
   assert.equal(wordleScore(3, true), 100);
 });
 
-test("Wordle: solved in 4 guesses is exactly 95, the Small prize edge", () => {
+test("Wordle: solved in 4 guesses is exactly 95", () => {
   assert.equal(wordleScore(4, true), 95);
 });
 
@@ -144,7 +144,7 @@ test("Wordle: six guesses without the answer score 0", () => {
 });
 
 // A Round is all ten words; its score is the mean of the ten word scores,
-// rounded down (Atıl's play test).
+// rounded down (Atıl's play test), so the 95% bar is a sum of 950 (review I4).
 
 test("Wordle Round: every word in 3 guesses or fewer is 100", () => {
   assert.equal(wordleRoundScore([100, 100, 100, 100, 100, 100, 100, 100, 100, 100]), 100);
@@ -156,6 +156,10 @@ test("Wordle Round: nine perfect words and one not found is 90", () => {
 
 test("Wordle Round: every word in 4 guesses is 95, the Small prize edge", () => {
   assert.equal(wordleRoundScore([95, 95, 95, 95, 95, 95, 95, 95, 95, 95]), 95);
+});
+
+test("Wordle Round: nine words in 3 guesses and one in 6 is 96, past the Small prize bar", () => {
+  assert.equal(wordleRoundScore([100, 100, 100, 100, 100, 100, 100, 100, 100, 65]), 96);
 });
 
 test("Wordle Round: the mean is rounded down", () => {

@@ -35,6 +35,7 @@
 import { bus, context, hz, noise, unlockOnGesture } from "./audio-dom.ts";
 import { openEffectsPreference } from "./browser.ts";
 import { bindSwitches } from "./switch-dom.ts";
+import { restartAnimation } from "./dom.ts";
 import {
   createEffects,
   forReducedMotion,
@@ -80,10 +81,7 @@ export function bindEffectsToggles(root: ParentNode = document) {
 }
 
 function shake(el: HTMLElement) {
-  el.classList.remove("bd-shake");
-  void el.offsetWidth; // restart the animation if it is still running
-  el.classList.add("bd-shake");
-  el.addEventListener("animationend", () => el.classList.remove("bd-shake"), { once: true });
+  restartAnimation(el, "bd-shake", { removeOnEnd: true });
 }
 
 // ── sounds ─────────────────────────────────────────────────────────

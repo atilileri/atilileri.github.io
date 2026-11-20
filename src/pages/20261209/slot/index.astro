@@ -108,6 +108,7 @@ const LIGHTS = Array.from({ length: 15 });
 </BdayLayout>
 
 <script>
+  import { one, restartAnimation } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { spin, SLOT_SYMBOLS, type Spin, type SpinOutcome } from "../../../lib/bday26/slot";
@@ -123,11 +124,6 @@ const LIGHTS = Array.from({ length: 15 });
   const whirr = effects.loop("reels");
   const OUTCOME_SOUND = { pair: "pair-jingle", none: "no-win" } as const;
 
-  function one<T extends HTMLElement>(selector: string): T {
-    const el = document.querySelector<T>(selector);
-    if (!el) throw new Error(`bday26 slot: the machine markup is missing ${selector}`);
-    return el;
-  }
   const machine = one("[data-machine]");
   const strips = Array.from(document.querySelectorAll<HTMLElement>("[data-strip]"));
   const outcomeEl = one("[data-outcome]");
@@ -199,9 +195,7 @@ const LIGHTS = Array.from({ length: 15 });
     // Empty, not just hidden: the display holds no score until this spin lands.
     scoreEl.textContent = "";
     scoreEl.hidden = true;
-    lever.classList.remove("pulled");
-    void lever.offsetWidth; // restart the pull animation
-    lever.classList.add("pulled");
+    restartAnimation(lever, "pulled");
     reels.forEach((r, k) => {
       r.start = r.pos;
       r.from = undefined;

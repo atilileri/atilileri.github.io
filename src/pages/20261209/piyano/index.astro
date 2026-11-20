@@ -128,6 +128,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
 </BdayLayout>
 
 <script>
+  import { restartAnimation } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { cssVar } from "../../../lib/bday26/css";
   import { mountGameShell } from "../../../lib/bday26/shell";
@@ -292,9 +293,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   function showJudge(text: Verdict | "Kaçtı") {
     judgeEl!.textContent = text;
     judgeEl!.dataset.kind = text === "Tam!" ? "perfect" : text === "Kaçtı" ? "miss" : "hit";
-    judgeEl!.classList.remove("show");
-    void judgeEl!.offsetWidth; // restart the animation
-    judgeEl!.classList.add("show");
+    restartAnimation(judgeEl!, "show");
   }
 
   function tick(now: number) {

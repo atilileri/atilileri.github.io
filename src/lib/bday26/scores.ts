@@ -68,7 +68,7 @@ export function memoryScore(moves: number): number {
  * Slot machine (#200; spec row "triple = 100 (jackpot), pair = 50, none =
  * 0"). The spin's outcome, as `spin` in `./slot.ts` drew it: that module
  * alone says what counts as three alike or two (review L6), so the rule is
- * written once. The luck Game (`luck` in the catalogue): it earns no
+ * written once. The luck Game (`kind: "luck"` in the catalogue): it earns no
  * Points, and only the jackpot wins its Small prize, so a 100 here wins
  * nothing more. The outcome is spelled here, not imported, so this file
  * still imports nothing.
@@ -83,8 +83,9 @@ export function slotScore(outcome: "jackpot" | "pair" | "none"): number {
  * Turkish Wordle, "Kelime avı" (#201; spec row "1–3 guesses = 100, 4 = 95,
  * 5 = 80, 6 = 65, unsolved = 0"), one word of the Round; the Round itself
  * is `wordleRoundScore`. `guesses` is how many rows she used,
- * 1..6; `solved` is whether the last of them was the answer. Four guesses
- * is the Small prize edge. The Wordle page also calls this with the NEXT
+ * 1..6; `solved` is whether the last of them was the answer. The Small
+ * prize bar belongs to the Round, not to one word (review I4): see
+ * `wordleRoundScore`. The Wordle page also calls this with the NEXT
  * guess number for its "Şimdi bilirsen %N" line, so the HUD and the result
  * can never disagree.
  */
@@ -100,8 +101,12 @@ export function wordleScore(guesses: number, solved: boolean): number {
 /**
  * One Round of "Kelime avı": all ten words, each scored by `wordleScore`.
  * The Round is the mean of the word scores, rounded down (Atıl's play test).
- * All ten in at most 4 guesses keeps the 95 edge; one word not found costs
- * a tenth. Worked on the whole-number sum, so no floating-point slip.
+ * So the 95% bar is a sum of at least 950 over the ten words, not a guess
+ * count per word (review I4): every word in at most 4 guesses reaches it
+ * (the hint's case), but so do nine words in at most 3 and one in 6
+ * (965 → 96), since quick words pay for a slow one. A word not found
+ * scores 0 and caps the Round at 90, so every word must be found. Worked on
+ * the whole-number sum, so no floating-point slip.
  */
 export function wordleRoundScore(words: readonly number[]): number {
   if (words.length === 0) return 0;

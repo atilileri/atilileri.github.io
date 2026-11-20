@@ -156,6 +156,8 @@ const KM_UNITS = 200;
 </BdayLayout>
 
 <script>
+  import { formatDecimal } from "../../../lib/bday26/format";
+  import { one } from "../../../lib/bday26/dom";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { hikingRoundScore, hikingScore, HIKING_LEVEL_WEIGHTS } from "../../../lib/bday26/scores";
@@ -180,45 +182,39 @@ const KM_UNITS = 200;
   /** The scale bar's 1 km in world units (5 m per unit), as in the markup. */
   const KM_UNITS = 200;
 
-  const $ = <T extends Element = HTMLElement>(sel: string): T => {
-    const el = document.querySelector<T>(sel);
-    if (!el) throw new Error(`bday26 yuruyus: the page is missing ${sel}`);
-    return el;
-  };
-  const svg = $<SVGSVGElement>("[data-map]");
-  const land = $<SVGImageElement>("[data-land]");
-  const contourMinor = $<SVGPathElement>("[data-contour-minor]");
-  const contourMajor = $<SVGPathElement>("[data-contour-major]");
-  const trailsG = $<SVGGElement>("[data-trails]");
-  const labelsG = $<SVGGElement>("[data-labels]");
-  const junctionsG = $<SVGGElement>("[data-junctions]");
-  const previewG = $<SVGGElement>("[data-preview]");
-  const routeG = $<SVGGElement>("[data-route]");
-  const badgesG = $<SVGGElement>("[data-badges]");
-  const hikerG = $<SVGGElement>("[data-hiker]");
-  const hikerFace = $<SVGTextElement>("[data-hiker-face]");
-  const revealG = $<SVGGElement>("[data-reveal]");
-  const revealHers = $<SVGGElement>("[data-reveal-hers]");
-  const revealBest = $<SVGGElement>("[data-reveal-best]");
-  const bestMask = $<SVGPathElement>("[data-best-mask]");
-  const compass = $<SVGGElement>("[data-compass]");
-  const scaleBar = $<SVGGElement>("[data-scale]");
-  const hudLevel = $("[data-hud-level]");
-  const hudMap = $("[data-hud-map]");
-  const hudKm = $("[data-hud-km]");
-  const hudTrails = $("[data-hud-trails]");
-  const hint = $("[data-hint]");
-  const undoBtn = $<HTMLButtonElement>("[data-undo]");
-  const confirmBtn = $<HTMLButtonElement>("[data-confirm]");
-  const levelReveal = $("[data-level-reveal]");
-  const levelScoreEl = $("[data-level-score]");
-  const levelWhy = $("[data-level-why]");
-  const nextBtn = $<HTMLButtonElement>("[data-next]");
-  const levelsEl = $("[data-levels]");
-  const verdictEl = $("[data-verdict]");
+  const svg = one<SVGSVGElement>("[data-map]");
+  const land = one<SVGImageElement>("[data-land]");
+  const contourMinor = one<SVGPathElement>("[data-contour-minor]");
+  const contourMajor = one<SVGPathElement>("[data-contour-major]");
+  const trailsG = one<SVGGElement>("[data-trails]");
+  const labelsG = one<SVGGElement>("[data-labels]");
+  const junctionsG = one<SVGGElement>("[data-junctions]");
+  const previewG = one<SVGGElement>("[data-preview]");
+  const routeG = one<SVGGElement>("[data-route]");
+  const badgesG = one<SVGGElement>("[data-badges]");
+  const hikerG = one<SVGGElement>("[data-hiker]");
+  const hikerFace = one<SVGTextElement>("[data-hiker-face]");
+  const revealG = one<SVGGElement>("[data-reveal]");
+  const revealHers = one<SVGGElement>("[data-reveal-hers]");
+  const revealBest = one<SVGGElement>("[data-reveal-best]");
+  const bestMask = one<SVGPathElement>("[data-best-mask]");
+  const compass = one<SVGGElement>("[data-compass]");
+  const scaleBar = one<SVGGElement>("[data-scale]");
+  const hudLevel = one("[data-hud-level]");
+  const hudMap = one("[data-hud-map]");
+  const hudKm = one("[data-hud-km]");
+  const hudTrails = one("[data-hud-trails]");
+  const hint = one("[data-hint]");
+  const undoBtn = one<HTMLButtonElement>("[data-undo]");
+  const confirmBtn = one<HTMLButtonElement>("[data-confirm]");
+  const levelReveal = one("[data-level-reveal]");
+  const levelScoreEl = one("[data-level-score]");
+  const levelWhy = one("[data-level-why]");
+  const nextBtn = one<HTMLButtonElement>("[data-next]");
+  const levelsEl = one("[data-levels]");
+  const verdictEl = one("[data-verdict]");
 
   /** Turkish one-decimal number: 4,2. */
-  const dec = (x: number) => x.toFixed(1).replace(".", ",");
 
   // ------------------------------------------------------- the static art
   // Built once per map, kept as strings: a map change is five assignments.
@@ -254,7 +250,7 @@ const KM_UNITS = 200;
     const labels = map.trails
       .map((t) => {
         const p = labelPoint(t);
-        const text = dec(t.length / 1000);
+        const text = formatDecimal(t.length / 1000);
         const w = 10 + text.length * 7.5;
         return `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})"><rect class="km" x="${-w / 2}" y="-10" width="${w}" height="20" rx="10"/><text class="km-text">${text}</text></g>`;
       })
@@ -476,7 +472,7 @@ const KM_UNITS = 200;
     const score = hikingScore(hers, best.length);
     levelScores[level] = score;
     const same = route.join() === best.route.join();
-    const more = dec((hers / best.length - 1) * 100);
+    const more = formatDecimal((hers / best.length - 1) * 100);
 
     // The reveal: her route draws itself in orange, then the shortest in green dots.
     const hersD = linePath(routeLine(map, route));

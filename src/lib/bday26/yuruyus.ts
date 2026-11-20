@@ -56,6 +56,7 @@
  * scoring 95+, the greedy walker) was for choosing the seeds; it is done, and
  * none of it runs here. The draw-with-a-drag mode lost to click + keys (#183).
  */
+import { formatDecimal } from "./format.ts";
 
 /** A point in world units. */
 export type Point = { x: number; y: number };
@@ -394,5 +395,5 @@ export function pickRound(last: readonly (number | undefined)[], random: () => n
 
 /** A length as the map and HUD print it: "8,8 km", one decimal, Turkish comma. */
 export function formatKm(metres: number): string {
-  return `${(metres / 1000).toFixed(1).replace(".", ",")} km`;
+  return `${formatDecimal(metres / 1000)} km`;
 }

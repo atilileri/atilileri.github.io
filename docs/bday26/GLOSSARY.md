@@ -12,7 +12,7 @@ _Avoid_: Level, challenge
 
 **Round** (_Tur_):
 One try at a Game, from its start to its result. Each Round gives one score. One spin of the
-slot machine is one Round.
+slot machine is one Round; all ten words of Kelime avı are one Round, so its 95% is the Round's.
 _Avoid_: Play, game, try, turn
 
 **Best score** (_Rekor_):

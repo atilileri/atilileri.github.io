@@ -1,13 +1,13 @@
 /**
  * Her pause in a real-time Game (review L1): the one rule that
- * `PauseOverlay.astro` announces, written once. Kayak macerası and
- * Hollanda'da sürüş use it; the piano (piyano) can adopt it next.
+ * `PauseOverlay.astro` announces, written once. Kayak macerası,
+ * Hollanda'da sürüş and Piyano use it (Piyano since review B1).
  *
  * THE RULE. P pauses and P resumes (Ctrl/Alt/Meta+P and a held P's repeats
  * are left alone). A lost window focus pauses too, and so does a hidden tab
  * (`visibilitychange`); neither resumes by itself when she comes back: only
  * P does, so a skier never returns to a slope already moving into the next
- * rock. With no Round running (`canPause()` false) nothing pauses, though a
+ * rock or a song already past the next note. With no Round running (`canPause()` false) nothing pauses, though a
  * lost focus still lets go of the held keys. While paused: the overlay
  * shows, the held keys are let go, the frame loop and every effect loop
  * stop, and the music holds (reason "pause"); resuming undoes each.

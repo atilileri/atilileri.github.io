@@ -15,16 +15,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { openLedger, openWelcome, type BrowserLike } from "./browser.ts";
+import { memoryStore } from "./test-store.ts";
 
 /** A browser with working storage. `persisted` counts the persist() calls. */
 function fakeBrowser(): BrowserLike & { persisted: number } {
-  const data = new Map<string, string>();
   const fake = {
     persisted: 0,
-    localStorage: {
-      getItem: (key: string) => data.get(key) ?? null,
-      setItem: (key: string, value: string) => void data.set(key, value),
-    },
+    localStorage: memoryStore(),
     navigator: {
       storage: {
         persist: async () => {
