@@ -19,7 +19,8 @@
  *   - The lock shows green or red at once; on a miss the right answer turns
  *     green beside her red one. The next question comes after 1.5 s, or at
  *     once on any key or click. After a miss that next step is the result:
- *     a wrong answer ends the Round (story 48).
+ *     a wrong answer ends the Round (story 48). A miss with both jokers
+ *     unused adds "Jokerlerin duruyordu", so she learns they were there.
  *   - With "Efektler: Açık" (the HUD switch, `src/lib/bday26/effects.ts`)
  *     a right lock gets confetti and a chime that grow with the band; a miss
  *     a soft bonk and a shake. They never hold up the step.
@@ -101,7 +102,10 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
             <button class="bd-btn ghost" type="button" tabindex="-1" data-act="cancel">Vazgeç <kbd>Esc</kbd></button>
           </div>
           <p data-say="right" class="verdict right">Doğru! <span>Devam için bir tuşa bas</span></p>
-          <p data-say="wrong" class="verdict wrong">Yanlış… <span>Bitirmek için bir tuşa bas</span></p>
+          <div data-say="wrong" class="verdict-wrap">
+            <p class="verdict wrong">Yanlış… <span>Bitirmek için bir tuşa bas</span></p>
+            <p class="jokers-left" data-jokers-left hidden>Jokerlerin duruyordu</p>
+          </div>
         </div>
       </div>
 
@@ -168,6 +172,7 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   const textEl = $("[data-text]");
   const prompt = $("[data-prompt]");
   const audienceEl = $("[data-audience]");
+  const jokersLeftEl = $("[data-jokers-left]");
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-choice]"));
   const rungs = Array.from(document.querySelectorAll<HTMLElement>("[data-rung]"));
   const halveButton = $<HTMLButtonElement>('[data-joker="halve"]');
@@ -219,6 +224,8 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
     for (const el of prompt.querySelectorAll<HTMLElement>("[data-say]")) el.hidden = el.dataset.say !== say;
     halveButton.disabled = halveUsed;
     audienceButton.disabled = audienceUsed;
+    // A miss with both jokers still in hand: a word that they were there.
+    jokersLeftEl.hidden = !(step === "answered" && !hit && !halveUsed && !audienceUsed);
     for (const rung of rungs) {
       const n = Number(rung.dataset.rung);
       rung.classList.toggle("done", n < q.number || (n === q.number && step === "answered" && hit));
@@ -570,6 +577,19 @@ const RUNGS = Array.from({ length: 12 }, (_, i) => 12 - i);
   }
   .verdict.wrong {
     color: var(--bd-wrong-ink);
+  }
+  .verdict-wrap p {
+    margin: 0;
+  }
+  .verdict-wrap {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+  }
+  .jokers-left {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--bd-accent-deep);
   }
 
   /* ── jokers, audience, ladder ───────────────────────────────── */
