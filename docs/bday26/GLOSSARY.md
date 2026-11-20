@@ -21,7 +21,8 @@ no trace in her Points.
 _Avoid_: High score, total score
 
 **Points** (_Puan_):
-The currency of the site. She earns Points from her Best scores and spends them on Gifts.
+The currency of the site. She earns Points from her Best scores in the skill Games and spends
+them on Gifts. The slot machine and the Prize Games give none, so 1,000 is the most she can earn.
 _Avoid_: Credits, coins, score (a score belongs to one Round)
 
 **Balance** (_Bakiye_):
@@ -39,9 +40,16 @@ earned, so the 1,000 that the Games can give stays the most she can earn. The Pr
 _Avoid_: Bonus, gift (a Gift is bought), earned points
 
 **Small prize** (_Küçük ödül_):
-A present owned by one Game. She wins it when her Best score in that Game reaches 95%. It costs
-no Points. The slot machine is the exception: its jackpot wins its Small prize.
+A present owned by one Game. She wins it when her Best score in that Game reaches 95%, in a skill
+Game and in a Prize Game alike. It costs no Points. The slot machine is the exception: its jackpot
+wins its Small prize.
 _Avoid_: Bonus, gift (a Gift is bought)
+
+**Prize Game** (_Ödül oyunu_):
+A Game that gives no Points: her Best score in it counts only for its Small prize, won at 95% as
+in a skill Game. Its prize is worth more than most, so the Game is hard on purpose. The slot
+machine is not one: it is the one luck Game.
+_Avoid_: Bonus game, bonus
 
 **Return** (_İade_):
 She gives back a Gift she holds. Half of its price comes back to her Balance.
