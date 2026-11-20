@@ -107,6 +107,11 @@ export function wordleRoundScore(words: readonly number[]): number {
   return Math.min(100, Math.max(0, Math.floor(sum / words.length)));
 }
 
+/** What one driving mistake costs, in points, by kind: the weights of
+ *  `drivingScore`, for the page's "−%10" on the start card, the toasts and
+ *  the result list. */
+export const DRIVING_PENALTY = { heavy: 10, light: 3 } as const;
+
 /**
  * Driving in the Netherlands, "Hollanda'da sürüş" (#206; spec row "100 −
  * 10 × heavy − 3 × light"). `heavy` and `light` are the mistakes of one
@@ -117,7 +122,7 @@ export function wordleRoundScore(words: readonly number[]): number {
  * two are 94. The weights are the prototype's (#181), which Atıl played.
  */
 export function drivingScore(heavy: number, light: number): number {
-  return Math.min(100, Math.max(0, 100 - 10 * heavy - 3 * light));
+  return Math.min(100, Math.max(0, 100 - DRIVING_PENALTY.heavy * heavy - DRIVING_PENALTY.light * light));
 }
 
 /**

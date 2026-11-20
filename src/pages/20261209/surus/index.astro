@@ -48,6 +48,7 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import PauseOverlay from "../../../components/bday26/PauseOverlay.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
+import { DRIVING_PENALTY } from "../../../lib/bday26/scores";
 import { MISTAKES, RULES, formatClock } from "../../../lib/bday26/surus";
 
 const game = gameById("surus");
@@ -81,11 +82,11 @@ const LIMIT = formatClock(RULES.timeLimit);
       </p>
       <div class="lists">
         <div class="list heavy">
-          <p class="lbl">Ağır hata −%10</p>
+          <p class="lbl">Ağır hata −%{DRIVING_PENALTY.heavy}</p>
           <ul>{HEAVY.map((m) => <li>{m.label}</li>)}</ul>
         </div>
         <div class="list light">
-          <p class="lbl">Hafif hata −%3</p>
+          <p class="lbl">Hafif hata −%{DRIVING_PENALTY.light}</p>
           <ul>{LIGHT.map((m) => <li>{m.label}</li>)}</ul>
         </div>
       </div>
@@ -114,7 +115,7 @@ const LIMIT = formatClock(RULES.timeLimit);
   import { cssVar } from "../../../lib/bday26/css";
   import { createFrameLoop } from "../../../lib/bday26/frame-loop";
   import { mountGameShell } from "../../../lib/bday26/shell";
-  import { drivingScore } from "../../../lib/bday26/scores";
+  import { DRIVING_PENALTY, drivingScore } from "../../../lib/bday26/scores";
   import {
     ARMS,
     CAR_LENGTH as CL,
@@ -124,7 +125,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     GRID,
     GRID_H,
     GRID_W,
-    MISTAKES,
+    MISTAKE_BY_ID,
     PX_PER_M,
     ROADS,
     ROUNDABOUT,
@@ -167,8 +168,6 @@ const LIMIT = formatClock(RULES.timeLimit);
   };
   const mistakesEl = $<HTMLElement>("[data-mistakes]");
 
-  const LABEL = Object.fromEntries(MISTAKES.map((m) => [m.id, m]));
-  const PRICE = { heavy: 10, light: 3 } as const;
   const { x: RX, y: RY, island: R1, ring: R2, cycleIn: R3, cycleOut: R4, zone: RZ } = ROUNDABOUT;
 
   /** The prototype's view settings (#181): zoom, look-ahead s. The camera's
@@ -306,7 +305,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     const score = drivingScore(heavy, light);
     mistakesEl.replaceChildren(
       ...(drive.mistakes.length
-        ? drive.mistakes.map((m) => row(formatClock(m.at), LABEL[m.id]!.label + (m.detail ? ` · ${m.detail}` : ""), `−%${PRICE[m.kind]}`, m.kind))
+        ? drive.mistakes.map((m) => row(formatClock(m.at), MISTAKE_BY_ID[m.id].label + (m.detail ? ` · ${m.detail}` : ""), `−%${DRIVING_PENALTY[m.kind]}`, m.kind))
         : [row("", "Hatasız sürüş!", "", "clean")]),
     );
     shell.finish(score, { detail: `Süre ${formatClock(drive.t)} · ${heavy} ağır · ${light} hafif hata` });
@@ -340,8 +339,8 @@ const LIMIT = formatClock(RULES.timeLimit);
     const el = document.createElement("div");
     el.className = `toast ${m.kind}`;
     const price = document.createElement("b");
-    price.textContent = `−%${PRICE[m.kind]}`;
-    el.append(price, LABEL[m.id]!.toast);
+    price.textContent = `−%${DRIVING_PENALTY[m.kind]}`;
+    el.append(price, MISTAKE_BY_ID[m.id].toast);
     el.dataset.life = String(TOAST_S);
     toasts.prepend(el);
     while (toasts.children.length > 3) toasts.lastElementChild!.remove();

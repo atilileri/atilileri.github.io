@@ -124,7 +124,8 @@ export const MISTAKES: readonly { id: MistakeId; kind: MistakeKind; label: strin
   { id: "bikelane", kind: "light", label: "Bisiklet yolunda sürme", toast: "Bisiklet yolundasın" },
   { id: "overtime", kind: "light", label: "Süre aşımı", toast: "Süre aşıldı" },
 ];
-const MISTAKE = Object.fromEntries(MISTAKES.map((m) => [m.id, m])) as Record<MistakeId, (typeof MISTAKES)[number]>;
+/** Each mistake's kind and words, by id: the toasts and the result list read it. */
+export const MISTAKE_BY_ID = Object.fromEntries(MISTAKES.map((m) => [m.id, m])) as Record<MistakeId, (typeof MISTAKES)[number]>;
 
 /** One mistake as it happened. */
 export type Mistake = {
@@ -606,7 +607,7 @@ export const carKmh = (d: Drive) => Math.abs(toKmh(d.car.v));
 export function stepDrive(d: Drive, input: Input, dt: number): Mistake[] {
   const made: Mistake[] = [];
   const fire = (id: MistakeId, detail = "") => {
-    const m: Mistake = { at: d.t, id, kind: MISTAKE[id].kind, detail };
+    const m: Mistake = { at: d.t, id, kind: MISTAKE_BY_ID[id].kind, detail };
     d.mistakes.push(m);
     made.push(m);
   };
