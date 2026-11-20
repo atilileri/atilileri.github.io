@@ -82,20 +82,20 @@ function seeded(seed: number) {
 
 const POOL = targetPool();
 
-test("every target can be matched exactly within 12 drops: its hidden recipe makes it", () => {
+test("every target can be matched exactly within 10 drops: its hidden recipe makes it", () => {
   assert.ok(POOL.length > 500, `only ${POOL.length} targets`);
   for (const t of POOL) {
     const drops = t.recipe.reduce((a, b) => a + b, 0);
-    assert.ok(drops >= 3 && drops <= DROP_CAP, `${t.recipe}: ${drops} drops`);
+    assert.ok(drops >= 3 && drops <= 10, `${t.recipe}: ${drops} drops`);
     assert.equal(difference(mixColour(t.recipe)!, t.hex), 0);
     assert.equal(renkTargetScore(difference(mixColour(t.recipe)!, t.hex)), 100);
   }
 });
 
-test("a target's recipe uses 2 to 4 tubes and is neither near-black nor near-white", () => {
+test("a target's recipe uses 2 or 3 tubes and is neither near-black nor near-white", () => {
   for (const t of POOL) {
     const tubes = t.recipe.filter((n) => n > 0).length;
-    assert.ok(tubes >= 2 && tubes <= 4, `${t.recipe}: ${tubes} tubes`);
+    assert.ok(tubes >= 2 && tubes <= 3, `${t.recipe}: ${tubes} tubes`);
     const L = hexToLab(t.hex)[0];
     assert.ok(L >= 25 && L <= 90, `${t.recipe} ${t.hex}: L* ${L}`);
   }
@@ -116,7 +116,7 @@ test("drops: 1–5 add one, Backspace takes the last back, a click takes back ju
   assert.deepEqual(removeAt([1], 3), [1], "a drop that is not there changes nothing");
 });
 
-test("drops: the 13th is refused", () => {
+test("drops: her mix holds 12, two more than any recipe; the 13th is refused", () => {
   let drops: readonly number[] = [];
   for (let i = 0; i < DROP_CAP; i++) drops = addDrop(drops, i % 5);
   assert.equal(drops.length, 12);
