@@ -19,17 +19,9 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createLedger, type KeyValueStore } from "./ledger.ts";
+import { createLedger } from "./ledger.ts";
 import { proofOf } from "./proof.ts";
-
-/** An in-memory stand-in for `localStorage`. */
-function memoryStore(): KeyValueStore {
-  const data = new Map<string, string>();
-  return {
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => void data.set(key, value),
-  };
-}
+import { memoryStore } from "./test-store.ts";
 
 /** Her birthday, the date the Proof is most likely printed on. */
 const BIRTHDAY = new Date(2026, 11, 9);

@@ -25,19 +25,9 @@ import {
   heldOf,
   prizesWonOf,
   STORAGE_KEY,
-  type KeyValueStore,
 } from "./ledger.ts";
 import { encodeSaveCode } from "./savecode.ts";
-
-/** An in-memory stand-in for `localStorage`. */
-function memoryStore(seed?: Record<string, string>): KeyValueStore & { data: Map<string, string> } {
-  const data = new Map(Object.entries(seed ?? {}));
-  return {
-    data,
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => void data.set(key, value),
-  };
-}
+import { memoryStore } from "./test-store.ts";
 
 /** 353 Points: nerede 100 + hafiza 95 + wordle 100 + milyoner ⌊58.3⌋. */
 function ledgerWith353Points() {

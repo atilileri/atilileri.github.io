@@ -21,16 +21,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createGameShell, type GameHooks, type ShellScreen } from "./shell.ts";
-import { createLedger, type KeyValueStore, type Ledger } from "./ledger.ts";
+import { createLedger, type Ledger } from "./ledger.ts";
 import type { GameId } from "./catalogue.ts";
-
-function memoryStore(): KeyValueStore {
-  const data = new Map<string, string>();
-  return {
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => void data.set(key, value),
-  };
-}
+import { memoryStore } from "./test-store.ts";
 
 /** A Game page, as the shell sees it: hooks that count, a view that records,
  *  a hub link that counts. */

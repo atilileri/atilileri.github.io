@@ -13,17 +13,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createWelcome } from "./welcome.ts";
-import { STORAGE_KEY as PROGRESS_KEY, type KeyValueStore } from "./ledger.ts";
-
-/** An in-memory stand-in for `localStorage`. */
-function memoryStore(seed?: Record<string, string>): KeyValueStore & { data: Map<string, string> } {
-  const data = new Map(Object.entries(seed ?? {}));
-  return {
-    data,
-    getItem: (key) => data.get(key) ?? null,
-    setItem: (key, value) => void data.set(key, value),
-  };
-}
+import { STORAGE_KEY as PROGRESS_KEY } from "./ledger.ts";
+import { memoryStore, blockedStore } from "./test-store.ts";
 
 test("a fresh browser shows the welcome on the first visit and not on the second", () => {
   const browser = memoryStore();
@@ -62,14 +53,7 @@ test("marking the welcome seen leaves her progress byte for byte as it was", () 
 });
 
 test("a browser that blocks storage greets her every visit rather than never, and marking seen does not throw", () => {
-  const blocked: KeyValueStore = {
-    getItem() {
-      throw new Error("SecurityError: storage is disabled");
-    },
-    setItem() {
-      throw new Error("QuotaExceededError");
-    },
-  };
+  const blocked = blockedStore();
   const welcome = createWelcome(blocked);
   assert.equal(welcome.shouldShow(), true);
   assert.doesNotThrow(() => welcome.markSeen());
