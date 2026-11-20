@@ -54,3 +54,29 @@ test("Milyoner: a miss with both jokers unused says \"Jokerlerin duruyordu\"; af
   await missAMilyonerQuestion(page);
   await expect(page.getByText("Jokerlerin duruyordu")).toBeHidden();
 });
+
+test("\"Şarkıyı bil\": a wrong pick reads in full under its song in the result list, and the card still fits (review G5)", async ({ page }) => {
+  // A random source of 0 deals every right title as D, so A misses all ten.
+  await page.addInitScript(() => (Math.random = () => 0));
+  await fresh(page);
+  await page.goto("/20261209/sarki/");
+  await page.keyboard.press("Enter");
+  for (let i = 1; i <= 10; i++) {
+    await expect(page.getByText(`Şarkı ${i}/10`)).toBeVisible();
+    await page.keyboard.press("a");
+    await page.keyboard.press("n");
+  }
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  await expect(result).toContainText("10 hata");
+  const picks = result.getByRole("list", { name: "Turun şarkıları" }).locator("small");
+  await expect(picks).toHaveCount(10);
+  // Every pick is whole: nothing clipped, nothing cut to "O…".
+  const clipped = await picks.evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth + 1).length);
+  expect(clipped).toBe(0);
+  for (const text of await picks.allInnerTexts()) expect(text).toMatch(/^senin cevabın: .{3,}/);
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: "test-results/quiz-sarki-recap.png" });
+});

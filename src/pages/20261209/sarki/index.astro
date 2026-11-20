@@ -15,7 +15,7 @@
  * After the tenth the shell shows the result: `missScore` (no miss %100,
  * one miss %95), so one slip still wins Dodo'da kahvaltı. Under the score,
  * in the shell's result slot, the Round's 10 songs in order: number, title,
- * a green ✓ or a red ✗ (her wrong pick in small type beside it) and a play
+ * a green ✓ or a red ✗ (her wrong pick in small type under it) and a play
  * button that plays that song's hook, one at a time. The buttons take only
  * clicks: the shell keeps Enter (Yeni tur) and Esc (Salona dön), and a click
  * hands focus back to the result card so no button holds a key.
@@ -184,7 +184,11 @@ const LETTERS = ["A", "B", "C", "D"];
         mark.setAttribute("aria-label", hit ? "doğru" : "yanlış");
         const name = document.createElement("span");
         name.className = "name";
-        name.textContent = q.title;
+        const title = document.createElement("span");
+        title.className = "t";
+        title.textContent = q.title;
+        name.append(title);
+        // Her pick on its own line under the title, wrapping if it is long.
         if (!hit && pick !== undefined) {
           const wrong = document.createElement("small");
           wrong.textContent = `senin cevabın: ${q.choices[pick]}`;
@@ -563,17 +567,20 @@ const LETTERS = ["A", "B", "C", "D"];
   }
   .recap :global(.name) {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: grid;
     font-size: 17px;
     font-weight: 800;
     color: var(--bd-ink);
   }
+  .recap :global(.name .t) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .recap :global(.name small) {
-    margin-left: 8px;
     font-size: 12px;
     font-weight: 600;
+    line-height: 1.25;
     color: var(--bd-wrong-ink);
   }
   .recap :global(.play) {
