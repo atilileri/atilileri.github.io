@@ -36,7 +36,7 @@ const HUB = "/20261209/";
  *   - wordle 95.5 → 95 Points (rounded down), won at the 95 bar
  *   - slot 40 with the jackpot → no Points, Small prize won by the jackpot
  *   - piyano never played
- * Points earned 283, Balance 283, 3 Small prizes, 4 of 11 Games played.
+ * Points earned 283, Balance 283, 3 Small prizes, 4 of 14 Games played.
  */
 const AN_EVENING = {
   best: { hafiza: 100, milyoner: 88, wordle: 95.5, slot: 40 },
@@ -111,7 +111,7 @@ test("her progress shows on the tiles and in the strip", async ({ page }) => {
   await expect(page.locator('[data-stat="earned"]')).toHaveText("283");
   await expect(page.locator('[data-stat="balance"]')).toHaveText(["283", "283"]);
   await expect(page.locator('[data-stat="prizes"]')).toHaveText("3");
-  await expect(page.getByText("4/11 oynandı")).toBeVisible();
+  await expect(page.getByText("4/14 oynandı")).toBeVisible();
 
   // A won Small prize is green and says so; a locked one shows only its name
   // (how to win it is the welcome screen's to say).
@@ -234,10 +234,42 @@ test("a Return asks first; confirmed, half the price comes back and the Gift is 
   await expect(returnButton).toBeVisible();
 });
 
+test("the hub has 14 tiles: the three Prize Games sit before the slot machine and give no Points (#213)", async ({ page }) => {
+  await seed(page, { best: { renk: 96 }, jackpot: false, log: [] });
+  await page.goto(HUB);
+
+  const names = page.locator("li[data-game] h3");
+  await expect(names).toHaveCount(14);
+  await expect(names.nth(10)).toHaveText("Bavul hazırla");
+  await expect(names.nth(11)).toHaveText("Renk karıştır");
+  await expect(names.nth(12)).toHaveText("Barista");
+  await expect(names.nth(13)).toHaveText("Slot makinesi");
+  for (const name of ["Bavul hazırla", "Renk karıştır", "Barista"]) {
+    await expect(row(page, name)).toContainText("Puan vermez");
+  }
+
+  // 96 on a Prize Game: a Best score and its Small prize, no Points.
+  await expect(row(page, "Renk karıştır")).toContainText("%96");
+  await expect(row(page, "Renk karıştır")).toContainText("Resim seti");
+  await expect(row(page, "Renk karıştır")).toContainText("Kazandın!");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+  await expect(page.locator('[data-stat="prizes"]')).toHaveText("1");
+  await expect(row(page, "Barista")).toContainText("Simon Levelt kahve tadım paketi");
+});
+
+test("the shop shows 12 Gifts; the weekend trip and the paint set are no longer for sale (#213)", async ({ page }) => {
+  await seed(page, AN_EVENING);
+  await page.goto(HUB);
+  const shop = page.locator("[data-shop-list] li[data-gift]");
+  await expect(shop).toHaveCount(12);
+  await expect(shop.filter({ hasText: "Hafta sonu gezisi" })).toHaveCount(0);
+  await expect(shop.filter({ hasText: "Resim seti" })).toHaveCount(0);
+});
+
 /**
  * The hub at her 1920×1080 screen, two smaller laptops and a phone: it may
  * scroll down, never across, and every tile keeps its content inside its
- * card (cards grow, the grid reflows 3 → 2 → 1, the shop drops below on a
+ * card (cards grow, the grid reflows 4 → 3 → 2 → 1, the shop drops below on a
  * phone). "Inside" is measured by the boxes she sees: every element of a
  * tile lies within the tile's own rectangle.
  */
@@ -286,8 +318,11 @@ for (const [width, height] of [
     expect(await extent()).toEqual(before);
     await page.mouse.move(width / 2, 10);
 
-    // On her own screen the shop is still all in view beside the tiles.
+    // On her own screen the whole hub fits, all 14 tiles, with no scroll
+    // down either (spec story 12), and the shop is all in view beside them.
     if (width === 1920) {
+      const down = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+      expect(down).toBeLessThanOrEqual(0);
       await expect(row(page, "Rocky Horror film gecesi")).toBeInViewport({ ratio: 1 });
       await expect(row(page, "Online fotoğraf kursu")).toBeInViewport({ ratio: 1 });
     }
@@ -305,6 +340,9 @@ test("the welcome screen greets her by itself until she closes it once, and \"Ho
   await expect(welcome(page)).toContainText(/oyun/i);
   await expect(welcome(page)).toContainText(/puan/i);
   await expect(welcome(page)).toContainText(/hediye/i);
+  // Not every Game gives Points: the slot machine and the Prize Games say so
+  // on their tiles, and the welcome names that tile line (#213).
+  await expect(welcome(page)).toContainText('"Puan vermez" yazan oyunlar hariç');
 
   // Seen means closed: a reload before she closes it greets her again.
   await page.reload();
@@ -470,7 +508,7 @@ test("a Game opens on its start screen, and a Round she leaves scores nothing (#
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/20261209\/$/);
   await expect(row(page, "Hafıza kartları")).toContainText("Henüz oynamadın");
-  await expect(page.getByText("0/11 oynandı")).toBeVisible();
+  await expect(page.getByText("0/14 oynandı")).toBeVisible();
 });
 
 for (const game of ["hafiza", "nerede", "milyoner", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak"]) {
@@ -628,7 +666,7 @@ test("Piyano opens on its start screen with the three songs and their caps; 3 pi
 
   const start = page.getByRole("dialog", { name: "Piyano" });
   await expect(start).toBeVisible();
-  await expect(start).toContainText("De Slak'ta akşam yemeği");
+  await expect(start).toContainText("Kanunda senin şarkın");
   const songs = start.getByRole("radiogroup", { name: "Şarkı" });
   await expect(songs.getByRole("radio")).toHaveText([/Kolay.*İyi ki doğdun.*%70/, /Orta.*Hadi Bakalım.*%85/, /Zor.*Türk Marşı.*%100/]);
   await expect(songs.getByRole("radio", { name: /Kolay/ })).toHaveAttribute("aria-checked", "true");
@@ -710,7 +748,7 @@ test("the slot machine: a spin lands its score on the machine, no result screen,
   await expect(row(page, "Slot makinesi")).toContainText(/%(0|50|100)/);
   await expect(row(page, "Slot makinesi")).toContainText("Puan vermez");
   await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
-  await expect(page.getByText("1/11 oynandı")).toBeVisible();
+  await expect(page.getByText("1/14 oynandı")).toBeVisible();
 });
 
 test("the Proof lists what she holds and won, and its check code is the tail of the Save code Yedekle shows (#197)", async ({ page }) => {
@@ -1054,3 +1092,257 @@ for (const { path, name } of [
     await expect(overlay).toBeHidden();
   });
 }
+
+test("Renk karıştır: drops by keys, Backspace and a click take them back, 12 is the cap; five colours make a Round, its Best score reaches the tile and no Points (#218)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/renk/");
+  const start = page.getByRole("dialog", { name: "Renk karıştır" });
+  await expect(start).toContainText("Resim seti");
+  await expect(start).toContainText("ΔE nedir?");
+  const esc = start.locator("li").filter({ has: page.locator("kbd", { hasText: /^Esc$/ }) });
+  await expect(esc).toHaveCount(1);
+  await expect(esc).toContainText("Turdan çık");
+  const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(overflow).toBe(0);
+
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Renk 1/5")).toBeVisible();
+  const count = page.getByText(/^\d+ \/ 12 damla$/);
+  await expect(count).toHaveText("0 / 12 damla");
+
+  // 1 2 3: red, yellow, blue. Backspace takes the blue back; a click on the red takes just the red.
+  for (const k of ["1", "2", "3"]) await page.keyboard.press(k);
+  await expect(count).toHaveText("3 / 12 damla");
+  await page.keyboard.press("Backspace");
+  await expect(count).toHaveText("2 / 12 damla");
+  await page.getByTitle("Kırmızı: tıkla, çıkar").click();
+  await expect(count).toHaveText("1 / 12 damla");
+  await expect(page.getByTitle("Sarı: tıkla, çıkar")).toHaveCount(1);
+
+  // Up to 12 drops, and a 13th is refused.
+  for (let i = 0; i < 12; i++) await page.keyboard.press("4");
+  await expect(count).toHaveText("12 / 12 damla");
+
+  // Enter shows the ΔE; Enter again goes on. The other four: one drop each.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("Renk farkı (ΔE)")).toBeVisible();
+  await page.keyboard.press("Enter");
+  for (let i = 2; i <= 5; i++) {
+    await expect(page.getByText(`Renk ${i}/5`)).toBeVisible();
+    await page.keyboard.press(String(i));
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", { name: i < 5 ? /Sonraki renk/ : /Sonuç/ })).toBeVisible();
+    await page.keyboard.press("Enter");
+  }
+
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  for (let i = 1; i <= 5; i++) await expect(result).toContainText(`Renk ${i}`);
+  const score = (await result.locator("[data-shell-score]").innerText()).trim();
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Renk karıştır")).toContainText(score);
+  await expect(row(page, "Renk karıştır")).toContainText("Puan vermez");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+});
+
+
+/** Barista's steps in a shot and the seconds the fill takes to reach each
+ *  target (#216's verdict: 18 g in 1.8 s, 15 kg in 1.5 s, 36 g in 2.4 s). */
+const BARISTA_STEPS = [
+  ["Öğütme", 1800],
+  ["Sıkıştırma", 1500],
+  ["Demleme", 2400],
+] as const;
+
+
+test("Barista: nine holds of Space make a Round; the result shows the nine steps, and the hub tile its Best score with no Points (#217)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/barista/");
+
+  const start = page.getByRole("dialog", { name: "Barista" });
+  await expect(start).toContainText("Öğüt, sıkıştır, demle: yeşil bantta bırak");
+  await expect(start).toContainText("Basılı tut, bantta bırak");
+  await expect(start).toContainText("Simon Levelt kahve tadım paketi");
+  const esc = page.locator("[data-shell-screen=start] li").filter({ has: page.locator("kbd", { hasText: /^Esc$/ }) });
+  await expect(esc).toHaveCount(1);
+  await expect(esc).toContainText("Turdan çık");
+  await expect(page.getByRole("button", { name: /^Müzik/ })).toHaveAccessibleName("Müzik: Açık");
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Açık");
+  const overflow = await page.evaluate(() => ({
+    down: document.documentElement.scrollHeight - window.innerHeight,
+    across: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(overflow).toEqual({ down: 0, across: 0 });
+
+  await page.keyboard.press("Enter");
+  await expect(start).toBeHidden();
+  for (let shot = 1; shot <= 3; shot++) {
+    for (const [i, [name, ms]] of BARISTA_STEPS.entries()) {
+      // The last step stays on screen until she presses again.
+      await page.keyboard.down("Space");
+      await page.waitForTimeout(ms);
+      await page.keyboard.up("Space");
+      await expect(page.getByText(`Çekim ${shot} / 3 · Adım ${i + 1} / 3`)).toBeVisible();
+      await expect(page.locator("[data-step-name]")).toHaveText(name);
+      await expect(page.locator("[data-last-verdict]")).toContainText(`${name}, çekim ${shot}`);
+      // The quarter second she gets to read the step.
+      await page.waitForTimeout(350);
+    }
+  }
+
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  await expect(result.locator("[data-result-cell]")).toHaveText(Array(9).fill(/^\d+$/));
+  const score = (await result.locator("[data-shell-score]").innerText()).trim();
+  expect(score).toMatch(/^%\d+$/);
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(HUB);
+  await expect(row(page, "Barista")).toContainText(score);
+  await expect(row(page, "Barista")).toContainText("Puan vermez");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+  await expect(page.getByText("1/14 oynandı")).toBeVisible();
+});
+
+test("Barista: Esc mid-hold asks first and drops the hold unscored; a Round she leaves scores nothing (#217)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/barista/");
+  await page.keyboard.press("Enter");
+
+  const question = page.getByRole("dialog", { name: "Turdan çıkılsın mı?" });
+  await page.keyboard.down("Space");
+  await page.waitForTimeout(600);
+  await page.keyboard.press("Escape");
+  await expect(question).toBeVisible();
+  await page.keyboard.up("Space");
+  // "Devam et": the grind waits for her, nothing scored, the readout back at zero.
+  await page.keyboard.press("Escape");
+  await expect(question).toBeHidden();
+  await expect(page.locator("[data-step-name]")).toHaveText("Öğütme");
+  await expect(page.locator("[data-mean]")).toHaveText("—");
+  await expect(page.locator("[data-readout-value]")).toHaveText("0,0");
+
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(HUB);
+  await expect(row(page, "Barista")).toContainText("Rekor —");
+  await expect(page.getByText("0/14 oynandı")).toBeVisible();
+});
+
+// ── Bavul hazırla (#219) ─────────────────────────────────────────────
+
+test("Bavul hazırla: the start screen names Esc once, the prize, and both switches (#219)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/bavul/");
+  const start = page.getByRole("dialog", { name: "Bavul hazırla" });
+  await expect(start).toContainText("Bavulu boşluksuz doldur, 23 kg'ı aşma");
+  await expect(start).toContainText("Hafta sonu gezisi");
+  const esc = page.locator("[data-shell-screen=start] li").filter({ has: page.locator("kbd", { hasText: /^Esc$/ }) });
+  await expect(esc).toHaveCount(1);
+  await expect(esc).toContainText("Bırak ya da turdan çık");
+  await expect(page.getByRole("button", { name: /^Müzik/ })).toHaveAccessibleName("Müzik: Açık");
+  await expect(page.getByRole("button", { name: /^Efektler/ })).toHaveAccessibleName("Efektler: Açık");
+});
+
+test("Bavul hazırla by keyboard alone: Tab picks, Enter packs, a full cell refuses, Esc lets go before it asks to leave, K closes (#219)", async ({ page }) => {
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/bavul/");
+  await page.keyboard.press("Enter");
+  const hand = page.locator("[data-hand]");
+  const leave = page.getByRole("dialog", { name: "Turdan çıkılsın mı?" });
+  await expect(hand).toHaveText("Elin boş");
+  await expect(page.getByText("0 / 16 bavulda")).toBeVisible();
+
+  // Tab, Enter: the laptop goes into the top left corner, the hand is empty.
+  await page.keyboard.press("Tab");
+  await expect(hand).toHaveText("Elinde: Laptop (listeden)");
+  await page.keyboard.press("Enter");
+  await expect(hand).toHaveText("Elin boş");
+  await expect(page.getByText("1 / 16 bavulda")).toBeVisible();
+
+  // The books hang at the cursor, over the laptop: refused, still held.
+  await page.keyboard.press("Tab");
+  await expect(hand).toHaveText("Elinde: Kitaplar (listeden)");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status").filter({ hasText: "Burası dolu" })).toBeVisible();
+  await expect(hand).toHaveText("Elinde: Kitaplar (listeden)");
+
+  // Esc while holding only lets go; the leave question waits for an empty hand.
+  await page.keyboard.press("Escape");
+  await expect(hand).toHaveText("Elin boş");
+  await expect(leave).toBeHidden();
+
+  // K asks; Esc goes back to packing; K, Enter closes the bag and ends the Round.
+  const close = page.getByRole("dialog", { name: "Bavulu kapatıyor musun?" });
+  await page.keyboard.press("k");
+  await expect(close).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(close).toBeHidden();
+  await expect(leave).toBeHidden();
+  await page.keyboard.press("k");
+  await page.keyboard.press("Enter");
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result).toBeVisible();
+  await expect(result.locator("[data-shell-score]")).toHaveText("%0"); // 42 empty cells
+  await expect(result).toContainText("Boş kalan (42)");
+
+  // Enter is a new Round on an empty bag; Esc with an empty hand asks; Enter leaves.
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("0 / 16 bavulda")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(leave).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Bavul hazırla")).toContainText("%0");
+  await expect(row(page, "Bavul hazırla")).toContainText("Puan vermez");
+  await expect(page.getByText("1/14 oynandı")).toBeVisible();
+});
+
+test("Bavul hazırla by mouse alone: the card's perfect pack scores %100, wins Hafta sonu gezisi, and the hub tile shows it with no Points (#219)", async ({ page }) => {
+  const { PACKS, placements } = await import("../../src/lib/bday26/bavul-packs.ts");
+  await seed(page, { best: {}, jackpot: false, log: [] });
+  await page.goto("/20261209/bavul/");
+  await page.getByRole("button", { name: /Başla/ }).click();
+  const hand = page.locator("[data-hand]");
+  const trip = (await page.locator("[data-trip-name]").innerText()).trim();
+  const pack = PACKS[trip];
+  expect(pack, trip).toBeTruthy();
+
+  // A second click on the held row lets it go again.
+  const rowOf = (i: number) => page.locator(`[data-items] [data-i="${i}"]`);
+  await rowOf(0).click();
+  await expect(hand).toHaveText("Elinde: Laptop (listeden)");
+  await rowOf(0).click();
+  await expect(hand).toHaveText("Elin boş");
+
+  // The canvas: 26 px padding, 34 px more on top for the handle, 8 cells across.
+  const box = (await page.locator("[data-canvas]").boundingBox())!;
+  const cs = (box.width - 52) / 8;
+  const at = (fx: number, fy: number) => ({ x: box.x + 26 + fx * cs, y: box.y + 60 + fy * cs });
+
+  for (const p of placements(pack!.ok)) {
+    // A list item hangs from its middle: aim the middle of its box.
+    const c = at(p.left + p.w / 2, p.top + p.h / 2);
+    await rowOf(p.i).click();
+    for (let t = 0; t < p.turns; t++) await page.mouse.click(c.x, c.y, { button: "right" });
+    await page.mouse.click(c.x, c.y);
+    await expect(hand).toHaveText("Elin boş");
+  }
+  await expect(page.locator("[data-big]")).toHaveText("%100");
+
+  await page.getByRole("button", { name: /Bavulu kapat/ }).click();
+  await page.getByRole("dialog", { name: "Bavulu kapatıyor musun?" }).getByRole("button", { name: /Kapat/ }).click();
+  const result = page.getByRole("dialog", { name: "Tur bitti" });
+  await expect(result.locator("[data-shell-score]")).toHaveText("%100");
+  await expect(result).toContainText(trip);
+  await expect(result).toContainText("Küçük ödül kazandın: Hafta sonu gezisi!");
+
+  await result.getByRole("button", { name: /Salona dön/ }).click();
+  await expect(page).toHaveURL(/\/20261209\/$/);
+  await expect(row(page, "Bavul hazırla")).toContainText("%100");
+  await expect(row(page, "Bavul hazırla")).toContainText("Kazandın!");
+  await expect(row(page, "Bavul hazırla")).toContainText("Puan vermez");
+  await expect(page.locator('[data-stat="earned"]')).toHaveText("0");
+});

@@ -30,6 +30,9 @@ export const GAME_ICON: Record<GameId, string> = {
   surus: "🚲",
   yuruyus: "🥾",
   kayak: "⛷️",
+  bavul: "🧳",
+  renk: "🎨",
+  barista: "☕",
   slot: "🍒",
 };
 
@@ -39,14 +42,13 @@ export const GIFT_ICON: Record<GiftId, string> = {
   yinyin: "🎫",
   kayakekip: "❄️",
   pikap: "💿",
-  haftasonu: "🧳",
   karsu: "🎤",
   atolye: "📸",
   theragun: "💆",
   urban: "🛍️",
-  resim: "🎨",
   kurs: "🎓",
   rocky: "🍿",
+  deslak: "🍽️",
 };
 
 /** The Small prize foot: a lock until it is won, a wrapped present after. */

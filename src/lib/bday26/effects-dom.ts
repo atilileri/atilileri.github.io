@@ -403,7 +403,80 @@ const SOUNDS: Partial<Record<SoundName, (ac: AudioContext, out: AudioNode, t: nu
     hiss(ac, out, t, 0.09, 0.05, "bandpass", vary(900, 0.1), 3400, 1.4, 0.01);
     tone(ac, out, vary(700, 0.05), vary(1050, 0.05), t + 0.02, 0.05, "sine", 0.025, 0.004);
   },
+  // ── Renk karıştır (the prototype on #215) ──
+  // A drop into the paint: a soft round "plip" gliding down onto its tube's
+  // note, on a pentatonic, so a recipe plays a little tune.
+  "paint-red": paintDrop(67), // G4
+  "paint-yellow": paintDrop(72), // C5
+  "paint-blue": paintDrop(62), // D4
+  "paint-white": paintDrop(76), // E5
+  "paint-black": paintDrop(57), // A3
+  /** A drop taken back: a short upward lift, quieter than the drop. */
+  "paint-lift"(ac, out, t) {
+    tone(ac, out, hz(60), hz(67), t, 0.11, "sine", 0.04, 0.006);
+  },
+  /** The 12th drop is the last: a dull low knock, not a buzzer. */
+  "paint-full"(ac, out, t) {
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 500;
+    lp.connect(out);
+    tone(ac, lp, 150, 90, t, 0.18, "sine", 0.12, 0.008);
+  },
+  /** Enter: a soft brush stroke across canvas. */
+  brush(ac, out, t) {
+    hiss(ac, out, t, 0.32, 0.035, "bandpass", 1200, 3200, 0.8, 0.06);
+  },
+  // ── Barista ──
+  /** The tamper meeting the coffee: a soft low thud, a little grit, a faint
+   *  metal tick (the prototype's, #216). */
+  thud(ac, out, t) {
+    tone(ac, out, 115, 48, t, 0.24, "sine", 0.2, 0.004);
+    hiss(ac, out, t, 0.14, 0.05, "lowpass", 1100, 250, 0.7, 0.004);
+    tone(ac, out, 2100, 1900, t, 0.04, "triangle", 0.012, 0.002);
+  },
+  // ── Bavul hazırla (the prototype's, #214) ──
+  /** An item lifted from the list or the bag: a soft rising pop. */
+  pick(ac, out, t) {
+    tone(ac, out, vary(420), vary(760), t, 0.07, "sine", 0.06, 0.004);
+    hiss(ac, out, t, 0.04, 0.02, "bandpass", 2600, 2600, 2, 0.002);
+  },
+  /** An item settling into the bag: a soft cloth thump and a click. */
+  place(ac, out, t) {
+    tone(ac, out, 170, 80, t, 0.14, "sine", 0.14, 0.004);
+    hiss(ac, out, t, 0.08, 0.035, "lowpass", 1100, 500, 0.8, 0.003);
+    tone(ac, out, vary(1400), vary(1200), t + 0.01, 0.03, "triangle", 0.02, 0.002);
+  },
+  /** An item back on the list: Backspace's dull tock, sliding up. */
+  "take-out"(ac, out, t) {
+    hiss(ac, out, t, 0.06, 0.04, "bandpass", 700, 1500, 2, 0.002);
+    tone(ac, out, vary(380, 0.04), 620, t, 0.08, "triangle", 0.04, 0.003);
+  },
+  /** The 23 kg gate: the bonk, knocked twice, not a buzzer. */
+  gate: celebration((ac, out, t) => {
+    const filter = ac.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 600;
+    filter.connect(out);
+    tone(ac, filter, 190, 85, t, 0.3, "sine", 0.7, 0.01);
+    tone(ac, filter, 170, 75, t + 0.16, 0.3, "sine", 0.5, 0.01);
+  }),
+  /** The bag closes: a zipper run and a clasp. */
+  zip(ac, out, t) {
+    for (let i = 0; i < 16; i++) hiss(ac, out, t + i * 0.028, 0.025, 0.03 + i * 0.002, "bandpass", 1800 + i * 160, 1800 + i * 160, 3, 0.002);
+    tone(ac, out, 900, 600, t + 0.5, 0.06, "triangle", 0.06, 0.002);
+    tone(ac, out, 160, 90, t + 0.5, 0.12, "sine", 0.1, 0.003);
+  },
 };
+
+/** Renk karıştır's drop on the tube's note `midi`. */
+function paintDrop(midi: number) {
+  return (ac: AudioContext, out: AudioNode, t: number) => {
+    tone(ac, out, hz(midi + 7), hz(midi), t, 0.16, "sine", 0.07, 0.004);
+    tone(ac, out, hz(midi + 12), hz(midi + 12), t + 0.01, 0.08, "sine", 0.012, 0.003);
+    hiss(ac, out, t, 0.05, 0.008, "bandpass", 1800, 900, 2, 0.003);
+  };
+}
 
 /** The quiz celebrations at their first, approved loudness: through a 0.35
  *  gain, in a key drawn fresh (C5 and up) so two chimes never sound the same. */
@@ -593,6 +666,84 @@ const LOOPS: Partial<Record<LoopName, LoopMaker>> = {
         smooth(gain.gain, 0.014 * (p.level ?? 1), now, 0.5);
       },
     };
+  },
+  /** Barista's grinder, while Space is held on the grind step (the
+   *  prototype's, #216): a motor hum (sawtooth, low-passed, its pitch rising
+   *  a touch as it spins up) under the burrs' crunch (band-passed noise with
+   *  a ~28 Hz flutter). No params. */
+  grind(ac, out) {
+    const motor = ac.createOscillator();
+    motor.type = "sawtooth";
+    const t = ac.currentTime;
+    motor.frequency.setValueAtTime(70, t);
+    motor.frequency.exponentialRampToValueAtTime(118, t + 0.35);
+    motor.frequency.linearRampToValueAtTime(126, t + 4);
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 900;
+    lp.Q.value = 0.8;
+    const mg = ac.createGain();
+    mg.gain.value = 0.05;
+    motor.connect(lp).connect(mg).connect(out);
+    const crunch = noiseLoop(ac);
+    const bp = ac.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.value = 2600;
+    bp.Q.value = 0.9;
+    const cg = ac.createGain();
+    cg.gain.value = 0.035;
+    const lfo = ac.createOscillator();
+    lfo.frequency.value = 28;
+    const depth = ac.createGain();
+    depth.gain.value = 0.018;
+    lfo.connect(depth).connect(cg.gain);
+    crunch.connect(bp).connect(cg).connect(out);
+    return { nodes: [motor, crunch, lfo], set() {} };
+  },
+  /** Barista's pour, while Space is held on the pull step (the
+   *  prototype's, #216): the pump's buzz, a soft stream (low-passed noise
+   *  that wobbles), a thin trickle on top and a drip now and then. The drips
+   *  end with the stream's source. No params. */
+  pour(ac, out) {
+    const pump = ac.createOscillator();
+    pump.type = "sawtooth";
+    pump.frequency.value = 100;
+    const plp = ac.createBiquadFilter();
+    plp.type = "lowpass";
+    plp.frequency.value = 380;
+    const pg = ac.createGain();
+    pg.gain.value = 0.022;
+    pump.connect(plp).connect(pg).connect(out);
+    const stream = noiseLoop(ac);
+    const slp = ac.createBiquadFilter();
+    slp.type = "lowpass";
+    slp.frequency.value = 750;
+    slp.Q.value = 0.6;
+    const sg = ac.createGain();
+    sg.gain.value = 0.045;
+    const wob = ac.createOscillator();
+    wob.frequency.value = 3.3;
+    const wd = ac.createGain();
+    wd.gain.value = 0.014;
+    wob.connect(wd).connect(sg.gain);
+    stream.connect(slp).connect(sg).connect(out);
+    const trickle = noiseLoop(ac);
+    const tbp = ac.createBiquadFilter();
+    tbp.type = "bandpass";
+    tbp.frequency.value = 2400;
+    tbp.Q.value = 2;
+    const tg = ac.createGain();
+    tg.gain.value = 0.01;
+    trickle.connect(tbp).connect(tg).connect(out);
+    let timer = 0;
+    const drip = () => {
+      const at = ac.currentTime + 0.01;
+      tone(ac, out, 700 + Math.random() * 300, 1300 + Math.random() * 400, at, 0.06, "sine", 0.022, 0.003);
+      timer = window.setTimeout(drip, 160 + Math.random() * 260);
+    };
+    timer = window.setTimeout(drip, 200);
+    stream.addEventListener("ended", () => window.clearTimeout(timer));
+    return { nodes: [pump, stream, wob, trickle], set() {} };
   },
 };
 

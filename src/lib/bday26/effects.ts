@@ -134,6 +134,11 @@ export function sparkleCelebration(rng: () => number): Celebration {
   return { ...celebration("puff", rng), shapes: ["star"], particles: 18, sound: "sparkle" };
 }
 
+/** Renk karıştır: a colour matched (ΔE ≤ 1) — a small puff and the chime. */
+export function renkMatchCelebration(rng: () => number): Celebration {
+  return celebration("puff", rng);
+}
+
 /** `prefers-reduced-motion`: the sound stays; a small puff goes, a big one thins to a few. */
 export function forReducedMotion(c: Celebration): Celebration {
   return { ...c, particles: c.size === "puff" ? 0 : Math.floor(c.particles / 10) };
@@ -170,10 +175,28 @@ export type SoundName =
   | "lever"
   | "reel-stop"
   | "pair-jingle"
-  | "no-win";
+  | "no-win"
+  // Renk karıştır: a drop of each tube on its own note, a drop taken back,
+  // the 12-drop cap, the brush stroke on Enter
+  | "paint-red"
+  | "paint-yellow"
+  | "paint-blue"
+  | "paint-white"
+  | "paint-black"
+  | "paint-lift"
+  | "paint-full"
+  | "brush"
+  // Barista
+  | "thud"
+  // Bavul hazırla (rotate is "flip", refused "row-wrong", a must-have "row-good")
+  | "pick"
+  | "place"
+  | "take-out"
+  | "gate"
+  | "zip";
 
 /** The continuous sounds: started, steered by params each frame, stopped. */
-export type LoopName = "engine" | "traffic" | "swoosh" | "reels";
+export type LoopName = "engine" | "traffic" | "swoosh" | "reels" | "grind" | "pour";
 
 /** A loop's steering, each 0..1 (speed, throttle, …). */
 export type LoopParams = Record<string, number>;

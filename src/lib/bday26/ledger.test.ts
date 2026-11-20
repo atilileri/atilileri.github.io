@@ -147,6 +147,37 @@ test("a jackpot flag on a skill Game means nothing", () => {
   assert.equal(ledger.prizeWon("slot"), false);
 });
 
+// ---------------------------------------------------------- Prize Games
+
+test("a Prize Game gives no Points, even at a Best score of 100", () => {
+  const ledger = createLedger(memoryStore());
+  for (const id of ["bavul", "renk", "barista"] as const) {
+    ledger.recordRound(id, 100);
+    assert.equal(ledger.bestOf(id), 100, id);
+    assert.equal(ledger.pointsOf(id), 0, id);
+  }
+  assert.equal(ledger.earned(), 0);
+  assert.equal(ledger.balance(), 0);
+});
+
+test("a Prize Game's Small prize is won at 95, not at 94", () => {
+  const ledger = createLedger(memoryStore());
+  ledger.recordRound("barista", 94);
+  assert.equal(ledger.prizeWon("barista"), false);
+  assert.equal(ledger.recordRound("barista", 95).prizeWonNow, true);
+  assert.equal(ledger.prizeWon("barista"), true);
+  assert.deepEqual(ledger.prizesWon(), ["barista"]);
+});
+
+test("the Prize Games leave the most Points at 1,000: every Game at 100 earns exactly that", () => {
+  const ledger = createLedger(memoryStore());
+  for (const id of ["milyoner", "nerede", "hafiza", "wordle", "sarki", "piyano", "kadraj", "surus", "yuruyus", "kayak", "bavul", "renk", "barista", "slot"] as const) {
+    ledger.recordRound(id, 100, { jackpot: true });
+  }
+  assert.equal(ledger.earned(), 1000);
+  assert.equal(ledger.prizesWon().length, 14);
+});
+
 // ------------------------------------------------------------ Gift shop
 
 test("a buy takes the price off the Balance at once and the Gift is held", () => {

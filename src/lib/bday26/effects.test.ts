@@ -192,3 +192,12 @@ test("the slot's jackpot: the Small prize's shower with its own bigger fanfare, 
   assert.equal(jackpot.sound, "jackpot-fanfare");
   assert.deepEqual({ ...jackpot, sound: prize.sound }, prize);
 });
+
+// Renk karıştır (#218), imported here so the Prize Game builds append apart.
+import { renkMatchCelebration } from "./effects.ts";
+
+test("Renk karıştır: a matched colour is a small puff with the chime, smaller than a Small prize", () => {
+  const match = renkMatchCelebration(seeded(3));
+  assert.deepEqual([match.size, match.sound], ["puff", "chime"]);
+  assert.ok(match.particles < smallPrizeCelebration(seeded(3)).particles);
+});

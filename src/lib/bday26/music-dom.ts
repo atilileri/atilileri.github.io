@@ -553,6 +553,108 @@ const TRACKS: Record<TrackName, Track> = {
       if (n) keys(s, n[1], t, dur * n[2] * 1.3, 0.03);
     },
   },
+
+  /**
+   * Renk karıştır, "Atölye": a calm painting studio (the prototype on #215,
+   * which Atıl played). 68 bpm, four bars of Fmaj7 – Em7 – Dm9 – Cmaj7 (slow,
+   * open, a little Lydian): a soft pad, a low bass on the bar, a nylon pluck
+   * picking the chord, a music-box tine for a tune that moves only every
+   * half bar, and a brush on 2 and 4 you barely hear. Original; its busiest
+   * moment stays under the other tracks' ~0.08.
+   */
+  renk: {
+    steps: 64,
+    bpm: () => 68,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const chords = [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 64], [48, 52, 55, 59]];
+      const roots = [41, 40, 38, 36];
+      const tune = [[[0, 76], [8, 72]], [[0, 74], [8, 71]], [[0, 69], [8, 72]], [[0, 71], [10, 67]]];
+      const ch = chords[bar]!;
+      if (step === 0) {
+        pad(s, ch, t, dur * 16, 0.014, "triangle", 900);
+        blip(s, roots[bar]!, t, dur * 12, "sine", 0.045, 0.02);
+        blip(s, roots[bar]! + 12, t, dur * 8, "triangle", 0.016, 0.02);
+      }
+      // The nylon pluck: a triangle with a quick bright sine on top.
+      const pick = [0, 2, 1, 3, 2, 1, 3, 1];
+      if (step % 2 === 0 && step !== 14) {
+        const m = ch[pick[step / 2]!]! + 12;
+        const level = step === 0 ? 0.026 : 0.018;
+        blip(s, m, t, dur * 5, "triangle", level, 0.004);
+        blip(s, m + 12, t, dur * 1.25, "sine", level * 0.3, 0.002);
+      }
+      const n = tune[bar]!.find(([st]) => st === step);
+      if (n) tine(s, n[1]! + 12, t, 0.012, 2.2);
+      if (step === 4 || step === 12) noiseHit(s, t, 0.22, 0.004, "bandpass", 3000, 0.7, 0.04);
+    },
+  },
+
+  /**
+   * Barista, "Kahve molası": a cosy café loop, original (the prototype's,
+   * #216, which Atıl heard and kept). B♭ major, 84 bpm, swung 8ths, four
+   * bars of a ii–V–I–VI turnaround (Cm9 – F13 – B♭maj9 – G7): a walking
+   * bass, electric-piano chords in a Charleston rhythm, a vibraphone tune,
+   * brushes (ride on the beat, a swung shaker) and a soft kick.
+   */
+  barista: {
+    steps: 64,
+    bpm: () => 84,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const sw = step % 4 === 2 ? dur * 0.3 : 0; // swing the off-beat 8ths
+      const chords = [[58, 62, 63, 67], [57, 62, 63, 67], [57, 60, 62, 65], [53, 59, 63, 65]][bar]!;
+      const walk = [[48, 51, 55, 53], [53, 57, 60, 52], [46, 50, 53, 45], [43, 47, 50, 49]][bar]!;
+      const tune: Line[] = [
+        [[0, 74, 3], [6, 72, 2], [10, 70, 5]],
+        [[0, 72, 2], [4, 69, 2], [8, 67, 6]],
+        [[2, 69, 2], [4, 70, 2], [6, 74, 4], [12, 77, 4]],
+        [[0, 75, 4], [6, 74, 2], [8, 71, 7]],
+      ];
+      if (step % 4 === 0) bass(s, walk[step / 4]!, t, dur * 3.6, 0.045);
+      if (step === 0) for (const m of chords) keys(s, m, t, dur * 5, 0.014);
+      if (step === 6) for (const m of chords) keys(s, m, t + dur * 0.3, dur * 3, 0.011);
+      const n = at(tune[bar], step);
+      if (n) vibe(s, n[1], t + sw, dur * n[2] * 1.4, 0.024);
+      if (step % 4 === 0) noiseHit(s, t, 0.22, 0.008, "highpass", 6500, 0.6);
+      if (step % 4 === 2) noiseHit(s, t + sw, 0.08, 0.006, "bandpass", 5000, 1.2, 0.015);
+      if (step === 0 || step === 10) kick(s, t, 0.03);
+    },
+  },
+
+  /**
+   * Bavul hazırla, "Yolculuk": a calm, light travel tune, the prototype's
+   * (#214). D major, 88 bpm, four bars (D – Bm – G – A), original: a soft
+   * "train" shaker on the eighths, a round bass on 1 and 3, plucked chords
+   * on the off-beats, a whistled tune, a little bell at the turn.
+   */
+  bavul: {
+    steps: 64,
+    bpm: () => 88,
+    play(s) {
+      const { step, bar, t, dur } = s;
+      const chords = [[62, 66, 69], [59, 62, 66], [59, 62, 67], [61, 64, 69]][bar]!;
+      const root = [38, 35, 43, 45][bar]!;
+      if (step % 2 === 0) shaker(s, t, step % 4 === 0 ? 0.009 : 0.005);
+      if (step === 0 || step === 8) bass(s, root, t, dur * 6, 0.05);
+      if (step === 6 || step === 14) blip(s, root + 7, t, dur * 2, "triangle", 0.03, 0.008);
+      if (step === 4 || step === 10 || step === 12) {
+        for (const m of chords) {
+          blip(s, m, t, dur * 2.2, "triangle", 0.012, 0.004);
+          blip(s, m + 12, t, dur * 1.2, "sine", 0.005, 0.003);
+        }
+      }
+      const tune: Line[] = [
+        [[0, 74, 4], [4, 78, 2], [6, 76, 2], [8, 74, 6]],
+        [[0, 71, 4], [4, 74, 2], [6, 78, 2], [8, 76, 6]],
+        [[0, 74, 3], [4, 71, 2], [6, 74, 2], [8, 79, 4], [12, 78, 4]],
+        [[0, 76, 6], [8, 73, 4], [12, 69, 4]],
+      ];
+      const n = at(tune[bar], step);
+      if (n) whistle(s, n[1], t, dur * n[2] * 1.1, 0.018);
+      if (bar === 3 && step === 14) tine(s, 86, t, 0.012, 1.2);
+    },
+  },
 };
 
 // ── the ski and the radio's own sounds ─────────────────────────────

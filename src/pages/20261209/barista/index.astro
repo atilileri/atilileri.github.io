@@ -1,0 +1,951 @@
+---
+/**
+ * /20261209/barista/ — Barista, a Prize Game (#217; Prize Games #213;
+ * prototype verdict #216, which Atıl played: band "medium", fill
+ * "accelerating", curve "flat-top").
+ *
+ * WHAT SHE SEES. Three espresso shots, each three steps: Öğütme (the grinder
+ * fills a portafilter on a scale, readout Doz, to 18 g), Sıkıştırma (a
+ * tamper presses the bed, a dial gauge reads Basınç, to 15 kg) and Demleme
+ * (the machine pours into a glass cup on a scale, readout Verim, to 36 g,
+ * with a shot timer). In each step she holds Space; the readout climbs,
+ * faster and faster, and she lets go inside the green band. The band
+ * narrows on each shot. "Bantta!" or "Bant dışı" and the step's score show
+ * at once beside the readout; the HUD bar keeps the nine steps as pips and
+ * the Round's running mean. After the ninth, the shell's result card, with
+ * the nine scores in a 3 × 3 grid.
+ *
+ * KEYS. Space (Boşluk) held and let go; Enter starts and Esc asks to leave
+ * (the shell's). Esc mid-hold drops the hold unscored; the step waits.
+ *
+ * SOUND, through the site's switches (GameShell's "Efektler" and "Müzik"):
+ * the café loop "Kahve molası", the grinder while Space is held on the grind
+ * step, a thud on the tamp, the pour while Space is held on the pull step,
+ * a chime in the band and a bonk (and a shake) outside it, and confetti with
+ * a fanfare for a Round at 95% or more (the first one gets the shell's Small
+ * prize call instead). Continuous sounds stop on release, on Esc, and when a
+ * shell screen covers the Round.
+ *
+ * HOW IT IS BUILT. `src/lib/bday26/barista.ts` owns every rule — the steps,
+ * the band, the fill, the score, the Round, and the bench that turns Space
+ * down and up into a scored step and asks for its sounds — with no DOM.
+ * This page feeds it key times and animation frames and draws: the
+ * prototype's drawings and look, its F2 panel and `?band=` parameter left
+ * out. No Points: a Prize Game's Best score counts only for its Small prize.
+ */
+import BdayLayout from "../../../layouts/BdayLayout.astro";
+import GameShell from "../../../components/bday26/GameShell.astro";
+import { gameById } from "../../../lib/bday26/catalogue";
+import { STEPS } from "../../../lib/bday26/barista";
+
+const game = gameById("barista");
+
+const KEYS = [
+  { key: "Boşluk", does: "Basılı tut, bantta bırak" },
+  { key: "Esc", does: "Turdan çık" },
+];
+
+/** The tamp's dial: 240° from lower left to lower right, centre (160, 150). */
+const GA0 = 150;
+const GSW = 240;
+const gPt = (f: number, r: number) => {
+  const a = ((GA0 + GSW * f) * Math.PI) / 180;
+  return [160 + r * Math.cos(a), 150 + r * Math.sin(a)] as const;
+};
+const tampMax = STEPS[1].max;
+const DIAL = Array.from({ length: tampMax / 5 + 1 }, (_, i) => {
+  const f = (i * 5) / tampMax;
+  return { n: i * 5, a: gPt(f, 124), b: gPt(f, 132), t: gPt(f, 146) };
+});
+const SHOT_IDS = [0, 1, 2];
+const LETTERS = ["Ö", "S", "D"];
+---
+
+<BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
+  <GameShell game="barista" keys={KEYS} music="barista">
+    <span slot="hud" class="hud-line">
+      <span class="shots">
+        {
+          SHOT_IDS.map((a) => (
+            <span class="shot" data-shot={a}>
+              {LETTERS.map((l, b) => (
+                <span class="pip" data-pip={a * 3 + b} title={STEPS[b]!.name}>
+                  {l}
+                </span>
+              ))}
+            </span>
+          ))
+        }
+      </span>
+      <span class="mean"><span class="label">Tur ortalaması</span><b data-mean>—</b></span>
+    </span>
+
+    <p slot="start" class="intro">
+      Üç espresso çek. Her çekimde öğüt, sıkıştır, demle: Boşluk'a basılı tut, yeşil bantta bırak. Bant her çekimde daralır.
+    </p>
+
+    <div class="barista">
+      <div class="stepbar">
+        <span class="n" data-step-n>Çekim 1 / 3 · Adım 1 / 3</span>
+        <span class="t" data-step-name>Öğütme</span>
+        <span class="goal">Hedef <b data-goal-target></b> · bant <b data-goal-band></b></span>
+      </div>
+
+      <div class="bench">
+        <div class="scene" data-scene>
+          <!-- 1. grinder filling a portafilter on a scale -->
+          <svg data-scene-step="grind" viewBox="0 0 560 460" aria-hidden="true">
+            <rect x="0" y="408" width="560" height="52" fill="#ead9cb"></rect><rect x="0" y="406" width="560" height="4" fill="#dcc5b3"></rect>
+            <g class="grind-rumble">
+              <path d="M196 30h168l-24 78H220z" fill="#f4e9e0" stroke="#d8c5b8" stroke-width="3" stroke-linejoin="round"></path>
+              <g fill="#6b4430">
+                <ellipse cx="236" cy="92" rx="9" ry="6"></ellipse><ellipse cx="256" cy="96" rx="9" ry="6" transform="rotate(30 256 96)"></ellipse><ellipse cx="278" cy="90" rx="9" ry="6" transform="rotate(-20 278 90)"></ellipse><ellipse cx="300" cy="95" rx="9" ry="6"></ellipse><ellipse cx="322" cy="90" rx="9" ry="6" transform="rotate(40 322 90)"></ellipse><ellipse cx="246" cy="78" rx="9" ry="6" transform="rotate(-35 246 78)"></ellipse><ellipse cx="270" cy="74" rx="9" ry="6"></ellipse><ellipse cx="294" cy="78" rx="9" ry="6" transform="rotate(25 294 78)"></ellipse><ellipse cx="316" cy="74" rx="9" ry="6" transform="rotate(-10 316 74)"></ellipse><ellipse cx="282" cy="60" rx="9" ry="6" transform="rotate(15 282 60)"></ellipse><ellipse cx="258" cy="58" rx="9" ry="6"></ellipse><ellipse cx="306" cy="58" rx="9" ry="6" transform="rotate(-30 306 58)"></ellipse>
+              </g>
+              <rect x="214" y="106" width="132" height="12" rx="4" fill="#5d4f4b"></rect>
+              <rect x="190" y="116" width="180" height="168" rx="22" fill="var(--machine)"></rect>
+              <rect x="206" y="132" width="148" height="56" rx="12" fill="#4a3c38"></rect>
+              <circle cx="236" cy="160" r="12" fill="#2b2422" stroke="#6e5e58" stroke-width="2"></circle><circle cx="236" cy="160" r="3" fill="#e0446a"></circle>
+              <rect x="262" y="150" width="76" height="22" rx="6" fill="#2b2422"></rect>
+              <text x="300" y="166" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="13" fill="#ffd7a0" data-grind-timer>0,0</text>
+              <path d="M262 284h36l-6 26h-24z" fill="#2b2422"></path>
+            </g>
+            <line class="flow" x1="280" y1="312" x2="280" y2="342" stroke="#6b4430" stroke-width="5" stroke-linecap="round"></line>
+            <line class="flow" x1="274" y1="314" x2="276" y2="340" stroke="#8a5a3c" stroke-width="3" stroke-linecap="round" style="animation-delay:-.15s"></line>
+            <rect x="170" y="384" width="220" height="24" rx="8" fill="#d9d3ce"></rect><rect x="176" y="380" width="208" height="8" rx="4" fill="#ece8e4"></rect>
+            <rect x="318" y="389" width="58" height="15" rx="4" fill="#2b2422"></rect>
+            <text x="370" y="401" text-anchor="end" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#ffd7a0" data-grind-scale>0,0 g</text>
+            <path d="M236 352h88l-8 28h-72z" fill="var(--steel-dark)"></path>
+            <rect x="228" y="346" width="104" height="10" rx="4" fill="var(--steel)"></rect>
+            <path d="M332 350h28c4 0 4 0 6 2l110 18c8 2 8 12 0 13l-112-12h-32z" fill="#2b2422"></path>
+            <clipPath id="barista-basket"><rect x="230" y="250" width="100" height="100"></rect></clipPath>
+            <ellipse data-grind-mound cx="280" cy="348" rx="20" ry="0" fill="var(--coffee)" clip-path="url(#barista-basket)"></ellipse>
+          </svg>
+
+          <!-- 2. tamping the bed in the portafilter -->
+          <svg data-scene-step="tamp" viewBox="0 0 560 460" aria-hidden="true">
+            <rect x="0" y="408" width="560" height="52" fill="#ead9cb"></rect><rect x="0" y="406" width="560" height="4" fill="#dcc5b3"></rect>
+            <rect x="140" y="390" width="260" height="18" rx="8" fill="#5d4f4b"></rect>
+            <path d="M196 300h148l-10 90H206z" fill="var(--steel-dark)"></path>
+            <rect x="186" y="292" width="168" height="14" rx="5" fill="var(--steel)"></rect>
+            <path d="M354 300h30l140 30c10 2 10 16 0 18l-140-16h-30z" fill="#2b2422"></path>
+            <rect data-tamp-bed x="202" y="306" width="136" height="40" fill="var(--coffee)"></rect>
+            <g data-tamper>
+              <rect x="204" y="270" width="132" height="34" rx="6" fill="#d9d3ce" stroke="#bdb6b0" stroke-width="2"></rect>
+              <rect x="204" y="270" width="132" height="8" rx="4" fill="#ece8e4"></rect>
+              <path d="M252 270c0-26 6-40 18-50 12 10 18 24 18 50z" fill="#8f8984"></path>
+              <ellipse cx="270" cy="196" rx="44" ry="34" fill="#c2264f"></ellipse>
+              <ellipse cx="258" cy="184" rx="16" ry="9" fill="#e0446a" opacity=".7"></ellipse>
+            </g>
+            <g data-tamp-arrows opacity="0">
+              <path d="M160 150v60m-10-12 10 12 10-12M380 150v60m-10-12 10 12 10-12" stroke="#c2264f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
+          </svg>
+
+          <!-- 3. pulling the shot into a cup on a scale -->
+          <svg data-scene-step="pull" viewBox="0 0 560 460" aria-hidden="true">
+            <rect x="0" y="408" width="560" height="52" fill="#ead9cb"></rect><rect x="0" y="406" width="560" height="4" fill="#dcc5b3"></rect>
+            <rect x="90" y="0" width="380" height="150" fill="var(--machine)"></rect>
+            <rect x="90" y="138" width="380" height="20" fill="#2b2422"></rect>
+            <rect x="120" y="30" width="110" height="62" rx="12" fill="#4a3c38"></rect>
+            <circle cx="175" cy="61" r="20" fill="#f4e9e0"></circle><path d="M175 61l12-9" stroke="#c2264f" stroke-width="3" stroke-linecap="round"></path>
+            <circle cx="400" cy="60" r="16" fill="#4a3c38" stroke="#6e5e58" stroke-width="2"></circle><circle cx="400" cy="60" r="5" data-pull-lamp fill="#6e5e58"></circle>
+            <rect x="226" y="158" width="108" height="26" rx="6" fill="var(--steel)"></rect>
+            <path d="M232 184h96l-8 30h-80z" fill="var(--steel-dark)"></path>
+            <path d="M328 190h20l150 -12c10 0 12 14 2 16l-150 20h-22z" fill="#2b2422"></path>
+            <path d="M268 214h24l-4 12h-16z" fill="#6e6863"></path>
+            <line class="flow thin" x1="276" y1="226" x2="276" y2="330" stroke="var(--coffee)" stroke-width="3.5" stroke-linecap="round"></line>
+            <line class="flow thin" x1="284" y1="226" x2="284" y2="330" stroke="var(--coffee)" stroke-width="3.5" stroke-linecap="round" style="animation-delay:-.25s"></line>
+            <circle class="drip" cx="280" cy="230" r="3" fill="var(--coffee)"></circle>
+            <rect x="170" y="384" width="220" height="24" rx="8" fill="#d9d3ce"></rect><rect x="176" y="380" width="208" height="8" rx="4" fill="#ece8e4"></rect>
+            <rect x="318" y="389" width="58" height="15" rx="4" fill="#2b2422"></rect>
+            <text x="370" y="401" text-anchor="end" font-family="ui-monospace,Consolas,monospace" font-size="12" fill="#ffd7a0" data-pull-scale>0,0 g</text>
+            <clipPath id="barista-cup"><path d="M234 300h92l-8 78h-76z"></path></clipPath>
+            <g clip-path="url(#barista-cup)">
+              <rect data-pull-liquid x="230" y="380" width="100" height="0" fill="var(--coffee-dark)"></rect>
+              <rect data-pull-crema x="230" y="380" width="100" height="0" fill="var(--crema)"></rect>
+            </g>
+            <path d="M234 300h92l-8 78h-76z" fill="rgba(255,255,255,.25)" stroke="#cfc5bf" stroke-width="3" stroke-linejoin="round"></path>
+            <path d="M326 316c22 0 22 40 -4 40" fill="none" stroke="#cfc5bf" stroke-width="5"></path>
+          </svg>
+        </div>
+
+        <div class="instr" data-instr>
+          <div class="readout">
+            <div class="row">
+              <div>
+                <div class="rl" data-readout-label>Doz</div>
+                <div class="rv"><span data-readout-value>0,0</span><small data-readout-unit>g</small></div>
+              </div>
+              <div class="timer" data-readout-timer hidden>0 sn</div>
+            </div>
+          </div>
+          <svg class="gauge" data-gauge viewBox="0 0 320 200" aria-hidden="true">
+            <path data-gauge-track fill="none" stroke="#f6ebe7" stroke-width="22"></path>
+            <path data-gauge-band fill="none" stroke="rgba(47,182,124,.45)" stroke-width="22"></path>
+            <path data-gauge-band-in fill="none" stroke="rgba(47,182,124,.75)" stroke-width="22"></path>
+            <g stroke="#b9a8a3" stroke-width="2">
+              {DIAL.map((d) => <line x1={d.a[0]} y1={d.a[1]} x2={d.b[0]} y2={d.b[1]} />)}
+            </g>
+            <g font-family="Nunito,system-ui" font-size="11" font-weight="700" fill="#9b8a85" text-anchor="middle">
+              {DIAL.map((d) => <text x={d.t[0]} y={d.t[1] + 4}>{d.n}</text>)}
+            </g>
+            <line data-gauge-needle x1="160" y1="150" x2="160" y2="50" stroke="#3a2d2a" stroke-width="5" stroke-linecap="round"></line>
+            <circle cx="160" cy="150" r="10" fill="#3a2d2a"></circle>
+          </svg>
+          <div data-meter-wrap>
+            <div class="meter" data-meter>
+              <div class="band" data-meter-band><div class="band-in"></div></div>
+              <div class="centre" data-meter-centre></div>
+              <div class="fill" data-meter-fill></div>
+              <div class="needle" data-meter-needle></div>
+            </div>
+            <div class="scale"><span>0</span><span data-meter-max>24 g</span></div>
+          </div>
+          <div class="last empty" data-last>
+            <div>Bıraktığın<b data-last-value>—</b></div>
+            <div>Bant<b data-last-band>—</b></div>
+            <div>Adım puanı<b data-last-score>—</b></div>
+            <div>Tur ortalaması<b data-last-mean>—</b></div>
+            <div class="verdict" data-last-verdict></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint" data-hint><kbd>Boşluk</kbd><span data-hint-text>Basılı tut, öğüt, yeşil bantta bırak</span></div>
+    </div>
+
+    <div slot="result" class="grid9">
+      <span></span>
+      {STEPS.map((s) => <span class="h">{s.name}</span>)}
+      {
+        SHOT_IDS.map((a) => (
+          <>
+            <span class="r">Çekim {a + 1}</span>
+            {LETTERS.map((_, b) => (
+              <span class="c" data-result-cell={a * 3 + b}>
+                —
+              </span>
+            ))}
+          </>
+        ))
+      }
+    </div>
+  </GameShell>
+</BdayLayout>
+
+<script>
+  import { ACCEL_EXP, STEPS, createBench, halfWidth, type Bench, type StepResult } from "../../../lib/bday26/barista";
+  import { openLedger } from "../../../lib/bday26/browser";
+  import { smallPrizeCelebration } from "../../../lib/bday26/effects";
+  import { effects } from "../../../lib/bday26/effects-dom";
+  import { mountGameShell } from "../../../lib/bday26/shell";
+
+  const $ = <T extends Element = HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
+  const all = <T extends Element = HTMLElement>(sel: string) => Array.from(document.querySelectorAll<T>(sel));
+
+  const el = {
+    pips: all("[data-pip]"),
+    shots: all("[data-shot]"),
+    mean: $("[data-mean]"),
+    stepN: $("[data-step-n]"),
+    stepName: $("[data-step-name]"),
+    goalTarget: $("[data-goal-target]"),
+    goalBand: $("[data-goal-band]"),
+    scene: $("[data-scene]"),
+    scenes: all<SVGSVGElement>("[data-scene-step]"),
+    grindTimer: $<SVGTextElement>("[data-grind-timer]"),
+    grindScale: $<SVGTextElement>("[data-grind-scale]"),
+    grindMound: $<SVGEllipseElement>("[data-grind-mound]"),
+    tampBed: $<SVGRectElement>("[data-tamp-bed]"),
+    tamper: $<SVGGElement>("[data-tamper]"),
+    tampArrows: $<SVGGElement>("[data-tamp-arrows]"),
+    pullLamp: $<SVGCircleElement>("[data-pull-lamp]"),
+    pullScale: $<SVGTextElement>("[data-pull-scale]"),
+    pullLiquid: $<SVGRectElement>("[data-pull-liquid]"),
+    pullCrema: $<SVGRectElement>("[data-pull-crema]"),
+    instr: $("[data-instr]"),
+    readoutLabel: $("[data-readout-label]"),
+    readoutValue: $("[data-readout-value]"),
+    readoutUnit: $("[data-readout-unit]"),
+    readoutTimer: $("[data-readout-timer]"),
+    gauge: $<SVGSVGElement>("[data-gauge]"),
+    gaugeTrack: $<SVGPathElement>("[data-gauge-track]"),
+    gaugeBand: $<SVGPathElement>("[data-gauge-band]"),
+    gaugeBandIn: $<SVGPathElement>("[data-gauge-band-in]"),
+    gaugeNeedle: $<SVGLineElement>("[data-gauge-needle]"),
+    meterWrap: $("[data-meter-wrap]"),
+    meter: $("[data-meter]"),
+    meterBand: $("[data-meter-band]"),
+    meterCentre: $("[data-meter-centre]"),
+    meterFill: $("[data-meter-fill]"),
+    meterNeedle: $("[data-meter-needle]"),
+    meterMax: $("[data-meter-max]"),
+    last: $("[data-last]"),
+    lastValue: $("[data-last-value]"),
+    lastBand: $("[data-last-band]"),
+    lastScore: $("[data-last-score]"),
+    lastMean: $("[data-last-mean]"),
+    lastVerdict: $("[data-last-verdict]"),
+    hint: $("[data-hint]"),
+    hintText: $("[data-hint-text]"),
+    cells: all("[data-result-cell]"),
+  };
+
+  /** The pull's timer reads 27 sn at the target (game time × 27 / 2.4). */
+  const SHOT_SECONDS = 27;
+  /** After the ninth step, the result card waits this long, ms. */
+  const FINISH_MS = 1100;
+
+  const fmt = (v: number, d = 1) => v.toFixed(d).replace(".", ",");
+  const pct = (v: number) => `%${Math.floor(v)}`;
+  const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
+  const grade = (score: number) => (score >= 95 ? "hi" : score >= 80 ? "mid" : "lo");
+
+  // ── one Round ─────────────────────────────────────────────────────
+  let bench: Bench = createBench(effects, el.instr);
+  /** The shell's confirm card is open. */
+  let paused = false;
+  let finishTimer = 0;
+  /** The ninth step's result timer fired while the confirm card was open. */
+  let finishDue = false;
+
+  function startRound() {
+    window.clearTimeout(finishTimer);
+    bench = createBench(effects, el.instr);
+    paused = false;
+    finishDue = false;
+    paint(performance.now());
+  }
+
+  /** The step on screen: the one just ended while its result shows, else the next. */
+  function onScreen(): { shot: number; stepIndex: number } {
+    const last = bench.last;
+    if (last) return { shot: last.shot, stepIndex: last.stepIndex };
+    return bench.round.current() ?? { shot: 2, stepIndex: 2 };
+  }
+
+  // ── keys and frames ───────────────────────────────────────────────
+  // The shell takes Esc during a Round and every key on its own screens, so
+  // a Space that arrives here is hers to play.
+  window.addEventListener("keydown", (event) => {
+    if (event.code !== "Space" || event.altKey || event.ctrlKey || event.metaKey) return;
+    event.preventDefault();
+    if (event.repeat || paused || shell.phase !== "playing") return;
+    if (bench.press(event.timeStamp)) {
+      paint(event.timeStamp);
+      requestAnimationFrame(frame);
+    }
+  });
+  window.addEventListener("keyup", (event) => {
+    if (event.code !== "Space") return;
+    event.preventDefault();
+    const r = bench.release(event.timeStamp);
+    if (r) locked(r);
+  });
+  // A lost focus lets go, as the prototype did: the step scores where it stopped.
+  window.addEventListener("blur", () => {
+    const r = bench.release(performance.now());
+    if (r) locked(r);
+  });
+
+  function frame(now: number) {
+    if (bench.phase !== "holding") return;
+    const r = bench.tick(now);
+    if (r) {
+      locked(r);
+      return;
+    }
+    draw(now);
+    requestAnimationFrame(frame);
+  }
+
+  function locked(_r: StepResult) {
+    paint(performance.now());
+    if (bench.round.done) finishTimer = window.setTimeout(finishRound, FINISH_MS);
+  }
+
+  function finishRound() {
+    if (paused) {
+      finishDue = true;
+      return;
+    }
+    const score = bench.round.score!;
+    for (const r of bench.round.results) {
+      const cell = el.cells[r.shot * 3 + r.stepIndex]!;
+      cell.textContent = String(r.score);
+      cell.className = `c ${grade(r.score)}`;
+    }
+    const outcome = shell.finish(score);
+    // 95 or more: confetti and a fanfare as the card lands. The first one
+    // wins the Small prize, and the shell plays its own call for that.
+    if (outcome && score >= 95 && !outcome.prizeWonNow) {
+      window.setTimeout(() => effects.celebrate({ ...smallPrizeCelebration(Math.random), sound: "fanfare" }), 450);
+    }
+  }
+
+  // ── drawing ───────────────────────────────────────────────────────
+  const gPt = (f: number, r: number) => {
+    const a = ((150 + 240 * f) * Math.PI) / 180;
+    return [160 + r * Math.cos(a), 150 + r * Math.sin(a)] as const;
+  };
+  function gArc(f1: number, f2: number, r: number) {
+    f1 = Math.max(0, f1);
+    f2 = Math.min(1, f2);
+    const [x1, y1] = gPt(f1, r);
+    const [x2, y2] = gPt(f2, r);
+    return `M${x1} ${y1}A${r} ${r} 0 ${(f2 - f1) * 240 > 180 ? 1 : 0} 1 ${x2} ${y2}`;
+  }
+
+  /** Everything but the moving parts: the HUD, the step, its band, the last result. */
+  function paint(now: number) {
+    const results = bench.round.results;
+    const { shot, stepIndex } = onScreen();
+    const s = STEPS[stepIndex]!;
+    const hw = halfWidth(s, shot);
+    const playing = !bench.round.done || bench.last != null;
+
+    // HUD: the nine pips and the running mean.
+    el.shots.forEach((node, a) => node.classList.toggle("cur", playing && a === shot));
+    el.pips.forEach((pip, i) => {
+      const r = results[i];
+      const isCur = !r && i === results.length && !bench.round.done;
+      pip.className = `pip ${r ? grade(r.score) : isCur ? "cur" : ""}`;
+      pip.textContent = r ? String(r.score) : ["Ö", "S", "D"][i % 3]!;
+    });
+    el.mean.textContent = results.length ? pct(mean(results.map((r) => r.score))) : "—";
+
+    // The step and its target.
+    el.stepN.textContent = `Çekim ${shot + 1} / 3 · Adım ${stepIndex + 1} / 3`;
+    el.stepName.textContent = s.name;
+    el.goalTarget.textContent = `${fmt(s.target)} ${s.unit}`;
+    el.goalBand.textContent = `${fmt(s.target - hw)}–${fmt(s.target + hw)} ${s.unit}`;
+    for (const svg of el.scenes) svg.toggleAttribute("hidden", svg.dataset.sceneStep !== s.key);
+    el.readoutLabel.textContent = s.label;
+    el.readoutUnit.textContent = s.unit;
+    el.readoutTimer.hidden = s.key !== "pull";
+
+    // The band: a dial for the tamp, a bar for the grind and the pull.
+    const dial = s.key === "tamp";
+    el.gauge.toggleAttribute("hidden", !dial);
+    el.meterWrap.hidden = dial;
+    if (dial) {
+      el.gaugeTrack.setAttribute("d", gArc(0, 1, 110));
+      el.gaugeBand.setAttribute("d", gArc((s.target - hw) / s.max, (s.target + hw) / s.max, 110));
+      el.gaugeBandIn.setAttribute("d", gArc((s.target - hw / 2) / s.max, (s.target + hw / 2) / s.max, 110));
+    } else {
+      el.meterBand.style.left = `${((s.target - hw) / s.max) * 100}%`;
+      el.meterBand.style.width = `${((2 * hw) / s.max) * 100}%`;
+      el.meterCentre.style.left = `${(s.target / s.max) * 100}%`;
+      el.meterMax.textContent = `${s.max} ${s.unit}`;
+    }
+
+    const holding = bench.phase === "holding";
+    const last = bench.last;
+    el.scene.classList.toggle("holding", holding);
+    el.hint.classList.toggle("holding", holding);
+    el.meter.classList.toggle("hit", !!last?.inBand);
+    el.meter.classList.toggle("miss", !!last && !last.inBand);
+    el.hintText.textContent = holding
+      ? "Bantta bırak…"
+      : last
+        ? bench.round.done
+          ? "Tur bitti"
+          : "Sonraki adım için yine basılı tut"
+        : `Basılı tut, ${s.goal}, yeşil bantta bırak`;
+
+    // The last step in full.
+    const lr = results[results.length - 1];
+    el.last.classList.toggle("empty", !lr);
+    if (lr) {
+      const ls = STEPS[lr.stepIndex]!;
+      const dv = lr.value - ls.target;
+      el.lastValue.textContent = `${fmt(lr.value)} ${ls.unit}`;
+      el.lastBand.textContent = `${fmt(lr.lo)}–${fmt(lr.hi)}`;
+      el.lastScore.textContent = String(lr.score);
+      el.lastMean.textContent = pct(mean(results.map((r) => r.score)));
+      el.lastVerdict.className = `verdict ${lr.inBand ? "hit" : "miss"}`;
+      el.lastVerdict.textContent =
+        (lr.inBand ? "Bantta! " : "Bant dışı · ") +
+        (Math.abs(dv) < 0.05 ? "tam merkez" : `merkezden ${dv > 0 ? "+" : "−"}${fmt(Math.abs(dv))} ${ls.unit}`) +
+        ` (${ls.name}, çekim ${lr.shot + 1})`;
+    }
+    draw(now);
+  }
+
+  /** The moving parts: the readout, the meter or dial, the scene. */
+  function draw(now: number) {
+    const { stepIndex } = onScreen();
+    const s = STEPS[stepIndex]!;
+    const last = bench.last;
+    const v = bench.phase === "holding" ? bench.value(now) : (last?.value ?? 0);
+    /** Seconds held, read back from the fill. */
+    const held = s.tt * Math.pow(v / s.target, 1 / ACCEL_EXP);
+    const f = v / s.max;
+    const holding = bench.phase === "holding";
+
+    el.readoutValue.textContent = fmt(v);
+    if (s.key === "pull") el.readoutTimer.textContent = `${Math.round((held * SHOT_SECONDS) / s.tt)} sn`;
+    if (s.key === "tamp") {
+      const [x, y] = gPt(f, 92);
+      el.gaugeNeedle.setAttribute("x2", String(x));
+      el.gaugeNeedle.setAttribute("y2", String(y));
+    } else {
+      el.meterFill.style.width = `${f * 100}%`;
+      el.meterNeedle.style.left = `${f * 100}%`;
+    }
+
+    if (s.key === "grind") {
+      const g = v / s.target; // 1 at the dose
+      el.grindMound.setAttribute("ry", String(Math.min(26, 18 * g)));
+      el.grindMound.setAttribute("rx", String(30 + 16 * Math.min(1.2, g)));
+      el.grindScale.textContent = `${fmt(v)} g`;
+      el.grindTimer.textContent = fmt(held);
+    } else if (s.key === "tamp") {
+      el.tamper.setAttribute("transform", `translate(0 ${36 + f * 14})`);
+      el.tampBed.setAttribute("y", String(306 + 4 + f * 14));
+      el.tampBed.setAttribute("height", String(40 - 4 - f * 14));
+      el.tampArrows.setAttribute("opacity", String(holding ? 0.4 + f * 0.6 : 0));
+    } else {
+      const h = f * 70; // the cup: 70 px ≈ 50 g
+      el.pullLiquid.setAttribute("y", String(378 - h));
+      el.pullLiquid.setAttribute("height", String(h));
+      const ch = Math.min(h, 3 + h * 0.18);
+      el.pullCrema.setAttribute("y", String(378 - h));
+      el.pullCrema.setAttribute("height", String(ch));
+      el.pullScale.textContent = `${fmt(v)} g`;
+      el.pullLamp.setAttribute("fill", holding ? "#ffb703" : "#6e5e58");
+    }
+  }
+
+  // ── the shell ─────────────────────────────────────────────────────
+  const shell = mountGameShell({
+    game: "barista",
+    ledger: openLedger(),
+    hooks: {
+      startRound,
+      abandonRound: () => {
+        window.clearTimeout(finishTimer);
+        bench.drop();
+        paused = false;
+        finishDue = false;
+      },
+      // The confirm card: a hold in progress is dropped, unscored, and the
+      // step waits for her; the grinder or the pour stops with it.
+      pause: () => {
+        paused = true;
+        bench.drop();
+        paint(performance.now());
+      },
+      resume: () => {
+        paused = false;
+        if (finishDue) {
+          finishDue = false;
+          finishRound();
+        }
+      },
+    },
+  });
+  paint(performance.now());
+</script>
+
+<style>
+  .barista {
+    --coffee: #5b3a29;
+    --coffee-dark: #3b2418;
+    --crema: #c98d52;
+    --steel: #c9c4c0;
+    --steel-dark: #8f8984;
+    --machine: #3a2d2a;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    display: grid;
+    grid-template-rows: auto minmax(0, auto) auto;
+    align-content: center;
+    justify-items: center;
+    gap: 18px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding-bottom: 20px;
+  }
+  .intro {
+    font-size: 15px;
+    color: var(--bd-ink-soft);
+  }
+
+  /* ── HUD: 3 shots × 3 steps, and the running mean ─────────────── */
+  .hud-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .shots {
+    display: flex;
+    gap: 14px;
+  }
+  .shot {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--bd-track);
+  }
+  .shot.cur {
+    background: var(--bd-accent-soft);
+  }
+  .pip {
+    width: 34px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--bd-paper);
+    display: grid;
+    place-items: center;
+    font: 800 13px/1 var(--bd-display);
+    color: var(--bd-muted-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .pip.cur {
+    box-shadow: 0 0 0 2px var(--bd-accent);
+    color: var(--bd-accent-deep);
+  }
+  .pip.hi,
+  .c.hi {
+    background: var(--bd-won-bg-2);
+    color: var(--bd-won-deep);
+  }
+  .pip.mid,
+  .c.mid {
+    background: var(--bd-gift-bg);
+    color: var(--bd-gift-fg);
+  }
+  .pip.lo,
+  .c.lo {
+    background: var(--bd-wrong-bg);
+    color: var(--bd-wrong);
+  }
+  .mean {
+    text-align: left;
+    min-width: 92px;
+  }
+  .mean b {
+    display: block;
+    font: 800 24px/1.05 var(--bd-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .label {
+    display: block;
+    font-family: var(--bd-font);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--bd-muted-2);
+    font-weight: 700;
+  }
+
+  /* ── the step ─────────────────────────────────────────────────── */
+  .stepbar {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .stepbar .n {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--bd-muted);
+    letter-spacing: 0.02em;
+  }
+  .stepbar .t {
+    font: 800 34px/1 var(--bd-display);
+    color: var(--bd-ink);
+  }
+  .stepbar .goal {
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--bd-ink-soft);
+  }
+  .stepbar .goal b {
+    color: var(--bd-won-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .bench {
+    display: grid;
+    grid-template-columns: minmax(0, 680px) 340px;
+    gap: 28px;
+    align-items: center;
+    min-height: 0;
+    height: min(640px, calc(100vh - 260px));
+    width: min(1080px, 100%);
+  }
+  .scene {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(#fffdfb, #fbf1ea);
+    border-radius: 22px;
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    overflow: hidden;
+  }
+  .scene svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .scene svg[hidden] {
+    display: none;
+  }
+  .instr {
+    display: grid;
+    gap: 14px;
+    align-content: center;
+  }
+  .readout {
+    background: #2b2422;
+    border-radius: 16px;
+    padding: 14px 18px 12px;
+    color: #ffe9c7;
+    box-shadow: inset 0 0 0 2px #463a36;
+  }
+  .readout .rl {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #bfa58d;
+  }
+  .readout .rv {
+    font: 600 48px/1.05 var(--mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 12px rgb(255 190 110 / 0.35);
+  }
+  .readout .rv small {
+    font-size: 20px;
+    margin-left: 6px;
+    color: #d9bf9f;
+  }
+  .readout .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .readout .timer {
+    font: 600 22px/1 var(--mono);
+    color: #ffd7a0;
+  }
+  .meter {
+    position: relative;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--bd-track);
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1.5px var(--bd-line);
+  }
+  .meter .band {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: rgb(47 182 124 / 0.22);
+    border-left: 2px solid var(--bd-won);
+    border-right: 2px solid var(--bd-won);
+  }
+  /* The inner half, where a step scores 100. */
+  .meter .band-in {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 25%;
+    right: 25%;
+    background: rgb(47 182 124 / 0.22);
+  }
+  .meter .centre {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--bd-won-ink);
+  }
+  .meter .fill {
+    position: absolute;
+    left: 0;
+    top: 13px;
+    bottom: 13px;
+    border-radius: 0 6px 6px 0;
+    background: var(--coffee);
+    width: 0;
+  }
+  .meter .needle {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: var(--bd-ink);
+    left: 0;
+  }
+  .meter.hit .needle {
+    background: var(--bd-won-ink);
+  }
+  .meter.miss .needle {
+    background: var(--bd-wrong);
+  }
+  .scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--bd-muted-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .gauge {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .gauge[hidden] {
+    display: none;
+  }
+  .last {
+    background: var(--bd-paper);
+    border-radius: 16px;
+    box-shadow: 0 0 0 1.5px var(--bd-line);
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 14px;
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .last b {
+    display: block;
+    font: 800 18px/1.15 var(--bd-display);
+    color: var(--bd-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .last .verdict {
+    grid-column: 1 / -1;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--bd-ink-soft);
+  }
+  .last .verdict.hit {
+    color: var(--bd-won-ink);
+  }
+  .last .verdict.miss {
+    color: var(--bd-wrong);
+  }
+  .last.empty {
+    visibility: hidden;
+  }
+  .hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--bd-ink-soft);
+    background: var(--bd-paper);
+    border-radius: 999px;
+    padding: 8px 18px 8px 10px;
+    box-shadow:
+      0 0 0 1.5px var(--bd-line),
+      0 6px 18px -10px rgb(58 45 42 / 0.35);
+  }
+  .hint kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 96px;
+    height: 30px;
+    border-radius: 7px;
+    background: var(--bd-paper);
+    box-shadow:
+      0 0 0 1.5px var(--bd-line),
+      0 2px 0 var(--bd-line);
+    font: 800 13px var(--bd-font);
+    color: var(--bd-ink-soft);
+  }
+  .hint.holding kbd {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 1.5px var(--bd-accent);
+    color: var(--bd-accent-deep);
+  }
+
+  /* ── the scenes' moving bits ──────────────────────────────────── */
+  .flow {
+    stroke-dasharray: 3 9;
+    animation: flow 0.35s linear infinite;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .flow.thin {
+    stroke-dasharray: 14 6;
+    animation-duration: 0.5s;
+  }
+  .scene.holding .flow {
+    opacity: 1;
+  }
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -12;
+    }
+  }
+  .scene.holding .grind-rumble {
+    animation: rumble 0.08s linear infinite;
+  }
+  @keyframes rumble {
+    50% {
+      transform: translate(0.6px, -0.4px);
+    }
+  }
+  .drip {
+    opacity: 0;
+  }
+  .scene.holding .drip {
+    animation: drip 0.6s ease-in infinite;
+    opacity: 1;
+  }
+  @keyframes drip {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(60px);
+      opacity: 0;
+    }
+  }
+
+  /* ── the result card's 3 × 3 ──────────────────────────────────── */
+  .grid9 {
+    display: grid;
+    grid-template-columns: auto repeat(3, 1fr);
+    gap: 4px 6px;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    font-size: 13px;
+    color: var(--bd-muted);
+  }
+  .grid9 .h {
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bd-muted-2);
+  }
+  .grid9 .c {
+    border-radius: 8px;
+    padding: 4px 0;
+    font: 800 16px/1.2 var(--bd-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .grid9 .r {
+    text-align: left;
+    font-weight: 700;
+    padding-right: 6px;
+    align-self: center;
+  }
+</style>

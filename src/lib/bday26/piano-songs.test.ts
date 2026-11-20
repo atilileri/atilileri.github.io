@@ -6,7 +6,7 @@
  *
  * The expected values are the spec's and the verdict's, not the data's:
  * Kolay İyi ki doğdun capped at 0.70, Orta Hadi Bakalım at 0.85, Zor Türk
- * Marşı at 1.00; 60% tempo; fall speeds 190 / 240 / 300 px/s; each song
+ * Marşı at 1.00; 60 / 60 / 65% tempo; fall speeds 190 / 240 / 380 px/s; each song
  * repeated to about 90 s (read as 80–100 s, since a song repeats whole);
  * six lanes, so every song reaches both outer keys. Whether a melody sounds
  * like its song is Atıl's ear, not a test.
@@ -34,14 +34,21 @@ test("the caps are 0.70, 0.85 and 1.00, so only Zor can reach 95%", () => {
   );
 });
 
-test("every song plays at 60% tempo and falls at 190, 240 and 300 px/s", () => {
+test("Kolay and Orta play at 60% tempo, Zor at 65%; they fall at 190, 240 and 380 px/s", () => {
   assert.deepEqual(
     PIANO_SONGS.map((s) => s.tempoPct),
-    [60, 60, 60],
+    [60, 60, 65],
   );
   assert.deepEqual(
     PIANO_SONGS.map((s) => s.speed),
-    [190, 240, 300],
+    [190, 240, 380],
+  );
+});
+
+test("Zor alone has the narrow window: ±170, ±170, ±90 ms", () => {
+  assert.deepEqual(
+    PIANO_SONGS.map((s) => s.windowMs),
+    [170, 170, 90],
   );
 });
 

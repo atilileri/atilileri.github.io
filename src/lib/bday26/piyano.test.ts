@@ -154,6 +154,23 @@ test("'Tam!' reaches 85 ms either side; 86 ms is 'Geç' or 'Erken'", () => {
   assert.equal(verdict(1944), "Erken"); // −86
 });
 
+test("a song's own ±120 ms window: 120 late hits, 121 is stray, a miss comes after 120; 'Tam!' is ±60", () => {
+  const verdict = (ms: number) => {
+    const j = createRound(CHART, LATENCY, 120).press(4, ms);
+    return j.kind === "hit" ? j.verdict : j.kind;
+  };
+  assert.equal(verdict(2150), "Geç"); // +120
+  assert.equal(verdict(2151), "stray"); // +121
+  assert.equal(verdict(1910), "Erken"); // −120
+  assert.equal(verdict(1909), "stray"); // −121
+  assert.equal(verdict(2090), "Tam!"); // +60
+  assert.equal(verdict(2091), "Geç"); // +61
+
+  const round = createRound(CHART, LATENCY, 120);
+  assert.equal(round.advance(1150).length, 0); // first note 120 ms behind: still open
+  assert.equal(round.advance(1151).length, 1); // 121 ms: missed
+});
+
 test("a press on the wrong lane is a stray press: counted, no penalty, the note still waits", () => {
   const round = createRound(CHART, LATENCY);
   assert.equal(round.press(0, 1030).kind, "stray");

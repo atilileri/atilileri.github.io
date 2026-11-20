@@ -12,8 +12,8 @@
  * caps S D F J K L under it, falling notes, a countdown before the first
  * one, a thin progress bar, and "Tam!" / "Erken" / "Geç" / "Kaçtı" over the
  * line. The HUD says the song and Vuruş / Kaçan / Boş basış. After about
- * 90 s the shell's result card: `pianoScore` (hit accuracy × the song's
- * cap), the formula as the detail line, and the song picker again so "Yeni
+ * 90 s the shell's result card: `pianoScore` (hits minus stray presses, as
+ * accuracy, × the song's cap), the formula as the detail line, and the song picker again so "Yeni
  * tur" can be another song. The Best score is the highest over all songs:
  * one Game id, and the ledger keeps the maximum.
  *
@@ -48,7 +48,7 @@ import { PIANO_SONGS } from "../../../lib/bday26/piano-songs";
 const game = gameById("piyano");
 
 const KEYS = [
-  { key: "S D F J K L", does: "Nota çizgiye değince bas" },
+  { key: "S D F J K L", does: "Nota çizgiye değince bas; boş basış bir vuruşu siler" },
   { key: "1 2 3", does: "Şarkıyı seç" },
   { key: "Esc", does: "Turdan çık" },
 ];
@@ -124,7 +124,6 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
   import {
     chartSong,
     createRound,
-    HIT_WINDOW_MS,
     LANE_LABELS,
     laneOfKey,
     type Chart,
@@ -205,7 +204,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     const p: Play = {
       song,
       chart,
-      round: createRound(chart, piano.latencyMs),
+      round: createRound(chart, piano.latencyMs, song.windowMs),
       leadMs,
       msPerBeat,
       hit: new Set(),
@@ -271,10 +270,12 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     const notes = p.chart.notes.length;
     const { hits, strays } = p.round;
     const cap = Math.round(p.song.cap * 100);
-    const accuracy = notes ? (hits / notes) * 100 : 0;
+    // Each stray press cancels one hit (`pianoScore`).
+    const net = Math.max(0, hits - strays);
+    const accuracy = notes ? (net / notes) * 100 : 0;
     const accText = accuracy.toLocaleString("tr-TR", { maximumFractionDigits: 1 });
-    shell.finish(pianoScore(hits, notes, p.song.cap), {
-      detail: `${p.song.name} · ${hits}/${notes} vuruş · %${accText} isabet × %${cap} şarkı tavanı · ${strays} boş basış`,
+    shell.finish(pianoScore(hits, notes, p.song.cap, strays), {
+      detail: `${p.song.name} · ${hits}/${notes} vuruş − ${strays} boş basış · %${accText} isabet × %${cap} şarkı tavanı`,
     });
   }
 
@@ -380,7 +381,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
     }
 
     // The hit window as a soft band, the hit line on it.
-    const band = HIT_WINDOW_MS * speed;
+    const band = (p?.song ?? song).windowMs * speed;
     ctx.fillStyle = "rgb(224 68 106 / 0.08)";
     ctx.fillRect(x0, hitY - band, laneW * lanes, band * 2);
     ctx.fillStyle = colors.accent;
@@ -402,7 +403,7 @@ const CHOICES = PIANO_SONGS.map((s, i) => ({
       // A ring where a note was hit, for a quarter second.
       for (const n of p.hit) {
         const age = t - n.at;
-        if (age < -HIT_WINDOW_MS || age > 250) continue;
+        if (age < -p.song.windowMs || age > 250) continue;
         const a = Math.max(0, Math.min(1, 1 - Math.abs(age) / 250));
         ctx.strokeStyle = `rgb(47 182 124 / ${a})`;
         ctx.lineWidth = 3;

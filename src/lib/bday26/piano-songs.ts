@@ -9,9 +9,16 @@
  *     0.85, Zor 1.00), so the 95% Small prize needs Türk Marşı. The score is
  *     `pianoScore(hits, notes, cap)` in `./scores.ts`.
  *   - `bpm`: the melody's own tempo as typed; she plays at `tempoPct` of it
- *     (60% for all three, #180).
- *   - `speed`: how fast the notes fall, px/s (190 / 240 / 300, #180). Speed
+ *     (60 / 60 / 65%).
+ *   - `speed`: how fast the notes fall, px/s (190 / 240 / 380). Speed
  *     changes only how far apart the notes look, not when they must be hit.
+ *   - `windowMs`: ± how far from a note a press still hits it (170 / 170 /
+ *     90); "Tam!" is half of it.
+ *   Zor was 60% tempo, 300 px/s and ±170 ms after #180. Atıl made it harder
+ *   on 2026-11-19, when Piyano's Small prize became the kanun song: a faster
+ *   tempo, a narrower window so timing counts, and a faster fall so each
+ *   note shows for less. Stray presses cost a hit from then on too
+ *   (`pianoScore` in `./scores.ts`).
  *   - `src`: the melody in the song format of `./song.ts` (`NOTE[:beats]`,
  *     `R` a rest, one bar per line). `./piyano.ts` repeats it to about 90 s
  *     and spreads its pitch range over the six lanes, so each melody here is
@@ -50,6 +57,8 @@ export type PianoSong = {
   readonly tempoPct: number;
   /** Fall speed, px/s. */
   readonly speed: number;
+  /** ± hit window, ms; "Tam!" is half of it. */
+  readonly windowMs: number;
   /** The melody in the song format. */
   readonly src: string;
   /** Set when the notes need Atıl's ear before the night, and why. */
@@ -65,6 +74,7 @@ export const PIANO_SONGS: readonly PianoSong[] = [
     bpm: 120,
     tempoPct: 60,
     speed: 190,
+    windowMs: 170,
     src: `G4:.75 G4:.25
           A4 G4 C5   B4:2 G4:.75 G4:.25
           A4 G4 D5   C5:2 G4:.75 G4:.25
@@ -80,6 +90,7 @@ export const PIANO_SONGS: readonly PianoSong[] = [
     bpm: 110,
     tempoPct: 60,
     speed: 240,
+    windowMs: 170,
     src: `E5:.5 E5:.5 D5:.5 C5:.5 D5:1 R:1
           C5:.5 C5:.5 B4:.5 A4:.5 B4:1 R:1
           E5:.5 E5:.5 D5:.5 C5:.5 D5:.5 E5:.5 F5:1
@@ -97,8 +108,9 @@ export const PIANO_SONGS: readonly PianoSong[] = [
     by: "Mozart",
     cap: 1.0,
     bpm: 96,
-    tempoPct: 60,
-    speed: 300,
+    tempoPct: 65,
+    speed: 380,
+    windowMs: 90,
     src: `B4:.25 A4:.25 G#4:.25 A4:.25 C5:.5 R:.5 D5:.25 C5:.25 B4:.25 C5:.25 E5:.5 R:.5
           F5:.25 E5:.25 D#5:.25 E5:.25 B5:.25 A5:.25 G#5:.25 A5:.25 B5:.25 A5:.25 G#5:.25 A5:.25 C6:1
           A5:.5 C6:.5 B5:.5 A5:.5 G5:.5 A5:.5 B5:.5 A5:.5 G5:.5 A5:.5 B5:.5 A5:.5 G5:.5 F#5:.5 E5:1 R:1
