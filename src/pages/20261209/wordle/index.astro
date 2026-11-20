@@ -7,8 +7,9 @@
  *
  * ONE ROUND, ALL TEN WORDS (Atıl's play test). A Round plays every one of
  * our ten words and phrases, one after another, in a fresh random order
- * each Round (`shuffleAnswers`). Each word is scored on its own with the
- * table below; after a word is solved or its six guesses run out, the
+ * each Round (`shuffleAnswers`), never opening on the word she saw last
+ * (kept in `sessionStorage`, `bday26:wordle:last`). Each word is scored on
+ * its own with the table below; after a word is solved or its six guesses run out, the
  * keyboard gives way to the answer in tiles, that word's score and
  * "Sonraki kelime" (Enter or the button; "Sonuç" after the tenth). The
  * Round is the mean of the ten word scores, rounded down
@@ -298,8 +299,27 @@ const TURKISH = "ÇĞIİÖŞÜ";
 
   // ---------------------------------------------------------------- Round
 
+  /** The word she saw last, kept for the tab so the next Round, after
+   *  "Yeni tur", a trip to the hub or a reload, never opens on it (#201).
+   *  Not progress: a browser that refuses storage only forgets it. */
+  const LAST_KEY = "bday26:wordle:last";
+  function lastWord(): string | undefined {
+    try {
+      return sessionStorage.getItem(LAST_KEY) ?? undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  function rememberWord(answer: string) {
+    try {
+      sessionStorage.setItem(LAST_KEY, answer);
+    } catch {
+      // Storage refused: the next Round may open on it, nothing worse.
+    }
+  }
+
   function startRound() {
-    round = createWordleRound(shuffleAnswers(Math.random));
+    round = createWordleRound(shuffleAnswers(Math.random, lastWord()));
     startWord();
   }
 
@@ -309,6 +329,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
     busy = false;
     showBetween(false);
     word = round.word;
+    rememberWord(word.answer);
     hintEl.textContent = round.hint;
     shapeEl.textContent =
       word.words.length > 1

@@ -257,6 +257,29 @@ test("order: the order follows the random source, so Rounds differ", () => {
   assert.deepEqual(shuffleAnswers(seeded(7)), shuffleAnswers(seeded(7)));
 });
 
+test("order: the word that ended the last Round never opens the next (#201)", () => {
+  // A source of 0 opens on ATIL (the shuffle rotates the list one place).
+  assert.equal(ANSWERS[shuffleAnswers(() => 0)[0]!]!.answer, "ATIL");
+  const order = shuffleAnswers(() => 0, "ATIL");
+  assert.notEqual(ANSWERS[order[0]!]!.answer, "ATIL");
+  assert.deepEqual([...order].sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  for (let seed = 1; seed <= 200; seed++) {
+    for (const last of ANSWERS) {
+      const o = shuffleAnswers(seeded(seed), last.answer);
+      assert.notEqual(ANSWERS[o[0]!]!.answer, last.answer, `seed ${seed}, last ${last.answer}`);
+      assert.equal(new Set(o).size, 10);
+    }
+  }
+});
+
+test("order: with no last word, or one that is not an answer, any word may open", () => {
+  assert.deepEqual(shuffleAnswers(seeded(3), undefined), shuffleAnswers(seeded(3)));
+  assert.deepEqual(shuffleAnswers(seeded(3), "KUZEY"), shuffleAnswers(seeded(3)));
+  const openers = new Set([...Array(60).keys()].map((s) => shuffleAnswers(seeded(s + 1), "SPA")[0]));
+  // Every other word still gets to open.
+  assert.equal(openers.size, 9);
+});
+
 // ------------------------------------------------------- the ten-word Round
 
 /** Three words, in this order: SPA, ATIL, ŞARAP (indexes into ANSWERS). */

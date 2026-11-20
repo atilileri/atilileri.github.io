@@ -11,8 +11,9 @@
  *   - `ANSWERS`: the ten words and phrases with their one İpucu each, word
  *     for word the #188 table. She turns 34, so OTUZ DÖRT, not OTUZ BEŞ.
  *   - `shuffleAnswers`: one Round's order. A Round plays all ten answers,
- *     one after another, in a fresh order each Round. The random number is
- *     an argument, so the tests can pin every outcome.
+ *     one after another, in a fresh order each Round, and never opens on
+ *     the word the last Round ended on. The random number is an argument,
+ *     so the tests can pin every outcome.
  *   - `typedLetter`: a key as she pressed it → a Turkish capital, through
  *     `toLocaleUpperCase("tr")`, so i → İ and ı → I (plain `toUpperCase`
  *     would make both I, and İYİ Kİ DOĞDUN could never be typed). Q, W and
@@ -73,12 +74,23 @@ export const ANSWERS: readonly Answer[] = [
  * One Round's order: the indexes of all ten `ANSWERS`, each exactly once,
  * shuffled (`./shuffle.ts`). `random` is `Math.random` in the page and a
  * fixed or seeded source in the tests, so every Round's order is new.
+ *
+ * `last` is the word she saw last, at the end of the Round before (#201:
+ * "never the same answer twice in a row"). It never opens this one: when
+ * the shuffle puts it first, it trades places with a word drawn from the
+ * other nine. A `last` that is no answer (none yet, or a stale one) changes
+ * nothing.
  */
-export function shuffleAnswers(random: () => number): number[] {
-  return shuffle(
+export function shuffleAnswers(random: () => number, last?: string): number[] {
+  const order = shuffle(
     ANSWERS.map((_, i) => i),
     random,
   );
+  if (ANSWERS[order[0]!]!.answer === last && order.length > 1) {
+    const k = 1 + Math.min(order.length - 2, Math.floor(random() * (order.length - 1)));
+    [order[0], order[k]] = [order[k]!, order[0]!];
+  }
+  return order;
 }
 
 /** The 29 letters of the Turkish alphabet, as capitals. */

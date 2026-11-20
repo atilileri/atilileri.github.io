@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { ANSWERS } from "../../src/lib/bday26/wordle.ts";
 
 /**
  * The choice, puzzle and luck Games after review wave 2 (hafiza, nerede,
@@ -79,4 +80,20 @@ test("\"Şarkıyı bil\": a wrong pick reads in full under its song in the resul
   expect(overflow).toBe(0);
   await page.waitForTimeout(600);
   await page.screenshot({ path: "test-results/quiz-sarki-recap.png" });
+});
+
+test("Kelime avı: the word she saw last never opens the next Round, and the page keeps the word on screen for the tab (review I2)", async ({ page }) => {
+  // A random source of 0 would open on ATIL; ATIL was the last word she saw.
+  await page.addInitScript(() => {
+    Math.random = () => 0;
+    sessionStorage.setItem("bday26:wordle:last", "ATIL");
+  });
+  await fresh(page);
+  await page.goto("/20261209/wordle/");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("[data-hint]")).not.toHaveText("");
+  await expect(page.locator("[data-hint]")).not.toHaveText(ANSWERS.find((a) => a.answer === "ATIL")!.hint);
+  const hint = (await page.locator("[data-hint]").innerText()).trim();
+  const shown = ANSWERS.find((a) => a.hint === hint)!.answer;
+  expect(await page.evaluate(() => sessionStorage.getItem("bday26:wordle:last"))).toBe(shown);
 });
