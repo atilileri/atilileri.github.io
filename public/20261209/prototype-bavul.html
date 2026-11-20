@@ -1,44 +1,40 @@
 <!doctype html>
 <!--
-  PROTOTYPE (#214) — throwaway. "How does Bavul hazırla feel, and which of 5
-  variants is hard enough?" Not the real site; decisions are in #213.
+  PROTOTYPE (#214) — throwaway, FINAL version after Atıl's verdict on the five
+  variants (A–E, previous commit on this branch). Not the real site; decisions
+  are in #213. "Bavul hazırla": pack the 8×6 suitcase for a trip.
 
-  One page, five variants on the same 8×6 suitcase, switched with ?v=A…E or
-  the floating bar at the bottom (← → switch it while no Round is running):
-    A  Tam sığdır       exact set of 10 items, 48 cells, one perfect pack
-    B  Gezi kartı       16 items (70 cells) for 48; a card names 4 must-haves
-    C  Ağırlık sınırı   B's 16 items with weights; the bag takes 23 kg
-    D  İki kat          17 items, flat (1 kat) or tall (2 kat); 96 units; lid
-    E  Hepsi bir arada  21 items, 2 layers, weights, a card; kg and lid are
-                        GATES (Enter refused), must-haves −10, fill scores
+  Rules (Atıl, 2026-11-20):
+    - One layer, 8×6 = 48 cells. More items than room (spares).
+    - Each Round draws one trip card naming 4 must-haves.
+    - Score = 100 − 5 × empty cells − 10 × missing must-haves, floor 0.
+      One empty cell = 95% still wins the Small prize (Hafta sonu gezisi).
+    - 23 kg is a GATE: closing the bag over 23 kg is refused ("23 kg'ı aştın").
+      Items may go in over the limit; the bag just will not close.
+    - No time limit; the clock only shows the time played.
 
-  Keys: arrows move the held item, R rotates, Enter puts it down, Tab /
-  Shift+Tab pick the next / previous item beside the bag, Backspace lifts a
-  placed item back out (the one under the held item, else the last one
-  placed), K closes the bag (asks first), V shows the lower layer (D, E),
-  Esc leaves the Round. F2 opens the tweak panel (Atıl only).
+  Keys: arrows move the held item, R rotates, Enter puts it in, Tab / Shift+Tab
+  next / previous item, Backspace takes an item out (the one under the held
+  item, else the last one placed), K closes the bag (asks first), Esc leaves.
+  Mouse: drag an item from the list onto the bag, or pick it and click; right
+  click rotates; click a packed item (empty hand) to take it out and drag it.
+  The buttons under the bag do the same and show their keys. F2: tweak panel.
 
-  Score: fill % = floor(100 × filled ÷ all), 1 layer: 48 cells, 2 layers: 96
-  units; − mustPen per missing must-have (B, E); − kgPen per started kg over
-  23 (C); − lidPen per cell that sticks out over the lid (D; units above the
-  lid also do not count as filled); − timeStep every timeEvery s after
-  softMin minutes. Floor 0. Knobs in the F2 panel.
+  Sound: the live Games' approach (src/lib/bday26/{audio,music,effects}-dom.ts)
+  reproduced inline: Web Audio synthesis, no files, two buses (effects 1,
+  music 0.5), nothing before her first gesture, "Müzik" and "Efektler"
+  switches that never take focus (in memory here, on by default), music held
+  while the leave confirm is open or the tab is hidden.
 
-  Solvability: every item set was checked with an exact-cover search
-  (rotations only, no mirroring, first-empty-cell backtracking). The perfect
-  packs are the SOL grids below (one letter per item, in the variant's item
-  order); F2 → "Çözümü yerleştir" lays one out in the real engine and must
-  show 100%.
-    A: exactly 2 perfect packs = one pack and the same pack turned 180°.
-    B: a perfect pack that holds the card's 4 must-haves exists for each card.
-    C: sampled ~180k perfect packs: 7% weigh ≤ 23 kg, the lightest 19.5 kg.
-    D: a perfect two-layer pack exists (tall items right, flats twice left).
-    E: per card, a perfect two-layer pack ≤ 23 kg holding the must-haves
-       exists (22–23 kg); a full pack with no kg limit weighs ~25 kg.
+  SOLVABILITY: checked with an exact-cover search over all perfect packs
+  (every cell filled, all 4 must-haves in, rotations only, no mirroring).
+  SOL below holds, per card, one perfect pack ≤ 23 kg ("ok", the lightest
+  found) and one perfect pack that is too heavy ("heavy", a trap), one
+  letter per item in ITEMS order. F2 → "Çözümü yerleştir" / "Ağır tuzak"
+  lays them out in the real engine. Counts per card are in COUNTS.
 
   The playable mechanic is plain canvas JS; the screens around it (start,
-  HUD, score screen) follow stageshow's craft rules in plain CSS, because the
-  kit is React/TS and this must be one self-contained file.
+  HUD, score screen) follow stageshow's craft rules in plain CSS.
 -->
 <html lang="tr">
 <head>
@@ -54,7 +50,7 @@
 :root{
   --bd-font:"Nunito",system-ui,sans-serif; --bd-display:"Baloo 2","Nunito",system-ui,sans-serif;
   --bd-bg:#fffaf5; --bd-paper:#ffffff; --bd-accent:#e0446a; --bd-accent-deep:#c2264f; --bd-accent-soft:#ffe6ec;
-  --bd-gold:#ffb703; --bd-ink:#3a2d2a; --bd-ink-soft:#5d4f4b; --bd-muted:#8d7d78; --bd-muted-3:#b9a8a3;
+  --bd-gold:#ffb703; --bd-ink:#3a2d2a; --bd-ink-soft:#5d4f4b; --bd-muted:#8d7d78;
   --bd-line:#f2e4df; --bd-line-soft:#f6ece8; --bd-track:#f6ebe7;
   --bd-won:#2fb67c; --bd-won-bg:#effaf4; --bd-won-ink:#1f8a5b;
   --bd-wrong:#d9453d; --bd-wrong-bg:#fdeae8; --bd-wrong-ink:#8e2420;
@@ -65,32 +61,32 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);display:flex;overflow:hidden;-webkit-font-smoothing:antialiased}
-#game{position:relative;flex:1;min-width:0;display:grid;grid-template-columns:340px 1fr 300px;grid-template-rows:auto 1fr;gap:16px;padding:16px 20px 76px}
+#game{position:relative;flex:1;min-width:0;display:grid;grid-template-columns:340px 1fr 300px;grid-template-rows:auto 1fr;gap:16px;padding:16px 20px 20px}
 
 /* HUD row */
 .hud{grid-column:1/-1;display:flex;align-items:center;gap:12px}
 .pill{background:var(--bd-paper);border-radius:14px;box-shadow:var(--shadow);padding:10px 16px}
 .lbl{font-size:12px;font-weight:700;color:var(--bd-muted);line-height:1.3}
 .val{font-family:var(--bd-display);font-weight:700;color:var(--bd-ink);font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums}
-#hTitle .val{font-size:20px}
 #hTitle .val small{font-family:var(--bd-font);font-size:13px;font-weight:700;color:var(--bd-muted);margin-left:8px}
-#hTime{margin-left:auto;min-width:180px;text-align:center}
-#hTime .bar{height:5px;border-radius:3px;background:var(--bd-track);margin-top:6px;overflow:hidden}
-#hTime .bar i{display:block;height:100%;background:var(--bd-won);width:0}
-#hTime.late .val{color:var(--bd-wrong)} #hTime.late .bar i{background:var(--bd-wrong)}
-#hBest{margin-left:auto;display:flex;gap:20px}
+#hTime{margin-left:auto;min-width:120px;text-align:center}
+#hBest{display:flex;gap:20px}
+.toggles{margin-left:auto;display:flex;gap:8px}
+.tgl{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border:0;border-radius:999px;background:var(--bd-paper);box-shadow:0 0 0 1.5px var(--bd-line);font:800 13px var(--bd-font);color:var(--bd-ink-soft);white-space:nowrap;cursor:pointer;outline:none;position:relative;z-index:11}
+.tgl:hover{box-shadow:0 0 0 2px var(--bd-accent)}
+.tgl[aria-pressed="false"]{color:var(--bd-muted)}
+.tgl .ic{font-size:18px;line-height:1}
 
 /* left column: card + items */
 .side{display:flex;flex-direction:column;gap:12px;min-height:0}
-.panel{background:var(--bd-paper);border-radius:var(--r,16px);box-shadow:var(--shadow);padding:14px 16px}
-#trip[hidden]{display:none}
+.panel{background:var(--bd-paper);border-radius:16px;box-shadow:var(--shadow);padding:14px 16px}
 #trip .t{font-family:var(--bd-display);font-weight:700;font-size:21px;line-height:1.2;margin-top:2px}
 #trip .musts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px 4px 8px;font-size:13px;font-weight:700;background:var(--bd-track);color:var(--bd-ink-soft)}
 .chip.ok{background:var(--bd-won-bg);color:var(--bd-won-ink)}
 #items{flex:1;min-height:0;overflow:auto;padding:8px}
 #items .head{display:flex;justify-content:space-between;padding:4px 8px 8px;font-size:12px;font-weight:700;color:var(--bd-muted)}
-.it{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:10px;cursor:pointer}
+.it{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:10px;cursor:grab;user-select:none;touch-action:none}
 .it:hover{background:var(--bd-line-soft)}
 .it.sel{background:var(--bd-accent-soft);box-shadow:inset 0 0 0 2px var(--bd-accent)}
 .it.in{opacity:.45}
@@ -98,24 +94,27 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 .it .nm span.e{font-size:16px}
 .it .nm .star{color:var(--bd-gold);font-size:13px}
 .it .meta{font-size:12px;color:var(--bd-muted);line-height:1.3}
-.it .tag{font-size:12px;font-weight:700;color:var(--bd-muted);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.it .tag{font-size:13px;font-weight:800;color:var(--bd-ink-soft);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .mini{display:grid;gap:1px;justify-content:center}
 .mini i{width:8px;height:8px;border-radius:2px}
 
 /* board */
 #boardWrap{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#cv{display:block;outline:none}
-#hold{display:flex;align-items:center;gap:12px;background:var(--bd-paper);border-radius:999px;box-shadow:var(--shadow);padding:8px 18px;font-weight:700;white-space:nowrap}
+#cv{display:block;outline:none;touch-action:none}
+#hold{display:flex;align-items:center;gap:12px;background:var(--bd-paper);border-radius:999px;box-shadow:var(--shadow);padding:8px 18px;font-weight:700;white-space:nowrap;min-height:44px}
 #hold .e{font-size:20px}
 #hold .st{font-weight:700;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--bd-won-bg);color:var(--bd-won-ink)}
 #hold .st.bad{background:var(--bd-wrong-bg);color:var(--bd-wrong-ink)}
 #hold .st.warn{background:var(--bd-warn-bg);color:var(--bd-warn)}
-.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;font-size:13px;color:var(--bd-ink-soft)}
-.kbd{display:inline-flex;gap:4px;align-items:center}
-.kbd span{min-width:26px;height:26px;padding:0 7px;border-radius:6px;background:var(--bd-paper);border:1px solid var(--bd-line);box-shadow:0 1px 0 var(--bd-line);display:inline-grid;place-items:center;font-size:12px;font-weight:800;color:var(--bd-ink)}
-.kbd i{font-style:normal;color:var(--bd-muted);font-size:12px}
-.legend .k{display:inline-flex;gap:7px;align-items:center}
-#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--bd-wrong);color:#fff;font-weight:800;padding:10px 18px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.act{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;background:var(--bd-paper);box-shadow:0 0 0 1.5px var(--bd-line),0 1px 0 var(--bd-line);font:800 14px var(--bd-font);color:var(--bd-ink);padding:8px 10px 8px 14px;cursor:pointer;outline:none;white-space:nowrap}
+.act:hover{box-shadow:0 0 0 2px var(--bd-accent)}
+.act:disabled{opacity:.45;cursor:default;box-shadow:0 0 0 1.5px var(--bd-line)}
+.act.main{background:var(--bd-accent);color:#fff;box-shadow:none}
+.act.main .k{background:rgba(255,255,255,.2);border-color:transparent;color:#fff}
+.act .k{min-width:26px;height:24px;padding:0 7px;border-radius:6px;background:var(--bd-bg);border:1px solid var(--bd-line);display:inline-grid;place-items:center;font-size:12px;font-weight:800;color:var(--bd-ink-soft)}
+.mhint{font-size:12.5px;color:var(--bd-muted)}
+#toast{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--bd-wrong);color:#fff;font-weight:800;padding:10px 18px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:4}
 #toast.on{opacity:1}
 
 /* right column: live score */
@@ -123,44 +122,39 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 #score .big.win{color:var(--bd-won)}
 .rows{margin-top:14px;display:grid;gap:2px}
 .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--bd-line-soft);font-size:14px}
-.row b{font-variant-numeric:tabular-nums;color:var(--bd-ink)}
+.row b{font-variant-numeric:tabular-nums;color:var(--bd-ink);text-align:right}
 .row.neg b{color:var(--bd-wrong)}
 .row.dim{color:var(--bd-muted)} .row.dim b{color:var(--bd-muted)}
 .row.ok b{color:var(--bd-won-ink)}
 .note{font-size:12.5px;color:var(--bd-muted);margin-top:10px;line-height:1.4}
 
-/* buttons */
+/* buttons on screens */
 .btn{border:0;border-radius:12px;background:var(--bd-accent);color:#fff;font:800 15px var(--bd-font);padding:11px 18px;cursor:pointer;display:inline-flex;gap:10px;align-items:center;white-space:nowrap}
 .btn small{opacity:.8;font-weight:600;font-size:12px}
 .btn.sec{background:var(--bd-track);color:var(--bd-ink)}
-.btn.sm{font-size:13px;padding:7px 12px;border-radius:9px}
 
 /* screens */
 .screen{position:absolute;inset:0;display:grid;place-items:center;background:rgba(58,45,42,.28);backdrop-filter:blur(3px);padding:16px;z-index:5}
 .screen[hidden]{display:none}
 .card{background:var(--bd-paper);border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.08),0 24px 60px rgba(0,0,0,.22);width:min(580px,100%);padding:28px}
 .card .title{font-family:var(--bd-display);font-size:34px;font-weight:800;line-height:1.1;color:var(--bd-ink)}
-.card .vname{display:inline-block;margin-top:8px;font-size:13px;font-weight:800;color:var(--bd-accent-deep);background:var(--bd-accent-soft);border-radius:999px;padding:3px 10px}
 .card p{margin:10px 0 0;color:var(--bd-ink-soft)}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:9px 14px;align-items:center;margin:18px 0 0;padding:16px;background:var(--bd-bg);border-radius:14px;font-size:14px}
+.kbd{display:inline-flex;gap:4px;align-items:center}
+.kbd span{min-width:26px;height:26px;padding:0 7px;border-radius:6px;background:var(--bd-paper);border:1px solid var(--bd-line);box-shadow:0 1px 0 var(--bd-line);display:inline-grid;place-items:center;font-size:12px;font-weight:800;color:var(--bd-ink)}
+.kbd i{font-style:normal;color:var(--bd-muted);font-size:12px}
 .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px}
 .foot .grp{display:flex;gap:8px}
 .goal{font-size:13px;color:var(--bd-muted)} .goal b{color:var(--bd-ink)}
 /* score screen: a card over the right column, so the packed bag stays visible */
-#sEnd{background:transparent;backdrop-filter:none;place-items:start end;padding:104px 20px 76px;pointer-events:none}
+#sEnd{background:transparent;backdrop-filter:none;place-items:start end;padding:104px 20px 20px;pointer-events:none}
 #sEnd .card{pointer-events:auto;width:300px;padding:22px;animation:cin .35s ease-out}
 #sEnd .foot{flex-direction:column;align-items:stretch} #sEnd .foot .grp{justify-content:flex-end}
 @keyframes cin{from{opacity:0;transform:translateX(16px)}}
 .meta2{display:flex;gap:16px;margin-top:14px;font-size:13px;color:var(--bd-muted)} .meta2 b{color:var(--bd-ink)}
 .verdict{margin-top:14px;padding:10px 14px;border-radius:12px;background:var(--bd-bg);font-weight:700;color:var(--bd-ink-soft)}
 .verdict.win{background:var(--bd-won-bg);color:var(--bd-won-ink)}
-
-/* prototype switcher (not part of the design) */
-#sw{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:4px;background:#1d1d1f;color:#fff;border-radius:999px;padding:5px;box-shadow:0 6px 20px rgba(0,0,0,.3);font:600 13px system-ui,sans-serif}
-#sw button{border:0;background:transparent;color:#fff;width:32px;height:32px;border-radius:999px;cursor:pointer;font-size:16px}
-#sw button:hover{background:#3a3a3d}
-#sw .lab{padding:0 10px;min-width:210px;text-align:center}
-#sw .lab small{opacity:.6;margin-left:6px}
+.bd-confetti{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:30}
 
 /* tweak panel (for Atıl, not Çağla) */
 #dbg{width:330px;flex-shrink:0;height:100%;overflow:auto;background:#fff;border-left:1px solid var(--bd-line);font:12.5px/1.4 system-ui,sans-serif;color:#333}
@@ -179,27 +173,40 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 #log{font-family:var(--mono);font-size:11.5px;margin:0;padding:0;list-style:none}
 #log li{padding:3px 0;border-top:1px solid var(--bd-line-soft)} #log .win{color:var(--bd-won-ink)}
 #dbg select{font:12px system-ui;padding:3px;border-radius:6px;border:1px solid var(--bd-line);width:100%}
-#toggleDbg{position:fixed;right:16px;bottom:18px;z-index:21;border:1px solid var(--bd-line);background:#fff;color:#555;border-radius:8px;font:600 11px system-ui;padding:5px 8px;cursor:pointer}
+#dbg table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+#dbg td,#dbg th{padding:3px;border-top:1px solid var(--bd-line-soft);text-align:right} #dbg td:first-child,#dbg th:first-child{text-align:left}
+#toggleDbg{position:fixed;right:16px;bottom:14px;z-index:21;border:1px solid var(--bd-line);background:#fff;color:#555;border-radius:8px;font:600 11px system-ui;padding:5px 8px;cursor:pointer}
 </style>
 </head>
 <body>
 <div id="game">
   <div class="hud">
-    <div class="pill" id="hTitle"><div class="lbl">Bavul hazırla</div><div class="val"><span id="vVar">—</span><small id="vRound"></small></div></div>
-    <div class="pill" id="hTime"><div class="lbl" id="vTimeL">Süre</div><div class="val" id="vTime">0:00</div><div class="bar"><i id="vTimeBar"></i></div></div>
+    <div class="pill" id="hTitle"><div class="lbl">Ödül oyunu · Puan vermez</div><div class="val">Bavul hazırla<small id="vRound"></small></div></div>
+    <div class="pill" id="hTime"><div class="lbl">Süre</div><div class="val" id="vTime">0:00</div></div>
     <div class="pill" id="hBest"><div><div class="lbl">Rekor</div><div class="val" id="vBest">—</div></div><div><div class="lbl">Hedef</div><div class="val">%95</div></div></div>
+    <div class="toggles">
+      <button class="tgl" type="button" tabindex="-1" id="tMusic" aria-pressed="true"><span class="ic">🎵</span><span class="tx">Müzik: Açık</span></button>
+      <button class="tgl" type="button" tabindex="-1" id="tFx" aria-pressed="true"><span class="ic">✨</span><span class="tx">Efektler: Açık</span></button>
+    </div>
   </div>
 
   <div class="side">
-    <div class="panel" id="trip" hidden><div class="lbl">Gezi kartı</div><div class="t" id="tripName"></div><div class="musts" id="tripMusts"></div></div>
+    <div class="panel" id="trip"><div class="lbl">Gezi kartı</div><div class="t" id="tripName"></div><div class="musts" id="tripMusts"></div></div>
     <div class="panel" id="items"></div>
   </div>
 
   <div id="boardWrap">
     <div id="toast"></div>
-    <canvas id="cv" tabindex="0"></canvas>
+    <canvas id="cv"></canvas>
     <div id="hold"></div>
-    <div class="legend" id="legend"></div>
+    <div class="actions" id="actions">
+      <button class="act" type="button" tabindex="-1" data-act="rotate">Döndür <span class="k">R</span></button>
+      <button class="act main" type="button" tabindex="-1" data-act="place">Bavula koy <span class="k">Enter</span></button>
+      <button class="act" type="button" tabindex="-1" data-act="out">Çıkar <span class="k">⌫</span></button>
+      <button class="act" type="button" tabindex="-1" data-act="next">Sonraki eşya <span class="k">Tab</span></button>
+      <button class="act" type="button" tabindex="-1" data-act="close">Bavulu kapat <span class="k">K</span></button>
+    </div>
+    <div class="mhint">Fare: eşyayı listeden bavula sürükle ya da tıkla, sonra yerine tıkla · sağ tık döndürür · oklar taşır</div>
   </div>
 
   <div class="side">
@@ -214,10 +221,9 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
   <div class="screen" id="sStart">
     <div class="card">
       <div class="title">Bavul hazırla</div>
-      <span class="vname" id="stVar"></span>
-      <p id="stIntro"></p>
+      <p>Bir gezi kartı çek, bavulu hazırla. Eşyalar bavuldan fazla: kartın olmazsa olmazlarını koy, kalan yeri iyi doldur. Bavul en çok <b>23 kg</b> alıyor; ağır bavul kapanmaz.</p>
       <div class="keys" id="stKeys"></div>
-      <div class="foot"><div class="goal" id="stGoal"></div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
+      <div class="foot"><div class="goal">Her boş kare −5, her eksik olmazsa olmaz −10.<br><b>%95</b> ve üstü: Küçük ödül, <b>Hafta sonu gezisi</b></div><button class="btn" id="bStart">Başla <small>Enter</small></button></div>
     </div>
   </div>
 
@@ -240,7 +246,7 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 
   <div class="screen" id="sEnd" hidden>
     <div class="card">
-      <div class="lbl" id="eHead">Tur bitti</div>
+      <div class="lbl" id="eHead">Bavul kapandı</div>
       <div class="val" id="eScore" style="font-size:72px;font-weight:800;line-height:1;margin-top:6px">%0</div>
       <div class="rows" id="eRows"></div>
       <div class="meta2"><span>Rekor <b id="eBest">%0</b></span><span>Hedef <b>%95</b></span><span>Tur <b id="eTry">1</b></span></div>
@@ -250,17 +256,17 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
   </div>
 </div>
 
-<div id="sw"><button id="swPrev" title="Önceki varyant (←)">‹</button><div class="lab" id="swLab"></div><button id="swNext" title="Sonraki varyant (→)">›</button></div>
-<button id="toggleDbg" title="Ayarlar paneli (F2)">Ayarlar · F2</button>
+<button id="toggleDbg" type="button" tabindex="-1" title="Ayarlar paneli (F2)">Ayarlar · F2</button>
 
-<aside id="dbg">
+<aside id="dbg" hidden>
   <header><b>PROTOTİP #214</b><span>F2 gizler</span></header>
   <section><h3>Skor kuralı</h3><div id="kRule"></div></section>
   <section><h3>Kontrol</h3>
-    <div class="dbtn"><button id="dSolve">Çözümü yerleştir</button><button id="dTime">Süre +1 dk</button><button id="dClear">Bavulu boşalt</button></div>
-    <div style="margin-top:8px" id="dCardWrap"><select id="dCard"></select></div>
-    <p class="note" id="dSolNote"></p>
+    <div style="margin-bottom:8px"><select id="dCard"></select></div>
+    <div class="dbtn"><button id="dSolve">Çözümü yerleştir</button><button id="dHeavy">Ağır tuzak yerleştir</button><button id="dClear">Bavulu boşalt</button></div>
+    <p class="note">Çözüm: bu kartın bilinen kusursuz, ≤ 23 kg dizilişi (skor %100). Ağır tuzak: kusursuz ama 23 kg'ı aşan bir diziliş; bavul kapanmamalı.</p>
   </section>
+  <section><h3>Kusursuz bavul sayısı (arama)</h3><table id="counts"></table></section>
   <section><h3>Durum</h3><pre id="state"></pre></section>
   <section><h3>Tur kaydı</h3><ul id="log"></ul></section>
 </aside>
@@ -268,83 +274,66 @@ body{background:var(--bd-bg);color:var(--bd-ink);font:15px/1.4 var(--bd-font);di
 <script>
 "use strict";
 // ---------- knobs ----------
-const K = { softMin: 3, timeStep: 3, timeEvery: 20, mustPen: 10, kgPen: 5, lidPen: 5, kgLimit: 23 };
+const K = { emptyPen: 5, mustPen: 10, kgLimit: 23 };
 const W = 8, H = 6;
 
-// ---------- items: shape (rotations only, '#' = cell), kg, height in layers ----------
-// kg here is the E weight; C has its own heavier table (KG_C), tuned so a perfect
-// one-layer pack can come in under 23 kg but most perfect packs do not.
+// ---------- items: shape (rotations only, '#' = cell), kg ----------
+// One layer, 8×6. 16 items (70 cells) for 48 cells. kg tuned so that dense items
+// (laptop, books, boots, make-up bag) fill the bag fast but weigh it over 23 kg.
+const ITEMS = ["laptop", "kitap", "semsiye", "yagmur", "bot", "atki", "pantolon", "elbise", "kazak", "spor", "tisort", "kamera", "matara", "rehber", "makyaj", "sapka"];
 const CAT = {
-  laptop:   { n: 'Laptop',               e: '💻', s: '###/###',     kg: 2.5, h: 1, c: '#b8c4d6' },
-  kitap:    { n: 'Kitaplar',             e: '📚', s: '##/##',       kg: 3.5, h: 2, c: '#e9b17a' },
-  semsiye:  { n: 'Şemsiye',              e: '☂️', s: '#####',       kg: 1,   h: 1, c: '#c9a6e4' },
-  yagmur:   { n: 'Yağmurluk',            e: '🧥', s: '###/.#./.#.', kg: 1.5, h: 1, c: '#f4d36b' },
-  bot:      { n: 'Yürüyüş botu',         e: '🥾', s: '#./#./##',    kg: 3,   h: 2, c: '#c99a74' },
-  atki:     { n: 'Atkı',                 e: '🧣', s: '##./.##',     kg: 0.5, h: 1, c: '#f19a9a' },
-  pantolon: { n: 'Pantolon',             e: '👖', s: '##../.###',   kg: 1,   h: 1, c: '#8fb3e8' },
-  elbise:   { n: 'Elbise',               e: '👗', s: '.##/.#./##.', kg: 0.5, h: 1, c: '#7fd1c1' },
-  kazak:    { n: 'Kazak',                e: '🧶', s: '.#./###/.#.', kg: 1,   h: 1, c: '#f2a6c8' },
-  fon:      { n: 'Saç kurutma makinesi', e: '💨', s: '####/..#.',   kg: 1.5, h: 2, c: '#a8d8f0' },
-  spor:     { n: 'Spor ayakkabı',        e: '👟', s: '.#/.#/##',    kg: 2,   h: 2, c: '#9fd89a' },
-  tisort:   { n: 'Tişörtler',            e: '👕', s: '###/.#.',     kg: 1,   h: 1, c: '#a7c7f7' },
-  kamera:   { n: 'Fotoğraf makinesi',    e: '📷', s: '#./##',       kg: 1.5, h: 2, c: '#b4b4bc' },
-  matara:   { n: 'Matara',               e: '🧴', s: '###',         kg: 1,   h: 2, c: '#9ee0d6' },
-  rehber:   { n: 'Rehber kitap',         e: '📕', s: '###',         kg: 1,   h: 1, c: '#f3a07e' },
-  makyaj:   { n: 'Makyaj çantası',       e: '👝', s: '##/##/#.',    kg: 2,   h: 2, c: '#e6a1d9' },
-  sapka:    { n: 'Şapka',                e: '👒', s: '.##/##./.#.', kg: 0.5, h: 1, c: '#f6c28b' },
-  cikolata: { n: 'Belçika çikolatası',   e: '🍫', s: '####',        kg: 1.5, h: 1, c: '#c79a7c' },
-  gomlek:   { n: 'Gömlekler',            e: '👔', s: '##/##',       kg: 0.5, h: 1, c: '#c2d9a6' },
-  corap:    { n: 'Çoraplar',             e: '🧦', s: '##',          kg: 0.5, h: 1, c: '#f0b8b8' },
-  sarj:     { n: 'Şarj aletleri',        e: '🔌', s: '#./##',       kg: 0.5, h: 1, c: '#d0c8b8' },
+  laptop   : { n: "Laptop"              , e: '💻', s: "###/###"     , kg: 4  , c: '#b8c4d6' },
+  kitap    : { n: "Kitaplar"            , e: '📚', s: "##/##"       , kg: 3.5, c: '#e9b17a' },
+  semsiye  : { n: "Şemsiye"             , e: '☂️', s: "#####"       , kg: 2  , c: '#c9a6e4' },
+  yagmur   : { n: "Yağmurluk"           , e: '🧥', s: "###/.#./.#." , kg: 2  , c: '#f4d36b' },
+  bot      : { n: "Yürüyüş botu"        , e: '🥾', s: "#./#./##"    , kg: 3  , c: '#c99a74' },
+  atki     : { n: "Atkı"                , e: '🧣', s: "##./.##"     , kg: 1  , c: '#f19a9a' },
+  pantolon : { n: "Pantolon"            , e: '👖', s: "##../.###"   , kg: 2  , c: '#8fb3e8' },
+  elbise   : { n: "Elbise"              , e: '👗', s: ".##/.#./##." , kg: 1.5, c: '#7fd1c1' },
+  kazak    : { n: "Kazak"               , e: '🧶', s: ".#./###/.#." , kg: 2  , c: '#f2a6c8' },
+  spor     : { n: "Spor ayakkabı"       , e: '👟', s: ".#/.#/##"    , kg: 2.5, c: '#9fd89a' },
+  tisort   : { n: "Tişörtler"           , e: '👕', s: "###/.#."     , kg: 1  , c: '#a7c7f7' },
+  kamera   : { n: "Fotoğraf makinesi"   , e: '📷', s: "#./##"       , kg: 2  , c: '#b4b4bc' },
+  matara   : { n: "Matara"              , e: '🧴', s: "###"         , kg: 2  , c: '#9ee0d6' },
+  rehber   : { n: "Rehber kitap"        , e: '📕', s: "###"         , kg: 2  , c: '#f3a07e' },
+  makyaj   : { n: "Makyaj çantası"      , e: '👝', s: "##/##/#."    , kg: 3  , c: '#e6a1d9' },
+  sapka    : { n: "Şapka"               , e: '👒', s: ".##/##./.#." , kg: 1.5, c: '#f6c28b' },
 };
-const KG_C = { laptop: 4, kitap: 3.5, semsiye: 2, yagmur: 2, bot: 3, atki: 1, pantolon: 2, elbise: 1.5, kazak: 2, spor: 2.5, tisort: 1, kamera: 2, matara: 2, rehber: 2, makyaj: 3, sapka: 1.5 };
-
 const CARDS = [
-  { n: "Lüksemburg'da yürüyüş", m: ['bot', 'yagmur', 'matara', 'atki'] },
-  { n: "Brugge'de şehir turu", m: ['kamera', 'semsiye', 'spor', 'rehber'] },
-  { n: "Kassel'de müze günü", m: ['elbise', 'makyaj', 'kitap', 'tisort'] },
-  { n: "Kuzey Denizi'nde sahil", m: ['sapka', 'atki', 'kamera', 'matara'] },
+  { n: "Lüksemburg'da yürüyüş", m: ["bot","yagmur","matara","atki"] },
+  { n: "Brugge'de şehir turu", m: ["kamera","semsiye","spor","rehber"] },
+  { n: "Kassel'de müze günü", m: ["elbise","makyaj","kitap","tisort"] },
+  { n: "Kuzey Denizi'nde sahil", m: ["sapka","atki","kamera","matara"] },
 ];
-
-// ---------- variants ----------
-// SOL: a perfect pack, one letter per item (A = first item in `items`), one grid per layer.
-// Two layers: a tall item shows in both grids; a flat item in the lower grid lies at the
-// bottom, in the upper grid on top. Found by exact-cover search (see header).
-const B_ITEMS = ['laptop', 'kitap', 'semsiye', 'yagmur', 'bot', 'atki', 'pantolon', 'elbise', 'kazak', 'spor', 'tisort', 'kamera', 'matara', 'rehber', 'makyaj', 'sapka'];
-const V = {
-  A: { name: 'Tam sığdır', layers: 1,
-    items: ['laptop', 'kitap', 'elbise', 'yagmur', 'semsiye', 'fon', 'pantolon', 'kazak', 'atki', 'bot'],
-    intro: 'Bu on eşya bavula tam sığıyor, ama yalnızca tek bir dizilişle. Boş kalan her kare skordan düşer.',
-    // The only perfect pack (the solver finds 2: this one and the same turned 180°).
-    SOL: [['AAJCFFFF', 'AAJCCCFI', 'AAJJHCII', 'GGGHHHID', 'BBGGHDDD', 'BBEEEEED']] },
-  B: { name: 'Gezi kartı', layers: 1, cards: true, items: B_ITEMS,
-    intro: 'Eşyalar bavuldan fazla. Gezi kartındaki olmazsa olmazları unutma, kalan yeri iyi doldur.',
-    SOL: {
-      "Lüksemburg'da yürüyüş":  [['AAABBCEE', 'AAABBCME', 'FFOOOCME', 'DFFOOCMK', 'DDDGGCKK', 'DNNNGGGK']],
-      "Brugge'de şehir turu":   [['AAABBCEE', 'AAABBCNE', 'JJKKKCNE', 'JHHKDCNO', 'JHLLDCOO', 'HHLDDDOO']],
-      "Kassel'de müze günü":    [['AAABBCEE', 'AAABBCME', 'HJJJGCME', 'HHHJGCMK', 'OOHGGCKK', 'OOOGNNNK']],
-      "Kuzey Denizi'nde sahil": [['AAABBCEE', 'AAABBCME', 'LLKKKCME', 'LFPKDCMO', 'FFPPDCOO', 'FPPDDDOO']],
-    } },
-  C: { name: 'Ağırlık sınırı', layers: 1, weight: true, kgTable: KG_C, items: B_ITEMS,
-    intro: 'Eşyalar bavuldan fazla ve bavul en çok 23 kg alıyor. Ağır eşyalar yer kazandırır ama kilo yapar.',
-    // 19.5 kg: no laptop, books, boots, bottle or make-up bag.
-    SOL: [['JNNNPPLL', 'JJJPPFFL', 'KKKIPHFF', 'DKIIIHHH', 'DDDIGGGH', 'DCCCCCGG']] },
-  D: { name: 'İki kat', layers: 2,
-    items: ['laptop', 'kitap', 'semsiye', 'yagmur', 'bot', 'pantolon', 'elbise', 'fon', 'tisort', 'kamera', 'matara', 'rehber', 'makyaj', 'sapka', 'cikolata', 'gomlek', 'corap'],
-    intro: 'Bavul iki kat derin. Kalın eşyalar iki kat, ince eşyalar bir kat yer kaplar; ince olanları üst üste koyabilirsin. Kapak kapanmalı.',
-    SOL: [['CAAOBBEE', 'CAAOBBHE', 'CAAOJJHE', 'CGGOJHHK', 'CGPPMMHK', 'GGPPMMMK'],
-          ['DDDIBBEE', 'LDIIBBHE', 'LDNIJJHE', 'LNNNJHHK', 'FFFNMMHK', 'QQFFMMMK']] },
-  E: { name: 'Hepsi bir arada', layers: 2, cards: true, weight: true, gates: true, kgTable: null, items: Object.keys(CAT),
-    intro: 'İki kat, 23 kg ve bir gezi kartı. 23 kg\'ı aşan ya da kapağı kapatmayan eşyayı bavul kabul etmez.',
-    // 22–23 kg each; Brugge and Kassel share one pack.
-    SOL: {
-      "Lüksemburg'da yürüyüş":  [['CAAREKKK', 'CAAREMMK', 'CAAREEMJ', 'CHHRNNNJ', 'CHSSPPJJ', 'HHSSPPPJ'], ['DDDLEKKK', 'ODLLEMMK', 'ODQLEEMJ', 'OQQQNNNJ', 'UFFQPPJJ', 'UUFFPPPJ']],
-      "Brugge'de şehir turu":   [['CAARBBKN', 'CAARBBKN', 'CAARJKKN', 'CHHRJJMM', 'CHSSJPPM', 'HHSSJPPP'], ['DDDLBBKN', 'ODLLBBKN', 'ODQLJKKN', 'OQQQJJMM', 'GGGQJPPM', 'TTGGJPPP']],
-      "Kassel'de müze günü":    [['CAARBBKN', 'CAARBBKN', 'CAARJKKN', 'CHHRJJMM', 'CHSSJPPM', 'HHSSJPPP'], ['DDDLBBKN', 'ODLLBBKN', 'ODQLJKKN', 'OQQQJJMM', 'GGGQJPPM', 'TTGGJPPP']],
-      "Kuzey Denizi'nde sahil": [['CAARBBKN', 'CAARBBKN', 'CAARJKKN', 'CHHRJJMM', 'CHSSJPPM', 'HHSSJPPP'], ['DDDLBBKN', 'ODLLBBKN', 'ODQLJKKN', 'OQQQJJMM', 'UFFQJPPM', 'UUFFJPPP']],
-    } },
+// COUNTS: every item combination (the 4 must-haves + spares) with exactly 48 cells was
+// tested for a perfect tiling (exhaustive, none undecided). ok = perfect and ≤ 23 kg;
+// over = perfect but too heavy to close (the traps); never = 48 cells but no tiling.
+const COUNTS = {
+  "Lüksemburg'da yürüyüş": { ok: 55, over: 131, never: 0, lightKg: 20, heavyKg: 27 },
+  "Brugge'de şehir turu": { ok: 49, over: 128, never: 0, lightKg: 19.5, heavyKg: 27 },
+  "Kassel'de müze günü": { ok: 51, over: 136, never: 3, lightKg: 21.5, heavyKg: 26.5 },
+  "Kuzey Denizi'nde sahil": { ok: 71, over: 106, never: 0, lightKg: 19.5, heavyKg: 26.5 },
 };
-const VKEYS = Object.keys(V);
+// SOL: per card the lightest perfect pack ("ok") and the heaviest perfect pack ("heavy",
+// a trap that must not close). Letter = item in ITEMS order (A = laptop).
+const SOL = {
+  "Lüksemburg'da yürüyüş": {
+    ok:    ["EEEMMMDC","EIFFDDDC","IIIFFPDC","KIHHPPPC","KKHLGGPC","KHHLLGGG"],   // 20 kg
+    heavy: ["EMMMDDDF","ELLBBDFF","EELBBDFJ","AACCCCCJ","AAOOGGJJ","AAOOOGGG"],   // 27 kg
+  },
+  "Brugge'de şehir turu": {
+    ok:    ["LGGGJJJC","LLIGGKJC","NIIIKKKC","NPIHHFDC","NPPHFFDC","PPHHFDDD"],   // 19.5 kg
+    heavy: ["LCCCCCJJ","LLNNNDJG","AAADDDJG","AAAFFDGG","BBOOFFGE","BBOOOEEE"],   // 27 kg
+  },
+  "Kassel'de müze günü": {
+    ok:    ["HCCCCCFG","HHHAAFFG","BBHAAFGG","BBPAADGK","OOPPPDKK","OOOPDDDK"],   // 21.5 kg
+    heavy: ["HCCCCCOO","HHHBBJOO","MDHBBJOK","MDDDJJKK","MDEAAALK","EEEAAALL"],   // 26.5 kg
+  },
+  "Kuzey Denizi'nde sahil": {
+    ok:    ["PCCCCCLL","PPPFHHIL","MPFFHIII","MDFHHKIJ","MDGGKKKJ","DDDGGGJJ"],   // 19.5 kg
+    heavy: ["PMMMFAAA","PPPFFAAA","LPJFDDDO","LLJJJDOO","BBEEEDOO","BBECCCCC"],   // 26.5 kg
+  },
+};
 
 // ---------- shapes ----------
 const parse = s => { const c = []; s.split('/').forEach((r, y) => [...r].forEach((ch, x) => { if (ch === '#') c.push([x, y]); })); return c; };
@@ -360,79 +349,185 @@ const fmtKg = x => (Math.round(x * 10) / 10).toString().replace('.', ',') + ' kg
 const pct = x => '%' + x;
 const mmss = s => { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
-// ---------- state ----------
-let vk = (new URLSearchParams(location.search).get('v') || 'A').toUpperCase(); if (!V[vk]) vk = 'A';
+// ======================================================================
+// SOUND — the live Games' approach, inline (audio-dom, music-dom, effects-dom)
+// ======================================================================
+let audio, unlocked = false; const buses = {};
+function context() { try { if (!audio) audio = new AudioContext(); if (audio.state === 'suspended') audio.resume(); return audio; } catch { return undefined; } }
+function bus(name) { const ac = context(); if (!ac) return; if (!buses[name]) { const g = ac.createGain(); g.gain.value = name === 'music' ? 0.5 : 1; g.connect(ac.destination); buses[name] = g; } return buses[name]; }
+const hz = m => 440 * 2 ** ((m - 69) / 12);
+let noiseBuf;
+function noise(ac) { if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; }
+function tone(ac, out, f0, f1, at, len, type, level, attack = 0.012, detune = 0) {
+  const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.detune.value = detune;
+  o.frequency.setValueAtTime(f0, at); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, at + len);
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g).connect(out); o.start(at); o.stop(at + len + 0.05);
+}
+const note = (ac, out, m, at, len, type, level, attack, detune) => tone(ac, out, hz(m), hz(m), at, len, type, level, attack, detune);
+function hiss(ac, out, at, len, level, type, f0, f1 = f0, q = 1, attack = 0.005) {
+  const src = ac.createBufferSource(); src.buffer = noise(ac); src.loop = true;
+  const bq = ac.createBiquadFilter(); bq.type = type; bq.Q.value = q; bq.frequency.setValueAtTime(f0, at); if (f1 !== f0) bq.frequency.exponentialRampToValueAtTime(f1, at + len);
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + attack); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  src.connect(bq).connect(g).connect(out); src.start(at, Math.random() * 1.5); src.stop(at + len + 0.05);
+}
+const bell = (ac, out, m, at, len, level = 0.5) => { note(ac, out, m, at, len, 'sine', level); note(ac, out, m + 19, at, len * 0.6, 'sine', level * 0.18); };
+function brass(ac, out, m, at, len, level = 0.22) { const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1800; f.connect(out); note(ac, f, m, at, len, 'sawtooth', level); note(ac, f, m - 12, at, len, 'triangle', level * 0.6); }
+const vary = (x, by = 0.08) => x * (1 + (Math.random() - 0.5) * 2 * by);
+// celebrations go through 0.35 in a fresh key, like the live quiz chimes
+const celebration = make => (ac, out, t) => { const g = ac.createGain(); g.gain.value = 0.35; g.connect(out); make(ac, g, t, 72 + [0, 2, 4, 5, 7][Math.floor(Math.random() * 5)]); };
+
+// BALANCE: one-shots stay well under the celebrations' ~0.18; the frequent ones lowest.
+const SOUNDS = {
+  /** an item lifted from the list or the bag: a soft rising pop */
+  pick(ac, out, t) { tone(ac, out, vary(420), vary(760), t, 0.07, 'sine', 0.06, 0.004); hiss(ac, out, t, 0.04, 0.02, 'bandpass', 2600, 2600, 2, 0.002); },
+  /** a quarter turn: a quick paper flick (the live 'flip') */
+  rotate(ac, out, t) { hiss(ac, out, t, 0.08, 0.045, 'bandpass', vary(900, 0.1), 3200, 1.4, 0.01); tone(ac, out, vary(700, 0.05), vary(1000, 0.05), t + 0.02, 0.05, 'sine', 0.022, 0.004); },
+  /** an item settling into the bag: a soft cloth thump and a click */
+  place(ac, out, t) { tone(ac, out, 170, 80, t, 0.14, 'sine', 0.14, 0.004); hiss(ac, out, t, 0.08, 0.035, 'lowpass', 1100, 500, 0.8, 0.003); tone(ac, out, vary(1400), vary(1200), t + 0.01, 0.03, 'triangle', 0.02, 0.002); },
+  /** an item taken out: the live backspace's dull tock, sliding up */
+  out(ac, out, t) { hiss(ac, out, t, 0.06, 0.04, 'bandpass', 700, 1500, 2, 0.002); tone(ac, out, vary(380, 0.04), 620, t, 0.08, 'triangle', 0.04, 0.003); },
+  /** it does not fit here: the live 'row-wrong', a soft two-note fall */
+  refuse(ac, out, t) { note(ac, out, 62, t, 0.16, 'triangle', 0.07); note(ac, out, 57, t + 0.12, 0.26, 'triangle', 0.07); },
+  /** 23 kg gate: the live 'bonk', a low soft knock, not a buzzer */
+  gate: celebration((ac, out, t) => { const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 600; f.connect(out); tone(ac, f, 190, 85, t, 0.3, 'sine', 0.7, 0.01); tone(ac, f, 170, 75, t + 0.16, 0.3, 'sine', 0.5, 0.01); }),
+  /** a must-have of the card is in: the live 'row-good', two rising bells */
+  must(ac, out, t) { bell(ac, out, 79, t, 0.22, 0.08); bell(ac, out, 84, t + 0.08, 0.3, 0.08); },
+  /** the bag closes: a zipper run and a clasp */
+  close(ac, out, t) { for (let i = 0; i < 16; i++) hiss(ac, out, t + i * 0.028, 0.025, 0.03 + i * 0.002, 'bandpass', 1800 + i * 160, 1800 + i * 160, 3, 0.002); tone(ac, out, 900, 600, t + 0.5, 0.06, 'triangle', 0.06, 0.002); tone(ac, out, 160, 90, t + 0.5, 0.12, 'sine', 0.1, 0.003); },
+  /** ≥ 95%: the live Small prize call, "ta-da-daa" over a bell */
+  prize: celebration((ac, out, t, C) => { const B = C - 12; brass(ac, out, B + 7, t, 0.12); brass(ac, out, B + 7, t + 0.13, 0.12); [0, 4, 7, 12].forEach(d => brass(ac, out, B + d + 5, t + 0.28, 0.9, 0.15)); bell(ac, out, B + 29, t + 0.28, 1.0, 0.3); }),
+};
+const fx = {
+  on: true,
+  sound(name) { if (!this.on || !unlocked) return; const ac = context(), out = bus('effects'), make = SOUNDS[name]; if (ac && out && make) make(ac, out, ac.currentTime + 0.02); },
+};
+
+// --- music: one calm travel loop, a small step sequencer (16ths, scheduled ahead) ---
+/**
+ * Yolculuk: a calm, light travel tune. D major, 88 bpm, four bars
+ * (D – Bm – G – A), original: a soft "train" shaker on the eighths, a round
+ * bass on 1 and 3, a plucked chord on the off-beats, a whistled tune over
+ * the last two bars, a little bell at the turn. Busiest moment ~0.08, then the
+ * music bus halves it, so every effect sits on top.
+ */
+function blip(ac, out, m, at, len, type, level, attack = 0.01, detune = 0) { note(ac, out, m, at, len, type, level, attack, detune); }
+function whistle(ac, out, m, at, len, level = 0.02) {
+  const o = ac.createOscillator(), l = ac.createOscillator(), d = ac.createGain(), g = ac.createGain();
+  o.type = 'sine'; o.frequency.value = hz(m); l.frequency.value = 5.5; d.gain.value = hz(m) * 0.008; l.connect(d).connect(o.frequency);
+  g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(level, at + 0.05); g.gain.setValueAtTime(level, at + len * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, at + len);
+  o.connect(g).connect(out); for (const x of [o, l]) { x.start(at); x.stop(at + len + 0.05); }
+}
+const TRACK = {
+  steps: 64, bpm: 88,
+  play(ac, out, step, bar, t, dur) {
+    const chords = [[62, 66, 69], [59, 62, 66], [59, 62, 67], [61, 64, 69]];
+    const roots = [38, 35, 43, 45];
+    if (step % 2 === 0) hiss(ac, out, t, 0.06, step % 4 === 0 ? 0.009 : 0.005, 'bandpass', 5200, 5200, 1.2, 0.012);
+    if (step === 0 || step === 8) { blip(ac, out, roots[bar], t, dur * 6, 'triangle', 0.05, 0.008); blip(ac, out, roots[bar] - 12, t, dur * 6, 'sine', 0.035, 0.008); }
+    if (step === 6 || step === 14) blip(ac, out, roots[bar] + 7, t, dur * 2, 'triangle', 0.03, 0.008);
+    if (step === 4 || step === 12 || step === 10) for (const m of chords[bar]) { blip(ac, out, m, t, dur * 2.2, 'triangle', 0.012, 0.004); blip(ac, out, m + 12, t, dur * 1.2, 'sine', 0.005, 0.003); }
+    const tune = [
+      [[0, 74, 4], [4, 78, 2], [6, 76, 2], [8, 74, 6]],
+      [[0, 71, 4], [4, 74, 2], [6, 78, 2], [8, 76, 6]],
+      [[0, 74, 3], [4, 71, 2], [6, 74, 2], [8, 79, 4], [12, 78, 4]],
+      [[0, 76, 6], [8, 73, 4], [12, 69, 4]],
+    ];
+    const n = tune[bar].find(([st]) => st === step);
+    if (n) whistle(ac, out, n[1], t, dur * n[2] * 1.1, 0.018);
+    if (bar === 3 && step === 14) bell(ac, out, 86, t, 1.2, 0.012);
+  },
+};
+const music = {
+  on: true, holds: new Set(), voice: null,
+  sync() {
+    const should = this.on && unlocked && this.holds.size === 0;
+    if (should && !this.voice) this.voice = startTrack();
+    if (!should && this.voice) { this.voice.stop(); this.voice = null; }
+  },
+  hold(r) { this.holds.add(r); this.sync(); }, release(r) { this.holds.delete(r); this.sync(); },
+};
+function startTrack() {
+  const ac = context(), into = bus('music'); if (!ac || !into) return { stop() {} };
+  const FADE = 0.8, AHEAD = 0.12, out = ac.createGain(), now = ac.currentTime;
+  out.gain.setValueAtTime(0, now); out.gain.linearRampToValueAtTime(1, now + FADE); out.connect(into);
+  let step = 0, next = now + 0.05;
+  const tick = () => { while (next < ac.currentTime + AHEAD) { const dur = 60 / TRACK.bpm / 4; TRACK.play(ac, out, step % 16, Math.floor(step / 16), next, dur); next += dur; step = (step + 1) % TRACK.steps; } };
+  tick(); const timer = setInterval(tick, 25); let stopped = false;
+  return { stop() { if (stopped) return; stopped = true; const a = ac.currentTime; out.gain.cancelScheduledValues(a); out.gain.setValueAtTime(out.gain.value, a); out.gain.linearRampToValueAtTime(0, a + FADE); setTimeout(() => { clearInterval(timer); out.disconnect(); }, (FADE + AHEAD + 0.3) * 1000); } };
+}
+// her first key or click unlocks audio (capture, once), like the live pages
+for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => { if (!unlocked) { unlocked = true; music.sync(); } }, { capture: true, once: true });
+document.addEventListener('visibilitychange', () => document.hidden ? music.hold('hidden') : music.release('hidden'));
+function paintToggles() {
+  for (const [el, on, name, icon] of [[$('tMusic'), music.on, 'Müzik', '🎵'], [$('tFx'), fx.on, 'Efektler', '✨']]) {
+    const label = `${name}: ${on ? 'Açık' : 'Kapalı'}`;
+    el.setAttribute('aria-pressed', String(on)); el.title = label; el.setAttribute('aria-label', label);
+    el.querySelector('.ic').textContent = on ? icon : '🔇'; el.querySelector('.tx').textContent = label;
+  }
+}
+// switches never take focus, so Enter and the Game's keys stay the Game's
+for (const el of document.querySelectorAll('.tgl,.act,#toggleDbg')) el.addEventListener('mousedown', e => e.preventDefault());
+$('tMusic').onclick = e => { e.stopPropagation(); unlocked = true; music.on = !music.on; music.sync(); paintToggles(); };
+$('tFx').onclick = e => { e.stopPropagation(); unlocked = true; fx.on = !fx.on; paintToggles(); };
+
+// --- confetti (effects-dom's burst, a shower from the top) ---
+let confCv, parts = [], confRun = false;
+function confetti() {
+  if (!fx.on) return;
+  if (!confCv) { confCv = document.createElement('canvas'); confCv.className = 'bd-confetti'; document.body.append(confCv); }
+  const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const n = reduced ? 20 : 200, w = innerWidth, h = innerHeight, cols = ['#e0446a', '#ffb703', '#2fb67c', '#7fb3ff', '#ff8fab'];
+  for (let i = 0; i < n; i++) { const a = (270 + (Math.random() - .5) * 40) * Math.PI / 180, sp = 2 + Math.random() * 4;
+    parts.push({ x: Math.random() * w, y: -20 - Math.random() * h * .5, vx: Math.cos(a) * sp, vy: -Math.sin(a) * sp, spin: Math.random() * 6, turn: (Math.random() - .5) * .3, size: 7 + Math.random() * 6, color: cols[i % cols.length], sq: Math.random() < .5, life: 0, ttl: 200 + Math.random() * 50 }); }
+  if (!confRun) { confRun = true; requestAnimationFrame(confFrame); }
+}
+function confFrame() {
+  const dpr = devicePixelRatio || 1; confCv.width = innerWidth * dpr; confCv.height = innerHeight * dpr;
+  const g = confCv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  parts = parts.filter(p => p.life < p.ttl && p.y < innerHeight + 40);
+  for (const p of parts) { p.life++; p.vx *= .985; p.vy = p.vy * .985 + .18; p.x += p.vx + Math.sin(p.life / 9 + p.spin) * .6; p.y += p.vy; p.spin += p.turn;
+    g.save(); g.globalAlpha = Math.min(1, (p.ttl - p.life) / 25); g.translate(p.x, p.y); g.rotate(p.spin); g.scale(1, Math.max(.15, Math.abs(Math.cos(p.spin * 1.7)))); g.fillStyle = p.color;
+    if (p.sq) g.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); else g.fillRect(-p.size / 5, -p.size, p.size * .4, p.size * 2); g.restore(); }
+  if (parts.length) requestAnimationFrame(confFrame); else { confRun = false; g.clearRect(0, 0, innerWidth, innerHeight); }
+}
+
+// ======================================================================
+// GAME
+// ======================================================================
 let phase = 'start';          // start | play | close | exit | result
 let R = null;                 // the Round
-const best = {}, rounds = {}, logRows = [];
-let forcedCard = -1, lastCard = -1, showLower = false, result = null;
+let best = null, rounds = 0, forcedCard = -1, lastCard = -1, result = null;
+const logRows = [];
 
-const cfg = () => V[vk];
-const kgOf = key => (cfg().kgTable ? cfg().kgTable[key] : CAT[key].kg);
-
-function newRound() {
-  const v = cfg();
-  let card = null;
-  if (v.cards) {
-    let i = forcedCard;
-    if (i < 0) { do { i = Math.floor(Math.random() * CARDS.length); } while (CARDS.length > 1 && i === lastCard); }
-    lastCard = i; card = CARDS[i];
-  }
-  R = {
-    card, t0: performance.now(), skip: 0,
-    items: v.items.map((key, i) => ({ i, key, rot: 0, placed: null })),  // placed = {x,y,z,rot}
-    order: [],                       // placement order, for Backspace
-    held: 0, x: 0, y: 0,             // held item index (-1 = none), top-left of its bounding box or the cursor
-  };
-  phase = 'play'; showLower = false;
-  hold(0, 0, 0);
-  show();
+function newRound(cardIdx) {
+  let i = cardIdx ?? forcedCard;
+  if (i < 0) { do { i = Math.floor(Math.random() * CARDS.length); } while (CARDS.length > 1 && i === lastCard); }
+  lastCard = i;
+  R = { card: CARDS[i], cardIdx: i, t0: performance.now(), items: ITEMS.map((key, j) => ({ i: j, key, rot: 0, placed: null })), order: [], held: -1, x: 0, y: 0, grab: null, mustDone: new Set() };
+  phase = 'play'; hold(0); show();
 }
-const elapsed = () => R ? (performance.now() - R.t0) / 1000 + R.skip : 0;
-const timePen = t => { const over = t - K.softMin * 60; return over < K.timeEvery ? 0 : Math.floor(over / K.timeEvery) * K.timeStep; };
+const elapsed = () => R && !R.preview ? (performance.now() - R.t0) / 1000 : 0;
 const shapeOf = it => SHAPES[it.key][it.rot % SHAPES[it.key].length];
 const cellsAt = (it, x, y) => shapeOf(it).map(([dx, dy]) => [x + dx, y + dy]);
-
-// height of the stack in each cell, and which items cover a cell (2 layers)
-function heights(except = -1) {
-  const hm = new Array(W * H).fill(0);
-  for (const it of R.items) if (it.placed && it.i !== except) {
-    const top = it.placed.z + CAT[it.key].h;
-    for (const [x, y] of cellsAt(it, it.placed.x, it.placed.y)) hm[y * W + x] = Math.max(hm[y * W + x], top);
-  }
-  return hm;
-}
+const kgNow = () => R.items.reduce((s, it) => s + (it.placed ? CAT[it.key].kg : 0), 0);
 function overlapping(cells, except = -1) {
   const set = new Set(cells.map(([x, y]) => y * W + x));
   return R.items.filter(it => it.placed && it.i !== except && cellsAt(it, it.placed.x, it.placed.y).some(([x, y]) => set.has(y * W + x)));
 }
-// what happens if the held item is put down here
 function probe() {
-  const v = cfg(); if (R.held < 0) return null;
-  const it = R.items[R.held], cells = cellsAt(it, R.x, R.y), h = CAT[it.key].h;
-  const res = { cells, ok: true, warn: '', why: '', z: 0 };
-  if (v.layers === 1) {
-    if (overlapping(cells).length) { res.ok = false; res.why = 'Burası dolu'; }
-  } else {
-    const hm = heights(), base = Math.max(...cells.map(([x, y]) => hm[y * W + x]));
-    res.z = base;
-    const gap = cells.some(([x, y]) => hm[y * W + x] < base);
-    if (base + h > 2) { if (v.gates) { res.ok = false; res.why = 'Bavul kapanmıyor'; } else res.warn = 'Kapak kapanmaz'; }
-    else if (gap) res.warn = 'Altında boşluk kalır';
-    else res.where = base ? 'Üst kat' : 'Alt kat';
-  }
-  if (res.ok && v.gates && v.weight && kgNow() + kgOf(it.key) > K.kgLimit + 1e-9) { res.ok = false; res.why = K.kgLimit + " kg'ı aştın"; }
-  if (res.ok && v.weight && !v.gates && kgNow() + kgOf(it.key) > K.kgLimit + 1e-9) res.warn = res.warn || K.kgLimit + " kg'ı aşar";
-  return res;
+  if (!R || R.held < 0) return null;
+  const it = R.items[R.held], cells = cellsAt(it, R.x, R.y);
+  if (overlapping(cells).length) return { cells, ok: false, why: 'Burası dolu' };
+  if (kgNow() + CAT[it.key].kg > K.kgLimit + 1e-9) return { cells, ok: true, warn: `${K.kgLimit} kg'ı aşar: bavul kapanmaz` };
+  return { cells, ok: true };
 }
-const kgNow = () => R.items.reduce((s, it) => s + (it.placed ? kgOf(it.key) : 0), 0);
-
 function clampHeld() {
   if (R.held < 0) { R.x = Math.max(0, Math.min(W - 1, R.x)); R.y = Math.max(0, Math.min(H - 1, R.y)); return; }
   const d = dims(shapeOf(R.items[R.held]));
   R.x = Math.max(0, Math.min(W - d.w, R.x)); R.y = Math.max(0, Math.min(H - d.h, R.y));
 }
-function hold(i, x, y) { R.held = i; R.x = x; R.y = y; clampHeld(); }
+function hold(i) { R.held = i; R.grab = null; clampHeld(); }
 function unplacedFrom(start, dir) {
   const n = R.items.length;
   for (let k = 1; k <= n; k++) { const j = ((start + dir * k) % n + n) % n; if (!R.items[j].placed) return j; }
@@ -440,99 +535,81 @@ function unplacedFrom(start, dir) {
 }
 function cycle(dir) {
   if (phase !== 'play') return;
-  const from = R.held >= 0 ? R.held : (dir > 0 ? -1 : 0);
-  const j = unplacedFrom(from, dir);
-  if (j < 0) return;
-  hold(j, R.x, R.y); changed();
+  const j = unplacedFrom(R.held >= 0 ? R.held : (dir > 0 ? -1 : 0), dir);
+  if (j < 0 || j === R.held) return;
+  hold(j); fx.sound('pick'); changed();
 }
 function move(dx, dy) { if (phase !== 'play') return; R.x += dx; R.y += dy; clampHeld(); changed(); }
 function rotate() {
   if (phase !== 'play' || R.held < 0) return;
-  const it = R.items[R.held], n = SHAPES[it.key].length; if (n === 1) return;
+  const it = R.items[R.held], n = SHAPES[it.key].length;
+  fx.sound('rotate'); if (n === 1) return;
   const d0 = dims(shapeOf(it)); it.rot = (it.rot + 1) % n; const d1 = dims(shapeOf(it));
-  // turn around the item's middle, not its corner
-  R.x += Math.round((d0.w - d1.w) / 2); R.y += Math.round((d0.h - d1.h) / 2); clampHeld(); changed();
+  R.x += Math.round((d0.w - d1.w) / 2); R.y += Math.round((d0.h - d1.h) / 2); R.grab = null; clampHeld(); changed();
 }
 function place() {
-  if (phase !== 'play' || R.held < 0) return;
+  if (phase !== 'play' || R.held < 0) return false;
   const p = probe();
-  if (!p.ok) { toast(p.why); return; }
+  if (!p.ok) { toast(p.why); fx.sound('refuse'); return false; }
   const it = R.items[R.held];
-  it.placed = { x: R.x, y: R.y, z: p.z }; R.order.push(it.i);
-  const nx = unplacedFrom(it.i, 1);
-  R.held = nx; clampHeld(); changed();
+  it.placed = { x: R.x, y: R.y }; R.order.push(it.i);
+  fx.sound('place');
+  if (R.card.m.includes(it.key) && !R.mustDone.has(it.key)) { R.mustDone.add(it.key); setTimeout(() => fx.sound('must'), 140); }
+  R.held = unplacedFrom(it.i, 1); R.grab = null; clampHeld(); changed();
+  return true;
 }
 function lift(it) {
-  // 2 layers: an item with something resting on it stays
-  const above = R.items.some(o => o.placed && o.i !== it.i && o.placed.z > it.placed.z &&
-    overlapping(cellsAt(o, o.placed.x, o.placed.y)).some(u => u.i === it.i));
-  if (above) { toast('Önce üstündekini çıkar'); return false; }
   const x = it.placed.x, y = it.placed.y; it.placed = null; R.order = R.order.filter(i => i !== it.i);
-  hold(it.i, x, y); changed(); return true;
+  if (R.card.m.includes(it.key)) R.mustDone.delete(it.key);
+  R.held = it.i; R.x = x; R.y = y; R.grab = null; clampHeld(); fx.sound('out'); changed();
 }
-function pickUp() {
+function takeOut() {
   if (phase !== 'play') return;
   const cells = R.held >= 0 ? cellsAt(R.items[R.held], R.x, R.y) : [[R.x, R.y]];
-  const under = overlapping(cells).sort((a, b) => (b.placed.z + CAT[b.key].h) - (a.placed.z + CAT[a.key].h));
+  const under = overlapping(cells);
   if (under.length) { lift(under[0]); return; }
   if (R.order.length) lift(R.items[R.order[R.order.length - 1]]);
 }
 
 // ---------- score ----------
-function breakdown(t) {
-  const v = cfg(), layers = v.layers, all = W * H * layers;
-  let filled = 0, out = 0;
-  if (layers === 1) filled = R.items.reduce((s, it) => s + (it.placed ? shapeOf(it).length : 0), 0);
-  else {
-    const occ = Array.from({ length: 3 }, () => new Uint8Array(W * H));
-    for (const it of R.items) if (it.placed) for (const [x, y] of cellsAt(it, it.placed.x, it.placed.y))
-      for (let z = it.placed.z; z < it.placed.z + CAT[it.key].h; z++) occ[Math.min(z, 2)][y * W + x] = 1;
-    for (let c = 0; c < W * H; c++) { filled += occ[0][c] + occ[1][c]; out += occ[2][c]; }
-  }
-  const fill = Math.floor(100 * filled / all + 1e-9);
-  const missing = v.cards ? R.card.m.filter(k => !R.items.find(it => it.key === k).placed) : [];
-  const kg = kgNow(), over = Math.max(0, kg - K.kgLimit);
-  const pMust = v.cards ? K.mustPen * missing.length : 0;
-  const pKg = v.weight && !v.gates ? K.kgPen * Math.ceil(over - 1e-9) : 0;
-  const pLid = layers === 2 && !v.gates ? K.lidPen * out : 0;
-  const pTime = timePen(t);
-  const score = Math.max(0, fill - pMust - pKg - pLid - pTime);
-  return { all, filled, empty: all - filled, fill, missing, kg, over, out, pMust, pKg, pLid, pTime, score };
+function breakdown() {
+  const filled = R.items.reduce((s, it) => s + (it.placed ? shapeOf(it).length : 0), 0);
+  const empty = W * H - filled;
+  const missing = R.card.m.filter(k => !R.items.find(it => it.key === k).placed);
+  const kg = kgNow();
+  const pEmpty = K.emptyPen * empty, pMust = K.mustPen * missing.length;
+  return { filled, empty, missing, kg, heavy: kg > K.kgLimit + 1e-9, pEmpty, pMust, score: Math.max(0, 100 - pEmpty - pMust) };
 }
 function rowsHtml(b) {
-  const v = cfg(), u = v.layers === 2 ? 'birim' : 'kare';
-  const r = [];
-  r.push(['Dolu', `${b.filled} / ${b.all} ${u}`, '']);
-  r.push(['Boş kalan', `${b.empty} ${u}`, b.empty ? '' : 'ok']);
-  r.push(['Doluluk', pct(b.fill), '']);
-  if (v.cards) r.push([`Eksik olmazsa olmaz (${b.missing.length})`, b.pMust ? '−' + b.pMust : '0', b.pMust ? 'neg' : 'ok']);
-  if (v.weight) r.push([`Ağırlık`, `${fmtKg(b.kg)} / ${K.kgLimit} kg`, b.over > 0 ? 'neg' : '']);
-  if (v.weight && !v.gates) r.push([`Fazla kilo cezası`, b.pKg ? '−' + b.pKg : '0', b.pKg ? 'neg' : 'dim']);
-  if (v.layers === 2) r.push(['Kapak', b.out ? `kapanmıyor (${b.out} kare taşıyor)` : 'kapanıyor', b.out ? 'neg' : 'ok']);
-  if (v.layers === 2 && !v.gates) r.push(['Kapak cezası', b.pLid ? '−' + b.pLid : '0', b.pLid ? 'neg' : 'dim']);
-  r.push(['Süre cezası', b.pTime ? '−' + b.pTime : '0', b.pTime ? 'neg' : 'dim']);
-  return r.map(([a, c, cls]) => `<div class="row ${cls}"><span>${a}</span><b>${c}</b></div>`).join('');
+  return [
+    ['Dolu', `${b.filled} / ${W * H} kare`, ''],
+    [`Boş kalan (${b.empty})`, b.pEmpty ? '−' + b.pEmpty : '0', b.pEmpty ? 'neg' : 'ok'],
+    [`Eksik olmazsa olmaz (${b.missing.length})`, b.pMust ? '−' + b.pMust : '0', b.pMust ? 'neg' : 'ok'],
+    ['Ağırlık', `${fmtKg(b.kg)} / ${K.kgLimit} kg`, b.heavy ? 'neg' : ''],
+    ['Bavul', b.heavy ? `kapanmaz: ${K.kgLimit} kg'ı aştın` : 'kapanır', b.heavy ? 'neg' : 'ok'],
+  ].map(([a, c, cls]) => `<div class="row ${cls}"><span>${a}</span><b>${c}</b></div>`).join('');
 }
 
 // ---------- finish ----------
-function askClose() { if (phase === 'play') { phase = 'close'; show(); } }
+function askClose() {
+  if (phase !== 'play') return false;
+  if (breakdown().heavy) { toast(`${K.kgLimit} kg'ı aştın`); fx.sound('gate'); return false; }
+  phase = 'close'; show(); return true;
+}
 function closeBag() {
-  const t = elapsed(), b = breakdown(t);
-  rounds[vk] = (rounds[vk] || 0) + 1;
-  best[vk] = Math.max(best[vk] ?? 0, b.score);
+  const b = breakdown(), t = elapsed();
+  rounds++; best = Math.max(best ?? 0, b.score);
   result = { b, t };
-  logRows.unshift({ v: vk, n: rounds[vk], score: b.score, t, card: R.card ? R.card.n : '', empty: b.empty });
+  logRows.unshift({ n: rounds, score: b.score, t, card: R.card.n, empty: b.empty, kg: b.kg });
   phase = 'result'; show();
+  fx.sound('close');
+  if (b.score >= 95) setTimeout(() => { fx.sound('prize'); confetti(); }, 650);
 }
 
-// ---------- input ----------
+// ---------- keyboard ----------
 document.addEventListener('keydown', ev => {
   if (ev.key === 'F2') { ev.preventDefault(); toggleDbg(); return; }
   if (ev.target.closest && ev.target.closest('#dbg')) return;
-  if (phase === 'start' || phase === 'result') {
-    if (ev.key === 'ArrowLeft') { switchVar(-1); return; }
-    if (ev.key === 'ArrowRight') { switchVar(1); return; }
-  }
   if (phase === 'start') { if (ev.key === 'Enter') { ev.preventDefault(); newRound(); } return; }
   if (phase === 'exit') { if (ev.key === 'Enter') leave(); else if (ev.key === 'Escape') stay(); return; }
   if (phase === 'close') { if (ev.key === 'Enter') { ev.preventDefault(); closeBag(); } else if (ev.key === 'Escape') { phase = 'play'; show(); } return; }
@@ -544,160 +621,165 @@ document.addEventListener('keydown', ev => {
   if (k === 'r' || k === 'R') { rotate(); return; }
   if (k === 'Enter') { ev.preventDefault(); place(); return; }
   if (k === 'Tab') { ev.preventDefault(); cycle(ev.shiftKey ? -1 : 1); return; }
-  if (k === 'Backspace') { ev.preventDefault(); pickUp(); return; }
+  if (k === 'Backspace') { ev.preventDefault(); takeOut(); return; }
   if (k === 'k' || k === 'K') { askClose(); return; }
-  if ((k === 'v' || k === 'V') && cfg().layers === 2) { showLower = !showLower; changed(); return; }
 });
 function leave() { phase = 'start'; R = null; show(); }
 function stay() { phase = 'play'; show(); }
-function switchVar(d) {
-  vk = VKEYS[(VKEYS.indexOf(vk) + d + VKEYS.length) % VKEYS.length];
-  const u = new URL(location.href); u.searchParams.set('v', vk); history.replaceState(null, '', u);
-  phase = 'start'; R = null; forcedCard = -1; lastCard = -1; fillCardSelect(); show();
+
+// ---------- mouse ----------
+const cv = $('cv'), ctx = cv.getContext('2d');
+let dpr = 1, CS = 80, PAD = 26, TOPH = 34;
+const OX = () => PAD, OY = () => PAD + TOPH;
+const cellAt = ev => ({ x: Math.floor((ev.offsetX - OX()) / CS), y: Math.floor((ev.offsetY - OY()) / CS) });
+const inBag = c => c.x >= 0 && c.x < W && c.y >= 0 && c.y < H;
+let drag = null;    // { from: 'list' | 'bag', startX, startY, moved }
+function follow(c) {
+  // the held item hangs from the cell it was grabbed by, or from its middle
+  const it = R.items[R.held], d = dims(shapeOf(it));
+  const g = R.grab || { x: Math.floor((d.w - 1) / 2), y: Math.floor((d.h - 1) / 2) };
+  const nx = c.x - g.x, ny = c.y - g.y;
+  if (nx !== R.x || ny !== R.y) { R.x = nx; R.y = ny; clampHeld(); changed(); }
 }
+cv.addEventListener('pointermove', ev => {
+  if (phase !== 'play') return;
+  const c = cellAt(ev);
+  if (drag && (c.x !== drag.cx || c.y !== drag.cy)) drag.moved = true;
+  if (R.held >= 0 && inBag(c)) follow(c);
+  else if (R.held < 0 && inBag(c)) { R.x = c.x; R.y = c.y; }
+  cv.style.cursor = R.held >= 0 ? 'grabbing' : overlapping([[c.x, c.y]]).length ? 'grab' : 'default';
+});
+cv.addEventListener('pointerdown', ev => {
+  if (phase !== 'play' || ev.button !== 0) return;
+  const c = cellAt(ev); if (!inBag(c)) return;
+  if (R.held >= 0) { follow(c); place(); return; }
+  const under = overlapping([[c.x, c.y]]);
+  if (under.length) {
+    const it = under[0], gx = c.x - it.placed.x, gy = c.y - it.placed.y;
+    lift(it); R.grab = { x: gx, y: gy }; drag = { from: 'bag', cx: c.x, cy: c.y, moved: false };
+  }
+});
+window.addEventListener('pointerup', ev => {
+  if (!drag || phase !== 'play') { drag = null; return; }
+  const onCanvas = ev.target === cv, c = onCanvas ? cellAt(ev) : null;
+  // a drag that ends over the bag puts the item down; a plain click keeps it in hand
+  if (onCanvas && inBag(c) && R.held >= 0 && (drag.from === 'list' || drag.moved)) { follow(c); place(); }
+  drag = null;
+});
+document.addEventListener('contextmenu', ev => { if (phase === 'play' && ev.target.closest && ev.target.closest('#game')) { ev.preventDefault(); rotate(); } });
 
 // ---------- screens / HUD ----------
 let toastT = 0;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1600); }
-function keyRows() {
-  const v = cfg(), rows = [
-    ['<span>←</span><span>↑</span><span>→</span><span>↓</span>', 'Eşyayı taşı'],
-    ['<span>R</span>', 'Döndür'],
-    ['<span>Enter</span>', 'Bavula koy'],
-    ['<span>Tab</span><i>/</i><span>⇧ Tab</span>', 'Sıradaki / önceki eşya'],
-    ['<span>⌫</span>', 'Bavuldan geri al (altındakini, yoksa sonuncuyu)'],
-  ];
-  if (v.layers === 2) rows.push(['<span>V</span>', 'Alt katı göster']);
-  rows.push(['<span>K</span>', 'Bavulu kapat, turu bitir'], ['<span>Esc</span>', 'Turdan çık']);
-  return rows;
-}
 function show() {
-  const v = cfg();
   $('sStart').hidden = phase !== 'start';
   $('sClose').hidden = phase !== 'close';
   $('sExit').hidden = phase !== 'exit';
   $('sEnd').hidden = phase !== 'result';
-  $('swLab').innerHTML = `${vk} · ${v.name}<small>${VKEYS.indexOf(vk) + 1}/${VKEYS.length}</small>`;
-  $('stVar').textContent = `Varyant ${vk} · ${v.name}`;
-  $('stIntro').textContent = v.intro;
-  $('stKeys').innerHTML = keyRows().map(([k, t]) => `<div class="kbd">${k}</div><div>${t}</div>`).join('');
-  $('stGoal').innerHTML = `${K.softMin} dakika serbest, sonra her ${K.timeEvery} saniyede −%${K.timeStep}.<br><b>%95</b> ve üstü: Küçük ödül, <b>Hafta sonu gezisi</b>`;
-  $('legend').innerHTML = keyRows().filter(r => !/Esc/.test(r[0])).map(([k, t]) => `<span class="k"><span class="kbd">${k}</span>${t.replace(/ \(.*\)/, '')}</span>`).join('');
-  if (phase === 'close') { const b = breakdown(elapsed()); $('clRows').innerHTML = rowsHtml(b); $('clScore').textContent = pct(b.score); }
+  if (phase === 'exit') music.hold('confirm'); else music.release('confirm');
+  $('stKeys').innerHTML = [
+    ['<span>←</span><span>↑</span><span>→</span><span>↓</span>', 'Eşyayı taşı'],
+    ['<span>R</span><i>ya da</i><span>sağ tık</span>', 'Döndür'],
+    ['<span>Enter</span><i>ya da</i><span>tık</span>', 'Bavula koy'],
+    ['<span>Tab</span><i>/</i><span>⇧ Tab</span>', 'Sonraki / önceki eşya'],
+    ['<span>⌫</span>', 'Çıkar (altındakini, yoksa sonuncuyu)'],
+    ['<span>K</span>', 'Bavulu kapat, turu bitir'],
+    ['<span>Esc</span>', 'Turdan çık'],
+  ].map(([k, t]) => `<div class="kbd">${k}</div><div>${t}</div>`).join('');
+  if (phase === 'close') { const b = breakdown(); $('clRows').innerHTML = rowsHtml(b); $('clScore').textContent = pct(b.score); }
   if (phase === 'result') fillResult();
-  if (!R) previewRound();
+  if (!R) R = { card: CARDS[Math.max(0, forcedCard)], preview: true, items: ITEMS.map((key, i) => ({ i, key, rot: 0, placed: null })), order: [], held: -1, x: 0, y: 0, mustDone: new Set() };
   changed();
-}
-// before the first Round the board shows the variant's items, unpacked
-function previewRound() {
-  const v = cfg();
-  R = { card: v.cards ? CARDS[Math.max(0, forcedCard)] : null, t0: performance.now(), skip: 0, preview: true,
-    items: v.items.map((key, i) => ({ i, key, rot: 0, placed: null })), order: [], held: -1, x: 0, y: 0 };
 }
 function changed() { renderSide(); updateHud(); updateState(); }
 function renderSide() {
-  const v = cfg();
-  $('trip').hidden = !v.cards;
-  if (v.cards && R.card) {
-    $('tripName').textContent = R.card.n;
-    $('tripMusts').innerHTML = R.card.m.map(k => { const ok = R.items.find(it => it.key === k).placed; return `<span class="chip ${ok ? 'ok' : ''}">${ok ? '✓' : CAT[k].e} ${CAT[k].n}</span>`; }).join('');
-  }
-  const inBag = R.items.filter(it => it.placed).length;
-  const musts = v.cards && R.card ? R.card.m : [];
-  $('items').innerHTML = `<div class="head"><span>Bavulun yanında</span><span>${inBag} / ${R.items.length} bavulda</span></div>` +
+  $('tripName').textContent = R.card.n;
+  $('tripMusts').innerHTML = R.card.m.map(k => { const ok = R.items.find(it => it.key === k).placed; return `<span class="chip ${ok ? 'ok' : ''}">${ok ? '✓' : CAT[k].e} ${CAT[k].n}</span>`; }).join('');
+  const inBagN = R.items.filter(it => it.placed).length;
+  $('items').innerHTML = `<div class="head"><span>Bavulun yanında</span><span>${inBagN} / ${R.items.length} bavulda</span></div>` +
     R.items.map(it => {
       const c = CAT[it.key], o = SHAPES[it.key][0], d = dims(o), set = new Set(o.map(([x, y]) => y * d.w + x));
       let mini = ''; for (let i = 0; i < d.w * d.h; i++) mini += `<i style="background:${set.has(i) ? c.c : 'transparent'}"></i>`;
-      const meta = [o.length + ' kare'];
-      if (v.layers === 2) meta.push(c.h === 2 ? 'kalın · 2 kat' : 'ince · 1 kat');
-      const tag = v.weight ? fmtKg(kgOf(it.key)) : '';
       return `<div class="it ${R.held === it.i && phase === 'play' ? 'sel' : ''} ${it.placed ? 'in' : ''}" data-i="${it.i}">
         <div class="mini" style="grid-template-columns:repeat(${d.w},8px)">${mini}</div>
-        <div><div class="nm"><span class="e">${c.e}</span><span>${c.n}</span>${musts.includes(it.key) ? '<span class="star">★</span>' : ''}</div><div class="meta">${it.placed ? 'bavulda' : meta.join(' · ')}</div></div>
-        <div class="tag">${tag}</div></div>`;
+        <div><div class="nm"><span class="e">${c.e}</span><span>${c.n}</span>${R.card.m.includes(it.key) ? '<span class="star">★</span>' : ''}</div><div class="meta">${it.placed ? 'bavulda' : o.length + ' kare'}</div></div>
+        <div class="tag">${fmtKg(c.kg)}</div></div>`;
     }).join('');
-  $('items').querySelectorAll('.it').forEach(el => el.onclick = () => {
-    if (phase !== 'play') return;
+  $('items').querySelectorAll('.it').forEach(el => el.onpointerdown = ev => {
+    if (phase !== 'play' || ev.button !== 0) return;
+    ev.preventDefault();
     const it = R.items[+el.dataset.i];
-    if (it.placed) lift(it); else { hold(it.i, R.x, R.y); changed(); }
+    if (it.placed) { lift(it); return; }
+    if (R.held !== it.i) { hold(it.i); fx.sound('pick'); changed(); }
+    drag = { from: 'list', moved: false };
   });
 }
 function updateHud() {
-  const v = cfg();
-  $('vVar').textContent = `${vk} · ${v.name}`;
-  $('vRound').textContent = R && !R.preview ? `Tur ${(rounds[vk] || 0) + (phase === 'result' ? 0 : 1)}` : '';
-  $('vBest').textContent = best[vk] == null ? '—' : pct(best[vk]);
-  // hold bar
+  $('vRound').textContent = R && !R.preview ? `Tur ${rounds + (phase === 'result' ? 0 : 1)}` : '';
+  $('vBest').textContent = best == null ? '—' : pct(best);
+  const playing = R && !R.preview && phase !== 'result';
   const hb = $('hold');
-  if (!R || R.preview || phase === 'result') { hb.style.visibility = 'hidden'; }
+  if (!playing) hb.style.visibility = 'hidden';
   else {
     hb.style.visibility = 'visible';
-    if (R.held < 0) hb.innerHTML = `<span>Elin boş: oklarla bir eşyanın üstüne gel, <b>⌫</b> ile geri al ya da <b>K</b> ile kapat</span>`;
+    if (R.held < 0) hb.innerHTML = `<span>Elin boş: bir eşyaya gel, <b>Çıkar</b> ile geri al ya da <b>Bavulu kapat</b></span>`;
     else {
       const it = R.items[R.held], c = CAT[it.key], p = probe();
-      const extra = [v.weight ? fmtKg(kgOf(it.key)) : '', v.layers === 2 ? (c.h === 2 ? '2 kat' : '1 kat') : ''].filter(Boolean).join(' · ');
-      const st = !p.ok ? `<span class="st bad">${p.why}</span>` : p.warn ? `<span class="st warn">${p.warn}</span>` : `<span class="st">${p.where || 'Sığıyor'}</span>`;
-      hb.innerHTML = `<span class="e">${c.e}</span><span>${c.n}</span>${extra ? `<span style="color:var(--bd-muted);font-weight:600">${extra}</span>` : ''}${st}`;
+      const st = !p.ok ? `<span class="st bad">${p.why}</span>` : p.warn ? `<span class="st warn">${p.warn}</span>` : `<span class="st">Sığıyor</span>`;
+      hb.innerHTML = `<span class="e">${c.e}</span><span>${c.n}</span><span style="color:var(--bd-muted);font-weight:600">${fmtKg(c.kg)}</span>${st}`;
     }
   }
-  // live score
+  for (const b of document.querySelectorAll('.act')) {
+    const a = b.dataset.act;
+    b.disabled = !playing || (R.held < 0 && (a === 'rotate' || a === 'place')) || (a === 'out' && !R.order.length) || (a === 'next' && unplacedFrom(R.held, 1) < 0);
+  }
   if (R) {
-    const b = breakdown(R.preview ? 0 : (phase === 'result' ? result.t : elapsed()));
+    const b = breakdown();
     $('sBig').textContent = pct(b.score); $('sBig').classList.toggle('win', b.score >= 95);
     $('sRows').innerHTML = rowsHtml(b);
-    $('sNote').textContent = ruleText();
+    $('sNote').textContent = `Skor = 100 − ${K.emptyPen} × boş kare − ${K.mustPen} × eksik olmazsa olmaz. ${K.kgLimit} kg'ı aşan bavul kapanmaz.`;
   }
-}
-function ruleText() {
-  const v = cfg(), parts = ['Skor = doluluk'];
-  if (v.cards) parts.push(`− ${K.mustPen} her eksik olmazsa olmaz için`);
-  if (v.weight && !v.gates) parts.push(`− ${K.kgPen} ${K.kgLimit} kg üstündeki her kilo için`);
-  if (v.layers === 2 && !v.gates) parts.push(`− ${K.lidPen} kapaktan taşan her kare için`);
-  parts.push('− süre cezası');
-  let s = parts.join(' ') + '.';
-  if (v.gates) s += ` ${K.kgLimit} kg'ı aşan ya da kapağı kapatmayan eşya bavula girmez.`;
-  return s;
 }
 function fillResult() {
   const b = result.b, win = b.score >= 95;
-  $('eHead').textContent = 'Bavul kapandı' + (R.card ? ' · ' + R.card.n : '');
+  $('eHead').textContent = 'Bavul kapandı · ' + R.card.n;
   $('eScore').textContent = pct(b.score); $('eScore').style.color = win ? 'var(--bd-won)' : '';
   $('eRows').innerHTML = rowsHtml(b) + `<div class="row dim"><span>Süre</span><b>${mmss(result.t)}</b></div>`;
-  $('eBest').textContent = pct(best[vk]); $('eTry').textContent = rounds[vk];
+  $('eBest').textContent = pct(best); $('eTry').textContent = rounds;
   const v = $('eVerdict'); v.classList.toggle('win', win);
-  v.textContent = b.score === 100 ? 'Kusursuz bavul!' : win ? '%95 tamam: Hafta sonu gezisi senin!'
-    : b.empty ? `${b.empty} ${cfg().layers === 2 ? 'birim' : 'kare'} boş kaldı. %95 için en çok ${Math.floor(b.all * 0.05)} boş olabilir.` : 'Yer dolu ama cezalar skoru düşürdü.';
+  v.textContent = b.score === 100 ? 'Kusursuz bavul! Hafta sonu gezisi senin!' : win ? '%95 tamam: Hafta sonu gezisi senin!'
+    : b.missing.length ? `${b.missing.length} olmazsa olmaz eksik kaldı.` : `${b.empty} kare boş kaldı. %95 için en çok 1 boş kare olabilir.`;
 }
-$('bStart').onclick = newRound; $('bAgain').onclick = newRound; $('bHub').onclick = () => { phase = 'start'; show(); };
+for (const b of document.querySelectorAll('.act')) b.addEventListener('click', () => {
+  const a = b.dataset.act;
+  if (a === 'rotate') rotate(); else if (a === 'place') place(); else if (a === 'out') takeOut(); else if (a === 'next') cycle(1); else if (a === 'close') askClose();
+});
+$('bStart').onclick = () => newRound(); $('bAgain').onclick = () => newRound(); $('bHub').onclick = () => { phase = 'start'; show(); };
 $('bClose').onclick = closeBag; $('bBack').onclick = () => { phase = 'play'; show(); };
 $('bStay').onclick = stay; $('bLeave').onclick = leave;
-$('swPrev').onclick = () => switchVar(-1); $('swNext').onclick = () => switchVar(1);
 $('toggleDbg').onclick = toggleDbg;
 function toggleDbg() { $('dbg').hidden = !$('dbg').hidden; requestAnimationFrame(resize); }
+// a clicked screen button must not also take the next Enter
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('button'); if (b) b.blur(); });
 
 // ---------- draw ----------
-const cv = $('cv'), ctx = cv.getContext('2d');
-let dpr = 1, CS = 80, PAD = 26, TOPH = 34;
 function resize() {
-  const wrap = $('boardWrap'), aw = wrap.clientWidth - 20, ah = wrap.clientHeight - 130;
+  const wrap = $('boardWrap'), aw = wrap.clientWidth - 20, ah = wrap.clientHeight - 170;
   CS = Math.floor(Math.max(40, Math.min((aw - 2 * PAD) / W, (ah - 2 * PAD - TOPH) / H, 112)));
   const w = W * CS + 2 * PAD, h = H * CS + 2 * PAD + TOPH;
   dpr = window.devicePixelRatio || 1;
   cv.style.width = w + 'px'; cv.style.height = h + 'px'; cv.width = w * dpr; cv.height = h * dpr;
 }
-const OX = () => PAD, OY = () => PAD + TOPH;
-function shade(hex, f) { const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = n >> 8 & 255, b = n & 255; const m = v => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f))); return `rgb(${m(r)},${m(g)},${m(b)})`; }
+function shade(hex, f) { const n = parseInt(hex.slice(1), 16); const m = v => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f))); return `rgb(${m(n >> 16)},${m(n >> 8 & 255)},${m(n & 255)})`; }
 // a polyomino as merged cells; inset only on its outer edges
-function piece(cells, color, { dx = 0, dy = 0, alpha = 1, stroke = null, dash = null, thick = 0, emoji = null, badge = null } = {}) {
+function piece(cells, color, { alpha = 1, stroke = null, dash = null, emoji = null } = {}) {
   const set = new Set(cells.map(([x, y]) => x + ',' + y)), has = (x, y) => set.has(x + ',' + y), ins = Math.max(3, CS * .05);
   const rectOf = (x, y) => {
     const l = has(x - 1, y) ? 0 : ins, r = has(x + 1, y) ? 0 : ins, t = has(x, y - 1) ? 0 : ins, b = has(x, y + 1) ? 0 : ins;
-    return [OX() + x * CS + l + dx, OY() + y * CS + t + dy, CS - l - r, CS - t - b];
+    return [OX() + x * CS + l, OY() + y * CS + t, CS - l - r, CS - t - b];
   };
   ctx.save(); ctx.globalAlpha = alpha;
-  if (thick) { ctx.fillStyle = shade(color, -.28); for (const [x, y] of cells) { const [a, b, w, h] = rectOf(x, y); ctx.fillRect(a, b + thick, w, h); } }
   ctx.fillStyle = color; for (const [x, y] of cells) { const [a, b, w, h] = rectOf(x, y); ctx.fillRect(a, b, w, h); }
-  // outline along outer edges
   ctx.beginPath();
   for (const [x, y] of cells) {
     const [a, b, w, h] = rectOf(x, y);
@@ -712,21 +794,13 @@ function piece(cells, color, { dx = 0, dy = 0, alpha = 1, stroke = null, dash = 
     const [ex, ey] = cells.slice().sort((p, q) => Math.hypot(p[0] - cx, p[1] - cy) - Math.hypot(q[0] - cx, q[1] - cy))[0];
     ctx.font = `${Math.round(CS * .48)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(emoji, OX() + (ex + .5) * CS + dx, OY() + (ey + .5) * CS + dy + 1);
-    if (badge) {
-      ctx.font = '800 11px Nunito, system-ui, sans-serif';
-      const bw = Math.max(20, ctx.measureText(badge).width + 12);
-      const bx = OX() + (ex + 1) * CS + dx - bw / 2 - 6, by = OY() + ey * CS + dy + 15;
-      ctx.fillStyle = badge === 'taşıyor' ? '#d9453d' : 'rgba(58,45,42,.82)'; ctx.beginPath(); ctx.roundRect(bx - bw / 2, by - 9, bw, 18, 9); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.fillText(badge, bx, by + 1);
-    }
+    ctx.fillText(emoji, OX() + (ex + .5) * CS, OY() + (ey + .5) * CS + 1);
   }
   ctx.restore();
 }
 function frame(now) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const w = cv.width / dpr, h = cv.height / dpr; ctx.clearRect(0, 0, w, h);
-  const v = cfg();
   // suitcase: handle, shell, lining
   const sx = PAD - 16, sy = TOPH + PAD - 16, sw = W * CS + 32, sh = H * CS + 32;
   ctx.fillStyle = '#7a4b3a'; ctx.beginPath(); ctx.roundRect(w / 2 - 70, sy - 30, 140, 40, 14); ctx.fill();
@@ -734,49 +808,25 @@ function frame(now) {
   ctx.fillStyle = '#c45a5a'; ctx.beginPath(); ctx.roundRect(sx, sy, sw, sh, 22); ctx.fill();
   ctx.fillStyle = '#a94646'; ctx.fillRect(sx + 40, sy, 10, sh); ctx.fillRect(sx + sw - 50, sy, 10, sh);
   ctx.fillStyle = '#f6ece2'; ctx.beginPath(); ctx.roundRect(OX() - 4, OY() - 4, W * CS + 8, H * CS + 8, 10); ctx.fill();
-  // grid
   ctx.strokeStyle = 'rgba(122,75,58,.16)'; ctx.lineWidth = 1;
   for (let x = 0; x <= W; x++) { ctx.beginPath(); ctx.moveTo(OX() + x * CS + .5, OY()); ctx.lineTo(OX() + x * CS + .5, OY() + H * CS); ctx.stroke(); }
   for (let y = 0; y <= H; y++) { ctx.beginPath(); ctx.moveTo(OX(), OY() + y * CS + .5); ctx.lineTo(OX() + W * CS, OY() + y * CS + .5); ctx.stroke(); }
   if (R) {
-    const placed = R.items.filter(it => it.placed).sort((a, b) => a.placed.z - b.placed.z);
-    const lift = 0;   // an item on top sits on the grid too; its shadow and «üst» badge say it is raised
-    for (const it of placed) {
-      const c = CAT[it.key], cells = cellsAt(it, it.placed.x, it.placed.y), up = it.placed.z > 0;
-      if (up && showLower) { piece(cells, c.c, { dx: -lift, dy: -lift, alpha: .18 }); continue; }
-      if (up) { ctx.save(); ctx.shadowColor = 'rgba(58,45,42,.35)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4; }
-      piece(cells, c.c, { dx: up ? -lift : 0, dy: up ? -lift : 0, thick: v.layers === 2 && c.h === 2 ? Math.max(4, CS * .06) : 0, emoji: c.e,
-        badge: v.layers === 2 ? (it.placed.z + c.h > 2 ? 'taşıyor' : up ? 'üst' : c.h === 2 ? '2 kat' : null) : null });
-      if (up) ctx.restore();
-    }
-    // stack heights (V view)
-    if (v.layers === 2 && showLower) {
-      const hm = heights();
-      ctx.font = '800 12px Nunito, system-ui, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
-      for (let c = 0; c < W * H; c++) { ctx.fillStyle = hm[c] >= 2 ? '#1f8a5b' : hm[c] ? '#b7791f' : '#d9453d'; ctx.fillText(hm[c] + '/2', OX() + (c % W + 1) * CS - 5, OY() + Math.floor(c / W) * CS + 4); }
-    }
+    for (const it of R.items) if (it.placed) piece(cellsAt(it, it.placed.x, it.placed.y), CAT[it.key].c, { emoji: CAT[it.key].e });
     if (phase === 'play' || phase === 'close' || phase === 'exit') {
       if (R.held >= 0) {
-        const it = R.items[R.held], c = CAT[it.key], p = probe();
-        const col = !p.ok ? '#d9453d' : p.warn ? '#b7791f' : '#2fb67c';
-        const up = v.layers === 2 && p.z > 0;
-        piece(p.cells, c.c, { dx: up ? -lift : 0, dy: up ? -lift : 0, alpha: .82, stroke: col, dash: [7, 5], emoji: c.e });
-      } else {
+        const it = R.items[R.held], p = probe();
+        piece(p.cells, CAT[it.key].c, { alpha: .82, stroke: !p.ok ? '#d9453d' : p.warn ? '#b7791f' : '#2fb67c', dash: [7, 5], emoji: CAT[it.key].e });
+      } else if (!R.preview) {
         const pulse = .5 + .5 * Math.sin(now / 250);
         ctx.strokeStyle = `rgba(224,68,106,${.5 + .5 * pulse})`; ctx.lineWidth = 3; ctx.setLineDash([6, 4]);
         ctx.strokeRect(OX() + R.x * CS + 3, OY() + R.y * CS + 3, CS - 6, CS - 6); ctx.setLineDash([]);
       }
     }
   }
-  // timer tick in the HUD
-  if (R && !R.preview && (phase === 'play' || phase === 'close' || phase === 'exit')) {
-    const t = elapsed(), lim = K.softMin * 60, late = t >= lim;
-    $('vTime').textContent = late ? `${mmss(t)}  −%${timePen(t)}` : mmss(t);
-    $('vTimeL').textContent = late ? 'Süre: her 20 sn −%3' : `Süre · ${mmss(lim - t)} serbest kaldı`;
-    $('vTimeBar').style.width = Math.min(100, 100 * t / lim) + '%';
-    $('hTime').classList.toggle('late', late);
-    if (Math.floor(t * 2) !== frame.lastHalf) { frame.lastHalf = Math.floor(t * 2); updateHud(); }
-  } else if (!R || R.preview) { $('vTime').textContent = mmss(0); $('vTimeL').textContent = `Süre · ${K.softMin} dk serbest`; $('vTimeBar').style.width = '0'; $('hTime').classList.remove('late'); }
+  if (R && !R.preview && phase !== 'result') {
+    const s = Math.floor(elapsed()); if (s !== frame.lastS) { frame.lastS = s; $('vTime').textContent = mmss(s); }
+  } else if (!R || R.preview) $('vTime').textContent = '0:00';
   requestAnimationFrame(frame);
 }
 
@@ -788,63 +838,50 @@ function knob(host, key, label, min, max, stp, fmt) {
   inp.oninput = () => { K[key] = +inp.value; out.textContent = fmt(K[key]); show(); };
   $(host).appendChild(d);
 }
-knob('kRule', 'softMin', 'Serbest süre (dk)', 1, 6, .5, v => v + ' dk');
-knob('kRule', 'timeStep', 'Süre cezası (puan)', 0, 10, 1, v => '−' + v);
-knob('kRule', 'timeEvery', '… her (sn)', 5, 60, 5, v => v + ' sn');
-knob('kRule', 'mustPen', 'Eksik olmazsa olmaz (B, E)', 0, 30, 1, v => '−' + v);
-knob('kRule', 'kgPen', 'Fazla kilo, kg başına (C)', 0, 20, 1, v => '−' + v);
-knob('kRule', 'lidPen', 'Kapaktan taşan kare başına (D)', 0, 20, 1, v => '−' + v);
-knob('kRule', 'kgLimit', 'Ağırlık sınırı (C, E)', 15, 30, .5, v => v + ' kg');
-function fillCardSelect() {
-  const v = cfg(); $('dCardWrap').style.display = v.cards ? '' : 'none';
-  $('dCard').innerHTML = `<option value="-1">Kart: rastgele</option>` + CARDS.map((c, i) => `<option value="${i}" ${forcedCard === i ? 'selected' : ''}>Kart: ${c.n}</option>`).join('');
-  $('dSolNote').textContent = 'Çözümü yerleştir: bu varyantın (ve kartın) bilinen kusursuz dizilişini motorla yerleştirir. Skor %100 olmalı (süre cezası hariç).';
-}
+knob('kRule', 'emptyPen', 'Boş kare başına', 1, 10, 1, v => '−' + v);
+knob('kRule', 'mustPen', 'Eksik olmazsa olmaz başına', 0, 30, 1, v => '−' + v);
+knob('kRule', 'kgLimit', 'Ağırlık sınırı (kapı)', 18, 30, .5, v => v + ' kg');
+$('dCard').innerHTML = `<option value="-1">Kart: rastgele</option>` + CARDS.map((c, i) => `<option value="${i}">Kart: ${c.n}</option>`).join('');
 $('dCard').onchange = e => { forcedCard = +e.target.value; if (phase === 'start') { R = null; show(); } };
-$('dTime').onclick = () => { if (R && !R.preview) { R.skip += 60; updateHud(); } };
-$('dClear').onclick = () => { if (phase === 'play') { R.items.forEach(it => it.placed = null); R.order = []; hold(0, 0, 0); changed(); } };
-$('dSolve').onclick = () => { if (phase !== 'play') newRound(); applySolution(); };
-function applySolution() {
-  const v = cfg(); let sol = v.SOL; if (v.cards) sol = sol[R.card.n];
-  R.items.forEach(it => { it.placed = null; it.rot = 0; }); R.order = [];
-  sol.forEach((grid, layer) => {
-    const cells = {};
-    grid.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') (cells[ch] = cells[ch] || []).push([x, y]); }));
-    for (const ch in cells) {
-      const it = R.items[ch.charCodeAt(0) - 65]; if (it.placed) continue;     // a tall item shows in both layers
-      const nc = norm(cells[ch]), key = JSON.stringify(nc);
-      it.rot = SHAPES[it.key].findIndex(o => JSON.stringify(o) === key);
-      if (it.rot < 0) { console.warn('shape mismatch', it.key); it.rot = 0; continue; }
-      const x = Math.min(...cells[ch].map(p => p[0])), y = Math.min(...cells[ch].map(p => p[1]));
-      it.placed = { x, y, z: layer && CAT[it.key].h === 1 ? 1 : 0 }; R.order.push(it.i);
-    }
-  });
+$('dSolve').onclick = () => { if (phase !== 'play') newRound(); applySolution('ok'); };
+$('dHeavy').onclick = () => { if (phase !== 'play') newRound(); applySolution('heavy'); };
+$('dClear').onclick = () => { if (phase === 'play') { R.items.forEach(it => it.placed = null); R.order = []; R.mustDone.clear(); hold(0); changed(); } };
+$('counts').innerHTML = '<tr><th>kart</th><th>≤23 kg</th><th>ağır</th><th>en hafif</th></tr>' +
+  CARDS.map(c => { const x = COUNTS[c.n]; return `<tr><td>${c.n}</td><td>${x.ok}</td><td>${x.over}</td><td>${fmtKg(x.lightKg)}</td></tr>`; }).join('');
+function applySolution(kind) {
+  const grid = SOL[R.card.n][kind];
+  R.items.forEach(it => { it.placed = null; it.rot = 0; }); R.order = []; R.mustDone.clear();
+  const cells = {};
+  grid.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') (cells[ch] = cells[ch] || []).push([x, y]); }));
+  for (const ch in cells) {
+    const it = R.items[ch.charCodeAt(0) - 65], key = JSON.stringify(norm(cells[ch]));
+    it.rot = SHAPES[it.key].findIndex(o => JSON.stringify(o) === key);
+    if (it.rot < 0) { console.warn('shape mismatch', it.key); it.rot = 0; continue; }
+    it.placed = { x: Math.min(...cells[ch].map(p => p[0])), y: Math.min(...cells[ch].map(p => p[1])) }; R.order.push(it.i);
+    if (R.card.m.includes(it.key)) R.mustDone.add(it.key);
+  }
   R.held = unplacedFrom(-1, 1); clampHeld(); changed();
 }
 function updateState() {
   if (!R) return;
-  const b = breakdown(R.preview ? 0 : elapsed());
+  const b = breakdown();
   $('state').textContent = [
-    `variant    ${vk} ${cfg().name}  (${cfg().items.length} eşya, ${cfg().layers} kat)`,
     `phase      ${phase}`,
-    `card       ${R.card ? R.card.n + ' → ' + R.card.m.join(', ') : '—'}`,
+    `card       ${R.card.n} → ${R.card.m.join(', ')}`,
     `held       ${R.held >= 0 ? R.items[R.held].key + ' rot ' + R.items[R.held].rot + ' @ ' + R.x + ',' + R.y : '— cursor @ ' + R.x + ',' + R.y}`,
     `placed     ${R.order.map(i => R.items[i].key).join(', ') || '—'}`,
-    `filled     ${b.filled}/${b.all}  fill ${b.fill}%`,
-    `kg         ${fmtKg(b.kg)}  over ${fmtKg(b.over)}`,
-    `lid out    ${b.out}`,
-    `penalties  must −${b.pMust}  kg −${b.pKg}  lid −${b.pLid}  time −${b.pTime}`,
-    `score      ${b.score}%`,
-    `best       ${best[vk] == null ? '—' : best[vk] + '%'}   rounds ${rounds[vk] || 0}`,
+    `filled     ${b.filled}/${W * H}  empty ${b.empty}`,
+    `kg         ${fmtKg(b.kg)}${b.heavy ? '  OVER: will not close' : ''}`,
+    `score      100 − ${b.pEmpty} − ${b.pMust} = ${b.score}%`,
+    `best       ${best == null ? '—' : best + '%'}   rounds ${rounds}`,
+    `audio      unlocked ${unlocked}  music ${music.on ? 'on' : 'off'}${music.voice ? ' (playing)' : ''}  fx ${fx.on ? 'on' : 'off'}`,
   ].join('\n');
-  $('log').innerHTML = logRows.map(r => `<li class="${r.score >= 95 ? 'win' : ''}">${r.v}#${r.n} ${pct(r.score)}  ${mmss(r.t)}  boş ${r.empty}${r.card ? '  · ' + r.card : ''}</li>`).join('');
+  $('log').innerHTML = logRows.map(r => `<li class="${r.score >= 95 ? 'win' : ''}">#${r.n} ${pct(r.score)}  ${mmss(r.t)}  boş ${r.empty}  ${fmtKg(r.kg)} · ${r.card}</li>`).join('');
 }
 
 // ---------- boot ----------
-window.__bavul = { V, CAT, get R() { return R; }, newRound, applySolution, breakdown, switchVar, get vk() { return vk; } };
-fillCardSelect();
-// a clicked button must not also take the next Enter
-document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('button'); if (b) b.blur(); });
+window.__bavul = { get R() { return R; }, get phase() { return phase; }, newRound, applySolution, breakdown, askClose, closeBag, music, fx };
+paintToggles();
 window.addEventListener('resize', resize);
 show(); resize();
 requestAnimationFrame(frame);
