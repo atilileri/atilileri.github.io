@@ -431,22 +431,48 @@ test("a Return gives back half of the matching buy's paid, whatever the Return l
   assert.equal(balance, 223);
 });
 
-test("a Save code whose log Returns a Gift she did not hold is refused, and her progress stays", async () => {
+test("a Return with no buy before it is dropped alone: the rest of a Save code still restores", async () => {
+  // One broken line must not cost her every Best score and every Gift.
+  const forged = (log: unknown[]) =>
+    encodeSaveCode(JSON.stringify({ best: { nerede: 100, hafiza: 100, wordle: 100 }, jackpot: false, log }));
+
+  const neverBought = await forged([
+    { kind: "return", gift: "rocky", paid: 260 },
+    { kind: "buy", gift: "deslak", paid: 100 },
+  ]);
   const ledger = ledgerWith353Points();
-  const forged = (log: unknown[]) => encodeSaveCode(JSON.stringify({ best: { nerede: 100 }, jackpot: false, log }));
+  assert.equal((await ledger.restore(neverBought.code)).ok, true);
+  assert.equal(ledger.earned(), 300);
+  assert.deepEqual([...ledger.held().keys()], ["deslak"]);
+  assert.equal(ledger.balance(), 200);
 
-  const neverBought = await forged([{ kind: "return", gift: "rocky", paid: 260 }]);
-  assert.deepEqual(await ledger.restore(neverBought.code), { ok: false, reason: "payload" });
-
+  // Returned twice: the second Return gives nothing back.
   const returnedTwice = await forged([
     { kind: "buy", gift: "rocky", paid: 260 },
     { kind: "return", gift: "rocky", paid: 260 },
     { kind: "return", gift: "rocky", paid: 260 },
   ]);
-  assert.deepEqual(await ledger.restore(returnedTwice.code), { ok: false, reason: "payload" });
+  assert.equal((await ledger.restore(returnedTwice.code)).ok, true);
+  assert.deepEqual([...ledger.held().keys()], []);
+  assert.equal(ledger.balance(), 170); // 300 − 260 + 130
+});
 
-  assert.equal(ledger.earned(), 353);
-  assert.equal(ledger.balance(), 353);
+test("a stored state with a broken Return keeps her Best scores and Gifts", () => {
+  const store = memoryStore({
+    [STORAGE_KEY]: JSON.stringify({
+      best: { nerede: 100, hafiza: 100, wordle: 100 },
+      jackpot: true,
+      log: [
+        { kind: "buy", gift: "deslak", paid: 100 },
+        { kind: "return", gift: "kurs", paid: 290 },
+      ],
+    }),
+  });
+  const ledger = createLedger(store);
+  assert.equal(ledger.earned(), 300);
+  assert.equal(ledger.holds("deslak"), true);
+  assert.equal(ledger.prizeWon("slot"), true);
+  assert.equal(ledger.balance(), 200);
 });
 
 // ------------------------------------------------------------ Gifted points

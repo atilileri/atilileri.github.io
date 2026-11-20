@@ -376,10 +376,13 @@ function parsed(raw: string | null): Progress {
 
 /**
  * The JSON text of a `Progress`, checked field by field. Returns null when
- * the text is not JSON or not an object, or when its log Returns a Gift that
- * no buy before it left held (no code made here can carry one; the ledger
- * never writes it); drops any Best score, Gift event or field it does not
- * understand. Shared by the ledger's reads and by #196's Save code.
+ * the text is not JSON or not an object; drops any Best score, Gift event or
+ * field it does not understand, and a Return of a Gift that no buy before it
+ * left held (no code made here carries one, and that one line must not cost
+ * her the rest, review A2). A buy of a Gift no longer in the catalogue (#213
+ * took the weekend trip and the paint set out of the shop) is dropped the
+ * same way, so a Save code from before that change still restores. Shared by
+ * the ledger's reads and by #196's Save code.
  */
 export function parseProgress(text: string): Progress | null {
   let data: unknown;
@@ -407,7 +410,7 @@ export function parseProgress(text: string): Progress | null {
       if (typeof e.gift !== "string" || !isGiftId(e.gift)) continue;
       if (typeof e.paid !== "number" || !Number.isFinite(e.paid) || e.paid < 0) continue;
       if (e.kind === "buy") held.add(e.gift);
-      else if (!held.delete(e.gift)) return null;
+      else if (!held.delete(e.gift)) continue;
       out.log.push({ kind: e.kind, gift: e.gift, paid: e.paid });
     }
   }
