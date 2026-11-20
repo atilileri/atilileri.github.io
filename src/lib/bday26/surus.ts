@@ -474,6 +474,13 @@ export function speedingStep(h: Hold, kmh: number, dt: number) {
   return holdStep(h, kmh > RULES.limit + RULES.tol, dt, RULES.speedHold);
 }
 
+/** Is a speeding mistake on its way? She is over the limit plus the
+ *  tolerance and it has not counted yet: the 1.5 s of grace, when the page
+ *  pulses her speed amber so she can still brake in time. */
+export function speedingWarned(h: Hold): boolean {
+  return h.on > 0 && !h.fired;
+}
+
 /** Driving on a bike lane (not a crossing) for more than 0.8 s. */
 export function bikeLaneStep(h: Hold, tile: Tile, dt: number) {
   return holdStep(h, tile === "b" || tile === "B" || tile === "p", dt, RULES.laneHold);

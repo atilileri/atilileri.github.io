@@ -14,7 +14,10 @@
  * points to it, and the minimap shows it as a dot. After "3 2 1" the clock
  * runs; the HUD bar shows Süre (turning amber past 2:30), the running Skor
  * and her heavy and light mistakes, and Hedef n/7; a pill on the town shows
- * her speed beside a 30 sign (red when she is over it). Each mistake pops up
+ * her speed beside a 30 sign; the moment she is over 30 + 3 km/h it pulses
+ * amber through the 1.5 s of grace before the speeding mistake lands
+ * (`speedingWarned`), then stays red while she is still over. The HUD line
+ * keeps to one line down to a 1366 px screen. Each mistake pops up
  * at the top of the town as it happens, in Turkish, with its price ("−%10
  * Kanala düştün"). At the finish, the shell's result card: the score
  * (`drivingScore`, 100 − 10 × heavy − 3 × light), the time as the detail,
@@ -140,6 +143,7 @@ const LIMIT = formatClock(RULES.timeLimit);
     createDrive,
     formatClock,
     gridTile as get,
+    speedingWarned,
     stepCyclists,
     stepDrive,
     tally,
@@ -360,6 +364,8 @@ const LIMIT = formatClock(RULES.timeLimit);
     hud.next.textContent = `${Math.min(drive.next + 1, CHECKPOINTS.length)} / ${CHECKPOINTS.length}`;
     hud.speed.textContent = String(kmh);
     hud.speedPill.classList.toggle("fast", kmh > RULES.limit + RULES.tol);
+    // The grace before a speeding mistake: amber, pulsing, while she can still brake.
+    hud.speedPill.classList.toggle("warn", phase === "driving" && speedingWarned(drive.speeding));
   }
 
   // ── keys ──────────────────────────────────────────────────────────
@@ -763,10 +769,20 @@ const LIMIT = formatClock(RULES.timeLimit);
   /* ── HUD line (in the shell's bar) ──────────────────────────────── */
   .hud-line {
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .hud-line small {
     font-size: 15px;
     color: var(--bd-muted);
+  }
+  /* A 1366 px screen leaves the HUD's middle about 470 px: one line still. */
+  @media (max-width: 1600px) {
+    .hud-line {
+      font-size: 20px;
+    }
+    .hud-line small {
+      font-size: 13px;
+    }
   }
   .hud-line b.over {
     color: #c77700;
@@ -874,6 +890,25 @@ const LIMIT = formatClock(RULES.timeLimit);
   }
   .speed.fast .val {
     color: #c0392b;
+  }
+  /* Over the limit, the mistake not yet counted: amber and pulsing. */
+  .speed.warn .val {
+    color: #c77700;
+  }
+  .speed.warn {
+    animation: speed-warn 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes speed-warn {
+    from {
+      box-shadow:
+        0 6px 20px rgb(58 45 42 / 0.18),
+        0 0 0 0 rgb(230 150 0 / 0.9);
+    }
+    to {
+      box-shadow:
+        0 6px 20px rgb(58 45 42 / 0.18),
+        0 0 0 8px rgb(230 150 0 / 0.35);
+    }
   }
   .sign {
     width: 44px;
