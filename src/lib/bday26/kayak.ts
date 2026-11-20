@@ -249,6 +249,7 @@ export type Input = {
 
 /** What happened in a step, for the page to show (sparks, "+1", messages). */
 export type RunEvent =
+  | { kind: "takeoff"; x: number; y: number }
   | { kind: "flag"; x: number; y: number }
   | { kind: "land"; x: number; y: number }
   | { kind: "fall"; x: number; y: number }
@@ -331,6 +332,7 @@ export function stepRun(run: Run, input: Input, dt: number): RunEvent[] {
     run.onGround = false;
     run.coyote = 0;
     run.jumpBuf = 0;
+    events.push({ kind: "takeoff", x: run.x, y: run.y });
   }
   const px = run.x;
   run.x += run.vx * dt;

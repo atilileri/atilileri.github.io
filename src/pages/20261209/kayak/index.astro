@@ -197,10 +197,7 @@ const KEYS = [
   function tick(dt: number) {
     acc += dt;
     while (acc >= FIXED_STEP && !run.finished) {
-      const rising = run.vy;
       for (const e of stepRun(run, input(), FIXED_STEP)) onEvent(e);
-      // A take-off: she was not already rising fast, now she is.
-      if (run.vy < -TUNING.jump * 0.8 && rising >= -TUNING.jump * 0.8) effects.sound("jump");
       // Snow spray off her skis when she rides faster than the base speed.
       if (run.onGround && run.crash <= 0 && run.vx > TUNING.speed * 1.05 && Math.random() < 0.5)
         particles.push({ x: run.x - 18, y: run.y, vx: -80 - Math.random() * 80, vy: -60 - Math.random() * 80, life: 0.4, r: 1.5 + Math.random() * 2 });
@@ -226,7 +223,8 @@ const KEYS = [
   }
 
   function onEvent(e: RunEvent) {
-    if (e.kind === "flag") effects.sound("ding");
+    if (e.kind === "takeoff") effects.sound("jump");
+    else if (e.kind === "flag") effects.sound("ding");
     else if (e.kind === "land") effects.sound("land");
     else if (e.kind === "fall") effects.sound("crash");
     else if (e.kind === "checkpoint" || e.kind === "finish") effects.sound("checkpoint");
