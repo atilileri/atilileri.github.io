@@ -45,10 +45,10 @@ test("Kolay and Orta play at 60% tempo, Zor at 65%; they fall at 190, 240 and 38
   );
 });
 
-test("Zor alone has the narrow window: ±170, ±170, ±90 ms", () => {
+test("Zor alone has the narrow window: ±170, ±170, ±100 ms", () => {
   assert.deepEqual(
     PIANO_SONGS.map((s) => s.windowMs),
-    [170, 170, 90],
+    [170, 170, 100],
   );
 });
 
