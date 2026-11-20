@@ -26,8 +26,8 @@ them on Gifts. The slot machine and the Prize Games give none, so 1,000 is the m
 _Avoid_: Credits, coins, score (a score belongs to one Round)
 
 **Balance** (_Bakiye_):
-The Points she can spend now: Points earned plus Gifted points, minus the price of each Gift she
-holds.
+The Points she can spend now: Points earned plus Gifted points, minus the price she paid for every
+Gift she ever bought, plus half of that price for every Gift she Returned.
 _Avoid_: Wallet, total
 
 **Gift** (_Hediye_):
