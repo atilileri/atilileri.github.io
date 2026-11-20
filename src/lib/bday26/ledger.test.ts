@@ -475,6 +475,29 @@ test("a stored state with a broken Return keeps her Best scores and Gifts", () =
   assert.equal(ledger.balance(), 200);
 });
 
+test("a Save code from before #213 restores: the weekend trip and the paint set leave the shop, the rest of her buys stay", async () => {
+  // #213 took "haftasonu" and "resim" out of the shop (they became Small
+  // prizes). A code saved before that holds their buys; it must still
+  // restore, with those two buys gone and nothing else touched.
+  const { code } = await encodeSaveCode(
+    JSON.stringify({
+      best: { nerede: 100, hafiza: 100, wordle: 100, sarki: 100, piyano: 100 },
+      jackpot: false,
+      log: [
+        { kind: "buy", gift: "haftasonu", paid: 300 },
+        { kind: "buy", gift: "rocky", paid: 260 },
+        { kind: "buy", gift: "resim", paid: 150 },
+        { kind: "return", gift: "resim", paid: 150 },
+      ],
+    }),
+  );
+  const ledger = createLedger(memoryStore());
+  assert.equal((await ledger.restore(code)).ok, true);
+  assert.deepEqual([...ledger.held().keys()], ["rocky"]);
+  assert.equal(ledger.earned(), 500);
+  assert.equal(ledger.balance(), 240);
+});
+
 // ------------------------------------------------------------ Gifted points
 
 const AT = "2026-12-09T10:00:00.000Z";
