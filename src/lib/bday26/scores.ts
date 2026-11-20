@@ -1,23 +1,36 @@
 /**
  * The score functions of the birthday games (/20261209/, spec #192 "Modules",
  * 3): one pure function per Game, the raw facts of one Round in, a score
- * 0..100 out. ONE file for all eleven Games, on purpose: the "Games and score
+ * 0..100 out. ONE file for all 14 Games, on purpose: the "Games and score
  * formulas" table of the spec is one table, and a reader who asks "what does
- * 95% mean in this Game" finds every answer here, in the order of that table.
+ * 95% mean in this Game" finds every answer here, in the order of that table,
+ * with the three Prize Games (#213) after it. The answer as she reads it,
+ * one line per Game, is `./prize-hints.ts`, pinned to these functions by
+ * its tests.
+ *
+ * THREE KINDS OF GAME (catalogue flags, glossary "Prize Game"):
+ *   - the 10 skill Games: the Best score earns Points (⌊Best⌋) and wins the
+ *     Small prize at 95;
+ *   - the 3 Prize Games, Bavul hazırla, Renk karıştır and Barista: no
+ *     Points, the Best score counts only for the Small prize, at 95 too;
+ *   - the slot machine, the one luck Game: no Points, and its Small prize is
+ *     won by the jackpot, not by a score.
  *
  * Each Game ticket adds its own function and its own test rows to
  * `scores.test.ts` (#198 Milyoner, #200 slot, #206 driving, #205 piano,
  * #199 "Bu nerede?", #194 memory match, #203 framing, #204 name-the-song,
- * #201 Wordle, #202 hiking, #207 ski). Keep each one a few lines of
- * arithmetic with no DOM, no randomness and no ledger: the Game page calls
- * it once at the end of a Round and hands the result to the Game shell
- * (`./shell.ts`), which clamps nothing itself but relies on the ledger to
- * keep 0..100 — so clamp here, where the formula is.
+ * #201 Wordle, #202 hiking, #207 ski, #219 bavul, #218 renk, #217 barista).
+ * Keep each one a few lines of arithmetic with no DOM, no randomness and no
+ * ledger: the Game page (or its rules module) calls it at the end of a Round
+ * and hands the result to the Game shell (`./shell.ts`), which clamps
+ * nothing itself but relies on the ledger to keep 0..100 — so clamp here,
+ * where the formula is. A Game's rules module may import from here; this
+ * file imports nothing, so no cycle can form.
  *
  * Every function floors at 0 (spec: "Scores clamp at 0") and never exceeds
- * 100. Scores may be fractional where the table says so (framing's mean);
- * the hub and the shell write them as ⌊score⌋ with a leading % (Turkish
- * style: %95).
+ * 100. Scores may be fractional where the table says so (framing's mean,
+ * the Prize Games' means); the hub and the shell write them as ⌊score⌋ with
+ * a leading % (Turkish style: %95).
  */
 
 /**
@@ -54,8 +67,8 @@ export function memoryScore(moves: number): number {
 /**
  * Slot machine (#200; spec row "triple = 100 (jackpot), pair = 50, none =
  * 0"). The three reels as they stopped, by symbol; three alike is the
- * jackpot. The only Game whose Points are never counted (`luck` in the
- * catalogue), so 100 here wins the Small prize and nothing else.
+ * jackpot. The luck Game (`luck` in the catalogue): it earns no Points,
+ * and only the jackpot wins its Small prize, so a 100 here wins nothing more.
  */
 export function slotScore(reels: readonly [string, string, string]): number {
   const [a, b, c] = reels;
@@ -193,4 +206,75 @@ export const SKI_FLAGS = 72;
 export function skiScore(flags: number, finished: boolean): number | undefined {
   if (!finished) return undefined;
   return Math.min(100, Math.max(0, Math.floor((flags * 100) / SKI_FLAGS)));
+}
+
+/** Bavul hazırla: points lost per empty cell of the 8×6 bag. */
+export const BAVUL_EMPTY_PENALTY = 5;
+/** Bavul hazırla: points lost per must-have (★) left out. */
+export const BAVUL_MUST_PENALTY = 10;
+
+/**
+ * "Bavul hazırla" (#219, a Prize Game; verdict on #214): 100 − 5 × empty
+ * cells − 10 × missing must-haves, floor 0. `empty` and `missing` are what
+ * `./bavul.ts` counts when she closes the bag. So 95% means every must-have
+ * packed and at most one empty cell.
+ */
+export function bavulScore({ empty, missing }: { empty: number; missing: number }): number {
+  return Math.max(0, 100 - BAVUL_EMPTY_PENALTY * empty - BAVUL_MUST_PENALTY * missing);
+}
+
+/** Renk karıştır: up to this colour difference (ΔE) a target scores 100. */
+export const RENK_PERFECT_DE = 1;
+/** Renk karıştır: score lost per ΔE above `RENK_PERFECT_DE`. */
+export const RENK_SLOPE = 6;
+
+/**
+ * "Renk karıştır" (#218, a Prize Game; verdict on #215, variant A), one
+ * target of the Round: ΔE ≤ 1 is 100, then −6 for every ΔE above 1, rounded
+ * to a whole score, floor 0 — so ΔE 2 is 94 and from ΔE 17.67 it is 0. `dE`
+ * is CIEDE2000 between her mix and the target (`deltaE` in `./renk.ts`).
+ */
+export function renkTargetScore(dE: number): number {
+  return Math.max(0, Math.min(100, Math.round(100 - RENK_SLOPE * Math.max(0, dE - RENK_PERFECT_DE))));
+}
+
+/**
+ * One Round of "Renk karıştır": the mean of its five target scores, not
+ * rounded. A match better than ΔE 1 earns nothing extra, so 95% means about
+ * four exact matches and one small miss: four at 100 and the fifth at ΔE
+ * 5.2 (75) is exactly 95.
+ */
+export function renkRoundScore(targets: readonly number[]): number {
+  if (!targets.length) return 0;
+  return Math.max(0, Math.min(100, targets.reduce((a, b) => a + b, 0) / targets.length));
+}
+
+/** Barista: a step's score at the green band's edge; 0 at twice the half-width. */
+export const BARISTA_EDGE_SCORE = 85;
+
+/**
+ * Barista (#217, a Prize Game; verdict on #216, curve "flat-top"), one
+ * step of a shot. `off` is how far from the target she let go and
+ * `halfWidth` the green band's half-width, both in the step's unit (the
+ * band itself is `halfWidth` in `./barista.ts`: it narrows shot by shot).
+ * 100 across the inner half of the band, falling straight to 85 at its
+ * edge, then straight to 0 at twice the half-width; rounded.
+ */
+export function baristaStepScore(off: number, halfWidth: number): number {
+  const d = Math.abs(off) / halfWidth;
+  let score: number;
+  if (d <= 0.5) score = 100;
+  else if (d <= 1) score = 100 - (100 - BARISTA_EDGE_SCORE) * (d - 0.5) * 2;
+  else score = Math.max(0, BARISTA_EDGE_SCORE - BARISTA_EDGE_SCORE * (d - 1));
+  return Math.round(score);
+}
+
+/**
+ * One Round of Barista: the mean of its 9 step scores (3 shots × grind,
+ * tamp, pull), not rounded. Eight perfect steps and one at 55 is exactly
+ * 95; so are six perfect and three at the band edge (85).
+ */
+export function baristaRoundScore(steps: readonly number[]): number {
+  if (!steps.length) return 0;
+  return Math.max(0, Math.min(100, steps.reduce((a, b) => a + b, 0) / steps.length));
 }

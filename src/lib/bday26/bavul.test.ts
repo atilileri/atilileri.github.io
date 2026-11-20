@@ -1,6 +1,7 @@
 /*
- * Tests for "Bavul hazırla" (#219): the score, the trip cards and the one
- * input state machine.
+ * Tests for "Bavul hazırla" (#219): the trip cards and the one input state
+ * machine. The score (`bavulScore`) is `scores.ts`'s, pinned in
+ * `scores.test.ts`.
  *
  *   node --test src/lib/bday26/bavul.test.ts
  *
@@ -20,7 +21,6 @@ import {
   CARDS,
   ITEMS,
   ITEM_INFO,
-  bavulScore,
   breakdown,
   can,
   drawCard,
@@ -72,27 +72,6 @@ function pack(state: Round, grid: string[]): Round {
   }
   return state;
 }
-
-// ---------------------------------------------------------------- the score
-
-test("a full bag with every must-have scores 100", () => {
-  assert.equal(bavulScore({ empty: 0, missing: 0 }), 100);
-});
-
-test("one empty cell is 95, still the Small prize; two are 90", () => {
-  assert.equal(bavulScore({ empty: 1, missing: 0 }), 95);
-  assert.equal(bavulScore({ empty: 2, missing: 0 }), 90);
-});
-
-test("a missing must-have costs 10", () => {
-  assert.equal(bavulScore({ empty: 0, missing: 1 }), 90);
-  assert.equal(bavulScore({ empty: 1, missing: 1 }), 85);
-});
-
-test("the score never goes under 0: an empty bag is 0", () => {
-  assert.equal(bavulScore({ empty: 48, missing: 4 }), 0);
-  assert.equal(bavulScore({ empty: 19, missing: 1 }), 0);
-});
 
 // ---------------------------------------------------------- the trip cards
 

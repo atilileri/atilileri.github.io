@@ -10,7 +10,8 @@
  *   - Each Round draws one trip card (never the same twice in a row) naming
  *     4 must-haves, marked ★.
  *   - Score = 100 − 5 × empty cells − 10 × missing must-haves, floor 0
- *     (`bavulScore`). One empty cell is 95: still the Small prize.
+ *     (`bavulScore` in `./scores.ts`, with every Game's score). One empty
+ *     cell is 95: still the Small prize.
  *   - 23 kg is a GATE on closing: refused with "23 kg'ı aştın". Items may go
  *     in over the limit, with a warning on the held item.
  *   - No time limit; the page's clock only shows the time played.
@@ -41,20 +42,15 @@
  * (Esc, "Devam et") goes back to packing.
  */
 
+import { bavulScore } from "./scores.ts";
+
 // ------------------------------------------------------------------ rules
 
 export const BAG_W = 8;
 export const BAG_H = 6;
 export const KG_LIMIT = 23;
-export const EMPTY_PENALTY = 5;
-export const MUST_PENALTY = 10;
 /** Floating-point room for sums like 3.5 + 1.5 + … against the 23 kg gate. */
 const EPS = 1e-9;
-
-/** The Round's score from what is left undone. Pure; 0..100. */
-export function bavulScore({ empty, missing }: { empty: number; missing: number }): number {
-  return Math.max(0, 100 - EMPTY_PENALTY * empty - MUST_PENALTY * missing);
-}
 
 // ------------------------------------------------------------------ items
 

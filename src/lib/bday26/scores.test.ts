@@ -10,7 +10,25 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { drivingScore, framingScore, hikingRoundScore, hikingScore, memoryScore, milyonerScore, missScore, pianoScore, skiScore, slotScore, wordleRoundScore, wordleScore } from "./scores.ts";
+import {
+  baristaRoundScore,
+  baristaStepScore,
+  bavulScore,
+  drivingScore,
+  framingScore,
+  hikingRoundScore,
+  hikingScore,
+  memoryScore,
+  milyonerScore,
+  missScore,
+  pianoScore,
+  renkRoundScore,
+  renkTargetScore,
+  skiScore,
+  slotScore,
+  wordleRoundScore,
+  wordleScore,
+} from "./scores.ts";
 
 // ---------------------------------------------------------- Milyoner quiz
 // Spec: correct answers before the first miss ÷ 12; 95% means all 12
@@ -328,4 +346,96 @@ test("ski: half the flags is 50, and none is 0", () => {
 test("ski: a Round that does not reach the finish has no score, whatever it collected", () => {
   assert.equal(skiScore(72, false), undefined);
   assert.equal(skiScore(40, false), undefined);
+});
+
+// ------------------------------------------- Bavul hazırla (a Prize Game)
+// Verdict on #214: 100 − 5 × empty cells − 10 × missing must-haves, floor 0;
+// 95% means every must-have in and at most one empty cell (#219).
+
+test("bavul: a full bag with every must-have scores 100", () => {
+  assert.equal(bavulScore({ empty: 0, missing: 0 }), 100);
+});
+
+test("bavul: one empty cell is 95, still the Small prize; two are 90", () => {
+  assert.equal(bavulScore({ empty: 1, missing: 0 }), 95);
+  assert.equal(bavulScore({ empty: 2, missing: 0 }), 90);
+});
+
+test("bavul: a missing must-have costs 10", () => {
+  assert.equal(bavulScore({ empty: 0, missing: 1 }), 90);
+  assert.equal(bavulScore({ empty: 1, missing: 1 }), 85);
+});
+
+test("bavul: the score never goes under 0: an empty bag is 0", () => {
+  assert.equal(bavulScore({ empty: 48, missing: 4 }), 0);
+  assert.equal(bavulScore({ empty: 19, missing: 1 }), 0);
+});
+
+// ------------------------------------------- Renk karıştır (a Prize Game)
+// Verdict on #215, variant A: one target ΔE ≤ 1 = 100, then −6 per ΔE above
+// 1, rounded to a whole score, floor 0; a Round is the mean of five (#218).
+
+test("renk: ΔE 0 and ΔE 1 are both 100 — a match better than 1 earns nothing extra", () => {
+  assert.equal(renkTargetScore(0), 100);
+  assert.equal(renkTargetScore(0.4), 100);
+  assert.equal(renkTargetScore(1), 100);
+});
+
+test("renk: each ΔE above 1 costs 6, rounded to a whole score", () => {
+  assert.equal(renkTargetScore(2), 94);
+  assert.equal(renkTargetScore(1.5), 97);
+  assert.equal(renkTargetScore(6), 70);
+});
+
+test("renk: ΔE 17.67 and beyond is 0, never below", () => {
+  assert.equal(renkTargetScore(17.67), 0);
+  assert.equal(renkTargetScore(40), 0);
+});
+
+test("renk: a Round is the mean of its five targets, not rounded", () => {
+  assert.equal(renkRoundScore([100, 100, 100, 94, 82]), 95.2);
+  assert.equal(renkRoundScore([100, 100, 100, 100, 74]), 94.8);
+  assert.equal(renkRoundScore([0, 0, 0, 0, 0]), 0);
+  assert.equal(renkRoundScore([]), 0);
+});
+
+// ------------------------------------------------- Barista (a Prize Game)
+// Verdict on #216, curve "flat-top": a step scores by how far from the
+// target she let go, in half-widths of the green band: 100 across the inner
+// half, 85 at the band edge, straight down to 0 at twice the half-width,
+// rounded. A Round is the mean of its 9 steps, not rounded (#217). Here the
+// half-width is 1, as for the grind step at shot 1 (17–19 g around 18 g).
+
+test("barista: a step at the centre, or anywhere in the inner half of the band, scores 100", () => {
+  assert.equal(baristaStepScore(0, 1), 100);
+  assert.equal(baristaStepScore(0.3, 1), 100);
+  assert.equal(baristaStepScore(0.5, 1), 100);
+});
+
+test("barista: the band edge scores 85, twice the half-width 0, and further out stays 0", () => {
+  assert.equal(baristaStepScore(1, 1), 85);
+  assert.equal(baristaStepScore(2, 1), 0);
+  assert.equal(baristaStepScore(6, 1), 0);
+  assert.equal(baristaStepScore(18, 1), 0);
+});
+
+test("barista: between the inner half and the edge the score falls straight from 100 to 85, rounded", () => {
+  // Three quarters of the way out: 100 − 15 × 0.5 = 92.5 → 93.
+  assert.equal(baristaStepScore(0.75, 1), 93);
+  // Halfway from the edge to twice the half-width: 85 − 42.5 = 42.5 → 43.
+  assert.equal(baristaStepScore(1.5, 1), 43);
+});
+
+test("barista: the same miss scores lower in a narrower band", () => {
+  // 0.8 off: 0.8 of the way out in a band of half-width 1 (91), the edge
+  // of one of 0.8 (85), outside one of 0.62 (85 − 85 × 0.29 → 60).
+  assert.equal(baristaStepScore(0.8, 1), 91);
+  assert.equal(baristaStepScore(0.8, 0.8), 85);
+  assert.equal(baristaStepScore(0.8, 0.62), 60);
+});
+
+test("barista: a Round is the mean of its 9 steps; eight perfect and one at 55 is the 95 bar", () => {
+  assert.equal(baristaRoundScore([100, 100, 100, 100, 100, 100, 100, 100, 100]), 100);
+  assert.equal(baristaRoundScore([100, 100, 100, 100, 55, 100, 100, 100, 100]), 95);
+  assert.ok(Math.abs(baristaRoundScore([100, 100, 100, 100, 100, 100, 100, 100, 0]) - 800 / 9) < 1e-9);
 });

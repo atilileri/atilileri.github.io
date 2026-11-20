@@ -34,7 +34,8 @@
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
-import { DROP_CAP, ROUND_TARGETS, SLOPE, TUBES } from "../../../lib/bday26/renk";
+import { DROP_CAP, ROUND_TARGETS, TUBES } from "../../../lib/bday26/renk";
+import { RENK_SLOPE } from "../../../lib/bday26/scores";
 
 const game = gameById("renk");
 
@@ -47,7 +48,7 @@ const KEYS = [
 ];
 
 /** The scoring rule, as she reads it on both cards. */
-const RULE = `Her renk: ΔE 1'e kadar %100, sonra her 1 ΔE için −${SLOPE}. Tur skoru: beş rengin ortalaması. ΔE, CIEDE2000 renk farkıdır.`;
+const RULE = `Her renk: ΔE 1'e kadar %100, sonra her 1 ΔE için −${RENK_SLOPE}. Tur skoru: beş rengin ortalaması. ΔE, CIEDE2000 renk farkıdır.`;
 /** spectral.js is MIT: its licence travels in the vendored file; this is the visible credit. */
 const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisansı";
 ---
@@ -147,12 +148,12 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
     removeLast,
     ROUND_TARGETS,
     offTubes,
-    roundScore,
     targetPool,
     TUBES,
     type Target,
     type Verdict,
   } from "../../../lib/bday26/renk";
+  import { renkRoundScore } from "../../../lib/bday26/scores";
 
   /** Each tube's drop sound, in `TUBES` order. */
   const DROP_SOUND: SoundName[] = ["paint-red", "paint-yellow", "paint-blue", "paint-white", "paint-black"];
@@ -262,7 +263,7 @@ const CREDIT = "Renk karışımı: spectral.js (Ronald van Wijnen) · MIT lisans
       return;
     }
     judged = false;
-    const score = roundScore(results.map((r) => r.score));
+    const score = renkRoundScore(results.map((r) => r.score));
     const matched = results.filter((r) => r.dE <= 1).length;
     paintResult();
     const outcome = shell.finish(score, { detail: `${matched}/${ROUND_TARGETS} renk tam eşleşti (ΔE ≤ 1)` });

@@ -3,9 +3,10 @@
  *
  *   node --test src/lib/bday26/barista.test.ts
  *
- * What is pinned: the step score's flat-top curve, the band and how it
- * narrows per shot, the accelerating fill and its overflow, and a Round of
- * 3 shots × 3 steps scored as the mean of the 9. The expected numbers are
+ * What is pinned: the band and how it narrows per shot, the accelerating
+ * fill and its overflow, and a Round of 3 shots × 3 steps scored as the mean
+ * of the 9. The step score's flat-top curve and the Round's mean are
+ * `scores.ts`'s and pinned in `scores.test.ts`. The expected numbers are
  * the verdict's (band 100 ms half-width at the constant base speed, ×1 /
  * ×0.8 / ×0.62; fill value = target·(t/tt)^1.6; 100 across the inner half,
  * 85 at the band edge, 0 at twice the half-width), worked out by hand for
@@ -14,39 +15,23 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { STEPS, createBench, createRound, fillAt, halfWidth, overflowed, roundScore, stepScore } from "./barista.ts";
+import { STEPS, createBench, createRound, fillAt, halfWidth, overflowed } from "./barista.ts";
+import { baristaStepScore } from "./scores.ts";
 import { createEffects, createEffectsPreference } from "./effects.ts";
 
 const grind = STEPS[0];
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≈ ${b}`);
 
-test("a step released at the centre scores 100", () => {
+/** A release at `value` on this step and shot, scored the way the bench
+ *  scores it: its distance from the target against the shot's band. The
+ *  curve itself is pinned in `scores.test.ts` (`baristaStepScore`). */
+const stepScore = (step: (typeof STEPS)[number], shot: number, value: number) => baristaStepScore(value - step.target, halfWidth(step, shot));
+
+test("a release on the grind step at shot 1 is judged against the 17–19 g band", () => {
   assert.equal(stepScore(grind, 0, 18), 100);
-});
-
-test("the inner half of the band scores 100 right up to its edge", () => {
-  assert.equal(stepScore(grind, 0, 18.5), 100);
-  assert.equal(stepScore(grind, 0, 17.5), 100);
-  assert.equal(stepScore(grind, 0, 18.3), 100);
-});
-
-test("the band edge scores 85, on either side", () => {
   assert.equal(stepScore(grind, 0, 19), 85);
   assert.equal(stepScore(grind, 0, 17), 85);
-});
-
-test("twice the half-width scores 0, and further out stays 0", () => {
   assert.equal(stepScore(grind, 0, 20), 0);
-  assert.equal(stepScore(grind, 0, 16), 0);
-  assert.equal(stepScore(grind, 0, 24), 0);
-  assert.equal(stepScore(grind, 0, 0), 0);
-});
-
-test("between the inner half and the edge the score falls straight from 100 to 85, rounded", () => {
-  // 18.75 g is three quarters of the way out: 100 − 15 × 0.5 = 92.5 → 93.
-  assert.equal(stepScore(grind, 0, 18.75), 93);
-  // Halfway between the edge and twice the half-width: 85 − 42.5 = 42.5 → 43.
-  assert.equal(stepScore(grind, 0, 19.5), 43);
 });
 
 test("the band narrows each shot: ×1, ×0.8, ×0.62 of 100 ms at the base speed", () => {
@@ -85,14 +70,6 @@ test("the fill fills once: held to the top it stops there, overflowed, and the s
     assert.equal(fillAt(step, 60), step.max);
     for (const shot of [0, 1, 2]) assert.equal(stepScore(step, shot, step.max), 0);
   }
-});
-
-test("a Round's score is the mean of its 9 steps", () => {
-  assert.equal(roundScore([100, 100, 100, 100, 100, 100, 100, 100, 100]), 100);
-  // Eight perfect steps and one at 55: 855 / 9 = 95, the Small prize bar.
-  assert.equal(roundScore([100, 100, 100, 100, 55, 100, 100, 100, 100]), 95);
-  // One step held to the top costs a ninth: 800 / 9.
-  near(roundScore([100, 100, 100, 100, 100, 100, 100, 100, 0]), 800 / 9);
 });
 
 test("a Round walks grind, tamp, pull three times, the band narrowing each shot, then scores the mean", () => {

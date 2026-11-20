@@ -9,8 +9,9 @@
  *
  * THE SCORE (variant A, the verdict on #215). One target: ΔE ≤ 1 is 100,
  * then −6 for every ΔE above 1, rounded to a whole score, floor 0 — so ΔE 2
- * is 94 and from ΔE 17.67 it is 0 (`targetScore`). A Round is the mean of its
- * five targets (`roundScore`). A match better than ΔE 1 earns nothing extra,
+ * is 94 and from ΔE 17.67 it is 0 (`renkTargetScore`). A Round is the mean
+ * of its five targets (`renkRoundScore`); both live in `./scores.ts` with
+ * every Game's score. A match better than ΔE 1 earns nothing extra,
  * so 95% means about four near-exact matches and one small miss (the ΔE
  * above 1, summed over the five, at most ~4.2): the correction to #213's
  * "95% ≈ mean ΔE 1.8".
@@ -25,6 +26,7 @@
  * paint. Mixes are proportions: 2 + 2 is the same colour as 1 + 1.
  * The colour difference is CIEDE2000 (`deltaE`) on the two colours as shown.
  */
+import { RENK_PERFECT_DE, renkTargetScore } from "./scores.ts";
 import { Color, mix } from "./vendor/spectral.js";
 
 /** The five tubes, in key order 1–5. */
@@ -243,23 +245,5 @@ export function judge(target: Target, drops: readonly number[]): Verdict {
   const counts = countsOf(drops);
   const hex = mixColour(counts)!;
   const dE = deltaE(target.lab, hexToLab(hex));
-  return { hex, counts, dE, score: targetScore(dE), otherRecipe: dE <= PERFECT_DE && !sameProportion(target.recipe, counts) };
-}
-
-// ── the scores ────────────────────────────────────────────────────────
-
-/** Up to this ΔE a target scores 100. */
-export const PERFECT_DE = 1;
-/** Score lost per ΔE above `PERFECT_DE`. */
-export const SLOPE = 6;
-
-/** The score of one target from its colour difference: 0..100, whole. */
-export function targetScore(dE: number): number {
-  return Math.max(0, Math.min(100, Math.round(100 - SLOPE * Math.max(0, dE - PERFECT_DE))));
-}
-
-/** A Round's score: the mean of its targets' scores, 0..100. */
-export function roundScore(scores: readonly number[]): number {
-  if (!scores.length) return 0;
-  return Math.max(0, Math.min(100, scores.reduce((a, b) => a + b, 0) / scores.length));
+  return { hex, counts, dE, score: renkTargetScore(dE), otherRecipe: dE <= RENK_PERFECT_DE && !sameProportion(target.recipe, counts) };
 }

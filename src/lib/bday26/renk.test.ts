@@ -3,9 +3,9 @@
  *
  *   node --test src/lib/bday26/renk.test.ts
  *
- * Seam: the pure module `./renk.ts` — the score of one target and of a
- * Round, the colour difference (CIEDE2000), the paint mix, the targets a
- * Round deals, and the drops she adds and takes back. Expected numbers come
+ * Seam: the pure module `./renk.ts` — the colour difference (CIEDE2000), the paint mix, the targets a
+ * Round deals, and the drops she adds and takes back. The scores of one
+ * target and of a Round are `scores.ts`'s, pinned in `scores.test.ts`. Expected numbers come
  * from the verdict on #215 (ΔE ≤ 1 = 100, then −6 per extra ΔE, floor 0;
  * Round = mean), from Sharma, Wu and Dalal's published CIEDE2000 test pairs
  * (2005), and from what paint does (blue and yellow make green).
@@ -25,37 +25,13 @@ import {
   mixColour,
   pickRound,
   ROUND_TARGETS,
-  roundScore,
   sameProportion,
   targetPool,
-  targetScore,
   TUBES,
   type Lab,
   type Target,
 } from "./renk.ts";
-
-test("one target: ΔE 0 and ΔE 1 are both 100 — a match better than 1 earns nothing extra", () => {
-  assert.equal(targetScore(0), 100);
-  assert.equal(targetScore(0.4), 100);
-  assert.equal(targetScore(1), 100);
-});
-
-test("one target: each ΔE above 1 costs 6, rounded to a whole score", () => {
-  assert.equal(targetScore(2), 94);
-  assert.equal(targetScore(1.5), 97);
-  assert.equal(targetScore(6), 70);
-});
-
-test("one target: ΔE 17.67 and beyond is 0, never below", () => {
-  assert.equal(targetScore(17.67), 0);
-  assert.equal(targetScore(40), 0);
-});
-
-test("a Round is the mean of its five targets", () => {
-  assert.equal(roundScore([100, 100, 100, 94, 82]), 95.2);
-  assert.equal(roundScore([100, 100, 100, 100, 74]), 94.8);
-  assert.equal(roundScore([0, 0, 0, 0, 0]), 0);
-});
+import { renkTargetScore } from "./scores.ts";
 
 test("the colour difference is CIEDE2000: Sharma, Wu and Dalal's test pairs", () => {
   const pairs: [Lab, Lab, number][] = [
@@ -112,7 +88,7 @@ test("every target can be matched exactly within 12 drops: its hidden recipe mak
     const drops = t.recipe.reduce((a, b) => a + b, 0);
     assert.ok(drops >= 3 && drops <= DROP_CAP, `${t.recipe}: ${drops} drops`);
     assert.equal(difference(mixColour(t.recipe)!, t.hex), 0);
-    assert.equal(targetScore(difference(mixColour(t.recipe)!, t.hex)), 100);
+    assert.equal(renkTargetScore(difference(mixColour(t.recipe)!, t.hex)), 100);
   }
 });
 
@@ -157,7 +133,7 @@ test("judging a mix: its ΔE and score; a different recipe within ΔE 1 counts, 
 
   const off = judge(target, [0, 1]);
   assert.ok(off.dE > 1);
-  assert.equal(off.score, targetScore(off.dE));
+  assert.equal(off.score, renkTargetScore(off.dE));
   assert.equal(off.otherRecipe, false, "a miss is not another recipe");
 
   // Some target in the pool has a clearly different recipe within ΔE 1 of it
