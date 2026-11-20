@@ -21,8 +21,10 @@
  * and her mistakes listed with their times — or "Hatasız sürüş!".
  *
  * KEYS (keyboard only, as in the prototype): ↑/W gas, ↓/S brake (reverse
- * once stopped), ←→/A D steer, Space handbrake. Enter starts and Esc asks to
- * leave; both are the shell's. While the confirm card is open the simulation
+ * once stopped), ←→/A D steer, Space handbrake, R starts the Round again
+ * from the start line at once (nothing recorded; a held R does not restart
+ * it twice), as the ski Game does. Enter starts and Esc asks to leave; both
+ * are the shell's. While the confirm card is open the simulation
  * stands still (the shell's `pause`/`resume`). P pauses and P resumes; a
  * lost window focus or a hidden tab pauses too and waits for P, as the ski
  * Game does — the shared `PauseOverlay.astro` says so, the shared
@@ -59,6 +61,7 @@ const KEYS = [
   { key: "← → / A D", does: "Direksiyon" },
   { key: "Boşluk", does: "El freni" },
   { key: "P", does: "Duraklat / devam et" },
+  { key: "R", does: "Baştan başla" },
   { key: "Esc", does: "Turdan çık" },
 ];
 
@@ -362,10 +365,16 @@ const LIMIT = formatClock(RULES.timeLimit);
   // ── keys ──────────────────────────────────────────────────────────
   // The shell takes Esc during a Round and every key on its own screens:
   // what arrives here is a key while she drives (or while she has paused).
-  // P and a lost focus are `pause`'s.
+  // P and a lost focus are `pause`'s. R starts again from the start line,
+  // paused or not, and records nothing; a held R's repeats are ignored.
   const DRIVE_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD", "Space"]);
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || phase === "idle") return;
+    if (event.code === "KeyR") {
+      event.preventDefault();
+      if (!event.repeat) startRound();
+      return;
+    }
     if (!DRIVE_KEYS.has(event.code)) return;
     event.preventDefault();
     if (!pause.paused) keys.add(event.code);
