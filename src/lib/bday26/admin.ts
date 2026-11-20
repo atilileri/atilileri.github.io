@@ -4,8 +4,7 @@
  * (glossary, "Gifted points" / *Hediye puan*) and takes back the newest one
  * after a typo. The markup and its look are `src/components/bday26/
  * Admin.astro`; this module is its behaviour, mounted by the hub's script
- * with the hub's own ledger, because two ledgers on one page would not see
- * each other's writes.
+ * with the hub's own ledger: one ledger per page.
  *
  * THE PASSWORD IS NOT A LOCK. It is checked here, in the browser, against a
  * constant in this public repository: anyone who reads the source can open

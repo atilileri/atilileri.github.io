@@ -7,8 +7,9 @@
  * it the real browser: `localStorage` as the store, and one call to
  * `navigator.storage.persist()`, which asks the browser not to evict the
  * origin's storage when disk runs low (spec, "Modules", 1). Every page calls
- * `openLedger()` once and keeps the ledger it gets; two ledgers on one page
- * would not see each other's writes.
+ * `openLedger()` once and keeps the ledger it gets. The ledger looks at
+ * storage again before every read and change, so a second tab, or this page
+ * coming back from the back/forward cache, never writes old facts over new.
  *
  * WHY THE BROWSER IS AN ARGUMENT. `openLedger(win)` takes anything shaped
  * like a window, defaulting to the real one, so `browser.test.ts` can hand it

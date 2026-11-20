@@ -274,6 +274,40 @@ test("progress survives: a ledger opened later on the same storage sees it all",
   assert.equal(second.holds("rocky"), false);
 });
 
+test("two ledgers on one storage never undo each other: a buy on an old page keeps the Best score set on a newer one", () => {
+  // The hub restored by Back (its ledger opened before the Game was played)
+  // and the Game page that set a new Best score: same browser, same key.
+  const store = memoryStore();
+  const hub = createLedger(store);
+  hub.recordRound("nerede", 100);
+  const game = createLedger(store);
+  game.recordRound("hafiza", 100);
+  game.recordRound("slot", 10, { jackpot: true });
+
+  // The old page sees the newer facts, and its buy is added to them.
+  assert.equal(hub.bestOf("hafiza"), 100);
+  assert.equal(hub.balance(), 200);
+  assert.deepEqual(hub.buy("deslak"), { ok: true, paid: 100 });
+
+  // A later visit finds all of it: both Best scores, the jackpot, the buy.
+  const later = createLedger(store);
+  assert.equal(later.bestOf("nerede"), 100);
+  assert.equal(later.bestOf("hafiza"), 100);
+  assert.deepEqual(later.prizesWon(), ["nerede", "hafiza", "slot"]);
+  assert.equal(later.holds("deslak"), true);
+  assert.equal(later.balance(), 100);
+});
+
+test("a buy the other page already made is refused on the old one, not made twice", () => {
+  const store = memoryStore();
+  const hub = createLedger(store);
+  hub.recordRound("nerede", 100);
+  const other = createLedger(store);
+  other.buy("deslak");
+  assert.deepEqual(hub.buy("deslak"), { ok: false, reason: "held" });
+  assert.equal(createLedger(store).balance(), 0);
+});
+
 test("progress is kept under the one key the spec names", () => {
   const store = memoryStore();
   createLedger(store).recordRound("hafiza", 50);
