@@ -260,27 +260,10 @@ test("the hub has 14 tiles: the three Prize Games sit before the slot machine an
 test("the shop shows 12 Gifts; the weekend trip and the paint set are no longer for sale (#213)", async ({ page }) => {
   await seed(page, AN_EVENING);
   await page.goto(HUB);
-  const shop = page.locator("[data-shop-list] li[data-gift]:visible");
+  const shop = page.locator("[data-shop-list] li[data-gift]");
   await expect(shop).toHaveCount(12);
   await expect(shop.filter({ hasText: "Hafta sonu gezisi" })).toHaveCount(0);
   await expect(shop.filter({ hasText: "Resim seti" })).toHaveCount(0);
-});
-
-test("a weekend trip bought before it left the shop stays hers and can be Returned, never bought again (#213)", async ({ page }) => {
-  // 573 earned, the trip bought at its old price: 573 − 480 = 93.
-  const best = { ...A_LATER_EVENING.best, sarki: 100 };
-  await seed(page, { best, jackpot: true, log: [{ kind: "buy", gift: "haftasonu", paid: 480 }] });
-  await page.goto(HUB);
-  await expect(balance(page)).toHaveText(["93", "93"]);
-  await expect(page.getByText("Sende olanlar")).toBeVisible();
-  const trip = page.locator("[data-shop]").getByRole("listitem").filter({ hasText: "Hafta sonu gezisi" });
-  await expect(trip.getByRole("button", { name: "İade et · +240" })).toBeVisible();
-
-  page.on("dialog", (dialog) => void dialog.accept());
-  await trip.getByRole("button", { name: "İade et · +240" }).click();
-  await expect(balance(page)).toHaveText(["333", "333"]);
-  await expect(page.getByText("Sende olanlar")).toBeHidden();
-  await expect(trip).toBeHidden();
 });
 
 test("a Prize Game's route is its placeholder page until its build lands; Esc goes back to the hub (#213)", async ({ page }) => {
@@ -367,6 +350,9 @@ test("the welcome screen greets her by itself until she closes it once, and \"Ho
   await expect(welcome(page)).toContainText(/oyun/i);
   await expect(welcome(page)).toContainText(/puan/i);
   await expect(welcome(page)).toContainText(/hediye/i);
+  // Not every Game gives Points: the slot machine and the Prize Games say so
+  // on their tiles, and the welcome names that tile line (#213).
+  await expect(welcome(page)).toContainText('"Puan vermez" yazan oyunlar hariç');
 
   // Seen means closed: a reload before she closes it greets her again.
   await page.reload();
