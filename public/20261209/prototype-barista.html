@@ -7,7 +7,7 @@
   0–100 by distance from the band centre; the Round is the mean of the 9 steps.
 
   Atıl's verdict (after the first play, 2026-11-20): one version only —
-    band  = medium (85 ms half-width at shot 1, ×1 / ×0.8 / ×0.62 per shot)
+    band  = medium (100 ms half-width at shot 1, ×1 / ×0.8 / ×0.62 per shot)
     fill  = accelerating (value = target·(t/tt)^1.6, so 1.6× faster at the target)
     curve = flat-top (100 across the inner half of the band, 85 at the edge,
             0 at twice the half-width)
@@ -408,7 +408,7 @@ kbd{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 
 const qs = new URLSearchParams(location.search);
 // Band half-width at shot 1, as a time window (ms) at the constant base speed.
 // ?band=<ms> overrides it for a test play; the default is Atıl's "medium".
-const BAND_MS = { medium: 85 };
+const BAND_MS = { medium: 100 };
 const bandQ = +qs.get('band');
 if (bandQ >= 20 && bandQ <= 400) BAND_MS.custom = bandQ;
 const V = { band: BAND_MS.custom ? 'custom' : 'medium', speed: 'accel', curve: 'flat' };
@@ -1021,7 +1021,7 @@ function runSim() {
     const [p, m] = simP(ms, sigma, lapse), L = simLearn(ms, lapse);
     const isCur = ms === now;
     if (isCur) curRow = { p, m, L };
-    h += `<tr class="${isCur ? 'cur' : ''}"><td>${ms}${ms === 85 ? ' (orta)' : ''}</td><td>${m.toFixed(1)}</td><td>${p.toFixed(2)}</td><td>${p ? (1 / p).toFixed(1) : '∞'}</td><td>${(1 - Math.pow(1 - p, 5)).toFixed(2)}</td><td>${L >= 60 ? '60+' : L.toFixed(1)}</td></tr>`;
+    h += `<tr class="${isCur ? 'cur' : ''}"><td>${ms}${ms === 100 ? ' (orta)' : ''}</td><td>${m.toFixed(1)}</td><td>${p.toFixed(2)}</td><td>${p ? (1 / p).toFixed(1) : '∞'}</td><td>${(1 - Math.pow(1 - p, 5)).toFixed(2)}</td><td>${L >= 60 ? '60+' : L.toFixed(1)}</td></tr>`;
   }
   $('simT').innerHTML = h;
   $('simSum').innerHTML = `Hızlanan dolum, düz tepe, bant ${now} ms, σ ${sigma} ms: bir turda %95+ olasılığı <b>${(curRow.p * 100).toFixed(0)}%</b>, yani ortalama <b>${curRow.p ? (1 / curRow.p).toFixed(1) : '∞'} tur</b>; öğrenerek ilk %95 ≈ <b>${curRow.L >= 60 ? '60+' : curRow.L.toFixed(1)}. tur</b>.`;
