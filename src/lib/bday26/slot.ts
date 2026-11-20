@@ -7,8 +7,9 @@
  *
  * THE RULES. Three reels, six symbols (camera, ski, note, wine, heart,
  * mountain — Atıl's six, #182). Three alike is the jackpot and wins the
- * slot's Small prize; two alike scores 50; none, 0 (`slotScore` in
- * `./scores.ts`). The slot is the luck Game: it gives no Points, so the
+ * slot's Small prize; two alike scores 50; none, 0. This module alone
+ * decides which of the three a spin is (`outcome`); `slotScore` in
+ * `./scores.ts` only prices it (review L6). The slot is the luck Game: it gives no Points, so the
  * jackpot is the only outcome that matters, and Atıl fixed its chance at
  * EXACTLY 1 in 30 (story 53) so she wins it in an evening, not a lifetime.
  *

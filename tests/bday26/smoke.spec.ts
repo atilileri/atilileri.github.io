@@ -904,6 +904,13 @@ test("Kelime avı: a Round plays all ten words once each, a short row is refused
   await expect(words.nth(9)).toContainText("bulunamadı");
   await expect(words.nth(9)).toContainText("%0");
   await expect(result.locator("[data-shell-prize-now]")).toBeHidden();
+  // The card reads first as Atıl's letter (review E5); a new Round is still there.
+  const letter = result.locator("[data-letter]");
+  await expect(letter).toContainText("İyi ki doğdun, seni seviyorum.");
+  await expect(letter).toContainText("— Atıl");
+  await expect(result.getByRole("button", { name: /Yeni tur/ })).toBeVisible();
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: "test-results/quiz-wordle-letter.png" });
   const overflow = await page.evaluate(() => ({
     down: document.documentElement.scrollHeight - window.innerHeight,
     across: document.documentElement.scrollWidth - window.innerWidth,

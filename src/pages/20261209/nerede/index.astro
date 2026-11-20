@@ -13,18 +13,21 @@
  * `src/lib/bday26/scores.ts`) — so one slip still wins Paleis Het Loo
  * gezisi, and the second costs the prize.
  *
- * HOW IT IS BUILT. Three layers, each a module of its own:
+ * HOW IT IS BUILT. In layers, each a module of its own:
  *   - `src/lib/bday26/nerede.ts` is the Round: which 10 photos, which 4
  *     places under each and which is right, with the fairness rule of #189
  *     (never the same place, never one that contains the answer or sits
  *     inside it). It has no DOM and is pinned under `node --test`.
+ *   - `src/lib/bday26/choice-quiz.ts`, shared with "Şarkıyı bil" and
+ *     Milyoner, keeps her answers and misses, says which key picks which
+ *     place, and runs the 1.5 s step.
  *   - `GameShell` (`src/components/bday26/GameShell.astro` + `mountGameShell`
  *     in `src/lib/bday26/shell.ts`) is everything around the Round, and the
  *     one call that records it.
  *   - This page is the painter: one <img> and four buttons rendered at build
  *     time; the script sets the photo and the names for each question,
- *     colours the buttons from the Round's answer, runs the 1.5 s pause and
- *     counts the misses, and hands the finished Round to the shell.
+ *     colours the buttons from the Round's answer, and hands the finished
+ *     Round to the shell.
  * The script owns no rule about places: "which choice is right" is always
  * read off the Round, and the score is the pure function's.
  *
@@ -76,10 +79,18 @@ const LETTERS = ["A", "B", "C", "D"];
 <script>
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
-  import { buildRound, type Question } from "../../../lib/bday26/nerede";
+  import { buildRound, type PlaceQuestion } from "../../../lib/bday26/nerede";
   import { missScore } from "../../../lib/bday26/scores";
   import { PHOTOS, photoUrl } from "../../../lib/bday26/photos";
-  import { clearMarks, createAnswerStep, markChoices } from "../../../lib/bday26/choice-quiz";
+  import {
+    choiceOfKey,
+    clearMarks,
+    createAnswerStep,
+    createChoiceQuiz,
+    markChoices,
+    missDetail,
+    type ChoiceQuiz,
+  } from "../../../lib/bday26/choice-quiz";
   import { neredeCelebration, perfectRoundCelebration } from "../../../lib/bday26/effects";
   import { effects } from "../../../lib/bday26/effects-dom";
 
@@ -96,15 +107,13 @@ const LETTERS = ["A", "B", "C", "D"];
     throw new Error("bday26 nerede: the stage markup is missing");
   }
 
-  let round: Question[] = [];
-  let current = 0;
-  let misses = 0;
+  let quiz: ChoiceQuiz<PlaceQuestion> = createChoiceQuiz<PlaceQuestion>([]);
   /** True from her answer until the next photo: keys skip the wait. */
-  let answered = false;
-  const step = createAnswerStep(next, () => answered);
+  const answered = () => quiz.picked !== undefined;
+  const step = createAnswerStep(next, answered);
 
   function paintQuestion() {
-    const q = round[current]!;
+    const q = quiz.question;
     img!.src = photoUrl(q.photo.file);
     stage!.classList.remove("answered");
     clearMarks(buttons);
@@ -112,34 +121,29 @@ const LETTERS = ["A", "B", "C", "D"];
       const place = button.querySelector<HTMLElement>("[data-place]");
       if (place) place.textContent = q.choices[i] ?? "";
     });
-    indexEl!.textContent = String(current + 1);
-    missesEl!.textContent = String(misses);
-    preload(round[current + 1]);
+    indexEl!.textContent = String(quiz.index + 1);
+    missesEl!.textContent = String(quiz.misses);
+    preload(quiz.questions[quiz.index + 1]);
   }
 
   /** Fetch a photo into the cache before it is shown. */
-  function preload(q: Question | undefined) {
+  function preload(q: PlaceQuestion | undefined) {
     if (q) new Image().src = photoUrl(q.photo.file);
   }
 
   function startRound() {
     step.cancel();
-    round = buildRound(PHOTOS, Math.random, COUNT);
-    current = 0;
-    misses = 0;
-    answered = false;
+    quiz = createChoiceQuiz(buildRound(PHOTOS, Math.random, COUNT));
     paintQuestion();
   }
 
   function answer(i: number) {
-    if (answered) return;
-    const q = round[current]!;
-    answered = true;
-    const hit = i === q.answer;
-    if (!hit) misses += 1;
+    if (answered() || quiz.questions.length === 0) return;
+    const q = quiz.question;
+    const hit = quiz.pick(i);
     markChoices(buttons, q.answer, i);
     stage!.classList.add("answered");
-    missesEl!.textContent = String(misses);
+    missesEl!.textContent = String(quiz.misses);
     step.wait();
     // Alongside the marks, never holding up the next photo.
     if (hit) effects.celebrate(neredeCelebration(Math.random), buttons[i]);
@@ -148,15 +152,17 @@ const LETTERS = ["A", "B", "C", "D"];
 
   function next() {
     step.cancel();
-    if (!answered) return;
-    answered = false;
-    current += 1;
-    if (current >= round.length) {
-      shell.finish(missScore(misses), { detail: misses === 0 ? "Hatasız tur!" : `${misses} hata` });
+    if (!answered()) return;
+    if (quiz.done) {
+      const misses = quiz.misses;
+      // Nothing left to answer: a late key or click finds no Round.
+      quiz = createChoiceQuiz<PlaceQuestion>([]);
+      shell.finish(missScore(misses), { detail: missDetail(misses) });
       // A perfect Round: the grand one, as the result card arrives (0.5 s).
       if (misses === 0) setTimeout(() => effects.celebrate(perfectRoundCelebration(Math.random)), 500);
       return;
     }
+    quiz.next();
     paintQuestion();
   }
 
@@ -173,7 +179,7 @@ const LETTERS = ["A", "B", "C", "D"];
   });
 
   stage.addEventListener("click", (event) => {
-    if (answered) return next();
+    if (answered()) return next();
     const button = (event.target as Element).closest<HTMLElement>("[data-choice]");
     if (button) answer(Number(button.dataset.choice));
   });
@@ -181,16 +187,15 @@ const LETTERS = ["A", "B", "C", "D"];
   // The shell has already taken Esc, and every key on its own screens; what
   // arrives here is hers to answer with. 1–4 and A–D both pick (#182); after
   // an answer any key moves on.
-  const CHOICE_KEY: Record<string, number> = { "1": 0, "2": 1, "3": 2, "4": 3, a: 0, b: 1, c: 2, d: 3 };
   window.addEventListener("keydown", (event) => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
-    if (answered) {
+    if (answered()) {
       event.preventDefault();
       next();
       return;
     }
-    const i = CHOICE_KEY[event.key.toLowerCase()];
-    if (i != null) {
+    const i = choiceOfKey(event.key);
+    if (i !== undefined) {
       event.preventDefault();
       answer(i);
     }

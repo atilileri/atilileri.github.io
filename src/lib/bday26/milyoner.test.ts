@@ -24,7 +24,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { askAudience, buildRound, halve, parsePool, type Question } from "./milyoner.ts";
+import { askAudience, buildRound, halve, parsePool, type MilyonerQuestion } from "./milyoner.ts";
 
 /** A small seeded generator (mulberry32): [0, 1) like Math.random. */
 function seeded(seed: number): () => number {
@@ -188,7 +188,7 @@ test("Seyirciye sor after Yarı yarıya: the two choices taken away get no votes
   for (let seed = 1; seed <= 200; seed++) {
     const rng = seeded(seed);
     const round = buildRound(POOL, rng);
-    for (const q of [round[seed % 10]!, round[10 + (seed % 2)]!] as Question[]) {
+    for (const q of [round[seed % 10]!, round[10 + (seed % 2)]!] as MilyonerQuestion[]) {
       const gone = halve(q, rng);
       const bars = askAudience(q, rng, gone);
       assertBars(bars);

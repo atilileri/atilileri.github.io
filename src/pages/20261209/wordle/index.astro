@@ -7,13 +7,18 @@
  *
  * ONE ROUND, ALL TEN WORDS (Atıl's play test). A Round plays every one of
  * our ten words and phrases, one after another, in a fresh random order
- * each Round (`shuffleAnswers`). Each word is scored on its own with the
- * table below; after a word is solved or its six guesses run out, the
+ * each Round (`shuffleAnswers`), never opening on the word she saw last
+ * (kept in `sessionStorage`, `bday26:wordle:last`). Each word is scored on
+ * its own with the table below; after a word is solved or its six guesses run out, the
  * keyboard gives way to the answer in tiles, that word's score and
  * "Sonraki kelime" (Enter or the button; "Sonuç" after the tenth). The
  * Round is the mean of the ten word scores, rounded down
- * (`wordleRoundScore`). The result card lists the ten words in the order
- * played, each with its guess count (or "bulunamadı") and score.
+ * (`wordleRoundScore`). The ten words are the same every Round, so the
+ * result card reads first as a letter (review E5, Atıl's decision): the
+ * ten words as one message from him (`LOVE_NOTE`), each word marked in it.
+ * Under it the ten words in the order played, each with its guess count
+ * (or "bulunamadı") and score; "Yeni tur" stays, quieter, and Enter still
+ * starts it.
  *
  * WHAT SHE SEES. The word, hidden, and the whole 6-row grid from the start, so its shape already says "3 kelime · 3 + 2 +
  * 6 harf". A space is a narrow gap cell with a dot, which she never types:
@@ -37,8 +42,10 @@
  *
  * HOW IT IS BUILT. Three layers, as in the other Games:
  *   - `src/lib/bday26/wordle.ts` is the rules: the ten answers and hints,
- *     the Round's order, the grid with its gaps, typing, Enter, the colouring and
- *     the keyboard colours. No DOM, pinned under `node --test`.
+ *     the Round's order, the Round itself (`createWordleRound`: the word on
+ *     screen, the words finished, the score so far), each word's grid with
+ *     its gaps, typing, Enter, the colouring and the keyboard colours. No
+ *     DOM, pinned under `node --test`.
  *   - `GameShell` is everything around the Round, and the one call that
  *     records it.
  *   - This page is the painter: the keyboard is rendered at build time, the
@@ -56,7 +63,7 @@
 import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
-import { ANSWERS } from "../../../lib/bday26/wordle";
+import { ANSWERS, LOVE_NOTE } from "../../../lib/bday26/wordle";
 
 const game = gameById("wordle");
 
@@ -71,6 +78,30 @@ const KEYS = [
 /** The Turkish Q layout, as on her laptop, without Q W X (no Turkish word uses them). */
 const ROWS = ["ERTYUIOPĞÜ", "ASDFGHJKLŞİ", "ZCVBNMÖÇ"];
 const TURKISH = "ÇĞIİÖŞÜ";
+
+/** The love note in pieces, each of the ten words marked where it stands,
+ *  so she sees her words make the message. Found on Turkish lower case,
+ *  which keeps every letter one character, so the places hold. */
+function marked(text: string): { text: string; word: boolean }[] {
+  const low = text.toLocaleLowerCase("tr");
+  const hits: [number, number][] = [];
+  for (const { answer } of ANSWERS) {
+    const at = low.indexOf(answer.toLocaleLowerCase("tr"));
+    if (at >= 0) hits.push([at, at + answer.length]);
+  }
+  hits.sort((a, b) => a[0] - b[0]);
+  const parts: { text: string; word: boolean }[] = [];
+  let from = 0;
+  for (const [start, end] of hits) {
+    if (start < from) continue;
+    if (start > from) parts.push({ text: text.slice(from, start), word: false });
+    parts.push({ text: text.slice(start, end), word: true });
+    from = end;
+  }
+  if (from < text.length) parts.push({ text: text.slice(from), word: false });
+  return parts;
+}
+const NOTE = marked(LOVE_NOTE.text);
 ---
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
@@ -124,6 +155,10 @@ const TURKISH = "ÇĞIİÖŞÜ";
     </div>
 
     <div slot="result" class="result">
+      <figure class="letter" data-letter>
+        <blockquote>{NOTE.map((p) => (p.word ? <b>{p.text}</b> : p.text))}</blockquote>
+        <figcaption>— <b>{LOVE_NOTE.from}</b></figcaption>
+      </figure>
       <ol class="words" data-words aria-label="Kelimeler"></ol>
       <p class="formula">Tur skoru, {ANSWERS.length} kelimenin ortalaması (aşağı yuvarlanır).</p>
     </div>
@@ -134,8 +169,15 @@ const TURKISH = "ÇĞIİÖŞÜ";
   import { openLedger } from "../../../lib/bday26/browser";
   import { mountGameShell } from "../../../lib/bday26/shell";
   import { PRIZE_BAR } from "../../../lib/bday26/catalogue";
-  import { ANSWERS, MAX_GUESSES, createRound, shuffleAnswers, typedLetter, type WordleRound } from "../../../lib/bday26/wordle";
-  import { wordleRoundScore, wordleScore } from "../../../lib/bday26/scores";
+  import {
+    ANSWERS,
+    MAX_GUESSES,
+    createWordleRound,
+    shuffleAnswers,
+    typedLetter,
+    type WordleRound,
+    type WordleWord,
+  } from "../../../lib/bday26/wordle";
   import { effects } from "../../../lib/bday26/effects-dom";
 
   /** A gap cell's width, in cells. Keep in step with `.cell.gap` below. */
@@ -164,13 +206,10 @@ const TURKISH = "ÇĞIİÖŞÜ";
     Array.from(document.querySelectorAll<HTMLButtonElement>("[data-key]")).map((b) => [b.dataset.key!, b]),
   );
 
-  /** This Round's order: indexes into `ANSWERS`, all ten, each once. */
-  let order: number[] = ANSWERS.map((_, i) => i);
-  /** The word being played, 0..9 (a place in `order`). */
-  let word = 0;
-  /** What each finished word did this Round, in the order played. */
-  let played: { answer: string; guesses: number; solved: boolean; score: number }[] = [];
-  let round: WordleRound = createRound(ANSWERS[0]!.answer);
+  /** The Round: its ten words, the one on screen, the ones finished. */
+  let round: WordleRound = createWordleRound(ANSWERS.map((_, i) => i));
+  /** The word on screen, `round.word`, held for the painters. */
+  let word: WordleWord = round.word;
   /** A row is turning over: keys wait. */
   let busy = false;
   /** The word is over and its reveal is up: Enter is "Sonraki kelime". */
@@ -180,23 +219,23 @@ const TURKISH = "ÇĞIİÖŞÜ";
   let flipTimers: number[] = [];
   let finishTimer = 0;
   let toastTimer = 0;
-  /** rows[r][c] is the cell element of row r, cell c of `round.cells`. */
+  /** rows[r][c] is the cell element of row r, cell c of `word.cells`. */
   let rows: HTMLElement[][] = [];
 
   // ------------------------------------------------------------- painting
 
   function buildBoard() {
     boardEl.replaceChildren();
-    const units = round.cells.reduce((n, c) => n + (c.gap ? GAP_WIDTH : 1), 0);
+    const units = word.cells.reduce((n, c) => n + (c.gap ? GAP_WIDTH : 1), 0);
     boardEl.style.setProperty("--units", String(units));
-    boardEl.style.setProperty("--cols", String(round.cells.length));
+    boardEl.style.setProperty("--cols", String(word.cells.length));
     rows = [];
     for (let r = 0; r < MAX_GUESSES; r++) {
       const rowEl = document.createElement("div");
       rowEl.className = "row";
       rowEl.setAttribute("role", "row");
       rows.push(
-        round.cells.map((c) => {
+        word.cells.map((c) => {
           const cell = document.createElement("div");
           cell.className = c.gap ? "cell gap" : "cell";
           if (!c.gap) cell.setAttribute("role", "gridcell");
@@ -210,26 +249,26 @@ const TURKISH = "ÇĞIİÖŞÜ";
 
   /** The row she is typing: letters, the caret. */
   function paintTyping() {
-    const r = round.guesses.length;
-    if (r >= MAX_GUESSES || round.done) return;
-    round.cells.forEach((c, i) => {
+    const r = word.guesses.length;
+    if (r >= MAX_GUESSES || word.done) return;
+    word.cells.forEach((c, i) => {
       if (c.gap) return;
       const el = rows[r]![i]!;
-      const letter = round.typed[c.at] ?? "";
+      const letter = word.typed[c.at] ?? "";
       el.textContent = letter;
       el.classList.toggle("filled", letter !== "");
-      el.classList.toggle("caret", round.caret === i);
+      el.classList.toggle("caret", word.caret === i);
     });
   }
 
   /** A sent row turns over, cell by cell. Returns the ms until the last
    *  cell has landed. */
   function reveal(r: number): number {
-    const guess = round.guesses[r]!;
-    const letters = round.cells.filter((c) => !c.gap).length;
+    const guess = word.guesses[r]!;
+    const letters = word.cells.filter((c) => !c.gap).length;
     const stagger = Math.min(160, Math.round(1100 / letters));
     let k = 0;
-    round.cells.forEach((c, i) => {
+    word.cells.forEach((c, i) => {
       if (c.gap) return;
       const el = rows[r]![i]!;
       el.classList.remove("caret", "filled");
@@ -242,7 +281,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
   }
 
   function paintKeyboard() {
-    const keys = round.keyboard();
+    const keys = word.keyboard();
     for (const [ch, el] of keyEls) {
       el.classList.remove("correct", "present", "absent");
       const c = keys.get(ch);
@@ -251,10 +290,10 @@ const TURKISH = "ÇĞIİÖŞÜ";
   }
 
   function paintHud() {
-    const n = round.guesses.length;
-    wordEl.textContent = String(word + 1);
-    guessEl.textContent = String(Math.min(MAX_GUESSES, round.done ? n : n + 1));
-    totalEl.textContent = played.length ? `%${wordleRoundScore(played.map((p) => p.score))}` : "—";
+    const n = word.guesses.length;
+    wordEl.textContent = String(round.index + 1);
+    guessEl.textContent = String(Math.min(MAX_GUESSES, word.done ? n : n + 1));
+    totalEl.textContent = round.score === undefined ? "—" : `%${round.score}`;
   }
 
   function toast(text: string) {
@@ -265,7 +304,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
   }
 
   function shake() {
-    const rowEl = boardEl.children[round.guesses.length] as HTMLElement | undefined;
+    const rowEl = boardEl.children[word.guesses.length] as HTMLElement | undefined;
     if (!rowEl) return;
     rowEl.classList.remove("shake");
     void rowEl.offsetWidth;
@@ -274,7 +313,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
 
   function bounce(r: number) {
     let k = 0;
-    round.cells.forEach((c, i) => {
+    word.cells.forEach((c, i) => {
       if (c.gap) return;
       const el = rows[r]![i]!;
       el.classList.remove("reveal");
@@ -292,24 +331,42 @@ const TURKISH = "ÇĞIİÖŞÜ";
 
   // ---------------------------------------------------------------- Round
 
-  function startRound() {
-    order = shuffleAnswers(Math.random);
-    played = [];
-    startWord(0);
+  /** The word she saw last, kept for the tab so the next Round, after
+   *  "Yeni tur", a trip to the hub or a reload, never opens on it (#201).
+   *  Not progress: a browser that refuses storage only forgets it. */
+  const LAST_KEY = "bday26:wordle:last";
+  function lastWord(): string | undefined {
+    try {
+      return sessionStorage.getItem(LAST_KEY) ?? undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  function rememberWord(answer: string) {
+    try {
+      sessionStorage.setItem(LAST_KEY, answer);
+    } catch {
+      // Storage refused: the next Round may open on it, nothing worse.
+    }
   }
 
-  function startWord(i: number) {
+  function startRound() {
+    round = createWordleRound(shuffleAnswers(Math.random, lastWord()));
+    startWord();
+  }
+
+  /** Paints the word now on screen, `round.word`, from its first row. */
+  function startWord() {
     clearTimers();
     busy = false;
     showBetween(false);
-    word = i;
-    const a = ANSWERS[order[i]!]!;
-    round = createRound(a.answer);
-    hintEl.textContent = a.hint;
+    word = round.word;
+    rememberWord(word.answer);
+    hintEl.textContent = round.hint;
     shapeEl.textContent =
-      round.words.length > 1
-        ? `${round.words.length} kelime · ${round.words.join(" + ")} harf`
-        : `${round.words[0]} harf`;
+      word.words.length > 1
+        ? `${word.words.length} kelime · ${word.words.join(" + ")} harf`
+        : `${word.words[0]} harf`;
     toastEl.hidden = true;
     buildBoard();
     paintTyping();
@@ -330,21 +387,20 @@ const TURKISH = "ÇĞIİÖŞÜ";
     finishTimer = 0;
     // The leave question is open: `resume` finishes when she stays.
     if (shell.phase !== "playing") return;
-    const n = round.guesses.length;
-    const score = wordleScore(n, round.solved);
-    played.push({ answer: round.answer, guesses: n, solved: round.solved, score });
+    const n = word.guesses.length;
+    const score = round.played.at(-1)!.score;
     answerEl.replaceChildren(
-      ...[...round.answer].map((ch) => {
+      ...[...word.answer].map((ch) => {
         const tile = document.createElement("span");
-        tile.className = ch === " " ? "tile gap" : `tile ${round.solved ? "correct" : "absent"}`;
+        tile.className = ch === " " ? "tile gap" : `tile ${word.solved ? "correct" : "absent"}`;
         tile.textContent = ch === " " ? "" : ch;
         return tile;
       }),
     );
     wordScoreEl.textContent = `%${score}`;
     wordScoreEl.classList.toggle("win", score >= PRIZE_BAR);
-    wordWhyEl.textContent = round.solved ? `${n}. tahminde buldun` : "Bu sefer olmadı";
-    nextBtn.innerHTML = `${word + 1 < order.length ? "Sonraki kelime" : "Sonuç"} <kbd>Enter</kbd>`;
+    wordWhyEl.textContent = word.solved ? `${n}. tahminde buldun` : "Bu sefer olmadı";
+    nextBtn.innerHTML = `${round.last ? "Sonuç" : "Sonraki kelime"} <kbd>Enter</kbd>`;
     showBetween(true);
     paintHud();
   }
@@ -352,12 +408,11 @@ const TURKISH = "ÇĞIİÖŞÜ";
   /** "Sonraki kelime" (or "Sonuç" after the tenth). */
   function next() {
     if (!between || shell.phase !== "playing") return;
-    if (word + 1 < order.length) {
-      startWord(word + 1);
+    if (round.next()) {
+      startWord();
       return;
     }
-    const scores = played.map((p) => p.score);
-    const total = wordleRoundScore(scores);
+    const played = round.played;
     wordsEl.replaceChildren(
       ...played.map((p) => {
         const li = document.createElement("li");
@@ -375,31 +430,31 @@ const TURKISH = "ÇĞIİÖŞÜ";
       }),
     );
     const found = played.filter((p) => p.solved).length;
-    shell.finish(total, { detail: `${found}/${played.length} kelime bulundu` });
+    shell.finish(round.score ?? 0, { detail: `${found}/${played.length} kelime bulundu` });
   }
 
   function type(letter: string) {
-    if (busy || between || !round.type(letter)) return;
+    if (busy || between || !word.type(letter)) return;
     effects.sound("key");
     paintTyping();
   }
 
   function erase() {
-    if (busy || between || !round.erase()) return;
+    if (busy || between || !word.erase()) return;
     effects.sound("backspace");
     paintTyping();
   }
 
   function submit() {
     if (between) return next();
-    if (busy || round.done) return;
-    const outcome = round.submit();
+    if (busy || word.done) return;
+    const outcome = word.submit();
     if (outcome === "missing") {
       toast("Eksik harf var");
       shake();
       return;
     }
-    const r = round.guesses.length - 1;
+    const r = word.guesses.length - 1;
     busy = true;
     revealTimer = window.setTimeout(() => {
       revealTimer = 0;
@@ -408,14 +463,14 @@ const TURKISH = "ÇĞIİÖŞÜ";
       // Every sent row answers: found, a happy chime; six guesses spent, a
       // soft bonk; a row with a green or yellow, an upbeat blip; all grey,
       // a soft "no".
-      if (round.solved) effects.sound("rich-chime");
-      else if (round.done) effects.sound("bonk");
-      else if (round.guesses[r]!.colours.some((c) => c !== "absent")) effects.sound("row-good");
+      if (word.solved) effects.sound("rich-chime");
+      else if (word.done) effects.sound("bonk");
+      else if (word.guesses[r]!.colours.some((c) => c !== "absent")) effects.sound("row-good");
       else effects.sound("row-wrong");
       paintKeyboard();
       paintHud();
-      if (round.solved) bounce(r);
-      if (round.done) finishTimer = window.setTimeout(finishWord, round.solved ? 900 : 400);
+      if (word.solved) bounce(r);
+      if (word.done) finishTimer = window.setTimeout(finishWord, word.solved ? 900 : 400);
       else paintTyping();
     }, reveal(r));
   }
@@ -427,7 +482,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
       startRound,
       abandonRound: clearTimers,
       resume() {
-        if (round.done && !busy && !finishTimer && !between) finishWord();
+        if (word.done && !busy && !finishTimer && !between) finishWord();
       },
     },
   });
@@ -459,6 +514,12 @@ const TURKISH = "ÇĞIİÖŞÜ";
     else if (key === "Backspace") erase();
     else if (key) type(key);
   });
+  // The result card is a letter first (review E5): "Yeni tur" stays, and
+  // Enter still starts it, but it steps back from the shell's primary look.
+  document
+    .querySelector('[data-shell-screen="result"] [data-shell-action="start"]')
+    ?.classList.replace("primary", "ghost");
+
   nextBtn.addEventListener("mousedown", (event) => event.preventDefault());
   nextBtn.addEventListener("click", next);
 </script>
@@ -740,6 +801,41 @@ const TURKISH = "ÇĞIİÖŞÜ";
     font-size: 15px;
     color: var(--bd-ink-soft);
   }
+  /* The love note: a warm slip of paper above the ten words. */
+  .letter {
+    margin: 0;
+    padding: 12px 20px 8px;
+    border-radius: var(--bd-radius-sm);
+    background: var(--w-orange-soft, #fdebe1);
+    box-shadow: inset 0 0 0 1.5px rgb(251 133 0 / 0.25);
+    text-align: left;
+  }
+  .letter blockquote {
+    margin: 0;
+    font-family: var(--bd-display);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--bd-ink);
+  }
+  .letter b {
+    color: var(--bd-accent-deep);
+    font-weight: 800;
+  }
+  .letter figcaption {
+    margin-top: 2px;
+    text-align: right;
+    font-family: var(--bd-display);
+    font-size: 17px;
+    color: var(--bd-ink-soft);
+  }
+  /* A short screen keeps the letter and the ten words; the formula is on
+     the start card too. */
+  @media (max-height: 900px) {
+    .result .formula {
+      display: none;
+    }
+  }
   .words {
     list-style: none;
     padding: 0;
@@ -748,6 +844,7 @@ const TURKISH = "ÇĞIİÖŞÜ";
     gap: 2px;
   }
   .words :global(li) {
+    line-height: 1.3;
     display: grid;
     grid-template-columns: 1fr auto 52px;
     gap: 12px;

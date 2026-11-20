@@ -6,7 +6,8 @@
  *
  * WHAT SHE SEES. A 4×4 grid of our photos, all face down, no preview. She
  * turns two; alike stay up with a green ring, different stay up for a second
- * or until her next card. The HUD counts her moves ("Hamle 7"). When the 8
+ * or until her next card. The HUD counts her moves against the most the
+ * Small prize allows ("Hamle 7 / 15", `MEMORY_PRIZE_MOVES`). When the 8
  * pairs are matched the shell shows the result: ≤14 moves is %100, every
  * move past that costs 5 (`memoryScore` in `src/lib/bday26/scores.ts`), so
  * 15 moves is the %95 that wins Mei Wah'da akşam yemeği.
@@ -37,6 +38,7 @@ import BdayLayout from "../../../layouts/BdayLayout.astro";
 import GameShell from "../../../components/bday26/GameShell.astro";
 import { gameById } from "../../../lib/bday26/catalogue";
 import { GAME_ICON } from "../../../lib/bday26/icons";
+import { MEMORY_PRIZE_MOVES } from "../../../lib/bday26/memory";
 
 const game = gameById("hafiza");
 
@@ -52,7 +54,7 @@ const CARDS = Array.from({ length: 16 }, (_, i) => i);
 
 <BdayLayout title={`${game.name} · İyi ki doğdun Çağla!`}>
   <GameShell game="hafiza" keys={KEYS} music="hafiza">
-    <span slot="hud">Hamle <b data-moves>0</b></span>
+    <span slot="hud">Hamle <b data-moves>0</b> / {MEMORY_PRIZE_MOVES}</span>
     <ul class="board" data-board aria-label="Kartlar">
       {
         CARDS.map((i) => (
@@ -153,7 +155,9 @@ const CARDS = Array.from({ length: 16 }, (_, i) => i);
       paint();
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      turn(cursor);
+      // A held key turns one card; its repeats would restart a wrong pair's
+      // second each time and keep it up. Arrows repeat, on purpose.
+      if (!event.repeat) turn(cursor);
     }
   });
 </script>

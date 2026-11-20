@@ -14,13 +14,24 @@
  *   - the on-screen keyboard keeps a letter's best colour;
  *   - the 10 answers and hints of the #188 verdict table, OTUZ DÖRT included;
  *   - a Round plays all ten answers once each, in an order the random
- *     source decides.
+ *     source decides, one word after another; each word is scored on its
+ *     own and the Round is the mean of the words finished.
  * Expected values are worked by hand from the Wordle rules and the verdict
  * table, not from the code. Randomness is injected.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ANSWERS, colour, createRound, shuffleAnswers, typedLetter, type WordleRound } from "./wordle.ts";
+import {
+  ANSWERS,
+  LOVE_NOTE,
+  colour,
+  createWord,
+  createWordleRound,
+  shuffleAnswers,
+  typedLetter,
+  type WordleRound,
+  type WordleWord,
+} from "./wordle.ts";
 
 /** Colours as one letter each, to read a row at a glance: G green, Y yellow, . grey. */
 const row = (guess: string, answer: string) =>
@@ -80,141 +91,147 @@ test("typing: anything that is not a letter types nothing", () => {
   }
 });
 
-// ------------------------------------------------------- the grid of a Round
+// -------------------------------------------------------- the grid of a word
 
-/** The Round's cells as text: a letter cell is "_", a gap is " ". */
-const shape = (round: WordleRound) => round.cells.map((c) => (c.gap ? " " : "_")).join("");
+/** The word's cells as text: a letter cell is "_", a gap is " ". */
+const shape = (word: WordleWord) => word.cells.map((c) => (c.gap ? " " : "_")).join("");
 
-/** Types each letter of `text` into the Round. */
-const typeAll = (round: WordleRound, text: string) => [...text].forEach((l) => round.type(l));
+/** Types each letter of `text` into the word's row. */
+const typeAll = (word: WordleWord, text: string) => [...text].forEach((l) => word.type(l));
 
 test("grid: a phrase is its letter cells with a fixed gap where each space is", () => {
-  assert.equal(shape(createRound("OTUZ DÖRT")), "____ ____");
-  assert.equal(shape(createRound("İYİ Kİ DOĞDUN")), "___ __ ______");
-  assert.equal(shape(createRound("SPA")), "___");
+  assert.equal(shape(createWord("OTUZ DÖRT")), "____ ____");
+  assert.equal(shape(createWord("İYİ Kİ DOĞDUN")), "___ __ ______");
+  assert.equal(shape(createWord("SPA")), "___");
 });
 
 test("grid: the shape tells her the words and their letters", () => {
-  assert.deepEqual(createRound("İYİ Kİ DOĞDUN").words, [3, 2, 6]);
-  assert.deepEqual(createRound("ŞARAP").words, [5]);
+  assert.deepEqual(createWord("İYİ Kİ DOĞDUN").words, [3, 2, 6]);
+  assert.deepEqual(createWord("ŞARAP").words, [5]);
 });
 
 test("grid: the cursor skips the gap, from the last letter of a word to the next word", () => {
-  const round = createRound("OTUZ DÖRT");
-  assert.equal(round.caret, 0);
-  typeAll(round, "OTUZ");
-  assert.equal(round.caret, 5); // cell 4 is the gap
-  round.type("D");
-  assert.equal(round.caret, 6);
-  round.erase();
-  round.erase();
-  assert.equal(round.caret, 3);
-  assert.deepEqual(round.typed, ["O", "T", "U"]);
+  const word = createWord("OTUZ DÖRT");
+  assert.equal(word.caret, 0);
+  typeAll(word, "OTUZ");
+  assert.equal(word.caret, 5); // cell 4 is the gap
+  word.type("D");
+  assert.equal(word.caret, 6);
+  word.erase();
+  word.erase();
+  assert.equal(word.caret, 3);
+  assert.deepEqual(word.typed, ["O", "T", "U"]);
 });
 
 test("grid: a full row takes no more letters", () => {
-  const round = createRound("SPA");
-  typeAll(round, "SPAS");
-  assert.deepEqual(round.typed, ["S", "P", "A"]);
-  assert.equal(round.caret, undefined);
+  const word = createWord("SPA");
+  typeAll(word, "SPAS");
+  assert.deepEqual(word.typed, ["S", "P", "A"]);
+  assert.equal(word.caret, undefined);
 });
 
 // ------------------------------------------------------------------ Enter
 
 test("Enter: a row with an empty cell is refused and stays as typed", () => {
-  const round = createRound("OTUZ DÖRT");
-  typeAll(round, "OTUZDÖR");
-  assert.equal(round.submit(), "missing");
-  assert.equal(round.guesses.length, 0);
-  assert.deepEqual(round.typed.join(""), "OTUZDÖR");
+  const word = createWord("OTUZ DÖRT");
+  typeAll(word, "OTUZDÖR");
+  assert.equal(word.submit(), "missing");
+  assert.equal(word.guesses.length, 0);
+  assert.deepEqual(word.typed.join(""), "OTUZDÖR");
 });
 
 test("Enter: any letters go, coloured across the gap, and the next row starts empty", () => {
   // No dictionary (#188): "OTUZBEŞŞ" is no phrase, and still a guess.
-  const round = createRound("OTUZ DÖRT");
-  typeAll(round, "OTUZBEŞŞ");
-  assert.equal(round.submit(), "next");
-  assert.equal(round.guesses.length, 1);
-  assert.deepEqual(round.guesses[0]!.letters.join(""), "OTUZBEŞŞ");
-  assert.deepEqual(round.guesses[0]!.colours, ["correct", "correct", "correct", "correct", "absent", "absent", "absent", "absent"]);
-  assert.deepEqual(round.typed, []);
-  assert.equal(round.done, false);
+  const word = createWord("OTUZ DÖRT");
+  typeAll(word, "OTUZBEŞŞ");
+  assert.equal(word.submit(), "next");
+  assert.equal(word.guesses.length, 1);
+  assert.deepEqual(word.guesses[0]!.letters.join(""), "OTUZBEŞŞ");
+  assert.deepEqual(word.guesses[0]!.colours, ["correct", "correct", "correct", "correct", "absent", "absent", "absent", "absent"]);
+  assert.deepEqual(word.typed, []);
+  assert.equal(word.done, false);
 });
 
-test("Enter: the answer ends the Round solved, and nothing more types", () => {
-  const round = createRound("İyi ki doğdun");
-  typeAll(round, "AAAAAAAAAAA");
-  round.submit();
-  typeAll(round, "İYİKİDOĞDUN");
-  assert.equal(round.submit(), "solved");
-  assert.equal(round.done, true);
-  assert.equal(round.solved, true);
-  assert.equal(round.guesses.length, 2);
-  assert.equal(round.type("A"), false);
-  assert.equal(round.caret, undefined);
+test("Enter: the answer ends the word solved, and nothing more types", () => {
+  const word = createWord("İyi ki doğdun");
+  typeAll(word, "AAAAAAAAAAA");
+  word.submit();
+  typeAll(word, "İYİKİDOĞDUN");
+  assert.equal(word.submit(), "solved");
+  assert.equal(word.done, true);
+  assert.equal(word.solved, true);
+  assert.equal(word.guesses.length, 2);
+  assert.equal(word.type("A"), false);
+  assert.equal(word.caret, undefined);
 });
 
-test("Enter: six wrong guesses end the Round unsolved", () => {
-  const round = createRound("SPA");
+test("Enter: six wrong guesses end the word unsolved", () => {
+  const word = createWord("SPA");
   for (let i = 0; i < 5; i++) {
-    typeAll(round, "ŞAP");
-    assert.equal(round.submit(), "next");
+    typeAll(word, "ŞAP");
+    assert.equal(word.submit(), "next");
   }
-  typeAll(round, "ŞAP");
-  assert.equal(round.submit(), "over");
-  assert.equal(round.done, true);
-  assert.equal(round.solved, false);
-  assert.equal(round.guesses.length, 6);
-  assert.equal(round.type("S"), false);
-  assert.equal(round.submit(), "over");
-  assert.equal(round.guesses.length, 6);
+  typeAll(word, "ŞAP");
+  assert.equal(word.submit(), "over");
+  assert.equal(word.done, true);
+  assert.equal(word.solved, false);
+  assert.equal(word.guesses.length, 6);
+  assert.equal(word.type("S"), false);
+  assert.equal(word.submit(), "over");
+  assert.equal(word.guesses.length, 6);
 });
 
 // ------------------------------------------------------- keyboard colours
 
 test("keyboard: an untried letter has no colour; a tried one shows what it learned", () => {
-  const round = createRound("ŞARAP");
-  assert.equal(round.keyboard().size, 0);
-  typeAll(round, "KUZEY");
-  round.submit();
-  assert.equal(round.keyboard().get("K"), "absent");
-  assert.equal(round.keyboard().get("A"), undefined);
+  const word = createWord("ŞARAP");
+  assert.equal(word.keyboard().size, 0);
+  typeAll(word, "KUZEY");
+  word.submit();
+  assert.equal(word.keyboard().get("K"), "absent");
+  assert.equal(word.keyboard().get("A"), undefined);
 });
 
 test("keyboard: a letter keeps its best colour, green over yellow over grey", () => {
-  const round = createRound("ŞARAP");
-  typeAll(round, "PAŞKK"); // A green; P, Ş yellow; K grey
-  round.submit();
-  typeAll(round, "AKKPŞ"); // A yellow, P yellow, Ş yellow: none may lower a key
-  round.submit();
-  const keys = round.keyboard();
+  const word = createWord("ŞARAP");
+  typeAll(word, "PAŞKK"); // A green; P, Ş yellow; K grey
+  word.submit();
+  typeAll(word, "AKKPŞ"); // A yellow, P yellow, Ş yellow: none may lower a key
+  word.submit();
+  const keys = word.keyboard();
   assert.equal(keys.get("A"), "correct");
   assert.equal(keys.get("P"), "present");
   assert.equal(keys.get("Ş"), "present");
   assert.equal(keys.get("K"), "absent");
-  typeAll(round, "ŞAKKP"); // Ş now in place: yellow → green
-  round.submit();
-  assert.equal(round.keyboard().get("Ş"), "correct");
+  typeAll(word, "ŞAKKP"); // Ş now in place: yellow → green
+  word.submit();
+  assert.equal(word.keyboard().get("Ş"), "correct");
 });
 
 test("keyboard: a grey copy of a letter that is yellow elsewhere keeps the key yellow", () => {
   // SPA has one A: "AAZ" makes the first A yellow and the second grey.
-  const round = createRound("SPA");
-  typeAll(round, "AAZ");
-  round.submit();
-  assert.equal(round.keyboard().get("A"), "present");
+  const word = createWord("SPA");
+  typeAll(word, "AAZ");
+  word.submit();
+  assert.equal(word.keyboard().get("A"), "present");
 });
 
 // ------------------------------------------------------ answers and hints
 
 test("answers: the ten of the #188 verdict, each with its İpucu", () => {
   assert.deepEqual(
-    ANSWERS.map((a) => createRound(a.answer).answer),
+    ANSWERS.map((a) => createWord(a.answer).answer),
     ["ÇAĞLA", "ATIL", "AŞKIM", "SEVDİCEK", "KENDİ DİLİMDE", "İYİ Kİ DOĞDUN", "SENİ SEVİYORUM", "SPA", "ŞARAP", "OTUZ DÖRT"],
   );
   assert.equal(ANSWERS.find((a) => a.answer === "OTUZ DÖRT")?.hint, "Bu yıl pastadaki mum sayısı, yazıyla");
   assert.equal(ANSWERS.find((a) => a.answer === "ATIL")?.hint, "Bu oyunu senin için yapan adamın adı");
   for (const a of ANSWERS) assert.ok(a.hint.length > 0, a.answer);
+});
+
+test("love note: the result card's note reads all ten words, signed by Atıl", () => {
+  const note = `${LOVE_NOTE.text} ${LOVE_NOTE.from}`.toLocaleLowerCase("tr");
+  for (const { answer } of ANSWERS) assert.ok(note.includes(answer.toLocaleLowerCase("tr")), answer);
+  assert.equal(LOVE_NOTE.from, "Atıl");
 });
 
 test("answers: every answer can be typed on her keyboard", () => {
@@ -245,4 +262,106 @@ test("order: the order follows the random source, so Rounds differ", () => {
   assert.notDeepEqual(shuffleAnswers(() => 0), shuffleAnswers(() => 0.999));
   // The same random source gives the same order.
   assert.deepEqual(shuffleAnswers(seeded(7)), shuffleAnswers(seeded(7)));
+});
+
+test("order: the word that ended the last Round never opens the next (#201)", () => {
+  // A source of 0 opens on ATIL (the shuffle rotates the list one place).
+  assert.equal(ANSWERS[shuffleAnswers(() => 0)[0]!]!.answer, "ATIL");
+  const order = shuffleAnswers(() => 0, "ATIL");
+  assert.notEqual(ANSWERS[order[0]!]!.answer, "ATIL");
+  assert.deepEqual([...order].sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  for (let seed = 1; seed <= 200; seed++) {
+    for (const last of ANSWERS) {
+      const o = shuffleAnswers(seeded(seed), last.answer);
+      assert.notEqual(ANSWERS[o[0]!]!.answer, last.answer, `seed ${seed}, last ${last.answer}`);
+      assert.equal(new Set(o).size, 10);
+    }
+  }
+});
+
+test("order: with no last word, or one that is not an answer, any word may open", () => {
+  assert.deepEqual(shuffleAnswers(seeded(3), undefined), shuffleAnswers(seeded(3)));
+  assert.deepEqual(shuffleAnswers(seeded(3), "KUZEY"), shuffleAnswers(seeded(3)));
+  const openers = new Set([...Array(60).keys()].map((s) => shuffleAnswers(seeded(s + 1), "SPA")[0]));
+  // Every other word still gets to open.
+  assert.equal(openers.size, 9);
+});
+
+// ------------------------------------------------------- the ten-word Round
+
+/** Three words, in this order: SPA, ATIL, ŞARAP (indexes into ANSWERS). */
+const SPA = ANSWERS.findIndex((a) => a.answer === "SPA");
+const ATIL = ANSWERS.findIndex((a) => a.answer === "ATIL");
+const SARAP = ANSWERS.findIndex((a) => a.answer === "ŞARAP");
+
+/** Finds the word on screen in `guesses` guesses: wrong rows of J first. */
+function solveIn(round: WordleRound, guesses: number) {
+  const letters = round.word.answer.replace(/ /g, "");
+  for (let g = 1; g < guesses; g++) {
+    typeAll(round.word, "J".repeat(letters.length));
+    round.word.submit();
+  }
+  typeAll(round.word, letters);
+  round.word.submit();
+}
+
+/** Spends all six guesses on the word on screen without finding it. */
+function miss(round: WordleRound) {
+  const n = round.word.answer.replace(/ /g, "").length;
+  for (let g = 0; g < 6; g++) {
+    typeAll(round.word, "J".repeat(n));
+    round.word.submit();
+  }
+}
+
+test("Round: it opens on the first word of its order with that word's hint, nothing finished", () => {
+  const round = createWordleRound([SPA, ATIL, SARAP]);
+  assert.equal(round.index, 0);
+  assert.equal(round.length, 3);
+  assert.equal(round.word.answer, "SPA");
+  assert.equal(round.hint, "Sıcak su, buhar, masaj: rahatlamanın üç harfli adı");
+  assert.deepEqual(round.played, []);
+  assert.equal(round.score, undefined);
+  assert.equal(round.done, false);
+});
+
+test("Round: a finished word counts at once, with its guesses and its score", () => {
+  const round = createWordleRound([SPA, ATIL, SARAP]);
+  solveIn(round, 4);
+  assert.deepEqual(round.played, [{ answer: "SPA", guesses: 4, solved: true, score: 95 }]);
+  assert.equal(round.score, 95);
+});
+
+test("Round: next waits for the word to finish, then brings the next word and its hint", () => {
+  const round = createWordleRound([SPA, ATIL, SARAP]);
+  assert.equal(round.next(), false);
+  assert.equal(round.word.answer, "SPA");
+  solveIn(round, 1);
+  assert.equal(round.next(), true);
+  assert.equal(round.index, 1);
+  assert.equal(round.word.answer, "ATIL");
+  assert.equal(round.word.guesses.length, 0);
+  assert.equal(round.hint, "Bu oyunu senin için yapan adamın adı");
+});
+
+test("Round: it is done when the last word is finished; its score is the mean of the words, rounded down", () => {
+  const round = createWordleRound([SPA, ATIL, SARAP]);
+  solveIn(round, 1); // 100
+  round.next();
+  miss(round); // 0
+  round.next();
+  assert.equal(round.done, false);
+  solveIn(round, 5); // 80
+  assert.equal(round.done, true);
+  assert.equal(round.next(), false);
+  assert.deepEqual(
+    round.played.map((p) => [p.answer, p.solved, p.score]),
+    [
+      ["SPA", true, 100],
+      ["ATIL", false, 0],
+      ["ŞARAP", true, 80],
+    ],
+  );
+  // (100 + 0 + 80) / 3 = 60.
+  assert.equal(round.score, 60);
 });

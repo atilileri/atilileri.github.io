@@ -40,6 +40,7 @@
  * `Math.random`), so a test can pin a Round and the page passes
  * `Math.random`. The score is `milyonerScore` in `./scores.ts`.
  */
+import { shuffle } from "./shuffle.ts";
 
 /** The five topics, in the document's order (#185: no "Biz" topic). */
 export const TOPICS = ["Tiyatro", "Fotoğrafçılık", "Doğa yürüyüşü", "90'lar Türk popu", "Dünya hitleri"] as const;
@@ -75,7 +76,7 @@ export function parsePool(markdown: string): PoolQuestion[] {
 }
 
 /** One question of a Round, as she sees it. */
-export type Question = {
+export type MilyonerQuestion = {
   /** 1..12, its rung on the ladder. */
   readonly number: number;
   readonly topic: string;
@@ -88,13 +89,13 @@ export type Question = {
 };
 
 /** The twelve questions of one Round, drawn from `pool` with `rng`. */
-export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Question[] {
+export function buildRound(pool: readonly PoolQuestion[], rng: () => number): MilyonerQuestion[] {
   const topics = [...new Set(pool.map((q) => q.topic))];
   const again = topics[Math.floor(rng() * topics.length)]!;
   const bands: [Band, string[]][] = [
     ["Kolay", shuffle([...topics, again], rng)],
-    ["Orta", shuffle([...topics], rng).slice(0, 4)],
-    ["Zor", shuffle([...topics], rng).slice(0, 2)],
+    ["Orta", shuffle(topics, rng).slice(0, 4)],
+    ["Zor", shuffle(topics, rng).slice(0, 2)],
   ];
   const picked: PoolQuestion[] = [];
   for (const [band, bandTopics] of bands) {
@@ -104,13 +105,13 @@ export function buildRound(pool: readonly PoolQuestion[], rng: () => number): Qu
     }
   }
   return picked.map((q, i) => {
-    const choices = shuffle([...q.choices], rng);
+    const choices = shuffle(q.choices, rng);
     return { number: i + 1, topic: q.topic, band: q.band, text: q.text, choices, answer: choices.indexOf(q.choices[0]!) };
   });
 }
 
 /** "Yarı yarıya": the indices of the two wrong choices it takes away. */
-export function halve(question: Question, rng: () => number): number[] {
+export function halve(question: MilyonerQuestion, rng: () => number): number[] {
   const wrong = [0, 1, 2, 3].filter((i) => i !== question.answer);
   return shuffle(wrong, rng).slice(0, 2);
 }
@@ -130,7 +131,7 @@ const HARD_HONESTY = 0.7;
  * choices are left), and the others share the rest by random weights of
  * 0.2–1, which keeps every other bar below 40% and so below the leader.
  */
-export function askAudience(question: Question, rng: () => number, gone: readonly number[] = []): number[] {
+export function askAudience(question: MilyonerQuestion, rng: () => number, gone: readonly number[] = []): number[] {
   const open = [0, 1, 2, 3].filter((i) => !gone.includes(i));
   const wrong = open.filter((i) => i !== question.answer);
   const honest = question.number <= HONEST_UP_TO || rng() < HARD_HONESTY;
@@ -145,13 +146,4 @@ export function askAudience(question: Question, rng: () => number, gone: readonl
   others.forEach((i, k) => (bars[i] = Math.round((rest * weights[k]!) / sum)));
   bars[leader] = 100 - bars.reduce((a, b) => a + b, 0);
   return bars;
-}
-
-/** Fisher–Yates, in place, with the given random source. */
-function shuffle<T>(items: T[], rng: () => number): T[] {
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [items[i], items[j]] = [items[j]!, items[i]!];
-  }
-  return items;
 }
