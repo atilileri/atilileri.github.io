@@ -17,7 +17,7 @@ The songs of the piano Game and the name-the-song pool, decided in
 | Level | Song | Notes |
 |---|---|---|
 | Kolay | İyi ki doğdun (Happy Birthday) | public domain in the EU |
-| Orta | Für Elise — Beethoven (WoO 59) | opening, right hand; public domain; waits for Atıl's ear |
+| Orta | Für Elise — Beethoven (WoO 59) | opening, right hand; public domain; Atıl approved by ear (2026-11-20) |
 | Zor | Türk Marşı — Mozart | public domain |
 
 Start values from [Prototype: how does the piano Game feel?](https://github.com/atilileri/atilileri.github.io/issues/180):

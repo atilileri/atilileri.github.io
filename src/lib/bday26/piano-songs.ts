@@ -37,7 +37,7 @@
  *     again. It replaced Hadi Bakalım (Sezen Aksu) after the review (G1):
  *     that chorus was typed from a weak memory and Atıl heard it was wrong.
  *     Für Elise was chosen because the agent knows its opening note for note;
- *     only the link bar (12) is simplified. Still `unsure` until Atıl hears it.
+ *     only the link bar (12) is simplified. Atıl approved it by ear on 2026-11-20.
  *   - Türk Marşı (Mozart, Rondo alla turca): copied verbatim from the
  *     prototype (`prototype/180-piano`), which Atıl played and tuned.
  *
@@ -123,7 +123,6 @@ export const PIANO_SONGS: readonly PianoSong[] = [
           A4:.5 R:.25 C4:.25 E4:.25 A4:.25
           B4:.5 R:.25 E4:.25 C5:.25 B4:.25
           A4:.5 R:.5`,
-    unsure: "replaces Hadi Bakalım (review G1); bar 12 is a simplified link — check it, and the whole, by ear",
   },
   {
     id: "zor",
